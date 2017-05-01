@@ -49,11 +49,12 @@ public class ResolveInteractionForce extends Event
 		 * Good et al. J. Adhesion Sci. Technol. 4, 602 1990 */
 		double sqrtgLWW = Math.sqrt( 21.8e-3 ); 
 		/* van Oss et al. Langmuir 4, 884 1988 / 
-		 * van Oss Interfacial Forces in Aqueous Media, 2006 */
+		 * van Oss Interfacial Forces in Aqueous Media, 2006 pp24 
+		 * NOTE: -12 * -2 = 24  
+		 * NOTE: there was an error in deltaG in the first batch, misread equation*/
 		double effectiveHamaker = 24.0 * Math.PI * Math.pow( 0.157e-9 , 2  ) * 
-				Math.pow( 
 				( Math.sqrt( initiator.getDouble(GAMMA_LW)*1e-3 ) - sqrtgLWW ) *
-				( Math.sqrt( compliant.getDouble(GAMMA_LW)*1e-3 ) - sqrtgLWW ), 2 );
+				( Math.sqrt( compliant.getDouble(GAMMA_LW)*1e-3 ) - sqrtgLWW );
 		double fvdw = ( effectiveHamaker * r ) / ( 12 * Math.pow( h, 2 ) );
 
 		/* electric doulbe layer component */
@@ -80,12 +81,13 @@ public class ResolveInteractionForce extends Event
 		double sqrtgBaseB = Math.sqrt( compliant.getDouble( GAMMA_BASE )*1e-3 );
 
 		/* parallel interaction energy at minimum equilibrium distance:
-		 * van Oss Interfacial forces in aqueous media 2006 */
+		 * van Oss Interfacial forces in aqueous media 2006 pp44 */
 		double dGAB = 2 * ( 
 				( sqrtgAcidA - sqrtgAcidB ) * ( sqrtgBaseA - sqrtgBaseB ) -
 				( sqrtgAcidA - sqrtgAcidW ) * ( sqrtgBaseA - sqrtgBaseW ) -
 				( sqrtgAcidB - sqrtgAcidW ) * ( sqrtgBaseB - sqrtgBaseW ) );
 
+		/* van Oss Interfacial forces in aqueous media 2006 pp83 */
 		double fab = - Math.PI * r * dGAB * Math.exp( ( lo-h ) / lamb );
 		
 		initiator.set(SCALED_FORCE, fvdw + fel + fab );

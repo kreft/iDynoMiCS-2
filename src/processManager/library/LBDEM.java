@@ -1,13 +1,16 @@
 package processManager.library;
 
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedList;
 
 import org.w3c.dom.Element;
 
 import agent.Agent;
 import agent.Body;
+import dataIO.FileHandler;
 import dataIO.Log;
 import dataIO.Log.Tier;
 
@@ -16,9 +19,9 @@ import static lb.tools.FileIO.save;
 
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
+import idynomics.Idynomics;
 import lb.D2Q9;
 import lb.D2Q9Lattice;
-import lb.collision.BounceBack;
 import lb.collision.CollisionOperator;
 import lb.collision.D2Q9RegularizedBoundary;
 import lb.collision.LBGK;
@@ -26,11 +29,11 @@ import linearAlgebra.Vector;
 import processManager.ProcessManager;
 import referenceLibrary.AspectRef;
 import shape.Shape;
-import surface.Ball;
 import surface.Collision;
 import surface.Point;
 import surface.Rod;
 import surface.Surface;
+import utility.ExtraMath;
 import utility.Helper;
 
 
@@ -72,48 +75,8 @@ public class LBDEM extends ProcessManager
 	public String GRAVITY = AspectRef.gravity_testing;
 	public String STIFFNESS = AspectRef.spineStiffness;
 	
-	public static int ox = 2;
-	public static int oy = 10;
-	public static int ry = 6;
+	public String FLOW_PROFILE = "flowProfile";
 	
-	public static int XX = 40; // number of cells in x-direction
-	public static int YY = 40; // number of cells in y-direction
-	
-//	public static final double U_MAX = 0.1e-6; // maximum velocity of Poiseuille inflow = 0.1 µm/s
-//	public static final double RE = 100; // Reynolds number
-//	public static final double NU = 1e-6; // 1e-6 m2/s at room temperature U_MAX * 2.0 * OBST_R / RE; // kinematic viscosity
-//	public static final double OMEGA = 1.0 / ( 3.0 * NU + 0.5 ); // relaxation parameter
-	
-	public static final double LX = 0.05; // length of cavity [m]
-	public static final double RE = 100; // Reynolds number
-	public static final double NU = 0.000001; // kinematic viscosity water, 20 deg C [m^2/s]
-	public static final double U_MAX = RE*NU/LX; // velocity in [m/s] is independent of resolution XX
-
-	public static final double OMEGA = 1.0 / ( 3.0 * NU + 0.5 ); // relaxation parameter
-	
-	/* 
-	 * Lattice units conversion (wiki)
-	 * 
-	 * \delta_x is the basic unit for lattice spacing, so if the domain of
-	 * length L has N lattice units along its entire length, the space unit is
-	 * simply defined as \delta_x = L/N. Speeds in the Lattice Botltzmann
-	 * simulations are typically given in terms of the speed of sound. The
-	 * discrete time unit can therefore be fiven as \delta_t = \delta_x / C_s,
-	 * where the denominator C_s is the physical speed of sound (340.29 m/s).
-	 * 
-	 * For small-scale flows (such as those seen in porous media mechanics), 
-	 * operating with the true speed of sound can lead to unacceptably short 
-	 * time steps. It is therefore common to raise the lattice Mach number to 
-	 * something much larger than the real Mach number, and compensating for 
-	 * this by raising the viscosity as well in order to preserve the Reynolds 
-	 * number.
-	 */
-	
-	public static LBGK lbgk = null;
-	
-	public static D2Q9Lattice lattice = null;
-	
-	public static double latticeMultiplier = 2.0;
 	
 	/**
 	 * Available relaxation methods.
@@ -188,6 +151,67 @@ public class LBDEM extends ProcessManager
 	 * value under which the relaxation may be considered completed
 	 */
 	private double _stressThreshold;
+	
+	/*************************************************************************
+	 * LB settings
+	 ************************************************************************/
+	
+	public int XX; // number of cells in x-direction
+	public int YY; // number of cells in y-direction
+		
+	public double LX = 1e-4; // typical length [m]
+	public double RE = 100; // Reynolds number
+	public double NU = 0.000001; // kinematic viscosity water, 20 deg C [m^2/s]
+	public double U_scale = 1e-8;
+	public double U_MAX = U_scale * RE*NU/LX; // velocity in [m/s] is independent of resolution XX
+
+	public double OMEGA = 1.0 / ( 3.0 * NU + 0.5 ); // relaxation parameter
+	
+	/* 
+	 * Lattice units conversion (wiki)
+	 * 
+	 * \delta_x is the basic unit for lattice spacing, so if the domain of
+	 * length L has N lattice units along its entire length, the space unit is
+	 * simply defined as \delta_x = L/N. Speeds in the Lattice Botltzmann
+	 * simulations are typically given in terms of the speed of sound. The
+	 * discrete time unit can therefore be fiven as \delta_t = \delta_x / C_s,
+	 * where the denominator C_s is the physical speed of sound (340.29 m/s).
+	 * 
+	 * For small-scale flows (such as those seen in porous media mechanics), 
+	 * operating with the true speed of sound can lead to unacceptably short 
+	 * time steps. It is therefore common to raise the lattice Mach number to 
+	 * something much larger than the real Mach number, and compensating for 
+	 * this by raising the viscosity as well in order to preserve the Reynolds 
+	 * number.
+	 */
+	
+	public LBGK lbgk = null;
+	
+	public D2Q9Lattice lattice = null;
+	
+	/*
+	 * amount of distance units per lattice
+	 */
+	public double latticeMultiplier = 2.0;
+	
+	/*
+	 * velocity drivers for stochastic flow profile. 
+	 */
+	private LinkedList<Driver> _drivers = new LinkedList<Driver>();
+	
+	private class Driver
+	{
+		int x, y, c;
+		double[] u;
+		
+		public Driver(int x, int y, int c, double[] u)
+		{
+			this.x = x;
+			this.y = y;
+			this.c = c;
+			this.u = u;
+		} 
+	}
 		
 	
 	private int[] slices;
@@ -211,33 +235,66 @@ public class LBDEM extends ProcessManager
 		this._timeLeap	= true;
 		
 		this._shape = agents.getShape();
-		// FIXME discovered circle returns a rod type shape (2 points) instead of circle (2d sphere, 1 point)
 		this._shapeSurfs  = this._shape.getSurfaces();
 		this._iterator = this._shape.getCollision();
 		this._stressThreshold = Helper.setIfNone( this.getDouble(LOW_STRESS_SKIP), 0.0 );	
 		
-		// TODO super dirty for testintg
-
-		slices = Vector.floor(Vector.times(agents.getShape().getDimensionLengths(),latticeMultiplier));
-		XX = slices[0];
-		YY = slices[1];
+		/*
+		 * Lattice Boltzmann settings
+		 */
+		this.LX = Helper.setIfNone( this.getDouble("lengthScale"), 1e-4 );	
+		this.RE = Helper.setIfNone( this.getDouble("reynolds"), 100.0 );	
+		this.NU = Helper.setIfNone( this.getDouble("kinematicViscosity"), 1e-6);	
+		this.U_scale = Helper.setIfNone( this.getDouble("velocityScale"), 1e-8);	
+		
+		this.U_MAX = U_scale * RE*NU/LX;
+		this.OMEGA = 1.0 / ( 3.0 * NU + 0.5 );
+		
+		/*
+		 * setup D2Q9 Lattice boltamann Bhatnagar–Gross–Krook
+		 */
+		slices = Vector.floor( Vector.times(
+				agents.getShape().getDimensionLengths(), latticeMultiplier ) );
+		this.XX = slices[0];
+		this.YY = slices[1];
 		
 		this.lbgk = new LBGK(D2Q9.getInstance(), OMEGA);
 		this.lattice = new D2Q9Lattice(slices[0], slices[1], lbgk);
 		
-		CollisionOperator northRegul = 
-		D2Q9RegularizedBoundary.getNorthVelocityBoundary(new double[] {0,0}, OMEGA);
-		CollisionOperator southRegul =
-			D2Q9RegularizedBoundary.getSouthVelocityBoundary(new double[] {0,0}, OMEGA);
-	
-		lattice.addRectangularBoundary(1,XX,1,1,southRegul);
-		lattice.addRectangularBoundary(1,XX,YY,YY,northRegul);
-			
-		initializeVelocity(lattice,lbgk);
-		addObstacle(lattice);
+		/*
+		 * setup flow field based on selected scenario, use pipe flow if no
+		 * scenario is specified
+		 */
+		
+		if ( Helper.isNone( this.getString( FLOW_PROFILE ) ) ||  
+				this.getString( FLOW_PROFILE ) == "pipeFlow" )
+		{
+			/* pipe flow profile */
+			CollisionOperator northRegul = 
+					D2Q9RegularizedBoundary.getNorthVelocityBoundary(
+					new double[] { 0, 0 }, OMEGA );
+			CollisionOperator southRegul =
+					D2Q9RegularizedBoundary.getSouthVelocityBoundary(
+					new double[] { 0, 0 }, OMEGA );
+		
+			lattice.addRectangularBoundary(1,XX,1,1,southRegul);
+			lattice.addRectangularBoundary(1,XX,YY,YY,northRegul);
+				
+			initializeVelocity(lattice,lbgk);
+		}
+		else
+		{
+			/* random profile */
+			this.set( FLOW_PROFILE , "randomFlow");
+			initializeVelocity(lattice,lbgk);
+		}
+		
+		/* LB output folder */
+		FileHandler fileio = new FileHandler();
+		fileio.fnew(Idynomics.global.outputLocation + "LBDEM/out");
 	}
 	
-	public static void initializeVelocity(D2Q9Lattice lattice, LBGK lbgk) {
+	public void initializeVelocity(D2Q9Lattice lattice, LBGK lbgk) {
 		double rho = 1;
 		for (int x=1; x<=XX; x++) {
 			for (int y=1; y<=YY; y++) {
@@ -250,28 +307,15 @@ public class LBDEM extends ProcessManager
 		}	
 	}
 	
-	public static double computePoiseuille(int y) {
+	public double computePoiseuille(int y) {
 		double realY = y-2;
 		double realYY = YY-2;
 		return 4 * U_MAX / ( realYY*realYY ) * ( realYY*realY - realY*realY );
-	}
-	
-	public static void addObstacle(D2Q9Lattice lattice) {
-		CollisionOperator bounceBack = new BounceBack(D2Q9.getInstance());
-		for (int x=1; x<=XX; x++) {
-			for (int y=1; y<=YY; y++) {
-				if ( ( x-XX/ox )*( x-XX/ox ) + ( y-YY/oy )*( y-YY/oy ) <= (YY/ry)*(YY/ry) ) {
-					lattice.setCollision(x,y,bounceBack);
-				}
-			}
-		}
 	}
 
 	/*************************************************************************
 	 * STEPPING
 	 ************************************************************************/
-	
-
 
 	/**
 	 * \brief Update forces on all agent mass points.
@@ -363,22 +407,16 @@ public class LBDEM extends ProcessManager
 			// FIXME here we need to selectively apply surface collision methods
 			this._iterator.collision(this._shapeSurfs, agentSurfs, 0.0, agent, null);
 			
-			Ball object = new Ball(	new double[] {
-					((double) XX/ox) / (double) latticeMultiplier, 
-					((double) YY/oy) / (double) latticeMultiplier }, 
-					(YY/ry) / (double) latticeMultiplier);
-			
 			LinkedList<Surface> statics = new LinkedList<Surface>();
 			statics.addAll(this._shapeSurfs);
-			statics.add(object);
-			
+
 			this._iterator.collision(statics, agentSurfs, 0.0, agent, null);
 		}
 		if ( Log.shouldWrite(level) )
 			Log.out(level, " Finished updating agent forces");
 	}
 	
-	public static void setVelocity(D2Q9Lattice lattice, LBGK lbgk, int x, int y, double[] u) {
+	public void setVelocity(D2Q9Lattice lattice, LBGK lbgk, int x, int y, double[] u) {
 		double rho = 1;
 				double normU = u[0]*u[0];
 				for (int i=0; i<9; i++) {
@@ -386,7 +424,7 @@ public class LBDEM extends ProcessManager
 		}	
 	}
 
-	public static void setSmoothVelocity(D2Q9Lattice lattice, LBGK lbgk, int xp, int yp, double a, double b, int size) 
+	public void setSmoothVelocity(D2Q9Lattice lattice, LBGK lbgk, int xp, int yp, double a, double b, int size) 
 	{
 		for ( int x = -size; x < size; x++ )
 		{
@@ -414,7 +452,48 @@ public class LBDEM extends ProcessManager
 		{	
 			if (uLat == rLat)
 			{
-//				setSmoothVelocity(lattice,lbgk,slices[0]/2,slices[1]/2,U_MAX,U_MAX,3);
+				if ( Helper.isNone( this.getString( FLOW_PROFILE ) ) ||  
+						this.getString( FLOW_PROFILE ) == "pipeFlow" )
+				{
+					/* handled by LB border implementation  */
+				}
+				else if ( Helper.isNone( this.getString( FLOW_PROFILE ) ) ||  
+						this.getString( FLOW_PROFILE ) == "randomFlow" )
+				{
+					if (this._drivers.size() < 3 )
+					{
+						/* generating random direction vector which does not
+						 * exceed U_MAX. Note work with vector length + angle 
+						 * to prevent diagonal movement artifacts. NOTE we
+						 * could also incorperate this in the vector class.
+						 */
+						double a = ExtraMath.getUniRandDbl();
+						double b = ExtraMath.getUniRandDbl();
+						double[] vec = Vector.uncylindrify( new double[]{
+								a * this.U_MAX, b * 6.28318530718 } );
+						/* Create and save Driver object */
+						Driver p = new Driver( 
+								Vector.randomInts( 1, 0, this.XX )[0], 
+								Vector.randomInts( 1, 0, this.YY )[0],
+								3, vec );
+						this._drivers.add(p);
+//						System.out.println(Vector.toString(vec)+" "+a+" "+b);
+					}
+					for ( Driver s : this._drivers )
+					{
+						double[] current = lattice.getU(s.x, s.y);
+						setVelocity(lattice, lbgk, s.x, s.y, 
+								Vector.add(current, s.u) );
+						s.c -= 1;
+					}
+					this._drivers.removeIf( p-> p.c == 0 );
+				}
+				else
+				{
+					/* FIXME some testing code delete in final version */
+					setSmoothVelocity(lattice,lbgk,slices[0]/2,slices[1]/2,
+							U_MAX,U_MAX,3);
+				}
 				lattice.step();
 				uLat = 0;
 			}
@@ -467,8 +546,10 @@ public class LBDEM extends ProcessManager
 				for ( Point point: body.getPoints() )
 				{
 					int[] posi = Vector.floor(Vector.times(point.getPosition(),latticeMultiplier));
-					/* Note unit conversion with lattice vector field */
-					point.euStep(this._dtMech, radius, Vector.times(lattice.getU(posi[0], posi[1]),6e7)); // convert to µm/min
+					/* Note unit conversion with lattice vector field (SI)
+					 *  converted to µm/min (agents) */
+					point.euStep(this._dtMech, radius, Vector.times(
+							lattice.getU(posi[0], posi[1]), 6e7 ) );
 				}
 			}
 			this._tMech += this._dtMech;
@@ -482,7 +563,7 @@ public class LBDEM extends ProcessManager
 			nstep++;
 		}
 		this._agents.refreshSpatialRegistry();
-		save("LBDEM/dump_" + this._timeForNextStep,lattice);
+		save(Idynomics.global.outputLocation + "LBDEM/dump_" + this._timeForNextStep,lattice);
 		Log.out(Tier.DEBUG,
 				"Relaxed "+this._agents.getNumAllAgents()+" agents after "+
 						nstep+" iterations");
