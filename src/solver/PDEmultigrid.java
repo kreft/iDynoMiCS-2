@@ -1,6 +1,7 @@
 package solver;
 
 import static grid.ArrayType.CONCN;
+import static grid.ArrayType.DIFFUSIVITY;
 import static grid.ArrayType.LOCALERROR;
 import static grid.ArrayType.NONLINEARITY;
 import static grid.ArrayType.PRODUCTIONRATE;
@@ -17,6 +18,7 @@ import grid.ArrayType;
 import grid.SpatialGrid;
 import shape.Shape;
 import solver.multigrid.MultigridLayer;
+import utility.ExtraMath;
 
 /**
  * \brief Partial Differential Equation (PDE) solver that uses the Multi-Grid
@@ -420,44 +422,81 @@ public class PDEmultigrid extends PDEsolver
 	{
 		Shape shape = variable.getShape();
 		/* Temporary storage. */
-		double concn, invVol, lop, dlop, rhs, res;
-		for ( int[] current = shape.resetIterator(); shape.isIteratorValid();
+		double prod, concn, diffusivity, vol, rhs;
+		double nhbDist, nhbSArea, nhbDiffusivity, nhbWeight, nhbConcn;
+		double lop, totalNhbWeight, residual;
+		int[] current, nhb;
+		for ( current = shape.resetIterator(); shape.isIteratorValid();
 				current = shape.iteratorNext() )
 		{
+			/* Skip this voxel if it is considered well-mixed. */
 			if ( commonGrid.getValueAt(WELLMIXED, current) >= 
 					this._boundaryThreshold )
 			{
 				continue;
 			}
 			concn = variable.getValueAtCurrent(CONCN);
-			invVol = 1.0 / shape.getCurrVoxelVolume();
+			prod = variable.getValueAtCurrent(PRODUCTIONRATE);
+			diffusivity = variable.getValueAtCurrent(DIFFUSIVITY);
+			vol = shape.getCurrVoxelVolume();
+			/* The right-hand side of Equation 19.6.23. */
+			rhs = variable.getValueAtCurrent(NONLINEARITY);
 			/* Reset both lop and dlop. */
 			lop = 0.0;
-			dlop = 0.0;
-			
-			double prod = variable.getValueAtCurrent(PRODUCTIONRATE);
-			
+			totalNhbWeight = 0.0;
 			/* Sum up over all neighbours. */
-			for ( shape.resetNbhIterator(); shape.isNbhIteratorValid();
-					shape.nbhIteratorNext() )
+			for ( nhb = shape.resetNbhIterator(); shape.isNbhIteratorValid();
+					nhb = shape.nbhIteratorNext() )
 			{
-				dlop += variable.getDiffusiveTimeScaleWithNeighbor();
-				lop += variable.getDiffusionFromNeighbor();
+				nhbDist = shape.nhbCurrDistance();
+				nhbSArea = shape.nhbCurrSharedArea();
+				/*
+				 * If the neighbor voxel is inside the compartment, use the
+				 * harmonic mean average diffusivity of the two voxels. If it
+				 * is on a boundary, just use the current voxel's diffusivity.
+				 */
+				if ( shape.isNbhIteratorInside() )
+				{
+					nhbDiffusivity = variable.getValueAtNhb(DIFFUSIVITY);
+					nhbDiffusivity = 
+							ExtraMath.harmonicMean(diffusivity, nhbDiffusivity);
+				}
+				else
+					nhbDiffusivity = diffusivity;
+				/*
+				 * The weighting of each voxel is in terms of per time.
+				 */
+				nhbWeight = (nhbSArea * nhbDiffusivity) / (nhbDist * vol);
+				totalNhbWeight += nhbWeight;
+				/*
+				 * The actual contribution of the neighbor voxel to the
+				 * concentration of the current voxel depends on whether it is
+				 * inside the compartment or on a boundary.
+				 */
+				if ( shape.isNbhIteratorInside() )
+				{
+					nhbConcn = variable.getValueAtNhb(CONCN);
+					lop += nhbWeight * (nhbConcn - concn);
+				}
+				else
+				{
+					/* Here we convert the flow (mass per time) into a change
+					 * rate in concentration. */
+					lop += shape.nbhIteratorOutside()
+							.getDiffusiveFlow(variable) / vol;
+				}
 			}
-			/* Convert lop and dlop from mass/time to concentration/time. */
-			lop *= invVol;
-			dlop *= invVol;
 			/*
 			 * For the FAS, the source term is implicit in the L-operator
 			 * (see Equations 19.6.21-22).
 			 */
-			lop += variable.getValueAtCurrent(PRODUCTIONRATE);
-			/* The right-hand side of Equation 19.6.23. */
-			rhs = variable.getValueAtCurrent(NONLINEARITY);
-			/* TODO */
-			res = (lop - rhs)/dlop;
-			/* TODO */
-			concn += res;
+			lop += prod;
+			/* 
+			 * TODO
+			 */
+			residual = (lop - rhs) / totalNhbWeight;
+			/* Prepare to update the local concentration. */
+			concn += residual;
 			/* Check if we need to remain non-negative. */
 			if ( (!this._allowNegatives) && (concn < 0.0) )
 				concn = 0.0;
