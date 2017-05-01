@@ -13,6 +13,7 @@ import idynomics.EnvironmentContainer;
 import idynomics.Idynomics;
 import instantiable.Instantiable;
 import referenceLibrary.XmlRef;
+import settable.Attribute;
 import settable.Module;
 import settable.Settable;
 
@@ -468,12 +469,11 @@ public abstract class Boundary implements Settable, Instantiable
 	public Module getModule()
 	{
 		Module modelNode = new Module(this.defaultXmlTag(), this);
-
+		modelNode.add(new Attribute(XmlRef.classAttribute,
+				this.getClass().getSimpleName(),
+				null, true));
 		// TODO
 		// modelNode.requirement = Requirements.?
-
-		// TODO
-
 		return modelNode;
 	}
 

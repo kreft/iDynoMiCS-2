@@ -288,10 +288,6 @@ public abstract class SpatialBoundary extends Boundary
 	public Module getModule()
 	{
 		Module modelNode = super.getModule();
-		/* Which dimension? */
-		modelNode.add(new Attribute(XmlRef.dimensionNamesAttribute,
-				this._dim.toString(),
-				null, true));
 		/* Minimum or maximum extreme of this dimension? */
 		modelNode.add(new Attribute(XmlRef.extreme, 
 				String.valueOf(this._extreme), new String[]{"0", "1"}, true));

@@ -68,14 +68,14 @@ public class BiofilmBoundaryLayer extends WellMixedBoundary
 	public BiofilmBoundaryLayer()
 	{}
 	
-	public void setContainers(EnvironmentContainer environment, 
-			AgentContainer agents, String compartmentName)
+	@Override
+	public void setContainers(
+			EnvironmentContainer environment, AgentContainer agents)
 	{
 		super.setContainers(environment, agents);
 		Collision collision = new Collision(null, this._agents.getShape());
-		this._gridSphere = new Ball(
-				Vector.zerosDbl(this._agents.getNumDims()),
-				this._layerThickness);
+		double[] zeros = Vector.zerosDbl(this._agents.getNumDims());
+		this._gridSphere = new Ball(zeros, this._layerThickness);
 		this._gridSphere.init(collision);
 	}
 	
