@@ -236,18 +236,16 @@ public class PDEmultigrid extends PDEsolver
 	private void solveCoarsest(Collection<SpatialGrid> variables)
 	{
 		/* Find the coarsest layer of the common grid. */
-		MultigridLayer common = this._commonMultigrid;
-		while ( common.hasCoarser() )
-			common = common.getCoarser();
+		while ( this._commonMultigrid.hasCoarser() )
+			this._commonMultigrid = this._commonMultigrid.getCoarser();
 		/* For each variable, find the coarsest layer and relax. */
 		MultigridLayer currentLayer;
-		Collection<SpatialGrid> currentGrids = new LinkedList<SpatialGrid>();
 		for ( SpatialGrid var : variables )
 		{
 			currentLayer = this.getMultigrid(var);
 			while ( currentLayer.hasCoarser() )
 				currentLayer = currentLayer.getCoarser();
-			currentGrids.add(currentLayer.getGrid());
+			this.setMultigrid(currentLayer);
 		}
 		
 		this.relaxAll(this._numCoarseStep);
