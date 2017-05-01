@@ -49,10 +49,11 @@ public class XmlExport
 	private String fileNumberAsPaddedString()
 	{
 		String out = String.valueOf(this._fileCounter);
-		
 		int numZeros = NUMBER_OF_DIGITS - out.length();
-		if (numZeros <= 0)
+		/* If the number already has enough characters, return it as is. */
+		if ( numZeros <= 0 )
 			return out;
+		/* Otherwise, pad the beginning with enough zeros for the length. */
 		return new String(new char[numZeros]).replace("\0", "0") + out;
 	}
 	
