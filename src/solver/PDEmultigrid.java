@@ -14,6 +14,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import dataIO.Log;
+import dataIO.Log.Tier;
 import grid.ArrayType;
 import grid.SpatialGrid;
 import shape.Shape;
@@ -225,7 +227,7 @@ public class PDEmultigrid extends PDEsolver
 			/* Go finer for "order" number of layers. */
 			for ( int i = 0; i < order; i++ )
 				currentLayer = currentLayer.getFiner();
-			this._multigrids.put(var.getName(), currentLayer);
+			this.setMultigrid(currentLayer);
 		}
 		
 		while ( this._commonMultigrid.hasCoarser() )
@@ -255,13 +257,18 @@ public class PDEmultigrid extends PDEsolver
 	
 	private boolean doVCycle(Collection<SpatialGrid> variables, int numLayers)
 	{
+		Tier level = Tier.BULK;
 		MultigridLayer variableMultigrid;
 		SpatialGrid currentLayer, currentCommon;
-		double truncationError;
+		double truncationError, residual;
 		int layerCounter = 0;
 		/* Downward stroke of V. */
 		while ( this._commonMultigrid.hasCoarser() && layerCounter < numLayers )
 		{
+			if ( Log.shouldWrite(level) )
+			{
+				Log.out(level, "Downward stroke: "+layerCounter+"/"+numLayers);
+			}
 			layerCounter++;
 			/* 
 			 * Smooth the current layer for a set number of iterations.
@@ -346,6 +353,10 @@ public class PDEmultigrid extends PDEsolver
 		while ( this._commonMultigrid.hasFiner() && layerCounter > 0 )
 		{
 			layerCounter--;
+			if ( Log.shouldWrite(level) )
+			{
+				Log.out(level, "Upward stroke: "+layerCounter+"/"+numLayers);
+			}
 			for ( SpatialGrid variable : variables )
 			{
 				variableMultigrid = this.getMultigrid(variable);
@@ -358,7 +369,7 @@ public class PDEmultigrid extends PDEsolver
 			for ( SpatialGrid variable : variables )
 			{
 				variableMultigrid = this.getMultigrid(variable).getFiner();
-				this._multigrids.put(variable.getName(), variableMultigrid);
+				this.setMultigrid(variableMultigrid);
 				currentLayer = variableMultigrid.getGrid();
 				variableMultigrid.fillArrayFromCoarser(RELATIVEERROR, CONCN);
 				currentLayer.addArrayToArray(CONCN, RELATIVEERROR);
@@ -380,12 +391,22 @@ public class PDEmultigrid extends PDEsolver
 		{
 			currentLayer = this.getMultigrid(variable).getGrid();
 			this.calculateResidual(currentLayer, currentCommon, LOCALERROR);
-			// TODO LOCALERROR -= RHS ???
-			truncationError = currentLayer.getNorm(LOCALERROR);
-			continueVCycle = truncationError > this._truncationErrors.get(variable.getName());
+			currentLayer.subtractArrayFromArray(LOCALERROR, NONLINEARITY);
+			residual = currentLayer.getNorm(LOCALERROR);
+			truncationError = this._truncationErrors.get(variable.getName());
+			if ( Log.shouldWrite(level) )
+			{
+				Log.out(level, variable.getName()+": residual = "+residual+
+						", truncation error = "+truncationError);
+			}
+			continueVCycle = residual > truncationError;
 			if ( continueVCycle )
 				break;
 		}
+		if ( continueVCycle )
+			Log.out(level, "Continuing V-cycle");
+		else
+			Log.out(level, "Breaking V-cycle");
 		return continueVCycle;
 	}
 	
