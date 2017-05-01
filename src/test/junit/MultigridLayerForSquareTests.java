@@ -36,17 +36,27 @@ public class MultigridLayerForSquareTests
 	@Before
 	public void setup()
 	{
+		/*
+		 * Set up the shape.
+		 */
 		Shape shape = AllTests.GetShape("Rectangle");
+		/* X dimension */
 		Dimension x = shape.getDimension(DimName.X);
 		x.setLength(8.0);
 		ResolutionCalculator resCalc = new MultigridResolution(x);
 		resCalc.setResolution(1.0);
 		shape.setDimensionResolution(DimName.X, resCalc);
+		shape.makeCyclic(DimName.X);
+		/* Y dimension */
 		Dimension y = shape.getDimension(DimName.X);
 		y.setLength(8.0);
 		resCalc = new MultigridResolution(y);
 		resCalc.setResolution(1.0);
 		shape.setDimensionResolution(DimName.Y, resCalc);
+		shape.makeCyclic(DimName.Y);
+		/*
+		 * Set up the grid.
+		 */
 		SpatialGrid grid = new SpatialGrid(shape, "grid", null);
 		/* Use a constant value in the concentration array. */
 		grid.newArray(ArrayType.CONCN, concn);
@@ -57,6 +67,9 @@ public class MultigridLayerForSquareTests
 			for (int j = 0; j < 8; j++ )
 				prodRate[i][j][0] = (i*8) + j;
 		grid.setTo(ArrayType.PRODUCTIONRATE, prodRate);
+		/*
+		 * Set up the multilayer.
+		 */
 		this._finer = new MultigridLayer(grid);
 		this._coarser = this._finer.constructCoarser();
 		this._coarsest = this._coarser.constructCoarser();
