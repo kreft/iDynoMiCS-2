@@ -83,7 +83,7 @@ public interface CollisionFunction extends Instantiable
 				 * Otherwise, return a zero vector. A small distance is allowed
 				 * to prevent objects bouncing in equilibrium 
 				 */
-				if ( var.distance > 0.001 && var.distance < var.pullRange ) 
+				if ( var.distance > 0.0 && var.distance < var.pullRange ) 
 				{
 					/* Linear. */
 					double c = Math.abs(this._forceScalar * var.distance);
@@ -101,13 +101,13 @@ public interface CollisionFunction extends Instantiable
 				 * Otherwise, return a zero vector. A small distance is allowed
 				 * to prevent objects bouncing in equilibrium 
 				 */
-				if ( var.distance > .157e-3 && var.distance < var.pullRange ) 
+				if ( var.distance > 0.0 && var.distance < var.pullRange ) 
 				{
 					/* note converting from µm to si */
-					agent.set("currentDistance", var.distance * 1e-6);
+					agent.set("currentDistance", var.distance);
 					agent.event("resolveForce", neighbour);
 					/* note converting from si to kg * µm /s2 */
-					double c = agent.getDouble("scaledForce") * 1e6;
+					double c = agent.getDouble("scaledForce");
 					/* dP is overwritten here. */
 					Vector.normaliseEuclidEquals(var.interactionVector, c);
 					return var;
@@ -132,8 +132,8 @@ public interface CollisionFunction extends Instantiable
 		{
 			this._forceScalar = Double.valueOf((String) Helper.setIfNone(
 					XmlHandler.gatherAttribute(xmlElement, XmlRef.forceScalar), 
-					"0.1" ) );
-			Log.out(Tier.BULK, "initiating DefaultPullFunction");
+					"1e20" ) );
+			Log.out(Tier.BULK, "initiating DefaultPushFunction");
 		}
 		
 		/**
@@ -169,9 +169,10 @@ public interface CollisionFunction extends Instantiable
 				/* Linear. */
 //				double c = Math.abs( this._forceScalar * var.distance );
 				/* two component, better force scaling for low vs high overlap */
-				double c = Math.abs( this._forceScalar * (var.distance + var.distance * var.distance * 1e2 ) );
+				double c = Math.abs( this._forceScalar * (var.distance + var.distance ) ); //* var.distance * 1e1 ) );
 				/* dP is overwritten here. */
 				Vector.normaliseEuclidEquals( var.interactionVector, c );
+
 				return var;
 			}
 			/* dP is not overwritten here. */

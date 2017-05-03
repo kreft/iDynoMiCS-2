@@ -182,6 +182,9 @@ public class Point implements Copyable, Settable
 			this.dxdt(radius));
 		Vector.timesEquals(diff, dt);
 		Vector.addEquals(this._p, diff);
+		
+		if (diff[0] > 0.5 || diff[1] > 0.5)
+			System.out.println(Vector.toString(diff));
 		this.resetForce();
 	}
 
@@ -240,7 +243,7 @@ public class Point implements Copyable, Settable
 	public double[] dxdt(double radius)
 	{
 		return Vector.times(this.getForce(), 
-				1.0/Drag.dragOnSphere(radius, VISCOSITY));
+				1.0/Drag.dragOnSphere(radius, 3.6e12*VISCOSITY));
 	}
 
 	/**

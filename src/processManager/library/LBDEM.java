@@ -159,13 +159,13 @@ public class LBDEM extends ProcessManager
 	public int XX; // number of cells in x-direction
 	public int YY; // number of cells in y-direction
 		
-	public double LX = 1e-4; // typical length [m]
-	public double RE = 100; // Reynolds number
-	public double NU = 0.000001; // kinematic viscosity water, 20 deg C [m^2/s]
-	public double U_scale = 1e-8;
-	public double U_MAX = U_scale * RE*NU/LX; // velocity in [m/s] is independent of resolution XX
+	public double LX; // typical length [m]
+	public double RE; // Reynolds number
+	public double NU; // kinematic viscosity water, 20 deg C [m^2/s]
+	public double U_scale;
+	public double U_MAX; // velocity in [m/s] is independent of resolution XX
 
-	public double OMEGA = 1.0 / ( 3.0 * NU + 0.5 ); // relaxation parameter
+	public double OMEGA; // relaxation parameter
 	
 	/* 
 	 * Lattice units conversion (wiki)
@@ -228,7 +228,12 @@ public class LBDEM extends ProcessManager
 		/*
 		 * Obtaining relaxation parameters.
 		 */
-		this._dtBase = Helper.setIfNone( this.getDouble(BASE_DT), 0.0003 );	
+		/* in water [ µm / min ] */
+		double speedOfSound = Helper.setIfNone( this.getDouble("speedOfSound"), 89040000000.0 ); 	
+		/* note Clb / Cp becomes 6.4841674e-12 min / µm */
+		this._dtBase = Helper.setIfNone( this.getDouble(BASE_DT), 
+				(latticeMultiplier/speedOfSound) * (1 / Math.sqrt(3)) );
+		
 		this._maxMovement = Helper.setIfNone( this.getDouble(MAX_MOVEMENT), 0.01 );	
 		this._method = Method.valueOf( Helper.setIfNone(
 				this.getString(RELAXATION_METHOD), Method.EULER.toString() ) );
@@ -245,9 +250,9 @@ public class LBDEM extends ProcessManager
 		this.LX = Helper.setIfNone( this.getDouble("lengthScale"), 1e-4 );	
 		this.RE = Helper.setIfNone( this.getDouble("reynolds"), 100.0 );	
 		this.NU = Helper.setIfNone( this.getDouble("kinematicViscosity"), 1e-6);	
-		this.U_scale = Helper.setIfNone( this.getDouble("velocityScale"), 1e-8);	
+		this.U_scale = Helper.setIfNone( this.getDouble("velocityScale"), latticeMultiplier / _dtBase);	
 		
-		this.U_MAX = U_scale * RE*NU/LX;
+		this.U_MAX = (1 / U_scale) * RE*NU/LX;
 		this.OMEGA = 1.0 / ( 3.0 * NU + 0.5 );
 		
 		/*
@@ -286,7 +291,7 @@ public class LBDEM extends ProcessManager
 		{
 			/* random profile */
 			this.set( FLOW_PROFILE , "randomFlow");
-			initializeVelocity(lattice,lbgk);
+//			initializeVelocity(lattice,lbgk);
 		}
 		
 		/* LB output folder */
@@ -469,13 +474,16 @@ public class LBDEM extends ProcessManager
 						 */
 						double a = ExtraMath.getUniRandDbl();
 						double b = ExtraMath.getUniRandDbl();
+						/* NOTE: we should avoid getting fluid speeds higher
+						 * than U_MAX, we multiply by 0.1 for safety (prevent
+						 * LB blowing up 6.28318530718*/
 						double[] vec = Vector.uncylindrify( new double[]{
-								a * this.U_MAX, b * 6.28318530718 } );
+								a * this.U_MAX * 0.1, b * 360 } );
 						/* Create and save Driver object */
 						Driver p = new Driver( 
 								Vector.randomInts( 1, 0, this.XX )[0], 
 								Vector.randomInts( 1, 0, this.YY )[0],
-								3, vec );
+								10, vec );
 						this._drivers.add(p);
 //						System.out.println(Vector.toString(vec)+" "+a+" "+b);
 					}
@@ -549,7 +557,7 @@ public class LBDEM extends ProcessManager
 					/* Note unit conversion with lattice vector field (SI)
 					 *  converted to µm/min (agents) */
 					point.euStep(this._dtMech, radius, Vector.times(
-							lattice.getU(posi[0], posi[1]), 6e7 ) );
+							lattice.getU(posi[0], posi[1]), latticeMultiplier/_dtBase ) );
 				}
 			}
 			this._tMech += this._dtMech;

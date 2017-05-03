@@ -1,4 +1,4 @@
-filebase = 'C:/results/2017.04.24_19.15.54_377_Arand2/LBDEM/dump_250.0_';
+filebase = 'C:\results\2017.05.03_19.36.29_933_testing_scaling\LBDEM\dump_3.0E-8_';
 
 % Load in data
 uData = load( strcat(filebase,'u.dat'));
