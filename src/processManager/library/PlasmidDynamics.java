@@ -154,10 +154,11 @@ public class PlasmidDynamics extends ProcessManager {
 		HashMap<Object, Object> newPlasmid = (HashMap<Object, Object>) a.get(plasmid);
 		double cool_down = (Double) newPlasmid.get(COOL_DOWN_PERIOD);
 		int numTransfers = (int) Math.floor(_timeStepSize/cool_down);
-		if ((this._currentTime-_timeStepSize) % cool_down == 0)
+		if ((this._currentTime - _timeStepSize) % cool_down == 0)
 			numTransfers++;
+		Log.out(Tier.DEBUG, "Num transfers: "+numTransfers);
 		if (!this._previousConjugated.isEmpty() && this._previousConjugated.containsKey(a)) {
-			if((this._currentTime+_timeStepSize) >= (this._previousConjugated.get(a)+cool_down)) {
+			if((this._currentTime + _timeStepSize) >= (this._previousConjugated.get(a) + cool_down)) {
 				this._previousConjugated.remove(a);
 			}
 			else {
@@ -181,40 +182,48 @@ public class PlasmidDynamics extends ProcessManager {
 		if (currentPiliLength > maxPiliLength) {
 			currentPiliLength = maxPiliLength;
 		}
+		if (currentPiliLength < 0) {
+			currentPiliLength = 0;
+		}
+		Log.out(Tier.DEBUG, "current Pili length: "+currentPiliLength);
 		
 		if (IsLocated.isLocated(a) && !comp.isDimensionless()) {
 			//biofilm
-			boolean nbrFound = false;
+			boolean pilusAttached = false;
 			Shape compartmentShape = comp.getShape();
 			Collision iter = new Collision(compartmentShape);
 			double numLoops = currentPiliLength * 100.0;
+			int transferTry = 0;
 			for (int n = 0; n <= numLoops; n++) {
-				int transferCount = 0;
 				double minDist = n/100.0;
 				if (numLoops - n < 1.0)
 					minDist = minDist+(numLoops-n);
+				Log.out(Tier.DEBUG, "min Dist: "+minDist);
 				Predicate<Collection<Surface>> collisionCheck = new AreColliding<Collection<Surface>>(aBodSurfaces, iter, minDist);
 				for (Agent nbr: neighbours) {
 					Body nbrBody = (Body) nbr.getValue(this.BODY);
 					List<Surface> bBodSurfaces = nbrBody.getSurfaces();
-					double probCheck = ExtraMath.getUniRandDbl();
 					if (collisionCheck.test(bBodSurfaces)) {
-						nbrFound = true;
+						pilusAttached = true;
+						transferTry++;
+						Log.out(Tier.DEBUG, "Neghbour found");
+						double probCheck = ExtraMath.getUniRandDbl();
 						if (probCheck < transfer_probability) {
 							double sendTime = (minDist/this._piliExtensionSpeed) + this._currentTime;
+							Log.out(Tier.DEBUG, "Send time: "+sendTime);
 							sendPlasmid(a, nbr, plasmid, sendTime);
-							transferCount++;
-							if (transferCount >= numTransfers)
+							if (transferTry >= numTransfers)
 								return true;
-							else {
-								nbrFound = false;
-							}
 						}
+						else if (transferTry >= numTransfers)
+							return false;
+						else
+							pilusAttached = false;
 					}
 				}
-				if (nbrFound)
-					return false;
 			}
+			if (pilusAttached)
+				return false;
 		}
 		else {
 			//chemostat
