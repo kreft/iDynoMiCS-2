@@ -26,6 +26,7 @@ import dataIO.Log.Tier;
 import idynomics.AgentContainer;
 import idynomics.Compartment;
 import idynomics.EnvironmentContainer;
+import idynomics.Idynomics;
 import processManager.ProcessManager;
 import referenceLibrary.AspectRef;
 import shape.Shape;
@@ -88,7 +89,7 @@ public class PlasmidDynamics extends ProcessManager {
 	/**
 	 * Current Simulation Time
 	 */
-	private Double _currentTime = _timeForNextStep - _timeStepSize;
+	private Double _currentTime;
 	
 	/**
 	 * Speed of pilus extension, taken to be 40 nm/sec = 144 um/hr
@@ -159,6 +160,7 @@ public class PlasmidDynamics extends ProcessManager {
 		Log.out(Tier.DEBUG, "Num transfers: "+numTransfers);
 		if (!this._previousConjugated.isEmpty() && this._previousConjugated.containsKey(a)) {
 			if((this._currentTime + _timeStepSize) >= (this._previousConjugated.get(a) + cool_down)) {
+				tPlasmid = this._previousConjugated.get(a) + cool_down;
 				this._previousConjugated.remove(a);
 			}
 			else {
@@ -185,7 +187,6 @@ public class PlasmidDynamics extends ProcessManager {
 		if (currentPiliLength < 0) {
 			currentPiliLength = 0;
 		}
-		Log.out(Tier.DEBUG, "current Pili length: "+currentPiliLength);
 		
 		if (IsLocated.isLocated(a) && !comp.isDimensionless()) {
 			//biofilm
@@ -206,12 +207,11 @@ public class PlasmidDynamics extends ProcessManager {
 					if (collisionCheck.test(bBodSurfaces)) {
 						pilusAttached = true;
 						transferTry++;
-						Log.out(Tier.DEBUG, "Neghbour found");
 						double probCheck = ExtraMath.getUniRandDbl();
 						if (probCheck < transfer_probability) {
 							double sendTime = (minDist/this._piliExtensionSpeed) + this._currentTime;
-							Log.out(Tier.DEBUG, "Send time: "+sendTime);
 							sendPlasmid(a, nbr, plasmid, sendTime);
+							this._previousConjugated.put(a, sendTime);
 							if (transferTry >= numTransfers)
 								return true;
 						}
@@ -295,7 +295,7 @@ public class PlasmidDynamics extends ProcessManager {
 	protected void internalStep() {
 		// TODO Auto-generated method stub
 		Log.out(Tier.DEBUG, "Plasmid Dynamics internal step starting");
-		this._currentTime = _timeForNextStep - _timeStepSize;
+		this._currentTime = Idynomics.simulator.timer.getCurrentTime();
 		this._aspectsToCopy.clear();
 		HashMap<Agent, Map<String, Double>> currentPlasmidAgents = 
 				new HashMap<Agent, Map<String, Double>>(); 
@@ -318,7 +318,7 @@ public class PlasmidDynamics extends ProcessManager {
 				this.conjugate(donor, neighbours, plsmd, plasmidsInDonor.get(plsmd));
 				boolean conjugation = false;
 				if (conjugation) {
-					this._previousConjugated.put(donor, _currentTime);
+					Log.out(Tier.DEBUG, "Plasmid sent!");
 				}
 			}
 		}
