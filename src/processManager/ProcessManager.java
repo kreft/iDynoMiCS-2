@@ -1,5 +1,6 @@
 package processManager;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import org.w3c.dom.Element;
@@ -261,7 +262,7 @@ public abstract class ProcessManager implements Instantiable, AspectInterface,
 		/*
 		 * Move the time for next step forward by the step size.
 		 */
-		this._timeForNextStep += this._timeStepSize;
+		this._timeForNextStep = (BigDecimal.valueOf(this._timeForNextStep)).add(BigDecimal.valueOf(this._timeStepSize)).doubleValue(); 
 		/*
 		 * 
 		 */
@@ -272,7 +273,7 @@ public abstract class ProcessManager implements Instantiable, AspectInterface,
 		{
 			Log.out( level, this._name + " next: " + 
 					this._timeForNextStep + ", duration: " + 
-					( (tock - tick ) * 0.001 ) + " s");
+					(BigDecimal.valueOf(tock).subtract(BigDecimal.valueOf(tick)).multiply(BigDecimal.valueOf(0.001)).doubleValue() ) + " s");
 		}
 		
 	}

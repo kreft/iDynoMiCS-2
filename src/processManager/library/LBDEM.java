@@ -2,6 +2,7 @@ package processManager.library;
 
 import java.util.List;
 import java.util.function.Predicate;
+import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -192,7 +193,7 @@ public class LBDEM extends ProcessManager
 	/*
 	 * amount of distance units per lattice
 	 */
-	public double latticeMultiplier = 2.0;
+	public double latticeMultiplier = 1;
 	
 	/*
 	 * velocity drivers for stochastic flow profile. 
@@ -259,7 +260,7 @@ public class LBDEM extends ProcessManager
 		 * setup D2Q9 Lattice boltamann Bhatnagar–Gross–Krook
 		 */
 		slices = Vector.floor( Vector.times(
-				agents.getShape().getDimensionLengths(), latticeMultiplier ) );
+				agents.getShape().getDimensionLengths(), 1/latticeMultiplier ) );
 		this.XX = slices[0];
 		this.YY = slices[1];
 		
@@ -291,7 +292,7 @@ public class LBDEM extends ProcessManager
 		{
 			/* random profile */
 			this.set( FLOW_PROFILE , "randomFlow");
-//			initializeVelocity(lattice,lbgk);
+//			initializeVelocityb(lattice,lbgk);
 		}
 		
 		/* LB output folder */
@@ -304,6 +305,19 @@ public class LBDEM extends ProcessManager
 		for (int x=1; x<=XX; x++) {
 			for (int y=1; y<=YY; y++) {
 				double u[] = {computePoiseuille(y), 0};
+				double normU = u[0]*u[0];
+				for (int i=0; i<9; i++) {
+					lattice.setF( x, y, lbgk.fEq( i,rho,u,normU ), i );
+				}
+			}
+		}	
+	}
+	
+	public void initializeVelocityb(D2Q9Lattice lattice, LBGK lbgk) {
+		double rho = 1;
+		for (int x=1; x<=XX; x++) {
+			for (int y=1; y<=YY; y++) {
+				double u[] = {U_MAX, 0};
 				double normU = u[0]*u[0];
 				for (int i=0; i<9; i++) {
 					lattice.setF( x, y, lbgk.fEq( i,rho,u,normU ), i );
@@ -447,7 +461,8 @@ public class LBDEM extends ProcessManager
 	{
 
 		int nstep	= 0;
-		int rLat	= 1;
+		/* recycle current lattice rLat times state to reduce computational demand */
+		int rLat	= 10; 
 		int uLat	= rLat;
 		_tMech		= 0.0;
 		_dtMech 	= this._dtBase; // start with initial base timestep than adjust
@@ -465,7 +480,7 @@ public class LBDEM extends ProcessManager
 				else if ( Helper.isNone( this.getString( FLOW_PROFILE ) ) ||  
 						this.getString( FLOW_PROFILE ) == "randomFlow" )
 				{
-					if (this._drivers.size() < 3 )
+					if (this._drivers.size() < 1 )
 					{
 						/* generating random direction vector which does not
 						 * exceed U_MAX. Note work with vector length + angle 
@@ -478,20 +493,26 @@ public class LBDEM extends ProcessManager
 						 * than U_MAX, we multiply by 0.1 for safety (prevent
 						 * LB blowing up 6.28318530718*/
 						double[] vec = Vector.uncylindrify( new double[]{
-								a * this.U_MAX * 0.1, b * 360 } );
+								a * this.U_MAX * 0.2, b * 6.28318530718 } );
 						/* Create and save Driver object */
 						Driver p = new Driver( 
 								Vector.randomInts( 1, 0, this.XX )[0], 
 								Vector.randomInts( 1, 0, this.YY )[0],
-								10, vec );
+								50, vec );
 						this._drivers.add(p);
 //						System.out.println(Vector.toString(vec)+" "+a+" "+b);
 					}
 					for ( Driver s : this._drivers )
 					{
 						double[] current = lattice.getU(s.x, s.y);
-						setVelocity(lattice, lbgk, s.x, s.y, 
-								Vector.add(current, s.u) );
+						double[] vnew = Vector.add(current, s.u);
+						
+						if (Vector.normEuclid(vnew) < this.U_MAX)
+							setVelocity(lattice, lbgk, s.x, s.y, 
+									Vector.add(current, s.u) );
+						else
+							setVelocity(lattice, lbgk, s.x, s.y, 
+									Vector.normaliseEuclid(current, U_MAX) );
 						s.c -= 1;
 					}
 					this._drivers.removeIf( p-> p.c == 0 );
@@ -571,7 +592,7 @@ public class LBDEM extends ProcessManager
 			nstep++;
 		}
 		this._agents.refreshSpatialRegistry();
-		save(Idynomics.global.outputLocation + "LBDEM/dump_" + this._timeForNextStep,lattice);
+		save(Idynomics.global.outputLocation + "LBDEM/dump_" + this._timeForNextStep ,lattice);
 		Log.out(Tier.DEBUG,
 				"Relaxed "+this._agents.getNumAllAgents()+" agents after "+
 						nstep+" iterations");

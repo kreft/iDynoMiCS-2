@@ -32,12 +32,11 @@ public class ResolveInteractionForce extends Event
 
 		/* cell-cell distance */
 		double h = 1e-6 * initiator.getDouble(CURRENT_DIST);
-		
-		if (h < 2*0.157e-9)
-		{
-			initiator.set(SCALED_FORCE, 0.0 );
-			return;
-		}
+		double lo = .157e-9; /* minimum equilibrium distance */
+		if (h < lo)
+			h = lo;
+
+		double timeScaling = 10.0;
 		
 		/* effective radius */
 		double r = 2e-6 / ( ( 1 / initiator.getDouble(RADIUS) ) + 
@@ -47,7 +46,6 @@ public class ResolveInteractionForce extends Event
 		/* van der Waals surface tension compenent of water: 
 		 * Good et al. J. Adhesion Sci. Technol. 4, 602 1990 */
 		double sqrtgLWW = Math.sqrt( 21.8e-3 ); 
-		double lo = .157e-9; /* minimum equilibrium distance */
 		/* van Oss et al. Langmuir 4, 884 1988 / 
 		 * van Oss Interfacial Forces in Aqueous Media, 2006 pp24 
 		 * NOTE: -12 * -2 = 24  
@@ -71,9 +69,12 @@ public class ResolveInteractionForce extends Event
 		 * double fel = ( -.5 * eps * r * kap * initiator.getDouble(PSI) * 
 				compliant.getDouble(PSI) * Math.log( 1 + Math.exp( -kap*h ) ) ); */
 		
-		double fel = - kap * r * 32 * Math.PI * eps * 
+		/* double fel = - kap * r * 32 * Math.PI * eps * 
 				Math.pow(( kT / e), 2) *
 				Math.pow( Math.tanh((e*psi)/(4*kT)), 2) * Math.exp( -kap * h );
+		*/
+		
+		double fel = -.5 * eps * kap * r * Math.pow(psi, 2) * Math.log(1 + Math.exp(-kap*h));
 
 		/* acid-base interaction component */
 		double lamb = 7e-10; /* Bjerrum length for water at room temperature */
@@ -96,7 +97,7 @@ public class ResolveInteractionForce extends Event
 
 		/* van Oss Interfacial forces in aqueous media 2006 pp83 */
 		double fab = - Math.PI * r * dGAB * Math.exp( ( lo-h ) / lamb );
-		
-		initiator.set(SCALED_FORCE, (fvdw + fel + fab) * 3.6e24 );
+			
+		initiator.set(SCALED_FORCE, (fvdw + fel + fab) * 3.6e24 * Math.pow(timeScaling, 2) );
 	}
 }
