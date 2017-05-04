@@ -3,7 +3,7 @@
 	<simulation name="caseStudy_1e6" outputfolder="../results" log="EXPRESSIVE"
 		comment="this is a file for testing purposes only.">
 		<!-- minutes -->
-		<timer stepSize="30.0" endOfSimulation="20160.0" />
+		<timer stepSize="60.0" endOfSimulation="3600.0" />
 		<speciesLib>
 			<!-- species/species library The species library contains all agent species 
 				in the simulations. This may include microbial species, plasmid and vector 
@@ -96,7 +96,7 @@
 					</list>
 				</aspect>
 			</species>
-
+			
 			<species name="coccoid">
 				<!-- pg / µm^3-->
 				<aspect name="density" 		type="PRIMARY" 		class="Double" 				value="1.5e-4" />
@@ -137,12 +137,12 @@
 		<compartment name="first">
 			<shape class="Rectangle" resolutionCalculator="MultigridResolution">
 				<!-- µm -->
-				<dimension name="X" isCyclic="true" 	targetResolution="2.0" max="128.0"/>
-				<dimension name="Y" isCyclic="false" 	targetResolution="2.0" max="128.0">
+				<dimension name="X" isCyclic="true" 	targetResolution="1.0" max="8.0"/>
+				<dimension name="Y" isCyclic="false" 	targetResolution="1.0" max="8.0">
 					<boundary extreme="0" class="SolidBoundary" />
 					<boundary extreme="1" class="FixedBoundary">
-						<solute name="ammonium" concentration="1e-5" />
-						<solute name="oxygen" concentration="5e-7" />
+						<solute name="ammonium" concentration="1.0e-5" />
+						<solute name="oxygen" concentration="5.0e-7" />
 						<solute name="nitrate" concentration="0.0" />
 						<solute name="nitrite" concentration="0.0" />
 					</boundary>
@@ -150,9 +150,9 @@
 			</shape>
 			<solutes>
 				<!-- pg / µm2 -->
-				<solute name="ammonium" concentration="1e-5" />
-				<solute name="oxygen" 	concentration="5e-7" />
-				<solute name="nitrite" 	concentration="0" />
+				<solute name="ammonium" concentration="1.0e-5" />
+				<solute name="oxygen" 	concentration="5.0e-7" />
+				<solute name="nitrite" 	concentration="6e-8" />
 				<solute name="nitrate" 	concentration="0.0" />
 			</solutes>
 			<reactions>
@@ -164,7 +164,7 @@
 					<aspect name="mass" type="PRIMARY" class="Double" value="0.8e-3" />
 					<aspect name="eps" 	type="PRIMARY" class="Double" value="0.0" />
 					<!-- µm -->
-					<spawn number="5" domain="128.0,0.2" />
+					<spawn number="1" domain="8.0,0.2" />
 				</agent>
 				<agent>
 					<aspect name="species" type="PRIMARY" class="String" value="CanonicalNOB" />
@@ -172,7 +172,7 @@
 					<aspect name="mass" type="PRIMARY" class="Double" value="0.8e-3" />
 					<aspect name="eps" 	type="PRIMARY" class="Double" value="0.0" />
 					<!-- µm -->
-					<spawn number="5" domain="128.0,0.2" />
+					<spawn number="0" domain="8.0,0.2" />
 				</agent>
 				<agent>
 					<aspect name="species" type="PRIMARY" class="String" value="CommamoxAOB" />
@@ -180,7 +180,7 @@
 					<aspect name="mass" type="PRIMARY" class="Double" value="0.8e-3" />
 					<aspect name="eps" 	type="PRIMARY" class="Double" value="0.0" />
 					<!-- µm -->
-					<spawn number="5" domain="128.0,0.2" />
+					<spawn number="0" domain="8.0,0.2" />
 				</agent>
 			</agents>
 			<processManagers>
@@ -206,13 +206,13 @@
 				<process name="svgWriter" class="GraphicalOutput"  priority="-3"
 					firstStep="0.0"  timerStepSize="30.0">
 					<aspect name="solute" type="PRIMARY" class="String" value="oxygen" />
-					<aspect name="maxConcentration" type="PRIMARY" class="Double" value="1e-5" />
+					<aspect name="maxConcentration" type="PRIMARY" class="Double" value="1.0e-5" />
 					<aspect name="outputWriter" type="PRIMARY" class="String" value="SvgExport" />
 				</process>
 				<process name="svgWriter" class="GraphicalOutput"  priority="-3"
 					firstStep="0.0"  timerStepSize="30.0">
 					<aspect name="solute" type="PRIMARY" class="String" value="ammonium" />
-					<aspect name="maxConcentration" type="PRIMARY" class="Double" value="5e-7" />
+					<aspect name="maxConcentration" type="PRIMARY" class="Double" value="5.0e-7" />
 					<aspect name="outputWriter" type="PRIMARY" class="String" value="SvgExport" />
 				</process>
 				<process name="svgWriter" class="GraphicalOutput"  priority="-3"
