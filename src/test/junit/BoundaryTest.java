@@ -15,6 +15,7 @@ import dataIO.Log.Tier;
 import idynomics.Compartment;
 import idynomics.Idynomics;
 import referenceLibrary.AspectRef;
+import shape.Dimension;
 import shape.Dimension.DimName;
 import test.AllTests;
 import shape.Shape;
@@ -59,8 +60,10 @@ public class BoundaryTest
 		/*
 		 * Add the agent to the boundary layer, and this to the compartment.
 		 */
-		BiofilmBoundaryLayer bL = new BiofilmBoundaryLayer(DimName.X, 1);
-		bL.init(comp.environment, comp.agents, compName);
+		Dimension x = shape.getDimension(DimName.X);
+		BiofilmBoundaryLayer bL = new BiofilmBoundaryLayer();
+		bL.instantiate(AllTests.getSpatialBoundaryElement(1), x);
+		bL.setContainers(comp.environment, comp.agents);
 		bL.acceptInboundAgent(insertAgent);
 		bL.setLayerThickness(boundaryLayerThickness);
 		comp.addBoundary(bL);
@@ -77,7 +80,10 @@ public class BoundaryTest
 		/*
 		 * The other boundary is unimportant, but needs to be set.
 		 */
-		comp.addBoundary(new SolidBoundary(DimName.X, 0));
+		SolidBoundary solid = new SolidBoundary();
+		solid.setParent(x);
+		solid.setExtreme(0);
+		comp.addBoundary(solid);
 		/*
 		 * Make sure that the shape's boundaries have the right surfaces.
 		 */

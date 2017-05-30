@@ -12,7 +12,7 @@ import gui.GuiConsole;
 import idynomics.Idynomics;
 
 /**
- * \brief TODO
+ * \brief Utilities class of helpful methods used across iDynoMiCS 2.
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
@@ -20,78 +20,100 @@ import idynomics.Idynomics;
 public class Helper
 {
 	/**
-	 * 
+	 * List of recognised words that signal confirmation by the user.
 	 */
-	public static boolean gui = false;
+	public final static String[] confirmations = new String[] 
+			{ "yes", "y", "Y", "true", "TRUE" };
+	
+	/**
+	 * List of recognised words that signal rejection by the user.
+	 */
+	public final static String[] rejections = new String[]
+			{ "no", "n", "N", "false", "FALSE" };
+	
+	/**
+	 * Boolean denoting whether the simulation is running in Graphical User
+	 * Interface (GUI) mode.
+	 */
+	public static boolean isSystemRunningInGUI = false;
 
 	/**
-	 * Obtain user input as string.
-	 * @param input
-	 * @param description
-	 * @param noLog
-	 * @return
+	 * \brief Obtain user input as string.
+	 * 
+	 * @param input What the system currently believes to be the input. This
+	 * method will only act if this is null or empty.
+	 * @param description Descriptive message to tell the user what input is
+	 * required.
+	 * @param shouldLogMessage Boolean stating whether this interaction should 
+	 * be added to the log (true) or printed to screen (false).
+	 * @return The requested input as a string.
 	 */
-	public static String obtainInput(String input, String description, boolean noLog)
+	public static String obtainInput(String input,
+			String description, boolean shouldLogMessage)
 	{
-		if ( input == null || input == "" || input == "null" )
+		if ( isNullOrEmpty(input) || input == "null" )
 		{
-			String msg = description;
-			
-			if ( gui )
-			{
-				input = GuiConsole.requestInput(msg);
-			} 
+			if ( isSystemRunningInGUI )
+				input = GuiConsole.requestInput(description);
 			else
 			{
 				@SuppressWarnings("resource")
 				Scanner user_input = new Scanner( System.in );
-
-				if ( noLog )
-					System.out.println(msg);
+				if ( shouldLogMessage )
+					Log.out(Tier.CRITICAL, description);
 				else
-					Log.out(Tier.CRITICAL, msg);
+					System.out.println(description);
 				input = user_input.next( );
 			}
-			msg = "Aquired input: " + input;
-			if ( noLog )
-				System.out.println(msg);
-			else
+			/* Confirm the input received. */
+			String msg = "Aquired input: " + input;
+			if ( shouldLogMessage )
 				Log.out(Tier.CRITICAL, msg);
+			else
+				System.out.println(msg);
 		}
 		return input;
 	}
 	
 	/**
-	 * obtain input with a limited set of options
-	 * @param options
-	 * @param description
-	 * @param noLog
-	 * @return
+	 * \brief Obtain user input as string from a limited set of options.
+	 * 
+	 * @param options List of options for the input that the user may choose
+	 * from.
+	 * @param description Descriptive message to tell the user what input is
+	 * required.
+	 * @param shouldLogMessage Boolean stating whether this interaction should 
+	 * be added to the log (true) or printed to screen (false).
+	 * @return The requested input as a string.
 	 */
-	public static String obtainInput(Collection<String> options, String description, boolean noLog)
+	public static String obtainInput(Collection<String> options,
+			String description, boolean shouldLogMessage)
 	{
 		String[] out = new String[options.size()];
 		int i = 0;
 		for (String s : options)
 			out[i++] = s;
-		return obtainInput(out, description, noLog);
+		return obtainInput(out, description, shouldLogMessage);
 	}
 	
 	/**
-	 * obtain input with a limited set of options
-	 * @param options
-	 * @param description
-	 * @param noLog
-	 * @return
+	 * \brief Obtain user input as string from a limited set of options.
+	 * 
+	 * @param options List of options for the input that the user may choose
+	 * from.
+	 * @param description Descriptive message to tell the user what input is
+	 * required.
+	 * @param shouldLogMessage Boolean stating whether this interaction should 
+	 * be added to the log (true) or printed to screen (false).
+	 * @return The requested input as a string.
 	 */
-	public static String obtainInput(String[] options, String description, boolean noLog)
+	public static String obtainInput(String[] options,
+			String description, boolean noLog)
 	{
 		String input;
-		String msg = description;
-		
-		if ( gui )
+		if ( isSystemRunningInGUI )
 		{
-			input = GuiConsole.requestInput(options, msg);
+			input = GuiConsole.requestInput(options, description);
 		} 
 		else
 		{
@@ -99,12 +121,13 @@ public class Helper
 			Scanner user_input = new Scanner( System.in );
 
 			if ( noLog )
-				System.out.println(msg);
+				System.out.println(description);
 			else
-				Log.out(Tier.NORMAL, msg);
+				Log.out(Tier.NORMAL, description);
 			input = user_input.next( );
 		}
-		msg = "Aquired input: " + input;
+		
+		String msg = "Aquired input: " + input;
 		if ( noLog )
 			System.out.println(msg);
 		else
@@ -115,13 +138,14 @@ public class Helper
 	
 	/**
 	 * obtain user input as string with logging on.
+	 * 
 	 * @param input
-	 * @param description
+	 * @param description Message describing the input needed.
 	 * @return
 	 */
 	public static String obtainInput(String input, String description)
 	{
-		return obtainInput(input, description, false);
+		return obtainInput(input, description, true);
 	}
 	
 	/**
@@ -144,41 +168,11 @@ public class Helper
 		{
 			Log.out(Tier.QUIET, "User input was not recognised, try:\n"
 					+ "[Confirming] \n" + 
-					Helper.stringAToString(confirmations()) + "\n"
+					Helper.stringAToString(confirmations) + "\n"
 					+ "[Rejections] \n" +
-					Helper.stringAToString(rejections()));
+					Helper.stringAToString(rejections));
 			return obtainInput(description, noLog);	
 		}
-	}
-	
-	/**
-	 * list of known confirmations.
-	 * @return
-	 */
-	public static String[] confirmations()
-	{
-		return new String[] {
-				"yes",
-				"y",
-				"Y",
-				"true",
-				"TRUE"				
-		};
-	}
-	
-	/**
-	 * List of known rejections
-	 * @return
-	 */
-	public static String[] rejections()
-	{
-		return new String[] {
-				"no",
-				"n",
-				"N",
-				"false",
-				"FALSE"
-		};
 	}
 	
 	/**
@@ -188,7 +182,7 @@ public class Helper
 	 */
 	public static boolean confirmation(String input)
 	{
-		for ( String s : confirmations() )
+		for ( String s : confirmations )
 			if ( s == input )
 				return true;
 		return false;
@@ -201,7 +195,7 @@ public class Helper
 	 */
 	public static boolean rejection(String input)
 	{
-		for ( String s : rejections() )
+		for ( String s : rejections )
 			if ( s == input )
 				return true;
 		return false;
@@ -230,19 +224,17 @@ public class Helper
 			return input;
 	}
 	
-	public static <T> boolean isNone( T input )
+	public static <T> boolean isNullOrEmpty( T input )
 	{
-		if (input == null || input == "")
-			return true;
-		else
-			return false;
+		return (input == null || input == "");
 	}
 	
 	
-	public static String obtainIfNone(String input, String description, boolean noLog, Collection<String> options)
+	public static String obtainIfNone(String input, String description,
+			boolean shouldLogMessage, Collection<String> options)
 	{
-		if( isNone(input) )
-			return obtainInput(options,description, noLog);
+		if( isNullOrEmpty(input) )
+			return obtainInput(options,description, shouldLogMessage);
 		else 
 			return input;
 	}
@@ -251,7 +243,8 @@ public class Helper
 	 * Delayed abort allows user to read abort statement before shutdown
 	 * @param delay
 	 */
-	public static void abort(int delay) {
+	public static void abort(int delay)
+	{
 		Log.out(Tier.CRITICAL, "Aborting..");
 		pause(delay);
 		System.exit(0);
@@ -264,9 +257,9 @@ public class Helper
 	public static void pause(int delay)
 	{
 		try {
-		    Thread.sleep(delay);
+			Thread.sleep(delay);
 		} catch(InterruptedException ex) {
-		    Thread.currentThread().interrupt();
+			Thread.currentThread().interrupt();
 		}
 	}
 	

@@ -76,8 +76,14 @@ public class EnvironmentContainer implements CanPrelaunchCheck, Settable
 	 */
 	public void addSolute(SpatialGrid solute)
 	{
+		if (this.getSoluteNames().contains(solute.getName()))
+		{
+			Log.out(Tier.CRITICAL, 
+					"Warning: Two or more solute grids with same name \""+
+							solute.getName()+"\"");
+		}
 		this._solutes.add(solute);
-		Log.out(Tier.DEBUG, 
+		Log.out(Tier.NORMAL, 
 				"Added solute \""+ solute.getName() +"\" to environment");
 	}
 	

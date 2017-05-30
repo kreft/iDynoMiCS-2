@@ -6,6 +6,8 @@ import java.util.List;
 
 import org.w3c.dom.Element;
 
+import static grid.ArrayType.CONCN;
+
 import agent.Agent;
 import agent.Body;
 import dataIO.GraphicalExporter;
@@ -105,6 +107,8 @@ public class GraphicalOutput extends ProcessManager
 		 */
 		super.init(xmlElem, environment, agents, compartmentName);
 
+		String str;
+		
 		/* set the shape */
 		this._shape = agents.getShape();
 		
@@ -112,20 +116,20 @@ public class GraphicalOutput extends ProcessManager
 		this._solute = this.getString(SOLUTE_NAME);
 		
 		/* ArrayType to plot (CONCN if unspecified_ */
-		this._arrayType = ArrayType.valueOf( (String) this.getOr(ARRAY_TYPE, 
-				ArrayType.CONCN.toString() ) );
+		str = (String) this.getOr(ARRAY_TYPE, CONCN.toString());
+		this._arrayType = ArrayType.valueOf(str);
 		
 		/* Output naming */
-		if (_solute == null)
-			this._prefix = _compartmentName + "_" + "agents";
+		this._prefix = this._compartmentName + "_";
+		if ( this._solute == null )
+			this._prefix += "agents";
 		else
-			this._prefix = _compartmentName + "_" + _solute + "_" +
-					_arrayType.toString();
+			this._prefix += this._solute + "_" + this._arrayType.toString();
 
 		/* get instance of appropriate output writer */
-		this._graphics = (GraphicalExporter) Instance.getNew(
-				null, null, Helper.obtainIfNone( this.getString(OUTPUT_WRITER ), 
-				"output writer", false, options() ) );
+		str = Helper.obtainIfNone( this.getString(OUTPUT_WRITER), 
+				"output writer", true, this.options() );
+		this._graphics = (GraphicalExporter) Instance.getNew(null, null, str);
 		
 		/* write scene files (used by pov ray) */
 		this._graphics.init( this._prefix, this._shape );

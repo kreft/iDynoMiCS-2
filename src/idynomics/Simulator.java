@@ -53,6 +53,8 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 	 */
 	private XmlExport _xmlOut;
 	
+	private long _timeSpentOnXmlOutput = 0;
+	
 	/**
 	 * Simulator is the top node in iDynoMiCS and stores its own modelNode and 
 	 * within that all child nodes, simulator is the exception to the rule not
@@ -122,14 +124,14 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 		/*
 		 * Set up the Timer.
 		 */
-		this.timer.instantiate( XmlHandler.loadUnique( xmlElem, XmlRef.timer ), this);
+		this.timer.instantiate( XmlHandler.findUniqueChild( xmlElem, XmlRef.timer ), this);
 		/*
 		 * Set up the species library.
 		 */
-		if (XmlHandler.hasNode(Idynomics.global.xmlDoc, XmlRef.speciesLibrary))
+		if (XmlHandler.hasChild(Idynomics.global.xmlDoc, XmlRef.speciesLibrary))
 		{
 			this.speciesLibrary = (SpeciesLib) Instance.getNew(
-					XmlHandler.loadUnique( xmlElem, XmlRef.speciesLibrary ), 
+					XmlHandler.findUniqueChild( xmlElem, XmlRef.speciesLibrary ), 
 					this, ClassRef.speciesLibrary );
 		}
 		/*
@@ -305,8 +307,9 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 		/*
 		 * Write state to new XML file.
 		 */
+		long tick = System.currentTimeMillis();
 		this._xmlOut.writeFile();
-	
+		this._timeSpentOnXmlOutput = System.currentTimeMillis() - tick;
 
 		/*
 		 * Reporting agents.
@@ -363,7 +366,8 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 	public void printProcessManagerRealTimeStats()
 	{
 		Map<String,Long> millis = new HashMap<String,Long>();
-		long total = 0;
+		millis.put("[XML OUTPUT]", this._timeSpentOnXmlOutput);
+		long total = this._timeSpentOnXmlOutput;
 		for ( Compartment c : this._compartments )
 		{
 			Map<String,Long> cStats = c.getRealTimeStats();
@@ -376,7 +380,7 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 		double scalar = 100.0 / total;
 		for ( String name : millis.keySet() )
 		{
-			Log.out(Tier.EXPRESSIVE, 
+			Log.out(Tier.NORMAL, 
 					name+" took "+(millis.get(name)*0.001)+
 					" seconds ("+(millis.get(name)*scalar)+"%)");
 		}

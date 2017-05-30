@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+	<simulation name="rob_syntrophy_basic" outputfolder="../results" log="NORMAL"
+		comment="this is a file for testing purposes only.">
+		<!-- ms -->
+		<timer stepSize="1.0" endOfSimulation="2.0" />
+		<speciesLib>
+			<species name="Producer">
+				<aspect name="pigment" type="PRIMARY" class="String" value="RED" />
+				<speciesModule name="coccoid" />
+				<aspect name="reactions" type="PRIMARY"  class="InstantiatableList"> 
+					<list class="Reaction" nodeLabel="reaction" 
+					entryClass="Reaction" keyClass="String" keyLabel="name">
+						<reaction name="production">
+							<expression value="mass * qMaxA * 
+									( hMax - hydrogen ) / ( kA + hMax + hydrogen )">
+								<!-- zmol/µg/ms -->
+								<constant name="qMaxA" 	value="1.0" />  
+								<!-- µM --> 
+								<constant name="hMax" 	value="10.0" /> 
+								<constant name="kA" 	value="10.0" />
+							</expression>
+							<stoichiometric component="hydrogen" coefficient="1.0" />
+						</reaction> 
+					</list>
+				</aspect>
+			</species>
+			
+			<species name="Consumer">
+				<aspect name="pigment" type="PRIMARY" class="String" value="BLUE" />
+				<speciesModule name="coccoid" />
+				<aspect name="reactions" type="PRIMARY"  class="InstantiatableList"> 
+					<list class="Reaction" nodeLabel="reaction" 
+					entryClass="Reaction" keyClass="String" keyLabel="name">
+						<reaction name="consumption">
+							<expression value="mass * qMaxB * 
+									( hydrogen - hMin ) / ( kB + hydrogen + hMin )">
+								<!-- zmol/µg/ms -->
+								<constant name="qMaxB" 	value="5.0" />  
+								<!-- µM --> 
+								<constant name="hMin" 	value="0.04" /> 
+								<constant name="kB" 	value="3.0" />
+							</expression>
+							<stoichiometric component="hydrogen" coefficient="-1.0" />
+						</reaction> 
+					</list>
+				</aspect>
+			</species>
+
+			<species name="coccoid">
+				<aspect name="density" type="PRIMARY" class="Double" value="1.0" />
+				<aspect name="#isLocated" type="PRIMARY" class="Boolean" value="true" />
+				<aspect name="surfaces" type="CALCULATED" class="AgentSurfaces" />
+				<aspect name="morphology" type="PRIMARY" class="String" value="coccoid" />
+				<aspect name="updateBody" type="EVENT" class="UpdateBody" />
+				<aspect name="volume" type="CALCULATED" class="SimpleVolumeState" 	/>
+				<aspect name="radius" type="CALCULATED" class="CoccoidRadius" 		/>
+			</species>
+		</speciesLib>
+
+		<compartment name="first">
+			<shape class="Rectangle" resolutionCalculator="MultigridResolution">
+				<!-- µm -->
+				<dimension name="X" isCyclic="true"	targetResolution="1.0" max="32.0" />
+				<dimension name="Y" isCyclic="true"	targetResolution="1.0" max="32.0" />
+			</shape>
+			<solutes>
+				<!-- µM -->
+				<solute name="hydrogen" concentration="5.0" />
+			</solutes>
+			<reactions>
+			</reactions>
+			<agents>
+				<agent>
+					<aspect name="species" type="PRIMARY" class="String" value="Producer" />
+					<!-- arbitrary unit -->
+					<aspect name="mass" type="PRIMARY" class="Double" value="1.0" />
+					<!-- µm -->
+					<spawn number="2" domain="32.0,32.0" />
+				</agent>
+				<agent>
+					<aspect name="species" type="PRIMARY" class="String" value="Consumer" />
+					<!-- arbitrary unit -->
+					<aspect name="mass" type="PRIMARY" class="Double" value="1.0" />
+					<!-- µm -->
+					<spawn number="8" domain="32.0,32.0" />
+				</agent>
+			</agents>
+			<processManagers>
+				<!-- ms -->
+				<process name="SolveDiffusionSteadyState" class="SolveDiffusionSteadyState" priority="1"
+					firstStep="0.0"  timerStepSize="1.0">	
+					<aspect name="soluteNames" type="PRIMARY" class="String[]" value="hydrogen" /> 
+					<!-- µm^2 ms^-1-->
+					<diffusivitySetter solute="hydrogen" class="allSameDiffuse" defaultDiffusivity="3.0" />
+				</process>
+				<process name="svgWriter" class="GraphicalOutput"  priority="0"
+					firstStep="0.0"  timerStepSize="1.0">
+					<aspect name="solute" type="PRIMARY" class="String" value="hydrogen" />
+					<!-- µM --> 
+					<aspect name="maxConcentration" type="PRIMARY" class="Double" value="1.0" />
+					<aspect name="outputWriter" type="PRIMARY" class="String" value="SvgExport" />
+				</process>
+				
+			</processManagers>
+		</compartment>
+	</simulation>
+</document>

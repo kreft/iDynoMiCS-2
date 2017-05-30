@@ -47,44 +47,16 @@ public abstract class SpatialBoundary extends Boundary
 	// TODO set this from protocol file for the whole compartment
 	protected double _layerThickness;
 	
-	protected double _detachability;
-	
 	/* ***********************************************************************
 	 * CONSTRUCTORS
 	 * **********************************************************************/
 	
-	/**
-	 * FIXME essential for instantiation
-	 */
-	public SpatialBoundary()
-	{
-		
-	}
-	
-	/**
-	 * FIXME essential for instantiation
-	 */
 	public void instantiate(Element xmlElement, Settable parent) 
 	{
-		this._dim = DimName.valueOf(XmlHandler.obtainAttribute(
-				xmlElement, XmlRef.shapeDimension, XmlRef.dimensionBoundary));
+		this.setParent(parent);
+		
 		this._extreme = Integer.valueOf(XmlHandler.obtainAttribute(
 				xmlElement, XmlRef.extreme, XmlRef.dimensionBoundary)); // shape and this are inconsistent
-	}
-	
-	/**
-	 * \brief Construct a spatial boundary by giving it the information it
-	 * needs about its location.
-	 * 
-	 * @param dim This boundary is at one extreme of a dimension: this is the
-	 * name of that dimension.
-	 * @param extreme This boundary is at one extreme of a dimension: this is
-	 * the index of that extreme (0 for minimum, 1 for maximum).
-	 */
-	public SpatialBoundary(DimName dim, int extreme)
-	{
-		this._dim = dim;
-		this._extreme = extreme;
 	}
 	
 	/* ***********************************************************************
@@ -97,6 +69,14 @@ public abstract class SpatialBoundary extends Boundary
 	public DimName getDimName()
 	{
 		return this._dim;
+	}
+	
+	/**
+	 * @param extreme The index of the extreme (of a shape dimension) this is on.
+	 */
+	public void setExtreme(int extreme)
+	{
+		this._extreme = extreme;
 	}
 	
 	/**
@@ -152,9 +132,6 @@ public abstract class SpatialBoundary extends Boundary
 	 */
 	public double getDiffusiveFlow(SpatialGrid grid)
 	{
-		// NOTE Rob [27June2016]: Tried this approach and am not happy with it.
-		if ( grid.getName().equals(AgentContainer.DETACHABILITY) )
-			return this.calcDiffusiveFlowFixed(grid,  this.getDetachability());
 		return this.calcDiffusiveFlow(grid);
 	}
 	
@@ -258,12 +235,6 @@ public abstract class SpatialBoundary extends Boundary
 	 * **********************************************************************/
 	
 	/**
-	 * 
-	 * @return
-	 */
-	protected abstract double getDetachability();
-	
-	/**
 	 * \brief Helper method for placing agents in the arrivals lounge at random
 	 * locations along the boundary surface.
 	 * 
@@ -317,14 +288,9 @@ public abstract class SpatialBoundary extends Boundary
 	public Module getModule()
 	{
 		Module modelNode = super.getModule();
-		/* Which dimension? */
-		modelNode.add(new Attribute(XmlRef.dimensionNamesAttribute,
-				this._dim.toString(),
-				null, true));
 		/* Minimum or maximum extreme of this dimension? */
-		modelNode.add(new Attribute("extreme", 
-				Dimension.extremeToString(this._extreme),
-				new String[]{XmlRef.min, XmlRef.max}, true));
+		modelNode.add(new Attribute(XmlRef.extreme, 
+				String.valueOf(this._extreme), new String[]{"0", "1"}, true));
 		return modelNode;
 	}
 	
@@ -336,4 +302,12 @@ public abstract class SpatialBoundary extends Boundary
 		return true;
 	}
 
+	@Override
+	public void setParent(Settable parent)
+	{
+		super.setParent(parent);
+		
+		Dimension dimension = (Dimension)parent;
+		this._dim = dimension.getName();
+	}
 }

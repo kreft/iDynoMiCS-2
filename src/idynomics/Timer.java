@@ -10,7 +10,6 @@ import settable.Module;
 import settable.Settable;
 import settable.Module.Requirements;
 import dataIO.Log.Tier;
-import instantiable.Instance;
 import instantiable.Instantiable;
 import utility.Helper;
 
@@ -109,14 +108,14 @@ public class Timer implements Instantiable, Settable
 	
 	public double getEndOfCurrentIteration()
 	{
-		return this._now + getTimeStepSize();
+		return this._now + this.getTimeStepSize();
 	}
 	
 	public void step()
 	{
-		this._now += getTimeStepSize();
+		this._now += this.getTimeStepSize();
 		this._iteration++;
-		if ( Helper.gui )
+		if ( Helper.isSystemRunningInGUI )
 			GuiLaunch.updateProgressBar();
 	}
 	
@@ -130,9 +129,10 @@ public class Timer implements Instantiable, Settable
 		this._endOfSimulation = timeToStopAt;
 	}
 	
-	public int estimateLastIteration()
+	public int estimateIterationsRemaining()
 	{
-		return (int) (getEndOfSimulation() - this.getCurrentTime() / getTimeStepSize());
+		double timeLeft = this.getEndOfSimulation() - this.getCurrentTime();
+		return (int) (timeLeft / this.getTimeStepSize());
 	}
 	
 	public boolean isRunning()
@@ -147,8 +147,8 @@ public class Timer implements Instantiable, Settable
 	{
 		Log.out(outputLevel, "Timer: time is   = "+_now);
 		Log.out(outputLevel, "       iteration = "+_iteration);
-		Log.out(outputLevel, "       step size = "+getTimeStepSize());
-		Log.out(outputLevel, "       end time  = "+getEndOfSimulation());
+		Log.out(outputLevel, "       step size = "+this.getTimeStepSize());
+		Log.out(outputLevel, "       end time  = "+this.getEndOfSimulation());
 	}
 	
 	/*************************************************************************

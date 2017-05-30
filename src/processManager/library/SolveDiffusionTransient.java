@@ -136,7 +136,7 @@ public class SolveDiffusionTransient extends ProcessDiffusion
 			{
 				for ( SpatialGrid var : variables )
 					var.newArray(PRODUCTIONRATE);
-				applyEnvReactions();
+				applyEnvReactions(variables);
 				for ( Agent agent : _agents.getAllLocatedAgents() )
 					applyAgentReactions(agent, dt);
 			}
@@ -176,8 +176,11 @@ public class SolveDiffusionTransient extends ProcessDiffusion
 		 * Get the distribution map and scale it so that its contents sum up to
 		 * one.
 		 */
+		@SuppressWarnings("unchecked")
+		Map<Shape, CoordinateMap> mapOfMaps = (Map<Shape, CoordinateMap>)
+						agent.getValue(VOLUME_DISTRIBUTION_MAP);
 		CoordinateMap distributionMap = 
-				(CoordinateMap) agent.getValue(VOLUME_DISTRIBUTION_MAP);
+				mapOfMaps.get(agent.getCompartment().getShape());
 		distributionMap.scale();
 		/*
 		 * Get the agent biomass kinds as a map. Copy it now so that we can

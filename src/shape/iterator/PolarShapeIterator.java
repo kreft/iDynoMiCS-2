@@ -14,7 +14,7 @@ import linearAlgebra.Vector;
 import shape.Dimension;
 import shape.Shape;
 import shape.Dimension.DimName;
-import shape.resolution.ResolutionCalculator.ResCalc;
+import shape.resolution.ResolutionCalculator;
 import utility.ExtraMath;
 
 public abstract class PolarShapeIterator extends ShapeIterator
@@ -57,7 +57,7 @@ public abstract class PolarShapeIterator extends ShapeIterator
 		 * First check that the new shell is inside the grid. If we're on a
 		 * defined boundary, the angular coordinate is irrelevant.
 		 */
-		ResCalc rC = this._shape.getResolutionCalculator(this._currentCoord, 0);
+		ResolutionCalculator rC = this._shape.getResolutionCalculator(this._currentCoord, 0);
 		WhereAmI where = this.whereIsNhb(R);
 		if ( where == UNDEFINED )
 		{
@@ -113,7 +113,7 @@ public abstract class PolarShapeIterator extends ShapeIterator
 			return false;
 		}
 		Dimension dimension = this._shape.getDimension(dim);
-		ResCalc rC = this._shape.getResolutionCalculator(this._currentNeighbor, index);
+		ResolutionCalculator rC = this._shape.getResolutionCalculator(this._currentNeighbor, index);
 		/* If we are already on the maximum boundary, we cannot go further. */
 		if ( this._currentNeighbor[index] > rC.getNVoxel() - 1 )
 		{
@@ -172,7 +172,7 @@ public abstract class PolarShapeIterator extends ShapeIterator
 	 */
 	private boolean isNoMoreOverlapping(int dimIndex)
 	{
-		ResCalc rC;
+		ResolutionCalculator rC;
 		double nbhMin, curMax;
 		/*
 		 * If increasing would mean we no longer overlap, report failure.

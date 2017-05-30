@@ -71,10 +71,10 @@ public class Param
 		{
 			Idynomics.global.outputRoot = 
 					Helper.obtainInput(Idynomics.global.outputRoot, 
-							"Required " + XmlRef.outputFolder, true);
+							"Required " + XmlRef.outputFolder, false);
 			Idynomics.global.simulationName = 
 					Helper.obtainInput(Idynomics.global.simulationName,
-							"Required simulation name", true);
+							"Required simulation name", false);
 			setOutputLocation();
 		}
 	}

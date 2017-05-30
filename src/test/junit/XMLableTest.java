@@ -44,7 +44,7 @@ public class XMLableTest
 	{
 		/* This should crash if the method is wrong. */
 		TestXMLable t = (TestXMLable) Instance.getNew(null, null, 
-				"testJUnit.XMLableTest$testXMLable");
+				"test.junit.XMLableTest$TestXMLable");
 		/* Dummy test to check that t in an instance. */
 		assertTrue( t.isX(1) );
 		t.setX(3);

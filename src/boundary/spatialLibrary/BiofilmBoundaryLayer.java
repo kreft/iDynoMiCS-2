@@ -18,7 +18,6 @@ import idynomics.EnvironmentContainer;
 import linearAlgebra.Vector;
 import referenceLibrary.AspectRef;
 import shape.Shape;
-import shape.Dimension.DimName;
 import surface.Ball;
 import surface.Collision;
 import surface.Surface;
@@ -66,28 +65,17 @@ public class BiofilmBoundaryLayer extends WellMixedBoundary
 	 * CONSTRUCTOR
 	 * **********************************************************************/
 	
-	/**
-	 * \brief Construct a biofilm boundary layer by giving it the information
-	 * it needs about its location.
-	 * 
-	 * @param dim This boundary is at one extreme of a dimension: this is the
-	 * name of that dimension.
-	 * @param extreme This boundary is at one extreme of a dimension: this is
-	 * the index of that extreme (0 for minimum, 1 for maximum).
-	 */
-	public BiofilmBoundaryLayer(DimName dim, int extreme)
-	{
-		super(dim, extreme);
-	}
+	public BiofilmBoundaryLayer()
+	{}
 	
-	public void init(EnvironmentContainer environment, 
-			AgentContainer agents, String compartmentName)
+	@Override
+	public void setContainers(
+			EnvironmentContainer environment, AgentContainer agents)
 	{
-		super.init(environment, agents, compartmentName);
+		super.setContainers(environment, agents);
 		Collision collision = new Collision(null, this._agents.getShape());
-		this._gridSphere = new Ball(
-				Vector.zerosDbl(this._agents.getNumDims()),
-				this._layerThickness);
+		double[] zeros = Vector.zerosDbl(this._agents.getNumDims());
+		this._gridSphere = new Ball(zeros, this._layerThickness);
 		this._gridSphere.init(collision);
 	}
 	
@@ -160,12 +148,6 @@ public class BiofilmBoundaryLayer extends WellMixedBoundary
 	 * AGENT TRANSFERS
 	 * **********************************************************************/
 
-	@Override
-	protected double getDetachability()
-	{
-		return 1.0;
-	}
-	
 	@Override
 	public void agentsArrive()
 	{

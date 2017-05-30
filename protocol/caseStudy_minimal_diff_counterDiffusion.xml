@@ -3,7 +3,7 @@
 	<simulation name="caseStudy_min_diff" outputfolder="../results" log="NORMAL"
 		comment="this is a file for testing purposes only." randomSeed="12345">
 		<!-- minutes -->
-		<timer stepSize="60.0" endOfSimulation="576000.0" />
+		<timer stepSize="60.0" endOfSimulation="14400.0" />
 		<speciesLib>
 			<!-- species/species library The species library contains all agent species 
 				in the simulations. This may include microbial species, plasmid and vector 
@@ -135,10 +135,10 @@
 		</speciesLib>
 
 		<compartment name="first" tree="RTREE">
-			<shape class="Rectangle">
+			<shape class="Rectangle" resolutionCalculator="MultigridResolution">
 				<!-- µm -->
-				<dimension name="X" isCyclic="true" 	targetResolution="2.0" max="200.0"/>
-				<dimension name="Y" isCyclic="false" 	targetResolution="2.0" max="200.0">
+				<dimension name="X" isCyclic="true" 	targetResolution="2.0" max="256.0"/>
+				<dimension name="Y" isCyclic="false" 	targetResolution="2.0" max="256.0">
 					<boundary name="min" class="FixedBoundary" dimension="Y" extreme="0">
 						<concentration name="oxygen" value="6e-4" /> 
 					</boundary>
@@ -163,7 +163,7 @@
 					<aspect name="mass" type="PRIMARY" class="Double" value="0.8e-3" />
 					<aspect name="eps" 	type="PRIMARY" class="Double" value="0.0" />
 					<!-- µm -->
-					<spawn number="10" domain="200.0,0.2" />
+					<spawn number="10" domain="256.0,0.2" />
 				</agent>
 				<agent>
 					<aspect name="species" type="PRIMARY" class="String" value="CanonicalNOB" />
@@ -171,7 +171,7 @@
 					<aspect name="mass" type="PRIMARY" class="Double" value="0.8e-3" />
 					<aspect name="eps" 	type="PRIMARY" class="Double" value="0.0" />
 					<!-- µm -->
-					<spawn number="10" domain="200.0,0.2" />
+					<spawn number="10" domain="256.0,0.2" />
 				</agent>
 				<agent>
 					<aspect name="species" type="PRIMARY" class="String" value="CommamoxAOB" />
@@ -179,7 +179,7 @@
 					<aspect name="mass" type="PRIMARY" class="Double" value="0.8e-3" />
 					<aspect name="eps" 	type="PRIMARY" class="Double" value="0.0" />
 					<!-- µm -->
-					<spawn number="10" domain="200.0,0.2" />
+					<spawn number="10" domain="256.0,0.2" />
 				</agent>
 			</agents>
 			<processManagers>
@@ -215,7 +215,7 @@
 					<aspect name="outputWriter" type="PRIMARY" class="String" value="SvgExport" />
 				</process>
 				<!-- minute -->
-				<process name="solveDiffusionTransient" class="SolveDiffusionTransient" priority="-1"
+				<process name="solveDiffusionTransient" class="SolveDiffusionSteadyState" priority="-1"
 					firstStep="0.0"  timerStepSize="60.0">	
 					<aspect name="soluteNames" type="PRIMARY" class="String[]" value="ammonium,nitrite,nitrate,oxygen" /> 
 					<!-- In principle they are not all the same but all in the 

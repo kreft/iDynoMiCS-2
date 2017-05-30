@@ -190,7 +190,7 @@ public class Log
 	// TODO move this method to Helper?
 	public static void printToScreen(String message, boolean isError)
 	{
-		if ( Helper.gui )
+		if ( Helper.isSystemRunningInGUI )
 		{
 			if ( isError )
 				GuiConsole.writeErr(message + "\n");
