@@ -1,5 +1,7 @@
 package surface;
 
+import dataIO.Log;
+import dataIO.Log.Tier;
 import generalInterfaces.Copyable;
 import linearAlgebra.Vector;
 import referenceLibrary.XmlRef;
@@ -184,7 +186,7 @@ public class Point implements Copyable, Settable
 		Vector.addEquals(this._p, diff);
 		
 		if (diff[0] > 0.5 || diff[1] > 0.5)
-			System.out.println(Vector.toString(diff));
+			Log.out(Tier.DEBUG, "Large point displacement detected in Point.euStep() " + Vector.toString(diff));
 		this.resetForce();
 	}
 

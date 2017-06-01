@@ -35,8 +35,6 @@ public class ResolveInteractionForce extends Event
 		double lo = .157e-9; /* minimum equilibrium distance */
 		if (h < lo)
 			h = lo;
-
-		double timeScaling = 10.0;
 		
 		/* effective radius */
 		double r = 2e-6 / ( ( 1 / initiator.getDouble(RADIUS) ) + 
@@ -97,7 +95,8 @@ public class ResolveInteractionForce extends Event
 
 		/* van Oss Interfacial forces in aqueous media 2006 pp83 */
 		double fab = - Math.PI * r * dGAB * Math.exp( ( lo-h ) / lamb );
-			
-		initiator.set(SCALED_FORCE, (fvdw + fel + fab) * 3.6e24 * Math.pow(timeScaling, 2) );
+		
+		/* convert back to simulation units */
+		initiator.set(SCALED_FORCE, (fvdw + fel + fab) * 3.6e24  );
 	}
 }

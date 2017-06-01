@@ -130,9 +130,13 @@ public interface CollisionFunction extends Instantiable
 		 */
 		public void instantiate(Element xmlElement, Settable parent)
 		{
+			/* push forces should not be to far of from pull forces in ordrer
+			 * of magnitude. Aggressive pushing will result in overshooting the
+			 * interaction distance.
+			 */
 			this._forceScalar = Double.valueOf((String) Helper.setIfNone(
 					XmlHandler.gatherAttribute(xmlElement, XmlRef.forceScalar), 
-					"1e20" ) );
+					"1e18" ) );
 			Log.out(Tier.BULK, "initiating DefaultPushFunction");
 		}
 		
@@ -169,7 +173,7 @@ public interface CollisionFunction extends Instantiable
 				/* Linear. */
 //				double c = Math.abs( this._forceScalar * var.distance );
 				/* two component, better force scaling for low vs high overlap */
-				double c = Math.abs( this._forceScalar * (var.distance + var.distance ) ); //* var.distance * 1e1 ) );
+				double c = this._forceScalar * (  Math.abs( var.distance ) + var.distance * var.distance * 1e2 );
 				/* dP is overwritten here. */
 				Vector.normaliseEuclidEquals( var.interactionVector, c );
 

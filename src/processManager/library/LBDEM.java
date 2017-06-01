@@ -1,10 +1,7 @@
 package processManager.library;
 
 import java.util.List;
-import java.util.function.Predicate;
-import java.math.BigDecimal;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.LinkedList;
 
 import org.w3c.dom.Element;
@@ -165,6 +162,8 @@ public class LBDEM extends ProcessManager
 	public double NU; // kinematic viscosity water, 20 deg C [m^2/s]
 	public double U_scale;
 	public double U_MAX; // velocity in [m/s] is independent of resolution XX
+	public double max_relative_stochastic_velocity;
+	public double extend_base_step;
 
 	public double OMEGA; // relaxation parameter
 	
@@ -216,6 +215,7 @@ public class LBDEM extends ProcessManager
 		
 	
 	private int[] slices;
+	
 	/*************************************************************************
 	 * CONSTRUCTORS
 	 ************************************************************************/
@@ -230,10 +230,16 @@ public class LBDEM extends ProcessManager
 		 * Obtaining relaxation parameters.
 		 */
 		/* in water [ µm / min ] */
-		double speedOfSound = Helper.setIfNone( this.getDouble("speedOfSound"), 89040000000.0 ); 	
+		double speedOfSound = Helper.setIfNone( this.getDouble("speedOfSound"), 
+				89040000000.0 ); 	
+		this.max_relative_stochastic_velocity = Helper.setIfNone( 
+				this.getDouble("maxRelStoVelocity"), 0.001 );	
+		this.extend_base_step = Helper.setIfNone( 
+				this.getDouble("extendBaseStep"), 100.0 );
+		
 		/* note Clb / Cp becomes 6.4841674e-12 min / µm */
 		this._dtBase = Helper.setIfNone( this.getDouble(BASE_DT), 
-				(latticeMultiplier/speedOfSound) * (1 / Math.sqrt(3)) );
+				(latticeMultiplier/speedOfSound) * extend_base_step * (1 / Math.sqrt(3)) );
 		
 		this._maxMovement = Helper.setIfNone( this.getDouble(MAX_MOVEMENT), 0.01 );	
 		this._method = Method.valueOf( Helper.setIfNone(
@@ -243,7 +249,8 @@ public class LBDEM extends ProcessManager
 		this._shape = agents.getShape();
 		this._shapeSurfs  = this._shape.getSurfaces();
 		this._iterator = this._shape.getCollision();
-		this._stressThreshold = Helper.setIfNone( this.getDouble(LOW_STRESS_SKIP), 0.0 );	
+		this._stressThreshold = Helper.setIfNone( 
+				this.getDouble( LOW_STRESS_SKIP ), 0.0 );	
 		
 		/*
 		 * Lattice Boltzmann settings
@@ -251,7 +258,8 @@ public class LBDEM extends ProcessManager
 		this.LX = Helper.setIfNone( this.getDouble("lengthScale"), 1e-4 );	
 		this.RE = Helper.setIfNone( this.getDouble("reynolds"), 100.0 );	
 		this.NU = Helper.setIfNone( this.getDouble("kinematicViscosity"), 1e-6);	
-		this.U_scale = Helper.setIfNone( this.getDouble("velocityScale"), latticeMultiplier / _dtBase);	
+		this.U_scale = Helper.setIfNone( this.getDouble("velocityScale"), 
+				latticeMultiplier / _dtBase );	
 		
 		this.U_MAX = (1 / U_scale) * RE*NU/LX;
 		this.OMEGA = 1.0 / ( 3.0 * NU + 0.5 );
@@ -260,7 +268,7 @@ public class LBDEM extends ProcessManager
 		 * setup D2Q9 Lattice boltamann Bhatnagar–Gross–Krook
 		 */
 		slices = Vector.floor( Vector.times(
-				agents.getShape().getDimensionLengths(), 1/latticeMultiplier ) );
+				agents.getShape().getDimensionLengths(), 1/latticeMultiplier ));
 		this.XX = slices[0];
 		this.YY = slices[1];
 		
@@ -365,7 +373,8 @@ public class LBDEM extends ProcessManager
 					 * cylinder length = rest length
 					 */
 					double l = ((Rod) s)._length;
-					double stiffness = Helper.setIfNone(agent.getDouble(STIFFNESS), 10.0);
+					double stiffness = Helper.setIfNone(
+							agent.getDouble( STIFFNESS ), 10.0 );
 
 					/*
 					 * calculate current length of spine spring
@@ -391,9 +400,9 @@ public class LBDEM extends ProcessManager
 				}
 			}
 			
-			double searchDist = (agent.isAspect(SEARCH_DIST) ?
-					agent.getDouble(SEARCH_DIST) : 0.0);
-			if ( Log.shouldWrite(level) )
+			double searchDist = ( agent.isAspect( SEARCH_DIST ) ?
+					agent.getDouble( SEARCH_DIST ) : 0.0 );
+			if ( Log.shouldWrite( level ) )
 			{
 				Log.out(level, "  Agent (ID "+agent.identity()+") has "+
 						agentSurfs.size()+" surfaces, search dist "+searchDist);
@@ -462,7 +471,7 @@ public class LBDEM extends ProcessManager
 
 		int nstep	= 0;
 		/* recycle current lattice rLat times state to reduce computational demand */
-		int rLat	= 10; 
+		int rLat	= 1; 
 		int uLat	= rLat;
 		_tMech		= 0.0;
 		_dtMech 	= this._dtBase; // start with initial base timestep than adjust
@@ -493,7 +502,7 @@ public class LBDEM extends ProcessManager
 						 * than U_MAX, we multiply by 0.1 for safety (prevent
 						 * LB blowing up 6.28318530718*/
 						double[] vec = Vector.uncylindrify( new double[]{
-								a * this.U_MAX * 0.2, b * 6.28318530718 } );
+								a * this.U_MAX * max_relative_stochastic_velocity, b * 6.28318530718 } );
 						/* Create and save Driver object */
 						Driver p = new Driver( 
 								Vector.randomInts( 1, 0, this.XX )[0], 
@@ -507,12 +516,12 @@ public class LBDEM extends ProcessManager
 						double[] current = lattice.getU(s.x, s.y);
 						double[] vnew = Vector.add(current, s.u);
 						
-						if (Vector.normEuclid(vnew) < this.U_MAX)
+						if (Vector.normEuclid(vnew) < max_relative_stochastic_velocity * this.U_MAX)
 							setVelocity(lattice, lbgk, s.x, s.y, 
 									Vector.add(current, s.u) );
 						else
 							setVelocity(lattice, lbgk, s.x, s.y, 
-									Vector.normaliseEuclid(current, U_MAX) );
+									Vector.normaliseEuclid(current, max_relative_stochastic_velocity *U_MAX) );
 						s.c -= 1;
 					}
 					this._drivers.removeIf( p-> p.c == 0 );
