@@ -141,7 +141,7 @@ public interface CollisionFunction extends Instantiable
 				/* Linear. */
 //				double c = Math.abs( this._forceScalar * var.distance );
 				/* two component, better force scaling for low vs high overlap */
-				double c = Math.abs( this._forceScalar * (var.distance + var.distance * var.distance * 1e2 ) );
+				double c = this._forceScalar * (  Math.abs( var.distance ) + var.distance * var.distance * 1e2 );
 				/* dP is overwritten here. */
 				Vector.normaliseEuclidEquals( var.interactionVector, c );
 				return var;
