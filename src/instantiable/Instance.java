@@ -180,8 +180,6 @@ public class Instance
 	 * 
 	 * <p><b>IMPORTANT:</b> Static methods cannot be overwritten.</p>
 	 * 
-	 * FIXME: @Bas investigate use 
-	 * 
 	 * @param xmlNode Input from protocol file.
 	 */
 	public static Object getNew(Node xmlNode)
