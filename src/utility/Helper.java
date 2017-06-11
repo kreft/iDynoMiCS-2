@@ -117,14 +117,21 @@ public class Helper
 		} 
 		else
 		{
-			@SuppressWarnings("resource")
-			Scanner user_input = new Scanner( System.in );
-
+			Scanner userInput = new Scanner( System.in );
 			if ( noLog )
+			{
 				System.out.println(description);
+				for ( String option : options )
+					System.out.println("\t"+option);
+			}
 			else
-				Log.out(Tier.NORMAL, description);
-			input = user_input.next( );
+			{
+				Log.out(Tier.CRITICAL, description);
+				for ( String option : options )
+					Log.out(Tier.CRITICAL, "\t"+option);
+			}
+			input = userInput.next();
+			userInput.close();
 		}
 		
 		String msg = "Aquired input: " + input;
