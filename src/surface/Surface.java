@@ -21,6 +21,7 @@ public abstract class Surface
 		SPHERE,
 		ROD,
 		PLANE,
+		VOXEL,
 		// CYLINDER NOTE for cylindrical domains
 	}
 	
