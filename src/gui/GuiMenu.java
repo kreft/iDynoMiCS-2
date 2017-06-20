@@ -14,6 +14,7 @@ import javax.swing.JRadioButtonMenuItem;
 import javax.swing.KeyStroke;
 
 import analysis.FilteredTable;
+import analysis.quantitative.Raster;
 import dataIO.DrawMediator;
 import dataIO.Log;
 import dataIO.Log.Tier;
@@ -125,6 +126,13 @@ public final class GuiMenu
 				KeyEvent.VK_D, ActionEvent.CTRL_MASK));
 		menuItem.getAccessibleContext().setAccessibleDescription(
 				"Draw to file");
+		menu.add(menuItem);
+		/*
+		 * Draw raster
+		 */
+		menuItem = new JMenuItem(new GuiMenu.StructureAnalysis());
+		menuItem.getAccessibleContext().setAccessibleDescription(
+				"Draw raster to file");
 		menu.add(menuItem);
 		/*
 		 * Query some agents
@@ -258,6 +266,33 @@ public final class GuiMenu
 				table = table.replaceAll("\\s+","");
 				FilteredTable tab = new FilteredTable(table);
 				tab.toFile();
+			}
+		}
+		
+	}
+	
+	public static class StructureAnalysis extends AbstractAction
+	{
+
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 3011117385035501302L;
+
+		public StructureAnalysis()
+		{
+	        super("StructureAnalysis");
+		}
+	
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			if (Helper.compartmentAvailable())
+			{
+				Raster raster = new Raster( Helper.selectCompartment() );
+				raster.rasterize (Double.valueOf( 
+						Helper.obtainInput( null, "Raster scale" ) ) );
+				raster.plot(raster.agentMap(), 1.0, 
+						Helper.obtainInput( null, "filename") );
 			}
 		}
 		
