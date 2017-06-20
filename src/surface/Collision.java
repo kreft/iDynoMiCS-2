@@ -305,7 +305,7 @@ public class Collision
 		if( a.type() == Surface.Type.SPHERE )
 		{
 			var.flip = false;
-			return this.sphereSphere((Ball) a, (Ball) b, var);
+			return this.assessSphere((Ball) a, b, var);
 		}
 		else
 		{
@@ -387,6 +387,20 @@ public class Collision
 			return this.rodSphere(rod, (Ball) otherSurface, var);
 		else
 			return this.rodRod(rod, (Rod) otherSurface, var);
+	}
+	
+	private CollisionVariables assessSphere(Ball sphere, Surface otherSurface, 
+			CollisionVariables var)
+	{
+		/* FIXME check surface order in arguments */
+		if ( otherSurface.type() == Surface.Type.ROD )
+			return this.rodSphere((Rod) otherSurface, sphere, var);
+		else if ( otherSurface.type() == Surface.Type.SPHERE )
+			return this.sphereSphere(sphere, (Ball) otherSurface, var);
+		else if ( otherSurface.type() == Surface.Type.VOXEL )
+			return this.voxelSphere((Voxel) otherSurface, sphere, var);
+		else
+			return null; // TODO sphere plane
 	}
 	/*************************************************************************
 	 * PRIVATE DISTANCE METHODS
@@ -872,6 +886,21 @@ public class Collision
 		/* calculate the distance between a point and a normalized plane */
 		var.distance = Vector.dotProduct(normal, point) - d;
 		return var;
+	}
+	
+	/**
+	 * TODO \brief
+	 */
+	private CollisionVariables voxelSphere(Voxel voxel, Ball sphere, 
+			CollisionVariables var)
+	{
+		double[] p = Vector.copy( sphere._point.getPosition() );
+		for(int i=0; i < p.length ; i++) 
+		{ 
+			p[i] = Math.max( p[i], voxel._lower[i] );
+			p[i] = Math.min( p[i], voxel._lower[i] + voxel._dimensions[i] );
+		}
+		return this.spherePoint(sphere, p, var);
 	}
 	
 	/**

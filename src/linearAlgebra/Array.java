@@ -24,6 +24,7 @@ package linearAlgebra;
  * </ul>
  * 
  * @author Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
  */
 public final class Array
 {
@@ -1412,23 +1413,34 @@ public final class Array
 	public static double[][][] subarray(double[][][] array, int iStart,
 					int iStop, int jStart, int jStop, int kStart, int kStop)
 	{
-		double[][][] out = new
-				double[iStop - iStart][jStop - jStart][kStop - kStart];
-		try
-		{
-			for ( int i = iStart; i < iStop; i++ )
-				for ( int j = jStart; j < jStop; j++ )
-					for ( int k = kStart; k < kStop; k++ )
-						out[i][j][k] = array[i][j][k];
-		}
-		catch (ArrayIndexOutOfBoundsException e)
-		{
-			throw new
-					ArrayIndexOutOfBoundsException("Check subarray indices");
-		}
+		double[][][] out = new double[iStop+1 - iStart][jStop+1 - jStart][kStop+1 - kStart];
+		for ( int i = iStart; i <= iStop; i++ )
+			for ( int j = jStart; j <= jStop; j++ )
+				for ( int k = kStart; k <= kStop; k++ )
+					out[i - iStart][j - jStart][k - kStart] = array[i][j][k];
 		return out;
 	}
 	
+	/**
+	 * \brief TODO
+	 * @param out
+	 * @param iStart
+	 * @param iStop
+	 * @param jStart
+	 * @param jStop
+	 * @param kStart
+	 * @param kStop
+	 */
+	public static int[][][] subarray(int[][][] array, int iStart, int iStop, 
+			int jStart, int jStop, int kStart, int kStop) 
+	{
+		int[][][] out = new int[iStop+1 - iStart][jStop+1 - jStart][kStop+1 - kStart];
+		for ( int i = iStart; i <= iStop; i++ )
+			for ( int j = jStart; j <= jStop; j++ )
+				for ( int k = kStart; k <= kStop; k++ )
+					out[i - iStart][j - jStart][k - kStart] = array[i][j][k];
+		return out;
+	}
 	/*************************************************************************
 	 * SCALARS FROM ARRAYS
 	 * Any input arrays should be unaffected.
