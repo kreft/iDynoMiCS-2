@@ -164,7 +164,7 @@ public class Raster {
 	public int[][][] distanceMap(int[] dimension, 
 			SpatialMap<Integer> agentMap)
 	{
-		return distanceMap(dimension, agentMap, new boolean[] {true, false});
+		return distanceMap(dimension, agentMap, this._shape.getIsCyclicNaturalOrder());
 	}
 	
 	/* note 2d only 
