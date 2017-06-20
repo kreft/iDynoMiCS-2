@@ -201,6 +201,12 @@ public class ClassRef
 			aspect.event.ResolveInteractionDistance.class.getName();
 	
 	/**
+	 * the resolve interaction force event
+	 */
+	public final static String resolveInteractionForce =
+			aspect.event.ResolveInteractionForce.class.getName();
+	
+	/**
 	 * the rod division event
 	 */
 	public final static String rodDivision =
