@@ -132,7 +132,7 @@ public class Instance
 		catch ( Exception e )
 		{
 			Log.out(Tier.CRITICAL,
-					"ERROR! Problem in XMLable.getNewInstance("+className+")");
+					"ERROR! Problem in Instance.getNew "+prefix+" "+className);
 			e.printStackTrace();
 		}
 		return out;

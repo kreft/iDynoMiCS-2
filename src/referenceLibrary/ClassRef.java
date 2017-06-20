@@ -326,6 +326,9 @@ public class ClassRef
 	public final static String summary =
 			processManager.library.Summary.class.getName();
 	
+	public final static String lbdem =
+			processManager.library.LBDEM.class.getName();
+	
 	/* ************************************************************************
 	 * IdynoMiCS main classes
 	 */
