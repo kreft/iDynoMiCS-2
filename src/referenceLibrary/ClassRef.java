@@ -293,6 +293,12 @@ public class ClassRef
 			processManager.library.AgentRelaxation.class.getName();
 	
 	/**
+	 * agent mechanical relaxation with LB process manager
+	 */
+	public final static String LBDEM =
+			processManager.library.LBDEM.class.getName();
+	
+	/**
 	 * agent stochastiv move manager
 	 */
 	public final static String agentStochasticMove =

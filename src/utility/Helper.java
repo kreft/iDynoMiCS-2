@@ -28,15 +28,17 @@ public class Helper
 	 */
 	public static boolean gui = false;
 	
-	public static final String[] DIFFERENTIATING_PALETE = new String[] { 
+	public static final String[] DIFFERENTIATING_PALETTE = new String[] { 
 			"cyan", "magenta", "yellow", "blue", "red", "green", "violet",
 			"orange", "springgreen", "azure", "pink", "chartreuse", "black" };
 	
 	public static String[] giveMeAGradient(int length)
 	{
-		String[] colors = new String[length];
-		int step = 256 / length;
-		for (int i = 0; i < length; i++)
+		int step = Math.max( 1, 256 / ( length+1 ) );
+		String[] colors = new String[ (256/step) ];
+				
+		colors[0] = "rgb(" + 255 + ", " + 0 + ", " + 0 + ")";
+		for (int i = 1; i < length; i++)
 		{
 			int c = (255 - i * step);
 			colors[i] = "rgb(" + c + ", " + c + ", " + c + ")";

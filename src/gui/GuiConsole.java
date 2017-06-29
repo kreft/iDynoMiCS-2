@@ -218,17 +218,25 @@ public final class GuiConsole
   	 */
   	private static void write(String message, AttributeSet a)
   	{
-  		Document doc =	_console.getDocument();
-  		try
+  		if ( _console != null)
   		{
-  			doc.insertString(doc.getLength(), message, a);
+	  		Document doc =	_console.getDocument();
+	  		try
+	  		{
+	  			doc.insertString(doc.getLength(), message, a);
+	  		}
+	  		catch ( BadLocationException e )
+	  		{
+	  			// TODO
+	  		}
+	  		if ( _autoScroll )
+	  			_console.setCaretPosition(doc.getLength());
   		}
-  		catch ( BadLocationException e )
-  		{
-  			// TODO
-  		}
-  		if ( _autoScroll )
-  			_console.setCaretPosition(doc.getLength());
+  		/* write to standard / error out if there is no console */
+  		else if (a == _errorStyle)
+  			System.err.println(message);
+  		else
+  			System.out.println(message);
 
   	}
 	

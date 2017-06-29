@@ -1,6 +1,3 @@
-/**
- * 
- */
 package gui;
 
 import java.awt.event.ActionEvent;
@@ -133,6 +130,11 @@ public final class GuiMenu
 		menuItem = new JMenuItem(new GuiMenu.StructureAnalysis());
 		menuItem.getAccessibleContext().setAccessibleDescription(
 				"Draw raster to file");
+		menu.add(menuItem);
+		
+		menuItem = new JMenuItem(new GuiMenu.PlotProperties());
+		menuItem.getAccessibleContext().setAccessibleDescription(
+				"Draw property plot");
 		menu.add(menuItem);
 		/*
 		 * Query some agents
@@ -291,8 +293,37 @@ public final class GuiMenu
 				Raster raster = new Raster( Helper.selectCompartment() );
 				raster.rasterize (Double.valueOf( 
 						Helper.obtainInput( null, "Raster scale" ) ) );
-				raster.plot(raster.agentMap(), 1.0, 
-						Helper.obtainInput( null, "filename") );
+				raster.plot(raster.agentMap(), 1.0, "raw" );
+			}
+		}
+		
+	}
+	
+	public static class PlotProperties extends AbstractAction
+	{
+
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 3011117385035501302L;
+
+		public PlotProperties()
+		{
+	        super("PlotProperties");
+		}
+	
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			if (Helper.compartmentAvailable())
+			{
+				Raster raster = new Raster( Helper.selectCompartment() );
+				raster.rasterize (Double.valueOf( 
+						Helper.obtainInput( null, "Raster scale" ) ) );
+				raster.plotPropertyAnalysis( 
+						Helper.obtainInput( null, "filter"), 
+						Helper.obtainInput( null, "filename"), 
+						raster.agentMap() );
+				
 			}
 		}
 		
