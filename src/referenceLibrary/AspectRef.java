@@ -382,4 +382,14 @@ public class AspectRef
 	 */
 	public static final String gravity_testing = "gravity_testing";
 
+	/**
+	 * specify target compartment by name.
+	 */
+	public static final String compartmentName = "compartmentName";
+
+	/**
+	 * rasterScale
+	 */
+	public static final String rasterScale = "rasterScale";
+
 }

@@ -4,6 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import idynomics.Compartment;
+import idynomics.Idynomics;
 import instantiable.Instance;
 import linearAlgebra.Array;
 import linearAlgebra.Vector;
@@ -22,6 +23,8 @@ import analysis.FilterLogic;
 import analysis.filter.Filter;
 import analysis.toolset.LinearRegression;
 import aspect.AspectInterface;
+import dataIO.CsvExport;
+import dataIO.FileHandler;
 import dataIO.GraphicalExporter;
 import dataIO.Log;
 import dataIO.Log.Tier;
@@ -34,11 +37,16 @@ import dataIO.Log.Tier;
  */
 public class Raster {
 
-	private SpatialMap<List<Agent>> _agentMatrix = new SpatialMap<List<Agent>>();
+	private SpatialMap<List<Agent>> _agentRaster = new SpatialMap<List<Agent>>();
 	private Compartment _compartment;
 	private Shape _shape;
 	private GraphicalExporter _graphics;
 	private boolean[] _periodic;
+	
+	/* raster sizes including margins (rX and rY) and actual size */
+	private int rX, rY;
+	private int[] size;
+	private boolean _debugPlots = false;
 	
 	/* default distance map positions */
 	protected final int[] max_value = 
@@ -46,6 +54,19 @@ public class Raster {
 	protected final int[] zeros = 
 			new int[] { 0, 0 };
 	
+	/* analysis */
+	protected SpatialMap<Integer> _agentDistanceMap;
+	protected SpatialMap<Integer> _edgeDistanceMap;
+	private SpatialMap<Double> _edgeDistanceMapDbl;
+	
+	protected final static String[] header = new String[]{
+			"fractal dimension",
+			"fractal std Err",
+			"max diffusion distance",
+			"average diffusion distance (biomass)",
+			"fraction encapsulated void space"
+	};
+
 	private enum Region
 	{
 		GAP, EDGE, BOUNDARY,
@@ -67,9 +88,9 @@ public class Raster {
 		double[] dimLengths = _shape.getDimensionLengths();
 		
 		/* discrete size, amount of voxels per dimension */
-		int[] size = Vector.zerosInt( dimLengths.length );
+		this.size = Vector.zerosInt( dimLengths.length );
 		for ( int c = 0; c < dimLengths.length; c++)
-			size[c] = (int) Math.ceil( dimLengths[c] / voxelLength );
+			this.size[c] = (int) Math.ceil( dimLengths[c] / voxelLength );
 		
 		/* standard voxel, used for agent voxel collision */
 		double[] vox = Vector.setAll( dimLengths, voxelLength);
@@ -100,106 +121,129 @@ public class Raster {
 						colliders.add(a);
 					}
 				}
-			this._agentMatrix.put( c, colliders );
+			this._agentRaster.put( c, colliders );
 		}
 
-		/* matrix dimension length (d, e) is +1 for non periodic */
-		int d = ( _periodic[0] ? size[0] : size[0] + 1 );
-		int e = ( _periodic[1] ? size[1] : size[1] + 1 );
+		/* matrix dimension length (rX, rY) is +1 for non periodic */
+		rX = ( _periodic[0] ? size[0] : size[0] + 1 );
+		rY = ( _periodic[1] ? size[1] : size[1] + 1 );
 			
-		int[][][] agents = new int[d][e][2];
+		int[][][] agents = new int[rX][rY][2];
 		Array.setAll(agents, Integer.MAX_VALUE);
 		
 		/* fill matrix, add spacers for non periodic. */
 		agents = this.presenceMapToArray( agents, this.agentMap(), true, false);
 		int[][][] edge = Array.copy( agents );
-		agents = this.distanceMap( agents );
-		edge = this.edgeMap( edge );
-		edge = this.distanceMap( edge );
+		
+		agents = this.distanceMatrix( agents );
+		if ( _debugPlots )
+			this.plotArray(agents, "ag" + Math.random() );
+		edge = this.edgeMatrix( edge );
+		if ( _debugPlots )
+			this.plotArray(edge, "alpha" + Math.random() );
+		edge = this.distanceMatrix( edge );
+
+		if ( _debugPlots )
+			this.plotArray(edge, "beta" + Math.random() );
 		
 		/* plot biofilm euclidean distance */
-		int max = Array.max( agents );
-		SpatialMap<Integer> distance = new SpatialMap<Integer>();
-		for( int i = 0; i < size[0]; i++)
-		{
-			for ( int j = 0; j < size[1]; j++ )
-			{
-				if ( euclidean( agents[i][j] ) > max )
-					distance.put( new int[] { i, j }, max ); 
-				else
-					distance.put( new int[] { i, j }, 
-							( (Double) euclidean( agents[i][j] ) ).intValue() ); 
-			}
-		}
-		
-		/* Plot euclidean distance map for testing purposes */
-		this.plot( distance, 1, "distance", Helper.giveMeAGradient( max+1 ) );
-		
+		this._agentDistanceMap = euclideanMap( agents );
+
 		/* plot edge euclidean distance */
-		max = Array.max( edge );
-		distance = new SpatialMap<Integer>();
-		for( int i = 0; i < size[0]; i++)
+		this._edgeDistanceMap = euclideanMap( edge );
+		
+		this._edgeDistanceMapDbl = euclideanMapDbl( edge );
+		
+		/* FIXME testing: looking for co-ocurance 
+		this.traitLocalization("species=CanonicalAOB", "species=CanonicalNOB" ); */
+	}
+	
+	public String toString()
+	{
+		double[] out = new double[] { };
+		
+		out = Vector.append( out, this.fractalDimension() );
+		out = Vector.append( out, this.max( this.agentDistanceMap() ) );
+		out = Vector.append( out, this.averageDiffusionDistance() );
+		out = Vector.append( out, this.voidSpace() );
+		
+		return Vector.toString( out );
+	}
+	
+	public static String getHeader()
+	{
+
+		StringBuilder builder = new StringBuilder();
+		for ( int i = 0; i < header.length; i++)
 		{
-			for ( int j = 0; j < size[1]; j++ )
-			{
-				if (euclidean( edge[i][j] ) > max )
-					distance.put( new int[] { i, j }, max ); 
-				else
-					distance.put( new int[] { i, j }, 
-							( (Double) euclidean( edge[i][j] ) ).intValue() ); 
-			}
+			builder.append( header[i] );
+			builder.append( Vector.DELIMITER );
 		}
-		this.plot( distance, 1, "edge", Helper.giveMeAGradient( max+1 ) );
+		return builder.toString();
+	}
 		
-		this.fractalDimension( distance );
+	public void traitLocalization( String filterA, String filterB )
+	{
+		if ( _debugPlots )
+			plotPropertyAnalysis( filterA, "traitA" + Math.random(), this.agentMap() );
 		
-		/* looking for co-ocurance */
-		plotPropertyAnalysis( "species=CanonicalAOB", "AOB", this.agentMap() );
-		
-		SpatialMap<Integer> aob = this.occuranceMap("species=CanonicalAOB", 
+		SpatialMap<Integer> aob = this.occuranceMap( filterA, 
 				 this.agentMap() );
 		
-		int[][][] matrix = new int[d][e][2];
+		int[][][] matrix = new int[rX][rY][2];
 		Array.setAll(matrix, Integer.MAX_VALUE);
 		matrix = presenceMapToArray(matrix, aob, false, true);
-		this.plotArray(matrix, "a0");
-		matrix = this.distanceMap( matrix );
-		this.plotArray(matrix, "a1");
+		
+		matrix = this.distanceMatrix( matrix );
+		
+		if ( _debugPlots )
+			this.plotArray(matrix, "a1" + Math.random());
+		
 		SpatialMap<Integer> aobDist = gradientMap(matrix);
 		
-		SpatialMap<Integer> nob = this.occuranceMap("species=CanonicalNOB", 
+		if ( this.max( aobDist ) == Integer.MAX_VALUE )
+			return;
+		
+		SpatialMap<Integer> nob = this.occuranceMap( filterB, 
 				 this.agentMap() );
 		
-		int[] nobAobDist = Vector.zerosInt( this.max( aobDist )+1  );
+		int[] bToADist = Vector.zerosInt( this.max( aobDist )+1  );
 		for ( String key : nob.keySet() )
 			if ( nob.get( key ) == 1 )
-				nobAobDist[ aobDist.get( key ) ]++;
-		System.out.println( "Distance of NOB from AOB" );
-		System.out.println( "Co-ocurence voxels: " + nobAobDist[0] );
-		System.out.println( "Average distance: " + averageDist( nobAobDist ) + 
-				" voxels" );		
+				bToADist[ aobDist.get( key ) ]++;
+		Log.out( Tier.EXPRESSIVE, "Distance of b from a" );
+		Log.out( Tier.EXPRESSIVE, "Co-ocurence voxels: " + bToADist[0] );
+		Log.out( Tier.EXPRESSIVE, "Average distance: " + averageDist( bToADist )
+				+ " voxels" );		
 		
-		matrix = new int[d][e][2];
+		matrix = new int[rX][rY][2];
 		Array.setAll(matrix, Integer.MAX_VALUE);
 		matrix = presenceMapToArray(matrix, nob, false, true);
-		this.plotArray(matrix, "n0");
-		matrix = this.distanceMap( matrix );
-		this.plotArray(matrix, "n1");
+		
+		matrix = this.distanceMatrix( matrix );
+		
+		if ( _debugPlots )
+			this.plotArray(matrix, "n1" + Math.random());
 		
 		SpatialMap<Integer> nobDist = gradientMap(matrix);
 
 		
-		int[] aobNobDist = Vector.zerosInt( this.max( nobDist )+1 );
+		int[] aToBDist = Vector.zerosInt( this.max( nobDist )+1 );
 		for ( String key : aob.keySet() )
 			if ( aob.get( key ) == 1 )
-			aobNobDist[ nobDist.get( key ) ]++;
-		System.out.println( "Distance of AOB from NOB" );
-		System.out.println( "Co-ocurence voxels: " + aobNobDist[0] );
-		System.out.println( "Average distance: " + averageDist( aobNobDist ) + 
-				" voxels" );		
+				aToBDist[ nobDist.get( key ) ]++;
+
+		Log.out( Tier.EXPRESSIVE, "Distance of a from b" );
+		Log.out( Tier.EXPRESSIVE, "Co-ocurence voxels: " + aToBDist[0] );
+		Log.out( Tier.EXPRESSIVE, "Average distance: " + averageDist( aToBDist )
+				+ " voxels" );		
 		
-		System.out.println( Vector.toString( colocalizationStrict(aob, nob) ) );
-		System.out.println( Vector.toString( colocalizationProximity( aobDist, nobDist, 2) ) );
+		Log.out( Tier.EXPRESSIVE, "strict co-localization " + Vector.toString( 
+				colocalization( aToBDist, bToADist, 1 ) ) );
+		Log.out( Tier.EXPRESSIVE, "proximity co-localization ( < 6µm ) " + 
+				Vector.toString( colocalization( aToBDist, bToADist, 12 ) ) );
+		Log.out( Tier.EXPRESSIVE, Vector.toString( aToBDist ) );
+		Log.out( Tier.EXPRESSIVE, Vector.toString( bToADist ) );
 	}
 	
 	/**
@@ -208,58 +252,20 @@ public class Raster {
 	 * MANDERS, E. M. M., VERBEEK, F. J. & ATEN, J. A. Measurement of 
 	 * co-localization of objects in dual-colour confocal images. J. Microsc. 
 	 * 169, 375–382 (1993).
-	 * @return
 	 */
-	public double[] colocalizationStrict( SpatialMap<Integer> a, 
-			SpatialMap<Integer> b)
+	public double[] colocalization( int[] distAtoB, int[] distBtoA, 
+			int threshold)
 	{
-		int q = 0, p = 0, c = 0;
-		for ( String key : a.keySet() )
-			if ( a.get( key ) == 1 )
-			{
-				q++;
-				if ( b.get( key ) == 1 )
-					c++;
-			}
-		for ( String key : b.keySet() )
-			if ( b.get( key ) == 1 )
-				p++;
-		return new double[]{ (double) c / (double) q, (double) c / (double) p };
+		int c = 0, d = 0;
+		for ( int i = 0; i < Math.min(threshold, distAtoB.length); i++)
+			c += distAtoB[i];
+		for ( int i = 0; i < Math.min(threshold, distBtoA.length); i++)
+			d += distBtoA[i];
+
+		return new double[] { (double) c / (double) Vector.sum(distAtoB), 
+				(double) d / (double) Vector.sum(distBtoA) };
 	}
-	
-	/*
-	 * includes weighted neighborhood. using euclidean distance maps
-	 * 
-	 * still seems a bit tricky, maybe just consider direct neighbors?
-	 */
-	public double[] colocalizationProximity( SpatialMap<Integer> distA, 
-			SpatialMap<Integer> distB, int threshold)
-	{
-		int q = 0, p = 0, c = 0, d = 0, t, u;
-		for ( String key : distA.keySet() )
-		{
-			t = distA.get( key );
-			if ( t < threshold )
-			{
-				q += threshold - t;
-				u = distB.get( key ) ;
-				if ( u < threshold )
-				{
-					c += threshold - t;
-					d += threshold - u;
-				}
-			}
-		}
-		for ( String key : distB.keySet() )
-		{
-			u = distB.get( key ) ;
-			if ( u < 1 )
-				p += threshold - u;
-		}
-		return new double[]{ ( (double) c / (double) q ) / (double) threshold, 
-				( (double) d / (double) p ) / (double) threshold };
-	}
-	
+
 	public Integer max(SpatialMap<Integer> map)
 	{
 		Integer out = 0;
@@ -280,20 +286,113 @@ public class Raster {
 		return p/q;
 	}
 	
+	public int[] voxelsPerDistance( SpatialMap<Integer> distanceMap )
+	{
+		if ( this.max( distanceMap ) == Integer.MAX_VALUE )
+		{
+			this.plot( distanceMap, 1, "catch", Helper.giveMeAGradient(255) );
+			
+			/* matrix dimension length (rX, rY) is +1 for non periodic */
+			rX = ( _periodic[0] ? size[0] : size[0] + 1 );
+			rY = ( _periodic[1] ? size[1] : size[1] + 1 );
+				
+			int[][][] agents = new int[rX][rY][2];
+			Array.setAll(agents, Integer.MAX_VALUE);
+			
+			/* fill matrix, add spacers for non periodic. */
+			agents = this.presenceMapToArray( agents, this.agentMap(), true, false);		
+			agents = this.distanceMatrix( agents );
+			CsvExport dump = new CsvExport();
+			dump.createCustomFile("_debug");
+			dump.writeLine( textArray( agents ) );
+			dump.closeFile();
+			
+			return new int[] {0, 1};
+		}
+		int[] out = Vector.zerosInt( this.max( distanceMap ) + 1 );
+		for ( String key : _agentDistanceMap.keySet() )
+		{
+			int p = _agentDistanceMap.get( key );
+			if ( p != 0 )
+				out[ p ]++;
+		}
+		
+		return out;
+	}
+	
+	public double voidSpace()
+	{
+		return voidSpace( this.agentDistanceMap(), this.agentMap() );
+	}
+	
+	/**
+	 * 
+	 * @param space
+	 * @param raw
+	 * @return fraction encapsulated void space (if this fraction is high the
+	 * domain should be considered foamy and thus not biofilm).
+	 */
+	public double voidSpace( SpatialMap<Integer> space, SpatialMap<Integer> raw)
+	{
+		int a = 0, b = 0;
+		for ( String l : space.keySet() )
+		{
+			if ( space.get( l ) != 0 )
+			{
+				a++;
+				if ( raw.get( l ) == 1 )
+					b++;
+			}
+		}
+		return ( 1.0 - ((double) b / (double) a));
+	}
+	
+	public double averageDiffusionDistance()
+	{
+		int[] dist = voxelsPerDistance( this._agentDistanceMap );
+		int o = 0, c = 0;
+		for ( int i = 1; i < dist.length; i++) /* we skip 0 intentionally */
+		{
+			o += dist[i] * i;
+			c += dist[i];
+		}
+		return (double)o / (double)c;
+	}
+	
+	/**
+	 * calculate fractal dimension from edge distance map
+	 * @return
+	 */
+	public double[] fractalDimension()
+	{
+		if ( _edgeDistanceMap == null )
+		{
+			Log.out(Tier.NORMAL, "edge map not set, raseterization required" );
+			return null;
+		}
+		/* fractal dimension and the std error. */
+		return this.fractalDimension( _edgeDistanceMapDbl );
+	}
+	
+	public double[] fractalDimension( SpatialMap<Double> edgeDistance )
+	{
+		return fractalDimension( edgeDistance, 
+				new double[] { 1.0, 1.2, 1.4, 1.6, 1.8, 2.0 } );
+	}
+	
 	/**
 	 * calculate fractal dimension from edge distance map
 	 * @param edgeDistance
 	 * @return
 	 */
-	public double[] fractalDimension( SpatialMap<Integer> edgeDistance )
+	public double[] fractalDimension( SpatialMap<Double> edgeDistance, double[] steps )
 	{
-		double[] steps = new double[] { 1.0, 1.5, 2.0, 2.5 };
 		double[] diam = new double[ steps.length ];
 		double[] count = new double[ steps.length ];
 		for ( int i = 0; i < steps.length; i++ )
 		{
 			count[i] = 0;
-			for ( int a : edgeDistance.values() )
+			for ( Double a : edgeDistance.values() )
 				if ( a < Math.exp( steps[i] ) )
 				{
 					count[i]++;
@@ -316,7 +415,7 @@ public class Raster {
 		Log.out(Tier.DEBUG, fractalReg.toString() );
 		Log.out(Tier.EXPRESSIVE, String.format( "fractal dimension %.3f, stdErr"
 				+ " %.3f", 1 - fractalReg.slope(), fractalReg.slopeStdErr() ) );
-		return new double[] { fractalReg.slope(), fractalReg.slopeStdErr() };
+		return new double[] { 1.0 - fractalReg.slope(), fractalReg.slopeStdErr() };
 	}
 	
 	/**
@@ -392,12 +491,22 @@ public class Raster {
 	public SpatialMap<Integer> agentMap() 
 	{
 		SpatialMap<Integer> out = new SpatialMap<Integer>();
-		for ( int[] c : this._agentMatrix.keySetNumeric() )
-			if ( this._agentMatrix.get( c ).isEmpty() )
+		for ( int[] c : this._agentRaster.keySetNumeric() )
+			if ( this._agentRaster.get( c ).isEmpty() )
 				out.put(c, 0);
 			else
 				out.put(c, 1);
 		return out;
+	}
+	
+	public SpatialMap<Integer> agentDistanceMap() 
+	{
+		return this._agentDistanceMap;
+	}
+	
+	public SpatialMap<Integer> edgeDistanceMap() 
+	{
+		return this._edgeDistanceMap;
 	}
 	
 	/**
@@ -438,8 +547,8 @@ public class Raster {
 			}
 		}
 		
-		/* FIXME: remove following line. For testing, plot raw agent raster */
-		this.plot( distance, 1, "rawRaster", Helper.giveMeAGradient( max+1 ) );
+		if ( _debugPlots )
+			plot( distance, 1, "raster" + Math.random(), Helper.giveMeAGradient( max+1 ) );
 		
 		/* fill encapsulated void spaces */
 		if ( plugHoles )
@@ -456,17 +565,33 @@ public class Raster {
 	 * amount of agents that pass the supplied filter per voxel.
 	 * 
 	 * @param agentMap
-	 * @param filter
+	 * @param filter {@link String}
 	 * @return
 	 */
-	public SpatialMap<double[]> propertyAnalysis( SpatialMap<Integer> agentMap, 
-			Filter filter)
+    public SpatialMap<double[]> propertyLocalisation( String filter, 
+    		SpatialMap<Integer> intMap ) 
+    {
+    	Filter myFilter = FilterLogic.filterFromString( filter );
+    	SpatialMap<double[]> propMap = propertyLocalisation( myFilter, intMap );
+    	return propMap;
+    }
+	
+	/**
+	 * Create SpatialMap based on agent property occurrence per region, counts
+	 * amount of agents that pass the supplied filter per voxel.
+	 * 
+	 * @param agentMap
+	 * @param filter {@link analysis.filter.Filter}
+	 * @return
+	 */
+	public SpatialMap<double[]> propertyLocalisation( Filter filter,
+			 SpatialMap<Integer> agentMap )
 	{
 		SpatialMap<double[]> propertyMap = new SpatialMap<double[]>();
 		for ( int[] spot : agentMap.keySetNumeric() )
 		{
 			List<AspectInterface> agents = new LinkedList<AspectInterface>( 
-					this._agentMatrix.get( spot ) );
+					this._agentRaster.get( spot ) );
 			propertyMap.put( spot, Counter.count(filter, agents) );
 		}
 		return propertyMap;
@@ -479,7 +604,7 @@ public class Raster {
 	 * @param array
 	 * @return
 	 */
-	private int[][][] edgeMap( int[][][] array )
+	private int[][][] edgeMatrix( int[][][] array )
 	{
 		int[][][] out = Array.array( array.length, array[0].length, 
 				array[0][0].length, Integer.MAX_VALUE );
@@ -623,8 +748,6 @@ public class Raster {
 		return pass;
 	}
 	
-	
-	
 	/* 
 	 * Extended 4SED approach for periodic boundaries and added padding for
 	 * correct boundary handling in non-periodic situations.
@@ -633,7 +756,7 @@ public class Raster {
 	 * P.E. Danielsson, Euclidean distance mapping, computer graphics and image 
 	 * processing 14, 227-248 (1980)
 	 */
-	public int[][][] distanceMap(int[][][] out )
+	public int[][][] distanceMatrix(int[][][] out )
 	{
 		int[] p, q, step;
 		int d = out.length;
@@ -675,7 +798,7 @@ public class Raster {
 					out[i][j] = Vector.add( q, step );
 			}
 			/* step 3 */
-			for ( int i = d-1; i > 0; i--)
+			for ( int i = d-1; i >= 0; i--)
 			{
 				p = out[i][j];
 				/* handle boundaries */	
@@ -691,7 +814,7 @@ public class Raster {
 			}
 		}
 		/* second pass */
-		for ( int j = e-1; j > 0; j--)
+		for ( int j = e-1; j >= 0; j--)
 		{
 			/* step 4 */
 			step = new int[] { 0, 1 };
@@ -763,6 +886,46 @@ public class Raster {
 			out += (double) i * (double) i;
 		return Math.sqrt(out);
 	}
+	
+	public SpatialMap<Integer> euclideanMap( int[][][] matrix)
+	{
+		/* plot edge euclidean distance */
+		int max = Array.max( matrix );
+		SpatialMap<Integer> distance = new SpatialMap<Integer>();
+		for( int i = 0; i < size[0]; i++)
+		{
+			for ( int j = 0; j < size[1]; j++ )
+			{
+				if ( euclidean( matrix[i][j] ) > max )
+					distance.put( new int[] { i, j }, max ); 
+				else
+					distance.put( new int[] { i, j }, 
+							( (Double) euclidean( matrix[i][j] ) ).intValue() ); 
+			}
+		}
+		if ( _debugPlots )
+			this.plot( distance, 1, "eucliMap" + Math.random(), Helper.giveMeAGradient( max+1 ) );
+		return distance;
+	}
+	
+	public SpatialMap<Double> euclideanMapDbl( int[][][] matrix)
+	{
+		/* plot edge euclidean distance */
+		int max = Array.max( matrix );
+		SpatialMap<Double> distance = new SpatialMap<Double>();
+		for( int i = 0; i < size[0]; i++)
+		{
+			for ( int j = 0; j < size[1]; j++ )
+			{
+				if (euclidean( matrix[i][j] ) > max )
+					distance.put( new int[] { i, j }, Double.valueOf( max ) ); 
+				else
+					distance.put( new int[] { i, j }, 
+							Double.valueOf( euclidean( matrix[i][j] ) ) ); 
+			}
+		}
+		return distance;
+	}
 
 	/**
 	 * \brief returns a linked list with all possible coordinate positions from
@@ -822,60 +985,6 @@ public class Raster {
 		    out[i] = (double) c[i] * scalar;
 		return out;
 	}
-	
-	/**
-	 * http://introcs.cs.princeton.edu/java/97data/LinearRegression.java.html
-	 * 
-	 * Copyright © 2000–2011, Robert Sedgewick and Kevin Wayne. 
-	 * @param args
-	 */
-    public static void linearRegression(double[] x, double[] y) { 
-        double intercept, slope;
-        double r2;
-        double svar0, svar1;
-        
-    	if (x.length != y.length) {
-            throw new IllegalArgumentException("array lengths are not equal");
-        }
-        int n = x.length;
-
-        // first pass
-        double sumx = 0.0, sumy = 0.0, sumx2 = 0.0;
-        for (int i = 0; i < n; i++) {
-            sumx  += x[i];
-            sumx2 += x[i]*x[i];
-            sumy  += y[i];
-        }
-        double xbar = sumx / n;
-        double ybar = sumy / n;
-
-        // second pass: compute summary statistics
-        double xxbar = 0.0, yybar = 0.0, xybar = 0.0;
-        for (int i = 0; i < n; i++) {
-            xxbar += (x[i] - xbar) * (x[i] - xbar);
-            yybar += (y[i] - ybar) * (y[i] - ybar);
-            xybar += (x[i] - xbar) * (y[i] - ybar);
-        }
-        slope  = xybar / xxbar;
-        intercept = ybar - slope * xbar;
-
-        // more statistical analysis
-        double rss = 0.0;      // residual sum of squares
-        double ssr = 0.0;      // regression sum of squares
-        for (int i = 0; i < n; i++) {
-            double fit = slope*x[i] + intercept;
-            rss += (fit - y[i]) * (fit - y[i]);
-            ssr += (fit - ybar) * (fit - ybar);
-        }
-
-        int degreesOfFreedom = n-2;
-        r2    = ssr / yybar;
-        double svar  = rss / degreesOfFreedom;
-        svar1 = svar / xxbar;
-        svar0 = svar/n + xbar*xbar*svar1;
-        
-        System.out.println( slope + " * x + " + intercept );
-    }
     
     /**
      * convert an array of integers ( int[][][] ) into a SpatialMap holding the
@@ -897,9 +1006,9 @@ public class Raster {
 		return distance;
     }
     
-    public Integer intFromDouble( Double in )
+    public Integer toInteger( Double in )
     {
-    	return (Integer) ( (Double) in ).intValue();
+    	return (Integer) ( in ).intValue();
     }
     
     /* ************************************************************************
@@ -918,22 +1027,14 @@ public class Raster {
     	this.plot( occuranceMap(filter, intMap), 1, fileName, 
     			Helper.DIFFERENTIATING_PALETTE );
     }
-    
-    public SpatialMap<double[]> propertyMap( String filter, 
-    		SpatialMap<Integer> intMap ) 
-    {
-    	Filter myFilter = FilterLogic.filterFromString( filter );
-    	SpatialMap<double[]> propMap = propertyAnalysis( intMap, myFilter );
-    	return propMap;
-    }
-    
+        
     public SpatialMap<Integer> occuranceMap( String filter, 
     		SpatialMap<Integer> intMap ) 
     {
     	SpatialMap<Integer> myMap = new SpatialMap<Integer>();
-    	SpatialMap<double[]> propMap = propertyMap(filter, intMap);
+    	SpatialMap<double[]> propMap = propertyLocalisation(filter, intMap);
     	for ( int[] spot : propMap.keySetNumeric() )
-    		myMap.put(spot, intFromDouble( propMap.get( spot )[0]) );
+    		myMap.put(spot, toInteger( propMap.get( spot )[0]) );
     	return myMap;
     }
     
@@ -945,15 +1046,17 @@ public class Raster {
      * prints array to console
      * @param array
      */
-	private void printArray(int[][][] array)
+	private String textArray(int[][][] array)
 	{
+		String out = "";
 		for( int i = 0; i < array.length; i++ )
 		{
 			for ( int j = 0; j < array[0].length; j++ )
-				System.out.print( Vector.toString( array[i][j] ) + "\t" );
-			System.out.print("\n");
+				out += ( Vector.toString( array[i][j] ) + "\t" );
+			out += ("\n");
 		}
-		System.out.print("\n");
+		out += ("\n");
+		return out;
 	}
 	
 	/**

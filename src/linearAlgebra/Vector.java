@@ -1856,6 +1856,24 @@ public final class Vector
 		return out;
 	}
 	
+	/**
+	 * \brief Append a vector to the end of an other vector, writing the result
+	 * into a new vector.
+	 * 
+	 * @param vector One-dimensional array of doubles (preserved).
+	 * @param values One-dimensional array of doubles (preserved).
+	 * @return New one-dimensional array of doubles.
+	 */
+	public static double[] append(double[] vector, double[] values )
+	{
+		double[] out = new double[vector.length+values.length];
+		for (int i = 0; i < vector.length; i++)
+			out[i] = vector[i];
+		for (int i = 0; i < values.length; i++)
+			out[vector.length+i] = values[i];
+		return out;
+	}
+	
 	/* Flip */
 	
 	/**

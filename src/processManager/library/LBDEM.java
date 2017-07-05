@@ -74,7 +74,8 @@ public class LBDEM extends ProcessManager
 	public String STIFFNESS = AspectRef.spineStiffness;
 	
 	public String FLOW_PROFILE = "flowProfile";
-	
+
+	private boolean _debugPlots = false;
 	
 	/**
 	 * Available relaxation methods.
@@ -304,8 +305,11 @@ public class LBDEM extends ProcessManager
 		}
 		
 		/* LB output folder */
-		FileHandler fileio = new FileHandler();
-		fileio.fnew(Idynomics.global.outputLocation + "LBDEM/out");
+		if ( _debugPlots )
+		{
+			FileHandler fileio = new FileHandler();
+			fileio.fnew(Idynomics.global.outputLocation + "LBDEM/out");
+		}
 	}
 	
 	public void initializeVelocity(D2Q9Lattice lattice, LBGK lbgk) {
@@ -601,9 +605,10 @@ public class LBDEM extends ProcessManager
 			nstep++;
 		}
 		this._agents.refreshSpatialRegistry();
-		save(Idynomics.global.outputLocation + "LBDEM/dump_" + this._timeForNextStep ,lattice);
-		Log.out(Tier.DEBUG,
-				"Relaxed "+this._agents.getNumAllAgents()+" agents after "+
-						nstep+" iterations");
+		if ( _debugPlots )
+			save( Idynomics.global.outputLocation + "LBDEM/dump_" + 
+					this._timeForNextStep, lattice );
+		Log.out( Tier.DEBUG, "Relaxed " + this._agents.getNumAllAgents() +
+				" agents after " + nstep + " iterations");
 	}
 }

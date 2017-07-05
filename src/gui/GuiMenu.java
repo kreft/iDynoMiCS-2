@@ -17,6 +17,7 @@ import dataIO.Log;
 import dataIO.Log.Tier;
 import idynomics.Idynomics;
 import idynomics.Simulator;
+import linearAlgebra.Vector;
 import utility.Helper;
 
 /**
@@ -291,9 +292,10 @@ public final class GuiMenu
 			if (Helper.compartmentAvailable())
 			{
 				Raster raster = new Raster( Helper.selectCompartment() );
-				raster.rasterize (Double.valueOf( 
+				raster.rasterize ( Double.valueOf( 
 						Helper.obtainInput( null, "Raster scale" ) ) );
-				raster.plot(raster.agentMap(), 1.0, "raw" );
+
+				Log.out(Tier.QUIET, raster.toString() );
 			}
 		}
 		
@@ -323,7 +325,6 @@ public final class GuiMenu
 						Helper.obtainInput( null, "filter"), 
 						Helper.obtainInput( null, "filename"), 
 						raster.agentMap() );
-				
 			}
 		}
 		

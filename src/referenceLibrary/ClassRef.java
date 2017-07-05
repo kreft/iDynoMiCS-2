@@ -341,6 +341,9 @@ public class ClassRef
 	public final static String lbdem =
 			processManager.library.LBDEM.class.getName();
 	
+	public final static String analysis =
+			processManager.library.Analysis.class.getName();
+	
 	/* ************************************************************************
 	 * IdynoMiCS main classes
 	 */
