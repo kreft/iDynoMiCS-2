@@ -46,6 +46,8 @@ public class Helper
 		return colors;
 	}
 
+	public static final char[] ALPHABET = 
+			"abcdefghijklmnopqrstuvwxyz".toCharArray();
 
 	/**
 	 * Obtain user input as string.

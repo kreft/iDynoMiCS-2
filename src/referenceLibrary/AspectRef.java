@@ -392,4 +392,14 @@ public class AspectRef
 	 */
 	public static final String rasterScale = "rasterScale";
 
+	/**
+	 * Array of filters for spatial analysis
+	 */
+	public static final String filterSet = "filterSet";
+
+	/**
+	 * set of distances to do colocalization analysis for.
+	 */
+	public static final String colocalizationSteps = "colocalizationSteps";
+
 }

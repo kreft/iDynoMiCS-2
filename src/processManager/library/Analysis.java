@@ -23,15 +23,11 @@ import processManager.ProcessManager;
  */
 public class Analysis extends ProcessManager {
 
-		/**
-		 * The Filtered table
-		 */
-		protected FilteredTable table;
-		
+
 		public static String FILE_PREFIX = AspectRef.filePrefix;
 
 		/**
-		 * The SVG exporter.
+		 * The CSV exporter.
 		 */
 		protected CsvExport _csvExport = new CsvExport();
 
@@ -87,7 +83,7 @@ public class Analysis extends ProcessManager {
 			
 			/* output table summary to log/console */
 			Log.out(Tier.EXPRESSIVE, "Structural analysis:\n" +
-					getHeader() + "," + raster.getHeader() + "\n" + line );
+					getHeader() + "," + Raster.getHeader() + "\n" + line );
 		}
 
 		

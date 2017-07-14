@@ -181,36 +181,66 @@ public class Raster {
 		}
 		return builder.toString();
 	}
-		
-	public void traitLocalization( String filterA, String filterB )
+	
+	public int[] distanceVector( String filterA, String filterB )
 	{
-		if ( _debugPlots )
-			plotPropertyAnalysis( filterA, "traitA" + Math.random(), this.agentMap() );
-		
-		SpatialMap<Integer> aob = this.occuranceMap( filterA, 
+		SpatialMap<Integer> aMap = this.occuranceMap( filterA, 
 				 this.agentMap() );
 		
 		int[][][] matrix = new int[rX][rY][2];
 		Array.setAll(matrix, Integer.MAX_VALUE);
-		matrix = presenceMapToArray(matrix, aob, false, true);
+		matrix = presenceMapToArray(matrix, aMap, false, true);
 		
 		matrix = this.distanceMatrix( matrix );
 		
 		if ( _debugPlots )
 			this.plotArray(matrix, "a1" + Math.random());
 		
-		SpatialMap<Integer> aobDist = gradientMap(matrix);
+		SpatialMap<Integer> aDist = gradientMap(matrix);
 		
-		if ( this.max( aobDist ) == Integer.MAX_VALUE )
-			return;
+		if ( this.max( aDist ) == Integer.MAX_VALUE )
+			return null;
 		
-		SpatialMap<Integer> nob = this.occuranceMap( filterB, 
+		SpatialMap<Integer> bMap = this.occuranceMap( filterB, 
 				 this.agentMap() );
 		
-		int[] bToADist = Vector.zerosInt( this.max( aobDist )+1  );
-		for ( String key : nob.keySet() )
-			if ( nob.get( key ) == 1 )
-				bToADist[ aobDist.get( key ) ]++;
+		int[] bToADist = Vector.zerosInt( this.max( aDist )+1  );
+		for ( String key : bMap.keySet() )
+			if ( bMap.get( key ) == 1 )
+				bToADist[ aDist.get( key ) ]++;
+		return bToADist;
+	}
+		
+	public void traitLocalization( String filterA, String filterB )
+	{
+		if ( _debugPlots )
+			plotPropertyAnalysis( filterA, "traitA" + Math.random(), 
+					this.agentMap() );
+		
+		SpatialMap<Integer> aMap = this.occuranceMap( filterA, 
+				 this.agentMap() );
+		
+		int[][][] matrix = new int[rX][rY][2];
+		Array.setAll(matrix, Integer.MAX_VALUE);
+		matrix = presenceMapToArray(matrix, aMap, false, true);
+		
+		matrix = this.distanceMatrix( matrix );
+		
+		if ( _debugPlots )
+			this.plotArray(matrix, "a1" + Math.random());
+		
+		SpatialMap<Integer> aDist = gradientMap(matrix);
+		
+		if ( this.max( aDist ) == Integer.MAX_VALUE )
+			return;
+		
+		SpatialMap<Integer> bMap = this.occuranceMap( filterB, 
+				 this.agentMap() );
+		
+		int[] bToADist = Vector.zerosInt( this.max( aDist )+1  );
+		for ( String key : bMap.keySet() )
+			if ( bMap.get( key ) == 1 )
+				bToADist[ aDist.get( key ) ]++;
 		Log.out( Tier.EXPRESSIVE, "Distance of b from a" );
 		Log.out( Tier.EXPRESSIVE, "Co-ocurence voxels: " + bToADist[0] );
 		Log.out( Tier.EXPRESSIVE, "Average distance: " + averageDist( bToADist )
@@ -218,20 +248,20 @@ public class Raster {
 		
 		matrix = new int[rX][rY][2];
 		Array.setAll(matrix, Integer.MAX_VALUE);
-		matrix = presenceMapToArray(matrix, nob, false, true);
+		matrix = presenceMapToArray(matrix, bMap, false, true);
 		
 		matrix = this.distanceMatrix( matrix );
 		
 		if ( _debugPlots )
 			this.plotArray(matrix, "n1" + Math.random());
 		
-		SpatialMap<Integer> nobDist = gradientMap(matrix);
+		SpatialMap<Integer> bDist = gradientMap(matrix);
 
 		
-		int[] aToBDist = Vector.zerosInt( this.max( nobDist )+1 );
-		for ( String key : aob.keySet() )
-			if ( aob.get( key ) == 1 )
-				aToBDist[ nobDist.get( key ) ]++;
+		int[] aToBDist = Vector.zerosInt( this.max( bDist )+1 );
+		for ( String key : aMap.keySet() )
+			if ( aMap.get( key ) == 1 )
+				aToBDist[ bDist.get( key ) ]++;
 
 		Log.out( Tier.EXPRESSIVE, "Distance of a from b" );
 		Log.out( Tier.EXPRESSIVE, "Co-ocurence voxels: " + aToBDist[0] );
@@ -350,6 +380,26 @@ public class Raster {
 	public double averageDiffusionDistance()
 	{
 		int[] dist = voxelsPerDistance( this._agentDistanceMap );
+		int o = 0, c = 0;
+		for ( int i = 1; i < dist.length; i++) /* we skip 0 intentionally */
+		{
+			o += dist[i] * i;
+			c += dist[i];
+		}
+		return (double)o / (double)c;
+	}
+	
+	public double averageDiffusionDistance( String filter )
+	{
+
+		SpatialMap<Integer> bMap = this.occuranceMap( filter, 
+				 this.agentMap() );
+		
+		int[] dist = Vector.zerosInt( this.max( this._agentDistanceMap )+1  );
+		for ( String key : bMap.keySet() )
+			if ( bMap.get( key ) == 1 )
+				dist[ this._agentDistanceMap.get( key ) ]++;
+
 		int o = 0, c = 0;
 		for ( int i = 1; i < dist.length; i++) /* we skip 0 intentionally */
 		{
@@ -1026,6 +1076,11 @@ public class Raster {
     {
     	this.plot( occuranceMap(filter, intMap), 1, fileName, 
     			Helper.DIFFERENTIATING_PALETTE );
+    }
+    
+    public SpatialMap<Integer> occuranceMap( String filter )
+    {
+    	return occuranceMap( filter, this.agentMap() );
     }
         
     public SpatialMap<Integer> occuranceMap( String filter, 

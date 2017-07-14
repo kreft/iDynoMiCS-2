@@ -344,6 +344,9 @@ public class ClassRef
 	public final static String analysis =
 			processManager.library.Analysis.class.getName();
 	
+	public final static String analysisTrait =
+			processManager.library.AnalysisTrait.class.getName();
+	
 	/* ************************************************************************
 	 * IdynoMiCS main classes
 	 */
