@@ -1,9 +1,12 @@
 package idynomics;
 
+import java.math.BigDecimal;
+
 import org.w3c.dom.Element;
 
 import dataIO.Log;
 import dataIO.XmlHandler;
+import gui.GuiButtons;
 import referenceLibrary.XmlRef;
 import settable.Attribute;
 import settable.Module;
@@ -118,15 +121,16 @@ public class Timer implements Instantiable, Settable
 	
 	public double getEndOfCurrentIteration()
 	{
-		return this._now + getTimeStepSize();
+		return ( BigDecimal.valueOf( this._now ) ).
+				add( BigDecimal.valueOf( this._timerStepSize ) ).doubleValue();
 	}
 	
 	public void step()
 	{
-		this._now += getTimeStepSize();
+		this._now = getEndOfCurrentIteration();
 		this._iteration++;
 		if ( Helper.gui )
-			GuiLaunch.updateProgressBar();
+			GuiButtons.updateProgressBar();
 	}
 	
 	public double getEndOfSimulation()

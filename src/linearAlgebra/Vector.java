@@ -51,7 +51,7 @@ public final class Vector
 	 * matrix or array cannot be defined.
 	 */
 	public final static double UNDEFINED_AVERAGE = Double.NaN;
-	
+
 	/*************************************************************************
 	 * STANDARD NEW VECTORS
 	 ************************************************************************/
@@ -312,6 +312,11 @@ public final class Vector
 	/**
 	 * \brief Copy the values of <b>source</b> into <b>destination</b>.
 	 * 
+	 * NOTE: If source.length > destination.length tailing values are omitted in
+	 * destination. If destination.length > source.length tailing values of 
+	 * original destination will be maintained. If this behavior is unwanted use
+	 * java default destination = source.clone();
+	 * 
 	 * @param destination int[] to be overwritten with the values of
 	 * <b>source</b>.
 	 * @param source int[] to be copied from (preserved).
@@ -327,6 +332,11 @@ public final class Vector
 	
 	/**
 	 * \brief Copy the values of <b>source</b> into <b>destination</b>.
+	 * 
+	 * NOTE: If source.length > destination.length tailing values are omitted in
+	 * destination. If destination.length > source.length tailing values of 
+	 * original destination will be maintained. If this behavior is unwanted use
+	 * java default destination = source.clone();
 	 * 
 	 * @param destination double[] to be overwritten with the values of
 	 * <b>source</b>.
@@ -393,6 +403,11 @@ public final class Vector
 	
 	/**
 	 * \brief Copy the values of <b>source</b> into <b>destination</b>.
+	 * 
+	 * NOTE: If source.length > destination.length tailing values are omitted in
+	 * destination. If destination.length > source.length tailing values of 
+	 * original destination will be maintained. If this behavior is unwanted use
+	 * java default destination = source.clone();
 	 * 
 	 * @param destination boolean[] to be overwritten with the values of
 	 * <b>source</b>.

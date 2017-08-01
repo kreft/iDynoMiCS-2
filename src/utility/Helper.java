@@ -11,6 +11,7 @@ import java.util.Set;
 import dataIO.Log;
 import dataIO.Log.Tier;
 import gui.GuiConsole;
+import idynomics.Compartment;
 import idynomics.Idynomics;
 import linearAlgebra.Vector;
 
@@ -26,6 +27,23 @@ public class Helper
 	 * 
 	 */
 	public static boolean gui = false;
+	
+	public static final String[] DIFFERENTIATING_PALETE = new String[] { 
+			"cyan", "magenta", "yellow", "blue", "red", "green", "violet",
+			"orange", "springgreen", "azure", "pink", "chartreuse", "black" };
+	
+	public static String[] giveMeAGradient(int length)
+	{
+		String[] colors = new String[length];
+		int step = 256 / length;
+		for (int i = 0; i < length; i++)
+		{
+			int c = (255 - i * step);
+			colors[i] = "rgb(" + c + ", " + c + ", " + c + ")";
+		}
+		return colors;
+	}
+
 
 	/**
 	 * Obtain user input as string.
@@ -440,8 +458,31 @@ public class Helper
 		return new Color( color[0], color[1], color[2] );
 	}
 	
+	public static Compartment selectCompartment()
+	{
+		/* identify the spatial compartments */
+		List<String> compartments = 
+				Idynomics.simulator.getSpatialCompartmentNames();
+		Compartment c = null;
+		if ( compartments.isEmpty() )
+			/* abort if no compartment is available */
+			Log.printToScreen("No spatial compartments available.", false);
+		else if ( compartments.size() == 1 )
+			/* render directly if only 1 compartment is available */
+			c = Idynomics.simulator.getCompartment(compartments.get(0));
+		else
+		{
+			/* otherwise ask for user input */
+			String s = Helper.obtainInput(compartments, 
+					"select compartment for rendering", false);
+			c = Idynomics.simulator.getCompartment(s);
+		}
+		return c;
+	}
+	
 	public static String removeWhitespace(String input)
 	{
 		return input.replaceAll("\\s+","");
 	}
+
 }

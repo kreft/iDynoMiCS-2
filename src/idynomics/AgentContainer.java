@@ -136,6 +136,15 @@ public class AgentContainer implements Settable
 	}
 	
 	/**
+	 * testing
+	 * @return
+	 */
+	public SplitTree getSpatialTree() 
+	{
+		return (SplitTree) this._agentTree;
+	}
+	
+	/**
 	 * TODO get spatial registry paradigm (like get shape)
 	 */
 
@@ -325,7 +334,7 @@ public class AgentContainer implements Settable
 		 * Find all nearby agents.
 		 */
 		Body body = (Body) anAgent.get(AspectRef.agentBody);
-		List<BoundingBox> boxes = body.getBoxes(searchDist);
+		List<BoundingBox> boxes = body.getBoxes(searchDist, this.getShape());
 		List<Agent> out = this.treeSearch(boxes);
 		/* 
 		 * Remove the focal agent from this list.
@@ -347,7 +356,7 @@ public class AgentContainer implements Settable
 	 */
 	public Collection<Agent> treeSearch(Surface aSurface, double searchDist)
 	{
-		BoundingBox box = aSurface.getBox(searchDist);
+		BoundingBox box = aSurface.getBox(searchDist, getShape());
 		if ( box == null )
 		{
 			Log.out(CRITICAL, "Could not find bouding box for surface "+
@@ -544,7 +553,7 @@ public class AgentContainer implements Settable
 		Body body = ((Body) anAgent.get(AspectRef.agentBody));
 		Double dist = anAgent.getDouble(AspectRef.agentPulldistance);
 		dist = Helper.setIfNone(dist, 0.0);
-		List<BoundingBox> boxes = body.getBoxes(dist);
+		List<BoundingBox> boxes = body.getBoxes(dist, this.getShape());
 		for ( BoundingBox b: boxes )
 			this._agentTree.insert(b, anAgent);
 	}

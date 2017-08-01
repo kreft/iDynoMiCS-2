@@ -230,6 +230,18 @@ public class EnvironmentContainer implements CanPrelaunchCheck, Settable
 	}
 	
 	/**
+	 * \brief Get the local concentration of a solute.
+	 * 
+	 * @param soluteName
+	 * @param location
+	 * @return concentration
+	 */
+	public double getLocalConcentration(String soluteName, double[] location)
+	{
+		return this.getSoluteGrid(soluteName).getValueAt(CONCN, location);
+	}
+	
+	/**
 	 * @return Average concentrations of all solutes in this compartment.
 	 */
 	public Map<String,Double> getAverageConcentrations()

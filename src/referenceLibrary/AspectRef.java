@@ -8,6 +8,8 @@ import dataIO.Log.Tier;
 /**
  * \brief Aspect name references.
  * 
+ * NOTE: If we want to allow overwriting the AspectRef's cannot be final.
+ * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
 public class AspectRef
@@ -91,6 +93,9 @@ public class AspectRef
 	/**
 	 * the solute name for the default BiomassGrid (the grid in which all 
 	 * biomass/biofilm is represented
+	 * 
+	 * FIXME: consider renaming to something less generic than "biomass" (also
+	 * update the test protocols if done so).
 	 */
 	public final static String defaultBiomassGrid = "biomass";
 	
@@ -98,7 +103,14 @@ public class AspectRef
 	 * List of names of events each agent should perform during a process
 	 * manager step.
 	 */
-	public static String agentEventNames = "eventNames";
+	public final static String agentEventNames = "eventNames";
+
+	/**
+	 * generic spine function { @Link aspect.calculated.ComponentExpression } 
+	 * for rods in compartment that do not have a individual spine function
+	 * defined
+	 */
+	public final static String genreicSpineFunction = "genreicSpineFunction";
 	
 	/**
 	 * list with reactions owned by the agent

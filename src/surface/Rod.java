@@ -2,6 +2,7 @@ package surface;
 
 import dataIO.ObjectFactory;
 import generalInterfaces.HasBoundingBox;
+import shape.Shape;
 import surface.BoundingBox;
 
 /**
@@ -82,13 +83,15 @@ public class Rod extends Surface implements HasBoundingBox {
 		this._length = spineLength;
 	}
 
-	public double[][] pointMatrix()
+	public double[][] pointMatrix(Shape shape)
 	{
-		// FIXME was: double[][] p = new double[_points[0].nDim()][_points.length];
-		// rods work fine in 2d but seem to behave weird in 3d investigate
 		double[][] p = new double[_points.length][_points[0].nDim()];
 		for(int i = 0; i < _points.length; i++)
-			p[i] = _points[i].getPosition();
+			if ( i < 1)
+				p[i] = _points[i].getPosition();
+			else
+				p[i] = shape.getNearestShadowPoint( _points[i].getPosition(), 
+						p[i-1]);
 		return p;
 	}
 	
@@ -98,13 +101,20 @@ public class Rod extends Surface implements HasBoundingBox {
 		return this._points[0].nDim();
 	}
 	
-	public BoundingBox boundingBox(double margin)
+
+	/*
+	 * FIXME rod bounding box is broken since it receives periodic point
+	 * positions but cannot correct it's bounding box for it
+	 */
+	protected BoundingBox boundingBox = new BoundingBox();
+	
+	public BoundingBox boundingBox(double margin, Shape shape)
 	{
-		return new BoundingBox(pointMatrix(),_radius,margin);
+		return boundingBox.get(pointMatrix(shape),_radius,margin);
 	}
 
-	public BoundingBox boundingBox()
+	public BoundingBox boundingBox(Shape shape)
 	{
-		return new BoundingBox(pointMatrix(),_radius);
+		return boundingBox.get(pointMatrix(shape),_radius);
 	}
 }

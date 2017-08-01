@@ -23,6 +23,7 @@ import settable.Module;
 import settable.Settable;
 import settable.Module.Requirements;
 import surface.Point;
+import utility.Helper;
 
 /**
  * \brief TODO
@@ -79,17 +80,22 @@ public class Agent implements AspectInterface, Settable, Instantiable
 			{
 				/* TODO this is a cheat, make a standard method for this */
 				int n = Integer.valueOf(XmlHandler.obtainAttribute(
-						temp.item(i), XmlRef.numberOfAgents, this.defaultXmlTag()));
-				double[] domain = Vector.dblFromString(XmlHandler.
-						obtainAttribute(temp.item(i), XmlRef.spawnDomain, this.defaultXmlTag()));
+						temp.item(i), XmlRef.numberOfAgents, 
+						this.defaultXmlTag() ) );
+				double[] domain = Vector.dblFromString(
+						XmlHandler.obtainAttribute(temp.item(i), 
+						XmlRef.spawnDomain, this.defaultXmlTag() ) );
+				int points = Integer.valueOf( Helper.setIfNone(  
+						XmlHandler.gatherAttribute(temp.item(i), XmlRef.points) 
+						, "1" ) );
 				for(int j = 0; j < n-1; j++)
 				{
-					Agent extra = new Agent(xmlNode, randBody(domain));
+					Agent extra = new Agent(xmlNode, randBody(domain, points));
 					extra._compartment = comp;
 					extra.registerBirth();
 				}
 				this.loadAspects(xmlNode);
-				this.set(AspectRef.agentBody, randBody(domain));
+				this.set(AspectRef.agentBody, randBody(domain, points));
 			}
 		}
 		else
@@ -226,6 +232,20 @@ public class Agent implements AspectInterface, Settable, Instantiable
 	public void setCompartment(Compartment compartment)
 	{
 		this._compartment = compartment;
+	}
+	
+	/**
+	 * FIXME temporary placeholder fix, for aspects that need a local
+	 * solute concentration (eg ionic strength for dlvo based attachment or
+	 * antibiotics response).
+	 * 
+	 * @param solute
+	 * @return
+	 */
+	public double getLocalConcentration(String solute)
+	{
+		//FIXME not completely correct (always assuming first point) we can extend on this later to use midpoint in case of non coccoid types.
+		return this._compartment.environment.getLocalConcentration(solute,((Body) this.get("body")).getPosition(0));
 	}
 
 	/*************************************************************************

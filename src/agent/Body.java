@@ -5,17 +5,16 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import generalInterfaces.Copyable;
 import generalInterfaces.HasBoundingBox;
-import instantiable.Instance;
 import instantiable.Instantiable;
 import linearAlgebra.Matrix;
 import linearAlgebra.Vector;
 import referenceLibrary.XmlRef;
 import settable.Settable;
+import shape.Shape;
 import surface.*;
 import utility.Helper;
 
@@ -228,17 +227,17 @@ public class Body implements Copyable, Instantiable
 	{
 		return this._points.get(joint).getPosition();
 	}
-
+	
 	public List<Surface> getSurfaces()
 	{
 		return this._surfaces;
 	}
 
-	public List<BoundingBox> getBoxes(double margin)
+	public List<BoundingBox> getBoxes(double margin, Shape shape)
 	{
 		List<BoundingBox> boxes = new LinkedList<BoundingBox>();
 		for ( Surface s : this._surfaces )
-			boxes.add( ((HasBoundingBox) s).boundingBox(margin) );
+			boxes.add( ((HasBoundingBox) s).boundingBox(margin, shape) );
 		return boxes;
 	}
 
