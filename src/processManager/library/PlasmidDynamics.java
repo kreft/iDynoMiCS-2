@@ -34,6 +34,7 @@ import surface.Collision;
 import surface.Surface;
 import surface.predicate.AreColliding;
 import utility.ExtraMath;
+import utility.Helper;
 
 /**
  * \brief Plasmid Operations - Conjugation, Segregation Loss and affect on growth
@@ -121,16 +122,16 @@ public class PlasmidDynamics extends ProcessManager {
 					}
 //					if (!agent.isAspect(PILUS_LENGTH))
 //						agent.set(this.PILUS_LENGTH, 6.0);
-					Double simple_growth = agent.getDouble(this.GROWTH_RATE);
-					Map<String,Double> internal_production = (HashMap<String,Double>)
-							agent.getOr(this.PRODUCTION_RATE, null);
-					Double fitness_cost = agent.getDouble(this.FITNESS_COST);
-					if (simple_growth != null && !(simple_growth.isNaN()))
-						agent.set(this.GROWTH_RATE, simple_growth*(1.0-fitness_cost));
-					if (internal_production != null) {
-						internal_production.replaceAll((k,v) -> v*(1.0-fitness_cost));
-						agent.set(this.PRODUCTION_RATE, internal_production);
-					}
+//					Double simple_growth = agent.getDouble(this.GROWTH_RATE);
+//					Map<String,Double> internal_production = (HashMap<String,Double>)
+//							agent.getOr(this.PRODUCTION_RATE, null);
+//					Double fitness_cost = agent.getDouble(this.FITNESS_COST);
+//					if (simple_growth != null && !(simple_growth.isNaN()))
+//						agent.set(this.GROWTH_RATE, simple_growth*(1.0-fitness_cost));
+//					if (internal_production != null) {
+//						internal_production.replaceAll((k,v) -> v*(1.0-fitness_cost));
+//						agent.set(this.PRODUCTION_RATE, internal_production);
+//					}
 				}
 			}
 		}
@@ -170,7 +171,7 @@ public class PlasmidDynamics extends ProcessManager {
 		double transfer_probability = (Double) newPlasmid.get(TRANS_PROB);
 		double maxPiliLength = (Double) newPlasmid.get(PILUS_LENGTH);
 		double transfer_frequency = (Double) newPlasmid.get(TRANS_FREQ);
-		System.out.println(Arrays.deepToString((String[]) newPlasmid.get(ASPECTS_TRANS)));
+		System.out.println(Helper.collectionToArray((Collection<String>) newPlasmid.get(ASPECTS_TRANS)));
 		String[] aspects_transfer = (String[]) newPlasmid.get(ASPECTS_TRANS);
 		this._aspectsToCopy.addAll(Arrays.asList(aspects_transfer));
 //		double copy_number = (Double) newPlasmid.get(COPY_NUM);
