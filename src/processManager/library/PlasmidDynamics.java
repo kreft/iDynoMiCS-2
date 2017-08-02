@@ -89,7 +89,7 @@ public class PlasmidDynamics extends ProcessManager {
 	/**
 	 * Current Simulation Time
 	 */
-	private Double _currentTime;
+	private Double _currentTime = Idynomics.simulator.timer.getCurrentTime();
 	
 	/**
 	 * Speed of pilus extension, taken to be 40 nm/sec = 144 um/hr
@@ -170,7 +170,7 @@ public class PlasmidDynamics extends ProcessManager {
 		double transfer_probability = (Double) newPlasmid.get(TRANS_PROB);
 		double maxPiliLength = (Double) newPlasmid.get(PILUS_LENGTH);
 		double transfer_frequency = (Double) newPlasmid.get(TRANS_FREQ);
-		
+		System.out.println(Arrays.deepToString((String[]) newPlasmid.get(ASPECTS_TRANS)));
 		String[] aspects_transfer = (String[]) newPlasmid.get(ASPECTS_TRANS);
 		this._aspectsToCopy.addAll(Arrays.asList(aspects_transfer));
 //		double copy_number = (Double) newPlasmid.get(COPY_NUM);

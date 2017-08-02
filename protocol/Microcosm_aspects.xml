@@ -101,7 +101,7 @@
 					<aspect name="maxMovement" type="PRIMARY" class="Double" value="0.5" />
 					<aspect name="relaxationMethod" type="PRIMARY" class="String" value="EULER" />
 				</process>
-				<process name="plasmidDynamics" class="PlasmidDynamics"  priority="-3" firstStep="0.0" timerStepSize="1.0">
+				<process name="plasmidDynamics" class="PlasmidDynamics"  priority="-3" firstStep="0.0" timerStepSize="0.1">
 					<aspect name="plasmids" type="PRIMARY" class="LinkedList">
 						<item type="PRIMARY" class="String" value="betaLacRes" />
 					</aspect>
