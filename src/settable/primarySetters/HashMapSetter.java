@@ -1,6 +1,7 @@
 package settable.primarySetters;
 
 import java.util.Map;
+import java.util.StringJoiner;
 
 import dataIO.ObjectFactory;
 import referenceLibrary.XmlRef;
@@ -84,7 +85,16 @@ public class HashMapSetter<K,T> implements Settable {
 		}
 		else
 		{
-			modelNode.add(new Attribute(valueLabel, 
+			if (mapObject.getClass().isArray()) {
+				String[] arrElem = (String[]) mapObject;
+				StringJoiner join = new StringJoiner(",");
+				for (int nLen = 0; nLen < arrElem.length; nLen++) {
+					join.add(arrElem[nLen]);
+				}
+				modelNode.add(new Attribute(valueLabel, String.valueOf(join), null, true));
+			}
+			else
+				modelNode.add(new Attribute(valueLabel, 
 					String.valueOf(mapObject), null, true));
 		}
 		

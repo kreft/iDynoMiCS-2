@@ -158,7 +158,6 @@ public class PlasmidDynamics extends ProcessManager {
 		int numTransfers = (int) Math.floor(_timeStepSize/cool_down);
 		if ((this._currentTime - _timeStepSize) % cool_down == 0)
 			numTransfers++;
-		Log.out(Tier.DEBUG, "Num transfers: "+numTransfers);
 		if (!this._previousConjugated.isEmpty() && this._previousConjugated.containsKey(a)) {
 			if((this._currentTime + _timeStepSize) >= (this._previousConjugated.get(a) + cool_down)) {
 				tPlasmid = this._previousConjugated.get(a) + cool_down;
@@ -171,7 +170,7 @@ public class PlasmidDynamics extends ProcessManager {
 		double transfer_probability = (Double) newPlasmid.get(TRANS_PROB);
 		double maxPiliLength = (Double) newPlasmid.get(PILUS_LENGTH);
 		double transfer_frequency = (Double) newPlasmid.get(TRANS_FREQ);
-		System.out.println(Helper.collectionToArray((Collection<String>) newPlasmid.get(ASPECTS_TRANS)));
+
 		String[] aspects_transfer = (String[]) newPlasmid.get(ASPECTS_TRANS);
 		this._aspectsToCopy.addAll(Arrays.asList(aspects_transfer));
 //		double copy_number = (Double) newPlasmid.get(COPY_NUM);
@@ -200,7 +199,6 @@ public class PlasmidDynamics extends ProcessManager {
 				double minDist = n/100.0;
 				if (numLoops - n < 1.0)
 					minDist = minDist+(numLoops-n);
-				Log.out(Tier.DEBUG, "min Dist: "+minDist);
 				Predicate<Collection<Surface>> collisionCheck = new AreColliding<Collection<Surface>>(aBodSurfaces, iter, minDist);
 				for (Agent nbr: neighbours) {
 					Body nbrBody = (Body) nbr.getValue(this.BODY);
