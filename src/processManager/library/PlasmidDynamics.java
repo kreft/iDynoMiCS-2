@@ -34,7 +34,6 @@ import surface.Collision;
 import surface.Surface;
 import surface.predicate.AreColliding;
 import utility.ExtraMath;
-import utility.Helper;
 
 /**
  * \brief Plasmid Operations - Conjugation, Segregation Loss and affect on growth
@@ -91,6 +90,11 @@ public class PlasmidDynamics extends ProcessManager {
 	 * Current Simulation Time
 	 */
 	private Double _currentTime = Idynomics.simulator.timer.getCurrentTime();
+	
+	/**
+	 * Conjugation thread
+	 */
+	public static Thread conThread;	
 	
 	/**
 	 * Speed of pilus extension, taken to be 40 nm/sec = 144 um/hr
@@ -292,7 +296,13 @@ public class PlasmidDynamics extends ProcessManager {
 
 	@Override
 	protected void internalStep() {
-		// TODO Auto-generated method stub
+		/** 
+		 * The internal step for plasmid dynamics, which will search for all agents with plasmids.
+		 * The plasmids need to listed under the process manager as an item of the linked list "plasmids"
+		 * Retrieves all agents with those plasmids and searches for their neighbours within distance of pilus length
+		 * which is determined by the time of simulation and speed of plasmid - currently fixed at 144 micrometer/hr
+		 */
+		
 		Log.out(Tier.DEBUG, "Plasmid Dynamics internal step starting");
 		this._currentTime = Idynomics.simulator.timer.getCurrentTime();
 		this._aspectsToCopy.clear();
@@ -314,8 +324,8 @@ public class PlasmidDynamics extends ProcessManager {
 			for (String plsmd : plasmidsInDonor.keySet()) {
 				Predicate<Agent> hasPlasmid = new HasAspect(plsmd);
 				neighbours.removeIf(hasPlasmid);
-				this.conjugate(donor, neighbours, plsmd, plasmidsInDonor.get(plsmd));
 				boolean conjugation = false;
+				conjugation = this.conjugate(donor, neighbours, plsmd, plasmidsInDonor.get(plsmd));
 				if (conjugation) {
 					Log.out(Tier.DEBUG, "Plasmid sent!");
 				}

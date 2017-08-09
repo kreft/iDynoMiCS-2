@@ -7,8 +7,8 @@
 				<aspect name="density" type="PRIMARY" class="Double" value="1.105" />
 				<aspect name="emax" type="PRIMARY" class="Double" value="2.0" />
 				<aspect name="hillcoef" type="PRIMARY" class="Double" value="2.0" />
-				<aspect name="fitness_cost" type="PRIMARY" class="Double" value="0.0" />
-				<aspect name="zeta" type="PRIMARY" class="Double" value="1.8" />
+				<aspect name="fitness_cost" type="PRIMARY" class="Double" value="0.1" />
+				<aspect name="zeta" type="PRIMARY" class="Double" value="1.0" />
 				<aspect name="reactions" type="PRIMARY" class="InstantiableList"> 
 					<list class="Reaction" nodeLabel="reaction" entryClass="Reaction" keyClass="String" keyLabel="name">
 						<reaction name="growth">
@@ -16,7 +16,7 @@
 								<constant name="Ks" value="3.2707e-005" />
 								<constant name="mumax" value="0.5" />
 							</expression>
-							<stoichiometric component="mass" coefficient="0.444" />
+							<stoichiometric component="mass" coefficient="0.416625" />
 							<stoichiometric component="solute1" coefficient="-1.0" />
 							<stoichiometric component="antibiotic" coefficient="0.0" />
 						</reaction>
@@ -25,7 +25,7 @@
 								<constant name="delta" value="0.025" />
 							</expression>
 							<stoichiometric component="mass" coefficient="-1.0" />
-							<stoichiometric component="solute1" coefficient="2.0" />
+							<stoichiometric component="solute1" coefficient="0.0" />
 						</reaction>
 					</list>
 				</aspect>
@@ -45,9 +45,9 @@
 		</speciesLib>
 		<compartment name="microcosm">
 			<shape class="Cuboid">
-				<dimension name="X" isCyclic="true" targetResolution="1.0" max="50.0"/>
-				<dimension name="Y" isCyclic="false" targetResolution="1.0" max="10.0"/>
-				<dimension name="Z" isCyclic="true" targetResolution="1.0" max="20.0"/>
+				<dimension name="X" isCyclic="false" targetResolution="1.0" max="50.0"/>
+				<dimension name="Y" isCyclic="false" targetResolution="1.0" max="5.0"/>
+				<dimension name="Z" isCyclic="false" targetResolution="1.0" max="10.0"/>
 			</shape>
 			<solutes>
 				<solute name="solute1" concentration="0.03271" />
@@ -60,42 +60,38 @@
 					<aspect name="mass" type="PRIMARY" class="Double" value="0.15" ></aspect>
 					<aspect name="mic" type="PRIMARY" class="Double" value="8.0" />
 					<aspect name="pigment" type="PRIMARY" class="String" value="GREEN" />
-					<spawn number="500" domain="50.0,5.0,20.0" />
+					<spawn number="1" domain="50.0,5.0,10.0" />
 				</agent>
 				<agent>
 					<aspect name="species" type="PRIMARY" class="String" value="Ecoli" />
 					<aspect name="mass" type="PRIMARY" class="Double" value="0.1" />
 					<aspect name="pigment" type="PRIMARY" class="String" value="RED" />
 					<aspect name="betaLacRes" type="PRIMARY" class="HashMap">
-						<item type="PRIMARY" class="Double" value="0.6" key="transfer_probability" keyType="String" />
+						<item type="PRIMARY" class="Double" value="0.2" key="transfer_probability" keyType="String" />
 						<item type="PRIMARY" class="Double" value="0.001" key="transfer_frequency" keyType="String" />
 						<item type="PRIMARY" class="Double" value="0.2" key="loss_probability" keyType="String" />
 						<item type="PRIMARY" class="Double" value="1.0" key="copy" keyType="String" />
 						<item type="PRIMARY" class="Double" value="5.0" key="pili_length" keyType="String" />
 						<item type="PRIMARY" class="String" value="BLUE" key="pigment_on_loss" keyType="String" />
 						<item type="PRIMARY" class="Double" value="8.0" key="mic_on_loss" keyType="String" />
-						<item type="PRIMARY" class="Double" key="fitness_cost_on_loss" keyType="String" value="0.0" />
-						<item type="PRIMARY" class="Double" value="0.3" key="cool_down" keyType="String" />
-						<item type="PRIMARY" class="Double" value="1.8" key="zeta_on_loss" keyType="String" />
+						<item type="PRIMARY" class="Double" value="0.0" key="fitness_cost_on_loss" keyType="String" />
+						<item type="PRIMARY" class="Double" value="0.4" key="cool_down" keyType="String" />
+						<item type="PRIMARY" class="Double" value="1.0" key="zeta_on_loss" keyType="String" />
 						<item type="PRIMARY" class="String[]" value="mic,pigment,zeta,fitness_cost" key="aspects_change" keyType="String" />
 					</aspect>
-					<aspect name="fitness_cost" type="PRIMARY" class="Double" value="0.4" />
+					<aspect name="fitness_cost" type="PRIMARY" class="Double" value="0.0" />
 					<aspect name="zeta" type="PRIMARY" class="Double" value="1.0" />
 					<aspect name="mic" type="PRIMARY" class="Double" value="2000.0" />
-					<spawn number="1" domain="50.0,2.0,20.0" />
+					<spawn number="1" domain="50.0,5.0,10.0" />
 				</agent>
 			</agents>
 			<processManagers>
-				<process name="svgWriter" class="GraphicalOutput"  priority="-4" firstStep="0.0"  timerStepSize="0.2">
-					<aspect name="solute" type="PRIMARY" class="String" value="solute1" />
+				<process name="svgWriter" class="GraphicalOutput"  priority="-4" firstStep="0.0"  timerStepSize="0.1">
 					<aspect name="maxConcentration" type="PRIMARY" class="Double" value="2.0" />
 					<aspect name="outputWriter" type="PRIMARY" class="String" value="SvgExport" />
 				</process>
-				<process name="svgWriter" class="GraphicalOutput"  priority="-4" firstStep="0.0"  timerStepSize="0.2">
-					<aspect name="solute" type="PRIMARY" class="String" value="solute1" />
-					<aspect name="maxConcentration" type="PRIMARY" class="Double" value="1.0" />
-					<aspect name="outputWriter" type="PRIMARY" class="String" value="SvgExport" />
-					<aspect name="arrayType" type="PRIMARY" class="String" value="PRODUCTIONRATE" />
+				<process name="povWriter" class="GraphicalOutput"  priority="-3" firstStep="0.0"  timerStepSize="0.5">
+					<aspect name="outputWriter" type="PRIMARY" class="String" value="PovExport" />
 				</process>
 				<process name="agentRelax" class="AgentRelaxation" priority="-2" firstStep="0.0"  timerStepSize="0.1">
 					<aspect name="maxMovement" type="PRIMARY" class="Double" value="0.5" />
