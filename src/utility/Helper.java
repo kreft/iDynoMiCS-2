@@ -484,5 +484,13 @@ public class Helper
 	{
 		return input.replaceAll("\\s+","");
 	}
+	
+	public static String[] copyStringA(String[] in)
+	{
+		String[] out = new String[in.length];
+		for ( int i = 0; i < in.length; i++ )
+			out[i] = in[i];
+		return out;
+	}
 
 }

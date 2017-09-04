@@ -131,6 +131,7 @@ public class AgentRelaxation extends ProcessManager
 	private Boolean _gravity;
 	
 	/**
+	 * TODO check whether implementation is finished
 	 * Default spine function, fall back for if none is defined by the agent.
 	 */
 	private Expression _spineFunction = 

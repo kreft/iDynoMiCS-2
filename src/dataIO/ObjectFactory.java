@@ -506,6 +506,11 @@ public class ObjectFactory
 			// Strings are immutable
 			return String.valueOf((String) copyable);
 		}
+		if  (copyable instanceof String[])
+		{
+			// Strings are immutable
+			return Helper.copyStringA((String[]) copyable);
+		}
 		if (copyable instanceof Copyable)
 		{
 			return ((Copyable) copyable).copy();

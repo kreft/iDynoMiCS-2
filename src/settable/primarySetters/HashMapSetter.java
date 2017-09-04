@@ -85,7 +85,7 @@ public class HashMapSetter<K,T> implements Settable {
 		else
 		{
 			modelNode.add(new Attribute(valueLabel, 
-					String.valueOf(mapObject), null, true));
+					ObjectFactory.stringRepresentation(mapObject), null, true));
 		}
 		
 		return modelNode;

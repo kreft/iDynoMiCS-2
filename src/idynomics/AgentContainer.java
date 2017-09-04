@@ -87,6 +87,11 @@ public class AgentContainer implements Settable
 	/** FIXME not used, remove? */
 	protected PDEsolver _detachabilitySolver;
 	
+	/*
+	 * Note agent.predicate.HasAspect now allows checking of any user defined 
+	 * aspect, hard coded methods replaced.
+	 */
+	
 	/**
 	 * Parent node (required for settable interface)
 	 */
@@ -507,6 +512,9 @@ public class AgentContainer implements Settable
 				" along dimension "+dimN+" to "+Vector.toString(newLoc));
 	}
 	
+	/*
+	 * Note: process manager related methods moved to
+	 */
 
 	/* ***********************************************************************
 	 * ADDING & REMOVING AGENTS
@@ -840,6 +848,11 @@ public class AgentContainer implements Settable
 		this._agentsToRegisterRemoved.clear();
 		return out;
 	}
+	
+	/*
+	 * NOTE: reaction diffusion clean-up methods moved to ProcessDiffusion
+	 * post step.
+	 */
 
 	@Override
 	public Module getModule() 

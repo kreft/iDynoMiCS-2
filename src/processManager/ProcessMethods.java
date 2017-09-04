@@ -6,6 +6,14 @@ import java.util.Map;
 import agent.Agent;
 import referenceLibrary.AspectRef;
 
+/**
+ * Process related methods moved out of general classes. Single agent related
+ * steps may be considered to be reformed into agent event or calculated aspect.
+ * 
+ * @author Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
+ *
+ */
 public class ProcessMethods {
 
 	/**
