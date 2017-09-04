@@ -135,7 +135,11 @@ public abstract class ProcessDiffusion extends ProcessManager
 		 * Set up the agent mass distribution maps, to ensure that agent
 		 * reactions are spread over voxels appropriately.
 		 */
-		this.setupAgentDistributionMaps();
+		Collection<Shape> shapes = 
+				this._solver.getShapesForAgentMassDistributionMaps(
+						this._environment.getCommonGrid());
+		for ( Shape shape : shapes )
+			this.setupAgentDistributionMaps(shape);
 		/*
 		 * Get the environment to update its well-mixed array by querying all
 		 * spatial boundaries.
@@ -273,13 +277,12 @@ public abstract class ProcessDiffusion extends ProcessManager
 	 * @see #removeAgentDistibutionMaps()
 	 */
 	@SuppressWarnings("unchecked")
-	public void setupAgentDistributionMaps()
+	public void setupAgentDistributionMaps(Shape shape)
 	{
 		Tier level = BULK;
 		if (Log.shouldWrite(level))
 			Log.out(level, "Setting up agent distribution maps");
-		
-		Shape shape = this._agents.getShape();
+
 		int nDim = this._agents.getNumDims();
 		
 		/*
