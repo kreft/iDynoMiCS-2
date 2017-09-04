@@ -18,7 +18,7 @@
 				<aspect name="pigment" type="PRIMARY" class="String" value="RED" />
 				<speciesModule name="coccoid" />
 				<speciesModule name="producer" />
-				<aspect name="reactions" type="PRIMARY"  class="InstantiatableList"> 
+				<aspect name="reactions" type="PRIMARY"  class="InstantiableList"> 
 					<list class="Reaction" nodeLabel="reaction" 
 					entryClass="Reaction" keyClass="String" keyLabel="name">
 						<reaction name="growth">
@@ -45,7 +45,7 @@
 				<aspect name="pigment" type="PRIMARY" class="String" value="BLUE" />
 				<speciesModule name="coccoid" />
 				<speciesModule name="producer" />
-				<aspect name="reactions" type="PRIMARY"  class="InstantiatableList"> 
+				<aspect name="reactions" type="PRIMARY"  class="InstantiableList"> 
 					<list class="Reaction" nodeLabel="reaction" 
 					entryClass="Reaction" keyClass="String" keyLabel="name">
 						<reaction name="growth">
@@ -73,7 +73,7 @@
 				<aspect name="pigment" type="PRIMARY" class="String" value="GREEN" />
 				<speciesModule name="coccoid" />
 				<speciesModule name="producer" />
-				<aspect name="reactions" type="PRIMARY"  class="InstantiatableList"> 
+				<aspect name="reactions" type="PRIMARY"  class="InstantiableList"> 
 					<list class="Reaction" nodeLabel="reaction" 
 					entryClass="Reaction" keyClass="String" keyLabel="name">
 						<reaction name="growth">
