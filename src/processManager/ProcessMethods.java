@@ -20,7 +20,7 @@ public class ProcessMethods {
 	 * \brief Use a dictionary of biomass names and values to update the given
 	 * agent.
 	 * 
-	 * <p>This method is the opposite of {@link ProcessMethods#getAgentMassMap(Agent)}. Note
+	 * <p>This method is the opposite of {@link #getAgentMassMap(Agent)}. Note
 	 * that extra biomass types may have been added to the map, which should
 	 * be other aspects (e.g. EPS).</p>
 	 * 

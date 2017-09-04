@@ -174,7 +174,7 @@ public class AgentRelaxation extends ProcessManager
 		 * used if it is not overwritten by the agent, obtain
 		 * ComponentExpression from process manager otherwise fall back default
 		 * is used. */
-		if ( ! Helper.isNone( this.getValue(SPINE_FUNCTION) ) )
+		if ( ! Helper.isNullOrEmpty( this.getValue(SPINE_FUNCTION) ) )
 			this._spineFunction = (Expression) this.getValue(SPINE_FUNCTION);
 	}
 

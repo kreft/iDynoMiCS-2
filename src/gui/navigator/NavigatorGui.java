@@ -147,7 +147,7 @@ public class NavigatorGui extends JPanel implements TreeSelectionListener {
 		 * When running in GUI we want dialog input instead of command line 
 		 * input.
 		 */
-		Helper.gui = true;
+		Helper.isSystemRunningInGUI = true;
 		/* 
 		 * Set the window size, position, title and its close operation.
 		 */

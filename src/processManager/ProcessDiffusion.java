@@ -266,7 +266,6 @@ public abstract class ProcessDiffusion extends ProcessManager
 	 * AGENT MASS DISTRIBUTION
 	 * **********************************************************************/
 
-	// FIXME move all aspect related methods out of general classes
 	/**
 	 * \brief Loop through all located {@code Agent}s with reactions,
 	 * estimating how much of their body overlaps with nearby grid voxels.
@@ -280,20 +279,25 @@ public abstract class ProcessDiffusion extends ProcessManager
 		if (Log.shouldWrite(level))
 			Log.out(level, "Setting up agent distribution maps");
 		
+		Shape shape = this._agents.getShape();
+		int nDim = this._agents.getNumDims();
+		
 		/*
 		 * Reset the agent biomass distribution maps.
 		 */
-		CoordinateMap distributionMap;
+		Map<Shape, CoordinateMap> mapOfMaps;
 		for ( Agent a : this._agents.getAllLocatedAgents() )
 		{
-			distributionMap = new CoordinateMap();
-			a.set(VD_TAG, distributionMap);
+			if ( a.isAspect(VD_TAG) )
+				mapOfMaps = (Map<Shape, CoordinateMap>)a.get(VD_TAG);
+			else
+				mapOfMaps = new HashMap<Shape, CoordinateMap>();
+			mapOfMaps.put(shape, new CoordinateMap());
+			a.set(VD_TAG, mapOfMaps);
 		}
 		/*
 		 * Now fill these agent biomass distribution maps.
 		 */
-		Shape shape = this._agents.getShape();
-		int nDim = this._agents.getNumDims();
 		double[] location;
 		double[] dimension = new double[3];
 		double[] sides;
@@ -302,6 +306,7 @@ public abstract class ProcessDiffusion extends ProcessManager
 		List<Surface> surfaces;
 		double[] pLoc;
 		Collision collision = new Collision(null, shape);
+		CoordinateMap distributionMap;
 
 		for ( int[] coord = shape.resetIterator(); 
 				shape.isIteratorValid(); coord = shape.iteratorNext())
@@ -381,7 +386,8 @@ public abstract class ProcessDiffusion extends ProcessManager
 					Log.out(level, "  "+"   agent "+a.identity()+" has "+
 						surfaces.size()+" surfaces");
 				}
-				distributionMap = (CoordinateMap) a.getValue(VD_TAG);
+				mapOfMaps = (Map<Shape, CoordinateMap>) a.getValue(VD_TAG);
+				distributionMap = mapOfMaps.get(shape);
 				sgLoop: for ( SubvoxelPoint p : svPoints )
 				{
 					/* Only give location in significant dimensions. */
@@ -399,7 +405,7 @@ public abstract class ProcessDiffusion extends ProcessManager
 				}
 			}
 		}
-		Log.out(DEBUG, "Finished setting up agent distribution maps");
+		Log.out(level, "Finished setting up agent distribution maps");
 	}
 	
 	/**

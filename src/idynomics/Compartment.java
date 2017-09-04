@@ -546,7 +546,7 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable
 			
 			/* set the tree type */
 			String tree = node.getAttribute( XmlRef.tree ).getValue();
-			if ( ! Helper.isNone( tree ) )
+			if ( ! Helper.isNullOrEmpty( tree ) )
 				this.agents.setSpatialTreeType( TreeType.valueOf( tree ) );
 		}
 		/* 

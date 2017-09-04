@@ -128,7 +128,7 @@ public class Timer implements Instantiable, Settable
 	{
 		this._now = getEndOfCurrentIteration();
 		this._iteration++;
-		if ( Helper.gui )
+		if ( Helper.isSystemRunningInGUI )
 			GuiButtons.updateProgressBar();
 	}
 	

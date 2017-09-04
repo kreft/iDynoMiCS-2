@@ -124,7 +124,7 @@ public class Raster {
 	public void plot(SpatialMap<Integer> raster, double scale, String fileName, String[] colors)
 	{
 		/* get instance of appropriate output writer */
-		if ( Helper.isNone(_graphics))
+		if ( Helper.isNullOrEmpty(_graphics))
 			this._graphics = (GraphicalExporter) Instance.getNew(
 					null, null, ClassRef.svgExport );
 		
