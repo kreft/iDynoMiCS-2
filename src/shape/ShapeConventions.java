@@ -3,7 +3,7 @@
  */
 package shape;
 
-import shape.resolution.ResolutionCalculator.SameRes;
+import shape.resolution.ResolutionCalculator;
 
 /**
  * \brief TODO
@@ -16,22 +16,22 @@ public final class ShapeConventions
 	/**
 	 * \brief Dummy resolution calculator that always has exactly one voxel.
 	 */
-	// NOTE exploratory work, may not be used
-	public static class SingleVoxel extends SameRes
+	public static class SingleVoxel extends ResolutionCalculator
 	{
-		public SingleVoxel()
+		public SingleVoxel(Dimension dimension)
 		{
+			super(dimension);
 			this._nVoxel = 1;
-			this._min = 0.0;
-			this._max = 1.0;
+			this._resolution = 1.0;
+			this._targetRes = 1.0;
 		}
 		
 		@Override
-		public void init(double targetResolution, double _min, double _max)
+		protected void init(double targetResolution, double min, double max)
 		{
 			this._nVoxel = 1;
-			this._min = 0.0;
-			this._max = 1.0;
+			this._targetRes = targetResolution;
+			this._resolution = targetResolution;
 		}
 		
 		@Override
@@ -41,21 +41,11 @@ public final class ShapeConventions
 		}
 
 		@Override
-		public double getMinResolution()
-		{
-			return 1.0;
-		}
-
-		@Override
-		public double getResolution(int voxelIndex)
-		{
-			return 1.0;
-		}
-
-		@Override
 		public double getCumulativeResolution(int voxelIndex)
 		{
-			return 1.0;
+			if (voxelIndex <= 0)
+				return this._dimension.getExtreme(0);
+			return this._dimension.getExtreme(1);
 		}
 
 		@Override

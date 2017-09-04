@@ -3,11 +3,15 @@ package boundary.library;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
+
+import org.w3c.dom.Element;
+
 import agent.Agent;
 import boundary.Boundary;
 import idynomics.Compartment;
 import idynomics.Idynomics;
 import linearAlgebra.Vector;
+import settable.Settable;
 
 /**
  * \brief Connective boundary linking one dimensionless compartment to another.
@@ -22,6 +26,18 @@ public class ChemostatToChemostat extends Boundary
 	 */
 	protected double _agentsToDiluteTally = 0.0;
 
+	public ChemostatToChemostat()
+	{
+		super();
+	}
+
+	@Override
+	public void instantiate(Element xmlElement, Settable parent) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	
 	/* ***********************************************************************
 	 * PARTNER BOUNDARY
 	 * **********************************************************************/

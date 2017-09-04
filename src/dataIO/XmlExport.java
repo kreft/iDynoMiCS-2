@@ -4,18 +4,20 @@ import dataIO.Log.Tier;
 import idynomics.Idynomics;
 
 /**
- * Writes the model state to xml files, automatic number increment
+ * Writes the model state to XML files, automatic number increment
+ * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
+ * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
  * 
  * NOTE for compression look into Fast Infoset
  *
  */
-public class XmlExport 
+public class XmlExport
 {
 	/**
-	 * TODO
+	 * Counter for documents created by this object: ensures unique file names.
 	 */
-	protected int _filewriterfilenr = 0;
+	protected int _fileCounter = 0;
 	
 	/**
 	 * TODO
@@ -23,56 +25,76 @@ public class XmlExport
 	protected FileHandler _xmlFile = new FileHandler();
 	
 	/**
-	 * handles incrementing file numbering
-	 * @param filenr
-	 * @return
+	 * The minimum number of digits allowed in a file name.
 	 */
-	private String DigitFilenr(int filenr) {
-		String apzero = String.valueOf(filenr);
-		for(int i = 0; i < 6-String.valueOf(filenr).length(); i++)
-			apzero = "0" + apzero;
-		return apzero;
+	private final static int NUMBER_OF_DIGITS = 4;
+	
+	/**
+	 * The first lines in any XML document.
+	 */
+	private final static String XML_HEADER =
+			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<document>\n";
+	
+	/**
+	 * The final line in any XML document.
+	 */
+	private final static String XML_FOOTER = "</document>\n";
+	
+	/**
+	 * \brief Formats the file number counter as a string, padding the start
+	 * with zeros if necessary.
+	 * 
+	 * @return String representation of the file number counter.
+	 */
+	private String fileNumberAsPaddedString()
+	{
+		String out = String.valueOf(this._fileCounter);
+		int numZeros = NUMBER_OF_DIGITS - out.length();
+		/* If the number already has enough characters, return it as is. */
+		if ( numZeros <= 0 )
+			return out;
+		/* Otherwise, pad the beginning with enough zeros for the length. */
+		return new String(new char[numZeros]).replace("\0", "0") + out;
 	}
 	
 	/**
-	 * create a new svg file with prefix in appropriate folder
-	 * @param prefix
+	 * \brief Create a new XML file with prefix in appropriate folder.
+	 * 
+	 * @param prefix String for the first part of the file name.
 	 */
 	public void newXml(String prefix)
 	{
 		String fileString = Idynomics.global.outputLocation + prefix + "/" 
-				+ prefix + "_" + DigitFilenr(_filewriterfilenr)  
-				+ "_" + Idynomics.simulator.timer.getCurrentIteration() + ".xml";
-		_xmlFile.fnew(fileString);
+				+ prefix + "_" + this.fileNumberAsPaddedString() + ".xml";
+		this._xmlFile.fnew(fileString);
 		Log.out(Tier.EXPRESSIVE, "Writing new file: " + fileString);
 
-		_xmlFile.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<document>\n");
+		this._xmlFile.write(XML_HEADER);
 	}
 	
 	/**
-	 * close the svg file and increment file number for next file
+	 * Close the XML file and increment the file number counter for the next
+	 * file.
 	 */
 	public void closeXml()
 	{
-		_xmlFile.write("</document>\n");
-		_xmlFile.flushAll();
-		_xmlFile.fclose();
-		_filewriterfilenr++;
+		this._xmlFile.write(XML_FOOTER);
+		this._xmlFile.flushAll();
+		this._xmlFile.fclose();
+		this._fileCounter++;
 	}
-
-	
-
 	
 	/**
-	 * draw a line
-	 * @param File
-	 * @param q
+	 * TODO
 	 */
 	public void writeState()
 	{
-		_xmlFile.write(Idynomics.simulator.getModule().getXML(1));
+		this._xmlFile.write(Idynomics.simulator.getModule().getXML(1));
 	}
 	
+	/**
+	 * TODO
+	 */
 	public void writeFile()
 	{
 		this.newXml(Idynomics.global.simulationName);

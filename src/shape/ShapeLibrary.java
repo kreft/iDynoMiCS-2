@@ -13,7 +13,7 @@ import referenceLibrary.ObjectRef;
 import settable.Settable;
 import shape.Dimension.DimName;
 import shape.iterator.ShapeIterator;
-import shape.resolution.ResolutionCalculator.ResCalc;
+import shape.resolution.ResolutionCalculator;
 
 /**
  * \brief Collection of instanciable {@code Shape} classes.
@@ -92,13 +92,13 @@ public final class ShapeLibrary
 		}
 		
 		@Override
-		public ResCalc getResolutionCalculator(int[] coord, int axis)
+		public ResolutionCalculator getResolutionCalculator(int[] coord, int axis)
 		{
 			return null;
 		}
 		
 		@Override
-		public void setDimensionResolution(DimName dName, ResCalc resC)
+		public void setDimensionResolution(DimName dName, ResolutionCalculator resC)
 		{
 			/* Do nothing! */
 		}
@@ -106,6 +106,12 @@ public final class ShapeLibrary
 		public void setSurfaces()
 		{
 			/* Do nothing! */
+		}
+		
+		@Override
+		public int getTotalNumberOfVoxels()
+		{
+			return 1;
 		}
 		
 		@Override
@@ -159,6 +165,18 @@ public final class ShapeLibrary
 
 		@Override
 		public ShapeIterator getNewIterator(int strideLength)
+		{
+			return null;
+		}
+		
+		@Override
+		public boolean canGenerateCoarserMultigridLayer()
+		{
+			return false;
+		}
+		
+		@Override
+		public Shape generateCoarserMultigridLayer()
 		{
 			return null;
 		}

@@ -1,5 +1,6 @@
 package boundary.spatialLibrary;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -13,7 +14,6 @@ import grid.SpatialGrid;
 import instantiable.Instantiable;
 import referenceLibrary.XmlRef;
 import settable.Settable;
-import shape.Dimension.DimName;
 
 /**
  * \brief Spatial boundary where solute concentrations are kept fixed. Solid
@@ -33,43 +33,25 @@ public class FixedBoundary extends SpatialBoundary implements Instantiable
 	 * CONSTRUCTORS
 	 * **********************************************************************/
 	
-	/**
-	 * FIXME essential for instantiation
-	 */
 	public FixedBoundary()
-	{
-		super();
-	}
+	{ }
 	
-	/**
-	 * FIXME essential for instantiation
-	 */
 	public void instantiate(Element xmlElement, Settable parent)
 	{
 		super.instantiate(xmlElement,parent);
-		this._detachability = 0.0;
 		
-		for ( Element e : XmlHandler.getElements(xmlElement, XmlRef.concentration))
+		Collection<Element> elements = 
+				XmlHandler.getElements(xmlElement, XmlRef.solute);
+		String name, concn;
+		
+		for ( Element e : elements )
 		{
-			setConcentration(XmlHandler.obtainAttribute(e, XmlRef.nameAttribute,
-					XmlRef.concentration), Double.valueOf(XmlHandler.obtainAttribute(e, 
-					XmlRef.valueAttribute, XmlRef.concentration)));
+			name = XmlHandler.obtainAttribute(e,
+					XmlRef.nameAttribute, XmlRef.concentration);
+			concn = XmlHandler.obtainAttribute(e, 
+					XmlRef.concentration, XmlRef.concentration);
+			this.setConcentration(name, Double.valueOf(concn));
 		}
-	}
-	
-	/**
-	 * \brief Construct a fixed boundary by giving it the information it
-	 * needs about its location.
-	 * 
-	 * @param dim This boundary is at one extreme of a dimension: this is the
-	 * name of that dimension.
-	 * @param extreme This boundary is at one extreme of a dimension: this is
-	 * the index of that extreme (0 for minimum, 1 for maximum).
-	 */
-	public FixedBoundary(DimName dim, int extreme)
-	{
-		super(dim, extreme);
-		this._detachability = 0.0;
 	}
 	
 	/* ***********************************************************************
@@ -123,12 +105,6 @@ public class FixedBoundary extends SpatialBoundary implements Instantiable
 	/* ***********************************************************************
 	 * AGENT TRANSFERS
 	 * **********************************************************************/
-	
-	@Override
-	protected double getDetachability()
-	{
-		return 0.0;
-	}
 	
 	@Override
 	public void agentsArrive()

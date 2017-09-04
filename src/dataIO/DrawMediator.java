@@ -59,7 +59,7 @@ public class DrawMediator {
 			else
 				drawy.drawState( Idynomics.simulator.getCompartment( Helper.
 						obtainInput( Idynomics.simulator.getCompartmentNames(), 
-						"Select compartment", false ) ) );
+						"Select compartment", true ) ) );
 			return drawy;
 		}
 		else
@@ -68,38 +68,40 @@ public class DrawMediator {
 	
 	public void drawState(Compartment compartment)
 	{
-		EnvironmentContainer _environment = compartment.environment;
-		AgentContainer _agents = compartment.agents;
-		Shape _shape = compartment.getShape();
+		EnvironmentContainer environment = compartment.environment;
+		AgentContainer agents = compartment.agents;
+		Shape shape = compartment.getShape();
 		
-		if ( _environment.getSoluteNames().size() == 1)
-			this._solute = _environment.getSoluteNames().iterator().next(); // not to happy about having to get an iterator to get the only item in the collection.
-		if ( Helper.isNone( _solute) )
-			this._solute = Helper.obtainInput( _environment.getSoluteNames(), 
-					"solute to plot", false);
-		
+		if ( environment.getSoluteNames().size() == 1)
+			this._solute = environment.getSoluteNames().iterator().next(); // not to happy about having to get an iterator to get the only item in the collection.
+		if ( Helper.isNullOrEmpty( this._solute) )
+		{
+			this._solute = Helper.obtainInput( environment.getSoluteNames(), 
+					"solute to plot", true);
+		}
 		/* ArrayType to plot (CONCN if unspecified_ */
-		if ( Helper.isNone( _arrayType) )
+		if ( Helper.isNullOrEmpty( this._arrayType ) )
+		{
 			this._arrayType = ArrayType.valueOf( Helper.obtainInput(
 					Helper.enumToStringArray( ArrayType.class ), "array type", false ) );
-
+		}
 		
 		this._prefix = compartment.name + "_" + _solute + "_" + 
 				_arrayType.toString();
 
 		/* get instance of appropriate output writer */
-		if ( Helper.isNone(_graphics))
+		if ( Helper.isNullOrEmpty(_graphics))
 			this._graphics = (GraphicalExporter) Instance.getNew(
 					null, null, ClassRef.svgExport,	ClassRef.povExport );
 		
 		/* write scene files (used by pov ray) */
-		this._graphics.init( this._prefix, _shape );
+		this._graphics.init( this._prefix, shape );
 		
 		/* set max concentration for solute grid color gradient */
 		this._maxConcn = Double.valueOf( Helper.obtainInput(
 				String.valueOf( _maxConcn ), "Max concentration value" ) );
 		
-		this.drawState(_environment, _agents, _shape, Helper.obtainInput("", "fileName"));
+		this.drawState(environment, agents, shape, Helper.obtainInput("", "fileName"));
 	}
 	
 	public void drawState(EnvironmentContainer _environment, AgentContainer _agents, Shape _shape)

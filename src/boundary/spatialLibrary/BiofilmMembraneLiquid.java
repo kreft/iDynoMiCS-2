@@ -5,7 +5,6 @@ import boundary.library.ChemostatToMembrane;
 import dataIO.Log;
 import dataIO.Log.Tier;
 import grid.SpatialGrid;
-import shape.Dimension.DimName;
 
 /**
  * \brief TODO
@@ -14,19 +13,8 @@ import shape.Dimension.DimName;
  */
 public class BiofilmMembraneLiquid extends SpatialBoundary
 {
-	/**
-	 * \brief Construct a membrane by giving it the information it needs about
-	 * its location.
-	 * 
-	 * @param dim This boundary is at one extreme of a dimension: this is the
-	 * name of that dimension.
-	 * @param extreme This boundary is at one extreme of a dimension: this is
-	 * the index of that extreme (0 for minimum, 1 for maximum).
-	 */
-	public BiofilmMembraneLiquid(DimName dim, int extreme)
+	public BiofilmMembraneLiquid()
 	{
-		super(dim, extreme);
-		this._detachability = 0.0;
 	}
 
 	/* ***********************************************************************
@@ -61,12 +49,6 @@ public class BiofilmMembraneLiquid extends SpatialBoundary
 	 * AGENT TRANSFERS
 	 * **********************************************************************/
 
-	@Override
-	protected double getDetachability()
-	{
-		return 0.0;
-	}
-	
 	@Override
 	public void agentsArrive()
 	{

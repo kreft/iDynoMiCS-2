@@ -3,8 +3,6 @@ package boundary;
 import java.util.HashMap;
 import java.util.Map;
 
-import shape.Dimension.DimName;
-
 /**
  * \brief A well-mixed boundary is a spatial boundary that <i>must</i> have a
  * well-mixed region associated with it.
@@ -23,9 +21,9 @@ public abstract class WellMixedBoundary extends SpatialBoundary
 	protected Map<String,Double> _concns = new HashMap<String,Double>();
 	
 	
-	public WellMixedBoundary(DimName dim, int extreme)
+	public WellMixedBoundary()
 	{
-		super(dim, extreme);
+		super();
 	}
 	
 	@Override

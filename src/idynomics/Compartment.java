@@ -160,17 +160,16 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable
 		/*
 		 * Set up the shape.
 		 */
-		Element elem = XmlHandler.loadUnique(xmlElem, XmlRef.compartmentShape);
+		Element elem = XmlHandler.findUniqueChild(xmlElem, XmlRef.compartmentShape);
 		String[] str = new String[] { XmlHandler.gatherAttribute(elem, XmlRef.classAttribute) };
 		if ( str[0] == null )
 			str = Shape.getAllOptions();
-		this.setShape( (Shape) Instance.getNew(
-				elem, this, str) );	
+		this.setShape( (Shape) Instance.getNew(elem, this, str) );	
 
 
 		for( Boundary b : this._shape.getAllBoundaries())
 		{
-			b.init(environment, agents, name);
+			b.setContainers(environment, agents);
 			// FIXME trying to figure out how to get the well mixed region working,
 			// quite funky investigate
 //			if (b instanceof SpatialBoundary)
@@ -194,8 +193,11 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable
 		 * Load solutes.
 		 */
 		Log.out(level, "Compartment reading in solutes");
-		for ( Element e : XmlHandler.getElements(xmlElem, XmlRef.solute))
+		Element solutes = XmlHandler.findUniqueChild(xmlElem, XmlRef.solutes);
+		for ( Element e : XmlHandler.getElements(solutes, XmlRef.solute))
+		{
 			this.environment.addSolute( new SpatialGrid( e, this.environment) );
+		}
 		/*
 		 * Load extra-cellular reactions.
 		 */
@@ -260,7 +262,7 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable
 	// TODO move this spatial/non-spatial splitting to Shape?
 	public void addBoundary(Boundary aBoundary)
 	{
-		aBoundary.init(this.environment, this.agents, this.name);
+		aBoundary.setContainers(this.environment, this.agents);
 		if ( aBoundary instanceof SpatialBoundary )
 		{
 			SpatialBoundary sB = (SpatialBoundary) aBoundary;

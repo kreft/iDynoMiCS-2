@@ -113,7 +113,7 @@ public strictfp class Idynomics
 		Idynomics.global.protocolFile = protocolPath;
 		Idynomics.global.xmlDoc = XmlHandler.loadDocument(protocolPath);
 		
-		Element simElem = XmlHandler.loadUnique(Idynomics.global.xmlDoc, XmlRef.simulation);
+		Element simElem = XmlHandler.findUniqueChild(Idynomics.global.xmlDoc, XmlRef.simulation);
 		/*
 		 * Initialise the global parameters.
 		 */
