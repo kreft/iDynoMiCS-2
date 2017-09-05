@@ -13,7 +13,6 @@ import settable.Module;
 import settable.Settable;
 import settable.Module.Requirements;
 import dataIO.Log.Tier;
-import instantiable.Instance;
 import instantiable.Instantiable;
 import utility.Helper;
 
@@ -129,7 +128,7 @@ public class Timer implements Instantiable, Settable
 	{
 		this._now = getEndOfCurrentIteration();
 		this._iteration++;
-		if ( Helper.gui )
+		if ( Helper.isSystemRunningInGUI )
 			GuiButtons.updateProgressBar();
 	}
 	
@@ -143,9 +142,10 @@ public class Timer implements Instantiable, Settable
 		this._endOfSimulation = timeToStopAt;
 	}
 	
-	public int estimateLastIteration()
+	public int estimateIterationsRemaining()
 	{
-		return (int) (getEndOfSimulation() - this.getCurrentTime() / getTimeStepSize());
+		double timeLeft = this.getEndOfSimulation() - this.getCurrentTime();
+		return (int) (timeLeft / this.getTimeStepSize());
 	}
 	
 	public boolean isRunning()

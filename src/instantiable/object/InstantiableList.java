@@ -183,8 +183,8 @@ public class InstantiableList<T> extends LinkedList<T> implements Settable,
 					this.pileListLabel = xmlElement.getNodeName();
 			}
 			
-			if (XmlHandler.hasNode(xmlElement, this.pileListLabel))
-				xmlElement = XmlHandler.loadUnique(xmlElement, this.pileListLabel);
+			if (XmlHandler.hasChild(xmlElement, this.pileListLabel))
+				xmlElement = XmlHandler.findUniqueChild(xmlElement, this.pileListLabel);
 			
 			if (this.valueLabel == null)
 			{

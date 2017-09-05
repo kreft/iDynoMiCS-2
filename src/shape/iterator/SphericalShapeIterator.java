@@ -12,7 +12,7 @@ import java.util.Arrays;
 
 import dataIO.Log;
 import shape.SphericalShape;
-import shape.resolution.ResolutionCalculator.ResCalc;
+import shape.resolution.ResolutionCalculator;
 
 public class SphericalShapeIterator extends PolarShapeIterator
 {
@@ -273,7 +273,7 @@ public class SphericalShapeIterator extends PolarShapeIterator
 			return false;
 		}
 
-		ResCalc rC = this._shape.getResolutionCalculator(this._currentCoord, 2);
+		ResolutionCalculator rC = this._shape.getResolutionCalculator(this._currentCoord, 2);
 		/*
 		 * We're on an intermediate ring, so find the voxel which has the
 		 * current coordinate's minimum theta angle inside it.

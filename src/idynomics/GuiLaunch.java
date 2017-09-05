@@ -90,9 +90,10 @@ public strictfp class GuiLaunch implements Runnable
 		 * When running in GUI we want dialog input instead of command line 
 		 * input.
 		 */
-		Helper.gui = true;
-
-		/* Set the window size, position, title and its close operation. */
+		Helper.isSystemRunningInGUI = true;
+		/* 
+		 * Set the window size, position, title and its close operation.
+		 */
 		_masterFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		ImageIcon img = new ImageIcon(ICON_PATH);
 		_masterFrame.setIconImage(img.getImage());

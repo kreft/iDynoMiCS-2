@@ -6,13 +6,21 @@ import java.util.Map;
 import agent.Agent;
 import referenceLibrary.AspectRef;
 
+/**
+ * Process related methods moved out of general classes. Single agent related
+ * steps may be considered to be reformed into agent event or calculated aspect.
+ * 
+ * @author Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
+ *
+ */
 public class ProcessMethods {
 
 	/**
 	 * \brief Use a dictionary of biomass names and values to update the given
 	 * agent.
 	 * 
-	 * <p>This method is the opposite of {@link ProcessMethods#getAgentMassMap(Agent)}. Note
+	 * <p>This method is the opposite of {@link #getAgentMassMap(Agent)}. Note
 	 * that extra biomass types may have been added to the map, which should
 	 * be other aspects (e.g. EPS).</p>
 	 * 

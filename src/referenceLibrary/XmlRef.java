@@ -174,6 +174,12 @@ public class XmlRef
 	public final static String shapeDimension = "dimension";
 	
 	/**
+	 * Tag for the ResolutionCalculator class that should be used for a
+	 * dimension.
+	 */
+	public final static String resolutionCalculator = "resolutionCalculator";
+	
+	/**
 	 * Tag for the boolean denoting whether a dimension is cyclic (true) or
 	 * not (false).
 	 */
@@ -355,6 +361,11 @@ public class XmlRef
 	 */
 	public final static String max = "max";
 
+	/**
+	 * The class of ResolutionCalculator that a Shape should use.
+	 */
+	public final static String resCalcClass = "resolutionCalculator";
+	
 	/**
 	 * TODO
 	 */

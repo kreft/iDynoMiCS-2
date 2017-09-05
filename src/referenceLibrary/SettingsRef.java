@@ -24,7 +24,8 @@ public class SettingsRef {
 	public static final String default_out = "default_out";
 	
 	/**
-	 * Always use the default out if set to true
+	 * Always use the default out if set to true (very handy for re-routing on
+	 * distributed computer systems).
 	 */
 	public static final String ignore_protocol_out = "ignore_protocol_out";
 

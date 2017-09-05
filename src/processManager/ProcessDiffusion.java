@@ -135,7 +135,11 @@ public abstract class ProcessDiffusion extends ProcessManager
 		 * Set up the agent mass distribution maps, to ensure that agent
 		 * reactions are spread over voxels appropriately.
 		 */
-		this.setupAgentDistributionMaps();
+		Collection<Shape> shapes = 
+				this._solver.getShapesForAgentMassDistributionMaps(
+						this._environment.getCommonGrid());
+		for ( Shape shape : shapes )
+			this.setupAgentDistributionMaps(shape);
 		/*
 		 * Get the environment to update its well-mixed array by querying all
 		 * spatial boundaries.
@@ -194,7 +198,7 @@ public abstract class ProcessDiffusion extends ProcessManager
 	 * 
 	 * @param environment The environment container of a {@code Compartment}.
 	 */
-	protected void applyEnvReactions()
+	protected void applyEnvReactions(Collection<SpatialGrid> solutes)
 	{
 		Tier level = BULK;
 		if ( Log.shouldWrite(level) )
@@ -220,38 +224,37 @@ public abstract class ProcessDiffusion extends ProcessManager
 		for ( String name : soluteNames )
 			totals.put(name, 0.0);
 		/*
-		 * Iterate over the spatial discretization of the environment, applying
-		 * extracellular reactions as required.
+		 * Iterate over the spatial discretization of the environment,
+		 * applying extracellular reactions as required.
 		 */
-		Shape shape = this._environment.getShape();
-		SpatialGrid solute;
+		Shape shape = solutes.iterator().next().getShape();
 		Set<String> productNames;
 		double rate, productRate;
 		for ( int[] coord = shape.resetIterator(); 
 				shape.isIteratorValid(); coord = shape.iteratorNext() )
 		{
 			/* Get the solute concentrations in this grid voxel. */
-			for ( String soluteName : soluteNames )
+			for ( SpatialGrid soluteGrid : solutes )
 			{
-				solute = this._environment.getSoluteGrid(soluteName);
-				concns.put(soluteName, solute.getValueAt(CONCN, coord));
-			}	
+				concns.put(soluteGrid.getName(),
+						soluteGrid.getValueAt(CONCN, coord));
+			}
 			/* Iterate over each compartment reactions. */
 			for ( Reaction r : reactions )
 			{
 				rate = r.getRate(concns);
 				productNames = r.getStoichiometry().keySet();
 				/* Write rate for each product to grid. */
-				// TODO verify that all environmental reactions have
-				// only solute products, so we don't have to check here.
 				for ( String product : productNames )
-					if ( this._environment.isSoluteName(product) )
-					{
-						productRate = rate * r.getStoichiometry(product);
-						solute = this._environment.getSoluteGrid(product);
-						solute.addValueAt(PRODUCTIONRATE, coord, productRate);
-						totals.put(product, totals.get(product) + productRate);
-					}
+					for ( SpatialGrid soluteGrid : solutes )
+						if ( product.equals(soluteGrid.getName()) )
+						{
+							productRate = rate * r.getStoichiometry(product);
+							soluteGrid.addValueAt(PRODUCTIONRATE,
+									coord, productRate);
+							totals.put(product,
+									totals.get(product) + productRate);
+						}
 			}
 		}
 		if ( Log.shouldWrite(level) )
@@ -267,7 +270,6 @@ public abstract class ProcessDiffusion extends ProcessManager
 	 * AGENT MASS DISTRIBUTION
 	 * **********************************************************************/
 
-	// FIXME move all aspect related methods out of general classes
 	/**
 	 * \brief Loop through all located {@code Agent}s with reactions,
 	 * estimating how much of their body overlaps with nearby grid voxels.
@@ -275,26 +277,30 @@ public abstract class ProcessDiffusion extends ProcessManager
 	 * @see #removeAgentDistibutionMaps()
 	 */
 	@SuppressWarnings("unchecked")
-	public void setupAgentDistributionMaps()
+	public void setupAgentDistributionMaps(Shape shape)
 	{
 		Tier level = BULK;
 		if (Log.shouldWrite(level))
 			Log.out(level, "Setting up agent distribution maps");
+
+		int nDim = this._agents.getNumDims();
 		
 		/*
 		 * Reset the agent biomass distribution maps.
 		 */
-		CoordinateMap distributionMap;
+		Map<Shape, CoordinateMap> mapOfMaps;
 		for ( Agent a : this._agents.getAllLocatedAgents() )
 		{
-			distributionMap = new CoordinateMap();
-			a.set(VD_TAG, distributionMap);
+			if ( a.isAspect(VD_TAG) )
+				mapOfMaps = (Map<Shape, CoordinateMap>)a.get(VD_TAG);
+			else
+				mapOfMaps = new HashMap<Shape, CoordinateMap>();
+			mapOfMaps.put(shape, new CoordinateMap());
+			a.set(VD_TAG, mapOfMaps);
 		}
 		/*
 		 * Now fill these agent biomass distribution maps.
 		 */
-		Shape shape = this._agents.getShape();
-		int nDim = this._agents.getNumDims();
 		double[] location;
 		double[] dimension = new double[3];
 		double[] sides;
@@ -303,6 +309,7 @@ public abstract class ProcessDiffusion extends ProcessManager
 		List<Surface> surfaces;
 		double[] pLoc;
 		Collision collision = new Collision(null, shape);
+		CoordinateMap distributionMap;
 
 		for ( int[] coord = shape.resetIterator(); 
 				shape.isIteratorValid(); coord = shape.iteratorNext())
@@ -382,7 +389,8 @@ public abstract class ProcessDiffusion extends ProcessManager
 					Log.out(level, "  "+"   agent "+a.identity()+" has "+
 						surfaces.size()+" surfaces");
 				}
-				distributionMap = (CoordinateMap) a.getValue(VD_TAG);
+				mapOfMaps = (Map<Shape, CoordinateMap>) a.getValue(VD_TAG);
+				distributionMap = mapOfMaps.get(shape);
 				sgLoop: for ( SubvoxelPoint p : svPoints )
 				{
 					/* Only give location in significant dimensions. */
@@ -400,7 +408,7 @@ public abstract class ProcessDiffusion extends ProcessManager
 				}
 			}
 		}
-		Log.out(DEBUG, "Finished setting up agent distribution maps");
+		Log.out(level, "Finished setting up agent distribution maps");
 	}
 	
 	/**

@@ -71,6 +71,9 @@
 						<item type="PRIMARY" class="Double" value="2.0" key="1.0" keyType="Double" />
 					</aspect>				
 					<aspect name="species" type="PRIMARY" class="String" value="AOB" />
+					<aspect name="h_map_test" type="PRIMARY" class="HashMap">
+						<item type="PRIMARY" class="String[]" value="test" key="test_key" keyType="String" />
+					</aspect>
 					<aspect name="mass" type="PRIMARY" class="Double" value="0.2" />
 					<aspect name="density" type="PRIMARY" class="Double" value="1" />
 					<aspect name="pigment" type="PRIMARY" class="String" value="RED" />

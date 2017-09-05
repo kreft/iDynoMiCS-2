@@ -85,8 +85,8 @@ public class Raster {
 				}
 			this._agentMatrix.put( c, colliders );
 		}
-		int max = 14;
 		int[][][] passOne = this.distanceMap(size, this.agentMap());
+		int max = Array.max(passOne);
 		SpatialMap<Integer> distance = new SpatialMap<Integer>();
 		for( int i = 0; i < size[0]; i++)
 		{
@@ -124,7 +124,7 @@ public class Raster {
 	public void plot(SpatialMap<Integer> raster, double scale, String fileName, String[] colors)
 	{
 		/* get instance of appropriate output writer */
-		if ( Helper.isNone(_graphics))
+		if ( Helper.isNullOrEmpty(_graphics))
 			this._graphics = (GraphicalExporter) Instance.getNew(
 					null, null, ClassRef.svgExport );
 		
@@ -164,26 +164,32 @@ public class Raster {
 	public int[][][] distanceMap(int[] dimension, 
 			SpatialMap<Integer> agentMap)
 	{
-		return distanceMap(dimension, agentMap, this._shape.getIsCyclicNaturalOrder());
+		return distanceMap(dimension, agentMap, false, 
+				this._shape.getIsCyclicNaturalOrder());
 	}
 	
-	/* note 2d only 
-	 * P.E. Danielsson, Euclidean distance mapping, computer graphics and image processing 14, 227-248 (1980)
-	 * */
-	public int[][][] distanceMap(int[] dimension, 
-			SpatialMap<Integer> agentMap, boolean[] periodic)
+	/* 
+	 * FOUR-POINT SEQUENTIAL EUCLIDEAN DISTANCE MAPPING (4SED), NOTE 2d only
+	 * P.E. Danielsson, Euclidean distance mapping, computer graphics and image 
+	 * processing 14, 227-248 (1980)
+	 */
+	public int[][][] distanceMap(int[] dimension, SpatialMap<Integer> agentMap, 
+			boolean plugHoles, boolean[] periodic)
 	{
+		
 		int[] p, q, step, max_value, zeros;
 		int d, e;
 		max_value = new int[] { Integer.MAX_VALUE, Integer.MAX_VALUE };
 		zeros = new int[] { 0, 0 };
 		
+		/* matrix dimension length (d, e) is +1 for non periodic */
 		d = ( periodic[0] ? dimension[0] : dimension[0] + 1);
 		e = ( periodic[1] ? dimension[1] : dimension[1] + 1);
 			
 		int[][][] out = new int[d][e][2];
 		Array.setAll(out, Integer.MAX_VALUE);
 		
+		/* fill matrix, add spacers for non periodic. */
 		for ( int[] key : agentMap.keySetNumeric())
 		{
 			if (agentMap.get(key) == 1 )
@@ -194,14 +200,34 @@ public class Raster {
 						[ ( periodic[1] ? key[1] : key[1] + 1 ) ] = zeros;
 		}
 		
-		/* iterations */
+		if ( plugHoles )
+		{
+			int[][][] temp = new int[d][e][2];
+			Array.copyTo(temp, out);
+			for ( int j = 0; j < e; j++)
+			{
+				for ( int i = 0; i < d; i++)
+				{
+					if ( j > 0 && Vector.areSame(temp[i][j-1], max_value) &! ( periodic[1] && j == 1) )
+						out[i][j] = max_value;
+					else if ( j < e-1 && Vector.areSame(temp[i][j+1], max_value) &! ( periodic[1] && j == e-2 ) )
+						out[i][j] = max_value;
+					else if ( i > 0 && Vector.areSame(temp[i-1][j], max_value) &! ( periodic[0] && i == 1) )
+						out[i][j] = max_value;
+					else if ( i < d-1 && Vector.areSame(temp[i+1][j], max_value)  &! ( periodic[0] && i == d-2 ) )
+						out[i][j] = max_value;
+				}
+			}
+		}
+		
+		/* iterations, first pass */
 		for ( int j = 0; j < e; j++)
 		{
+			/* step 1 */
 			step = new int[] { 0, 1 };
 			for ( int i = 0; i < d; i++)
 			{
 				p = out[i][j];
-				
 				/* handle boundaries */	
 				if ( j == 0 )
 					if ( periodic[1] )
@@ -210,15 +236,14 @@ public class Raster {
 						q = max_value;
 				else
 					q = out[i][j-1];
-				
 				if( size( Vector.add( q, step ) ) < size( p ) )
 					out[i][j] = Vector.add( q, step );
 			}
+			/* step 2 */
 			step = new int[] { 1, 0 };
 			for ( int i = 0; i < d; i++)
 			{
 				p = out[i][j];
-
 				/* handle boundaries */	
 				if ( i == 0 )
 					if ( periodic[0] )
@@ -227,14 +252,13 @@ public class Raster {
 						q = max_value;
 				else
 					q = out[i-1][j];
-				
 				if( size( Vector.add( q, step ) ) < size( p ) )
 					out[i][j] = Vector.add( q, step );
 			}
+			/* step 3 */
 			for ( int i = d-1; i > 0; i--)
 			{
 				p = out[i][j];
-				
 				/* handle boundaries */	
 				if ( i == d-1 )
 					if ( periodic[0] )
@@ -243,18 +267,18 @@ public class Raster {
 						q = max_value;
 				else
 					q = out[i+1][j];
-				
 				if( size( Vector.add( q, step ) ) < size( p ) )
 					out[i][j] = Vector.add( q, step );
 			}
 		}
+		/* second pass */
 		for ( int j = e-1; j > 0; j--)
 		{
+			/* step 4 */
 			step = new int[] { 0, 1 };
 			for ( int i = 0; i < d; i++)
 			{
 				p = out[i][j];
-				
 				/* handle boundaries */	
 				if ( j == e-1 )
 					if ( periodic[1] )
@@ -263,15 +287,14 @@ public class Raster {
 						q = max_value;
 				else
 					q = out[i][j+1];
-				
 				if( size( Vector.add( q, step ) ) < size( p ) )
 					out[i][j] = Vector.add( q, step );
 			}
+			/* step 5 */
 			step = new int[] { 1, 0 };
 			for ( int i = 0; i < d; i++)
 			{
 				p = out[i][j];
-				
 				/* handle boundaries */	
 				if ( i == 0 )
 					if ( periodic[0] )
@@ -280,14 +303,13 @@ public class Raster {
 						q = max_value;
 				else
 					q = out[i-1][j];
-				
 				if( size( Vector.add( q, step ) ) < size( p ) )
 					out[i][j] = Vector.add( q, step );
 			}
+			/* step 6 */
 			for ( int i = d-1; i > 0; i--)
 			{
-				p = out[i][j];
-				
+				p = out[i][j];	
 				/* handle boundaries */	
 				if ( i == d-1 )
 					if ( periodic[0] )
@@ -296,12 +318,10 @@ public class Raster {
 						q = max_value;
 				else
 					q = out[i+1][j];
-				
 				if( size( Vector.add( q, step ) ) < size( p ) )
 					out[i][j] = Vector.add( q, step );
 			}
 		}
-		
 		/* remove margin for non-periodic dimensions and return if none just 
 		 * return out */
 		for ( boolean b : periodic )

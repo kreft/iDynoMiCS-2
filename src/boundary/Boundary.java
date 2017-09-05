@@ -11,7 +11,9 @@ import dataIO.Log.Tier;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
 import idynomics.Idynomics;
+import instantiable.Instantiable;
 import referenceLibrary.XmlRef;
+import settable.Attribute;
 import settable.Module;
 import settable.Settable;
 
@@ -21,7 +23,7 @@ import settable.Settable;
  * @author Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
  */
-public abstract class Boundary implements Settable
+public abstract class Boundary implements Settable, Instantiable
 {
 	/**
 	 * Reference to the environment of the compartment this process belongs to.
@@ -33,11 +35,6 @@ public abstract class Boundary implements Settable
 	 * Contains a reference to the compartment shape.
 	 */
 	protected AgentContainer _agents;
-	
-	/**
-	 * 
-	 */
-	protected String _compartmentName;
 	/**
 	 * XML tag for the name of the partner boundary.
 	 */
@@ -89,24 +86,6 @@ public abstract class Boundary implements Settable
 	 * Log verbosity level for debugging purposes (set to BULK when not using).
 	 */
 	protected static final Tier AGENT_LEVEL = Tier.DEBUG;
-
-	/**
-	 * \brief Tell this boundary what it needs to know about the compartment it
-	 * belongs to.
-	 * 
-	 * FIXME this is not a valid from Instantiatable init
-	 * 
-	 * @param environment The environment container of the compartment.
-	 * @param agents The agent container of the compartment.
-	 * @param compartmentName The name of the compartment.
-	 */
-	public void init(EnvironmentContainer environment, 
-			AgentContainer agents, String compartmentName)
-	{
-		this._environment = environment;
-		this._agents = agents;
-		this._compartmentName = compartmentName;
-	}
 	
 	/* ***********************************************************************
 	 * BASIC SETTERS & GETTERS
@@ -119,6 +98,20 @@ public abstract class Boundary implements Settable
 	{
 		return XmlRef.dimensionBoundary;
 		// TODO return dimension and min/max for SpatialBoundary?
+	}
+
+	/**
+	 * \brief Tell this boundary what it needs to know about the compartment it
+	 * belongs to.
+	 * 
+	 * @param environment The environment container of the compartment.
+	 * @param agents The agent container of the compartment.
+	 */
+	public void setContainers(EnvironmentContainer environment, 
+			AgentContainer agents)
+	{
+		this._environment = environment;
+		this._agents = agents;
 	}
 
 	/* ***********************************************************************
@@ -476,12 +469,11 @@ public abstract class Boundary implements Settable
 	public Module getModule()
 	{
 		Module modelNode = new Module(this.defaultXmlTag(), this);
-
+		modelNode.add(new Attribute(XmlRef.classAttribute,
+				this.getClass().getSimpleName(),
+				null, true));
 		// TODO
 		// modelNode.requirement = Requirements.?
-
-		// TODO
-
 		return modelNode;
 	}
 

@@ -15,7 +15,6 @@ import boundary.Boundary;
 import boundary.SpatialBoundary;
 import dataIO.Log;
 import dataIO.Log.Tier;
-import grid.SpatialGrid;
 import gereralPredicates.IsSame;
 
 import static dataIO.Log.Tier.*;
@@ -29,7 +28,7 @@ import settable.Module.Requirements;
 import shape.Dimension;
 import shape.Shape;
 import shape.Dimension.DimName;
-import solver.PDEsolver;
+import shape.subvoxel.CoordinateMap;
 import spatialRegistry.*;
 import spatialRegistry.splitTree.SplitTree;
 import surface.BoundingBox;
@@ -74,19 +73,6 @@ public class AgentContainer implements Settable
 	 */
 	protected List<Agent> _agentsToRegisterRemoved = new LinkedList<Agent>();
 
-	/**
-	 * FIXME not used, remove?
-	 */
-	protected SpatialGrid _detachability;
-	/**
-	 * FIXME what is the exact purpose of this and why is it here as a final 
-	 * static?
-	 */
-	public final static String DETACHABILITY = "detachability";
-	
-	/** FIXME not used, remove? */
-	protected PDEsolver _detachabilitySolver;
-	
 	/**
 	 * Parent node (required for settable interface)
 	 */
@@ -507,6 +493,9 @@ public class AgentContainer implements Settable
 				" along dimension "+dimN+" to "+Vector.toString(newLoc));
 	}
 	
+	/*
+	 * Note: process manager related methods moved to
+	 */
 
 	/* ***********************************************************************
 	 * ADDING & REMOVING AGENTS
@@ -840,6 +829,11 @@ public class AgentContainer implements Settable
 		this._agentsToRegisterRemoved.clear();
 		return out;
 	}
+	
+	/*
+	 * NOTE: reaction diffusion clean-up methods moved to ProcessDiffusion
+	 * post step.
+	 */
 
 	@Override
 	public Module getModule() 

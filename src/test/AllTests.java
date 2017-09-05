@@ -4,26 +4,24 @@
 package test;
 
 
+import java.util.Collection;
+import java.util.LinkedList;
+
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 import dataIO.Log;
+import dataIO.XmlHandler;
 import dataIO.Log.Tier;
+import grid.SpatialGrid;
 import idynomics.Idynomics;
 import idynomics.Settings;
 import idynomics.Simulator;
 import shape.Shape;
-import test.junit.AgentEventTest;
-import test.junit.BoundaryTest;
-import test.junit.ChemostatsTest;
-import test.junit.CoordinateMapTest;
-import test.junit.ExtraMathTest;
-import test.junit.LinearAlgebraTest;
-import test.junit.PdeTest;
-import test.junit.RateExpressionTest;
-import test.junit.ShapesTest;
-import test.junit.XMLableTest;
+import test.junit.*;
 
 @RunWith(Suite.class)
 @SuiteClasses({ AgentEventTest.class,
@@ -31,7 +29,15 @@ import test.junit.XMLableTest;
 				ChemostatsTest.class,
 				CoordinateMapTest.class,
 				ExtraMathTest.class,
+				IteratorForCyclicLineTests.class,
+				IteratorForCyclicSquaresTests.class,
 				LinearAlgebraTest.class,
+				MultigridLayerForLineTests.class,
+				MultigridLayerForRectangleTests.class,
+				MultigridLayerForSquareTests.class,
+				MultigridResolutionTests.class,
+				PDEmultigridTestsForLine.class,
+				PDEmultigridTestsForSquare.class,
 				PdeTest.class,
 				RateExpressionTest.class,
 				ShapesTest.class,
@@ -83,5 +89,37 @@ public class AllTests
 			e.printStackTrace();
 		}
 		return shape;
+	}
+	
+	/**
+	 * \brief Helper method for tests on solvers.
+	 * 
+	 * @param grids A number of SpatialGrids (1 to many)
+	 * @return The given grids wrapped up in a collection.
+	 */
+	public static Collection<SpatialGrid> gridsAsCollection(
+			SpatialGrid... grids)
+	{
+		Collection<SpatialGrid> gridList = new LinkedList<SpatialGrid>();
+		for (SpatialGrid grid : grids)
+			gridList.add(grid);
+		return gridList;
+	}
+	
+	/**
+	 * \brief Helper method for creating spatial boundaries: creates an XMl
+	 * element for use in instantiation.
+	 * 
+	 * @param extreme 0 (min) or 1 (max)
+	 * @return XML element.
+	 */
+	public static Element getSpatialBoundaryElement(int extreme)
+	{
+		Document document = XmlHandler.newDocument();
+		
+		Element elem = document.createElement("boundary");
+		elem.setAttribute("extreme", String.valueOf(extreme));
+		
+		return elem;
 	}
 }

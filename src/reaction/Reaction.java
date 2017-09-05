@@ -158,9 +158,9 @@ public class Reaction implements Instantiable, Copyable, Settable
 		if ( parent instanceof EnvironmentContainer )
 			((EnvironmentContainer) parent).addReaction(this);
 
-		if ( !Helper.isNone(xmlElem) && XmlHandler.hasNode(xmlElem, XmlRef.reaction))
+		if ( !Helper.isNullOrEmpty(xmlElem) && XmlHandler.hasChild(xmlElem, XmlRef.reaction))
 		{
-			xmlElem = XmlHandler.loadUnique(xmlElem, XmlRef.reaction);
+			xmlElem = XmlHandler.findUniqueChild(xmlElem, XmlRef.reaction);
 		}
 		
 		this._name = XmlHandler.obtainAttribute(xmlElem, XmlRef.nameAttribute, this.defaultXmlTag());
@@ -172,11 +172,11 @@ public class Reaction implements Instantiable, Copyable, Settable
 		/*
 		 * Build the reaction rate expression.
 		 */
-		if ( Helper.isNone(xmlElem) || !XmlHandler.hasNode(xmlElem, XmlRef.expression))
+		if ( Helper.isNullOrEmpty(xmlElem) || !XmlHandler.hasChild(xmlElem, XmlRef.expression))
 			this._kinetic = new Expression("");
 		else
 			this._kinetic = new 
-				Expression(XmlHandler.loadUnique(xmlElem, XmlRef.expression));
+				Expression(XmlHandler.findUniqueChild(xmlElem, XmlRef.expression));
 		
 	}
 	

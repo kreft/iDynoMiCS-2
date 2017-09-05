@@ -3,7 +3,7 @@
 	<simulation name="caseStudy_1e6" outputfolder="../results" log="EXPRESSIVE"
 		comment="this is a file for testing purposes only.">
 		<!-- minutes -->
-		<timer stepSize="60.0" endOfSimulation="20160.0" />
+		<timer stepSize="30.0" endOfSimulation="20160.0" />
 		<speciesLib>
 			<!-- species/species library The species library contains all agent species 
 				in the simulations. This may include microbial species, plasmid and vector 
@@ -18,13 +18,13 @@
 				<aspect name="pigment" type="PRIMARY" class="String" value="RED" />
 				<speciesModule name="coccoid" />
 				<speciesModule name="producer" />
-				<aspect name="reactions" type="PRIMARY"  class="InstantiatableList"> 
+				<aspect name="reactions" type="PRIMARY"  class="InstantiableList"> 
 					<list class="Reaction" nodeLabel="reaction" 
 					entryClass="Reaction" keyClass="String" keyLabel="name">
 						<reaction name="growth">
 							<expression value="mass * mumax * 
 									( ammonium / ( ammonium + Kam ) ) * 
-									( ( oxygen / ( oxygen + Kox ) )">
+									( oxygen / ( oxygen + Kox ) )">
 								<!-- pg/µm3 --> 
 								<constant name="Kam" 	value="1.0e-5" /> 
 								<constant name="Kox" 	value="5.0e-7" />
@@ -45,13 +45,13 @@
 				<aspect name="pigment" type="PRIMARY" class="String" value="BLUE" />
 				<speciesModule name="coccoid" />
 				<speciesModule name="producer" />
-				<aspect name="reactions" type="PRIMARY"  class="InstantiatableList"> 
+				<aspect name="reactions" type="PRIMARY"  class="InstantiableList"> 
 					<list class="Reaction" nodeLabel="reaction" 
 					entryClass="Reaction" keyClass="String" keyLabel="name">
 						<reaction name="growth">
 							<expression value="mass * mumax * 
 									( nitrite / ( nitrite + Kni ) ) * 
-									( ( oxygen / ( oxygen + Kox ) )">
+									( oxygen / ( oxygen + Kox ) )">
 								<!-- pg/µm3 --> 
 								<constant name="Kni" 	value="1.5e-5" /> 
 								<constant name="Kox" 	value="5.0e-7" />
@@ -60,7 +60,8 @@
 							</expression>
 							<stoichiometric component="mass" 		coefficient="1.0" />
 							<stoichiometric component="eps" 		coefficient="0.1" />
-							<stoichiometric component="ammonium" 	coefficient="-0.083" />
+							<!--AMMONIUM SHOULD BE IN THE KINETICS-->
+							<!--<stoichiometric component="ammonium" 	coefficient="-0.083" />-->
 							<stoichiometric component="nitrite" 	coefficient="-25.0" />
 							<stoichiometric component="nitrate" 	coefficient="25.0" />
 							<stoichiometric component="oxygen" 		coefficient="-27.5" />
@@ -73,13 +74,13 @@
 				<aspect name="pigment" type="PRIMARY" class="String" value="GREEN" />
 				<speciesModule name="coccoid" />
 				<speciesModule name="producer" />
-				<aspect name="reactions" type="PRIMARY"  class="InstantiatableList"> 
+				<aspect name="reactions" type="PRIMARY"  class="InstantiableList"> 
 					<list class="Reaction" nodeLabel="reaction" 
 					entryClass="Reaction" keyClass="String" keyLabel="name">
 						<reaction name="growth">
 							<expression value="mass * mumax * 
 									( ammonium / ( ammonium + Kam ) ) * 
-									( ( oxygen / ( oxygen + Kox ) )">
+									( oxygen / ( oxygen + Kox ) )">
 								<!-- pg/µm3 --> 
 								<constant name="Kam" 	value="8.0e-6" /> 
 								<constant name="Kox" 	value="5.0e-7" />
@@ -134,18 +135,25 @@
 		</speciesLib>
 
 		<compartment name="first">
-	<shape class="Rectangle">
+			<shape class="Rectangle" resolutionCalculator="MultigridResolution">
 				<!-- µm -->
-				<dimension name="X" isCyclic="true" 	targetResolution="2.0" max="100.0"/>
-				<dimension name="Y" isCyclic="false" 	targetResolution="2.0" max="100.0">
+				<dimension name="X" isCyclic="true" 	targetResolution="2.0" max="128.0"/>
+				<dimension name="Y" isCyclic="false" 	targetResolution="2.0" max="128.0">
+					<boundary extreme="0" class="SolidBoundary" />
+					<boundary extreme="1" class="FixedBoundary">
+						<solute name="ammonium" concentration="1e-5" />
+						<solute name="oxygen" concentration="5e-7" />
+						<solute name="nitrate" concentration="0.0" />
+						<solute name="nitrite" concentration="0.0" />
+					</boundary>
 				</dimension>
 			</shape>
 			<solutes>
 				<!-- pg / µm2 -->
-				<solute name="ammonium" concentration="6e-4" />
-				<solute name="oxygen" 	concentration="6e-4" />
-				<solute name="nitrite" 	concentration="6e-8" />
-				<solute name="nitrate" 	concentration="6e-8" />
+				<solute name="ammonium" concentration="1e-5" />
+				<solute name="oxygen" 	concentration="5e-7" />
+				<solute name="nitrite" 	concentration="0" />
+				<solute name="nitrate" 	concentration="0.0" />
 			</solutes>
 			<reactions>
 			</reactions>
@@ -156,7 +164,7 @@
 					<aspect name="mass" type="PRIMARY" class="Double" value="0.8e-3" />
 					<aspect name="eps" 	type="PRIMARY" class="Double" value="0.0" />
 					<!-- µm -->
-					<spawn number="5" domain="100.0,0.2" />
+					<spawn number="5" domain="128.0,0.2" />
 				</agent>
 				<agent>
 					<aspect name="species" type="PRIMARY" class="String" value="CanonicalNOB" />
@@ -164,7 +172,7 @@
 					<aspect name="mass" type="PRIMARY" class="Double" value="0.8e-3" />
 					<aspect name="eps" 	type="PRIMARY" class="Double" value="0.0" />
 					<!-- µm -->
-					<spawn number="5" domain="100.0,0.2" />
+					<spawn number="5" domain="128.0,0.2" />
 				</agent>
 				<agent>
 					<aspect name="species" type="PRIMARY" class="String" value="CommamoxAOB" />
@@ -172,7 +180,7 @@
 					<aspect name="mass" type="PRIMARY" class="Double" value="0.8e-3" />
 					<aspect name="eps" 	type="PRIMARY" class="Double" value="0.0" />
 					<!-- µm -->
-					<spawn number="5" domain="100.0,0.2" />
+					<spawn number="5" domain="128.0,0.2" />
 				</agent>
 			</agents>
 			<processManagers>
@@ -198,28 +206,27 @@
 				<process name="svgWriter" class="GraphicalOutput"  priority="-3"
 					firstStep="0.0"  timerStepSize="30.0">
 					<aspect name="solute" type="PRIMARY" class="String" value="oxygen" />
-					<aspect name="maxConcentration" type="PRIMARY" class="Double" value="6e-4" />
+					<aspect name="maxConcentration" type="PRIMARY" class="Double" value="1e-5" />
 					<aspect name="outputWriter" type="PRIMARY" class="String" value="SvgExport" />
 				</process>
 				<process name="svgWriter" class="GraphicalOutput"  priority="-3"
 					firstStep="0.0"  timerStepSize="30.0">
 					<aspect name="solute" type="PRIMARY" class="String" value="ammonium" />
-					<aspect name="maxConcentration" type="PRIMARY" class="Double" value="6e-4" />
+					<aspect name="maxConcentration" type="PRIMARY" class="Double" value="5e-7" />
 					<aspect name="outputWriter" type="PRIMARY" class="String" value="SvgExport" />
 				</process>
 				<process name="svgWriter" class="GraphicalOutput"  priority="-3"
 					firstStep="0.0"  timerStepSize="30.0">
 					<aspect name="solute" type="PRIMARY" class="String" value="nitrite" />
-					<aspect name="maxConcentration" type="PRIMARY" class="Double" value="6e-4" />
+					<aspect name="maxConcentration" type="PRIMARY" class="Double" value="1e-10" />
 					<aspect name="outputWriter" type="PRIMARY" class="String" value="SvgExport" />
 				</process>
 				<process name="svgWriter" class="GraphicalOutput"  priority="-3"
 					firstStep="0.0"  timerStepSize="30.0">
 					<aspect name="solute" type="PRIMARY" class="String" value="nitrate" />
-					<aspect name="maxConcentration" type="PRIMARY" class="Double" value="6e-4" />
+					<aspect name="maxConcentration" type="PRIMARY" class="Double" value="1e-10" />
 					<aspect name="outputWriter" type="PRIMARY" class="String" value="SvgExport" />
 				</process>
-				
 			</processManagers>
 		</compartment>
 	</simulation>

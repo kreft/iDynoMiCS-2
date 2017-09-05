@@ -137,8 +137,9 @@ public class Body implements Copyable, Instantiable
 	 */
 	public static Object instanceFromString(String input)
 	{
-		if (Helper.isNone(input))
-			input = Helper.obtainInput(input,"position vector", false);
+		if ( Helper.isNullOrEmpty(input) )
+			input = Helper.obtainInput(input, "position vector", true);
+		
 		List<Point> pointList = new LinkedList<Point>();
 		String[] points = input.split(Matrix.DELIMITER);
 		for (String s : points)

@@ -2,6 +2,7 @@ package grid;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import org.w3c.dom.Element;
 
@@ -170,6 +171,14 @@ public class SpatialGrid implements Settable, Instantiable
 		return this._shape;
 	}
 	
+	/**
+	 * @return Types of all arrays present in this grid.
+	 */
+	public Set<ArrayType> getAllArrayTypes()
+	{
+		return this._array.keySet();
+	}
+	
 	/* ***********************************************************************
 	 * 							ARRAY INITIALISATION
 	 * ***********************************************************************/
@@ -245,6 +254,16 @@ public class SpatialGrid implements Settable, Instantiable
 	public void setAllTo(ArrayType type, double value)
 	{
 		Array.setAll(this._array.get(type), value);
+	}
+	
+	/**
+	 * \brief Reset all values in the array specified to zero.
+	 * 
+	 * @param type Type of the array to reset.
+	 */
+	public void reset(ArrayType type)
+	{
+		this.setAllTo(type, 0.0);
 	}
 	
 	/**
@@ -369,6 +388,17 @@ public class SpatialGrid implements Settable, Instantiable
 	}
 	
 	/**
+	 * \brief Get the norm of the values in the array of given <b>type</b>.
+	 * 
+	 * @param type Type of the array to use.
+	 * @return Norm of all the elements of the array <b>type</b>.
+	 */
+	public double getNorm(ArrayType type)
+	{
+		return Array.norm(this._array.get(type));
+	}
+	
+	/**
 	 * \brief TODO
 	 * 
 	 * @param array
@@ -396,6 +426,20 @@ public class SpatialGrid implements Settable, Instantiable
 	public void addArrayToArray(ArrayType destination, ArrayType source)
 	{
 		Array.addEquals(this._array.get(destination), this._array.get(source));
+	}
+	
+	/**
+	 * \brief Subtract all elements of one array from those of another,
+	 * element-by-element.
+	 * 
+	 * @param destination Type of array to be overwritten with its own values
+	 * minus those of <b>source</b>.
+	 * @param source Type of array to use in decreasing <b>destination</b>.
+	 * The values of this array are preserved in this method.
+	 */
+	public void subtractArrayFromArray(ArrayType destination, ArrayType source)
+	{
+		Array.minusEquals(this._array.get(destination), this._array.get(source));
 	}
 
 	/* ***********************************************************************
@@ -527,7 +571,7 @@ public class SpatialGrid implements Settable, Instantiable
 		else
 		{
 			throw new IndexOutOfBoundsException(
-					"Tried to get grid value at neighbor"
+					"Tried to get grid value at neighbor "
 							+ Vector.toString(this._shape.nbhIteratorCurrent())
 							+ " of current coordinate "
 							+ Vector.toString(this._shape.iteratorCurrent())
@@ -540,9 +584,9 @@ public class SpatialGrid implements Settable, Instantiable
 	 * iterator voxel (may be negative).
 	 * 
 	 * <p>The flux from the neighboring voxel into the current one is given by
-	 * the formula <i>(c<sub>nhb</sub> - c<sub>itr</sub>) *
+	 * the formula <br><i>(c<sub>nhb</sub> - c<sub>itr</sub>) *
 	 * (D<sub>nhb</sub><sup>-1</sup> + D<sub>itr</sub><sup>-1</sup>)<sup>-1</sup>
-	 *  * d<sub>nhb,itr</sub><sup>-1</sup></i>
+	 *  * d<sub>nhb,itr</sub><sup>-1</sup></i><br>
 	 * where subscript <i>itr</i> denotes the current iterator voxel and
 	 * <i>nhb</i> the current neighbor voxel, and
 	 * <ul>
@@ -620,6 +664,62 @@ public class SpatialGrid implements Settable, Instantiable
 					Vector.toString(this._shape.iteratorCurrent())+
 					", neighbor "+
 					Vector.toString(this._shape.nbhIteratorCurrent()));
+			return Double.NaN;
+		}
+	}
+	
+	/**
+	 * \brief Calculate the time-scale of the diffusion from the neighbor voxel
+	 * into the current iterator voxel (always positive).
+	 * 
+	 * <p>The time-scale from the neighboring voxel into the current one is 
+	 * given by the formula <i>SA<sub>nhb,itr</sub> * V<sub>itr</sub> *
+	 * (D<sub>nhb</sub><sup>-1</sup> + D<sub>itr</sub><sup>-1</sup>)<sup>-1</sup>
+	 *  * d<sub>nhb,itr</sub><sup>-1</sup></i>
+	 * where subscript <i>itr</i> denotes the current iterator voxel and
+	 * <i>nhb</i> the current neighbor voxel, and
+	 * <ul>
+	 * <li><i>SA</i> is shared surface area of two voxels</li>
+	 * <li><i>V</i> is voxel volume</li>
+	 * <li><i>D</i> is voxel diffusivity</li>
+	 * <li><i>d</i> is distance between centres of two voxels</li>
+	 * </ul>
+	 * 
+	 * @return Time-scale of the diffusive flow from the neighbor voxel into
+	 * the current iterator voxel, in units of time.
+	 */
+	public double getDiffusiveTimeScaleWithNeighbor()
+	{
+		if ( this._shape.isNbhIteratorInside() )
+		{
+			/* Average diffusivity. */
+			double diffusivity = ExtraMath.harmonicMean(
+					this.getValueAtCurrent(ArrayType.DIFFUSIVITY),
+					this.getValueAtNhb(ArrayType.DIFFUSIVITY));
+			/* Surface are the two voxels share (in square microns). */
+			double sArea = this._shape.nhbCurrSharedArea();
+			/* Centre-centre distance. */
+			double dist = this._shape.nhbCurrDistance();
+			/* Current voxel volume. */
+			double volume = this._shape.getCurrVoxelVolume();
+			/* Calculate the the timescale from these values. */
+			return dist * volume * diffusivity / sArea;
+		}
+		else if ( this._shape.isIteratorValid() )
+		{
+			/* Average diffusivity. */
+			double diffusivity = this.getValueAtCurrent(ArrayType.DIFFUSIVITY);
+			/* Surface are the two voxels share (in square microns). */
+			double sArea = this._shape.nhbCurrSharedArea();
+			/* Centre-centre distance. */
+			double dist = this._shape.nhbCurrDistance();
+			/* Current voxel volume. */
+			double volume = this._shape.getCurrVoxelVolume();
+			/* Calculate the the timescale from these values. */
+			return dist * volume * diffusivity / sArea;
+		}
+		else
+		{
 			return Double.NaN;
 		}
 	}

@@ -32,8 +32,7 @@ import settable.Module.Requirements;
 import shape.Dimension.DimName;
 import shape.iterator.ShapeIterator;
 import shape.resolution.ResolutionCalculator;
-import shape.resolution.ResolutionCalculator.ResCalc;
-import shape.resolution.ResolutionCalculator.UniformResolution;
+import shape.resolution.UniformResolution;
 import shape.subvoxel.SubvoxelPoint;
 import surface.Collision;
 import surface.Plane;
@@ -78,8 +77,8 @@ public abstract class Shape implements
 	 * Storage container for dimensions that this {@code Shape} is not yet
 	 * ready to initialise.
 	 */
-	protected HashMap<DimName,ResCalc> _rcStorage =
-												new HashMap<DimName,ResCalc>();
+	protected HashMap<DimName,ResolutionCalculator> _rcStorage =
+												new HashMap<DimName,ResolutionCalculator>();
 	
 	/**
 	 * The greatest potential flux between neighboring voxels. Multiply by 
@@ -136,7 +135,7 @@ public abstract class Shape implements
 										this.getName(), null, false ) );
 		/* Add the child modules */
 		for ( Dimension dim : this._dimensions.values() )
-			if(dim._isSignificant)
+			if ( dim._isSignificant )
 				modelNode.add( dim.getModule() );
 		/* NOTE: no constructible child modules for this class thus no 
 		 * addChildSpec */
@@ -160,31 +159,35 @@ public abstract class Shape implements
 	 */
 	public void instantiate(Element xmlElem, Settable parent )
 	{
+		this._parentNode = parent;
+		
 		NodeList childNodes;
 		Element childElem;
 		String str;
 		/* Set up the dimensions. */
 		Dimension dim;
-		ResCalc rC;
-		this._parentNode = parent;
+		ResolutionCalculator rC;
+		String resCalculatorClass = "UniformResolution";
+		if ( xmlElem.hasAttribute(XmlRef.resCalcClass) )
+			resCalculatorClass = xmlElem.getAttribute(XmlRef.resCalcClass);
 		
-		for ( DimName dimens : this.getDimensionNames() )
+		for ( DimName dimName : this.getDimensionNames() )
 		{
 
 			childElem = (Element) XmlHandler.getSpecific(xmlElem, 
-					XmlRef.shapeDimension, XmlRef.nameAttribute, dimens.name());
+					XmlRef.shapeDimension, XmlRef.nameAttribute, dimName.name());
 			try
 			{
-				dim = this.getDimension(dimens);
-				if(dim._isSignificant)
+				dim = this.getDimension(dimName);
+				if ( dim._isSignificant )
 				{
 					dim.instantiate(childElem, this);
 					
 					/* Initialise resolution calculators */
-					rC = new ResolutionCalculator.UniformResolution();
-	
-					rC.init(dim._targetRes, dim._extreme[0], dim._extreme[1]);
-					this.setDimensionResolution(dimens, rC);	
+					rC = (ResolutionCalculator) Instance.getNew(resCalculatorClass);
+					rC.setDimension(dim);
+					rC.setResolution(dim._targetRes);
+					this.setDimensionResolution(dimName, rC);	
 				}
 			}
 			catch (IllegalArgumentException e)
@@ -206,6 +209,13 @@ public abstract class Shape implements
 			for ( int i = 0; i < childNodes.getLength(); i++ )
 			{
 				childElem = (Element) childNodes.item(i);
+				/* 
+				 * Skip boundaries that are not direct children of the shape
+				 * node (e.g. those wrapped in a dimension).
+				 */
+				if ( childElem.getParentNode() != xmlElem )
+					continue;
+				
 				str = childElem.getAttribute(XmlRef.classAttribute);
 				aBoundary = (Boundary) Instance.getNew(childElem, 
 						this, str );
@@ -278,8 +288,7 @@ public abstract class Shape implements
 	}
 	
 	/**
-	 * \brief returns all dimensions that are significant
-	 * @return
+	 * @return List of all significant dimensions.
 	 */
 	public List<Dimension> getSignificantDimensions()
 	{
@@ -287,6 +296,18 @@ public abstract class Shape implements
 		for ( Dimension dim : this._dimensions.values() )
 			if ( dim.isSignificant() )
 				out.add(dim);
+		return out;
+	}
+	
+	/**
+	 * @return List of the indices for each significant dimension.
+	 */
+	public List<Integer> getSignificantDimensionsIndices()
+	{
+		LinkedList<Integer> out = new LinkedList<Integer>();
+		for ( Dimension dim : this._dimensions.values() )
+			if ( dim.isSignificant() )
+				out.add(this.getDimensionIndex(dim));
 		return out;
 	}
 	
@@ -468,7 +489,7 @@ public abstract class Shape implements
 	 */
 	protected void trySetDimRes(DimName dName)
 	{
-		ResCalc rC = this._rcStorage.get(dName);
+		ResolutionCalculator rC = this._rcStorage.get(dName);
 		if ( rC != null )
 			this.setDimensionResolution(dName, rC);
 	}
@@ -480,7 +501,7 @@ public abstract class Shape implements
 	 * @param dName The name of the dimension to set for.
 	 * @param resC A resolution calculator.
 	 */
-	public abstract void setDimensionResolution(DimName dName, ResCalc resC);
+	public abstract void setDimensionResolution(DimName dName, ResolutionCalculator resC);
 	
 	/**
 	 * \brief Get the Resolution Calculator for the given dimension, at the
@@ -490,7 +511,7 @@ public abstract class Shape implements
 	 * @param dim Dimension index (e.g., for a cuboid: X = 0, Y = 1, Z = 2).
 	 * @return The relevant Resolution Calculator.
 	 */
-	public abstract ResCalc getResolutionCalculator(int[] coord, int dim);
+	public abstract ResolutionCalculator getResolutionCalculator(int[] coord, int dim);
 	
 	/* ***********************************************************************
 	 * POINT LOCATIONS
@@ -733,7 +754,7 @@ public abstract class Shape implements
 		int i = 0;
 		for ( Dimension dim : this._dimensions.values() )
 		{
-			if (dim._dimName == DimName.PHI || dim._dimName == DimName.THETA )
+			if ( dim.isAngular() )
 			{
 				// FIXME If we want to use periodic boundaries in polar
 				// coordinates the collision algorithm needs to be overhauled
@@ -1053,6 +1074,8 @@ public abstract class Shape implements
 	 * VOXELS
 	 * **********************************************************************/
 	
+	public abstract int getTotalNumberOfVoxels();
+	
 	/**
 	 * \brief Find the coordinates of the voxel that encloses the given
 	 * <b>location</b>.
@@ -1076,7 +1099,7 @@ public abstract class Shape implements
 	public int[] getCoords(double[] loc, double[] inside)
 	{
 		int[] coord = new int[3];
-		ResCalc rC;
+		ResolutionCalculator rC;
 		for ( int dim = 0; dim < 3; dim++ )
 		{
 			rC = this.getResolutionCalculator(coord, dim);
@@ -1107,11 +1130,11 @@ public abstract class Shape implements
 		Vector.checkLengths(inside, coord);
 		Vector.copyTo(destination, inside);
 		int nDim = getNumberOfDimensions();
-		ResCalc rC;
+		ResolutionCalculator rC;
 		for ( int dim = 0; dim < nDim; dim++ )
 		{
 			rC = this.getResolutionCalculator(coord, dim);
-			destination[dim] *= rC.getResolution(coord[dim]);
+			destination[dim] *= rC.getResolution();
 			destination[dim] += rC.getCumulativeResolution(coord[dim] - 1);
 		}
 	}
@@ -1216,11 +1239,11 @@ public abstract class Shape implements
 	 */
 	public void getVoxelSideLengthsTo(double[] destination, int[] coord)
 	{
-		ResCalc rC;
+		ResolutionCalculator rC;
 		for ( int dim = 0; dim < getNumberOfDimensions(); dim++ )
 		{
 			rC = this.getResolutionCalculator(coord, dim);
-			destination[dim] = rC.getResolution(coord[dim]);
+			destination[dim] = rC.getResolution();
 		}
 	}
 	
@@ -1324,7 +1347,7 @@ public abstract class Shape implements
 		Dimension dim = this.getDimension(dimN);
 		int dimIndex = this.getDimensionIndex(dimN);
 		int[] currentCoord = this._it.iteratorCurrent();
-		ResCalc rC = this.getResolutionCalculator(currentCoord, dimIndex);
+		ResolutionCalculator rC = this.getResolutionCalculator(currentCoord, dimIndex);
 		/*
 		 * Get the position at the centre of the current voxel.
 		 */
@@ -1375,8 +1398,8 @@ public abstract class Shape implements
 				" along dimension "+nhbDimName);
 		}
 		int i = this.getDimensionIndex(nhbDimName);
-		ResCalc rC = this.getResolutionCalculator(currentCoord, i);
-		double out = rC.getResolution(currentCoord[i]);
+		ResolutionCalculator rC = this.getResolutionCalculator(currentCoord, i);
+		double out = rC.getResolution();
 		/* 
 		 * If the neighbor is inside the array, use the mean resolution.
 		 * 
@@ -1386,7 +1409,7 @@ public abstract class Shape implements
 		if ( this._it.isNbhIteratorInside() )
 		{
 			rC = this.getResolutionCalculator(currentNeighbor, i);
-			out += rC.getResolution(currentNeighbor[i]);
+			out += rC.getResolution();
 			out *= 0.5;
 		}
 		if ( this._it.isNbhIteratorValid() )
@@ -1539,18 +1562,17 @@ public abstract class Shape implements
 		}
 		
 		/* set the dimension resolutions */
-		for ( int dim = 0; dim < 3; dim++ )
+		for ( int dimIndex = 0; dimIndex < 3; dimIndex++ )
 		{
-			DimName dimName = this.getDimensionName(dim);
-			UniformResolution resCalc = new UniformResolution();
-			sub.getDimension(dimName).setExtremes(orig[dim], upper[dim]);
-			resCalc.setExtremes(orig[dim], upper[dim]);
+			DimName dimName = this.getDimensionName(dimIndex);
+			Dimension dimension = sub.getDimension(dimName);
+			dimension.setExtremes(orig[dimIndex], upper[dimIndex]);
+			UniformResolution resCalc = new UniformResolution(dimension);
 			/* convert arc length to angle for angular dimensions */
 			resCalc.setResolution(dimName.isAngular() ? 
 					targetRes / upper[getDimensionIndex(DimName.R)] : targetRes);
 			sub.setDimensionResolution(dimName, resCalc);
 		}
-		
 		
 		/* Loop over the shape and create new subvoxel points with 
 		 * internal location, real location and volume set */
@@ -1570,7 +1592,13 @@ public abstract class Shape implements
 		return out;
 	}
 	
+	/* ***********************************************************************
+	 * MULTIGRID CONSTRUCTION
+	 * **********************************************************************/
 	
+	public abstract boolean canGenerateCoarserMultigridLayer();
+	
+	public abstract Shape generateCoarserMultigridLayer();
 	
 	/* ***********************************************************************
 	 * PRE-LAUNCH CHECK

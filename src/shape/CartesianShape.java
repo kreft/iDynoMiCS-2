@@ -10,7 +10,8 @@ import shape.Dimension.DimName;
 import shape.ShapeConventions.SingleVoxel;
 import shape.iterator.CartesianShapeIterator;
 import shape.iterator.ShapeIterator;
-import shape.resolution.ResolutionCalculator.ResCalc;
+import shape.resolution.ResolutionCalculator;
+import shape.resolution.MultigridResolution;
 
 /**
  * \brief Abstract subclass of {@code Shape} that handles the important methods
@@ -25,7 +26,7 @@ public abstract class CartesianShape extends Shape
 	/**
 	 * Array of resolution calculators used by all linear {@code Shape}s.
 	 */
-	protected ResCalc[] _resCalc = new ResCalc[3];
+	protected ResolutionCalculator[] _resCalc = new ResolutionCalculator[3];
 	
 	
 	/* ***********************************************************************
@@ -34,22 +35,22 @@ public abstract class CartesianShape extends Shape
 	
 	public CartesianShape()
 	{
-		/*
-		 * Fill the resolution calculators with dummies for now: they should
-		 * be overwritten later.
-		 */
-		for ( int i = 0; i < 3; i++ )
-		{
-			SingleVoxel sV = new SingleVoxel();
-			sV.init(1.0, 0.0, 1.0);
-			this._resCalc[i] = sV;
-		}
-		/*
-		 * These are the dimension names for any Cartesian shape. Assume they
-		 * are all insignificant to begin with.
-		 */
+		int i = 0;
 		for ( DimName d : new DimName[]{X, Y, Z} )
-			this._dimensions.put(d, new Dimension(false, d));
+		{
+			/*
+			 * These are the dimension names for any Cartesian shape. Assume
+			 * they are all insignificant to begin with.
+			 */
+			Dimension dimension = new Dimension(false, d);
+			this._dimensions.put(d, dimension);
+			/*
+			 * Fill the resolution calculators with dummies for now: they
+			 * should be overwritten later.
+			 */
+			this._resCalc[i] = new SingleVoxel(dimension);
+			i++;
+		}
 		/*
 		 * By default assume that we should use an iterator with step length 1.
 		 */
@@ -102,14 +103,14 @@ public abstract class CartesianShape extends Shape
 	 * **********************************************************************/
 	
 	@Override
-	public void setDimensionResolution(DimName dName, ResCalc resC)
+	public void setDimensionResolution(DimName dName, ResolutionCalculator resC)
 	{
 		int index = this.getDimensionIndex(dName);
 		this._resCalc[index] = resC;
 	}
 	
 	@Override
-	public ResCalc getResolutionCalculator(int[] coord, int axis)
+	public ResolutionCalculator getResolutionCalculator(int[] coord, int axis)
 	{
 		/* Coordinate is irrelevant here. */
 		return this._resCalc[axis];
@@ -153,6 +154,15 @@ public abstract class CartesianShape extends Shape
 	 * **********************************************************************/
 	
 	@Override
+	public int getTotalNumberOfVoxels()
+	{
+		int n = 1;
+		for ( int i = 0; i < 3; i++ )
+			n *= this._resCalc[i].getNVoxel();
+		return n;
+	}
+	
+	@Override
 	public double getVoxelVolume(double[] origin, double[] upper)
 	{
 		double out = 1.0;
@@ -165,7 +175,7 @@ public abstract class CartesianShape extends Shape
 	public double nhbCurrSharedArea()
 	{
 		double area = 1.0;
-		ResCalc rC;
+		ResolutionCalculator rC;
 		int index;
 		int[] currentCoord = this._it.iteratorCurrent();
 		for ( DimName dim : this.getDimensionNames() )
@@ -177,8 +187,79 @@ public abstract class CartesianShape extends Shape
 				continue;
 			index = this.getDimensionIndex(dim);
 			rC = this.getResolutionCalculator(currentCoord, index);
-			area *= rC.getResolution(currentCoord[index]);
+			area *= rC.getResolution();
 		}
 		return area;
+	}
+	
+	/* ***********************************************************************
+	 * MULTIGRID CONSTRUCTION
+	 * **********************************************************************/
+	
+	@Override
+	public boolean canGenerateCoarserMultigridLayer()
+	{
+		/*
+		 * Acceptable resolution calculators are MultigridResolution and
+		 * SingleVoxel. There must be at least one MultigridResolution with
+		 * more than 2 voxels to be worth generating a multigrid.
+		 */
+		int multigridCount = 0;
+		for (ResolutionCalculator resCalc : this._resCalc)
+		{
+			if ( resCalc instanceof MultigridResolution)
+			{
+				if ( resCalc.getNVoxel() > 2 )
+					multigridCount++;
+				continue;
+			}
+			if ( resCalc instanceof SingleVoxel )
+				continue;
+			return false;
+		}
+		return multigridCount > 0;
+	}
+	
+	@Override
+	public Shape generateCoarserMultigridLayer()
+	{
+		Shape out;
+		try
+		{
+			out = this.getClass().newInstance();
+		}
+		catch (Exception e)
+		{
+			return null;
+		}
+		
+		ResolutionCalculator newResCalc;
+		DimName dimName;
+		Dimension dimension;
+		for ( int i = 0; i < 3; i++ )
+		{
+			dimName = this.getDimensionName(i);
+			dimension = this.getDimension(dimName);
+			if ( this._resCalc[i] instanceof SingleVoxel )
+				out.setDimensionResolution(dimName, this._resCalc[i]);
+			else if ( this._resCalc[i] instanceof MultigridResolution )
+			{
+				newResCalc = ((MultigridResolution)this._resCalc[i])
+						.getCoarserResolution();
+				out.setDimensionResolution(dimName, newResCalc);
+				if ( dimension.isCyclic() )
+					out.makeCyclic(dimName);
+			}
+			else
+				return null;
+			
+			if ( ! dimension.isCyclic() )
+			{
+				out.setBoundary(dimName, 0, dimension.getBoundary(0));
+				out.setBoundary(dimName, 1, dimension.getBoundary(1));
+			}
+		}
+		
+		return out;
 	}
 }

@@ -3,8 +3,11 @@
  */
 package boundary.library;
 
+import org.w3c.dom.Element;
+
 import boundary.Boundary;
 import boundary.spatialLibrary.BiofilmBoundaryLayer;
+import settable.Settable;
 
 /**
  * \brief Boundary connecting a dimensionless compartment to a compartment
@@ -14,6 +17,17 @@ import boundary.spatialLibrary.BiofilmBoundaryLayer;
  */
 public class ChemostatToBoundaryLayer extends Boundary
 {
+	public ChemostatToBoundaryLayer()
+	{
+		super();
+	}
+
+	@Override
+	public void instantiate(Element xmlElement, Settable parent) {
+		// TODO Auto-generated method stub
+		
+	}
+
 	/* ************************************************************************
 	 * PARTNER BOUNDARY
 	 * ***********************************************************************/

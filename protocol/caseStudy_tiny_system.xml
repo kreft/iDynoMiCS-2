@@ -79,10 +79,10 @@
 		</speciesLib>
 
 		<compartment name="first">
-			<shape class="Rectangle">
+			<shape class="Rectangle" resolutionCalculator="MultigridResolution">
 				<!-- µm -->
-				<dimension name="X" isCyclic="true" 	targetResolution="1.0" max="3.0"/>
-				<dimension name="Y" isCyclic="false" 	targetResolution="1.0" max="3.0"/>
+				<dimension name="X" isCyclic="true" 	targetResolution="1.0" max="4.0"/>
+				<dimension name="Y" isCyclic="false" 	targetResolution="1.0" max="4.0"/>
 			</shape>
 			<solutes>
 				<!-- pg / µm2 -->

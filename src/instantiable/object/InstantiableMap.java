@@ -207,8 +207,8 @@ public class InstantiableMap<K,T> extends HashMap<K,T> implements Settable,
 				
 			}
 			
-			if (XmlHandler.hasNode(xmlElement, this.bundleMapLabel))
-				xmlElement = XmlHandler.loadUnique(xmlElement, this.bundleMapLabel);
+			if (XmlHandler.hasChild(xmlElement, this.bundleMapLabel))
+				xmlElement = XmlHandler.findUniqueChild(xmlElement, this.bundleMapLabel);
 			
 			if (this.keyLabel == null)
 			{
