@@ -8,7 +8,7 @@
 			<species name="Producer">
 				<aspect name="pigment" type="PRIMARY" class="String" value="RED" />
 				<speciesModule name="coccoid" />
-				<aspect name="reactions" type="PRIMARY"  class="InstantiatableList"> 
+				<aspect name="reactions" type="PRIMARY"  class="InstantiableList"> 
 					<list class="Reaction" nodeLabel="reaction" 
 					entryClass="Reaction" keyClass="String" keyLabel="name">
 						<reaction name="production">
@@ -29,7 +29,7 @@
 			<species name="Consumer">
 				<aspect name="pigment" type="PRIMARY" class="String" value="BLUE" />
 				<speciesModule name="coccoid" />
-				<aspect name="reactions" type="PRIMARY"  class="InstantiatableList"> 
+				<aspect name="reactions" type="PRIMARY"  class="InstantiableList"> 
 					<list class="Reaction" nodeLabel="reaction" 
 					entryClass="Reaction" keyClass="String" keyLabel="name">
 						<reaction name="consumption">

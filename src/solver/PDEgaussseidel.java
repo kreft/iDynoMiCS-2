@@ -150,10 +150,11 @@ public class PDEgaussseidel extends PDEsolver
 			
 			if ( (! this._allowNegatives) && newConcn < 0.0 )
 			{
-				Log.out(Tier.CRITICAL, "Truncating concentration of "+
+				Log.out(Tier.EXPRESSIVE, "Truncating concentration of "+
 						variable.getName()+" to zero\n"+
 						"\tVoxel at "+Vector.toString(current)+"\n"+
-						"\tPrevious concn "+currConcn);
+						"\tPrevious concn "+currConcn+
+						"\tPrevented concn "+newConcn);
 				newConcn = 0.0;
 			}
 			variable.setValueAt(CONCN, current, newConcn);

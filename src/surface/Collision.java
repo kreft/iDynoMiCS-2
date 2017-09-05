@@ -299,7 +299,7 @@ public class Collision
 		if( a.type() == Surface.Type.SPHERE )
 		{
 			var.flip = false;
-			return this.sphereSphere((Ball) a, (Ball) b, var);
+			return this.assessSphere((Ball) a, b, var);
 		}
 		else
 		{
@@ -382,6 +382,20 @@ public class Collision
 		else
 			return this.rodRod(rod, (Rod) otherSurface, var);
 	}
+	
+	private CollisionVariables assessSphere(Ball sphere, Surface otherSurface, 
+			CollisionVariables var)
+	{
+		/* FIXME check surface order in arguments */
+		if ( otherSurface.type() == Surface.Type.ROD )
+			return this.rodSphere((Rod) otherSurface, sphere, var);
+		else if ( otherSurface.type() == Surface.Type.SPHERE )
+			return this.sphereSphere(sphere, (Ball) otherSurface, var);
+		else if ( otherSurface.type() == Surface.Type.VOXEL )
+			return this.voxelSphere((Voxel) otherSurface, sphere, var);
+		else
+			return null; // TODO sphere plane
+	}
 	/*************************************************************************
 	 * PRIVATE DISTANCE METHODS
 	 ************************************************************************/
@@ -398,9 +412,7 @@ public class Collision
 	private void setPeriodicDistanceVector(double[] a, double[] b, 
 			CollisionVariables var)
 	{
-//		var.interactionVector = Vector.minus(a,b);
-		//FIXME testing
-		var.interactionVector = this._shape.getMinDifferenceVector(a, b);
+		this._shape.getMinDifferenceVectorTo(var.interactionVector, a, b);
 	}
 	
 	/**
@@ -412,9 +424,26 @@ public class Collision
 	 * @param b Another point in space.
 	 * @return The minmum distance between them.
 	 */
+	@Deprecated 
 	private double[] minDistance(double[] a, double[] b)
 	{
 		return this._shape.getMinDifferenceVector(a,b);
+	}
+	
+	/**
+	 * \brief Calculate the minimum distance between two points in space and
+	 * assign it to the var.interactionVector (reduce memory usage)
+	 * 
+	 * <p>Neither vector is changed by this method.</p>
+	 * 
+	 * @param a One point in space.
+	 * @param b Another point in space.
+	 * @return The minmum distance between them.
+	 */
+	private double[] minDistance(double[] a, double[] b, CollisionVariables var)
+	{
+		this._shape.getMinDifferenceVectorTo(var.interactionVector, a,b);
+		return var.interactionVector;
 	}
 	
 	/**
@@ -508,25 +537,24 @@ public class Collision
 	private CollisionVariables planeLineSeg(double[] normal, double d, 
 			double[] p0, double[] p1, CollisionVariables var)
 	{
-		Vector.reverseTo(var.interactionVector, normal);
 		this.planePoint(normal, d, p0, var);
-		double a = var.distance;
+		double a = Double.valueOf(var.distance);
 		this.planePoint(normal, d, p1, var);
-		double b = var.distance;
+		double b = Double.valueOf(var.distance);
 		if ( a < b )
 		{
-			var.s = 0.0;
+			var.t = 0.0;
 			var.distance = a;
 			return var;
 		}
 		if ( a > b ) 
 		{
-			var.s = 1.0;
+			var.t = 1.0;
 			var.distance = b;
 			return var;
 		}
 		/* a = b */
-		var.s = 0.5;
+		var.t = 0.5;
 		return var;
 	}
 	
@@ -672,11 +700,11 @@ public class Collision
 			double[] q0, double[] q1, CollisionVariables var) 
 	{		
 		/* direction vector between segment tips */
-		double[] r	= this.minDistance(p0, q0);
+		double[] r	= this.minDistance(p0, q0, var).clone();
 		/* direction vector of first segment */
-		double[] d1	= this.minDistance(p1, p0);
+		double[] d1	= this.minDistance(p1, p0, var).clone();
 		/* direction vector of second segement */
-		double[] d2	= this.minDistance(q1, q0);
+		double[] d2	= this.minDistance(q1, q0, var).clone();
 		/* squared length of first segment */
 		double a 	= Vector.normSquare(d1);
 		/* squared length of second segment */
@@ -852,6 +880,21 @@ public class Collision
 		/* calculate the distance between a point and a normalized plane */
 		var.distance = Vector.dotProduct(normal, point) - d;
 		return var;
+	}
+	
+	/**
+	 * TODO \brief
+	 */
+	private CollisionVariables voxelSphere(Voxel voxel, Ball sphere, 
+			CollisionVariables var)
+	{
+		double[] p = Vector.copy( sphere._point.getPosition() );
+		for(int i=0; i < p.length ; i++) 
+		{ 
+			p[i] = Math.max( p[i], voxel._lower[i] );
+			p[i] = Math.min( p[i], voxel._lower[i] + voxel._dimensions[i] );
+		}
+		return this.spherePoint(sphere, p, var);
 	}
 	
 	/**

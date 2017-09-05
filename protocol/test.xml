@@ -14,7 +14,7 @@
 				both on species level and on agent level, the agent state will be used in 
 				the simulation. small test -->
 			<species name="AOB">
-				<aspect name="reactions" type="PRIMARY" class="InstantiatableList">
+				<aspect name="reactions" type="PRIMARY" class="InstantiableList">
 					<list class="Reaction" nodeLabel="reaction" entryClass="Reaction" keyClass="String" keyLabel="name">
 						<reaction name="testReact">
 							<expression value="mass * solute1 * k">
@@ -71,6 +71,9 @@
 						<item type="PRIMARY" class="Double" value="2.0" key="1.0" keyType="Double" />
 					</aspect>				
 					<aspect name="species" type="PRIMARY" class="String" value="AOB" />
+					<aspect name="h_map_test" type="PRIMARY" class="HashMap">
+						<item type="PRIMARY" class="String[]" value="test" key="test_key" keyType="String" />
+					</aspect>
 					<aspect name="mass" type="PRIMARY" class="Double" value="0.2" />
 					<aspect name="density" type="PRIMARY" class="Double" value="1" />
 					<aspect name="pigment" type="PRIMARY" class="String" value="RED" />
@@ -135,12 +138,18 @@
 				<process name="agentRelax" class="AgentRelaxation"  priority="-2"
 					firstStep="0.0"  timerStepSize="0.5">
 					<aspect name="maxMovement" type="PRIMARY" class="Double" value="0.05" />
+					<aspect name="stressThreshold" type="PRIMARY" class="Double" value="1000" />
 					<aspect name="relaxationMethod" type="PRIMARY" class="String" value="EULER" />
 				</process>
 				<process name="solveDiffusionTransient" class="SolveDiffusionTransient"  priority="-1"
 					firstStep="0.0" timerStepSize="0.5">
 					<diffusivitySetter solute="solute1" class="ScaledIfBiomassPresent" defaultDiffusivity="1.0" biofilmDiffusivity="0.5" />
 					<diffusivitySetter solute="solute2" class="AllSameDiffuse" defaultDiffusivity="0.8"/>
+				</process>
+				<process name="summary" class="processManager.library.Summary"  priority="2"
+					firstStep="0.0" timerStepSize="0.5">
+					<aspect name="tableSpecification" type="PRIMARY" class="String" 
+					value="0 ~ mass | mass > 0.2, mass > 0.15, mass > 0.1, mass > 0.0 | species = AOB | pigment = RED, pigment = BLUE, pigment = GREEN" />
 				</process>
 			</processManagers>
 		</compartment>

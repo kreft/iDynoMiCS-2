@@ -466,4 +466,16 @@ public class XmlRef
 	 */
 	public static final String map = "map";
 
+	public static final String currentIter = "currentIter";
+
+	/**
+	 * number of joints for random spawn agents
+	 */
+	public static final String numberOfJoints = "numberOfJoints";
+
+	/**
+	 * number of points to spawn
+	 */
+	public static final String points = "points";
+
 }

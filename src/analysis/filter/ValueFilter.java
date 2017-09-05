@@ -2,6 +2,13 @@ package analysis.filter;
 import aspect.AspectInterface;
 import utility.Helper;
 
+/**
+ * The value filter obtains a single value in string format from an 
+ * AspectInterface object, returns NONE if the aspect cannot be found.
+ * 
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
+ *
+ */
 public class ValueFilter implements Filter
 {
 
@@ -18,7 +25,7 @@ public class ValueFilter implements Filter
 	public String stringValue(AspectInterface subject) 
 	{
 		Object obj = subject.getValue(this.property);
-		return ( Helper.isNullOrEmpty(obj) ? " " : String.valueOf(obj) );
+		return ( Helper.isNullOrEmpty(obj) ? "NONE" : String.valueOf(obj) );
 	}
 
 	@Override

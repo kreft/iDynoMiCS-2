@@ -19,6 +19,7 @@ import grid.diffusivitySetter.AllSameDiffuse;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
 import processManager.ProcessDiffusion;
+import processManager.ProcessMethods;
 import reaction.Reaction;
 import referenceLibrary.XmlRef;
 import shape.Shape;
@@ -101,10 +102,10 @@ public class SolveDiffusionSteadyState extends ProcessDiffusion
 		 */
 		for ( Agent agent : this._agents.getAllLocatedAgents() )
 			this.applyAgentGrowth(agent);
-		/*
-		 * Clear agent mass distribution maps.
-		 */
-		this._agents.removeAgentDistibutionMaps();
+
+		/* perform final clean-up and update agents to represent updated 
+		 * situation. */
+		this.postStep();
 	}
 	
 	/* ***********************************************************************
@@ -176,7 +177,7 @@ public class SolveDiffusionSteadyState extends ProcessDiffusion
 		 * Get the agent biomass kinds as a map. Copy it now so that we can
 		 * use this copy to store the changes.
 		 */
-		Map<String,Double> biomass = AgentContainer.getAgentMassMap(agent);
+		Map<String,Double> biomass = ProcessMethods.getAgentMassMap(agent);
 		/*
 		 * Now look at all the voxels this agent covers.
 		 */
@@ -284,7 +285,7 @@ public class SolveDiffusionSteadyState extends ProcessDiffusion
 		 * Get the agent biomass kinds as a map. Copy it now so that we can
 		 * use this copy to store the changes.
 		 */
-		Map<String,Double> biomass = AgentContainer.getAgentMassMap(agent);
+		Map<String,Double> biomass = ProcessMethods.getAgentMassMap(agent);
 		@SuppressWarnings("unchecked")
 		Map<String,Double> newBiomass = (HashMap<String,Double>)
 				ObjectFactory.copy(biomass);
@@ -365,6 +366,6 @@ public class SolveDiffusionSteadyState extends ProcessDiffusion
 				}
 			}
 		}
-		AgentContainer.updateAgentMass(agent, newBiomass);
+		ProcessMethods.updateAgentMass(agent, newBiomass);
 	}
 }

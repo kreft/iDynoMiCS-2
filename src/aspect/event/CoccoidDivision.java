@@ -249,8 +249,7 @@ public class CoccoidDivision extends Event
 		Body momBody = (Body) mother.get(BODY);
 		Body daughterBody = (Body) daughter.get(BODY);
 		
-		// TODO Joints state will be removed
-		double[] originalPos = momBody.getJoints().get(0);
+		double[] originalPos = momBody.getPosition(0);
 		double[] shift = Vector.randomPlusMinus(originalPos.length, 
 				0.5*mother.getDouble(RADIUS));
 		

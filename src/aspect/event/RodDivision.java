@@ -65,21 +65,21 @@ public class RodDivision extends Event {
 		 * stretched out over the entire domain
 		 */
 		double[] midPos = shape.periodicMidPoint(
-				momBody.getJoints().get(0), 
-				momBody.getJoints().get(1) );
+				momBody.getPosition(0), 
+				momBody.getPosition(1) );
 		
 		double[] shift = Vector.randomPlusMinus( midPos.length, 
 				0.05*(double) mother.get(RADIUS) );
 		
 		Point p = momBody.getPoints().get(1);
 		p.setPosition( shape.periodicMidPoint( 
-				momBody.getJoints().get(0),
+				momBody.getPosition(0),
 				Vector.add(midPos, shift) ) );
 		
 		Body daughterBody = (Body) daughter.get(BODY);
 		Point q = daughterBody.getPoints().get(0);
 		q.setPosition( shape.periodicMidPoint(
-				daughterBody.getJoints().get(1),
+				daughterBody.getPosition(1),
 				Vector.minus( midPos, shift ) ) );
 
 
@@ -118,7 +118,7 @@ public class RodDivision extends Event {
 	 * @param {@code true} if the agent should divide now, {@code false} if it
 	 * should wait.
 	 */
-	// TODO generalise this so that the user can set the variable which
+	// TODO generalize this so that the user can set the variable which
 	// triggers division, and the value of this variable it should use.
 	@SuppressWarnings("unchecked")
 	private boolean shouldDivide(Agent anAgent)

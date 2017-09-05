@@ -7,6 +7,7 @@ import org.w3c.dom.Node;
 
 import agent.Agent;
 import agent.Body;
+import agent.predicate.IsLocated;
 import dataIO.Log;
 import dataIO.XmlHandler;
 import dataIO.Log.Tier;
@@ -252,7 +253,7 @@ public abstract class SpatialBoundary extends Boundary
 		Body body;
 		for ( Agent anAgent : this._arrivalsLounge )
 		{
-			if ( AgentContainer.isLocated(anAgent) )
+			if ( IsLocated.isLocated(anAgent) )
 			{
 				newLoc = aShape.getRandomLocationOnBoundary(
 						this._dim, this._extreme);

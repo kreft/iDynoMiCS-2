@@ -24,6 +24,7 @@ import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
 import instantiable.Instance;
 import processManager.ProcessDiffusion;
+import processManager.ProcessMethods;
 import reaction.Reaction;
 import referenceLibrary.XmlRef;
 import shape.subvoxel.CoordinateMap;
@@ -105,11 +106,10 @@ public class SolveDiffusionTransient extends ProcessDiffusion
 		 * distribute it among the relevant boundaries.
 		 */
 		this._environment.distributeWellMixedFlows();
-		/*
-		 * Clear agent mass distribution maps.
-		 */
-		this._agents.removeAgentDistibutionMaps();
 
+		/* perform final clean-up and update agents to represent updated 
+		 * situation. */
+		this.postStep();
 	}
 	
 	/* ***********************************************************************
@@ -186,7 +186,7 @@ public class SolveDiffusionTransient extends ProcessDiffusion
 		 * Get the agent biomass kinds as a map. Copy it now so that we can
 		 * use this copy to store the changes.
 		 */
-		Map<String,Double> biomass = AgentContainer.getAgentMassMap(agent);
+		Map<String,Double> biomass = ProcessMethods.getAgentMassMap(agent);
 		@SuppressWarnings("unchecked")
 		Map<String,Double> newBiomass = (HashMap<String,Double>)
 				ObjectFactory.copy(biomass);
@@ -285,6 +285,6 @@ public class SolveDiffusionTransient extends ProcessDiffusion
 				}
 			}
 		}
-		AgentContainer.updateAgentMass(agent, newBiomass);
+		ProcessMethods.updateAgentMass(agent, newBiomass);
 	}
 }

@@ -149,6 +149,12 @@ public class ClassRef
 			aspect.calculated.StateExpression.class.getName();
 	
 	/**
+	 * class reference to the ComponentExpression
+	 */
+	public final static String componentExpressionAspect = 
+			aspect.calculated.ComponentExpression.class.getName();
+	
+	/**
 	 * the voxel distribution map
 	 */
 	public final static String voxelDistributionMap =
@@ -193,6 +199,12 @@ public class ClassRef
 	 */
 	public final static String resolveInteractionDistance =
 			aspect.event.ResolveInteractionDistance.class.getName();
+	
+	/**
+	 * the resolve interaction force event
+	 */
+	public final static String resolveInteractionForce =
+			aspect.event.ResolveInteractionForce.class.getName();
 	
 	/**
 	 * the rod division event
@@ -316,6 +328,9 @@ public class ClassRef
 	 */
 	public final static String writeXmlOutput =
 			processManager.library.WriteXmlOutput.class.getName();
+	
+	public final static String summary =
+			processManager.library.Summary.class.getName();
 	
 	/* ************************************************************************
 	 * IdynoMiCS main classes
@@ -489,13 +504,13 @@ public class ClassRef
 	/**
 	 * TODO
 	 */
-	public static final String pile =
+	public static final String instantiableList =
 			instantiable.object.InstantiableList.class.getName();
 	
 	/**
 	 * 
 	 */
-	public static final String bundle = 
+	public static final String instantiableMap = 
 			instantiable.object.InstantiableMap.class.getName();
 	
 	/* ************************************************************************

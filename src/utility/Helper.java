@@ -1,15 +1,19 @@
 package utility;
 
+import java.awt.Color;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Scanner;
 import java.util.Set;
 
 import dataIO.Log;
 import dataIO.Log.Tier;
 import gui.GuiConsole;
+import idynomics.Compartment;
 import idynomics.Idynomics;
+import linearAlgebra.Vector;
 
 /**
  * \brief Utilities class of helpful methods used across iDynoMiCS 2.
@@ -36,6 +40,23 @@ public class Helper
 	 * Interface (GUI) mode.
 	 */
 	public static boolean isSystemRunningInGUI = false;
+	
+	public static final String[] DIFFERENTIATING_PALETE = new String[] { 
+			"cyan", "magenta", "yellow", "blue", "red", "green", "violet",
+			"orange", "springgreen", "azure", "pink", "chartreuse", "black" };
+	
+	public static String[] giveMeAGradient(int length)
+	{
+		String[] colors = new String[length];
+		int step = 256 / length;
+		for (int i = 0; i < length; i++)
+		{
+			int c = (255 - i * step);
+			colors[i] = "rgb(" + c + ", " + c + ", " + c + ")";
+		}
+		return colors;
+	}
+
 
 	/**
 	 * \brief Obtain user input as string.
@@ -418,4 +439,51 @@ public class Helper
 			out += lines[i] + "\n";
 		return out;
 	}
+	
+	public static Color obtainColor(String settingName, Properties properties, String defaultCol)
+	{
+		/* color vector, get color from config file, use default if not 
+		 * specified */
+		int[] color = Vector.intFromString( Helper.setIfNone( 
+				properties.getProperty( settingName ) , defaultCol) );
+		
+		/* return as color */
+		return new Color( color[0], color[1], color[2] );
+	}
+	
+	public static Compartment selectCompartment()
+	{
+		/* identify the spatial compartments */
+		List<String> compartments = 
+				Idynomics.simulator.getSpatialCompartmentNames();
+		Compartment c = null;
+		if ( compartments.isEmpty() )
+			/* abort if no compartment is available */
+			Log.printToScreen("No spatial compartments available.", false);
+		else if ( compartments.size() == 1 )
+			/* render directly if only 1 compartment is available */
+			c = Idynomics.simulator.getCompartment(compartments.get(0));
+		else
+		{
+			/* otherwise ask for user input */
+			String s = Helper.obtainInput(compartments, 
+					"select compartment for rendering", false);
+			c = Idynomics.simulator.getCompartment(s);
+		}
+		return c;
+	}
+	
+	public static String removeWhitespace(String input)
+	{
+		return input.replaceAll("\\s+","");
+	}
+	
+	public static String[] copyStringA(String[] in)
+	{
+		String[] out = new String[in.length];
+		for ( int i = 0; i < in.length; i++ )
+			out[i] = in[i];
+		return out;
+	}
+
 }

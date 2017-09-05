@@ -78,8 +78,8 @@ distribution of the mass of the agents)
 
 Create filters from string
 
-0 					? a > 1.0 	+ b == mySpecies 	~ mass 			, glucose > 1e-2
-first Compartment	? filter a 	+ filter b  		~ filter column , filter column 2
+0 					? a > 1.0 	+ b == mySpecies 										~ mass 			| glucose > 1e-2 , glucose > 0.5e-2 
+first Compartment	? filter specification for what needs to be included in the table 	~ filter column (value filter) | filter column (Category filter)
 	(match filter a and b, leave blank for all )
 
 ### Use cases

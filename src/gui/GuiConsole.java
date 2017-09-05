@@ -24,10 +24,12 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
+import javax.swing.text.StyleContext;
 
 import dataIO.Log;
 import dataIO.Log.Tier;
 import idynomics.Idynomics;
+import idynomics.Settings;
 import utility.Helper;
 
 /**
@@ -41,13 +43,9 @@ public final class GuiConsole
 	/**
 	 * Box in the GUI that displays text like a console would.
 	 */
-	private static JTextPane _console = new JTextPane();
+	private static JTextPane _console = null;
 	
-	/**
-	 * Background color of the console pane.
-	 * TODO move this to something like a "GuiStyle" class?
-	 */
-	private static Color _consoleBackground = new Color(38, 45, 48);
+	private static JScrollPane _scrollsole = null;
 	
 	/**
 	 * Text style for normal output messages.
@@ -70,9 +68,12 @@ public final class GuiConsole
 	
 	public static JComponent getConsole()
 	{
-		_console.setBackground(_consoleBackground);
+		if (_scrollsole != null)
+			return _scrollsole;
+		
+		_console = new JTextPane();
+		_console.setBackground( Settings.console_color );
 		_console.setEditable(false);
-
 		
 		/**
 		 * based on
@@ -110,9 +111,10 @@ public final class GuiConsole
 		    }
 		});
 		
-		return new JScrollPane(_console,
+		_scrollsole = new JScrollPane(_console,
 				JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, 
 				JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		return _scrollsole;
 	}
 	
 	public static void displayConsole()
@@ -147,8 +149,9 @@ public final class GuiConsole
 		StyleConstants.setAlignment(a, StyleConstants.ALIGN_LEFT);
 		/* Background not set here: see GuiLaunch.consoleBackground. */
 		/* Bold not set here. */
-		StyleConstants.setFontFamily(a, "consolas");
-		StyleConstants.setFontSize(a, 10);
+		StyleConstants.setFontFamily(a, Settings.font );
+		StyleConstants.setFontSize(a, Settings.font_size );
+
 		/* Foreground not set here. */
 		StyleConstants.setItalic(a, false);
 		return a;
@@ -163,7 +166,7 @@ public final class GuiConsole
 	{
 		SimpleAttributeSet a = defaultStyle();
 		StyleConstants.setBold(a, false);
-		StyleConstants.setForeground(a, Color.LIGHT_GRAY);
+		StyleConstants.setForeground(a, Settings.text_color);
 		return a;
 	}
 	
@@ -176,11 +179,10 @@ public final class GuiConsole
 	{
 		SimpleAttributeSet a = defaultStyle();
 		StyleConstants.setBold(a, true);
-		StyleConstants.setForeground(a, Color.RED);
+		StyleConstants.setForeground(a, Settings.error_color);
 		return a;
 	}
 	
-	// TODO Let the user change the styles?
 	
 	/*************************************************************************
 	 * HANDLING TEXT
@@ -227,6 +229,7 @@ public final class GuiConsole
   		}
   		if ( _autoScroll )
   			_console.setCaretPosition(doc.getLength());
+
   	}
 	
 	/**

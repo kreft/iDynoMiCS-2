@@ -38,9 +38,7 @@ public class StateExpression extends Calculated {
 		else
 			this.setInput(Helper.obtainInput( "", "expression" ));
 		
-		String fields = XmlHandler.gatherAttribute(xmlElem, XmlRef.fields);
-		if (fields != null)
-			this.redirect(fields);
+		this.redirect(xmlElem);		
 	}
 
 	

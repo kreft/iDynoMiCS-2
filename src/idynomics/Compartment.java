@@ -188,7 +188,7 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable
 		
 		String type = XmlHandler.gatherAttribute(xmlElem, XmlRef.tree);
 		type = Helper.setIfNone(type, String.valueOf(TreeType.RTREE));
-		this.agents.setSpatialTree(TreeType.valueOf(type));
+		this.agents.setSpatialTreeType(TreeType.valueOf(type));
 		/*
 		 * Load solutes.
 		 */
@@ -505,7 +505,7 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable
 		/* spatial registry NOTE we are handling this here since the agent
 		 * container does not have the proper init infrastructure */
 		modelNode.add( new Attribute(XmlRef.tree, 
-				String.valueOf( this.agents.getSpatialTree() ) , 
+				String.valueOf( this.agents.getSpatialTreeType() ) , 
 				Helper.enumToStringArray( TreeType.class ), false ) );
 
 		return modelNode;	
@@ -547,7 +547,7 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable
 			/* set the tree type */
 			String tree = node.getAttribute( XmlRef.tree ).getValue();
 			if ( ! Helper.isNullOrEmpty( tree ) )
-				this.agents.setSpatialTree( TreeType.valueOf( tree ) );
+				this.agents.setSpatialTreeType( TreeType.valueOf( tree ) );
 		}
 		/* 
 		 * Set the child nodes.
@@ -560,19 +560,6 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable
 	public void removeModule(String specifier)
 	{
 		Idynomics.simulator.removeCompartment(this);
-	}
-	
-	public void removeChildModule(Settable child)
-	{
-		if (child instanceof Shape)
-		{
-			this.setShape( (Shape) Instance.getNew(
-					null, this, Shape.getAllOptions()) );
-			// FIXME also remove solutes, spatial grids would be incompatible 
-			// with a new shape
-		}
-		if (child instanceof ProcessManager)
-			this._processes.remove((ProcessManager) child);
 	}
 
 	@Override

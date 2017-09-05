@@ -88,7 +88,7 @@ public class BiofilmBoundaryLayer extends WellMixedBoundary
 		 * NOTE: One sets a Ball's radius, not diameter
 		 */
 		super.setLayerThickness(thickness);
-		this._gridSphere.set(this._layerThickness / 2.0, 0.0);
+		this._gridSphere.setRadius(this._layerThickness / 2.0);
 	}
 
 	/* ***********************************************************************
@@ -132,7 +132,7 @@ public class BiofilmBoundaryLayer extends WellMixedBoundary
 			 * Find all nearby agents. Set the grid to zero if an agent is
 			 * within the grid's sphere
 			 */
-			neighbors = this._agents.treeSearch(this._gridSphere.boundingBox());
+			neighbors = this._agents.treeSearch(this._gridSphere.boundingBox(this._agents.getShape()));
 			for ( Agent a : neighbors )
 				for (Surface s : (List<Surface>) a.get(AspectRef.surfaceList))
 					if ( this._gridSphere.distanceTo(s) < 0.0 )
