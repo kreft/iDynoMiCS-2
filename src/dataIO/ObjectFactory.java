@@ -508,7 +508,8 @@ public class ObjectFactory
 		}
 		if  (copyable instanceof String[])
 		{
-			return Vector.copy((String[]) copyable);
+			// Strings are immutable
+			return Helper.copyStringA((String[]) copyable);
 		}
 		if (copyable instanceof Copyable)
 		{
