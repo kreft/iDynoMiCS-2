@@ -92,11 +92,6 @@ public class PlasmidDynamics extends ProcessManager {
 	private Double _currentTime = Idynomics.simulator.timer.getCurrentTime();
 	
 	/**
-	 * Conjugation thread
-	 */
-	public static Thread conThread;	
-	
-	/**
 	 * Speed of pilus extension, taken to be 40 nm/sec = 144 um/hr
 	 * See: https://doi.org/10.1073/pnas.0806786105
 	 */
