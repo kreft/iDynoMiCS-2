@@ -1,8 +1,6 @@
 package settable.primarySetters;
 
 import java.util.Map;
-import java.util.StringJoiner;
-
 import dataIO.ObjectFactory;
 import referenceLibrary.XmlRef;
 import settable.Attribute;
