@@ -122,6 +122,10 @@ public class XmlCreate
 		}
 		// Parameters for Morris method
 		int k = _sensParams.size();
+		if (k == 0) {
+			System.err.println("No range attribute defined for any parameter. Exiting.");
+			return;
+		}
 		int p = 10;         // Number of levels. Ask in input file?
 		int r = 15;         // Number of repetitions. From input?
 		
