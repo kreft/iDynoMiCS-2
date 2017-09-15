@@ -195,7 +195,7 @@ public class XmlCreate
 		String fileName = fileDirs[fileDirs.length-1].split("\\.")[0];
 		fileDirs = Arrays.copyOf(fileDirs, fileDirs.length-1);
 		String fileString = String.join("/", fileDirs) + "/" 
-				+ "SensitivityAnalysisFiles/"+ fileName + "_" + suffix + ".xml";
+				+ "SensitivityAnalysisFiles/"+ fileName + "/" + fileName + "_" + suffix + ".xml";
 		try {
 			Transformer _protocolFile = TransformerFactory.newInstance().newTransformer();
 			_protocolFile.setOutputProperty(OutputKeys.INDENT, "yes");
