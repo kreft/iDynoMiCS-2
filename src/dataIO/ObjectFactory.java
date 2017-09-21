@@ -534,7 +534,6 @@ public class ObjectFactory
 			Log.out(Tier.DEBUG,"WARNING: Attempting to deep copy unkown object"
 					+ "of type" + copyable.getClass().getName() + " causion!");
 			try {
-				Log.out(Tier.DEBUG, "class: "+copyable.getClass());
 				T duplicate = (T) copyable.getClass().newInstance();
 				Field[] fields = duplicate.getClass().getDeclaredFields();
 				for(Field f : fields)

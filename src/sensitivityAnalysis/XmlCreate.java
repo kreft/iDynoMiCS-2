@@ -3,6 +3,8 @@ package sensitivityAnalysis;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -20,6 +22,7 @@ import org.w3c.dom.*;
 import referenceLibrary.XmlRef;
 import utility.Helper;
 import dataIO.Log;
+import dataIO.XmlHandler;
 import linearAlgebra.Matrix;
 import linearAlgebra.Vector;
 
@@ -39,9 +42,10 @@ public class XmlCreate
 	/**
 	 * \brief Main function for creating the protocol files from sensitivity analysis 
 	 * xml files
+	 * @throws IOException 
 	 * 
 	 */
-	public static void main(String args[]) {
+	public static void main(String args[]) throws IOException {
 		System.out.println("Creating protocol files for Sensitivity Analysis");
 		
 		String xmlFilePath;
@@ -58,50 +62,7 @@ public class XmlCreate
 		}
 		
 		_filePath = xmlFilePath;
-		xmlLoad();
-		xmlCopy();
-	}
-	
-	/**
-	 * \brief Checks if there is an argument provided and loads the input XML file 
-	 * provided in the argument. If no argument provided, asks for file name.
-	 */
-	public static void xmlLoad() {
-		if ( _filePath == null )
-		{
-			Log.printToScreen("No XML File given!", true);
-			return;
-		}
-		Log.printToScreen("Reading XML file: " + _filePath + 
-			"\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-			+ "~~~~~~~~~~~~~~~~~~~~~~~~\n", false);
-		
-		_sensitivityDoc = XmlCreate.getDocument();
-	}
-	
-	/**
-	 * \brief Load the input XML file provided in the argument
-	 */
-	public static Document getDocument() {
-		try {
-			File fXmlFile = new File(_filePath);
-			DocumentBuilderFactory dbF = DocumentBuilderFactory.newInstance();
-			DocumentBuilder dBuilder = dbF.newDocumentBuilder();
-			Document doc;
-			doc = dBuilder.parse(fXmlFile);
-			doc.getDocumentElement().normalize();
-			return doc;
-		} catch ( ParserConfigurationException | IOException e) {
-			Log.printToScreen("Error while loading: " + _filePath + "\n"
-					+ "error message: " + e.getMessage(), true);
-			_filePath = Helper.obtainInput("", "Atempt to re-obtain document",
-					false);
-			return getDocument();
-		} catch ( SAXException e ) {
-			Log.printToScreen("Error while loading: " + _filePath + "\n"
-				+ "error message: " + e.getMessage(), true);
-			return null;
-		}			
+		_sensitivityDoc = XmlHandler.xmlLoad(_filePath);
 	}
 	
 	/**
@@ -129,7 +90,7 @@ public class XmlCreate
 		int p = 10;         // Number of levels. Ask in input file?
 		int r = 15;         // Number of repetitions. From input?
 		
-		double[][] discreteUniformProbs = morris(k,p,r);
+		double[][] discreteUniformProbs = MorrisSampling.morris(k,p,r);
 		
 		double[] ones = Vector.onesDbl(r*(k+1));
 
@@ -153,6 +114,9 @@ public class XmlCreate
 				Matrix.elemTimes(Vector.outerProduct(ones, 
 						Vector.minus(inpMax, inpMin)), discreteUniformProbs));
 		
+		Element sim = (Element) _sensitivityDoc.getElementsByTagName("simulation").item(0);
+		String simName = sim.getAttribute("name");
+		
 		for (int row = 0; row < r*(k+1); row++) {
 			String suffix = "";
 			for (Element currAspect : _sensParams) {
@@ -162,6 +126,7 @@ public class XmlCreate
 				currAspect.setAttribute(attrToChange, curVal.toString());
 				suffix += currAspect.getAttribute(XmlRef.nameAttribute)+"_"+curVal;
 			}
+			sim.setAttribute("name", simName+suffix);
 			newProtocolFile(suffix);
 		}
 	}
@@ -194,14 +159,14 @@ public class XmlCreate
 		String[] fileDirs = _filePath.split("/");
 		String fileName = fileDirs[fileDirs.length-1].split("\\.")[0];
 		fileDirs = Arrays.copyOf(fileDirs, fileDirs.length-1);
-		String fileString = String.join("/", fileDirs) + "/" 
-				+ "SensitivityAnalysisFiles/"+ fileName + "/" + fileName + "_" + suffix + ".xml";
+		String dirPath = String.join("/", fileDirs) + "/" + "SensitivityAnalysisFiles/" + fileName + "/";
+		String fileString = dirPath + fileName + "_" + suffix + ".xml";
 		try {
+			Files.createDirectories(Paths.get(dirPath));
 			Transformer _protocolFile = TransformerFactory.newInstance().newTransformer();
 			_protocolFile.setOutputProperty(OutputKeys.INDENT, "yes");
 			_protocolFile.setOutputProperty(OutputKeys.METHOD, "xml");
 			_protocolFile.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
-			_protocolFile.setOutputProperty(OutputKeys.DOCTYPE_SYSTEM, "roles.dtd");
 			_protocolFile.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
 		
 			_protocolFile.transform(new DOMSource(_sensitivityDoc), 
@@ -212,83 +177,5 @@ public class XmlCreate
         } catch (IOException ioe) {
             System.out.println(ioe.getMessage());
         }
-	}
-	
-	/**
-	 * \brief Morris method for creating sample distribution within provided range.
-	 * @param k Integer value for number of input parameters to be changed
-	 * @param p Integer value for the number of levels.
-	 * @param r Integer value for the number of repetitions.
-	 */
-	public static double[][] morris(int k, int p, int r) {
-		double delta = p/(2.0*(p-1));
-		double[][] B = new double[k+1][k];
-		double[][] J = Matrix.matrix(k+1, k, 1.0);
-		for (int row = 0; row < k+1; row++) {
-			for (int col = 0; col < k; col++) {
-				if (row <= col)
-					B[row][col] = 0;
-				else
-					B[row][col] = 1;
-			}
-		}		
-		
-		List<Double> xRange = new ArrayList<Double>();
-		for (Double val = 0.0; val <= (1-delta); val=val+(1.0/(p-1.0))) {
-			xRange.add(val);
-		}
-		int m = xRange.size();
-		
-		double X[][] = new double[r*(k+1)][k];
-		
-		for (int idx = 0; idx < r; idx++) {
-			int[][] D = Matrix.identityInt(k);
-			double[] probs = ThreadLocalRandom.current().doubles(k, 0, 1).toArray();
-					//Vector.randomZeroOne(k); 
-			
-			int[] randInts = ThreadLocalRandom.current().ints(m, 0, k).toArray();
-					//Vector.randomInts(m, 0, k);
-			double[] xVals = new double[k];
-			
-			int[][] idMatrix = Matrix.identityInt(k);
-			List<Integer> rowNums = new ArrayList<Integer>();
-			int[][] permIdMatrix = new int[k][k];
-			
-			for (int row = 0; row < k; row++) {
-				rowNums.add(row);
-			}
-			Collections.shuffle(rowNums);
-			
-			for (int row = 0; row < k; row++) {
-				for (int col = 0; col < k; col++) {
-				// step 1: make a diagonal matrix with integer values of 1 or -1 selected with equal probability.
-					if (row == col && probs[row] < 0.5) {
-						D[row][col] = -1;
-					}
-				}
-				
-				// step 2: select randomly from discrete uniform distribution with p levels for each input factors k 
-				xVals[row] = xRange.get(randInts[row]);
-				
-				// step 3: randomly permuted identity matrix
-				permIdMatrix[row] = idMatrix[rowNums.get(row)];
-			}
-			//first Expression: J[:,1]*xVals
-			double[] Jcol = Matrix.getColumn(J, 0);
-			double[][] firstExpr = Vector.outerProduct(Jcol, xVals);
-			
-			//second Expression: (delta/2)*( (2*B-J)*D + J ) 
-			double[][] secondExpr = Matrix.times(Matrix.add(
-					Matrix.times(Matrix.minus(Matrix.times(B, 2), J), Matrix.toDbl(D)), J), delta/2);
-			
-			// Bp = (first Expression + second Expression)*permIdMatrix
-			double[][] Bp = Matrix.times(Matrix.add(firstExpr, secondExpr), Matrix.toDbl(permIdMatrix));
-			for (int row = 0; row < k+1; row++) {
-				for (int col = 0; col < k; col++) {
-					X[row+(idx*(k+1))][col] = Bp[row][col];
-				}
-			}
-		}
-		return X;
 	}
 }

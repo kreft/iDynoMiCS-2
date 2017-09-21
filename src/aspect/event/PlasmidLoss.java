@@ -35,9 +35,9 @@ public class PlasmidLoss extends Event {
 			String plasmidAspect = plasmidItrtr.next().toString();
 			if (justBorn.isLocalAspect(plasmidAspect)) {
 				HashMap<Object, Object> plasmidParams = (HashMap<Object, Object>) justBorn.get(plasmidAspect);
-				double loss_probability = (Double) plasmidParams.get(PlasmidDynamics.LOSS_PROB);
+				double loss_probability = (Double) plasmidParams.get(AspectRef.lossProbability);
 				double rndDbl = ExtraMath.getUniRandDbl();
-				String[] aspects_change = (String[]) plasmidParams.get(PlasmidDynamics.ASPECTS_TRANS);
+				String[] aspects_change = (String[]) plasmidParams.get(AspectRef.aspectsToTransfer);
 				if (rndDbl < loss_probability) {
 					Log.out(Tier.DEBUG, "Agent "+justBorn.identity()+" lost plasmid "+plasmidAspect);
 					justBorn.reg().remove(plasmidAspect);

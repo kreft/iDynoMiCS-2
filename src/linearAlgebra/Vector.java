@@ -3265,39 +3265,6 @@ public final class Vector
 	}
 	
 	/**
-	 * \brief Copy the values of <b>source</b> into <b>destination</b>.
-	 * 
-	 * @param destination String[] to be overwritten with the values of
-	 * <b>source</b>.
-	 * @param source String[] to be copied from (preserved).
-	 * @return <b>destination</b>
-	 * @see #copy(String[] vector)
-	 * @see #copyTo(double[] destination, double[] source)
-	 */
-	public static void copyTo(String[] destination, String[] source)
-	{
-		for ( int i = 0; i < destination.length; i++ )
-			destination[i] = source[i];
-	}
-
-	/**
-	 * \brief Copy the <b>vector</b> given to a new String[] array.
-	 * 
-	 * <p>Note that <b>vector</b> will be unaffected by this method.</p>
-	 * 
-	 * @param vector One-dimensional array of String (preserved).
-	 * @return new String[] that is a copy of <b>vector</b>.
-	 * @see #copyTo(String[] destination, String[] source)
-	 * @see #copy(double[] vector)
-	 */
-	public static Object copy(String[] vector) {
-		// TODO Auto-generated method stub
-		String[] out = new String[vector.length];
-		copyTo(out, vector);
-		return out;
-	}
-	
-	/**
 	 * \brief Find the outer-product of two vectors, <b>a</b>
 	 * and <b>b</b>, and write the result into <b>destination</b>.
 	 * 

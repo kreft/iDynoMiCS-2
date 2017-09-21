@@ -26,7 +26,6 @@ import dataIO.Log.Tier;
 import idynomics.AgentContainer;
 import idynomics.Compartment;
 import idynomics.EnvironmentContainer;
-import idynomics.Idynomics;
 import processManager.ProcessManager;
 import referenceLibrary.AspectRef;
 import shape.Shape;
@@ -43,28 +42,25 @@ import utility.ExtraMath;
  */
 public class PlasmidDynamics extends ProcessManager {
 	
+	/**
+	 * Aspects of the agents.
+	 */
 	public String PLASMID = AspectRef.plasmidList;
 	public String FITNESS_COST = AspectRef.agentFitnessCost;
-//	public String PILUS_LENGTH = AspectRef.pilusLength;
 	public String BODY = AspectRef.agentBody;
 	public String PIGMENT = AspectRef.agentPigment;
 	public String PLASMID_LOSS = AspectRef.agentPlasmidLoss;
-	/**
-	 * Map of production rates for internal products.
-	 */
-	public String PRODUCTION_RATE = AspectRef.internalProductionRate;
-	/**
-	 * Growth rate for Simple growth.
-	 */
-	public String GROWTH_RATE = AspectRef.growthRate;
 	
-	public final static String TRANS_PROB = "transfer_probability";
-	public final static String LOSS_PROB = "loss_probability";
-	public final static String COPY_NUM = "copy";
-	public final static String PILUS_LENGTH = "pili_length";
-	public final static String TRANS_FREQ = "transfer_frequency";
-	public final static String ASPECTS_TRANS = "aspects_change";
-	public final static String COOL_DOWN_PERIOD = "cool_down";
+	/**
+	 * Plasmid hashmap items.
+	 */
+	public String TRANS_PROB = AspectRef.transferProbability;
+	public String LOSS_PROB = AspectRef.lossProbability;
+	public String COPY_NUM = AspectRef.copyNumber;
+	public String PILUS_LENGTH = AspectRef.pilusLength;
+	public String TRANS_FREQ = AspectRef.transferFrequency;
+	public String ASPECTS_TRANS = AspectRef.aspectsToTransfer;
+	public String COOL_DOWN_PERIOD = AspectRef.coolDownPeriod;
 	
 	/**
 	 * List of plasmids for which conjugation and segregation functions are called.
@@ -72,9 +68,10 @@ public class PlasmidDynamics extends ProcessManager {
 	protected static List<Object> _plasmidList;
 	
 	/**
-	 * Hashmap of all agents and the set of plasmids each contains.
+	 * Hashmap of all agents and with the map of plasmids each contains.
 	 */
-	private HashMap<Agent, Map<String, Double>> _plasmidAgents = new HashMap<Agent, Map<String, Double>>();
+	private HashMap<Agent, Map<String, Double>> _plasmidAgents = 
+			new HashMap<Agent, Map<String, Double>>();
 
 	/**
 	 * Hashmap of agents and the time at which they last underwent conjugation
@@ -89,7 +86,7 @@ public class PlasmidDynamics extends ProcessManager {
 	/**
 	 * Current Simulation Time
 	 */
-	private Double _currentTime = Idynomics.simulator.timer.getCurrentTime();
+	private Double _currentTime = this.getTimeForNextStep();
 	
 	/**
 	 * Speed of pilus extension, taken to be 40 nm/sec = 144 um/hr
@@ -119,18 +116,6 @@ public class PlasmidDynamics extends ProcessManager {
 						temp.put(plsmd, _currentTime);
 						this._plasmidAgents.put(agent, temp);
 					}
-//					if (!agent.isAspect(PILUS_LENGTH))
-//						agent.set(this.PILUS_LENGTH, 6.0);
-//					Double simple_growth = agent.getDouble(this.GROWTH_RATE);
-//					Map<String,Double> internal_production = (HashMap<String,Double>)
-//							agent.getOr(this.PRODUCTION_RATE, null);
-//					Double fitness_cost = agent.getDouble(this.FITNESS_COST);
-//					if (simple_growth != null && !(simple_growth.isNaN()))
-//						agent.set(this.GROWTH_RATE, simple_growth*(1.0-fitness_cost));
-//					if (internal_production != null) {
-//						internal_production.replaceAll((k,v) -> v*(1.0-fitness_cost));
-//						agent.set(this.PRODUCTION_RATE, internal_production);
-//					}
 				}
 			}
 		}
@@ -142,7 +127,8 @@ public class PlasmidDynamics extends ProcessManager {
 	 ************************************************************************/
 	
 	/**
-	 * \brief Plasmid transfer via conjugation.
+	 * \brief Plasmid transfer via conjugation. At each time step we check the pilus length
+	 * and determine the number of transfer that can happen.
 	 * 
 	 * @param agent a: Donor agent
 	 * @param Collection<Agent>: neighbours of the donor
@@ -150,35 +136,62 @@ public class PlasmidDynamics extends ProcessManager {
 	 */
 	@SuppressWarnings("unchecked")
 	protected boolean conjugate(Agent a, List<Agent> neighbours, String plasmid, Double tPlasmid) {
+		/*
+		 * No need to proceed if there are no neighbours to receive the plasmid.
+		 */
 		if (neighbours.isEmpty())
 			return false;
+		
+		/*
+		 * Retrieve the plasmid hashmap from the donor agent. 
+		 */
 		HashMap<Object, Object> newPlasmid = (HashMap<Object, Object>) a.get(plasmid);
+		
+		/*
+		 * Cool down period for the plasmid after conjugation.
+		 */
 		double cool_down = (Double) newPlasmid.get(COOL_DOWN_PERIOD);
-		int numTransfers = (int) Math.floor(_timeStepSize/cool_down);
+		
+		/*
+		 * Number of times the donor can attempt conjugation between two timesteps.
+		 */
+		int numTransfers = (int) Math.floor(this.getTimeStepSize()/cool_down);
 		if ((this._currentTime - _timeStepSize) % cool_down == 0)
 			numTransfers++;
+		
+		/*
+		 * check if the donor has conjugated before. 
+		 */
 		if (!this._previousConjugated.isEmpty() && this._previousConjugated.containsKey(a)) {
+			/*
+			 * check if enough time has passed for the donor to be able to conjugate again
+			 */
 			if((this._currentTime + _timeStepSize) >= (this._previousConjugated.get(a) + cool_down)) {
 				tPlasmid = this._previousConjugated.get(a) + cool_down;
 				this._previousConjugated.remove(a);
 			}
+			/*
+			 * If it has undergone conjugation within cool down time, then return. 
+			 */
 			else {
 				return false;
 			}
 		}
+		
 		double transfer_probability = (Double) newPlasmid.get(TRANS_PROB);
 		double maxPiliLength = (Double) newPlasmid.get(PILUS_LENGTH);
 		double transfer_frequency = (Double) newPlasmid.get(TRANS_FREQ);
-
 		String[] aspects_transfer = (String[]) newPlasmid.get(ASPECTS_TRANS);
 		this._aspectsToCopy.addAll(Arrays.asList(aspects_transfer));
-//		double copy_number = (Double) newPlasmid.get(COPY_NUM);
+		
 		Body aBody = (Body) a.getValue(this.BODY);
 		List<Surface> aBodSurfaces = aBody.getSurfaces();
 		Compartment comp = a.getCompartment();
 		
+		//Add the plasmid name to the list of aspects to be copied to recipient.
 		this._aspectsToCopy.addAll(Arrays.asList(plasmid));
 		
+		//Calculate pili length from the extension speed. Should be between 0 and provided max.
 		double currentPiliLength = this._piliExtensionSpeed * (this._currentTime - tPlasmid);
 		if (currentPiliLength > maxPiliLength) {
 			currentPiliLength = maxPiliLength;
@@ -187,27 +200,39 @@ public class PlasmidDynamics extends ProcessManager {
 			currentPiliLength = 0;
 		}
 		
+		//Check if compartment is dimensionless or not and agents are located.
 		if (IsLocated.isLocated(a) && !comp.isDimensionless()) {
-			//biofilm
+			/**
+			 * Biofilm scenario.
+			 */
+			
 			boolean pilusAttached = false;
 			Shape compartmentShape = comp.getShape();
 			Collision iter = new Collision(compartmentShape);
+			
+			/*
+			 * We check for neighbours at every 0.01 distance from donor surface
+			 * until current pilus length is reached. 
+			 */
 			double numLoops = currentPiliLength * 100.0;
 			int transferTry = 0;
 			for (int n = 0; n <= numLoops; n++) {
 				double minDist = n/100.0;
 				if (numLoops - n < 1.0)
 					minDist = minDist+(numLoops-n);
-				Predicate<Collection<Surface>> collisionCheck = new AreColliding<Collection<Surface>>(aBodSurfaces, iter, minDist);
+				Predicate<Collection<Surface>> collisionCheck = 
+						new AreColliding<Collection<Surface>>(aBodSurfaces, iter, minDist);
 				for (Agent nbr: neighbours) {
 					Body nbrBody = (Body) nbr.getValue(this.BODY);
 					List<Surface> bBodSurfaces = nbrBody.getSurfaces();
+					
 					if (collisionCheck.test(bBodSurfaces)) {
 						pilusAttached = true;
 						transferTry++;
 						double probCheck = ExtraMath.getUniRandDbl();
 						if (probCheck < transfer_probability) {
-							double sendTime = (minDist/this._piliExtensionSpeed) + this._currentTime;
+							double sendTime = (minDist/this._piliExtensionSpeed) + 
+									this._currentTime - this.getTimeStepSize();
 							sendPlasmid(a, nbr, plasmid, sendTime);
 							this._previousConjugated.put(a, sendTime);
 							if (transferTry >= numTransfers)
@@ -224,7 +249,9 @@ public class PlasmidDynamics extends ProcessManager {
 				return false;
 		}
 		else {
-			//chemostat
+			/**
+			 * Chemostat scenario
+			 */
 			int numNeighbours = neighbours.size();
 			double probToScreen = transfer_frequency * numNeighbours * _timeStepSize / (numNeighbours + 1);
 			int numCellsScreen = (int) Math.floor(probToScreen);
@@ -299,7 +326,7 @@ public class PlasmidDynamics extends ProcessManager {
 		 */
 		
 		Log.out(Tier.DEBUG, "Plasmid Dynamics internal step starting");
-		this._currentTime = Idynomics.simulator.timer.getCurrentTime();
+		this._currentTime = this.getTimeForNextStep();
 		this._aspectsToCopy.clear();
 		HashMap<Agent, Map<String, Double>> currentPlasmidAgents = 
 				new HashMap<Agent, Map<String, Double>>(); 

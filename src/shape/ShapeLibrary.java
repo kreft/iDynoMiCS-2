@@ -9,7 +9,6 @@ import dataIO.Log;
 import dataIO.Log.Tier;
 import dataIO.XmlHandler;
 import linearAlgebra.Array;
-import referenceLibrary.ObjectRef;
 import settable.Settable;
 import shape.Dimension.DimName;
 import shape.iterator.ShapeIterator;
@@ -59,8 +58,8 @@ public final class ShapeLibrary
 		public void instantiate(Element xmlElem, Settable parent)
 		{
 			// TODO read in as a Double
-			String str = XmlHandler.attributeFromUniqueNode(
-										xmlElem, "volume", ObjectRef.STR);
+			String str = XmlHandler.obtainAttribute(
+										xmlElem, "volume", this.defaultXmlTag());
 			this._volume = Double.parseDouble(str);
 		}
 		
