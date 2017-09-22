@@ -58,7 +58,7 @@
 				<dimension name="Y" isCyclic="true" targetResolution="1" max="40.0"/>
 			</shape>
 			<solutes>
-				<solute name="solute1" concentration="0.0" />
+				<solute name="solute1" concentration="0.0" defaultDiffusivity="1"  />
 			</solutes>
 			<reactions>
 				<reaction name="slowInflow">

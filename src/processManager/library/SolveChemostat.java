@@ -40,7 +40,8 @@ public class SolveChemostat extends ProcessManager
 	public static String HMAX = AspectRef.solverhMax;
 	public static String TOLERANCE = AspectRef.solverTolerance;
 	public static String REACTIONS = AspectRef.agentReactions;
-	public String SOLUTES = AspectRef.soluteNames;
+	public static String SOLUTES = AspectRef.soluteNames;
+	public static String AGENT_VOLUME = AspectRef.agentVolume;
 	
 	/**
 	 * The ODE solver to use when updating solute concentrations. 
@@ -341,7 +342,7 @@ public class SolveChemostat extends ProcessManager
 	 */
 	private double volume()
 	{
-		return Math.pow(this._agents.getShape().getTotalVolume(), -1.0);
+		return this._agents.getShape().getTotalVolume(); // =')
 	}
 	
 	/**
@@ -371,10 +372,9 @@ public class SolveChemostat extends ProcessManager
 		 * reactions. Note that multiplication is computationally cheaper than
 		 * division, so we calculate perVolume just once.
 		 */
-		double perVolume = Math.pow(this.volume(), -1.0);
 		Map<String,Double> allConcns = ProcessMethods.getAgentMassMap(agent);
 		for ( String key : allConcns.keySet() )
-			allConcns.put(key, allConcns.get(key) * perVolume);
+			allConcns.put(key, allConcns.get(key) / this.volume());
 		/*
 		 * Copy the solute concentrations to this map so that we do not risk
 		 * contaminating other agent-based reactions.
@@ -390,13 +390,13 @@ public class SolveChemostat extends ProcessManager
 			 * Check first that we have all variables we need. If not, they may
 			 * be stored as other aspects of the agent (e.g. EPS).
 			 */
-			for ( String varName : aReac.getVariableNames() )
+			for ( String varName : aReac.getConstituentNames() )
 				if ( ! allConcns.containsKey(varName) )
 				{
 					if ( agent.isAspect(varName) )
 					{
 						allConcns.put(varName, 
-								agent.getDouble(varName) * perVolume);
+								agent.getDouble(varName) / this.volume());
 					}
 					else
 					{
@@ -480,9 +480,14 @@ public class SolveChemostat extends ProcessManager
 							(stoichiometry.get(key) * reactionOccurances);
 					newBiomass.put(key, biomass);
 				}
+				else if ( agent.isAspect(key))
+				{
+					newBiomass.put(key, agent.getDouble(key) +
+							stoichiometry.get(key) * reactionOccurances);
+				}
 				else
 				{
-					newBiomass.put(key, 
+					newBiomass.put(key,
 							stoichiometry.get(key) * reactionOccurances);
 				}
 		}

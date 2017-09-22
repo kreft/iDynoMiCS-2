@@ -204,6 +204,8 @@ public class Collision
 			break;
 		case PLANE:
 			Log.out(Tier.BULK,"WARNING: Surface Plane does not accept force");
+		default:
+			break;
 		}
 	}
 	
@@ -333,6 +335,8 @@ public class Collision
 		case PLANE:
 			this.planePoint((Plane) a, p, this._variables);
 			return this._variables.distance;
+		default:
+			break;
 		}
 		return 0.0;
 	}
@@ -413,21 +417,6 @@ public class Collision
 			CollisionVariables var)
 	{
 		this._shape.getMinDifferenceVectorTo(var.interactionVector, a, b);
-	}
-	
-	/**
-	 * \brief Calculate the minimum distance between two points in space.
-	 * 
-	 * <p>Neither vector is changed by this method.</p>
-	 * 
-	 * @param a One point in space.
-	 * @param b Another point in space.
-	 * @return The minmum distance between them.
-	 */
-	@Deprecated 
-	private double[] minDistance(double[] a, double[] b)
-	{
-		return this._shape.getMinDifferenceVector(a,b);
 	}
 	
 	/**

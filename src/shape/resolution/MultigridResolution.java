@@ -55,4 +55,5 @@ public class MultigridResolution extends ResolutionCalculator
 			return sV;
 		}
 	}
+
 }

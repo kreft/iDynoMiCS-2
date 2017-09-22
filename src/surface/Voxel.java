@@ -1,11 +1,9 @@
 package surface;
 
-import java.awt.List;
 import java.util.LinkedList;
 
 import dataIO.Log;
 import dataIO.Log.Tier;
-import dataIO.ObjectFactory;
 import generalInterfaces.HasBoundingBox;
 import shape.Shape;
 import surface.BoundingBox;

@@ -196,14 +196,14 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable
 		Element solutes = XmlHandler.findUniqueChild(xmlElem, XmlRef.solutes);
 		for ( Element e : XmlHandler.getElements(solutes, XmlRef.solute))
 		{
-			this.environment.addSolute( new SpatialGrid( e, this.environment) );
+			new SpatialGrid( e, this.environment);
 		}
 		/*
 		 * Load extra-cellular reactions.
 		 */
 		Log.out(level, "Compartment reading in (environmental) reactions");
 		for ( Element e : XmlHandler.getElements( xmlElem, XmlRef.reaction) )
-			this.environment.addReaction( new Reaction(	e, this.environment) );	
+			new Reaction(e, this.environment);	
 		/*
 		 * Read in agents.
 		 */
@@ -223,6 +223,7 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable
 		}
 		/* NOTE: we fetch the class from the xml node */
 	}
+	
 		
 	
 	/* ***********************************************************************
@@ -298,6 +299,17 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable
 		
 		this.agents.addAgent(agent);
 		agent.setCompartment(this);
+	}
+	
+	public void addReaction(Reaction reaction)
+	{
+		this.environment.addReaction(reaction);
+	}
+	
+	
+	public void addSolute(SpatialGrid solute)
+	{
+		this.environment.addSolute(solute);
 	}
 	
 	/**

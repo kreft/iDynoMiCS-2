@@ -54,8 +54,8 @@
 				</dimension> 
 			</shape>
 			<solutes>
-				<solute name="solute1" concentration="2.0" />
-				<solute name="solute2" concentration="0.0" />
+				<solute name="solute1" concentration="2.0" defaultDiffusivity="1.0" biofilmDiffusivity="0.5" />
+				<solute name="solute2" concentration="0.0"  defaultDiffusivity="1.0" biofilmDiffusivity="0.5"/>
 			</solutes>
 			<reactions>
 				<reaction name="slowInflow">
@@ -139,8 +139,6 @@
 				</process>
 				<process name="solveDiffusionTransient" class="SolveDiffusionTransient"  priority="-1"
 					firstStep="0.0" timerStepSize="0.5">
-					<diffusivitySetter solute="solute1" class="ScaledIfBiomassPresent" defaultDiffusivity="1.0" biofilmDiffusivity="0.5" />
-					<diffusivitySetter solute="solute2" class="AllSameDiffuse" defaultDiffusivity="0.8"/>
 				</process>
 			</processManagers>
 		</compartment>

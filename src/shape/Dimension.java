@@ -4,9 +4,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 import boundary.SpatialBoundary;
-import dataIO.Log;
 import dataIO.XmlHandler;
-import dataIO.Log.Tier;
 import generalInterfaces.CanPrelaunchCheck;
 import instantiable.Instance;
 import surface.Surface;

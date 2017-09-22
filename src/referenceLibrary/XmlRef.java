@@ -478,4 +478,9 @@ public class XmlRef
 	 */
 	public static final String points = "points";
 
+	/**
+	 * volume (for nonspatial compartment)
+	 */
+	public static final String volume = "volume";
+
 }

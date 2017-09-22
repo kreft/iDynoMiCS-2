@@ -6,10 +6,8 @@ import instantiable.Instance;
 import instantiable.Instantiable;
 import referenceLibrary.XmlRef;
 import settable.Settable;
-import utility.Helper;
 
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 import dataIO.XmlHandler;
 
 /**

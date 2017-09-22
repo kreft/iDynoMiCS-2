@@ -53,8 +53,8 @@
 				</dimension> 
 			</shape>
 			<solutes>
-				<solute name="solute1" concentration="4.0" />
-				<solute name="solute2" concentration="0.0" />
+				<solute name="solute1" concentration="4.0" defaultDiffusivity="1.0" />
+				<solute name="solute2" concentration="0.0"  defaultDiffusivity="1.0" />
 			</solutes>
 			<reactions>
 				<reaction name="slowInflow">

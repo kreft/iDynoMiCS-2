@@ -170,7 +170,8 @@ public class GuiComponent {
 	/*
 	 * return a formated JPanel with Combobox
 	 */
-	public static JComponent selectPanel(String description, JComboBox box) {
+	public static JComponent selectPanel(String description, 
+			JComboBox<String> box) {
 		JPanel panel = new JPanel();
 		panel.setLayout(new BorderLayout());
 		panel.setSize(600, 25);

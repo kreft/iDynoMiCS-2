@@ -117,8 +117,8 @@
 				<dimension name="Z" isCyclic="false" targetResolution="1.0" max="10.0"/>
 			</shape>
 			<solutes>
-				<solute name="solute1" concentration="1.0" />
-				<solute name="solute2" concentration="0.2" />
+				<solute name="solute1" concentration="1.0" defaultDiffusivity="1"  />
+				<solute name="solute2" concentration="0.2" defaultDiffusivity="1"  />
 			</solutes>
 			<reactions>
 			</reactions>

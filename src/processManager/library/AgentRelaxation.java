@@ -12,7 +12,6 @@ import dataIO.Log;
 import dataIO.Log.Tier;
 import expression.Expression;
 
-import static dataIO.Log.Tier.*;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
 import linearAlgebra.Vector;
@@ -326,7 +325,7 @@ public class AgentRelaxation extends ProcessManager
 		}
 
 		/* Mechanical relaxation */
-		while( tMech < _timeStepSize ) 
+		while( tMech < this.getTimeStepSize() ) 
 		{	
 			this._agents.refreshSpatialRegistry();
 			this.updateForces( this._agents );

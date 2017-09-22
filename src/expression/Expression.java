@@ -9,13 +9,11 @@ import java.util.TreeMap;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 import dataIO.Log.Tier;
 import instantiable.object.InstantiableMap;
 import dataIO.Log;
 import dataIO.XmlHandler;
-import referenceLibrary.ClassRef;
 import referenceLibrary.XmlRef;
 import settable.Attribute;
 import settable.Module;

@@ -66,7 +66,7 @@
 			</shape>
 			<solutes>
 				<!-- µM -->
-				<solute name="hydrogen" concentration="5.0" />
+				<solute name="hydrogen" concentration="5.0" defaultDiffusivity="3"  />
 			</solutes>
 			<reactions>
 			</reactions>
@@ -92,7 +92,6 @@
 					firstStep="0.0"  timerStepSize="1.0">	
 					<aspect name="soluteNames" type="PRIMARY" class="String[]" value="hydrogen" /> 
 					<!-- µm^2 ms^-1-->
-					<diffusivitySetter solute="hydrogen" class="allSameDiffuse" defaultDiffusivity="3.0" />
 				</process>
 				<process name="svgWriter" class="GraphicalOutput"  priority="0"
 					firstStep="0.0"  timerStepSize="1.0">
