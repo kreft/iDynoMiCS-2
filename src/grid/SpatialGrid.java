@@ -124,7 +124,7 @@ public class SpatialGrid implements Settable, Instantiable
 	// TODO this is not currently used
 	protected double _threshold;
 	
-	protected DiffusivityType _diffysivity;
+	protected DiffusivityType _diffusivity;
 	
 	public enum DiffusivityType
 	{
@@ -141,7 +141,7 @@ public class SpatialGrid implements Settable, Instantiable
 		 * Reset the diffusivity array.
 		 */
 		this.newArray(DIFFUSIVITY, this._defaultDiffusivity);
-		if (this._diffysivity == DiffusivityType.BIOMASS_SCALED)
+		if (this._diffusivity == DiffusivityType.BIOMASS_SCALED)
 		{
 			/*
 			 * Iterate over the array, updating each voxel as it is visited.
@@ -203,6 +203,8 @@ public class SpatialGrid implements Settable, Instantiable
 		this._name = name;
 		this._parentNode = parent;
 		this.newArray(ArrayType.CONCN, concentration);
+		this._defaultDiffusivity = 1.0;
+		this._diffusivity = DiffusivityType.ALL_SAME;
 	}
 	
 	public SpatialGrid(Element xmlElem, Settable parent)
@@ -236,13 +238,13 @@ public class SpatialGrid implements Settable, Instantiable
 				XmlRef.biofilmDiffusivity);
 		if ( Helper.isNullOrEmpty(s) || s.equals(this._defaultDiffusivity) )
 		{
-			this._diffysivity = DiffusivityType.ALL_SAME;
+			this._diffusivity = DiffusivityType.ALL_SAME;
 			this._biofilmDiffusivity = this._defaultDiffusivity;
 		}
 		else
 		{
 			this._biofilmDiffusivity = Double.valueOf(s);
-			this._diffysivity = DiffusivityType.BIOMASS_SCALED;
+			this._diffusivity = DiffusivityType.BIOMASS_SCALED;
 		}
 		
 		// TODO threshold
@@ -981,12 +983,12 @@ public class SpatialGrid implements Settable, Instantiable
 				XmlRef.biofilmDiffusivity ).getValue());
 		if (Helper.isNullOrEmpty(biof) || biof.equals(this._defaultDiffusivity))
 		{
-			this._diffysivity = DiffusivityType.ALL_SAME;
+			this._diffusivity = DiffusivityType.ALL_SAME;
 			this._biofilmDiffusivity = this._defaultDiffusivity;
 		}
 		else
 		{
-			this._diffysivity = DiffusivityType.BIOMASS_SCALED;
+			this._diffusivity = DiffusivityType.BIOMASS_SCALED;
 			this._biofilmDiffusivity = biof;
 		}
 			

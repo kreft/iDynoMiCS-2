@@ -149,7 +149,7 @@
 			</shape>
 			<solutes>
 				<!-- pg / µm2 -->
-				<solute name="ammonium" concentration="6e-4" defaultDiffusivity="1.0" biofilmDiffusivity="0.8"/>
+				<solute name="ammonium" concentration="6e-4" defaultDiffusivity="1.0" biofilmDiffusivity="0.8" />
 				<solute name="oxygen" 	concentration="1e-4" defaultDiffusivity="1.0" biofilmDiffusivity="0.8" />
 				<solute name="nitrite" 	concentration="6e-8" defaultDiffusivity="1.0" biofilmDiffusivity="0.8" />
 				<solute name="nitrate" 	concentration="6e-8" defaultDiffusivity="1.0" biofilmDiffusivity="0.8" />
@@ -222,6 +222,7 @@
 					same order of magnitude ~ 2.0e-4 m2.day-1 values here should
 					be in µm^2/ minute. Using wrong 1.0 instead to be able to 
 					run	the rest with the explicit solver-->
+				</process>
 			</processManagers>
 		</compartment>
 	</simulation>
