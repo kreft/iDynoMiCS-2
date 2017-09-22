@@ -381,5 +381,58 @@ public class AspectRef
 	 * testing some gravity buoyancy implementation
 	 */
 	public static final String gravity_testing = "gravity_testing";
+	
+	/**
+	 * List of plasmids for which the conjugation and segregation loss are
+	 * applicable.
+	 */
+	public static final String plasmidList= "plasmids";
+	
+	/**
+	 * Fitness cost to the growth rate of the agent with plasmids.
+	 */
+	public static final String agentFitnessCost = "fitness_cost";
+	
+	/**
+	 * Plasmid loss due to segregation event name.
+	 */
+	public static final String agentPlasmidLoss = "plasmidLoss";
+	
+	//Plasmid related aspects: These are defined as items in each plasmid aspect.	
+	/**
+	 * Transfer probability of the plasmid.
+	 */
+	public final static String transferProbability = "transfer_probability";
+	
+	/**
+	 * Loss probability due to segregation at cell division.
+	 */
+	public final static String lossProbability = "loss_probability";
+	
+	/**
+	 * Copy number of the plasmid.
+	 */
+	public final static String copyNumber = "copy";
+	
+	/**
+	 * Pilus length of the plasmid.
+	 */
+	public final static String pilusLength = "pili_length";
+	
+	/**
+	 * Transfer frequency of the plasmid in a well-mixed environment.
+	 */
+	public final static String transferFrequency = "transfer_frequency";
+	
+	/**
+	 * Which of the aspects from the donot agent will be transfered to
+	 * recipient with the plasmid
+	 */
+	public final static String aspectsToTransfer = "aspects_change";
+	
+	/**
+	 * Cool down period for the agent before it can undergo conjugation again.
+	 */
+	public final static String coolDownPeriod = "cool_down";
 
 }

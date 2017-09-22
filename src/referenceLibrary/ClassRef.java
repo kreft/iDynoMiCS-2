@@ -230,6 +230,12 @@ public class ClassRef
 	public final static String updateBody =
 			aspect.event.UpdateBody.class.getName();
 	
+	/**
+	 * the plasmid loss event
+	 */
+	public final static String plasmidLoss =
+			aspect.event.PlasmidLoss.class.getName();
+	
 	/* ************************************************************************
 	 * Agents, Species and aspect modules
 	 */
@@ -293,7 +299,13 @@ public class ClassRef
 			processManager.library.AgentRelaxation.class.getName();
 	
 	/**
-	 * agent stochastiv move manager
+	 * Plasmid transfer(Conjugation) and loss process manager
+	 */
+	public final static String plasmidDynamics =
+			processManager.library.PlasmidDynamics.class.getName();
+	
+	/**
+	 * agent stochastic move manager
 	 */
 	public final static String agentStochasticMove =
 			processManager.library.AgentStochasticMove.class.getName();
