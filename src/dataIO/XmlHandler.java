@@ -22,6 +22,7 @@ import org.xml.sax.SAXException;
 
 import idynomics.Idynomics;
 import referenceLibrary.XmlRef;
+import sensitivityAnalysis.XmlCreate;
 import dataIO.Log.Tier;
 import utility.Helper;
 
@@ -85,6 +86,49 @@ public class XmlHandler
 			return null;
 		}			
 		
+	}
+	
+	/**
+	 * \brief Checks if there is an argument provided and loads the input XML file 
+	 * provided in the argument. If no argument provided, asks for file name.
+	 * @throws IOException 
+	 */
+	public static Document xmlLoad(String filePath) throws IOException {
+		if ( filePath == null )
+		{
+			Log.printToScreen("No XML File given!", true);
+			throw new IOException();
+		}
+		Log.printToScreen("Reading XML file: " + filePath + 
+			"\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+			+ "~~~~~~~~~~~~~~~~~~~~~~~~\n", false);
+		
+		return XmlHandler.getDocument(filePath);
+	}
+	
+	/**
+	 * \brief Load the input XML file provided in the argument
+	 */
+	public static Document getDocument(String filePath) {
+		try {
+			File fXmlFile = new File(filePath);
+			DocumentBuilderFactory dbF = DocumentBuilderFactory.newInstance();
+			DocumentBuilder dBuilder = dbF.newDocumentBuilder();
+			Document doc;
+			doc = dBuilder.parse(fXmlFile);
+			doc.getDocumentElement().normalize();
+			return doc;
+		} catch ( ParserConfigurationException | IOException e) {
+			Log.printToScreen("Error while loading: " + filePath + "\n"
+					+ "error message: " + e.getMessage(), true);
+			filePath = Helper.obtainInput("", "Atempt to re-obtain document",
+					false);
+			return getDocument(filePath);
+		} catch ( SAXException e ) {
+			Log.printToScreen("Error while loading: " + filePath + "\n"
+				+ "error message: " + e.getMessage(), true);
+			return null;
+		}			
 	}
 	
 	/**

@@ -33,6 +33,11 @@ public class RodDivision extends Event {
 	public String UPDATE_BODY = AspectRef.agentUpdateBody;
 	public String DIVIDE = AspectRef.agentDivide;
 	public String THRESHOLD_MASS = AspectRef.divisionMass;
+	/**
+	 * Name of the plasmid loss event that should be called for the daughter
+	 * agent, if specified in the agent definition.
+	 */
+	public String PLASMID_LOSS = AspectRef.agentPlasmidLoss;
 
 	/**
 	 * Method that initiates the division
@@ -103,6 +108,9 @@ public class RodDivision extends Event {
 		 * again */
 		mother.event(UPDATE_BODY);
 		daughter.event(UPDATE_BODY);
+		/* Call the plasmid loss event */
+		if (daughter.isAspect(PLASMID_LOSS))
+			daughter.event(PLASMID_LOSS);
 		mother.event(DIVIDE);
 		daughter.event(DIVIDE);
 		if ( Log.shouldWrite(level) )

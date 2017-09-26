@@ -1,7 +1,6 @@
 package settable.primarySetters;
 
 import java.util.Map;
-
 import dataIO.ObjectFactory;
 import referenceLibrary.XmlRef;
 import settable.Attribute;

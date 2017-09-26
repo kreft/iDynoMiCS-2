@@ -477,8 +477,17 @@ public class XmlRef
 	 * number of points to spawn
 	 */
 	public static final String points = "points";
-
+	
 	/**
+	 * General range attribute.
+	 */
+	public final static String rangeAttribute = "range";
+	
+	/**
+	 * Range applicable to this attribute.
+	 */
+	public final static String rangeForAttribute = "rangeFor";
+
 	 * volume (for nonspatial compartment)
 	 */
 	public static final String volume = "volume";

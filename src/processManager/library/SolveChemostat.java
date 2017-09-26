@@ -342,7 +342,7 @@ public class SolveChemostat extends ProcessManager
 	 */
 	private double volume()
 	{
-		return this._agents.getShape().getTotalVolume(); // =')
+		return this._agents.getShape().getTotalVolume();
 	}
 	
 	/**
@@ -372,9 +372,10 @@ public class SolveChemostat extends ProcessManager
 		 * reactions. Note that multiplication is computationally cheaper than
 		 * division, so we calculate perVolume just once.
 		 */
+		double perVolume = 1.0/this.volume();
 		Map<String,Double> allConcns = ProcessMethods.getAgentMassMap(agent);
 		for ( String key : allConcns.keySet() )
-			allConcns.put(key, allConcns.get(key) / this.volume());
+			allConcns.put(key, allConcns.get(key) * perVolume);
 		/*
 		 * Copy the solute concentrations to this map so that we do not risk
 		 * contaminating other agent-based reactions.
@@ -396,7 +397,7 @@ public class SolveChemostat extends ProcessManager
 					if ( agent.isAspect(varName) )
 					{
 						allConcns.put(varName, 
-								agent.getDouble(varName) / this.volume());
+								agent.getDouble(varName) * perVolume);
 					}
 					else
 					{
@@ -446,8 +447,7 @@ public class SolveChemostat extends ProcessManager
 		 * Make a new map with these converted to concentrations. Calculate the
 		 * one over volume part once, as multiplication is 
 		 */
-		double volume = this.volume();
-		double perVolume = Math.pow(volume, -1.0);
+		double perVolume = 1.0/this.volume();
 		Map<String,Double> allConcns = new HashMap<String,Double>();
 		for ( String key : newBiomass.keySet() )
 			allConcns.put(key, newBiomass.get(key) * perVolume);
@@ -468,7 +468,7 @@ public class SolveChemostat extends ProcessManager
 		{
 			stoichiometry = aReac.getStoichiometry();
 			// TODO store the reaction rate for XML output
-			reactionOccurances = aReac.getRate(allConcns) * timeStep * volume;
+			reactionOccurances = aReac.getRate(allConcns) * timeStep * this.volume();
 			for ( String key : stoichiometry.keySet() )
 				if ( this._environment.isSoluteName(key) )
 				{

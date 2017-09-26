@@ -3263,4 +3263,39 @@ public final class Vector
 	{
 		uncylindrifyTo(vector, vector);
 	}
+	
+	/**
+	 * \brief Find the outer-product of two vectors, <b>a</b>
+	 * and <b>b</b>, and write the result into <b>destination</b>.
+	 * 
+	 * @param destination  Two-dimensional array of doubles to be overwritten
+	 * with <b>a</b> ⓧ <b>b</b> with number of rows equal to length of <b>a</b> 
+	 * and number of columns equal to length of <b>b</b>.
+	 * @param a One-dimensional array of doubles (preserved).
+	 * @param b One-dimensional array of doubles (preserved).
+	 */
+	public static void outerProductTo(double[][] destination, double[] a,
+																double[] b)
+	{
+		for ( int i = 0; i < a.length; i++ ) {
+			for (int j = 0; j < b.length; j++) {
+				destination[i][j] = a[i]*b[j];
+			}
+		}
+	}
+	
+	/**
+	 * \brief Find the outer-product of two vectors, <b>a</b>
+	 * and <b>b</b>, and write the result into a new vector.
+	 * 
+	 * @param a One-dimensional array of doubles (preserved).
+	 * @param b One-dimensional array of doubles (preserved).
+	 * @return new double[a.length][b.length] with the outer-product <b>a</b> ⓧ <b>b</b>.
+	 */
+	public static double[][] outerProduct(double[] a, double[] b)
+	{
+		double[][] out = new double[a.length][b.length];
+		outerProductTo(out, a, b);
+		return out;
+	}
 }
