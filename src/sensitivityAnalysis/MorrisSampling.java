@@ -6,6 +6,7 @@ import java.util.List;
 
 import linearAlgebra.Matrix;
 import linearAlgebra.Vector;
+import utility.ExtraMath;
 
 /**
  * Morris sampling follows the procedure described in: 
@@ -18,10 +19,11 @@ import linearAlgebra.Vector;
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
  */
 
-class MorrisSampling {
+public class MorrisSampling {
 
-	public MorrisSampling() {
-		// TODO Auto-generated constructor stub
+	public MorrisSampling() 
+	{
+		/* This constructor intentionally left blank */
 	}
 	
 	/**
@@ -33,6 +35,9 @@ class MorrisSampling {
 	 */
 	public static double[][] morris( int k, int p, int r ) 
 	{
+		/* initialise random number generator */
+		ExtraMath.initialiseRandomNumberGenerator();
+		
 		double delta = p/(2.0*(p-1));
 		double[][] B = new double[k+1][k];
 		double[][] J = Matrix.matrix(k+1, k, 1.0);
@@ -69,15 +74,22 @@ class MorrisSampling {
 			double[] xVals = new double[k];
 			
 			int[][] idMatrix = Matrix.identityInt(k);
-			List<Integer> rowNums = new ArrayList<Integer>();
 			int[][] permIdMatrix = new int[k][k];
 			
+			/* construct a shuffled list of integers from 0 to k */
+			List<Integer> rowNums = new ArrayList<Integer>();
+			List<Integer> rowShuffle = new ArrayList<Integer>();
 			for (int row = 0; row < k; row++) 
 			{
-				rowNums.add(row);
+				rowShuffle.add(row);
+			}			
+			while ( rowShuffle.size() > 0 )
+			{
+				rowNums.add( rowShuffle.remove( ExtraMath.getUniRandInt(
+						rowShuffle.size() ) ) );
 			}
-			Collections.shuffle(rowNums);
 			
+			/* generate random input matrix */
 			for (int row = 0; row < k; row++) 
 			{
 				for (int col = 0; col < k; col++) 
@@ -114,7 +126,7 @@ class MorrisSampling {
 			{
 				for (int col = 0; col < k; col++) 
 				{
-					X[row+(idx*(k+1))][col] = Bp[row][col];
+					X[ row+( idx*( k+1 ) ) ][col] = Bp[row][col];
 				}
 			}
 		}
