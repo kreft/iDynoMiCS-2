@@ -1,35 +1,30 @@
 package sensitivityAnalysis;
 
-import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Scanner;
-import java.util.concurrent.ThreadLocalRandom;
-
-import javax.xml.parsers.*;
 import javax.xml.transform.*;
 import javax.xml.transform.dom.*;
 import javax.xml.transform.stream.*;
-import org.xml.sax.*;
 import org.w3c.dom.*;
 
 import referenceLibrary.XmlRef;
 import utility.Helper;
-import dataIO.Log;
 import dataIO.XmlHandler;
 import linearAlgebra.Matrix;
 import linearAlgebra.Vector;
 
 /**
- * \brief Creates multiple protocol file from an XML file defining the parameters with ranges.
+ * \brief Creates multiple protocol file from an XML file defining the 
+ * parameters with ranges.
  * 
  * @author Sankalp Arya (sankalp.arya@nottingham.ac.uk), University of Nottingham, U.K.
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
  */
 public class XmlCreate
 {
@@ -40,7 +35,8 @@ public class XmlCreate
 	private static List<Element> _sensParams = new ArrayList<Element>();
 	
 	/**
-	 * \brief Main function for creating the protocol files from sensitivity analysis 
+	 * \brief Main function for creating the protocol files from sensitivity 
+	 * analysis 
 	 * xml files
 	 * @throws IOException 
 	 * 
@@ -84,11 +80,19 @@ public class XmlCreate
 		// Parameters for Morris method
 		int k = _sensParams.size();
 		if (k == 0) {
-			System.err.println("No range attribute defined for any parameter. Exiting.");
+			System.err.println("No range attribute defined for any parameter. "
+					+ "Exiting.");
 			return;
 		}
-		int p = 10;         // Number of levels. Ask in input file?
-		int r = 15;         // Number of repetitions. From input?
+		
+		/* NOTE: @sankalp: does this work for you? */
+		
+		/* Number of levels. Ask in input file? */
+		int p = Integer.valueOf( Helper.obtainInput( "", 
+				"Number of sampling levels.", false));     
+		/* Number of repetitions. From input? */
+		int r = Integer.valueOf( Helper.obtainInput( "", 
+				"Number of repetitions", false));         
 		
 		double[][] discreteUniformProbs = MorrisSampling.morris(k,p,r);
 		
@@ -99,34 +103,42 @@ public class XmlCreate
 		
 		String[] rangeAspectNames = new String[k];
 		String[][] ranges = new String[k][2];
-		for (Element currAspect : _sensParams) {
-			int idx = _sensParams.indexOf(currAspect);
-			rangeAspectNames[idx] = currAspect.getAttribute(XmlRef.nameAttribute);
-			String[] inRange = currAspect.getAttribute(XmlRef.rangeAttribute).split(",");
+		for (Element currAspect : _sensParams) 
+		{
+			int idx = _sensParams.indexOf( currAspect );
+			rangeAspectNames[idx] = currAspect.getAttribute( 
+					XmlRef.nameAttribute );
+			String[] inRange = currAspect.getAttribute(
+					XmlRef.rangeAttribute ).split(",");
 			inRange = checkRange(inRange);
 			inpMax[idx] = Double.parseDouble(inRange[1]);
 			inpMin[idx] = Double.parseDouble(inRange[0]);
 			ranges[idx] = inRange.clone();
 		}
 		
-		// Variable states: ones*inpMin + ones*(inpMax-inpMin)).*discreteUniformProbs
+		/* Variable states: ones*inpMin + 
+		 * ones*( inpMax-inpMin ) ).*discreteUniformProbs
+		 */
 		double[][] states = Matrix.add(Vector.outerProduct(ones, inpMin),
 				Matrix.elemTimes(Vector.outerProduct(ones, 
-						Vector.minus(inpMax, inpMin)), discreteUniformProbs));
+						Vector.minus(inpMax, inpMin) ), discreteUniformProbs) );
 		
-		Element sim = (Element) _sensitivityDoc.getElementsByTagName("simulation").item(0);
-		String simName = sim.getAttribute("name");
+		Element sim = (Element) _sensitivityDoc.getElementsByTagName(
+				XmlRef.simulation ).item(0);
+		String simName = sim.getAttribute( XmlRef.nameAttribute );
 		
 		for (int row = 0; row < r*(k+1); row++) {
 			String suffix = "";
 			for (Element currAspect : _sensParams) {
 				int col = _sensParams.indexOf(currAspect);
-				String attrToChange = currAspect.getAttribute(XmlRef.rangeForAttribute);
+				String attrToChange = currAspect.getAttribute(
+						XmlRef.rangeForAttribute );
 				Double curVal = states[row][col];
-				currAspect.setAttribute(attrToChange, curVal.toString());
-				suffix += currAspect.getAttribute(XmlRef.nameAttribute)+"_"+curVal;
+				currAspect.setAttribute(attrToChange, curVal.toString() );
+				suffix += currAspect.getAttribute( XmlRef.nameAttribute ) + "_"
+						+ curVal;
 			}
-			sim.setAttribute("name", simName+suffix);
+			sim.setAttribute( XmlRef.nameAttribute, simName+suffix );
 			newProtocolFile(suffix);
 		}
 	}
@@ -136,7 +148,8 @@ public class XmlCreate
 	 * @param valRange String array provided in XML
 	 */
 	public static String[] checkRange(String[] valRange) {
-		if (valRange.length != 2 || Double.parseDouble(valRange[0]) >= Double.parseDouble(valRange[1])) {
+		if (valRange.length != 2 || Double.parseDouble(valRange[0]) >= 
+				Double.parseDouble(valRange[1])) {
 			System.out.println("Invalid range provided. Please enter range "
 					+ "as comma separated value of min and max. (min,max)");
 			Scanner user_input = new Scanner(System.in);
@@ -151,23 +164,26 @@ public class XmlCreate
 	
 	/**
 	 * \brief Creates the protocol file.
-	 * @param suffix A string value to be appended to the name of the protocol files,
-	 * which provides the information about the changed attributes.
+	 * @param suffix A string value to be appended to the name of the protocol 
+	 * files, which provides the information about the changed attributes.
 	 */
 	public static void newProtocolFile(String suffix)
 	{
 		String[] fileDirs = _filePath.split("/");
 		String fileName = fileDirs[fileDirs.length-1].split("\\.")[0];
 		fileDirs = Arrays.copyOf(fileDirs, fileDirs.length-1);
-		String dirPath = String.join("/", fileDirs) + "/" + "SensitivityAnalysisFiles/" + fileName + "/";
+		String dirPath = String.join("/", fileDirs) + "/" 
+				+ "SensitivityAnalysisFiles/" + fileName + "/";
 		String fileString = dirPath + fileName + "_" + suffix + ".xml";
 		try {
 			Files.createDirectories(Paths.get(dirPath));
-			Transformer _protocolFile = TransformerFactory.newInstance().newTransformer();
-			_protocolFile.setOutputProperty(OutputKeys.INDENT, "yes");
-			_protocolFile.setOutputProperty(OutputKeys.METHOD, "xml");
-			_protocolFile.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
-			_protocolFile.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
+			Transformer _protocolFile = 
+					TransformerFactory.newInstance().newTransformer();
+			_protocolFile.setOutputProperty( OutputKeys.INDENT, "yes" );
+			_protocolFile.setOutputProperty( OutputKeys.METHOD, "xml" );
+			_protocolFile.setOutputProperty( OutputKeys.ENCODING, "UTF-8" );
+			_protocolFile.setOutputProperty(
+					"{http://xml.apache.org/xslt}indent-amount", "4" );
 		
 			_protocolFile.transform(new DOMSource(_sensitivityDoc), 
 					new StreamResult(new FileOutputStream(fileString)));
