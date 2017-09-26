@@ -29,7 +29,9 @@ public class CategoryFilter implements Filter
 	private String header;
 	private LinkedList<Filter> filters = new LinkedList<Filter>();
 	
-	public CategoryFilter(String[] filters) {
+	public CategoryFilter(String... filters) {
+		if (filters.length == 1 )
+			filters = filters[0].split( "," );
 		int i = 0;
 		this.header = "[" + i++ + "]: Other";
 		for ( String s : filters)

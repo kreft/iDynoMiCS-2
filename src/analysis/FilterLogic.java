@@ -2,16 +2,18 @@ package analysis;
 
 import analysis.filter.CategoryFilter;
 import analysis.filter.Filter;
-import analysis.filter.MultiFilter;
+import analysis.filter.SoluteFilter;
+import analysis.filter.AndFilter;
 import analysis.filter.SpecificationFilter;
 import analysis.filter.ValueFilter;
 import gereralPredicates.*;
+import idynomics.Compartment;
 
 /**
  * Identify and create Filters based on their operators.
  * 
  * , splits the individual filters captured in a CategoryFilter
- * + splits the individual filters captured in a MultiFilter
+ * + splits the individual filters captured in a AndFilter
  * 
  * specification filters:
  * == isSame (always)
@@ -26,17 +28,24 @@ import gereralPredicates.*;
  */
 public class FilterLogic {
 
+	public static Filter filterFromString(String filter, Compartment comp)
+	{
+		if ( filter.contains( "%" ) )
+		{
+			return new SoluteFilter( filter, comp );
+		}
+		else
+			return filterFromString(filter);
+	}
 	public static Filter filterFromString(String filter)
 	{
 		if ( filter.contains( "," ) )
 		{
-			String[] f = filter.split( "," );
-			return new CategoryFilter( f );
+			return new CategoryFilter( filter );
 		}
 		else if ( filter.contains( "+" ) )
 		{
-			String[] f = filter.split( "\\+" );
-			return new MultiFilter( f );
+			return new AndFilter( filter );
 		}
 		else if ( filter.contains( "==" ) )
 		{

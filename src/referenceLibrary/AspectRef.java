@@ -382,4 +382,9 @@ public class AspectRef
 	 */
 	public static final String gravity_testing = "gravity_testing";
 
+	/**
+	 * Process manager output filename
+	 */
+	public static final String fileName = "fileName";
+
 }

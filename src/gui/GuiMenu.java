@@ -146,6 +146,15 @@ public final class GuiMenu
 		/*
 		 * Query some agents
 		 */
+		menuItem = new JMenuItem(new GuiMenu.QuerySummary());
+		menuItem.setAccelerator(KeyStroke.getKeyStroke(
+				KeyEvent.VK_U, ActionEvent.CTRL_MASK));
+		menuItem.getAccessibleContext().setAccessibleDescription(
+				"Request agent information");
+		menu.add(menuItem);
+		/*
+		 * Query some agents
+		 */
 		menuItem = new JMenuItem(new GuiMenu.QueryToFile());
 		menuItem.setAccelerator(KeyStroke.getKeyStroke(
 				KeyEvent.VK_Y, ActionEvent.CTRL_MASK));
@@ -239,7 +248,35 @@ public final class GuiMenu
 				String table = GuiConsole.requestInput("Table logic");
 				table = table.replaceAll("\\s+","");
 				FilteredTable tab = new FilteredTable(table);
+				
 				Log.printToScreen(tab.display(), false);
+			}
+		}
+		
+	}
+	
+	public static class QuerySummary extends AbstractAction
+	{
+
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 3011117385035501302L;
+
+		public QuerySummary()
+		{
+	        super("Summary");
+		}
+	
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			if (Helper.compartmentAvailable())
+			{
+				String table = GuiConsole.requestInput("Table logic");
+				table = table.replaceAll("\\s+","");
+				FilteredTable tab = new FilteredTable(table);
+				
+				Log.printToScreen(tab.summary(), false);
 			}
 		}
 		

@@ -78,7 +78,8 @@ public class CsvExport
 	 */
 	public void writeLine(String line) 
 	{
-		_csvFile.write(line + "\n");
+		this._csvFile.write(line + "\n");
+		this._csvFile.flushAll();
 	}
 	
 	public void writeLine(String[] rowElements) 
