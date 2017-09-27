@@ -13,7 +13,6 @@ import referenceLibrary.AspectRef;
 import utility.Helper;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
-import idynomics.Idynomics;
 import processManager.ProcessManager;
 
 /**

@@ -69,7 +69,7 @@ public final class ExtraMath
 	{
 		long seed = (long) ( Calendar.getInstance().getTimeInMillis() *
 															Math.random() );
-		intialiseRandomNumberGenerator(seed);
+		initialiseRandomNumberGenerator(seed);
 	}
 	
 	/**
@@ -77,7 +77,7 @@ public final class ExtraMath
 	 * 
 	 * @param seed long integer number to seed the random number generator. 
 	 */
-	public static void intialiseRandomNumberGenerator(long seed)
+	public static void initialiseRandomNumberGenerator(long seed)
 	{
 		random = new MTRandom(seed);
 	}

@@ -30,6 +30,7 @@ import utility.ExtraMath;
  * @author Russ Weeks rweeks@newbrightidea.com
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU.
  */
+@SuppressWarnings("unchecked")
 public class RTree<T> implements SpatialRegistry<T>
 {
 	public enum SeedPicker { LINEAR, QUADRATIC }
@@ -43,7 +44,6 @@ public class RTree<T> implements SpatialRegistry<T>
 	private final SeedPicker seedPicker;
 
 	private Node root;
-	private Node nearest;
 
 	private volatile int size;
 	private Shape _shape;
@@ -241,20 +241,6 @@ public class RTree<T> implements SpatialRegistry<T>
 	}
 
 	/**
-	 * helper method that counts the number of fields with value 'true' in an array of booleans.
-	 * 
-	 * @param booleans
-	 * 		  an array of booleans.
-	 * @return An integer that represents the number of fields with value 'true' in booleans.
-	 */
-	private int counttrue(Boolean[] booleans) {
-		int a = 0;
-		for (int j = 0; j < booleans.length; j++)
-			if (booleans[j]) a++;
-		return a;
-	}
-
-	/**
 	 * Returns every entry from the tree
 	 * @return A list with every entry from the tree.
 	 */
@@ -338,7 +324,6 @@ public class RTree<T> implements SpatialRegistry<T>
 		T removed = null;
 		while (li.hasNext())
 		{
-			@SuppressWarnings("unchecked")
 			Entry e = (Entry) li.next();
 			if (e.entry.equals(entry))
 			{
@@ -375,7 +360,6 @@ public class RTree<T> implements SpatialRegistry<T>
 		T removed = null;
 		while (li.hasNext())
 		{
-			@SuppressWarnings("unchecked")
 			Entry e = (Entry) li.next();
 			if (e.entry.equals(entry))
 			{
@@ -480,7 +464,6 @@ public class RTree<T> implements SpatialRegistry<T>
 		}
 		for (Node ne : q)
 		{
-			@SuppressWarnings("unchecked")
 			Entry e = (Entry) ne;
 			insert(e.coords, e.dimensions, e.entry);
 		}
@@ -583,7 +566,6 @@ public class RTree<T> implements SpatialRegistry<T>
 		// For instance the call at the end of the "while (!cc.isEmpty())" loop
 		// could be modified and inlined because it's only adjusting for the addition
 		// of a single node.  Left as-is for now for readability.
-		@SuppressWarnings("unchecked")
 		Node[] nn = new RTree.Node[]
 				{ n, new Node(n.coords, n.dimensions, n.leaf) };
 		nn[1].parent = n.parent;
@@ -650,7 +632,6 @@ public class RTree<T> implements SpatialRegistry<T>
 	// Implementation of Quadratic PickSeeds
 	private RTree<T>.Node[] qPickSeeds(LinkedList<Node> nn)
 	{
-		@SuppressWarnings("unchecked")
 		RTree<T>.Node[] bestPair = new RTree.Node[2];
 		double maxWaste = -1.0 * Double.MAX_VALUE;
 		for (Node n1: nn)
@@ -709,7 +690,6 @@ public class RTree<T> implements SpatialRegistry<T>
 	// Implementation of LinearPickSeeds
 	private RTree<T>.Node[] lPickSeeds(LinkedList<Node> nn)
 	{
-		@SuppressWarnings("unchecked")
 		RTree<T>.Node[] bestPair = new RTree.Node[2];
 		boolean foundBestPair = false;
 		double bestSep = 0.0;
@@ -930,18 +910,6 @@ public class RTree<T> implements SpatialRegistry<T>
 			this.leaf = leaf;
 			children = new LinkedList<Node>();
 		}
-
-		private double distance(double[] point)
-		{
-			double[] d = new double[point.length];
-			double distsquared = 0.0;
-			for(int i = 0; i<point.length; i++) {
-				d[i] = Math.max(Math.max(coords[i] - point[i], point[i] - coords[i] + dimensions[i]), 0.0);
-				distsquared += d[i]*d[i];
-			}
-			return Math.sqrt(distsquared);
-		}
-
 	}
 
 	private class Entry extends Node

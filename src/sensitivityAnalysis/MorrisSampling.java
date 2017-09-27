@@ -1,7 +1,6 @@
 package sensitivityAnalysis;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import linearAlgebra.Matrix;
@@ -51,9 +50,7 @@ public class MorrisSampling {
 		}		
 		
 		List<Double> xRange = new ArrayList<Double>();
-		for ( Double val = 0.0; val <= ( 1-delta ); 
-				val = val + ( 1.0 / ( p-1.0 ) ) ) 
-		{
+		for (Double val = 0.0; val <= (1-delta); val=val+(1.0/(p-1.0))) {
 			xRange.add(val);
 		}
 		int m = xRange.size();

@@ -98,7 +98,7 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 	public long seed()
 	{
 		long currentSeed = ExtraMath.random.nextLong();
-		ExtraMath.intialiseRandomNumberGenerator(currentSeed);
+		ExtraMath.initialiseRandomNumberGenerator(currentSeed);
 		return currentSeed;
 	}
 	
@@ -108,7 +108,7 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 	 */
 	public void seed(long seed)
 	{
-		ExtraMath.intialiseRandomNumberGenerator(seed);
+		ExtraMath.initialiseRandomNumberGenerator(seed);
 	}
 	
 	public void instantiate(Element xmlElem, Settable parent)
@@ -119,7 +119,7 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 		 */
 		String seed =XmlHandler.gatherAttribute(xmlElem, XmlRef.seed);
 		if (seed != "" && seed != null)
-			ExtraMath.intialiseRandomNumberGenerator(Long.valueOf(seed));
+			ExtraMath.initialiseRandomNumberGenerator(Long.valueOf(seed));
 		
 		/*
 		 * Set up the Timer.

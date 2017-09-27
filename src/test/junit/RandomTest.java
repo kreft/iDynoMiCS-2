@@ -14,13 +14,13 @@ public class RandomTest {
 	{
 		int count = (int) 1e6;
 		// NormRand
-		ExtraMath.intialiseRandomNumberGenerator(2431682436L);
+		ExtraMath.initialiseRandomNumberGenerator(2431682436L);
 		
 		double[] r = new double[count];
 		for (int i = 0; i < count; i++)
 			r[i] = ExtraMath.getNormRand();
 
-		ExtraMath.intialiseRandomNumberGenerator(2431682436L);
+		ExtraMath.initialiseRandomNumberGenerator(2431682436L);
 		
 		double[] c = new double[count];
 		for (int i = 0; i < count; i++)
@@ -33,13 +33,13 @@ public class RandomTest {
 //		System.out.println(Vector.toString(c));
 		
 		// getUniRand
-		ExtraMath.intialiseRandomNumberGenerator(2431682436L);
+		ExtraMath.initialiseRandomNumberGenerator(2431682436L);
 		
 		r = new double[count];
 		for (int i = 0; i < count; i++)
 			r[i] = ExtraMath.getUniRand(0.0, 1.1);
 
-		ExtraMath.intialiseRandomNumberGenerator(2431682436L);
+		ExtraMath.initialiseRandomNumberGenerator(2431682436L);
 		
 		c = new double[count];
 		for (int i = 0; i < count; i++)
@@ -49,13 +49,13 @@ public class RandomTest {
 		}
 		
 		// getUniRandDbl
-		ExtraMath.intialiseRandomNumberGenerator(2431682436L);
+		ExtraMath.initialiseRandomNumberGenerator(2431682436L);
 		
 		r = new double[count];
 		for (int i = 0; i < count; i++)
 			r[i] = ExtraMath.getUniRandDbl(0.0, 1.1);
 
-		ExtraMath.intialiseRandomNumberGenerator(2431682436L);
+		ExtraMath.initialiseRandomNumberGenerator(2431682436L);
 		
 		c = new double[count];
 		for (int i = 0; i < count; i++)
@@ -65,13 +65,13 @@ public class RandomTest {
 		}
 		
 		// getUniRandInt
-		ExtraMath.intialiseRandomNumberGenerator(2431682436L);
+		ExtraMath.initialiseRandomNumberGenerator(2431682436L);
 		
 		r = new double[count];
 		for (int i = 0; i < count; i++)
 			r[i] = ExtraMath.getUniRandInt(0, 4);
 
-		ExtraMath.intialiseRandomNumberGenerator(2431682436L);
+		ExtraMath.initialiseRandomNumberGenerator(2431682436L);
 		
 		c = new double[count];
 		for (int i = 0; i < count; i++)
@@ -81,13 +81,13 @@ public class RandomTest {
 		}
 		
 		// getUniRandInt
-		ExtraMath.intialiseRandomNumberGenerator(2431682436L);
+		ExtraMath.initialiseRandomNumberGenerator(2431682436L);
 		
 		r = new double[count];
 		for (int i = 0; i < count; i++)
 			r[i] = ExtraMath.getUniRandInt(4);
 
-		ExtraMath.intialiseRandomNumberGenerator(2431682436L);
+		ExtraMath.initialiseRandomNumberGenerator(2431682436L);
 		
 		c = new double[count];
 		for (int i = 0; i < count; i++)
@@ -97,13 +97,13 @@ public class RandomTest {
 		}
 		
 		// Exp2Rand
-		ExtraMath.intialiseRandomNumberGenerator(2431682436L);
+		ExtraMath.initialiseRandomNumberGenerator(2431682436L);
 		
 		r = new double[count];
 		for (int i = 0; i < count; i++)
 			r[i] = ExtraMath.getExp2Rand();
 
-		ExtraMath.intialiseRandomNumberGenerator(2431682436L);
+		ExtraMath.initialiseRandomNumberGenerator(2431682436L);
 		
 		c = new double[count];
 		for (int i = 0; i < count; i++)
@@ -113,13 +113,13 @@ public class RandomTest {
 		}
 		
 		// getUniRandAngle
-		ExtraMath.intialiseRandomNumberGenerator(2431682436L);
+		ExtraMath.initialiseRandomNumberGenerator(2431682436L);
 		
 		r = new double[count];
 		for (int i = 0; i < count; i++)
 			r[i] = ExtraMath.getUniRandAngle();
 
-		ExtraMath.intialiseRandomNumberGenerator(2431682436L);
+		ExtraMath.initialiseRandomNumberGenerator(2431682436L);
 		
 		c = new double[count];
 		for (int i = 0; i < count; i++)
@@ -129,13 +129,13 @@ public class RandomTest {
 		}
 		
 		// getUniRandDbl
-		ExtraMath.intialiseRandomNumberGenerator(2431682436L);
+		ExtraMath.initialiseRandomNumberGenerator(2431682436L);
 		
 		r = new double[count];
 		for (int i = 0; i < count; i++)
 			r[i] = ExtraMath.getUniRandDbl();
 
-		ExtraMath.intialiseRandomNumberGenerator(2431682436L);
+		ExtraMath.initialiseRandomNumberGenerator(2431682436L);
 		
 		c = new double[count];
 		for (int i = 0; i < count; i++)
@@ -145,13 +145,13 @@ public class RandomTest {
 		}
 		
 		// getRandBool
-		ExtraMath.intialiseRandomNumberGenerator(2431682436L);
+		ExtraMath.initialiseRandomNumberGenerator(2431682436L);
 		
 		boolean[] b = new boolean[count];
 		for (int i = 0; i < count; i++)
 			b[i] = ExtraMath.getRandBool();
 
-		ExtraMath.intialiseRandomNumberGenerator(2431682436L);
+		ExtraMath.initialiseRandomNumberGenerator(2431682436L);
 		
 		boolean[] a = new boolean[count];
 		for (int i = 0; i < count; i++)

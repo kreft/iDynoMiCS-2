@@ -50,7 +50,7 @@ public class XmlCreate
 			Scanner user_input = new Scanner( System.in );
 			System.out.print("Enter protocol file path: ");
 			xmlFilePath = user_input.next();
-			user_input.close();
+//			user_input.close();
 		}
 		else
 		{
@@ -59,6 +59,7 @@ public class XmlCreate
 		
 		_filePath = xmlFilePath;
 		_sensitivityDoc = XmlHandler.xmlLoad(_filePath);
+		xmlCopy();
 	}
 	
 	/**

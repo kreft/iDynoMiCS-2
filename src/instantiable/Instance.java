@@ -201,6 +201,7 @@ public class Instance
 		return getNew(className, Idynomics.xmlPackageLibrary.get(className));
 	}
 	
+	@SuppressWarnings("unused")
 	private static String getClass(Element xml)
 	{
 		if ( ! xml.hasAttribute(XmlRef.classAttribute) )
