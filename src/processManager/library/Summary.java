@@ -66,7 +66,7 @@ public class Summary extends ProcessManager
 		
 		Boolean includeHeader = this.getBoolean( INCLUDE_HEADER );
 		
-		Helper.setIfNone(includeHeader, false);
+		includeHeader = Helper.setIfNone(includeHeader, false);
 		
 		if(includeHeader)
 			_csv.writeLine( table.header(", ") );
