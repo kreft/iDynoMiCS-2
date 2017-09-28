@@ -1,4 +1,4 @@
-package test.other;
+package dataIO;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -7,8 +7,6 @@ import java.util.Map;
 
 import agent.Agent;
 import agent.SpeciesLib;
-import dataIO.FileHandler;
-import dataIO.Log;
 import dataIO.Log.Tier;
 import idynomics.Compartment;
 import idynomics.Idynomics;
@@ -58,37 +56,45 @@ public class Diagram {
 		if( Helper.isNullOrEmpty( comp ) )
 			return;
 		
-		_diagramFile.write("node [shape = circle, fillcolor = green]\n");
+		_diagramFile.write("node [shape = circle, fillcolor = green, style = filled]\n");
 		
 		for(String c : comp.environment.getSoluteNames() )
-			_diagramFile.write( c + "; \n");
+			_diagramFile.write( c + " \n");
 		
 		 Map<Reaction,String> reactions = new HashMap<Reaction,String>();
+		 List<String> species = new LinkedList<String>();
 		
+		 _diagramFile.write("node [shape = circle, fillcolor = lightblue, style = filled]\n");
+		 
 		for(Agent a : comp.agents.getAllAgents())
+		{
+			String spec = a.getString( XmlRef.species );
 			for( Reaction r : (List<Reaction>) a.getValue( XmlRef.reactions ) )
 				if(! reactions.keySet().contains( r ) )
 					reactions.put( r , a.getString( XmlRef.species ));
+			if(! species.contains( a.getString( spec ) ) )
+				_diagramFile.write( spec + " \n");
+		}
 		
 		if ( Helper.isNullOrEmpty( reactions ) )
 			return;
 		
-		_diagramFile.write("node [shape = square, fillcolor = red]\n");
+		_diagramFile.write("node [shape = box, fillcolor = orange, style = filled]\n");
 		for (Reaction r : reactions.keySet() )
 		{
-			_diagramFile.write(r.getName() + "; \n");
+			_diagramFile.write(r.getName()+ "_" + reactions.get(r) + "\n");
 			Map<String,Double> sto = r.getStoichiometry();
 			for (String s : sto.keySet() )
 			{
 				
 				if( sto.get(s) < 0 )
-					_diagramFile.write( (s == AspectRef.agentMass ? 
-							reactions.get(r) + " " : "") + s + " -> " + 
-							r.getName() + "; \n");
+					_diagramFile.write( (s.equals( AspectRef.agentMass ) ? 
+							reactions.get(r) : s ) + " -> " + 
+							r.getName()+ "_" + reactions.get(r) + "\n");
 				else 
-					_diagramFile.write( r.getName() + " -> " + 
-							(s == AspectRef.agentMass ? reactions.get(r) + " " :
-							"") + s + "; \n");
+					_diagramFile.write( r.getName()+ "_" + reactions.get(r) +  
+							" -> " + (s.equals( AspectRef.agentMass ) ? 
+							reactions.get(r) : s ) + "\n");
 			}
 		}
 	}

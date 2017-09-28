@@ -240,8 +240,9 @@ public class FilteredTable {
 			}
 			else
 			{				
-				out += columns.get(i).header()
-						+ (i < columns.size()-1 ? delimiter : "" );
+				out += columns.get(i).header() + " " + 
+						qualification.get(i).header() +
+						(i < columns.size()-1 ? delimiter : "" );
 			}
 		}
 		return out;

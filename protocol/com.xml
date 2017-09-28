@@ -127,6 +127,7 @@
 				</process>
 				<process name="summary" class="Summary"  priority="2"
 					firstStep="0.0" timerStepSize="60.0">
+					<aspect name="includeHeader" type="PRIMARY" class="Boolean" value="TRUE" />
 					<aspect name="tableSpecification" type="PRIMARY" class="String"
 					value="0 ~ mass ? species == Comammox | mass  ? species == CanonicalAOB | mass ?  species == CanonicalNOB | %oxygen | %ammonium | %nitrite | %nitrate" />
 					<aspect name="fileName" type="PRIMARY" class="String" value="data" />

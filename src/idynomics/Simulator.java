@@ -13,6 +13,7 @@ import dataIO.Log;
 import dataIO.XmlExport;
 import dataIO.XmlHandler;
 import dataIO.Log.Tier;
+import dataIO.Report;
 import generalInterfaces.CanPrelaunchCheck;
 import instantiable.Instance;
 import instantiable.Instantiable;
@@ -339,6 +340,14 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 		 * Print the simulation results.
 		 */
 		this.printAll();
+		/*
+		 * Run report file.
+		 */
+		Report report = new Report();
+		report.createCustomFile("report");
+		report.writeReport();
+		report.closeFile();
+		
 		/*
 		 * Report simulation time.
 		 */

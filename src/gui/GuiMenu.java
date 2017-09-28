@@ -15,12 +15,12 @@ import javax.swing.KeyStroke;
 
 import analysis.FilteredTable;
 import analysis.quantitative.Raster;
+import dataIO.Diagram;
 import dataIO.DrawMediator;
 import dataIO.Log;
 import dataIO.Log.Tier;
 import idynomics.Idynomics;
 import idynomics.Simulator;
-import test.other.Diagram;
 import utility.Helper;
 
 /**
