@@ -68,18 +68,23 @@ public class Report {
 		
 
 		_reportFile.write("##Chemical interactions \n\n");
-		fileName = "reactionDiagram";
-		Diagram diagReac = new Diagram();
-		diagReac.createCustomFile(fileName);
-		diagReac.reactionDiagram( Helper.selectCompartment() );
-		diagReac.closeFile();
 		
-		_reportFile.write(
-				"```{r, echo=FALSE}\n" +
-				"library(DiagrammeR)\n" +
-				"grViz(\"" + fileName + ".dot\")\n" +
-				"```\n\n");
-		
+		for( String comp : Idynomics.simulator.getCompartmentNames() )
+		{
+			fileName = "reactionDiagram_" + comp;
+			_reportFile.write("###" + comp + "\n\n");
+			Diagram diagReac = new Diagram();
+			diagReac.createCustomFile(fileName);
+			diagReac.reactionDiagram( Idynomics.simulator.getCompartment(comp));
+			diagReac.closeFile();
+			
+			_reportFile.write(
+					"```{r, echo=FALSE}\n" +
+					"library(DiagrammeR)\n" +
+					"grViz(\"" + fileName + ".dot\")\n" +
+					"```\n\n");
+		}
+				
 		_reportFile.write("##microbial and chemical species \n\n");
 		
 		FileHandler fileHandler = new FileHandler();

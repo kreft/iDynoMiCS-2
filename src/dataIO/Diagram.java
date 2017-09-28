@@ -42,10 +42,10 @@ public class Diagram {
 		String[] species = _lib.getAllSpeciesNames();
 		for (String s : species)
 		{
-			_diagramFile.write(s + "; \n");
+			_diagramFile.write(s + " \n");
 			List<String> subs = _lib.get(s).reg().getSubModuleNames();
 			for(String t : subs)
-				_diagramFile.write(t + " -- " + s + "; \n");
+				_diagramFile.write(t + " -> " + s + " \n");
 		}
 	}
 
