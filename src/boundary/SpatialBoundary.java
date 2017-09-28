@@ -13,7 +13,6 @@ import dataIO.XmlHandler;
 import dataIO.Log.Tier;
 import grid.ArrayType;
 import grid.SpatialGrid;
-import idynomics.AgentContainer;
 import linearAlgebra.Vector;
 import referenceLibrary.AspectRef;
 import referenceLibrary.XmlRef;

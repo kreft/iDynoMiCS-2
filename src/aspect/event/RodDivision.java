@@ -8,7 +8,6 @@ import referenceLibrary.AspectRef;
 import shape.Shape;
 
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 
 import agent.Agent;

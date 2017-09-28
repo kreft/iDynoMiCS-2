@@ -1,7 +1,5 @@
 package aspect.calculated;
 
-import java.util.HashMap;
-
 import org.w3c.dom.Element;
 
 import aspect.AspectInterface;

@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Predicate;
 
 import agent.Agent;
 import agent.Body;
@@ -28,7 +27,6 @@ import settable.Module.Requirements;
 import shape.Dimension;
 import shape.Shape;
 import shape.Dimension.DimName;
-import shape.subvoxel.CoordinateMap;
 import spatialRegistry.*;
 import spatialRegistry.splitTree.SplitTree;
 import surface.BoundingBox;
@@ -125,9 +123,9 @@ public class AgentContainer implements Settable
 	 * testing
 	 * @return
 	 */
-	public SplitTree getSpatialTree() 
+	public SplitTree<Agent> getSpatialTree() 
 	{
-		return (SplitTree) this._agentTree;
+		return (SplitTree<Agent>) this._agentTree;
 	}
 	
 	/**

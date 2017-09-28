@@ -488,4 +488,9 @@ public class XmlRef
 	 */
 	public final static String rangeForAttribute = "rangeFor";
 
+	/**
+	 * volume (for nonspatial compartment)
+	 */
+	public static final String volume = "volume";
+
 }

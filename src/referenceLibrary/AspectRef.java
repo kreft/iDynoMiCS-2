@@ -435,4 +435,9 @@ public class AspectRef
 	 */
 	public final static String coolDownPeriod = "cool_down";
 
+	/**
+	 * Process manager output filename
+	 */
+	public static final String fileName = "fileName";
+
 }

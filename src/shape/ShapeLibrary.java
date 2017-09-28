@@ -4,11 +4,13 @@
 package shape;
 
 import org.w3c.dom.Element;
-
 import dataIO.Log;
 import dataIO.Log.Tier;
 import dataIO.XmlHandler;
 import linearAlgebra.Array;
+import referenceLibrary.XmlRef;
+import settable.Attribute;
+import settable.Module;
 import settable.Settable;
 import shape.Dimension.DimName;
 import shape.iterator.ShapeIterator;
@@ -59,8 +61,24 @@ public final class ShapeLibrary
 		{
 			// TODO read in as a Double
 			String str = XmlHandler.obtainAttribute(
-										xmlElem, "volume", this.defaultXmlTag());
+						xmlElem, XmlRef.volume, this.defaultXmlTag());
 			this._volume = Double.parseDouble(str);
+		}
+		
+		@Override
+		public Module getModule()
+		{
+			Module node = super.getModule();
+			node.add( new Attribute(XmlRef.volume, 
+						String.valueOf(this.getTotalVolume()), null, true ));
+			return node;
+		}
+		
+		public void setModule(Module node)
+		{
+			super.setModule(node);
+			this._volume = Double.parseDouble( 
+					node.getAttribute(XmlRef.volume).getValue() );
 		}
 		
 		/**

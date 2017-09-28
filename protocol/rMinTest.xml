@@ -52,8 +52,8 @@
 				<dimension name="THETA" isCyclic="true" targetResolution="1" max="120"/>
 			</shape>
 			<solutes>
-				<solute name="solute1" concentration="1.0" />
-				<solute name="solute2" concentration="0.0" />
+				<solute name="solute1" concentration="1.0" defaultDiffusivity="1" />
+				<solute name="solute2" concentration="0.0" defaultDiffusivity="1"  />
 			</solutes>
 			<reactions>
 				<reaction name="slowInflow">

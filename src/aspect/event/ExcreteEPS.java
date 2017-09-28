@@ -22,7 +22,6 @@ import utility.ExtraMath;
 public class ExcreteEPS extends Event
 {
 	
-	public String INTERNAL_PRODUCTS = AspectRef.internalProducts;
 	public String EPS = AspectRef.productEPS;
 	public String MAX_INTERNAL_EPS = AspectRef.maxInternalEPS;
 	public String EPS_SPECIES = AspectRef.epsSpecies;

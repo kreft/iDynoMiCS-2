@@ -38,8 +38,8 @@
 				<dimension name="Y" isCyclic="true" targetResolution="1" max="32.0"/>
 			</shape>
 			<solutes>
-				<solute name="solute1" concentration="0.0" />
-				<solute name="solute2" concentration="2.0" />
+				<solute name="solute1" concentration="0.0" defaultDiffusivity="1.0" biofilmDiffusivity="0.5"/>
+				<solute name="solute2" concentration="2.0" defaultDiffusivity="1.0" biofilmDiffusivity="0.5"/>
 			</solutes>
 			<reactions>
 				<reaction name="testReact">

@@ -74,7 +74,9 @@ public class ProcessMethods {
 			}
 			else
 			{
-				// TODO safety
+				/* newly produced internal product */
+				agent.set(key, biomass.get(key));
+				biomass.remove(key);
 			}
 		}
 	}

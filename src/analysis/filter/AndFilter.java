@@ -6,20 +6,22 @@ import analysis.FilterLogic;
 import aspect.AspectInterface;
 
 /**
- * The multi-filter returns true if all nested filters return true, returns
+ * The And-filter returns true if all nested filters return true, returns
  * false otherwise, use in combination with the specification filter.
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
  *
  */
-public class MultiFilter implements Filter
+public class AndFilter implements Filter
 {
 
 	private String header = "";
 	private LinkedList<Filter> filters = new LinkedList<Filter>();
 	
-	public MultiFilter(String[] filters) 
+	public AndFilter(String... filters) 
 	{
+		if (filters.length == 1)
+			filters = filters[0].split( "\\+" );
 		for ( String s : filters)
 		{
 			Filter filt = FilterLogic.filterFromString(s);

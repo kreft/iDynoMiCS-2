@@ -234,20 +234,6 @@ public class Agent implements AspectInterface, Settable, Instantiable
 		this._compartment = compartment;
 	}
 	
-	/**
-	 * FIXME temporary placeholder fix, for aspects that need a local
-	 * solute concentration (eg ionic strength for dlvo based attachment or
-	 * antibiotics response).
-	 * 
-	 * @param solute
-	 * @return
-	 */
-	public double getLocalConcentration(String solute)
-	{
-		//FIXME not completely correct (always assuming first point) we can extend on this later to use midpoint in case of non coccoid types.
-		return this._compartment.environment.getLocalConcentration(solute,((Body) this.get("body")).getPosition(0));
-	}
-
 	/*************************************************************************
 	 * STEPPING
 	 ************************************************************************/

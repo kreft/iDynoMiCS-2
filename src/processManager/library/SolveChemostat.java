@@ -40,7 +40,8 @@ public class SolveChemostat extends ProcessManager
 	public static String HMAX = AspectRef.solverhMax;
 	public static String TOLERANCE = AspectRef.solverTolerance;
 	public static String REACTIONS = AspectRef.agentReactions;
-	public String SOLUTES = AspectRef.soluteNames;
+	public static String SOLUTES = AspectRef.soluteNames;
+	public static String AGENT_VOLUME = AspectRef.agentVolume;
 	
 	/**
 	 * The ODE solver to use when updating solute concentrations. 
@@ -390,7 +391,7 @@ public class SolveChemostat extends ProcessManager
 			 * Check first that we have all variables we need. If not, they may
 			 * be stored as other aspects of the agent (e.g. EPS).
 			 */
-			for ( String varName : aReac.getVariableNames() )
+			for ( String varName : aReac.getConstituentNames() )
 				if ( ! allConcns.containsKey(varName) )
 				{
 					if ( agent.isAspect(varName) )
@@ -479,9 +480,14 @@ public class SolveChemostat extends ProcessManager
 							(stoichiometry.get(key) * reactionOccurances);
 					newBiomass.put(key, biomass);
 				}
+				else if ( agent.isAspect(key))
+				{
+					newBiomass.put(key, agent.getDouble(key) +
+							stoichiometry.get(key) * reactionOccurances);
+				}
 				else
 				{
-					newBiomass.put(key, 
+					newBiomass.put(key,
 							stoichiometry.get(key) * reactionOccurances);
 				}
 		}

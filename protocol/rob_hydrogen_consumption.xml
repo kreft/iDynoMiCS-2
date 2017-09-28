@@ -44,7 +44,7 @@
 				<dimension name="Y" isCyclic="false"	targetResolution="1.0" max="32.0">
 					<boundary extreme="0" class="SolidBoundary" />
 					<boundary extreme="1" class="FixedBoundary">
-						<solute name="hydrogen" concentration="5" />
+						<solute name="hydrogen" concentration="5"  defaultDiffusivity="3" />
 					</boundary>
 				</dimension>
 			</shape>
@@ -69,7 +69,6 @@
 					firstStep="0.0"  timerStepSize="1.0">	
 					<aspect name="soluteNames" type="PRIMARY" class="String[]" value="hydrogen" /> 
 					<!-- µm^2 ms^-1-->
-					<diffusivitySetter solute="hydrogen" class="allSameDiffuse" defaultDiffusivity="3.0" />
 				</process>
 				<process name="svgWriter" class="GraphicalOutput"  priority="0"
 					firstStep="0.0"  timerStepSize="1.0">

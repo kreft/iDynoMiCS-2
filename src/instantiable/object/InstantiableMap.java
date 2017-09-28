@@ -163,36 +163,45 @@ public class InstantiableMap<K,T> extends HashMap<K,T> implements Settable,
 	}
 	
 	
+	public void instantiate(Element xmlElement, Settable parent)
+	{
+		this.instantiate(xmlElement, parent, null, null, null);
+	}
+	
 	/**
-	 * Implementation of Instantiable interface
+	 * \brief instantiate from xml or gui
 	 * 
-	 * TODO commenting
+	 * Note here we allow to pass a key and string defenition by forhand in case
+	 * of Maps that require to have specific key and value types (for example
+	 * the reaction stochiometric map).
 	 */
 	@SuppressWarnings("unchecked")
-	public void instantiate(Element xmlElement, Settable parent)
+	public void instantiate(Element xmlElement, Settable parent, 
+			String keyClass, String entryClass, String nodeLabel)
 	{
 		if( xmlElement == null )
 		{
 			try {
 				this.keyClass = Class.forName( Idynomics.xmlPackageLibrary.
-						getFull( Helper.obtainInput( "" , " object class of "
+						getFull( Helper.obtainInput( keyClass , " object class of "
 								+ "key") ) );
 				this.entryClass = Class.forName( Idynomics.xmlPackageLibrary.
-						getFull( Helper.obtainInput( "" , " object class of "
+						getFull( Helper.obtainInput( entryClass , " object class of "
 								+ "entries") ) );
 			} catch (ClassNotFoundException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+			
 			this.bundleMapLabel = XmlRef.map;
 			
-			this.nodeLabel = Helper.obtainInput( "" , "entry node label");
+			this.nodeLabel = Helper.obtainInput( nodeLabel , "entry node label");
 			
-			if ( ! Settable.class.isAssignableFrom(entryClass) )
+			if ( ! Settable.class.isAssignableFrom(this.entryClass) )
 			{
 				this.valueLabel = XmlRef.valueAttribute;
 			}
-			if ( ! Settable.class.isAssignableFrom(keyClass) )
+			if ( ! Settable.class.isAssignableFrom(this.keyClass) )
 			{
 				this.keyLabel = XmlRef.keyAttribute;
 			}

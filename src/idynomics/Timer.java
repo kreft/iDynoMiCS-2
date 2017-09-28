@@ -181,11 +181,7 @@ public class Timer implements Instantiable, Settable
 		/* now */
 		modelNode.add(new Attribute(XmlRef.currentTime, 
 				String.valueOf(this._now), null, true ));
-		
-		/* current iteration */
-		modelNode.add(new Attribute(XmlRef.currentIter, 
-				String.valueOf(this.getCurrentIteration()), null, true ));
-		
+
 		/* time step size */
 		modelNode.add(new Attribute(XmlRef.timerStepSize, 
 				String.valueOf(this._timerStepSize), null, true ));
@@ -204,7 +200,7 @@ public class Timer implements Instantiable, Settable
 	 */
 	public void setModule(Module node)
 	{
-		this.setTimeStepSize( Double.valueOf( 
+		this.setCurrentTime( Double.valueOf( 
 				node.getAttribute( XmlRef.currentTime ).getValue() ));
 		
 		/* time step size */

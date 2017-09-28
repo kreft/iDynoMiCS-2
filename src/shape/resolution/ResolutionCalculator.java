@@ -3,9 +3,11 @@
  */
 package shape.resolution;
 
-import dataIO.Log;
-import dataIO.Log.Tier;
+import org.w3c.dom.Element;
+
 import generalInterfaces.Copyable;
+import instantiable.Instantiable;
+import settable.Settable;
 import shape.Dimension;
 
 /**
@@ -13,7 +15,7 @@ import shape.Dimension;
  * 
  * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
-public abstract class ResolutionCalculator implements Copyable
+public abstract class ResolutionCalculator implements Copyable, Instantiable
 {
 	/**
 	 * 
@@ -152,6 +154,13 @@ public abstract class ResolutionCalculator implements Copyable
 			e.printStackTrace();
 		}
 		return out;
+	}
+	
+
+	@Override
+	public void instantiate(Element xmlElement, Settable parent) {
+		// TODO Auto-generated method stub
+		
 	}
 	
 	/*************************************************************************

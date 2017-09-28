@@ -149,10 +149,10 @@
 			</shape>
 			<solutes>
 				<!-- pg / µm2 -->
-				<solute name="ammonium" concentration="6e-4" />
-				<solute name="oxygen" 	concentration="1e-4" />
-				<solute name="nitrite" 	concentration="6e-8" />
-				<solute name="nitrate" 	concentration="6e-8" />
+				<solute name="ammonium" concentration="6e-4" defaultDiffusivity="1.0" biofilmDiffusivity="0.8" />
+				<solute name="oxygen" 	concentration="1e-4" defaultDiffusivity="1.0" biofilmDiffusivity="0.8" />
+				<solute name="nitrite" 	concentration="6e-8" defaultDiffusivity="1.0" biofilmDiffusivity="0.8" />
+				<solute name="nitrate" 	concentration="6e-8" defaultDiffusivity="1.0" biofilmDiffusivity="0.8" />
 			</solutes>
 			<reactions>
 			</reactions>
@@ -222,10 +222,6 @@
 					same order of magnitude ~ 2.0e-4 m2.day-1 values here should
 					be in µm^2/ minute. Using wrong 1.0 instead to be able to 
 					run	the rest with the explicit solver-->
-					<diffusivitySetter solute="ammonium" 	class="ScaledIfBiomassPresent" defaultDiffusivity="1.0" biofilmDiffusivity="0.8" />
-					<diffusivitySetter solute="nitrite" 	class="ScaledIfBiomassPresent" defaultDiffusivity="1.0" biofilmDiffusivity="0.8" />
-					<diffusivitySetter solute="nitrate" 	class="ScaledIfBiomassPresent" defaultDiffusivity="1.0" biofilmDiffusivity="0.8" />
-					<diffusivitySetter solute="oxygen" 		class="ScaledIfBiomassPresent" defaultDiffusivity="1.0" biofilmDiffusivity="0.8" />
 				</process>
 			</processManagers>
 		</compartment>

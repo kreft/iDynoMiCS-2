@@ -5,6 +5,7 @@ import java.util.List;
 
 import agent.Agent;
 import analysis.filter.Filter;
+import analysis.filter.SoluteFilter;
 import aspect.AspectInterface;
 import dataIO.CsvExport;
 import dataIO.Log;
@@ -46,10 +47,34 @@ import utility.Helper;
  */
 public class FilteredTable {
 	
+	/**
+	 * Specifies compartment of table
+	 */
 	private Compartment compartment;
+	
+	/**
+	 * Only include agents in table that pass this filter
+	 */
 	private Filter filter;
+	
+	/**
+	 * Specifying the column content
+	 */
 	private LinkedList<Filter> columns = new LinkedList<Filter>();
+	
+	/**
+	 * Only include agents that pass the qualification filter in the column
+	 */
+	private LinkedList<Filter> qualification = new LinkedList<Filter>();
+	
+	/**
+	 * csv exporter
+	 */
 	CsvExport _csv = new CsvExport();
+	
+	/**
+	 * Input table logic string
+	 */
 	private String _logic;
 
 	public FilteredTable(String logic)
@@ -57,8 +82,8 @@ public class FilteredTable {
 		this._logic = logic.replaceAll("\\s+","");
 		String t = this._logic.split("~")[0];
 		String c = this._logic.split("~")[1];
-		for ( String s : c.split("\\|") ) //FIXME maybe not the best operator
-			this.columns.add( FilterLogic.filterFromString( s ) );
+		
+		/* work out whether agents need to be excluded from the table */
 		if ( t.contains("?"))
 		{
 			this.filter = FilterLogic.filterFromString( t.split("\\?")[1] );
@@ -67,6 +92,7 @@ public class FilteredTable {
 		else
 			this.filter = null;
 		
+		/* work out the compartment */
 		if (Idynomics.simulator.hasCompartment(t))
 			compartment = Idynomics.simulator.getCompartment(t);
 		else
@@ -74,6 +100,21 @@ public class FilteredTable {
 			List<String> comps = Idynomics.simulator.getCompartmentNames();
 			compartment = Idynomics.simulator.getCompartment( 
 					comps.get( Integer.valueOf( t ) ) );
+		}
+		
+		/* work out the columns */
+		for ( String s : c.split("\\|") )
+		{
+			if ( s.contains("?"))
+			{
+				this.qualification.add( 
+						FilterLogic.filterFromString( s.split("\\?")[1] ) );
+				s = s.split("\\?")[0];
+			}
+			else
+				this.qualification.add( null );
+			
+			this.columns.add( FilterLogic.filterFromString( s, this.compartment ) );
 		}
 	}
 	
@@ -89,8 +130,12 @@ public class FilteredTable {
 			if ( this.filter == null || this.filter.match( ( a ) ) )
 			{
 				for (int i = 0; i < columns.size(); i++)
-					out += columns.get(i).stringValue(a) 
-							+ (i < columns.size()-1 ? "\t, " : "\n" );
+				{
+					if( this.qualification.get(i) == null || 
+							this.qualification.get(i).match( ( a ) ) )
+						out += columns.get(i).stringValue(a) 
+								+ (i < columns.size()-1 ? "\t, " : "\n" );
+				}
 			}
 		}
 		return out;
@@ -98,18 +143,75 @@ public class FilteredTable {
 	
 	public String summary()
 	{
-		String out = "";
+		String out = "Table: " + compartment.getName() + (this.filter == null ? 
+				"" : " ? " + this.filter.header() ) + " \n";
 		LinkedList<AspectInterface> subjects = new LinkedList<AspectInterface>();
-		for (Agent a : compartment.agents.getAllAgents())
-			if ( this.filter == null || this.filter.match( ( a ) ) )
-				subjects.add(a);
+		
 		
 		for (int i = 0; i < columns.size(); i++)
 		{
-			out += columns.get(i).header() + "\n";
-			out += Vector.toString( Counter.count( columns.get(i), subjects ) ) 
-					+ "\n";
+			out += columns.get(i).header() + ( this.qualification.get(i) == null 
+					? "" : " ? " + this.qualification.get(i).header() )
+					+ (i < columns.size()-1 ? "\t| " : "\n" );
 		}
+		
+		for (int i = 0; i < columns.size(); i++)
+		{
+			out += "---" + (i < columns.size()-1 ? "\t | " : "\n" );
+		}
+		
+		
+		for (int i = 0; i < columns.size(); i++)
+		{
+			if ( columns.get(i) instanceof SoluteFilter )
+			{
+				out += columns.get(i).stringValue(null)
+						+ (i < columns.size()-1 ? "\t| " : "\n" );
+			}
+			else
+			{
+				for (Agent a : compartment.agents.getAllAgents())
+					if ( this.filter == null || this.filter.match( ( a ) ) )
+						if( this.qualification.get(i) == null || 
+								this.qualification.get(i).match( ( a ) ) )
+							subjects.add(a);
+				
+				out += Vector.toString( Counter.count( columns.get(i), subjects ) )
+						+ (i < columns.size()-1 ? "\t| " : "\n" );
+				subjects.clear();
+			}
+		}
+		
+		return out;
+	}
+	
+	public String line(String delimiter)
+	{
+		String out = "";
+		LinkedList<AspectInterface> subjects = new LinkedList<AspectInterface>();
+
+		
+		for (int i = 0; i < columns.size(); i++)
+		{
+			if ( columns.get(i) instanceof SoluteFilter )
+			{
+				out += columns.get(i).stringValue(null)
+						+ (i < columns.size()-1 ? delimiter : "" );
+			}
+			else
+			{
+				for (Agent a : compartment.agents.getAllAgents())
+					if ( this.filter == null || this.filter.match( ( a ) ) )
+						if( this.qualification.get(i) == null || 
+								this.qualification.get(i).match( ( a ) ) )
+							subjects.add(a);
+				
+				out += Vector.toString( Counter.count( columns.get(i), subjects ) )
+						+ (i < columns.size()-1 ? delimiter : "" );
+				subjects.clear();
+			}
+		}
+		
 		return out;
 	}
 	

@@ -1,5 +1,6 @@
 package reaction;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -13,6 +14,7 @@ import expression.Expression;
 import generalInterfaces.Copyable;
 import idynomics.EnvironmentContainer;
 import instantiable.Instantiable;
+import instantiable.object.InstantiableList;
 import instantiable.object.InstantiableMap;
 import referenceLibrary.XmlRef;
 import settable.Attribute;
@@ -67,6 +69,8 @@ public class Reaction implements Instantiable, Copyable, Settable
 	 */
 	// TODO consider deletion
 	private HashMap<String, Component> _diffKinetics;
+
+	private ArrayList<String> _constituents;
 	
 	/* ***********************************************************************
 	 * CONSTRUCTORS
@@ -75,7 +79,6 @@ public class Reaction implements Instantiable, Copyable, Settable
 	/**
 	 * \brief Empty reaction for ReactionLibrary construction.
 	 */
-	// TODO check this is the right approach
 	public Reaction()
 	{
 		
@@ -86,16 +89,10 @@ public class Reaction implements Instantiable, Copyable, Settable
 	 * 
 	 * @param xmlNode XMl node from a protocol file.
 	 */
-	public Reaction(Node xmlNode)
-	{
-		Element elem = (Element) xmlNode;
-		this.instantiate(elem, null);
-	}
-	
 	public Reaction(Node xmlNode, Settable parent)
 	{
 		Element elem = (Element) xmlNode;
-		this.instantiate(elem, parent);
+		this.instantiate( elem, parent );
 	}
 	
 	/**
@@ -152,11 +149,14 @@ public class Reaction implements Instantiable, Copyable, Settable
 		this(getHM(chemSpecies, stoichiometry), new Expression(kinetic), name);
 	}
 	
+	@SuppressWarnings("unchecked")
 	public void instantiate(Element xmlElem, Settable parent)
 	{
 		this._parentNode = parent;
 		if ( parent instanceof EnvironmentContainer )
 			((EnvironmentContainer) parent).addReaction(this);
+		if (parent instanceof InstantiableList)
+			((InstantiableList<Reaction>) parent).add(this);
 
 		if ( !Helper.isNullOrEmpty(xmlElem) && XmlHandler.hasChild(xmlElem, XmlRef.reaction))
 		{
@@ -167,7 +167,9 @@ public class Reaction implements Instantiable, Copyable, Settable
 		/*
 		 * Build the stoichiometric map.
 		 */
-		this._stoichiometry.instantiate(xmlElem, this);
+		this._stoichiometry.instantiate( xmlElem, this, 
+				String.class.getSimpleName(), Double.class.getSimpleName(), 
+				XmlRef.stoichiometric );
 
 		/*
 		 * Build the reaction rate expression.
@@ -211,6 +213,19 @@ public class Reaction implements Instantiable, Copyable, Settable
 	public Collection<String> getVariableNames()
 	{
 		return this._kinetic.getAllVariablesNames();
+	}
+	
+	public Collection<String> getConstituentNames()
+	{
+		if ( this._constituents == null )
+		{
+			this._constituents = new ArrayList<String>();
+			this._constituents.addAll(this.getVariableNames());
+		}
+		for(String s : this.getStoichiometry().keySet() )
+			if(! _constituents.contains(s) )
+				this._constituents.add(s);
+		return this._constituents;
 	}
 	
 	/**
@@ -307,8 +322,6 @@ public class Reaction implements Instantiable, Copyable, Settable
 		return this._diffKinetics.get(withRespectTo).getValue(concentrations);
 	}
 	
-	
-	// TODO required from xmlable interface.. unfinished
 	public Module getModule()
 	{
 		Module modelNode = new Module(XmlRef.reaction, this);

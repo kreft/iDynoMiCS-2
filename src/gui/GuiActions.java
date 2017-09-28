@@ -5,12 +5,10 @@ package gui;
 
 import java.awt.EventQueue;
 import java.io.File;
-import java.util.List;
 
 import javax.swing.JFileChooser;
 
 import dataIO.Log;
-import idynomics.Compartment;
 import idynomics.Idynomics;
 import idynomics.Settings;
 import idynomics.Simulator;

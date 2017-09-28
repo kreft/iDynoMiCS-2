@@ -1,7 +1,6 @@
 package processManager;
 
 import static dataIO.Log.Tier.BULK;
-import static dataIO.Log.Tier.DEBUG;
 import static grid.ArrayType.CONCN;
 import static grid.ArrayType.PRODUCTIONRATE;
 
@@ -16,25 +15,22 @@ import org.w3c.dom.Element;
 
 import agent.Agent;
 import dataIO.Log;
-import dataIO.XmlHandler;
 import dataIO.Log.Tier;
 import grid.SpatialGrid;
-import grid.diffusivitySetter.IsDiffusivitySetter;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
-import instantiable.Instance;
-import instantiable.Instantiable;
 import linearAlgebra.Vector;
 import reaction.Reaction;
 import referenceLibrary.AspectRef;
-import referenceLibrary.XmlRef;
 import shape.CartesianShape;
 import shape.Shape;
 import shape.subvoxel.CoordinateMap;
 import shape.subvoxel.SubvoxelPoint;
 import solver.PDEsolver;
+import solver.PDEupdater;
 import surface.Collision;
 import surface.Surface;
+import utility.Helper;
 
 /**
  * \brief Abstract superclass for process managers solving diffusion-reaction
@@ -73,10 +69,6 @@ public abstract class ProcessDiffusion extends ProcessManager
 	 */
 	protected String[] _soluteNames;
 	/**
-	 * Diffusivity setter for each solute present.
-	 */
-	protected Map<String,IsDiffusivitySetter> _diffusivity= new HashMap<>();
-	/**
 	 * TODO
 	 */
 	public String SOLUTES = AspectRef.soluteNames;
@@ -108,20 +100,6 @@ public abstract class ProcessDiffusion extends ProcessManager
 			AgentContainer agents, String compartmentName)
 	{
 		super.init(xmlElem, environment, agents, compartmentName);
-		
-		/*
-		 * Now look for diffusivity setters.
-		 */
-		Collection<Element> diffusivityElements =
-				XmlHandler.getElements(xmlElem, XmlRef.diffusivitySetter);
-		for ( Element dElem : diffusivityElements )
-		{
-			String soluteName = dElem.getAttribute(XmlRef.solute);
-			String className = dElem.getAttribute(XmlRef.classAttribute);
-			IsDiffusivitySetter diffusivity = (IsDiffusivitySetter)
-					Instance.getNew(dElem, this, className);
-			this._diffusivity.put(soluteName, diffusivity);
-		}
 	}
 	
 	/* ***********************************************************************
@@ -131,6 +109,19 @@ public abstract class ProcessDiffusion extends ProcessManager
 	@Override
 	protected void internalStep()
 	{
+		
+
+		/* gets specific solutes from process manager aspect registry if they
+		 * are defined, if not, solve for all solutes.
+		 */
+		this._soluteNames = (String[]) this.getOr(SOLUTES, 
+				Helper.collectionToArray(this._environment.getSoluteNames()));
+
+		/* NOTE we want to include solutes that have been added by the user
+		 * after the protocol was loaded.
+		 */
+		this._solver.init(this._soluteNames, false);
+		this._solver.setUpdater(this.standardUpdater());		
 		/*
 		 * Set up the agent mass distribution maps, to ensure that agent
 		 * reactions are spread over voxels appropriately.
@@ -154,8 +145,7 @@ public abstract class ProcessDiffusion extends ProcessManager
 		for ( String soluteName : this._soluteNames )
 		{
 			SpatialGrid solute = this._environment.getSoluteGrid(soluteName);
-			IsDiffusivitySetter setter = this._diffusivity.get(soluteName);
-			setter.updateDiffusivity(solute, this._environment, this._agents);
+			solute.updateDiffusivity(this._environment, this._agents);
 		}
 		/*
 		 * Solve the PDEs of diffusion and reaction.
@@ -168,7 +158,9 @@ public abstract class ProcessDiffusion extends ProcessManager
 		 */
 	}
 	
-	/**
+	 protected abstract PDEupdater standardUpdater();
+	
+	 /*
 	 * perform final clean-up and update agents to represent updated situation.
 	 */
 	protected void postStep()

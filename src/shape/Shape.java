@@ -167,10 +167,6 @@ public abstract class Shape implements
 		/* Set up the dimensions. */
 		Dimension dim;
 		ResolutionCalculator rC;
-		String resCalculatorClass = "UniformResolution";
-		if ( xmlElem.hasAttribute(XmlRef.resCalcClass) )
-			resCalculatorClass = xmlElem.getAttribute(XmlRef.resCalcClass);
-		
 		for ( DimName dimName : this.getDimensionNames() )
 		{
 
@@ -182,9 +178,14 @@ public abstract class Shape implements
 				if ( dim._isSignificant )
 				{
 					dim.instantiate(childElem, this);
-					
+					String[] resCal = new String[] { XmlHandler.gatherAttribute(
+							xmlElem, XmlRef.resCalcClass) };
+						if ( resCal[0] == null )	
+							resCal = new String[] { 
+									UniformResolution.class.getSimpleName() };
 					/* Initialise resolution calculators */
-					rC = (ResolutionCalculator) Instance.getNew(resCalculatorClass);
+					rC = (ResolutionCalculator) Instance.getNew(xmlElem, this, 
+							resCal );
 					rC.setDimension(dim);
 					rC.setResolution(dim._targetRes);
 					this.setDimensionResolution(dimName, rC);	
@@ -225,12 +226,6 @@ public abstract class Shape implements
 		this.setSurfaces();
 	}
 	
-	@Override
-	public String getXml()
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
 	
 	/* ***********************************************************************
 	 * BASIC SETTERS & GETTERS

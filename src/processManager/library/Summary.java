@@ -6,9 +6,11 @@ package processManager.library;
 import org.w3c.dom.Element;
 
 import analysis.FilteredTable;
+import dataIO.CsvExport;
 import dataIO.Log;
 import dataIO.Log.Tier;
 import referenceLibrary.AspectRef;
+import utility.Helper;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
 import processManager.ProcessManager;
@@ -25,10 +27,19 @@ public class Summary extends ProcessManager
 	 */
 	public static String TABLE_SPEC = AspectRef.tableSpecification;
 	
+	public static String FILE_NAME = AspectRef.fileName;
+	
 	/**
 	 * The Filtered table
 	 */
 	protected FilteredTable table;
+	
+	/**
+	 * csv out
+	 */
+	protected String csvOut;
+	
+	protected CsvExport _csv;
 
 	/* ***********************************************************************
 	 * CONSTRUCTORS
@@ -41,6 +52,15 @@ public class Summary extends ProcessManager
 		super.init(xmlElem, environment, agents, compartmentName);
 		/* Create new filtered table from table logic expression */
 		this.table = new FilteredTable( this.getString(TABLE_SPEC) );
+		
+		this.csvOut = this.getString(FILE_NAME);
+		
+		if (! Helper.isNullOrEmpty( this.csvOut ))
+		{
+			this._csv = new CsvExport();
+			_csv.createCustomFile( this.csvOut );
+		}
+			
 	}
 
 	
@@ -52,8 +72,13 @@ public class Summary extends ProcessManager
 	protected void internalStep()
 	{
 		/* output table summary to log/console */
-		Log.out(Tier.NORMAL, "Summary for table:\n"
-				+ "[" + table.toString() + "]\n|" + 
-				table.summary().replaceAll("\\n+","\n|") );
+		Log.out(Tier.NORMAL, table.summary() );
+		
+		if (! Helper.isNullOrEmpty( this.csvOut ))
+		{
+			_csv.writeLine( table.line(", ") );
+		}
 	}
+	
+	
 }

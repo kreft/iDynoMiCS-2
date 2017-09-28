@@ -150,10 +150,10 @@
 			</shape>
 			<solutes>
 				<!-- pg / µm2 -->
-				<solute name="ammonium" concentration="1.0e-5" />
-				<solute name="oxygen" 	concentration="5.0e-7" />
-				<solute name="nitrite" 	concentration="6e-8" />
-				<solute name="nitrate" 	concentration="0.0" />
+				<solute name="ammonium" concentration="1.0e-5" defaultDiffusivity="138888.889" biofilmDiffusivity="111111.111" />
+				<solute name="oxygen" 	concentration="5.0e-7" defaultDiffusivity="138888.889" biofilmDiffusivity="111111.111" />
+				<solute name="nitrite" 	concentration="6e-8" defaultDiffusivity="138888.889" biofilmDiffusivity="111111.111" />
+				<solute name="nitrate" 	concentration="0.0" defaultDiffusivity="138888.889" biofilmDiffusivity="111111.111" />
 			</solutes>
 			<reactions>
 			</reactions>
@@ -198,10 +198,6 @@
 					<!-- In principle they are not all the same but all in the 
 					same order of magnitude ~ 2.0e-4 m2.day-1 values here in 
 					µm^2/ minute-->
-					<diffusivitySetter solute="ammonium" 	class="ScaledIfBiomassPresent" defaultDiffusivity="138888.889" biofilmDiffusivity="111111.111" />
-					<diffusivitySetter solute="nitrite" 	class="ScaledIfBiomassPresent" defaultDiffusivity="138888.889" biofilmDiffusivity="111111.111" />
-					<diffusivitySetter solute="nitrate" 	class="ScaledIfBiomassPresent" defaultDiffusivity="138888.889" biofilmDiffusivity="111111.111" />
-					<diffusivitySetter solute="oxygen" 		class="ScaledIfBiomassPresent" defaultDiffusivity="138888.889" biofilmDiffusivity="111111.111" />
 				</process>
 				<process name="svgWriter" class="GraphicalOutput"  priority="-3"
 					firstStep="0.0"  timerStepSize="30.0">

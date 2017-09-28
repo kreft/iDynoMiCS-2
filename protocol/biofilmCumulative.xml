@@ -92,7 +92,7 @@
 				<dimension name="Y" isCyclic="false" targetResolution="1.0" max="35.0"/>
 			</shape>
 			<solutes>
-				<solute name="solute1" concentration="0.2" />
+				<solute name="solute1" concentration="0.2"  defaultDiffusivity="0.01" biofilmDiffusivity="0.08"/>
 			</solutes>
 			<reactions>
 			</reactions>
@@ -133,7 +133,6 @@
 				<process name="solveDiffusionTransient" class="SolveDiffusionTransient" priority="-1"
 					firstStep="0.0"  timerStepSize="0.1">	
 					<aspect name="soluteNames" type="PRIMARY" class="String[]" value="solute1" /> 
-					<diffusivitySetter solute="solute1" class="ScaledIfBiomassPresent" defaultDiffusivity="0.1" biofilmDiffusivity="0.08" />
 				</process>
 			</processManagers>
 		</compartment>
