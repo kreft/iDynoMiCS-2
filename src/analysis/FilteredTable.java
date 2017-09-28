@@ -228,4 +228,22 @@ public class FilteredTable {
 	{
 		return this._logic;
 	}
+
+	public String header(String delimiter) {
+		String out = "";
+		for (int i = 0; i < columns.size(); i++)
+		{
+			if ( columns.get(i) instanceof SoluteFilter )
+			{
+				out += columns.get(i).header()
+						+ (i < columns.size()-1 ? delimiter : "" );
+			}
+			else
+			{				
+				out += columns.get(i).header()
+						+ (i < columns.size()-1 ? delimiter : "" );
+			}
+		}
+		return out;
+	}
 }

@@ -29,6 +29,9 @@ public class Summary extends ProcessManager
 	
 	public static String FILE_NAME = AspectRef.fileName;
 	
+	private static String INCLUDE_HEADER = AspectRef.includeHeader;
+
+	
 	/**
 	 * The Filtered table
 	 */
@@ -60,6 +63,13 @@ public class Summary extends ProcessManager
 			this._csv = new CsvExport();
 			_csv.createCustomFile( this.csvOut );
 		}
+		
+		Boolean includeHeader = this.getBoolean( INCLUDE_HEADER );
+		
+		Helper.setIfNone(includeHeader, false);
+		
+		if(includeHeader)
+			_csv.writeLine( table.header(", ") );
 			
 	}
 
