@@ -360,23 +360,6 @@ public class ClassRef
 	public final static String speciesLibrary =
 			agent.SpeciesLib.class.getName();
 	
-	
-	/* ************************************************************************
-	 * Diffusivity setters
-	 */
-	
-	/**
-	 * TODO
-	 */
-	public final static String allSameDiffuse =
-			grid.diffusivitySetter.AllSameDiffuse.class.getName();
-	
-	/**
-	 * TODO
-	 */
-	public final static String scaledIfBiomassPresent =
-			grid.diffusivitySetter.ScaledIfBiomassPresent.class.getName();
-	
 	/* ************************************************************************
 	 * Boundaries (non-spatial)
 	 */
@@ -546,4 +529,10 @@ public class ClassRef
 	 */
 	public final static String string =
 			String.class.getName();
+			
+	/**		
+	* String		
+	*/		
+	public final static String doub =		
+				Double.class.getName();
 }
