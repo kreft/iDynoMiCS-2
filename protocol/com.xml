@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document>
 	<simulation log="NORMAL" outputfolder="../results" name="Comammox_case">
-	<timer stepSize="60.0" endOfSimulation="10000.0" />
+	<timer stepSize="60.0" endOfSimulation="10000.0" /> <!-- 1 week -->
 		<general>
 			<param name="timeStepSize" value="1.0"/>
 			<param name="endOfSimulation" value="60.0"/>
@@ -91,13 +91,20 @@
 			</species>
 		</speciesLib>
 		<compartment name="chemostat">
-			<shape class="Dimensionless" volume="1e18" />
+			<shape class="Dimensionless" volume="1e18"> <!-- 1 cubic meter -->
+				<boundary  class="constantConcentrationToChemostat" volumeFlowRate="1.0E15"> <!-- 0.6 liter / hour -->
+					<solute name="ammonium" concentration="1.00E-04"  />
+					<solute name="oxygen" 	concentration="8.74E-03"  />
+					<solute name="nitrite" 	concentration="5.00E-06"  />
+					<solute name="nitrate" 	concentration="1.00E-05"  />
+				</boundary>
+			</shape>
 			<solutes>
 				<!-- pg / µm3 -->
-				<solute name="ammonium" concentration="1.00E-03" defaultDiffusivity="1"  />
+				<solute name="ammonium" concentration="1.00E-05" defaultDiffusivity="1"  />
 				<solute name="oxygen" 	concentration="8.74E-03" defaultDiffusivity="1"  />
 				<solute name="nitrite" 	concentration="5.00E-06" defaultDiffusivity="1"  />
-				<solute name="nitrate" 	concentration="1.00E-03"  defaultDiffusivity="1"  />
+				<solute name="nitrate" 	concentration="1.00E-05"  defaultDiffusivity="1"  />
 			</solutes>
 			<reactions>
 			</reactions>

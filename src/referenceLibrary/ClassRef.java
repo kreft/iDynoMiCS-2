@@ -373,8 +373,8 @@ public class ClassRef
 	public final static String chemostatToMembrane =
 			boundary.library.ChemostatToMembrane.class.getName();
 	
-	public final static String dummyToChemostat =
-			boundary.library.DummyToChemostat.class.getName();
+	public final static String constantConcentrationToChemostat =
+			boundary.library.ConstantConcentrationToChemostat.class.getName();
 	
 	public final static String gasToMembrane =
 			boundary.library.GasToMembrane.class.getName();
