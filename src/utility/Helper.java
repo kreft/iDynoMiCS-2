@@ -451,7 +451,7 @@ public class Helper
 		return new Color( color[0], color[1], color[2] );
 	}
 	
-	public static Compartment selectCompartment()
+	public static Compartment selectSpatialCompartment()
 	{
 		/* identify the spatial compartments */
 		List<String> compartments = 
@@ -472,6 +472,29 @@ public class Helper
 		}
 		return c;
 	}
+	
+	public static Compartment selectCompartment()
+	{
+		/* identify the spatial compartments */
+		List<String> compartments = 
+				Idynomics.simulator.getCompartmentNames();
+		Compartment c = null;
+		if ( compartments.isEmpty() )
+			/* abort if no compartment is available */
+			Log.printToScreen("No compartments available.", false);
+		else if ( compartments.size() == 1 )
+			/* render directly if only 1 compartment is available */
+			c = Idynomics.simulator.getCompartment(compartments.get(0));
+		else
+		{
+			/* otherwise ask for user input */
+			String s = Helper.obtainInput(compartments, 
+					"select compartment for rendering", false);
+			c = Idynomics.simulator.getCompartment(s);
+		}
+		return c;
+	}
+	
 	
 	public static String removeWhitespace(String input)
 	{

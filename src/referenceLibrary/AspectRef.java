@@ -440,4 +440,9 @@ public class AspectRef
 	 */
 	public static final String fileName = "fileName";
 
+	/**
+	 * Include header in csv out.
+	 */
+	public static final String includeHeader = "includeHeader";
+
 }

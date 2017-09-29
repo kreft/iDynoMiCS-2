@@ -59,6 +59,7 @@ public final class ShapeLibrary
 		@Override
 		public void instantiate(Element xmlElem, Settable parent)
 		{
+			super.instantiate(xmlElem, parent);
 			// TODO read in as a Double
 			String str = XmlHandler.obtainAttribute(
 						xmlElem, XmlRef.volume, this.defaultXmlTag());

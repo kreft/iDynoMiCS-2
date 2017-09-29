@@ -359,7 +359,7 @@ public class ClassRef
 	 */
 	public final static String speciesLibrary =
 			agent.SpeciesLib.class.getName();
-		
+	
 	/* ************************************************************************
 	 * Boundaries (non-spatial)
 	 */
@@ -373,8 +373,8 @@ public class ClassRef
 	public final static String chemostatToMembrane =
 			boundary.library.ChemostatToMembrane.class.getName();
 	
-	public final static String dummyToChemostat =
-			boundary.library.DummyToChemostat.class.getName();
+	public final static String constantConcentrationToChemostat =
+			boundary.library.ConstantConcentrationToChemostat.class.getName();
 	
 	public final static String gasToMembrane =
 			boundary.library.GasToMembrane.class.getName();
@@ -529,10 +529,10 @@ public class ClassRef
 	 */
 	public final static String string =
 			String.class.getName();
-	
-	/**
-	 * String
-	 */
-	public final static String doub =
-			Double.class.getName();
+			
+	/**		
+	* String		
+	*/		
+	public final static String doub =		
+				Double.class.getName();
 }

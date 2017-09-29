@@ -493,4 +493,9 @@ public class XmlRef
 	 */
 	public static final String volume = "volume";
 
+	/**
+	 * chemostat volume flowrate
+	 */
+	public static final String volumeFlowRate = "volumeFlowRate";
+
 }
