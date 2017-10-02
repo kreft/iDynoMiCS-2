@@ -9,7 +9,6 @@ import aspect.calculated.StateExpression;
 import dataIO.Log;
 import dataIO.ObjectFactory;
 import dataIO.Log.Tier;
-import idynomics.Idynomics;
 import instantiable.Instance;
 import instantiable.Instantiable;
 import referenceLibrary.ClassRef;

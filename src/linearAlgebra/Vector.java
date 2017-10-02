@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Set;
 
 import utility.ExtraMath;
+import utility.Helper;
 
 /**
  * \brief Library of useful vector functions.
@@ -50,7 +51,7 @@ public final class Vector
 	 * matrix or array cannot be defined.
 	 */
 	public final static double UNDEFINED_AVERAGE = Double.NaN;
-	
+
 	/*************************************************************************
 	 * STANDARD NEW VECTORS
 	 ************************************************************************/
@@ -215,6 +216,7 @@ public final class Vector
 	 */
 	public static int[] intFromString(String vectorString)
 	{
+		vectorString = Helper.removeWhitespace(vectorString);
 		String[] fields = vectorString.split(DELIMITER);
 		int[] vector = new int[fields.length];
 		for ( int i = 0; i < fields.length; i++ )		
@@ -231,6 +233,7 @@ public final class Vector
 	 */
 	public static double[] dblFromString(String vectorString)
 	{
+		vectorString = Helper.removeWhitespace(vectorString);
 		String[] fields = vectorString.split(DELIMITER);
 		double[] vector = new double[fields.length];
 		for ( int i = 0; i < fields.length; i++ )		
@@ -309,6 +312,11 @@ public final class Vector
 	/**
 	 * \brief Copy the values of <b>source</b> into <b>destination</b>.
 	 * 
+	 * NOTE: If source.length > destination.length tailing values are omitted in
+	 * destination. If destination.length > source.length tailing values of 
+	 * original destination will be maintained. If this behavior is unwanted use
+	 * java default destination = source.clone();
+	 * 
 	 * @param destination int[] to be overwritten with the values of
 	 * <b>source</b>.
 	 * @param source int[] to be copied from (preserved).
@@ -324,6 +332,11 @@ public final class Vector
 	
 	/**
 	 * \brief Copy the values of <b>source</b> into <b>destination</b>.
+	 * 
+	 * NOTE: If source.length > destination.length tailing values are omitted in
+	 * destination. If destination.length > source.length tailing values of 
+	 * original destination will be maintained. If this behavior is unwanted use
+	 * java default destination = source.clone();
 	 * 
 	 * @param destination double[] to be overwritten with the values of
 	 * <b>source</b>.
@@ -390,6 +403,11 @@ public final class Vector
 	
 	/**
 	 * \brief Copy the values of <b>source</b> into <b>destination</b>.
+	 * 
+	 * NOTE: If source.length > destination.length tailing values are omitted in
+	 * destination. If destination.length > source.length tailing values of 
+	 * original destination will be maintained. If this behavior is unwanted use
+	 * java default destination = source.clone();
 	 * 
 	 * @param destination boolean[] to be overwritten with the values of
 	 * <b>source</b>.
@@ -3244,5 +3262,40 @@ public final class Vector
 	public static void uncylindrifyEquals(double[] vector)
 	{
 		uncylindrifyTo(vector, vector);
+	}
+	
+	/**
+	 * \brief Find the outer-product of two vectors, <b>a</b>
+	 * and <b>b</b>, and write the result into <b>destination</b>.
+	 * 
+	 * @param destination  Two-dimensional array of doubles to be overwritten
+	 * with <b>a</b> ⓧ <b>b</b> with number of rows equal to length of <b>a</b> 
+	 * and number of columns equal to length of <b>b</b>.
+	 * @param a One-dimensional array of doubles (preserved).
+	 * @param b One-dimensional array of doubles (preserved).
+	 */
+	public static void outerProductTo(double[][] destination, double[] a,
+																double[] b)
+	{
+		for ( int i = 0; i < a.length; i++ ) {
+			for (int j = 0; j < b.length; j++) {
+				destination[i][j] = a[i]*b[j];
+			}
+		}
+	}
+	
+	/**
+	 * \brief Find the outer-product of two vectors, <b>a</b>
+	 * and <b>b</b>, and write the result into a new vector.
+	 * 
+	 * @param a One-dimensional array of doubles (preserved).
+	 * @param b One-dimensional array of doubles (preserved).
+	 * @return new double[a.length][b.length] with the outer-product <b>a</b> ⓧ <b>b</b>.
+	 */
+	public static double[][] outerProduct(double[] a, double[] b)
+	{
+		double[][] out = new double[a.length][b.length];
+		outerProductTo(out, a, b);
+		return out;
 	}
 }

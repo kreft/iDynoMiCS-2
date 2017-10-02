@@ -104,8 +104,6 @@ public class Render implements GLEventListener, Runnable {
 	 */
 	private float _tilt = 0.005f, _zoom = 0.0f, _angle = 0.5f*(float) Math.PI;
 	private float _x = 0f, _y = 0f /* , z = 0f */;
-	private float[] _up = new float[3];
-	private float[] _center = new float[3];
 
 	
 	/* 

@@ -2,6 +2,7 @@ package surface;
 
 import java.util.HashMap;
 import generalInterfaces.HasBoundingBox;
+import shape.Shape;
 
 /**
  * \brief TODO
@@ -20,7 +21,8 @@ public abstract class Surface
 		SPHERE,
 		ROD,
 		PLANE,
-		// INFINITECYLINDER
+		VOXEL,
+		// CYLINDER NOTE for cylindrical domains
 	}
 	
 	/**
@@ -35,10 +37,12 @@ public abstract class Surface
 	protected Collision _collisionDomain;
 
 	/**
-	 * Map of surfaces with which collisions need to be ignored.
+	 * Map of surfaces with which collisions need to be ignored. Neighboring
+	 * surfaces in the same body (like a bendable rod) would need to be ignored
+	 * since otherwise the intentionally overlapping segments would repel each
+	 * other.
 	 */
 	// TODO implement
-	// TODO Rob [17/5/2016]: Please give some explanation of the purpose.
 	public HashMap<Integer, Surface> _collisionIgnored = new HashMap<Integer, Surface>();
 
 	/**
@@ -58,14 +62,6 @@ public abstract class Surface
 	}
 	
 	public abstract int dimensions();
-
-	/**
-	 * 
-	 * @param a
-	 * @param b
-	 */
-	// FIXME Rob [17/5/2016]: This is a very vague method, consider replacing.
-	public abstract void set(double a, double b);
 
 	/**
 	 * @return the surface type
@@ -110,10 +106,10 @@ public abstract class Surface
 	 * @param margin
 	 * @return
 	 */
-	public BoundingBox getBox(double margin)
+	public BoundingBox getBox(double margin, Shape shape)
 	{
 		if (this instanceof HasBoundingBox)
-			return ((HasBoundingBox) this).boundingBox(margin) ;
+			return ((HasBoundingBox) this).boundingBox(margin, shape) ;
 		return null;
 	}
 }

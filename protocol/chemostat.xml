@@ -9,8 +9,8 @@
 		<compartment name="chemostat">
 			<shape class="Dimensionless" volume="1.0" />
 			<solutes>
-				<solute name="solute1" concentration="2.0" />
-				<solute name="solute2" concentration="2.0" />
+				<solute name="solute1" concentration="2.0" defaultDiffusivity="1"  />
+				<solute name="solute2" concentration="2.0" defaultDiffusivity="1"  />
 			</solutes>
 			<reactions>
 				<reaction name="testReact">

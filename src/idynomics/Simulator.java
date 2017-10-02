@@ -13,6 +13,7 @@ import dataIO.Log;
 import dataIO.XmlExport;
 import dataIO.XmlHandler;
 import dataIO.Log.Tier;
+import dataIO.Report;
 import generalInterfaces.CanPrelaunchCheck;
 import instantiable.Instance;
 import instantiable.Instantiable;
@@ -98,7 +99,7 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 	public long seed()
 	{
 		long currentSeed = ExtraMath.random.nextLong();
-		ExtraMath.intialiseRandomNumberGenerator(currentSeed);
+		ExtraMath.initialiseRandomNumberGenerator(currentSeed);
 		return currentSeed;
 	}
 	
@@ -108,7 +109,7 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 	 */
 	public void seed(long seed)
 	{
-		ExtraMath.intialiseRandomNumberGenerator(seed);
+		ExtraMath.initialiseRandomNumberGenerator(seed);
 	}
 	
 	public void instantiate(Element xmlElem, Settable parent)
@@ -119,7 +120,7 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 		 */
 		String seed =XmlHandler.gatherAttribute(xmlElem, XmlRef.seed);
 		if (seed != "" && seed != null)
-			ExtraMath.intialiseRandomNumberGenerator(Long.valueOf(seed));
+			ExtraMath.initialiseRandomNumberGenerator(Long.valueOf(seed));
 		
 		/*
 		 * Set up the Timer.
@@ -340,6 +341,14 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 		 */
 		this.printAll();
 		/*
+		 * Run report file.
+		 */
+		Report report = new Report();
+		report.createCustomFile("report");
+		report.writeReport();
+		report.closeFile();
+		
+		/*
 		 * Report simulation time.
 		 */
 		tic = (System.currentTimeMillis() - tic) * 0.001;
@@ -431,7 +440,8 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 		Module modelNode = new Module(XmlRef.simulation, this);
 		modelNode.setRequirements(Requirements.EXACTLY_ONE);
 		
-		Param.init();
+		/* required if we start without a protocol file */
+		Settings.updateSettings();
 		if(! Log.isSet())
 			Log.set(Tier.NORMAL);
 		

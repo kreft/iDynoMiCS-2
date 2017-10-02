@@ -1,8 +1,10 @@
 package gui;
 
+
 import javax.swing.JComponent;
 import javax.swing.JTabbedPane;
 
+import idynomics.GuiLaunch;
 import idynomics.Idynomics;
 
 
@@ -22,10 +24,13 @@ public class GuiMain
 	{
 		return (JComponent) GuiComponent.setPane(tabbedPane);
 	}
-	
+		
 	public static void update()
 	{
-		GuiMain.getConstructor();
+		if (GuiLaunch.classicGui())
+		{
+			GuiMain.getConstructor();
+		}
 		GuiEditor.addComponent(Idynomics.simulator.getModule(), 
 				GuiMain.tabbedPane);
 	}

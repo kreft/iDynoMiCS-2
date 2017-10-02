@@ -10,14 +10,14 @@ import dataIO.Log.Tier;
 public interface Settable
 {
 	/**
-	 * Get the ModelNode object for this NodeConstructor object
+	 * Get the Module for this Settable object
 	 * @return
 	 */
 	public Module getModule();
 	
 	/**
-	 * \brief Load and interpret the values of the given ModelNode to this 
-	 * NodeConstructor object.
+	 * \brief Load and interpret the values of the given Module to this 
+	 * Settable object.
 	 * 
 	 * <p>Updates any values that are newly set or modified.</p>
 	 * 

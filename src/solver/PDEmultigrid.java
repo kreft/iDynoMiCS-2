@@ -521,6 +521,7 @@ public class PDEmultigrid extends PDEsolver
 		double prod, concn, diffusivity, vol, rhs;
 		double nhbDist, nhbSArea, nhbDiffusivity, nhbWeight, nhbConcn, bndryFlow;
 		double lop, totalNhbWeight, residual;
+		@SuppressWarnings("unused")
 		int[] current, nhb;
 		for ( current = shape.resetIterator(); shape.isIteratorValid();
 				current = shape.iteratorNext() )
@@ -632,9 +633,11 @@ public class PDEmultigrid extends PDEsolver
 		Shape shape = variable.getShape();
 		double diffusiveFlow, rateFromReactions, residual;
 		
+		@SuppressWarnings("unused")
 		double prod, concn, diffusivity, vol, rhs;
 		double nhbDist, nhbSArea, nhbDiffusivity, nhbWeight, nhbConcn, bndryFlow;
 		double lop;
+		@SuppressWarnings("unused")
 		int[] current, nhb;
 		
 		for ( current = shape.resetIterator(); shape.isIteratorValid();

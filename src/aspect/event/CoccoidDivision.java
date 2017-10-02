@@ -71,6 +71,11 @@ public class CoccoidDivision extends Event
 	 * this event, in case agents have grown a lot between time steps.
 	 */
 	public String DIVIDE = AspectRef.agentDivide;
+	/**
+	 * Name of the plasmid loss event that should be called for the daughter
+	 * agent, if specified in the agent definition.
+	 */
+	public String PLASMID_LOSS = AspectRef.agentPlasmidLoss;
 
 	
 	@Override
@@ -123,6 +128,9 @@ public class CoccoidDivision extends Event
 
 		mother.event(UPDATE_BODY);
 		daughter.event(UPDATE_BODY);
+		/* Call the plasmid loss event */
+		if (daughter.isAspect(PLASMID_LOSS))
+			daughter.event(PLASMID_LOSS);
 		/* Check if either agent should divide again. */
 		mother.event(DIVIDE);
 		daughter.event(DIVIDE);
@@ -249,8 +257,7 @@ public class CoccoidDivision extends Event
 		Body momBody = (Body) mother.get(BODY);
 		Body daughterBody = (Body) daughter.get(BODY);
 		
-		// TODO Joints state will be removed
-		double[] originalPos = momBody.getJoints().get(0);
+		double[] originalPos = momBody.getPosition(0);
 		double[] shift = Vector.randomPlusMinus(originalPos.length, 
 				0.5*mother.getDouble(RADIUS));
 		

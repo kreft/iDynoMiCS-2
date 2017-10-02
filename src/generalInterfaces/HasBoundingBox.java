@@ -1,5 +1,6 @@
 package generalInterfaces;
 
+import shape.Shape;
 import surface.BoundingBox;
 
 /**
@@ -14,7 +15,7 @@ public interface HasBoundingBox
 	 * 
 	 * @return
 	 */
-	public BoundingBox boundingBox();
+	public BoundingBox boundingBox(Shape shape);
 	
 	/**
 	 * \brief TODO
@@ -22,5 +23,5 @@ public interface HasBoundingBox
 	 * @param margin
 	 * @return
 	 */
-	public BoundingBox boundingBox(double margin);
+	public BoundingBox boundingBox(double margin, Shape shape);
 }

@@ -14,6 +14,8 @@ import javax.swing.JRadioButtonMenuItem;
 import javax.swing.KeyStroke;
 
 import analysis.FilteredTable;
+import analysis.quantitative.Raster;
+import dataIO.Diagram;
 import dataIO.DrawMediator;
 import dataIO.Log;
 import dataIO.Log.Tier;
@@ -127,6 +129,31 @@ public final class GuiMenu
 				"Draw to file");
 		menu.add(menuItem);
 		/*
+		 * Draw raster
+		 */
+		menuItem = new JMenuItem(new GuiMenu.StructureAnalysis());
+		menuItem.getAccessibleContext().setAccessibleDescription(
+				"Draw raster to file");
+		menu.add(menuItem);
+		/*
+		 * Draw species diagram
+		 */
+		menuItem = new JMenuItem(new GuiMenu.SpeciesDiagram());
+		menuItem.setAccelerator(KeyStroke.getKeyStroke(
+				KeyEvent.VK_D, ActionEvent.CTRL_MASK));
+		menuItem.getAccessibleContext().setAccessibleDescription(
+				"Request agent information");
+		menu.add(menuItem);
+		/*
+		 * Draw reaction diagram
+		 */
+		menuItem = new JMenuItem(new ReactionDiagram());
+		menuItem.setAccelerator(KeyStroke.getKeyStroke(
+				KeyEvent.VK_D, ActionEvent.CTRL_MASK));
+		menuItem.getAccessibleContext().setAccessibleDescription(
+				"Request agent information");
+		menu.add(menuItem);
+		/*
 		 * Query some agents
 		 */
 		menuItem = new JMenuItem(new GuiMenu.Query());
@@ -211,6 +238,62 @@ public final class GuiMenu
 	    }
 	}
 	
+	public static class SpeciesDiagram extends AbstractAction
+	{
+
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 3011117385035501302L;
+
+		public SpeciesDiagram()
+		{
+	        super("Species Diagram");
+		}
+	
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			if (Helper.compartmentAvailable())
+			{
+				String fileName = "speciesDiagram";
+				Diagram diag = new Diagram();
+				diag.createCustomFile(fileName);
+				diag.speciesDiagram();
+				diag.closeFile();
+				Log.printToScreen("species diagram created.", false);
+			}
+		}
+		
+	}
+	
+	public static class ReactionDiagram extends AbstractAction
+	{
+
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 3011117385035501302L;
+
+		public ReactionDiagram()
+		{
+	        super("Reaction Diagram");
+		}
+	
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			if (Helper.compartmentAvailable())
+			{
+				String fileName = "reactionDiagram";
+				Diagram diag = new Diagram();
+				diag.createCustomFile(fileName);
+				diag.reactionDiagram( Helper.selectCompartment() );
+				diag.closeFile();
+				Log.printToScreen("reaction diagram created.", false);
+			}
+		}
+		
+	}
+	
 	public static class Query extends AbstractAction
 	{
 
@@ -258,6 +341,33 @@ public final class GuiMenu
 				table = table.replaceAll("\\s+","");
 				FilteredTable tab = new FilteredTable(table);
 				tab.toFile();
+			}
+		}
+		
+	}
+	
+	public static class StructureAnalysis extends AbstractAction
+	{
+
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 3011117385035501302L;
+
+		public StructureAnalysis()
+		{
+	        super("StructureAnalysis");
+		}
+	
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			if (Helper.compartmentAvailable())
+			{
+				Raster raster = new Raster( Helper.selectSpatialCompartment() );
+				raster.rasterize (Double.valueOf( 
+						Helper.obtainInput( null, "Raster scale" ) ) );
+				raster.plot(raster.agentMap(), 1.0, 
+						Helper.obtainInput( null, "filename") );
 			}
 		}
 		

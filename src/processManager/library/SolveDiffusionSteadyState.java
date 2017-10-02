@@ -11,21 +11,18 @@ import java.util.Map;
 import org.w3c.dom.Element;
 
 import agent.Agent;
-import dataIO.Log;
 import dataIO.ObjectFactory;
-import dataIO.Log.Tier;
 import grid.SpatialGrid;
-import grid.diffusivitySetter.AllSameDiffuse;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
 import processManager.ProcessDiffusion;
+import processManager.ProcessMethods;
 import reaction.Reaction;
 import referenceLibrary.XmlRef;
 import shape.Shape;
 import shape.subvoxel.CoordinateMap;
 import solver.PDEmultigrid;
 import solver.PDEupdater;
-import utility.Helper;
 
 /**
  * \brief Simulate the diffusion of solutes and their production/consumption by
@@ -51,32 +48,9 @@ public class SolveDiffusionSteadyState extends ProcessDiffusion
 	{
 		super.init(xmlElem, environment, agents, compartmentName);
 
-		// TODO Do you need to get anything else from xml?
-
-		/* gets specific solutes from process manager aspect registry if they
-		 * are defined, if not, solve for all solutes.
-		 */
-		this._soluteNames = (String[]) this.getOr(SOLUTES, 
-				Helper.collectionToArray(this._environment.getSoluteNames()));
-
 		// TODO Let the user choose which ODEsolver to use.
 		this._solver = new PDEmultigrid();
-		this._solver.init(this._soluteNames, false);
-		this._solver.setUpdater(this.standardUpdater());
-		
-		/* Plug any gaps (FIXME temporary measure). */
-		for ( String sName : this._soluteNames )
-			if ( ! this._diffusivity.containsKey(sName) )
-			{
-				Log.out(Tier.CRITICAL, 
-						"WARNING: Using default diffusivity for solute "+sName);
-				this._diffusivity.put(sName, new AllSameDiffuse(1.0));
-			}
-		
-		String msg = "SolveDiffusionSteadyState responsible for solutes: ";
-		for ( String s : this._soluteNames )
-			msg += s + ", ";
-		Log.out(Tier.EXPRESSIVE, msg);
+
 	}
 	
 	/* ***********************************************************************
@@ -101,10 +75,10 @@ public class SolveDiffusionSteadyState extends ProcessDiffusion
 		 */
 		for ( Agent agent : this._agents.getAllLocatedAgents() )
 			this.applyAgentGrowth(agent);
-		/*
-		 * Clear agent mass distribution maps.
-		 */
-		this._agents.removeAgentDistibutionMaps();
+
+		/* perform final clean-up and update agents to represent updated 
+		 * situation. */
+		this.postStep();
 	}
 	
 	/* ***********************************************************************
@@ -118,7 +92,7 @@ public class SolveDiffusionSteadyState extends ProcessDiffusion
 	 * 
 	 * @return PDE updater method.
 	 */
-	private PDEupdater standardUpdater()
+	protected PDEupdater standardUpdater()
 	{
 		return new PDEupdater()
 		{
@@ -176,7 +150,7 @@ public class SolveDiffusionSteadyState extends ProcessDiffusion
 		 * Get the agent biomass kinds as a map. Copy it now so that we can
 		 * use this copy to store the changes.
 		 */
-		Map<String,Double> biomass = AgentContainer.getAgentMassMap(agent);
+		Map<String,Double> biomass = ProcessMethods.getAgentMassMap(agent);
 		/*
 		 * Now look at all the voxels this agent covers.
 		 */
@@ -198,7 +172,7 @@ public class SolveDiffusionSteadyState extends ProcessDiffusion
 				 * affect the reaction, and not those that are affected by it.
 				 */
 				concns.clear();
-				for ( String varName : r.getVariableNames() )
+				for ( String varName : r.getConstituentNames() )
 				{
 					solute = FindGrid(variables, varName);
 					if ( solute != null )
@@ -284,7 +258,7 @@ public class SolveDiffusionSteadyState extends ProcessDiffusion
 		 * Get the agent biomass kinds as a map. Copy it now so that we can
 		 * use this copy to store the changes.
 		 */
-		Map<String,Double> biomass = AgentContainer.getAgentMassMap(agent);
+		Map<String,Double> biomass = ProcessMethods.getAgentMassMap(agent);
 		@SuppressWarnings("unchecked")
 		Map<String,Double> newBiomass = (HashMap<String,Double>)
 				ObjectFactory.copy(biomass);
@@ -310,7 +284,7 @@ public class SolveDiffusionSteadyState extends ProcessDiffusion
 				 * affect the reaction, and not those that are affected by it.
 				 */
 				concns.clear();
-				for ( String varName : r.getVariableNames() )
+				for ( String varName : r.getConstituentNames() )
 				{
 					if ( this._environment.isSoluteName(varName) )
 					{
@@ -365,6 +339,6 @@ public class SolveDiffusionSteadyState extends ProcessDiffusion
 				}
 			}
 		}
-		AgentContainer.updateAgentMass(agent, newBiomass);
+		ProcessMethods.updateAgentMass(agent, newBiomass);
 	}
 }

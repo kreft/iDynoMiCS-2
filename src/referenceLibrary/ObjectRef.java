@@ -74,17 +74,29 @@ public final class ObjectRef
 	 * Double array, i.e. a 3-dimensional collection of real numbers.
 	 */
 	public final static String DBL_ARRY = DBL_MATR+"[]";
-	
-	public static final String PILE = "InstantiatableList";
-	
-	public static final String BUNDLE = "InstantiatableMap";
-	
+	/**
+	 * InstantiableList, Instantiable version of java LinkedList
+	 */
+	public static final String INSTANTIABLELIST = "InstantiableList";
+	/**
+	 * InstantiableMap, Instantiable version of java HashMap
+	 */
+	public static final String INSTANTIABLEMAP = "InstantiableMap";
+	/**
+	 * Java LinkedList
+	 */
 	public static final String LINKEDLIST = "LinkedList";
-	
+	/**
+	 * Java HashMap
+	 */
 	public static final String HASHMAP = "HashMap";
-	
+	/**
+	 * iDynoMiCS Reaction Object
+	 */
 	public static final String REACTION = "Reaction";
-	
+	/**
+	 * iDynoMiCS Body Object
+	 */
 	public static final String BODY = "Body";
 	
 }

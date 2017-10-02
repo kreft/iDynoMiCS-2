@@ -18,7 +18,7 @@
 				<aspect name="pigment" type="PRIMARY" class="String" value="RED" />
 				<speciesModule name="coccoid" />
 				<speciesModule name="producer" />
-				<aspect name="reactions" type="PRIMARY"  class="InstantiatableList"> 
+				<aspect name="reactions" type="PRIMARY"  class="InstantiableList"> 
 					<list class="Reaction" nodeLabel="reaction" 
 					entryClass="Reaction" keyClass="String" keyLabel="name">
 						<reaction name="growth">
@@ -86,7 +86,7 @@
 			</shape>
 			<solutes>
 				<!-- pg / µm2 -->
-				<solute name="ammonium" concentration="1.0e-5" />
+				<solute name="ammonium" concentration="1.0e-5" defaultDiffusivity="138888.889" />
 			</solutes>
 			<reactions>
 			</reactions>
@@ -108,7 +108,6 @@
 					<!-- In principle they are not all the same but all in the 
 					same order of magnitude ~ 2.0e-4 m2.day-1 values here in 
 					µm^2/ minute-->
-					<diffusivitySetter solute="ammonium" 	class="AllSameDiffuse" defaultDiffusivity="138888.889" />
 				</process>
 				<process name="svgWriter" class="GraphicalOutput"  priority="-3"
 					firstStep="0.0"  timerStepSize="30.0">

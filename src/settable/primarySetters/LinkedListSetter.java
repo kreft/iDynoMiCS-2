@@ -61,7 +61,7 @@ public class LinkedListSetter<T> implements Settable {
 		else
 		{
 			modelNode.add(new Attribute( this.valueLabel, 
-					String.valueOf(listObject), null, true));
+					ObjectFactory.stringRepresentation(listObject), null,true));
 		}
 		
 		return modelNode;
@@ -73,7 +73,7 @@ public class LinkedListSetter<T> implements Settable {
 		Object  value;
 		if (this.listObject instanceof Settable)
 		{
-			value = node.getAllChildModules().get(0).getMyObject();
+			value = node.getAllChildModules().get(0).getAssociatedObject();
 		}
 		else
 		{

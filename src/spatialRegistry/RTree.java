@@ -30,6 +30,7 @@ import utility.ExtraMath;
  * @author Russ Weeks rweeks@newbrightidea.com
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU.
  */
+@SuppressWarnings("unchecked")
 public class RTree<T> implements SpatialRegistry<T>
 {
 	public enum SeedPicker { LINEAR, QUADRATIC }
@@ -43,7 +44,6 @@ public class RTree<T> implements SpatialRegistry<T>
 	private final SeedPicker seedPicker;
 
 	private Node root;
-	private Node nearest;
 
 	private volatile int size;
 	private Shape _shape;
@@ -160,7 +160,7 @@ public class RTree<T> implements SpatialRegistry<T>
 	 * @return a list of objects whose rectangles overlap with the given
 	 *         rectangle.
 	 */
-	public List<T> search(double[] coords, double[] dimensions)
+	public List<T> localSearch(double[] coords, double[] dimensions)
 	{
 		assert (coords.length == numDims);
 		assert (dimensions.length == numDims);
@@ -211,7 +211,7 @@ public class RTree<T> implements SpatialRegistry<T>
 	 * @return a list of objects whose rectangles overlap with the given
 	 *         rectangle.
 	 */
-	public List<T> cyclicsearch(double[] coords, double[] dimensions)  {
+	public List<T> search(double[] coords, double[] dimensions)  {
 		LinkedList<T> combinedlist = new LinkedList<T>();
 		LinkedList<double[]> boxList = this._shape.getCyclicPoints(coords);
 
@@ -227,32 +227,17 @@ public class RTree<T> implements SpatialRegistry<T>
 	/**
 	 * Cyclic search using bounding box as query
 	 */
-	public List<T> cyclicsearch(BoundingBox boundingBox)
+	public List<T> search(BoundingBox boundingBox)
 	{
-		return cyclicsearch(boundingBox.lowerCorner(), boundingBox.ribLengths());
+		return search(boundingBox.lowerCorner(), boundingBox.ribLengths());
 	}
-
-
-	public List<T> cyclicsearch(List<BoundingBox> boundingBoxes)
+	
+	public List<T> search(List<BoundingBox> boundingBoxes)
 	{
 		List<T> entryList = new LinkedList<T>();
 		for(BoundingBox b : boundingBoxes)
-			entryList.addAll(cyclicsearch(b));
+			entryList.addAll(search(b));
 		return entryList;
-	}
-
-	/**
-	 * helper method that counts the number of fields with value 'true' in an array of booleans.
-	 * 
-	 * @param booleans
-	 * 		  an array of booleans.
-	 * @return An integer that represents the number of fields with value 'true' in booleans.
-	 */
-	private int counttrue(Boolean[] booleans) {
-		int a = 0;
-		for (int j = 0; j < booleans.length; j++)
-			if (booleans[j]) a++;
-		return a;
 	}
 
 	/**
@@ -339,7 +324,6 @@ public class RTree<T> implements SpatialRegistry<T>
 		T removed = null;
 		while (li.hasNext())
 		{
-			@SuppressWarnings("unchecked")
 			Entry e = (Entry) li.next();
 			if (e.entry.equals(entry))
 			{
@@ -376,7 +360,6 @@ public class RTree<T> implements SpatialRegistry<T>
 		T removed = null;
 		while (li.hasNext())
 		{
-			@SuppressWarnings("unchecked")
 			Entry e = (Entry) li.next();
 			if (e.entry.equals(entry))
 			{
@@ -481,7 +464,6 @@ public class RTree<T> implements SpatialRegistry<T>
 		}
 		for (Node ne : q)
 		{
-			@SuppressWarnings("unchecked")
 			Entry e = (Entry) ne;
 			insert(e.coords, e.dimensions, e.entry);
 		}
@@ -584,7 +566,6 @@ public class RTree<T> implements SpatialRegistry<T>
 		// For instance the call at the end of the "while (!cc.isEmpty())" loop
 		// could be modified and inlined because it's only adjusting for the addition
 		// of a single node.  Left as-is for now for readability.
-		@SuppressWarnings("unchecked")
 		Node[] nn = new RTree.Node[]
 				{ n, new Node(n.coords, n.dimensions, n.leaf) };
 		nn[1].parent = n.parent;
@@ -651,7 +632,6 @@ public class RTree<T> implements SpatialRegistry<T>
 	// Implementation of Quadratic PickSeeds
 	private RTree<T>.Node[] qPickSeeds(LinkedList<Node> nn)
 	{
-		@SuppressWarnings("unchecked")
 		RTree<T>.Node[] bestPair = new RTree.Node[2];
 		double maxWaste = -1.0 * Double.MAX_VALUE;
 		for (Node n1: nn)
@@ -710,7 +690,6 @@ public class RTree<T> implements SpatialRegistry<T>
 	// Implementation of LinearPickSeeds
 	private RTree<T>.Node[] lPickSeeds(LinkedList<Node> nn)
 	{
-		@SuppressWarnings("unchecked")
 		RTree<T>.Node[] bestPair = new RTree.Node[2];
 		boolean foundBestPair = false;
 		double bestSep = 0.0;
@@ -931,18 +910,6 @@ public class RTree<T> implements SpatialRegistry<T>
 			this.leaf = leaf;
 			children = new LinkedList<Node>();
 		}
-
-		private double distance(double[] point)
-		{
-			double[] d = new double[point.length];
-			double distsquared = 0.0;
-			for(int i = 0; i<point.length; i++) {
-				d[i] = Math.max(Math.max(coords[i] - point[i], point[i] - coords[i] + dimensions[i]), 0.0);
-				distsquared += d[i]*d[i];
-			}
-			return Math.sqrt(distsquared);
-		}
-
 	}
 
 	private class Entry extends Node

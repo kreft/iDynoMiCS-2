@@ -4,6 +4,14 @@ import java.util.function.Predicate;
 
 import aspect.AspectInterface;
 
+/**
+ * The specification filter obtains a single value from an aspect interface
+ * and tests this value for a given predicate, returns true when the value
+ * passes the predicate, false otherwise.
+ * 
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
+ *
+ */
 public class SpecificationFilter implements Filter 
 {
 	private String header;

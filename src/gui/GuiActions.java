@@ -5,15 +5,12 @@ package gui;
 
 import java.awt.EventQueue;
 import java.io.File;
-import java.util.List;
 
 import javax.swing.JFileChooser;
 
 import dataIO.Log;
-import idynomics.Compartment;
-import idynomics.GuiLaunch;
 import idynomics.Idynomics;
-import idynomics.Param;
+import idynomics.Settings;
 import idynomics.Simulator;
 import render.AgentMediator;
 import render.Render;
@@ -55,8 +52,7 @@ public final class GuiActions
 	public static void openFile(File f) 
 	{
 		Idynomics.simulator = new Simulator();
-		Idynomics.global = new Param();
-		GuiMain.getConstructor();
+		Idynomics.global = new Settings();
     	/* load content if a protocol file has been selected */
     	if ( f == null )
     	{
@@ -68,7 +64,8 @@ public final class GuiActions
     		Idynomics.global.protocolFile = f.getAbsolutePath();
     		GuiConsole.writeOut(Idynomics.global.protocolFile + " \n");
     		checkProtocol();
-    		GuiLaunch.resetProgressBar();
+    		GuiButtons.resetProgressBar();
+    		GuiActions.loadCurrentState();
     	}    		
 	}
 	
@@ -105,7 +102,7 @@ public final class GuiActions
 		else
 		{
 			Idynomics.simulator.setNode();
-			GuiLaunch.resetProgressBar();
+			GuiButtons.resetProgressBar();
 			Idynomics.launchSimulator();
 		}
 	}
@@ -146,25 +143,9 @@ public final class GuiActions
 			Log.printToScreen("No simulator available.", false);
 		else
 		{
-			/* identify the spatial compartments */
-			List<String> compartments = 
-					Idynomics.simulator.getSpatialCompartmentNames();
-			Compartment c = null;
-			if ( compartments.isEmpty() )
-				/* abort if no compartment is available */
-				Log.printToScreen("No spatial compartments available.", false);
-			else if ( compartments.size() == 1 )
-				/* render directly if only 1 compartment is available */
-				c = Idynomics.simulator.getCompartment(compartments.get(0));
-			else
-			{
-				/* otherwise ask for user input */
-				String s = Helper.obtainInput(compartments, 
-						"select compartment for rendering", true);
-				c = Idynomics.simulator.getCompartment(s);
-			}
 			/* create and invoke the renderer */
-			Render myRender = new Render( new AgentMediator(c) );
+			Render myRender = new Render( 
+					new AgentMediator( Helper.selectCompartment() ) );
 			EventQueue.invokeLater(myRender);
 		}
 	}

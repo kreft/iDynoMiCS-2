@@ -236,6 +236,18 @@ public class EnvironmentContainer implements CanPrelaunchCheck, Settable
 	}
 	
 	/**
+	 * \brief Get the local concentration of a solute.
+	 * 
+	 * @param soluteName
+	 * @param location
+	 * @return concentration
+	 */
+	public double getLocalConcentration(String soluteName, double[] location)
+	{
+		return this.getSoluteGrid(soluteName).getValueAt(CONCN, location);
+	}
+	
+	/**
 	 * @return Average concentrations of all solutes in this compartment.
 	 */
 	public Map<String,Double> getAverageConcentrations()
@@ -476,8 +488,7 @@ public class EnvironmentContainer implements CanPrelaunchCheck, Settable
 		/* Add the name attribute. */
 		modelNode.add( this.getSolutesNode() );
 		/* Add the reactions node. */
-		modelNode.add( this._reactions.getModule() );
-//		modelNode.add( this.getReactionNode() );
+		modelNode.add( this.getReactionNode() );
 		return modelNode;	
 	}
 	
@@ -507,21 +518,23 @@ public class EnvironmentContainer implements CanPrelaunchCheck, Settable
 	
 	private Module getReactionNode() 
 	{
-		/* The reactions node. */
-		Module modelNode = new Module(XmlRef.reactions, this);
-		modelNode.setTitle(XmlRef.reactions);
-		modelNode.setRequirements(Requirements.EXACTLY_ONE);
-		/* 
-		 * add solute nodes, yet only if the environment has been initiated, when
-		 * creating a new compartment solutes can be added later 
-		 */
-		for ( Reaction react : this.getReactions() )
-			modelNode.add( react.getModule() );
-		
-		modelNode.addChildSpec( ClassRef.reaction, 
-				null, Module.Requirements.ZERO_TO_MANY );
-		
-		return modelNode;
+		return this._reactions.getModule();
+		//TODO Check whether chicldspec is properly set as before
+//		/* The reactions node. */
+//		Module modelNode = new Module(XmlRef.reactions, this);
+//		modelNode.setTitle(XmlRef.reactions);
+//		modelNode.setRequirements(Requirements.EXACTLY_ONE);
+//		/* 
+//		 * add solute nodes, yet only if the environment has been initiated, when
+//		 * creating a new compartment solutes can be added later 
+//		 */
+//		for ( Reaction react : this.getReactions() )
+//			modelNode.add( react.getModule() );
+//		
+//		modelNode.addChildSpec( ClassRef.reaction, 
+//				null, Module.Requirements.ZERO_TO_MANY );
+//		
+//		return modelNode;
 	}
 	
 	public void setModule(Module node)

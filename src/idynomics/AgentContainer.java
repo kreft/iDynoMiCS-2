@@ -6,10 +6,10 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Predicate;
 
 import agent.Agent;
 import agent.Body;
+import agent.predicate.IsLocated;
 import boundary.Boundary;
 import boundary.SpatialBoundary;
 import dataIO.Log;
@@ -24,12 +24,9 @@ import referenceLibrary.XmlRef;
 import settable.Module;
 import settable.Settable;
 import settable.Module.Requirements;
-import shape.CartesianShape;
 import shape.Dimension;
 import shape.Shape;
 import shape.Dimension.DimName;
-import shape.subvoxel.CoordinateMap;
-import shape.subvoxel.SubvoxelPoint;
 import spatialRegistry.*;
 import spatialRegistry.splitTree.SplitTree;
 import surface.BoundingBox;
@@ -73,42 +70,19 @@ public class AgentContainer implements Settable
 	 * they can be removed from memory.
 	 */
 	protected List<Agent> _agentsToRegisterRemoved = new LinkedList<Agent>();
-	
+
 	/**
-	 * TODO
+	 * Parent node (required for settable interface)
 	 */
 	private Settable _parentNode;
-	/**
-	 * Helper method for filtering local agent lists, so that they only
-	 * include those that have reactions.
-	 */
-	protected final static Predicate<Agent> NO_REAC_FILTER = 
-			(a -> ! a.isAspect(AspectRef.agentReactions));
-	/**
-	 * Helper method for filtering local agent lists, so that they only
-	 * include those that have relevant components of a body.
-	 */
-	protected final static Predicate<Agent> NO_BODY_FILTER = 
-			(a -> (! a.isAspect(AspectRef.surfaceList)) ||
-					( ! a.isAspect(AspectRef.bodyRadius)));
-	/**
-	 * When choosing an appropriate sub-voxel resolution for building agents'
-	 * {@code coordinateMap}s, the smallest agent radius is multiplied by this
-	 * factor to ensure it is fine enough.
-	 */
-	// NOTE the value of a quarter is chosen arbitrarily
-	private static double SUBGRID_FACTOR = 0.25;
-	/**
-	 * Aspect name for the {@code coordinateMap} used for establishing which
-	 * voxels a located {@code Agent} covers.
-	 */
-	private static final String VD_TAG = AspectRef.agentVolumeDistributionMap;
 	
+	/* NOTE removed predicates, use agent.predicate.HasAspect instad.
+
 	/**
 	 * the type of spatial registry ( setting default value but can be 
 	 * overwritten).
 	 */
-	private TreeType _spatialTree = TreeType.RTREE;
+	private TreeType _spatialTreeType = TreeType.RTREE;
 	
 	/* ***********************************************************************
 	 * CONSTRUCTORS
@@ -126,15 +100,37 @@ public class AgentContainer implements Settable
 		this._agentList = new LinkedList<Agent>();
 	}
 
-	public void setSpatialTree(TreeType type) 
+	/**
+	 * \brief set the spatial tree type used for neighborhood searches
+	 * 
+	 * @param type
+	 */
+	public void setSpatialTreeType(TreeType type) 
 	{
-		this._spatialTree = type;
+		this._spatialTreeType = type;
 	}
 	
-	public TreeType getSpatialTree() 
+	/**
+	 * \brief Get the TreeType of the spatial tree used by this AgentContainer
+	 * @return
+	 */
+	public TreeType getSpatialTreeType() 
 	{
-		return this._spatialTree;
+		return this._spatialTreeType;
 	}
+	
+	/**
+	 * testing
+	 * @return
+	 */
+	public SplitTree<Agent> getSpatialTree() 
+	{
+		return (SplitTree<Agent>) this._agentTree;
+	}
+	
+	/**
+	 * TODO get spatial registry paradigm (like get shape)
+	 */
 
 	/**
 	 * Helper method for (re-)making this container's spatial registry.
@@ -142,10 +138,12 @@ public class AgentContainer implements Settable
 	protected void makeAgentTree()
 	{
 		if ( this.getNumDims() == 0 )
+			/* FIXME is this required? nothing should be stored in a tree if the
+			 * compartment is not spatial explicit */
 			this._agentTree = new DummyTree<Agent>();
 		else
 		{
-			switch (_spatialTree)
+			switch (_spatialTreeType)
 			{
 			case RTREE:
 				this._agentTree = new RTree<Agent>(8, 2, this._shape);
@@ -258,7 +256,7 @@ public class AgentContainer implements Settable
 	 */
 	public List<Agent> treeSearch(BoundingBox boundingBox)
 	{
-		return this._agentTree.cyclicsearch(boundingBox);
+		return this._agentTree.search(boundingBox);
 	}
 
 	/**
@@ -271,7 +269,7 @@ public class AgentContainer implements Settable
 	 */
 	public List<Agent> treeSearch(List<BoundingBox> boundingBoxes)
 	{
-		return this._agentTree.cyclicsearch(boundingBoxes);
+		return this._agentTree.search(boundingBoxes);
 	}
 
 	/**
@@ -285,7 +283,7 @@ public class AgentContainer implements Settable
 	 */
 	public List<Agent> treeSearch(double[] location, double[] dimensions)
 	{
-		return this._agentTree.cyclicsearch(location, dimensions);
+		return this._agentTree.search(location, dimensions);
 	}
 
 	/**
@@ -311,17 +309,17 @@ public class AgentContainer implements Settable
 	 * that there may be some false positives (but no false negatives). The
 	 * focal agent is not in this collection.
 	 */
-	public Collection<Agent> treeSearch(Agent anAgent, double searchDist)
+	public List<Agent> treeSearch(Agent anAgent, double searchDist)
 	{
 		// TODO not sure if this is the best response
-		if ( ! isLocated(anAgent) )
+		if ( ! IsLocated.isLocated(anAgent) )
 			return new LinkedList<Agent>();
 		/*
 		 * Find all nearby agents.
 		 */
 		Body body = (Body) anAgent.get(AspectRef.agentBody);
-		List<BoundingBox> boxes = body.getBoxes(searchDist);
-		Collection<Agent> out = this.treeSearch(boxes);
+		List<BoundingBox> boxes = body.getBoxes(searchDist, this.getShape());
+		List<Agent> out = this.treeSearch(boxes);
 		/* 
 		 * Remove the focal agent from this list.
 		 */
@@ -342,7 +340,7 @@ public class AgentContainer implements Settable
 	 */
 	public Collection<Agent> treeSearch(Surface aSurface, double searchDist)
 	{
-		BoundingBox box = aSurface.getBox(searchDist);
+		BoundingBox box = aSurface.getBox(searchDist, getShape());
 		if ( box == null )
 		{
 			Log.out(CRITICAL, "Could not find bouding box for surface "+
@@ -376,6 +374,9 @@ public class AgentContainer implements Settable
 		// FIXME move all aspect related methods out of general classes
 	/**
 	 * filter non colliding agents
+	 * 
+	 * FIXME not used -> remove?
+	 * 
 	 * @param aSurface
 	 * @param agents
 	 * @param searchDist
@@ -406,6 +407,8 @@ public class AgentContainer implements Settable
 	
 	/**
 	 * 
+	 * FIXME not used -> remove?
+	 * 
 	 * @param aSurface
 	 * @param surfaces
 	 * @param searchDist
@@ -433,7 +436,6 @@ public class AgentContainer implements Settable
 	 */
 	public Collection<Surface> surfaceSearch(Agent anAgent, double searchDist)
 	{
-		// NOTE lambda expressions are known to be slower than alternatives
 		IsNotColliding<Surface> filter;
 		Collection<Surface> out = this._shape.getSurfaces();
 		Collision collision = new Collision(this._shape);
@@ -467,27 +469,6 @@ public class AgentContainer implements Settable
 	 * AGENT LOCATION & MASS
 	 * **********************************************************************/
 
-	 // FIXME move all aspect related methods out of general classes
-	/**
-	 * \brief Helper method to check if an {@code Agent} is located.
-	 * 
-	 * @param anAgent {@code Agent} to check.
-	 * @return Whether it is located (true) or not located (false).
-	 */
-	public static boolean isLocated(Agent anAgent)
-	{
-		/*
-		 * If there is no flag saying this agent is located, assume it is not.
-		 * 
-		 * Note of terminology: this is known as the closed-world assumption.
-		 * https://en.wikipedia.org/wiki/Closed-world_assumption
-		 */
-		//FIXME: #isLocated simplified for now, was an over extensive operation
-		// for a simple check.
-		return ( anAgent.get(AspectRef.isLocated) != null ) && 
-				( anAgent.getBoolean(AspectRef.isLocated) );
-	}
-
 	// FIXME move all aspect related methods out of general classes
 	/**
 	 * \brief Move the given agent along the given dimension, by the given
@@ -500,7 +481,7 @@ public class AgentContainer implements Settable
 	 */
 	public void moveAlongDimension(Agent anAgent, DimName dimN, double dist)
 	{
-		if ( ! isLocated(anAgent) )
+		if ( ! IsLocated.isLocated(anAgent) )
 			return;
 		Body body = (Body) anAgent.get(AspectRef.agentBody);
 		double[] newLoc = body.getPoints().get(0).getPosition();
@@ -509,108 +490,10 @@ public class AgentContainer implements Settable
 		Log.out(DEBUG, "Moving agent (UID: "+anAgent.identity()+") "+dist+
 				" along dimension "+dimN+" to "+Vector.toString(newLoc));
 	}
-
-	// FIXME move all aspect related methods out of general classes
-	/**
-	 * \brief Compose a dictionary of biomass names and values for the given
-	 * agent.
-	 * 
-	 * <p>this method is the opposite of 
-	 * {@link #updateAgentMass(Agent, HashMap<String,Double>)}.</p>
-	 * 
-	 * @param agent An agent with biomass.
-	 * @return Dictionary of biomass kind names to their values.
+	
+	/*
+	 * Note: process manager related methods moved to
 	 */
-	// TODO move this, and updateAgentMass(), to somewhere more general?
-	public static Map<String,Double> getAgentMassMap(Agent agent)
-	{
-		Map<String,Double> out = new HashMap<String,Double>();
-		Object mass = agent.get(AspectRef.agentMass);
-		if ( mass == null )
-		{
-			// TODO safety?
-		}
-		else if ( mass instanceof Double )
-		{
-			out.put(AspectRef.agentMass, ((double) mass));
-		}
-		else if ( mass instanceof Map )
-		{
-			/* If the mass object is already a map, then just copy it. */
-			@SuppressWarnings("unchecked")
-			Map<String,Double> massMap = (Map<String,Double>) mass;
-			out.putAll(massMap);
-		}
-		else
-		{
-			// TODO safety?
-		}
-		return out;
-	}
-
-	// FIXME move all aspect related methods out of general classes
-	/**
-	 * \brief Use a dictionary of biomass names and values to update the given
-	 * agent.
-	 * 
-	 * <p>This method is the opposite of {@link #getAgentMassMap(Agent)}. Note
-	 * that extra biomass types may have been added to the map, which should
-	 * be other aspects (e.g. EPS).</p>
-	 * 
-	 * @param agent An agent with biomass.
-	 * @param biomass Dictionary of biomass kind names to their values.
-	 */
-	public static void updateAgentMass(Agent agent, Map<String,Double> biomass)
-	{
-		/*
-		 * First try to copy the new values over to the agent mass aspect.
-		 * Remember to remove the key-value pairs from biomass, so that we can
-		 * see what is left (if anything).
-		 */
-		Object mass = agent.get(AspectRef.agentMass);
-		if ( mass == null )
-		{
-			// TODO safety?
-		}
-		else if ( mass instanceof Double )
-		{
-			/**
-			 * NOTE map.remove returns the current associated value and removes
-			 * it from the map
-			 */
-			agent.set(AspectRef.agentMass, biomass.remove(AspectRef.agentMass));
-		}
-		else if ( mass instanceof Map )
-		{
-			@SuppressWarnings("unchecked")
-			Map<String,Double> massMap = (Map<String,Double>) mass;
-			for ( String key : massMap.keySet() )
-			{
-				massMap.put(key, biomass.remove(key));
-			}
-			
-			agent.set(AspectRef.agentMass, biomass);
-		}
-		else
-		{
-			// TODO safety?
-		}
-		/*
-		 * Now check if any other aspects were added to biomass (e.g. EPS).
-		 */
-		for ( String key : biomass.keySet() )
-		{
-			if ( agent.isAspect(key) )
-			{
-				agent.set(key, biomass.get(key));
-				biomass.remove(key);
-			}
-			else
-			{
-				// TODO safety
-			}
-		}
-	}
 
 	/* ***********************************************************************
 	 * ADDING & REMOVING AGENTS
@@ -624,7 +507,7 @@ public class AgentContainer implements Settable
 	 */
 	public void addAgent(Agent agent)
 	{
-		if ( isLocated(agent) )
+		if ( IsLocated.isLocated(agent) )
 			this.addLocatedAgent(agent);
 		else
 			this._agentList.add(agent);
@@ -657,7 +540,7 @@ public class AgentContainer implements Settable
 		Body body = ((Body) anAgent.get(AspectRef.agentBody));
 		Double dist = anAgent.getDouble(AspectRef.agentPulldistance);
 		dist = Helper.setIfNone(dist, 0.0);
-		List<BoundingBox> boxes = body.getBoxes(dist);
+		List<BoundingBox> boxes = body.getBoxes(dist, this.getShape());
 		for ( BoundingBox b: boxes )
 			this._agentTree.insert(b, anAgent);
 	}
@@ -684,11 +567,18 @@ public class AgentContainer implements Settable
 	 */
 	public Agent chooseAgent(int i)
 	{
-		return (i > this._agentList.size()) ?
-				/* Located agent. */
-				this._locatedAgentList.get(i - this._agentList.size()) :
-					/* Unlocated agent. */
-					this._agentList.get(i);
+		Tier level = Tier.NORMAL;
+		if ( i > this.getNumAllAgents()-1 && Log.shouldWrite(level) )
+		{
+			Log.out(level, "AgentContainer chooseAgent out of bounds");
+			return null;
+		}
+		else
+			return (i > this._agentList.size()) ?
+					/* Located agent. */
+					this._locatedAgentList.get(i - this._agentList.size()) :
+						/* non-located agent. */
+						this._agentList.get(i);
 	}
 
 	/**
@@ -697,26 +587,8 @@ public class AgentContainer implements Settable
 	 */
 	public Agent chooseRandomAgent()
 	{
-		Tier level = Tier.BULK;
-		int nAgents = this.getNumAllAgents();
-		/* Safety if there are no agents. */
-		if ( nAgents == 0 )
-		{
-			if ( Log.shouldWrite(level) )
-			{
-				Log.out(level, "No agents in this container, so cannot "+
-						"choose one: returning null");
-			}
-			return null;
-		}/* Now find an agent. */
-		int i = ExtraMath.getUniRandInt(nAgents);
-		Agent out = this.chooseAgent(i);
-		if ( Log.shouldWrite(level) )
-		{
-			Log.out(level, "Out of "+nAgents+" agents, agent with UID "+
-					out.identity()+" was chosen randomly");
-		}
-		return out; 
+		return this.chooseAgent( ExtraMath.getUniRandInt(
+				this.getNumAllAgents() ) );
 	}
 
 	/**
@@ -768,7 +640,7 @@ public class AgentContainer implements Settable
 	// above
 	public void registerRemoveAgent(Agent anAgent)
 	{
-		if ( isLocated(anAgent) )
+		if ( IsLocated.isLocated(anAgent) )
 		{
 			this._locatedAgentList.remove(anAgent);
 		}
@@ -955,165 +827,11 @@ public class AgentContainer implements Settable
 		this._agentsToRegisterRemoved.clear();
 		return out;
 	}
-
-	/* ***********************************************************************
-	 * AGENT MASS DISTRIBUTION
-	 * **********************************************************************/
-
-	// FIXME move all aspect related methods out of general classes
-	/**
-	 * \brief Loop through all located {@code Agent}s with reactions,
-	 * estimating how much of their body overlaps with nearby grid voxels.
-	 * 
-	 * @see #removeAgentDistibutionMaps()
-	 */
-	@SuppressWarnings("unchecked")
-	public void setupAgentDistributionMaps(Shape shape)
-	{
-		Tier level = BULK;
-		if (Log.shouldWrite(level))
-			Log.out(level, "Setting up agent distribution maps");
-		
-		/*
-		 * Reset the agent biomass distribution maps.
-		 */
-		Map<Shape, CoordinateMap> mapOfMaps;
-		for ( Agent a : this.getAllLocatedAgents() )
-		{
-			if ( a.isAspect(VD_TAG) )
-				mapOfMaps = (Map<Shape, CoordinateMap>)a.get(VD_TAG);
-			else
-				mapOfMaps = new HashMap<Shape, CoordinateMap>();
-			mapOfMaps.put(shape, new CoordinateMap());
-			a.set(VD_TAG, mapOfMaps);
-		}
-		/*
-		 * Now fill these agent biomass distribution maps.
-		 */
-		int nDim = this.getNumDims();
-		double[] location;
-		double[] dimension = new double[3];
-		double[] sides;
-		Collection<SubvoxelPoint> svPoints;
-		List<Agent> nhbs;
-		List<Surface> surfaces;
-		double[] pLoc;
-		Collision collision = new Collision(null, shape);
-		CoordinateMap distributionMap;
-
-		for ( int[] coord = shape.resetIterator(); 
-				shape.isIteratorValid(); coord = shape.iteratorNext())
-		{
-			double minRad;
-			
-			if( shape instanceof CartesianShape)
-			{
-				/* Find all agents that overlap with this voxel. */
-				// TODO a method for getting a voxel's bounding box directly?
-				location = Vector.subset(shape.getVoxelOrigin(coord), nDim);
-				shape.getVoxelSideLengthsTo(dimension, coord); //FIXME returns arc lengths with polar coords
-				// FIXME create a bounding box that always captures at least the complete voxel
-				sides = Vector.subset(dimension, nDim);
-				/* NOTE the agent tree is always the amount of actual dimension */
-				nhbs = this.treeSearch(location, sides);
-				
-				/* used later to find subgridpoint scale */
-				minRad = Vector.min(sides);
-			}
-			else
-			{
-				/* TODO since the previous does not work at all for polar */
-				nhbs = this.getAllLocatedAgents();
-				
-				/* FIXME total mess, trying to get towards something that at
-				 * least makes some sence
-				 */
-				shape.getVoxelSideLengthsTo(dimension, coord); //FIXME returns arc lengths with polar coords
-				// FIXME create a bounding box that always captures at least the complete voxel
-				sides = Vector.subset(dimension, nDim);
-				// FIXME because it does not make any sence to use the ark, try the biggest (probably the R dimension) and half that to be safe.
-				minRad = Vector.max(sides) / 2.0; 
-			}
-			/* Filter the agents for those with reactions, radius & surface. */
-			nhbs.removeIf(NO_REAC_FILTER);
-			nhbs.removeIf(NO_BODY_FILTER);
-			/* If there are none, move onto the next voxel. */
-			if ( nhbs.isEmpty() )
-				continue;
-			if ( Log.shouldWrite(level) )
-			{
-				Log.out(level, "  "+nhbs.size()+" agents overlap with coord "+
-					Vector.toString(coord));
-			}
-			
-			/* 
-			 * Find the sub-voxel resolution from the smallest agent, and
-			 * get the list of sub-voxel points.
-			 */
-			
-			double radius;
-			for ( Agent a : nhbs )
-			{
-				radius = a.getDouble(AspectRef.bodyRadius);
-				Log.out(level, "   agent "+a.identity()+" has radius "+radius);
-				minRad = Math.min(radius, minRad);
-			}
-			minRad *= SUBGRID_FACTOR;
-			svPoints = shape.getCurrentSubvoxelPoints(minRad);
-			if ( Log.shouldWrite(level) )
-			{
-				Log.out(level, "  using a min radius of "+minRad);
-				Log.out(level, "  gives "+svPoints.size()+" sub-voxel points");
-			}
-			/* Get the sub-voxel points and query the agents. */
-			for ( Agent a : nhbs )
-			{
-				/* Should have been removed, but doesn't hurt to check. */
-				if ( ! a.isAspect(AspectRef.agentReactions) )
-					continue;
-				if ( ! a.isAspect(AspectRef.surfaceList) )
-					continue;
-				surfaces = (List<Surface>) a.get(AspectRef.surfaceList);
-				if ( Log.shouldWrite(level) )
-				{
-					Log.out(level, "  "+"   agent "+a.identity()+" has "+
-						surfaces.size()+" surfaces");
-				}
-				mapOfMaps = (Map<Shape, CoordinateMap>) a.getValue(VD_TAG);
-				distributionMap = mapOfMaps.get(shape);
-				sgLoop: for ( SubvoxelPoint p : svPoints )
-				{
-					/* Only give location in significant dimensions. */
-					pLoc = p.getRealLocation(nDim);
-					for ( Surface s : surfaces )
-						if ( collision.distance(s, pLoc) < 0.0 )
-						{
-							distributionMap.increase(coord, p.volume);
-							/*
-							 * We only want to count this point once, even
-							 * if other surfaces of the same agent hit it.
-							 */
-							continue sgLoop;
-						}
-				}
-			}
-		}
-		Log.out(level, "Finished setting up agent distribution maps");
-	}
 	
-	/**
-	 * \brief Loop through all located {@code Agents}, removing their mass
-	 * distribution maps.
-	 * 
-	 * <p>This prevents unneeded clutter in XML output.</p>
-	 * 
-	 * @see #setupAgentDistributionMaps()
+	/*
+	 * NOTE: reaction diffusion clean-up methods moved to ProcessDiffusion
+	 * post step.
 	 */
-	public void removeAgentDistibutionMaps()
-	{
-		for ( Agent a : this.getAllLocatedAgents() )
-			a.reg().remove(VD_TAG);
-	}
 
 	@Override
 	public Module getModule() 
@@ -1152,7 +870,7 @@ public class AgentContainer implements Settable
 	public void sortLocatedAgents() 
 	{
 		for(Agent a : this.getAllUnlocatedAgents())
-			if( isLocated(a))
+			if( IsLocated.isLocated(a) )
 			{
 				this._agentList.remove(a);
 				this._locatedAgentList.add(a);

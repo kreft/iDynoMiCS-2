@@ -22,7 +22,6 @@ import utility.ExtraMath;
 public class ExcreteEPS extends Event
 {
 	
-	public String INTERNAL_PRODUCTS = AspectRef.internalProducts;
 	public String EPS = AspectRef.productEPS;
 	public String MAX_INTERNAL_EPS = AspectRef.maxInternalEPS;
 	public String EPS_SPECIES = AspectRef.epsSpecies;
@@ -63,8 +62,7 @@ public class ExcreteEPS extends Event
 		Compartment comp = ((Agent) initiator).getCompartment();
 		while ( currentEPS > epsBlob )
 		{
-			// TODO Joints state will be removed
-			double[] originalPos = body.getJoints().get(0);
+			double[] originalPos = body.getPosition(0);
 			double[] shift = Vector.randomPlusMinus(originalPos.length, 
 					0.6 * initiator.getDouble(RADIUS));
 			double[] epsPos = Vector.minus(originalPos, shift);

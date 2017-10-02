@@ -2,7 +2,6 @@ package solver;
 
 import static dataIO.Log.Tier.DEBUG;
 import static grid.ArrayType.CONCN;
-import static grid.ArrayType.DIFFUSIVITY;
 import static grid.ArrayType.PRODUCTIONRATE;
 import static grid.ArrayType.WELLMIXED;
 
@@ -13,7 +12,6 @@ import dataIO.Log.Tier;
 import grid.SpatialGrid;
 import linearAlgebra.Vector;
 import shape.Shape;
-import utility.ExtraMath;
 
 /**
  * \brief Partial Differential Equation (PDE) solver that uses the Gauss-Seidel
@@ -139,21 +137,22 @@ public class PDEgaussseidel extends PDEsolver
 			}
 			
 			// FIXME This if clause is for debugging only, remove after
-			if (false)//( rateFromReactions != 0.0 )
-			{
-				Log.out(Tier.BULK, "Coord "+Vector.toString(current)+
-						" variable "+variable.getName()+
-						": curent value "+currConcn+", new value "+newConcn+"\n"
-						+"\t Diffuse "+diffusiveFlow+" -> "+(diffusiveFlow*timeScale/currVolume)+"\n"
-						+"\t React "+variable.getValueAt(PRODUCTIONRATE, current)+" -> "+(rateFromReactions*timeScale/currVolume));
-			}
+//			if (false)//( rateFromReactions != 0.0 )
+//			{
+//				Log.out(Tier.BULK, "Coord "+Vector.toString(current)+
+//						" variable "+variable.getName()+
+//						": curent value "+currConcn+", new value "+newConcn+"\n"
+//						+"\t Diffuse "+diffusiveFlow+" -> "+(diffusiveFlow*timeScale/currVolume)+"\n"
+//						+"\t React "+variable.getValueAt(PRODUCTIONRATE, current)+" -> "+(rateFromReactions*timeScale/currVolume));
+//			}
 			
 			if ( (! this._allowNegatives) && newConcn < 0.0 )
 			{
-				Log.out(Tier.CRITICAL, "Truncating concentration of "+
+				Log.out(Tier.EXPRESSIVE, "Truncating concentration of "+
 						variable.getName()+" to zero\n"+
 						"\tVoxel at "+Vector.toString(current)+"\n"+
-						"\tPrevious concn "+currConcn);
+						"\tPrevious concn "+currConcn+
+						"\tPrevented concn "+newConcn);
 				newConcn = 0.0;
 			}
 			variable.setValueAt(CONCN, current, newConcn);

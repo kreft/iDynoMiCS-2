@@ -6,10 +6,8 @@ import instantiable.Instance;
 import instantiable.Instantiable;
 import referenceLibrary.XmlRef;
 import settable.Settable;
-import utility.Helper;
 
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 import dataIO.XmlHandler;
 
 /**
@@ -67,9 +65,7 @@ public abstract class Calculated implements Copyable, Instantiable, Redirectable
 		if (input != "")
 			this.setInput(input);
 		
-		String fields = XmlHandler.gatherAttribute(xmlElem, XmlRef.fields);
-		if (fields != null)
-			this.redirect(fields);
+		this.redirect(xmlElem);		
 	}
 	
 	private void init(String input) {

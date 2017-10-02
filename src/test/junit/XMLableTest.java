@@ -23,6 +23,14 @@ public class XMLableTest
 	{
 		private int x = 1;
 		
+		public TestXMLable()
+		{
+			/* 
+			 * NOTE: Every Instantiable must have an empty constructor as
+			 * Class.forName(className).newInstance(); is called!
+			 */
+		}
+		
 		public void instantiate(Element xmlElem, Settable parent)
 		{
 			// TODO

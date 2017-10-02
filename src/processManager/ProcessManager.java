@@ -138,8 +138,7 @@ public abstract class ProcessManager implements Instantiable, AspectInterface,
 			time = Double.valueOf( p.getAttribute(XmlRef.processTimeStepSize) );
 		this.setTimeStepSize(time);
 		
-		if (xmlElem != null && xmlElem.hasAttribute(XmlRef.fields))
-			this.redirect(XmlHandler.obtainAttribute(xmlElem, XmlRef.fields, "redirect fields"));
+		this.redirect(xmlElem);		
 		
 		Log.out(Tier.EXPRESSIVE, this._name + " loaded");
 	}
