@@ -5,7 +5,7 @@ import static test.AllTests.TOLERANCE;
 
 import org.junit.Test;
 
-import boundary.library.DummyToChemostat;
+import boundary.library.ConstantConcentrationToChemostat;
 import dataIO.Log;
 import dataIO.Log.Tier;
 import grid.ArrayType;
@@ -54,14 +54,14 @@ public class ChemostatsTest
 		/* 
 		 * Boundary connection from feed into chemostat.
 		 */
-		DummyToChemostat cInNew = new DummyToChemostat();
+		ConstantConcentrationToChemostat cInNew = new ConstantConcentrationToChemostat();
 		cInNew.setVolumeFlowRate(flowRate);
 		cInNew.setConcentration(soluteName, feedConcn);
 		chemo.addBoundary(cInNew);
 		/* 
 		 * Boundary connection from chemostat into waste.
 		 */
-		DummyToChemostat cOutNew = new DummyToChemostat();
+		ConstantConcentrationToChemostat cOutNew = new ConstantConcentrationToChemostat();
 		cOutNew.setVolumeFlowRate( - flowRate);
 		chemo.addBoundary(cOutNew);
 		/*

@@ -185,6 +185,11 @@ public class SolveChemostat extends ProcessManager
 				 */
 				Vector.timesTo(destination, y, - _dilution);
 				Vector.addEquals(destination, _dYdTinflow);
+				
+				/**
+				 * TODO: it seems that this was the problem, double check and make nice =)
+				 */
+				Vector.timesTo(destination, destination, 1/environment.getShape().getTotalVolume());
 				/*
 				 * For the reactions, we will need the concentrations in
 				 * dictionary format.
@@ -267,6 +272,7 @@ public class SolveChemostat extends ProcessManager
 			if ( volFlowRate < 0.0 )
 			{
 				/*
+				 * FIXME ???
 				 * This is an outflow, so we calculate the mass flow rates as
 				 * the solver runs.
 				 */
@@ -304,7 +310,7 @@ public class SolveChemostat extends ProcessManager
 			Log.out(level, "Chemostat: total inflows "+inRate+
 					", total outflows "+outRate);
 		}
-		this._dilution = outRate;
+		this._dilution = inRate;
 	}
 	
 	/**
