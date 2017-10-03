@@ -79,6 +79,7 @@ public class Expression extends Component implements Settable
 					"#PI", 	// pi
 					"SIGN-", // signum function minus what follows
 					"SIGN", // signum function
+					"LOG", // natural logorithm
 					"EXP-", // ten power minus
 					"EXP", 	// ten power
 					"^-", 	// power minus
@@ -648,6 +649,8 @@ public class Expression extends Component implements Settable
 		case ("EXP-"): 
 			return new Multiplication(calc.get(prev), 
 				new Power(Arithmetic.ten(), flipSign(calc.get(next))));
+		case ("LOG"): 
+			return new Logarithm(calc.get(next),Arithmetic.ten());
 		case ("SIGN"): 
 			return 	new Sign(calc.get(next));
 		case ("SIGN-"): 
@@ -678,11 +681,9 @@ public class Expression extends Component implements Settable
 		case ("*"): 
 		case ("/"): 
 		case ("^"):
-		case ("EXP"):
 		case ("*-"): 
 		case ("/-"): 
 		case ("^-"):
-		case ("EXP-"):
 			if ( calc.containsKey( prev ) )
 				calc.remove( prev );
 			if ( calc.containsKey( next ) )
@@ -690,6 +691,9 @@ public class Expression extends Component implements Settable
 			break;
 		case("SQRT"):
 		case("SQRT-"):
+		case ("EXP"):
+		case ("EXP-"):
+		case ("LOG"):
 		case("SIGN"):
 		case("SIGN-"):
 			if ( calc.containsKey( next ) )
