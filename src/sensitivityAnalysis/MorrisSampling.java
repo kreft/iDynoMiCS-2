@@ -1,6 +1,7 @@
 package sensitivityAnalysis;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import linearAlgebra.Matrix;
@@ -67,23 +68,22 @@ public class MorrisSampling {
 			 * random seed
 			 */
 			double[] probs = Vector.randomZeroOne( k ); 
-			int[] randInts = Vector.randomInts( m, 0, k );
+			int[] randInts = Vector.randomInts( k, 0, m );
 			double[] xVals = new double[k];
 			
 			int[][] idMatrix = Matrix.identityInt(k);
 			int[][] permIdMatrix = new int[k][k];
 			
-			/* construct a shuffled list of integers from 0 to k */
+			/* construct a shuffled list of integers from 0 to k-1. */
 			List<Integer> rowNums = new ArrayList<Integer>();
-			List<Integer> rowShuffle = new ArrayList<Integer>();
-			for (int row = 0; row < k; row++) 
+			for (int row = 0; row < k; row++)
 			{
-				rowShuffle.add(row);
-			}			
-			while ( rowShuffle.size() > 0 )
+				rowNums.add(row);
+			}
+			/* Implementing Fisher-Yates shuffle */
+			for (int row = k; row > 1; row--)
 			{
-				rowNums.add( rowShuffle.remove( ExtraMath.getUniRandInt(
-						rowShuffle.size() ) ) );
+				Collections.swap(rowNums, row-1, ExtraMath.getUniRandInt(row));
 			}
 			
 			/* generate random input matrix */
