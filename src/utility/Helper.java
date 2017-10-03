@@ -21,8 +21,13 @@ import linearAlgebra.Vector;
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
-public class Helper
+public final class Helper
 {
+	/**
+	 * Single scanner for user input.
+	 */
+	private static Scanner USER_INPUT;
+	
 	/**
 	 * List of recognised words that signal confirmation by the user.
 	 */
@@ -138,7 +143,10 @@ public class Helper
 		} 
 		else
 		{
-			Scanner userInput = new Scanner( System.in );
+			/* Get a scanner if not already open. */
+			if ( USER_INPUT == null )
+				USER_INPUT = new Scanner( System.in );
+			/* Read in the user input. */
 			if ( noLog )
 			{
 				System.out.println(description);
@@ -151,8 +159,7 @@ public class Helper
 				for ( String option : options )
 					Log.out(Tier.CRITICAL, "\t"+option);
 			}
-			input = userInput.next();
-			userInput.close();
+			input = USER_INPUT.next();
 		}
 		
 		String msg = "Aquired input: " + input;
