@@ -681,9 +681,11 @@ public class Expression extends Component implements Settable
 		case ("*"): 
 		case ("/"): 
 		case ("^"):
+		case ("EXP"):
 		case ("*-"): 
 		case ("/-"): 
 		case ("^-"):
+		case ("EXP-"):
 			if ( calc.containsKey( prev ) )
 				calc.remove( prev );
 			if ( calc.containsKey( next ) )
@@ -691,8 +693,6 @@ public class Expression extends Component implements Settable
 			break;
 		case("SQRT"):
 		case("SQRT-"):
-		case ("EXP"):
-		case ("EXP-"):
 		case ("LOG"):
 		case("SIGN"):
 		case("SIGN-"):

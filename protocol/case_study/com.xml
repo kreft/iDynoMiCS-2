@@ -116,19 +116,19 @@
 		</speciesLib>
 		<compartment name="chemostat">
 			<shape class="Dimensionless" volume="1e18"> <!-- 1 cubic meter -->
-				<boundary  class="constantConcentrationToChemostat" volumeFlowRate="1.0E15"> <!-- 60 liter / hour -->
-					<solute name="ammonium" concentration="1.00E-6"  />
-					<solute name="oxygen" 	concentration="8.74E-6"  />
-					<solute name="nitrite" 	concentration="5.00E-9"  />
-					<solute name="nitrate" 	concentration="1.00E-6"  />
+				<boundary  class="constantConcentrationToChemostat" volumeFlowRate="1.0E13"> <!-- 0.6 liter / hour -->
+					<solute name="ammonium" concentration="1.00E-3"  />
+					<solute name="oxygen" 	concentration="8.74E-3"  />
+					<solute name="nitrite" 	concentration="5.00E-6"  />
+					<solute name="nitrate" 	concentration="1.00E-3"  />
 				</boundary>
 			</shape>
 			<solutes>
 				<!-- pg / µm3 -->
-				<solute name="ammonium" concentration="1.00E-6" defaultDiffusivity="1"  />
-				<solute name="oxygen" 	concentration="8.74E-6" defaultDiffusivity="1"  />
-				<solute name="nitrite" 	concentration="5.00E-9" defaultDiffusivity="1"  />
-				<solute name="nitrate" 	concentration="1.00E-6"  defaultDiffusivity="1"  />
+				<solute name="ammonium" concentration="1.00E-3" defaultDiffusivity="1"  />
+				<solute name="oxygen" 	concentration="8.74E-3" defaultDiffusivity="1"  />
+				<solute name="nitrite" 	concentration="5.00E-6" defaultDiffusivity="1"  />
+				<solute name="nitrate" 	concentration="1.00E-3"  defaultDiffusivity="1"  />
 			</solutes>
 			<reactions>
 			</reactions>
