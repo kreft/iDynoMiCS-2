@@ -2,19 +2,9 @@ package dataIO;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
-import agent.Agent;
-import agent.SpeciesLib;
 import dataIO.Log.Tier;
-import idynomics.Compartment;
 import idynomics.Idynomics;
-import reaction.Reaction;
-import referenceLibrary.AspectRef;
-import referenceLibrary.XmlRef;
-import utility.Helper;
 
 public class Report {
 	

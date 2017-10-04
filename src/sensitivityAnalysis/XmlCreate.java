@@ -15,7 +15,9 @@ import org.w3c.dom.*;
 
 import referenceLibrary.XmlRef;
 import utility.Helper;
+import dataIO.CsvExport;
 import dataIO.XmlHandler;
+import idynomics.Idynomics;
 import linearAlgebra.Matrix;
 import linearAlgebra.Vector;
 
@@ -47,6 +49,7 @@ public class XmlCreate
 		String xmlFilePath;
 		if ( args == null || args.length == 0 || args[0] == null )
 		{
+			@SuppressWarnings("resource")
 			Scanner user_input = new Scanner( System.in );
 			System.out.print("Enter protocol file path: ");
 			xmlFilePath = user_input.next();
@@ -86,7 +89,7 @@ public class XmlCreate
 					+ "Exiting.");
 			return;
 		}
-
+		
 		/* Number of levels. Ask in input file? */
 		int p = Integer.valueOf( Helper.obtainInput( "", 
 				"Number of sampling levels.", false));     
@@ -103,6 +106,7 @@ public class XmlCreate
 		
 		String[] rangeAspectNames = new String[k];
 		String[][] ranges = new String[k][2];
+		String csvHeader = "";
 		for (Element currAspect : _sensParams) 
 		{
 			int idx = _sensParams.indexOf( currAspect );
@@ -114,9 +118,11 @@ public class XmlCreate
 			inpMax[idx] = Double.parseDouble(inRange[1]);
 			inpMin[idx] = Double.parseDouble(inRange[0]);
 			ranges[idx] = inRange.clone();
+			csvHeader += currAspect.getAttribute( XmlRef.nameAttribute )
+					+ ( (idx == (_sensParams.size() - 1)) ? "" : ", ");
 		}
 		
-		/* Variable states: ones*inpMin + 
+		/* Variable states: ( ones*inpMin + 
 		 * ones*( inpMax-inpMin ) ).*discreteUniformProbs
 		 */
 		double[][] states = Matrix.add(Vector.outerProduct(ones, inpMin),
@@ -127,20 +133,27 @@ public class XmlCreate
 				XmlRef.simulation ).item(0);
 		String simName = sim.getAttribute( XmlRef.nameAttribute );
 		
+		CsvExport toCSV = new CsvExport();
+		Idynomics.global.outputLocation = sim.getAttribute( XmlRef.outputFolder );
+		toCSV.createCustomFile("xVal");
+		toCSV.writeLine(csvHeader);
+		
 		for (int row = 0; row < r*(k+1); row++) {
-			String suffix = "";
+			String suffix = Integer.toString(row+1);
 			for (Element currAspect : _sensParams) {
 				int col = _sensParams.indexOf(currAspect);
 				String attrToChange = currAspect.getAttribute(
 						XmlRef.rangeForAttribute );
 				Double curVal = states[row][col];
 				currAspect.setAttribute(attrToChange, curVal.toString() );
-				suffix += currAspect.getAttribute( XmlRef.nameAttribute ) + "_"
-						+ curVal;
+				
 			}
+			String xValCSV = Vector.toString(states[row]);
+			toCSV.writeLine(xValCSV);
 			sim.setAttribute( XmlRef.nameAttribute, simName+suffix );
 			newProtocolFile(suffix);
 		}
+		toCSV.closeFile();
 	}
 	
 	/**

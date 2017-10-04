@@ -49,14 +49,14 @@ public abstract interface AspectInterface
 				switch (AspectClass.valueOf( Helper.setIfNone(
 						s.getAttribute( XmlRef.typeAttribute ), 
 						String.valueOf( AspectClass.PRIMARY ) ) ) )
-		    	{
-		    	case CALCULATED:
-		    		aspectReg.add( key , Instance.getNew( s ) );
-		    		break;
-		    	case EVENT: 
-		    		aspectReg.add( key , Instance.getNew( s ) );
-		    		break;
-		    	case PRIMARY:
+				{
+				case CALCULATED:
+					aspectReg.add( key , Instance.getNew( s ) );
+					break;
+				case EVENT: 
+					aspectReg.add( key , Instance.getNew( s ) );
+					break;
+				case PRIMARY:
 				default:
 					aspectReg.add( key, ObjectFactory.loadObject( s ) );
 				}
