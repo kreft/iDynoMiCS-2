@@ -153,7 +153,7 @@
 				<process name="solveChemostat" class="SolveChemostat" priority="0"
 					firstStep="0.0"  timerStepSize="60.0">
 					<aspect name="soluteNames" type="PRIMARY" class="String[]" value="ammonium,oxygen,nitrite,nitrate" />
-					<aspect name="hMax" type="PRIMARY" class="Double" value="0.05" />
+					<aspect name="hMax" type="PRIMARY" class="Double" value="0.1" />
 					<aspect name="solver" type="PRIMARY" class="String" value="rosenbrock" />
 					<aspect name="tolerance" class="Double" value="1.0E-5" />
 				</process>
