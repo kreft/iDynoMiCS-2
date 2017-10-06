@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import agent.Agent;
+import aspect.Aspect;
+import aspect.Aspect.AspectClass;
 import referenceLibrary.AspectRef;
 
 /**
@@ -35,11 +37,10 @@ public class ProcessMethods {
 		 * see what is left (if anything).
 		 */
 		Object mass = agent.get(AspectRef.agentMass);
-		if ( mass == null )
-		{
-			// TODO safety?
-		}
-		else if ( mass instanceof Double )
+		Object massMapAspect = agent.get(AspectRef.agentMassMap);
+		
+		if ( mass != null && mass instanceof Double && 
+				agent.getAspectType( AspectRef.agentMass ) == Aspect.AspectClass.PRIMARY)
 		{
 			/**
 			 * NOTE map.remove returns the current associated value and removes
@@ -47,21 +48,18 @@ public class ProcessMethods {
 			 */
 			agent.set(AspectRef.agentMass, biomass.remove(AspectRef.agentMass));
 		}
-		else if ( mass instanceof Map )
+		
+		if ( massMapAspect != null && massMapAspect instanceof Map )
 		{
 			@SuppressWarnings("unchecked")
-			Map<String,Double> massMap = (Map<String,Double>) mass;
+			Map<String,Double> massMap = (Map<String,Double>) massMapAspect;
 			for ( String key : massMap.keySet() )
 			{
 				massMap.put(key, biomass.remove(key));
-			}
-			
-			agent.set(AspectRef.agentMass, biomass);
+			}			
+			agent.set(AspectRef.agentMassMap, massMap);
 		}
-		else
-		{
-			// TODO safety?
-		}
+
 		/*
 		 * Now check if any other aspects were added to biomass (e.g. EPS).
 		 */
@@ -96,24 +94,18 @@ public class ProcessMethods {
 	{
 		Map<String,Double> out = new HashMap<String,Double>();
 		Object mass = agent.get(AspectRef.agentMass);
-		if ( mass == null )
-		{
-			// TODO safety?
-		}
-		else if ( mass instanceof Double )
+		Object massMapAspect = agent.get(AspectRef.agentMassMap);
+		if ( mass != null && mass instanceof Double && 
+				agent.getAspectType(AspectRef.agentMass) == AspectClass.PRIMARY)
 		{
 			out.put(AspectRef.agentMass, ((double) mass));
 		}
-		else if ( mass instanceof Map )
+		if ( massMapAspect != null && massMapAspect instanceof Map)
 		{
 			/* If the mass object is already a map, then just copy it. */
 			@SuppressWarnings("unchecked")
-			Map<String,Double> massMap = (Map<String,Double>) mass;
+			Map<String,Double> massMap = (Map<String,Double>) massMapAspect;
 			out.putAll(massMap);
-		}
-		else
-		{
-			// TODO safety?
 		}
 		return out;
 	}

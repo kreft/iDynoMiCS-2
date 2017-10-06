@@ -4,6 +4,8 @@ import static shape.Dimension.DimName.X;
 import static shape.Dimension.DimName.Y;
 import static shape.Dimension.DimName.Z;
 
+import dataIO.Log.Tier;
+import dataIO.Log;
 import linearAlgebra.Array;
 import linearAlgebra.Vector;
 import shape.Dimension.DimName;
@@ -84,6 +86,11 @@ public abstract class CartesianShape extends Shape
 		for ( Dimension dim : this._dimensions.values() )
 			out *= dim.getLength();
 		return out;
+	}
+	
+	public void setTotalVolume( double volume)
+	{
+		Log.out(Tier.CRITICAL, "Cannot adjust Cartesian shape volume" );
 	}
 	
 	@Override

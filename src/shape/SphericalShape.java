@@ -150,6 +150,11 @@ public abstract class SphericalShape extends Shape
 		return volMax - volMin;
 	}
 	
+	public void setTotalVolume( double volume)
+	{
+		Log.out(Tier.CRITICAL, "Cannot adjust Spherical shape volume" );
+	}
+	
 	private static final double volConeCap(double r, double theta, double phi)
 	{
 		/* No point doing the calculation if we know it will be zero. */

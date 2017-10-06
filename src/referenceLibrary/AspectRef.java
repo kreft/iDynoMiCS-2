@@ -124,6 +124,11 @@ public class AspectRef
 	public final static String agentMass = "mass";
 	
 	/**
+	 * TODO
+	 */
+	public final static String agentMassMap = "massMap";
+	
+	/**
 	 * Agent mass that should trigger division.
 	 */
 	public final static String divisionMass = "divisionMass";
@@ -444,5 +449,10 @@ public class AspectRef
 	 * Include header in csv out.
 	 */
 	public static final String includeHeader = "includeHeader";
+
+	/**
+	 * 
+	 */
+	public static final String WetDryRatio = "WetDryRatio";
 
 }

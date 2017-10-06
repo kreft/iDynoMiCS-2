@@ -14,6 +14,7 @@ import agent.Agent;
 import agent.Body;
 import aspect.AspectInterface;
 import aspect.Event;
+import aspect.Aspect.AspectClass;
 import dataIO.Log;
 import dataIO.Log.Tier;
 
@@ -26,6 +27,10 @@ import dataIO.Log.Tier;
 public class RodDivision extends Event {
 	
 	public String MASS = AspectRef.agentMass;
+	/**
+	 * The Agent's mass.
+	 */
+	public String MASS_MAP = AspectRef.agentMassMap;
 	public String RADIUS = AspectRef.bodyRadius;
 	public String BODY = AspectRef.agentBody;
 	public String LINKED = AspectRef.agentLinks;
@@ -54,14 +59,12 @@ public class RodDivision extends Event {
 		if ( ! this.shouldDivide(mother) )
 			return;
 		
-		double momMass =(double) mother.get(MASS);
-
 		Body momBody = (Body) mother.get(BODY);
 
 		Agent daughter = new Agent(mother); // the copy constructor
-		double randM = ExtraMath.getUniRandDbl(momMass*0.5, momMass*0.55);
-		mother.set(MASS, momMass-randM);
-		daughter.set(MASS, randM);
+
+		/* FIXME maybe move this type of methods to a lib */
+		CoccoidDivision.transferMass(mother, daughter);
 		
 		/*
 		 * find the closest distance between the two mass points of the rod

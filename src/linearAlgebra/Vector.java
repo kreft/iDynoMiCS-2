@@ -1,6 +1,7 @@
 package linearAlgebra;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Set;
 
 import utility.ExtraMath;
@@ -98,6 +99,19 @@ public final class Vector
 		double[] vector = new double[object.length];
 		for(int i = 0; i < object.length; i++)
 			vector[i] = object[i];
+		return vector;
+	}
+	
+	/**
+	 * \brief Create a double vector from an existing list<Double> (capital D)
+	 * @param object
+	 * @return double[] array obtained from list<Double> object
+	 */
+	public static double[] vector(List<Double> object)
+	{
+		double[] vector = new double[object.size()];
+		for(int i = 0; i < object.size(); i++)
+			vector[i] = object.get(i);
 		return vector;
 	}
 	
@@ -1853,6 +1867,16 @@ public final class Vector
 		for (int i = 0; i < vector.length; i++)
 			out[i] = vector[i];
 		out[vector.length] = value;
+		return out;
+	}
+	
+	public static double[] appendAll(double[] vector, double[] second)
+	{
+		double[] out = new double[vector.length+second.length];
+		for (int i = 0; i < vector.length; i++)
+			out[i] = vector[i];
+		for (int i = 0; i < second.length; i++)
+			out[i+vector.length] = second[i];
 		return out;
 	}
 	

@@ -100,11 +100,17 @@ public class ODEheunsmethod extends ODEsolver
 	 */
 	protected void heun(double[] y, double dt)
 	{
+		Vector.makeNonnegative(y);
 		euler(this.k, y, dt);
+		Vector.makeNonnegative(y);
 		this._deriv.firstDeriv(dYdT, y);
+		Vector.makeNonnegative(this.k);
 		this._deriv.firstDeriv(dKdT, this.k);
 		Vector.addEquals(dYdT, dKdT);
 		Vector.timesEquals(dYdT, dt/2);
+		Vector.makeNonnegative(y);
 		Vector.addEquals(y, dYdT);
+		Vector.makeNonnegative(y);
+
 	}
 }

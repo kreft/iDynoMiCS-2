@@ -33,6 +33,9 @@ public abstract class ODEsolver extends Solver
 	/**
 	 * \brief TODO
 	 * 
+	 * FIXME [Bas] do we really need throws here? we can also simply print a 
+	 * warning.
+	 * 
 	 * TODO Should choose a more specific subclass of Exception if no 1st
 	 * derivative method set.
 	 * 
