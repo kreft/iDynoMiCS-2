@@ -100,11 +100,14 @@ public class ODEheunsmethod extends ODEsolver
 	 */
 	protected void heun(double[] y, double dt)
 	{
-		Vector.makeNonnegative(y);
+		/* Any (intermediate) minor negative concentration, mass or volume can 
+		 * result in very weird behavior  */
+		if ( ! this._allowNegatives )
+			Vector.makeNonnegative(y);
 		euler(this.k, y, dt);
-		Vector.makeNonnegative(y);
 		this._deriv.firstDeriv(dYdT, y);
-		Vector.makeNonnegative(this.k);
+		if ( ! this._allowNegatives )
+			Vector.makeNonnegative(this.k);
 		this._deriv.firstDeriv(dKdT, this.k);
 		Vector.addEquals(dYdT, dKdT);
 		Vector.timesEquals(dYdT, dt/2);

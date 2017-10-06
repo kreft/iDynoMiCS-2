@@ -92,7 +92,8 @@ public class Diagram
 			String product;
 			for ( String s : sto.keySet() )
 			{
-				product = s.equals(AspectRef.agentMass) ? reactions.get(r) : s;
+				product = s.equals(AspectRef.agentMass) || s.equalsIgnoreCase(
+						AspectRef.biomass) ? reactions.get(r) : s;
 				if ( sto.get(s) < 0 )
 					this._diagramFile.write(product +" -> " + reacDesc + "\n");
 				else
