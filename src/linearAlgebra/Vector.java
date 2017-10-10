@@ -1857,6 +1857,9 @@ public final class Vector
 	 * \brief Append a value to the end of a vector, writing the result into a
 	 * new vector.
 	 * 
+	 * For appending entire vectors @See {@link #appendAll(double[], double[]) 
+	 * appendAll}
+	 * 
 	 * @param vector One-dimensional array of doubles (preserved).
 	 * @param value New number to append to the end of this vector.
 	 * @return New one-dimensional array of doubles.
@@ -1870,6 +1873,16 @@ public final class Vector
 		return out;
 	}
 	
+	/**
+	 * \brief Append a second vector to the end of a vector (returning a new 
+	 * double[] object including both.
+	 * 
+	 * For single value appending @See {@link #append(double[], double) append}
+	 * 
+	 * @param vector One-dimensional array of doubles (preserved).
+	 * @param second One-dimensional array of doubles to append (preserved).
+	 * @return New one-dimensional array of doubles.
+	 */
 	public static double[] appendAll(double[] vector, double[] second)
 	{
 		double[] out = new double[vector.length+second.length];

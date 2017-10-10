@@ -3,6 +3,8 @@
  */
 package solver;
 
+import dataIO.Log;
+import dataIO.Log.Tier;
 import linearAlgebra.Vector;
 
 /**
@@ -33,8 +35,6 @@ public abstract class ODEsolver extends Solver
 	/**
 	 * \brief TODO
 	 * 
-	 * FIXME [Bas] do we really need throws here? we can also simply print a 
-	 * warning.
 	 * 
 	 * TODO Should choose a more specific subclass of Exception if no 1st
 	 * derivative method set.
@@ -52,8 +52,8 @@ public abstract class ODEsolver extends Solver
 	{
 		if ( this._deriv == null )
 			throw new Exception("No derivatives set.");
-		if ( y.length != this.nVar() )
-			throw new IllegalArgumentException("Wrong vector dimensions.");
+		if ( y.length != this.nVar() && Log.shouldWrite(Tier.DEBUG))
+			Log.out(Tier.DEBUG, "Wrong vector dimensions.");
 		if ( ! this._allowNegatives )
 			Vector.makeNonnegative(y);
 		return y;

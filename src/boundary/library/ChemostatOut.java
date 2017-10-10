@@ -11,7 +11,8 @@ import referenceLibrary.XmlRef;
 import settable.Settable;
 
 /**
- * \brief set outflow
+ * \brief The ChemostatOut boundary allows to set an outflow with a solute
+ * concentration that equals the concentration in the chemostat.
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
  */
