@@ -160,6 +160,12 @@ public class ClassRef
 	public final static String voxelDistributionMap =
 			aspect.calculated.VoxelDistributionMap.class.getName();
 	
+	/**
+	 * 
+	 */
+	public final static String wetWeight = 
+			aspect.calculated.WetWeight.class.getName();
+	
 	/* ************************************************************************
 	 * Class reference library : Aspects - Event
 	 */
@@ -344,6 +350,9 @@ public class ClassRef
 	public final static String summary =
 			processManager.library.Summary.class.getName();
 	
+	public final static String chemostatSolver =
+			processManager.library.ChemostatSolver.class.getName();
+	
 	/* ************************************************************************
 	 * IdynoMiCS main classes
 	 */
@@ -375,6 +384,9 @@ public class ClassRef
 	
 	public final static String constantConcentrationToChemostat =
 			boundary.library.ConstantConcentrationToChemostat.class.getName();
+	
+	public final static String chemostatOut =
+			boundary.library.ChemostatOut.class.getName();
 	
 	public final static String gasToMembrane =
 			boundary.library.GasToMembrane.class.getName();

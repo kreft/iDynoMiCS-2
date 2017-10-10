@@ -97,6 +97,11 @@ public final class ShapeLibrary
 			return this._volume;
 		}
 		
+		public void setTotalVolume( double volume)
+		{
+			this._volume = volume;
+		}
+		
 		@Override
 		public void getLocalPositionTo(double[] destination, double[] location)
 		{

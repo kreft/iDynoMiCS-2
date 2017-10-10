@@ -39,7 +39,7 @@ public class XmlCreate
 	/**
 	 * \brief Main function for creating the protocol files from sensitivity 
 	 * analysis 
-	 * xml files
+	 * 
 	 * @throws IOException 
 	 * 
 	 */
@@ -81,7 +81,8 @@ public class XmlCreate
 				}
 			}
 		}
-		// Parameters for Morris method
+		
+		/* Parameters for Morris method */
 		int k = _sensParams.size();
 		if (k == 0) {
 			System.err.println("No range attribute defined for any parameter. "

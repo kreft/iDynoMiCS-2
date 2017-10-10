@@ -20,3 +20,7 @@ build/
 
 # unit test output
 unitTests
+
+# other
+iDynoMiCS_logo.eps
+default.cfg
