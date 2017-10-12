@@ -1,0 +1,318 @@
+package processManager.library;
+
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
+import org.w3c.dom.Element;
+
+import agent.Agent;
+import boundary.Boundary;
+import dataIO.Log;
+import dataIO.Log.Tier;
+import idynomics.AgentContainer;
+import idynomics.EnvironmentContainer;
+import linearAlgebra.Vector;
+import processManager.ProcessManager;
+import processManager.ProcessMethods;
+import reaction.Reaction;
+import referenceLibrary.AspectRef;
+import solver.ODEderivatives;
+import solver.ODEheunsmethod;
+import solver.ODErosenbrock;
+import solver.ODEsolver;
+import utility.Helper;
+
+/**
+ * 
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
+ * @author Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.
+ */
+public class ChemostatSolver extends ProcessManager
+{
+	public static String SOLUTE_NAMES = AspectRef.soluteNames;
+	public static String SOLVER = AspectRef.solver;
+	public static String HMAX = AspectRef.solverhMax;
+	public static String TOLERANCE = AspectRef.solverTolerance;
+	public static String REACTIONS = AspectRef.agentReactions;
+	public static String SOLUTES = AspectRef.soluteNames;
+	public static String AGENT_VOLUME = AspectRef.agentVolume;
+	
+	/**
+	 * The ODE solver to use when updating solute concentrations. 
+	 */
+	protected ODEsolver _solver;
+	/**
+	 * The names of all solutes this is responsible for.
+	 */
+	protected String[] _solutes = new String[0];
+	/**
+	 * number of solutes
+	 */
+	protected int _n;
+	
+	/* ***********************************************************************
+	 * CONSTRUCTORS
+	 * **********************************************************************/
+	
+	@Override
+	public void init(Element xmlElem, EnvironmentContainer environment, 
+			AgentContainer agents, String compartmentName)
+	{
+		super.init(xmlElem, environment, agents, compartmentName);
+		String[] soluteNames = (String[]) this.getOr(SOLUTES, 
+				Helper.collectionToArray(
+				environment.getSoluteNames()));
+		this._solutes = soluteNames;
+		this._n = this._solutes == null ? 0 : this._solutes.length;
+	}
+	
+	/* ***********************************************************************
+	 * STEPPING
+	 * **********************************************************************/
+	
+	@Override
+	protected void internalStep()
+	{
+		/* 
+		 * initial values
+		 */
+		LinkedList<Double> y = new LinkedList<Double>();
+		Map<String,Double> solutes = new HashMap<String, Double>(); 
+		
+		/* solutes */
+		for( int i = 0; i < this._n; i++ )
+		{
+			y.add(i, this._environment.getAverageConcentration( _solutes[i] ) );
+			solutes.put( this._solutes[i], y.get(i) );
+		}
+		
+		/* volume: Store in y vector allows for changing volume */
+		y.add( _n , this._environment.getShape().getTotalVolume() );	
+		
+		/* Agents: obtain mass map and add to the y vector */
+		int yAgent = 0;
+		for ( Agent a : this._agents.getAllAgents() )
+		{
+			Map<String,Double> agentMap = ProcessMethods.getAgentMassMap( a );
+			int i = 0;
+			for ( String s : agentMap.keySet() )
+			{
+				i++;
+				/* mass and internal products */
+				y.add( _n + yAgent + i, agentMap.get( s ) );
+			}
+			yAgent += agentMap.size();	
+		}
+		
+		/* set the solver */
+		double[] yODE = Vector.vector( y );
+		this.setSolver( yODE.length );
+		
+		/*
+		 * Solve the odes
+		 */
+		try {
+			yODE = this._solver.solve( yODE , this._timeStepSize);
+		} catch (Exception e) {
+			Log.out(Tier.CRITICAL, "Error in ODE solver: " + e);
+		}
+
+		/*
+		 * Update the environment
+		 */
+		for ( int i = 0; i < this._n; i++ )
+			this._environment.setAllConcentration( this._solutes[i], yODE[i]);
+		this._environment.getShape().setTotalVolume( yODE[ _n ] );
+		
+		/* 
+		 * Update the agents 
+		 */
+		yAgent = 0;
+		for ( Agent a : this._agents.getAllAgents() )
+		{
+			Map<String,Double> agentMap = ProcessMethods.getAgentMassMap( a );			
+			int i = 0;
+			for ( String s : agentMap.keySet() )
+			{
+				i++;
+				/* mass and internal products */
+				agentMap.put( s, yODE[ _n + yAgent + i ] );
+			}
+			yAgent += agentMap.size();
+			ProcessMethods.updateAgentMass(a, agentMap );
+		}
+	}
+	
+	/* ***********************************************************************
+	 * INTERNAL METHODS
+	 * **********************************************************************/
+	
+	/**
+	 * \brief: setup ode solver with settings from protocol file
+	 * @param l: length of array y (number of variables to solve for)
+	 */
+	public void setSolver( int l )
+	{
+		/*
+		 * Initialize the solver, note we are doing this here because the length
+		 * of y depends on the number of agents
+		 */
+		String solverName = (String) this.getOr(SOLVER, "heun");
+		double hMax = (double) this.getOr(HMAX, 1.0e-6);
+		if ( solverName.equals("rosenbrock") )
+		{
+			double tol = (double) this.getOr(TOLERANCE, 1.0e-6);
+			this._solver = new ODErosenbrock( new String[l], false, tol, hMax);
+		}
+		else
+			this._solver = new ODEheunsmethod( new String[l], false, hMax);
+		this._solver.setDerivatives( this.standardUpdater( this._environment, 
+				this._agents));
+	}
+	
+	/**
+	 * \brief The standard set of Ordinary Differential Equations (ODEs) that
+	 * describe a chemostat compartment.
+	 * 
+	 * <p>This is also appropriate for, e.g., a batch culture compartment: the
+	 * absence of inflows & outflows means that these are implicitly ignored
+	 * here. </p>
+	 * 
+	 * @param environment The environment of a {@code Compartment}.
+	 * @param agents The agents of a {@code Compartment}.
+	 * @return ODE derivatives method.
+	 */
+	private ODEderivatives standardUpdater(
+			EnvironmentContainer environment, AgentContainer agents)
+	{
+		return new ODEderivatives()
+		{
+			@Override
+			public void firstDeriv(double[] dydt, double[] y)
+			{
+				/*
+				 * Setup and re-used objects
+				 */
+				double rate, stoichio;
+				Vector.setAll(dydt, 0.0);
+				HashMap<String, Double> soluteMap = 
+						new HashMap<String, Double>();
+				for( int i = 0; i < _n; i++ )
+					soluteMap.put( _solutes[i], y[i] );
+				
+				/*
+				 * In and out flows
+				 */
+				for ( Boundary aBoundary : environment.getOtherBoundaries() )
+				{
+					double volFlowRate = aBoundary.getVolumeFlowRate();
+					if ( volFlowRate < 0.0 )
+					{
+						/* outflows at bulk concentrations */
+						dydt [_n ] += volFlowRate;
+						for ( int i = 0; i < _n; i++ )
+							dydt[i] += volFlowRate * y[i];
+					}
+					else
+					{
+						/* inflows determined by boundary */
+						dydt [_n ] += volFlowRate;
+						for ( int i = 0; i < _n; i++ )
+							dydt[i] += aBoundary.getMassFlowRate( _solutes[i] );
+					}
+				}
+				/*
+				 * Environment reactions
+				 */
+				for ( Reaction aReac : environment.getReactions() )
+				{
+					rate = aReac.getRate( soluteMap );
+					for ( int i = 0; i < _n; i++ )
+					{
+						stoichio = aReac.getStoichiometry( _solutes[i] );
+						dydt[i] += rate * stoichio;
+					}
+				}
+				/*
+				 * Agents
+				 */
+				int yAgent = 0;
+				for ( Agent a : agents.getAllAgents() )
+				{
+					@SuppressWarnings("unchecked")
+					List<Reaction> reactions = 
+							(List<Reaction>) a.get(REACTIONS);
+					if ( reactions == null )
+						return;
+
+					/* obtain massMap */
+					Map<String,Double> agentMap = 
+							ProcessMethods.getAgentMassMap( a );
+					
+					/* use up to date values for solvers */
+					int j = 0;
+					for( String s : agentMap.keySet())
+					{
+						j++;
+						agentMap.put(s, y[ _n + yAgent + j ]);
+					}
+					
+					/* create reactionMap and add current concentrations */
+					Map<String,Double> reactionMap = 
+							new HashMap<String, Double>();
+					reactionMap.putAll( soluteMap );
+
+					for (Reaction aReac : reactions)
+					{
+						/* Add any constants from the aspects */
+						j = 0;
+						for ( String var : aReac.getConstituentNames() )
+							if ( !agentMap.containsKey( var ) )
+							{
+								if ( a.isAspect( var ) )
+									reactionMap.put( var, a.getDouble( var) );
+								else if ( ! soluteMap.containsKey( var ) )
+									reactionMap.put(var , 0.0);
+							}
+						
+						reactionMap.putAll( agentMap );
+						rate = aReac.getRate( reactionMap );
+						
+						/*
+						 * Apply the effect of this reaction on the relevant 
+						 * solutes and agent constituents.
+						 */
+						for ( int i = 0; i < _n; i++ )
+						{
+							/* solutes */
+							stoichio = aReac.getStoichiometry( _solutes[i]);
+							dydt[i] += rate * stoichio;
+						}
+						/*
+						 * Apply the effect of this reaction to the agent and
+						 * its internal moieties.
+						 */
+						int i = 0;
+						for ( String s : agentMap.keySet() )
+						{
+							if ( !soluteMap.containsKey(s) )
+							{
+								i++;
+								/* mass and internal products */
+								stoichio = aReac.getStoichiometry( s );
+								dydt[ _n + yAgent + i ] += rate * stoichio;
+							}
+						}
+					}
+					yAgent += agentMap.size();
+				}
+				/* convert solute mass rate to concentration rate to 
+				 * concentration rates */
+				for ( int i = 0; i < _n; i++ )
+					dydt[i] /= y[ _n ];
+			}
+		};
+	}
+}

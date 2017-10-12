@@ -83,7 +83,7 @@ public class InstantiableList<T> extends LinkedList<T> implements Settable,
 	public InstantiableList(Class<?> entryClass)
 	{
 		this.valueLabel = XmlRef.valueAttribute;
-		this.pileListLabel = XmlRef.dictionary;
+		this.pileListLabel = XmlRef.InstantiableMapLable;
 		this.nodeLabel = XmlRef.item;
 		this.muteAttributeDef = true;
 		this.entryClass = entryClass;
@@ -99,7 +99,7 @@ public class InstantiableList<T> extends LinkedList<T> implements Settable,
 	{
 		this.valueLabel = XmlRef.valueAttribute;
 		
-		this.pileListLabel = XmlRef.dictionary;
+		this.pileListLabel = XmlRef.InstantiableMapLable;
 		this.nodeLabel = XmlRef.item;
 		this.muteAttributeDef = true;
 		

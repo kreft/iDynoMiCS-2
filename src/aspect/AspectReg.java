@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import aspect.Aspect.AspectClass;
 import dataIO.Log;
 import dataIO.ObjectFactory;
 import idynomics.Idynomics;
@@ -201,6 +202,7 @@ public class AspectReg
 	public Object getValue( AspectInterface rootRegistry, String key )
 	{
 		Aspect a = getAspect(key);
+
 		if ( a == null )
 			return null;
 		switch (a.type)
@@ -211,6 +213,14 @@ public class AspectReg
 				key + " as Value!");
 		}
     	return null;
+	}
+	
+	public AspectClass getType( AspectInterface rootRegistry, String key )
+	{
+		Aspect a = getAspect(key);
+		if ( a == null )
+			return null;
+		return a.type;
 	}
 	
 	/**

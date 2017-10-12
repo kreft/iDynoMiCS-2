@@ -141,11 +141,13 @@ public final class GuiActions
 		/* is the simulator set? */
 		if ( Idynomics.simulator == null )
 			Log.printToScreen("No simulator available.", false);
+		else if ( Helper.selectSpatialCompartment() == null )
+			Log.printToScreen("No spatial compartment available.", false);
 		else
 		{
 			/* create and invoke the renderer */
 			Render myRender = new Render( 
-					new AgentMediator( Helper.selectCompartment() ) );
+					new AgentMediator( Helper.selectSpatialCompartment() ) );
 			EventQueue.invokeLater(myRender);
 		}
 	}

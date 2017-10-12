@@ -246,6 +246,11 @@ public abstract class Shape implements
 	 */
 	public abstract double getTotalVolume();
 	
+	/**
+	 * 
+	 */
+	public abstract void setTotalVolume( double volume );
+	
 	/* ***********************************************************************
 	 * GRID & ARRAY CONSTRUCTION
 	 * **********************************************************************/

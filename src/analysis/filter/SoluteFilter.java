@@ -3,6 +3,7 @@ package analysis.filter;
 import aspect.AspectInterface;
 import grid.ArrayType;
 import idynomics.Compartment;
+import referenceLibrary.XmlRef;
 
 public class SoluteFilter implements Filter
 {
@@ -17,6 +18,9 @@ public class SoluteFilter implements Filter
 	}
 	@Override
 	public String stringValue(AspectInterface subject) {
+		if ( this._solute.equals( XmlRef.volume ) )
+			return String.valueOf( 
+					this._compartment.getShape().getTotalVolume() );
 		return String.valueOf( this._compartment.getSolute( 
 				this._solute ).getAverage( ArrayType.CONCN ) );
 	}

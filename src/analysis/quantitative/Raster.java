@@ -37,7 +37,7 @@ public class Raster {
 	
 	public Raster(Compartment compartment)
 	{
-		this._compartment = compartment;
+			this._compartment = compartment;
 	}
 	
 	/**

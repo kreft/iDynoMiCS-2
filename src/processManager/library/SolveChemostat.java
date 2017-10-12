@@ -190,7 +190,8 @@ public class SolveChemostat extends ProcessManager
 				Vector.addEquals(destination, _dYdTinflow);
 				
 				/**
-				 * TODO: it seems that this was the problem, double check and make nice =)
+				 * TODO: it seems that this was the problem, double check and 
+				 * make nice.
 				 */
 				Vector.timesTo(destination, destination, 1/environment.getShape().getTotalVolume());
 				/*

@@ -363,11 +363,17 @@ public final class GuiMenu
 		public void actionPerformed(ActionEvent e) {
 			if (Helper.compartmentAvailable())
 			{
-				Raster raster = new Raster( Helper.selectSpatialCompartment() );
-				raster.rasterize (Double.valueOf( 
-						Helper.obtainInput( null, "Raster scale" ) ) );
-				raster.plot(raster.agentMap(), 1.0, 
-						Helper.obtainInput( null, "filename") );
+				if ( Helper.selectSpatialCompartment() == null )
+					Log.printToScreen("No spatial compartment available.", 
+							false );
+				{
+					Raster raster = new Raster( 
+							Helper.selectSpatialCompartment() );
+					raster.rasterize( Double.valueOf( 
+							Helper.obtainInput( null, "Raster scale" ) ) );
+					raster.plot( raster.agentMap(), 1.0, 
+							Helper.obtainInput( null, "filename") );
+				}
 			}
 		}
 		

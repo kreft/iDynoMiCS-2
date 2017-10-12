@@ -17,16 +17,18 @@
 				<aspect name="reactions" type="PRIMARY" class="InstantiableList">
 					<list class="Reaction" nodeLabel="reaction" entryClass="Reaction" keyClass="String" keyLabel="name">
 						<reaction name="testReact">
-							<expression value="mass * solute1 * k">
+							<expression value="bioMass * solute1 * k">
 								<constant name="k" value="0.25" />
 							</expression>
-							<stoichiometric component="mass" coefficient="1.0" />
+							<stoichiometric component="bioMass" coefficient="1.0" />
 							<stoichiometric component="solute1" coefficient="-5.0" />
 							<stoichiometric component="solute2" coefficient="0.5" />
 						</reaction>
 					</list>
 				</aspect>
 				<aspect name="pigment" type="PRIMARY" class="String" value="GREEN" />
+				<aspect name="mass" type="CALCULATED" class="WetWeight"  />
+				<aspect name="WetDryRatio" class="Double"  value="4.0" />
 				<speciesModule name="coccoid" />
 			</species>
 			<species name="coccoid">
@@ -35,7 +37,6 @@
 				<!-- NOTE for testing purposes as stateExpression -->
 				<aspect name="volume" 		type="CALCULATED" 	class="StateExpression" 	input="mass/density" />
 				<aspect name="radius"		type="CALCULATED"	class="CoccoidRadius" 	/>
-				<aspect name="growth" 		type="EVENT" 		class="SimpleGrowth"  		 />
 				<aspect name="divide" 		type="EVENT" 		class="CoccoidDivision"			 />
 				<aspect name="#isLocated" 	type="PRIMARY" 		class="Boolean" value="true" />
 				<aspect name="updateBody" 	type="EVENT" 		class="UpdateBody" 		 />
@@ -74,7 +75,11 @@
 					<aspect name="h_map_test" type="PRIMARY" class="HashMap">
 						<item type="PRIMARY" class="String[]" value="test" key="test_key" keyType="String" />
 					</aspect>
-					<aspect name="mass" type="PRIMARY" class="Double" value="0.2" />
+					<aspect name="massMap" class="InstantiableMap">
+						<map entryClass="Double" keyType="String">
+							<item key="bioMass" value="0.2"  />
+						</map>
+					</aspect>
 					<aspect name="density" type="PRIMARY" class="Double" value="1" />
 					<aspect name="pigment" type="PRIMARY" class="String" value="RED" />
 					<aspect name="body" type="PRIMARY" class="Body">
@@ -83,7 +88,11 @@
 				</agent>
 				<agent>
 					<aspect name="species" type="PRIMARY" class="String" value="AOB" />
-					<aspect name="mass" type="PRIMARY" class="Double" value="0.2" />
+					<aspect  name="massMap" class="InstantiableMap">
+						<map entryClass="Double" keyType="String">
+							<item key="bioMass" value="0.2"  />
+						</map>
+					</aspect>
 					<aspect name="density" type="PRIMARY" class="Double" value="1" />
 					<aspect name="pigment" type="PRIMARY" class="String" value="BLUE" />
 					<aspect name="body" type="PRIMARY" class="Body">
@@ -92,7 +101,11 @@
 				</agent>
 				<agent>
 					<aspect name="species" type="PRIMARY" class="String" value="AOB" />
-					<aspect name="mass" type="PRIMARY" class="Double" value="0.2" />
+					<aspect name="massMap" class="InstantiableMap">
+						<map entryClass="Double" keyType="String">
+							<item key="bioMass" value="0.2"  />
+						</map>
+					</aspect>
 					<aspect name="density" type="PRIMARY" class="Double" value="1" />
 					<aspect name="pigment" type="PRIMARY" class="String" value="GREEN" />
 					<aspect name="body" type="PRIMARY" class="Body">

@@ -91,7 +91,7 @@ public class InstantiableMap<K,T> extends HashMap<K,T> implements Settable,
 		this.keyLabel = XmlRef.keyAttribute;
 		this.valueLabel = XmlRef.valueAttribute;
 		
-		this.bundleMapLabel = XmlRef.dictionary;
+		this.bundleMapLabel = XmlRef.map;
 		this.nodeLabel = XmlRef.item;
 		
 		this.keyClass = keyClass;

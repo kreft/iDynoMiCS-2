@@ -419,7 +419,7 @@ public class XmlRef
 	/**
 	 * 
 	 */
-	public static final String dictionary = "dictionary";
+	public static final String InstantiableMapLable = "map";
 
 	/**
 	 * species modules wrapper

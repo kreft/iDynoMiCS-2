@@ -6,6 +6,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import aspect.Aspect.AspectClass;
 import aspect.AspectInterface;
 import aspect.AspectReg;
 import dataIO.XmlHandler;
@@ -212,6 +213,11 @@ public class Agent implements AspectInterface, Settable, Instantiable
 	public Object get(String key)
 	{
 		return _aspectRegistry.getValue(this, key);
+	}
+	
+	public AspectClass getAspectType(String key)
+	{
+		return reg().getType(this, key);
 	}
 
 	/**

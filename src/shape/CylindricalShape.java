@@ -106,6 +106,11 @@ public abstract class CylindricalShape extends Shape
 		double zLength = this.getDimension(Z).getLength();
 		return 0.5 * thetaLength * rFactor * zLength;
 	}
+	
+	public void setTotalVolume( double volume)
+	{
+		Log.out(Tier.CRITICAL, "Cannot adjust Cylindrical shape volume" );
+	}
 
 	@Override
 	public void getLocalPositionTo(double[] destination, double[] location)
