@@ -20,6 +20,7 @@ import reaction.Reaction;
 import referenceLibrary.AspectRef;
 import solver.ODEderivatives;
 import solver.ODEheunsmethod;
+import solver.ODElsoda;
 import solver.ODErosenbrock;
 import solver.ODEsolver;
 import utility.Helper;
@@ -94,6 +95,8 @@ public class SolveChemostat extends ProcessManager
 		 */
 		String solverName = (String) this.getOr(SOLVER, "rosenbrock");
 		double hMax = (double) this.getOr(HMAX, 1.0e-6);
+//		if (solverName.equals("lsoda") )
+//			this._solver = new ODElsoda(_soluteNames, false);
 		if ( solverName.equals("heun") )
 			this._solver = new ODEheunsmethod(_soluteNames, false, hMax);
 		else
