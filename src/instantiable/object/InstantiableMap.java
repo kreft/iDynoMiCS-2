@@ -225,7 +225,7 @@ public class InstantiableMap<K,T> extends HashMap<K,T> implements Settable,
 						XmlRef.keyAttribute);
 				if (this.keyLabel == null)
 				{
-					this.muteSpecification = true;
+					this.muteSpecification = false;
 					this.keyLabel = XmlRef.keyAttribute;
 				}
 			}
@@ -236,7 +236,7 @@ public class InstantiableMap<K,T> extends HashMap<K,T> implements Settable,
 						XmlRef.valueAttribute );
 				if (this.valueLabel == null)
 				{
-					this.muteSpecification = true;
+					this.muteSpecification = false;
 					this.valueLabel = XmlRef.valueAttribute;
 				}
 			}

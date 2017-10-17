@@ -14,6 +14,7 @@ import dataIO.Log.Tier;
  */
 public class AspectRef
 {
+
 	public static String[] getAllOptions()
 	{
 		Field[] fields = AspectRef.class.getFields();
@@ -453,6 +454,20 @@ public class AspectRef
 	/**
 	 * 
 	 */
-	public static final String WetDryRatio = "WetDryRatio";
+	public static final String wetDryRatio = "WetDryRatio";
+	/**
+	 * 
+	 */
+	public static final String detachmentRate = "detachmentRate" ;
+	/**
+	 * 
+	 */
+	public static final String rasterScale = "rasterScale";
+
+	/**
+	 * Toggle running processManager in verbose mode generating additional plots
+	 * and console output for debugging and understanding of the process 
+	 */
+	public static final String verbose = "verbose";
 
 }

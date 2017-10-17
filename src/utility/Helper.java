@@ -46,12 +46,13 @@ public final class Helper
 	 */
 	public static boolean isSystemRunningInGUI = false;
 	
-	public static final String[] DIFFERENTIATING_PALETE = new String[] { 
+	public static final String[] DIFFERENTIATING_PALETTE = new String[] { 
 			"cyan", "magenta", "yellow", "blue", "red", "green", "violet",
 			"orange", "springgreen", "azure", "pink", "chartreuse", "black" };
 	
 	public static String[] giveMeAGradient(int length)
 	{
+		length = Helper.restrict(length, 256, 1);
 		String[] colors = new String[length];
 		int step = 256 / length;
 		for (int i = 0; i < length; i++)
@@ -60,6 +61,18 @@ public final class Helper
 			colors[i] = "rgb(" + c + ", " + c + ", " + c + ")";
 		}
 		return colors;
+	}
+	
+	/**
+	 * \brief restrict int to bounds min and max
+	 * @param a
+	 * @param max
+	 * @param min
+	 * @return
+	 */
+	public static int restrict(int a, int max, int min) 
+	{
+		return Math.max( Math.min(a, max), min );
 	}
 
 

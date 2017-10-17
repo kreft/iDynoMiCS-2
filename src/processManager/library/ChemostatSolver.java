@@ -26,6 +26,13 @@ import utility.Helper;
 
 /**
  * 
+ * Used in combination with ODE solver, passing an ordered double array of 
+ * variable moieties, passed as initial values to the ODE solver (y). The
+ * ODEderivatives function returned by {@link #standardUpdater(
+ * EnvironmentContainer, AgentContainer) standardUpdater} is used to calculated 
+ * and return the derivative (dy/dt) in the same order. After the {@link 
+ * ODEsolver#solve(double[], double) ODE step} updated values are stored.
+ * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
  * @author Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.
  */

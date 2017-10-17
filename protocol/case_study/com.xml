@@ -122,7 +122,7 @@
 					<solute name="nitrite" 	concentration="5.00E-9"  />
 					<solute name="nitrate" 	concentration="1.00E-6"  />
 				</boundary>
-				<boundary  class="chemostatOut" volumeFlowRate="-1.0E13">  0.6 liter / hour -
+				<boundary  class="chemostatOut" volumeFlowRate="-1.0E13"> <!-- 0.6 liter / hour -->
 				</boundary> 
 			</shape>
 			<solutes>
