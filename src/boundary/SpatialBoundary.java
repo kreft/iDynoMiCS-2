@@ -53,10 +53,11 @@ public abstract class SpatialBoundary extends Boundary
 	
 	public void instantiate(Element xmlElement, Settable parent) 
 	{
-		this.setParent(parent);
+		super.instantiate(xmlElement, parent);
 		
+		// FIXME shape and this are inconsistent
 		this._extreme = Integer.valueOf(XmlHandler.obtainAttribute(
-				xmlElement, XmlRef.extreme, XmlRef.dimensionBoundary)); // shape and this are inconsistent
+				xmlElement, XmlRef.extreme, XmlRef.dimensionBoundary));
 	}
 	
 	/* ***********************************************************************

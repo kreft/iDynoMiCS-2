@@ -5,8 +5,11 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 
+import org.w3c.dom.Element;
+
 import agent.Agent;
 import dataIO.Log;
+import dataIO.XmlHandler;
 import dataIO.Log.Tier;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
@@ -77,6 +80,9 @@ public abstract class Boundary implements Settable, Instantiable
 	 * and need to be entered into this compartment.
 	 */
 	protected Collection<Agent> _arrivalsLounge = new LinkedList<Agent>();
+	/**
+	 * TODO
+	 */
 	private Settable _parentNode;
 	/**
 	 * Log verbosity level for debugging purposes (set to BULK when not using).
@@ -86,6 +92,26 @@ public abstract class Boundary implements Settable, Instantiable
 	 * Log verbosity level for debugging purposes (set to BULK when not using).
 	 */
 	protected static final Tier AGENT_LEVEL = Tier.DEBUG;
+	
+	/* ***********************************************************************
+	 * CONSTRUCTORS
+	 * **********************************************************************/
+	
+	public void instantiate(Element xmlElement, Settable parent) 
+	{
+		this.setParent(parent);
+		/* 
+		 * If this class of boundary needs a partner, find the name of the
+		 * compartment it connects to.
+		 */
+		if ( this.getPartnerClass() != null )
+		{
+			this._partnerCompartmentName = XmlHandler.obtainAttribute(
+							xmlElement, 
+							XmlRef.compartment,
+							PARTNER);
+		}
+	}
 	
 	/* ***********************************************************************
 	 * BASIC SETTERS & GETTERS
@@ -140,7 +166,7 @@ public abstract class Boundary implements Settable, Instantiable
 	 */
 	public boolean needsPartner()
 	{
-		return ( this._partnerCompartmentName != null ) &&
+		return ( this.getPartnerClass() != null ) &&
 				( this._partner == null );
 	}
 
