@@ -43,7 +43,7 @@ public class ChemostatToChemostat extends Boundary
 	 * **********************************************************************/
 
 	@Override
-	protected Class<?> getPartnerClass()
+	public Class<?> getPartnerClass()
 	{
 		return ChemostatToChemostat.class;
 	}

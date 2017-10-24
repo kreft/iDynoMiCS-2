@@ -22,7 +22,7 @@ public class SolidBoundary extends SpatialBoundary
 	 * **********************************************************************/
 
 	@Override
-	protected Class<?> getPartnerClass()
+	public Class<?> getPartnerClass()
 	{
 		/* 
 		 * This boundary shouldn't really have a partner, but if one is

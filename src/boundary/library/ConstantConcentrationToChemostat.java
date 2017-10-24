@@ -61,7 +61,7 @@ public class ConstantConcentrationToChemostat extends Boundary
 	}
 	
 	@Override
-	protected Class<?> getPartnerClass()
+	public Class<?> getPartnerClass()
 	{
 		return null;
 	}

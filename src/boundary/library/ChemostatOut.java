@@ -45,7 +45,7 @@ public class ChemostatOut extends Boundary
 	}
 	
 	@Override
-	protected Class<?> getPartnerClass()
+	public Class<?> getPartnerClass()
 	{
 		return null;
 	}

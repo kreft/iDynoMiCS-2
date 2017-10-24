@@ -96,7 +96,7 @@ public class BiofilmBoundaryLayer extends WellMixedBoundary
 	 * **********************************************************************/
 
 	@Override
-	protected Class<?> getPartnerClass()
+	public Class<?> getPartnerClass()
 	{
 		return ChemostatToBoundaryLayer.class;
 	}

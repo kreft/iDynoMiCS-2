@@ -148,7 +148,7 @@ public abstract class Boundary implements Settable, Instantiable
 	 * @return The class of boundary that can be a partner of this one, making
 	 * a connection between compartments.
 	 */
-	protected abstract Class<?> getPartnerClass();
+	public abstract Class<?> getPartnerClass();
 
 	/**
 	 * \brief Set the given boundary as this boundary's partner.

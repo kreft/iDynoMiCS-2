@@ -31,7 +31,7 @@ public class GasToMembrane extends Boundary
 	 * **********************************************************************/
 	
 	@Override
-	protected Class<?> getPartnerClass()
+	public Class<?> getPartnerClass()
 	{
 		return BiofilmMembraneGas.class;
 	}
