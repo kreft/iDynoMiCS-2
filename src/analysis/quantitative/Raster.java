@@ -32,6 +32,9 @@ import dataIO.Log.Tier;
  * \Brief Raster is used to rasterize and quantify spatial properties of
  * biofilms.
  * 
+ * NOTE: This class in an active state of development, please do not make
+ * changes but give feedback as in-line comments instead.
+ * 
  * TODO: extend to 3D biofilms
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
@@ -66,6 +69,7 @@ public class Raster {
 	/* default distance map positions */
 	protected final int[] max_value = 
 			new int[] { Integer.MAX_VALUE, Integer.MAX_VALUE };
+	
 	protected final int[] zeros = 
 			new int[] { 0, 0 };
 	
@@ -85,7 +89,7 @@ public class Raster {
 
 	private enum Region
 	{
-		GAP, EDGE, BOUNDARY,
+		GAP, EDGE, BOUNDARY, CUSTOM
 	}
 	
 	/* ************************************************************************
@@ -205,7 +209,38 @@ public class Raster {
 		traitLocalization("species=CanonicalAOB", "species=CanonicalNOB" ); */
 	}
 	
-	
+	/**
+	 * \brief euclidean distanceMap of biofilm region including boundary layer
+	 * of int bound number of voxels. (Ignores encapsulated void spaces).
+	 * 
+	 * @param bound
+	 * @return
+	 */
+	public SpatialMap<Double> regionMap( int bound )
+	{
+		int[][][] agents = new int[rX][rY][2];
+		Array.setAll(agents, Integer.MAX_VALUE);
+		
+		/* fill matrix, add spacers for non periodic. */
+		agents = this.presenceMapToArray( agents, this.agentMap(), true, false);
+		int[][][] region = Array.copy( agents );
+
+		LinkedList<int[]> custom = 
+				regionDetect( region, Region.CUSTOM, bound*2, bound);
+		
+		for ( int[] pos : custom )
+			region[pos[0]][pos[1]] = max_value;
+		
+		if(this._verbose)
+		{
+			long millis = System.currentTimeMillis();
+			SpatialMap<Integer> dMap = euclideanMap( this.distanceMatrix( region ) );
+			//FIXME colors
+			this.plot( dMap, 1.0, "dMap" + millis,  Helper.DIFFERENTIATING_PALETTE ); //Helper.giveMeAGradient( 40 ) );
+		}
+				
+		return euclideanMapDbl( this.distanceMatrix( region ) );
+	}
 	
 	public String toString()
 	{
@@ -241,9 +276,10 @@ public class Raster {
 		matrix = presenceMapToArray(matrix, aMap, false, true);
 		
 		matrix = this.distanceMatrix( matrix );
-		
+
+		long millis = System.currentTimeMillis();
 		if ( this._verbose )
-			this.plotArray(matrix, "a1" + Math.random());
+			this.plotArray(matrix, "a1" + millis);
 		
 		SpatialMap<Integer> aDist = gradientMap(matrix);
 		
@@ -262,8 +298,10 @@ public class Raster {
 		
 	public void traitLocalization( String filterA, String filterB )
 	{
+
+		long millis = System.currentTimeMillis();
 		if ( this._verbose )
-			plotPropertyAnalysis( filterA, "traitA" + Math.random(), 
+			plotPropertyAnalysis( filterA, "traitA" + millis, 
 					this.agentMap() );
 		
 		SpatialMap<Integer> aMap = this.occuranceMap( filterA, 
@@ -276,7 +314,7 @@ public class Raster {
 		matrix = this.distanceMatrix( matrix );
 		
 		if ( this._verbose )
-			this.plotArray(matrix, "a1" + Math.random());
+			this.plotArray(matrix, "a1" + millis);
 		
 		SpatialMap<Integer> aDist = gradientMap(matrix);
 		
@@ -302,7 +340,7 @@ public class Raster {
 		matrix = this.distanceMatrix( matrix );
 		
 		if ( this._verbose )
-			this.plotArray(matrix, "n1" + Math.random());
+			this.plotArray(matrix, "n1" + millis);
 		
 		SpatialMap<Integer> bDist = gradientMap(matrix);
 
@@ -646,8 +684,10 @@ public class Raster {
 			}
 		}
 		
+
+		long millis = System.currentTimeMillis();
 		if ( this._verbose )
-			plot( distance, 1, "raster" + Math.random(), Helper.giveMeAGradient( max+1 ) );
+			plot( distance, 1, "raster" + millis, Helper.giveMeAGradient( max+1 ) );
 		
 		/* fill encapsulated void spaces */
 		if ( plugHoles )
@@ -727,6 +767,24 @@ public class Raster {
 	 */
 	private LinkedList<int[]> regionDetect( int[][][] array, Region region )
 	{
+		return this.regionDetect(array, region, 0, 0);
+	}
+	
+	/**
+	 * Detect encapsulated voids or open surfaces. returns voxel coordinates
+	 * that are assigned to the specified region: GAP for encapsulated voids up
+	 * to 6 voxels wide (maximum purging depth of 20), EDGE for surface regions
+	 * (non-biomass voxels that are neighboring biomass voxels) including 
+	 * diagonal neighbors, BOUNDARY for surface regions excluding diagonal 
+	 * neighbors.
+	 * 
+	 * @param array
+	 * @param region
+	 * @return
+	 */
+	private LinkedList<int[]> regionDetect( int[][][] array, Region region, 
+			int passLim, int purgeLim )
+	{
 		int passes = 0, purgeLimit = 0;
 		int d = array.length, e = array[0].length;
 
@@ -746,6 +804,10 @@ public class Raster {
 		case BOUNDARY :
 			passes = 1;
 			purgeLimit = 0;
+			break;
+		case CUSTOM :
+			passes = passLim;
+			purgeLimit = purgeLim;
 			break;
 		}
 		
@@ -1002,12 +1064,14 @@ public class Raster {
 							( (Double) euclidean( matrix[i][j] ) ).intValue() ); 
 			}
 		}
+
+		long millis = System.currentTimeMillis();
 		if ( this._verbose )
-			this.plot( distance, 1, "eucliMap" + Math.random(), Helper.giveMeAGradient( max+1 ) );
+			this.plot( distance, 1, "eucliMap" + millis, Helper.giveMeAGradient( max+1 ) );
 		return distance;
 	}
 	
-	public SpatialMap<Double> euclideanMapDbl( int[][][] matrix)
+	public SpatialMap<Double> euclideanMapDbl( int[][][] matrix )
 	{
 		/* plot edge euclidean distance */
 		int max = Array.max( matrix );
@@ -1140,6 +1204,11 @@ public class Raster {
     	for ( int[] spot : propMap.keySetNumeric() )
     		myMap.put(spot, toInteger( propMap.get( spot )[0]) );
     	return myMap;
+    }
+    
+    public SpatialMap<List<Agent>> getAgentRaster()
+    {
+    	return this._agentRaster;
     }
     
     /* ************************************************************************

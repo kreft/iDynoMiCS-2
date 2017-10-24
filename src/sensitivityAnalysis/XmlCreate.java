@@ -112,6 +112,7 @@ public class XmlCreate
 			int idx = _sensParams.indexOf( currAspect );
 			rangeAspectNames[idx] = currAspect.getAttribute( 
 					XmlRef.nameAttribute );
+			/* TODO Vector.dblFromString(vectorString) */
 			String[] inRange = currAspect.getAttribute(
 					XmlRef.rangeAttribute ).split(",");
 			inRange = checkRange(inRange);

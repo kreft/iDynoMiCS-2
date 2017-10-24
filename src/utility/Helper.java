@@ -52,7 +52,7 @@ public final class Helper
 	
 	public static String[] giveMeAGradient(int length)
 	{
-		length = Helper.restrict(length, 256, 1);
+		length = Helper.restrict(length, 256, 2);
 		String[] colors = new String[length];
 		int step = 256 / length;
 		for (int i = 0; i < length; i++)
@@ -74,7 +74,6 @@ public final class Helper
 	{
 		return Math.max( Math.min(a, max), min );
 	}
-
 
 	/**
 	 * \brief Obtain user input as string.

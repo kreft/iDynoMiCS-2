@@ -353,6 +353,9 @@ public class ClassRef
 	public final static String chemostatSolver =
 			processManager.library.ChemostatSolver.class.getName();
 	
+	public final static String agentDetachment =
+			processManager.library.AgentDetachment.class.getName();
+	
 	/* ************************************************************************
 	 * IdynoMiCS main classes
 	 */

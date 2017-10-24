@@ -470,4 +470,10 @@ public class AspectRef
 	 */
 	public static final String verbose = "verbose";
 
+	/**
+	 * Depth of detachment region eucledian distanceMap.
+	 * 
+	 */
+	public static final String regionDepth = "regionDepth";
+
 }
