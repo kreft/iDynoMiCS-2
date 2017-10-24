@@ -377,7 +377,7 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable
 					b.getPartnerClass().toString() + " in compartment " +
 					comp.getName());
 			Boundary partner = b.makePartnerBoundary();
-			comp.getShape().addOtherBoundary(partner);
+			comp.addBoundary(partner);
 		}
 	}
 	

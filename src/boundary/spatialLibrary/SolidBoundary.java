@@ -24,11 +24,7 @@ public class SolidBoundary extends SpatialBoundary
 	@Override
 	public Class<?> getPartnerClass()
 	{
-		/* 
-		 * This boundary shouldn't really have a partner, but if one is
-		 * requested then just return another solid boundary.
-		 */
-		return SolidBoundary.class;
+		return null;
 	}
 
 	/* ***********************************************************************

@@ -42,7 +42,7 @@ public abstract class Boundary implements Settable, Instantiable
 	 * XML tag for the name of the partner boundary.
 	 */
 	// TODO implement this in node construction
-	public final static String PARTNER = XmlRef.boundaryPartner;
+	public final static String PARTNER = XmlRef.partnerCompartment;
 	/**
 	 * The boundary this is connected with (not necessarily set).
 	 */
@@ -107,9 +107,9 @@ public abstract class Boundary implements Settable, Instantiable
 		if ( this.getPartnerClass() != null )
 		{
 			this._partnerCompartmentName = XmlHandler.obtainAttribute(
-							xmlElement, 
-							XmlRef.compartment,
-							PARTNER);
+							xmlElement,
+							PARTNER,
+							XmlRef.dimensionBoundary);
 		}
 	}
 	

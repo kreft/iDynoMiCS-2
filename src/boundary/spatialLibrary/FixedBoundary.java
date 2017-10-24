@@ -61,11 +61,7 @@ public class FixedBoundary extends SpatialBoundary implements Instantiable
 	@Override
 	public Class<?> getPartnerClass()
 	{
-		/* 
-		 * This boundary shouldn't really have a partner, but if one is
-		 * requested then just return another fixed boundary.
-		 */
-		return FixedBoundary.class;
+		return null;
 	}
 	
 	/* ***********************************************************************
