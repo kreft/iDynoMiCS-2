@@ -269,7 +269,7 @@ public final class Helper
 			boolean shouldLogMessage, Collection<String> options)
 	{
 		if( isNullOrEmpty(input) )
-			return obtainInput(options,description, shouldLogMessage);
+			return obtainInput(options, description, shouldLogMessage);
 		else 
 			return input;
 	}
