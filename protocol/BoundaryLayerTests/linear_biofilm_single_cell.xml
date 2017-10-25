@@ -64,7 +64,7 @@
 				<!-- µm -->
 				<dimension name="X" isCyclic="false"	targetResolution="1.0" max="32.0">
 					<boundary extreme="0" class="SolidBoundary" />
-					<boundary extreme="1" class="BiofilmBoundaryLayer" partnerCompartment="chemostat" />
+					<boundary extreme="1" class="BiofilmBoundaryLayer" partnerCompartment="chemostat" layerThickness="10" />
 				</dimension>
 			</shape>
 			<solutes>
@@ -79,7 +79,7 @@
 					<!-- arbitrary unit -->
 					<aspect name="mass" type="PRIMARY" class="Double" value="1.0" />
 					<!-- µm -->
-					<spawn number="8" domain="32.0,0.5" />
+					<spawn number="8" domain="0.5" />
 				</agent>
 			</agents>
 			<processManagers>

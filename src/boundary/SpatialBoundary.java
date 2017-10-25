@@ -55,9 +55,18 @@ public abstract class SpatialBoundary extends Boundary
 	{
 		super.instantiate(xmlElement, parent);
 		
+		String s;
 		// FIXME shape and this are inconsistent
-		this._extreme = Integer.valueOf(XmlHandler.obtainAttribute(
-				xmlElement, XmlRef.extreme, XmlRef.dimensionBoundary));
+		s = XmlHandler.obtainAttribute(
+				xmlElement, XmlRef.extreme, XmlRef.dimensionBoundary);
+		this._extreme = Integer.valueOf(s);
+		
+		if ( this.needsLayerThickness() )
+		{
+			s = XmlHandler.obtainAttribute(xmlElement,
+					XmlRef.layerThickness, XmlRef.dimensionBoundary);
+			this.setLayerThickness(Double.valueOf(s));
+		}
 	}
 	
 	/* ***********************************************************************
@@ -87,11 +96,17 @@ public abstract class SpatialBoundary extends Boundary
 	{
 		return this._extreme;
 	}
+
+	/**
+	 * Internal boolean for construction: declares whether a concrete sub-class
+	 * of SpatialBoundary needs a layer thickness set or not.
+	 */
+	protected abstract boolean needsLayerThickness();
 	
 	/**
-	 * \brief TODO
+	 * \brief Set the thickness of the boundary layer.
 	 * 
-	 * @param thickness
+	 * @param thickness Strictly positive real number.
 	 */
 	public void setLayerThickness(double thickness)
 	{
@@ -293,14 +308,6 @@ public abstract class SpatialBoundary extends Boundary
 		modelNode.add(new Attribute(XmlRef.extreme, 
 				String.valueOf(this._extreme), new String[]{"0", "1"}, true));
 		return modelNode;
-	}
-	
-	@Override
-	public boolean isReadyForLaunch()
-	{
-		if ( ! super.isReadyForLaunch() )
-			return false;
-		return true;
 	}
 
 	@Override

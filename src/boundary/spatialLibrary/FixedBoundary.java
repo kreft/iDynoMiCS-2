@@ -54,6 +54,17 @@ public class FixedBoundary extends SpatialBoundary implements Instantiable
 		}
 	}
 	
+
+	/* ***********************************************************************
+	 * BASIC SETTERS & GETTERS
+	 * **********************************************************************/
+
+	@Override
+	protected boolean needsLayerThickness()
+	{
+		return false;
+	}
+
 	/* ***********************************************************************
 	 * PARTNER BOUNDARY
 	 * **********************************************************************/

@@ -15,6 +15,18 @@ public class BiofilmMembraneLiquid extends SpatialBoundary
 {
 	public BiofilmMembraneLiquid()
 	{
+		super();
+	}
+
+	/* ***********************************************************************
+	 * BASIC SETTERS & GETTERS
+	 * **********************************************************************/
+
+	@Override
+	protected boolean needsLayerThickness()
+	{
+		// TODO check this!
+		return true;
 	}
 
 	/* ***********************************************************************

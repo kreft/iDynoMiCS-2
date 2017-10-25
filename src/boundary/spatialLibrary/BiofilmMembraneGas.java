@@ -13,6 +13,18 @@ import grid.SpatialGrid;
  */
 public class BiofilmMembraneGas extends SpatialBoundary
 {
+
+	/* ***********************************************************************
+	 * BASIC SETTERS & GETTERS
+	 * **********************************************************************/
+
+	@Override
+	protected boolean needsLayerThickness()
+	{
+		// TODO check this!
+		return true;
+	}
+
 	/* ***********************************************************************
 	 * PARTNER BOUNDARY
 	 * **********************************************************************/

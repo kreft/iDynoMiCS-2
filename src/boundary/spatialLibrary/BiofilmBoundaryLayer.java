@@ -73,12 +73,39 @@ public class BiofilmBoundaryLayer extends WellMixedBoundary
 			EnvironmentContainer environment, AgentContainer agents)
 	{
 		super.setContainers(environment, agents);
-		Collision collision = new Collision(null, this._agents.getShape());
-		double[] zeros = Vector.zerosDbl(this._agents.getNumDims());
-		this._gridSphere = new Ball(zeros, this._layerThickness);
+		this.tryToCreateGridSphere();
+	}
+	
+	@Override
+	public boolean isReadyForLaunch()
+	{
+		if ( ! super.isReadyForLaunch() )
+			return false;
+		return this._gridSphere != null;
+	}
+
+	private void tryToCreateGridSphere()
+	{
+		if ( this._agents == null || this._layerThickness <= 0.0 )
+			return;
+		
+		Shape shape = this._agents.getShape();
+		Collision collision = new Collision(null, shape);
+		double[] zeros = Vector.zerosDbl(shape.getNumberOfDimensions());
+		this._gridSphere = new Ball(zeros, 0.5 * this._layerThickness);
 		this._gridSphere.init(collision);
 	}
 	
+	/* ***********************************************************************
+	 * BASIC SETTERS & GETTERS
+	 * **********************************************************************/
+
+	@Override
+	protected boolean needsLayerThickness()
+	{
+		return true;
+	}
+
 	@Override
 	public void setLayerThickness(double thickness)
 	{
@@ -88,7 +115,7 @@ public class BiofilmBoundaryLayer extends WellMixedBoundary
 		 * NOTE: One sets a Ball's radius, not diameter
 		 */
 		super.setLayerThickness(thickness);
-		this._gridSphere.setRadius(this._layerThickness / 2.0);
+		this.tryToCreateGridSphere();
 	}
 
 	/* ***********************************************************************
@@ -151,6 +178,8 @@ public class BiofilmBoundaryLayer extends WellMixedBoundary
 	@Override
 	public void agentsArrive()
 	{
+		if ( this._arrivalsLounge.isEmpty() )
+			return;
 		/*
 		 * Give all (located) agents a random position along this boundary
 		 * surface. Unlocated agents can be simply added to the Compartment.

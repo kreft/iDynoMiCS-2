@@ -1187,7 +1187,7 @@ public abstract class Shape implements
 	 * given coordinates, and write this to <b>destination</b>.
 	 * 
 	 * @param destination Vector that will be overwritten with the result.
-	 * @param coords Discrete coordinates of a voxel in this shape.
+	 * @param coord Discrete coordinates of a voxel in this shape.
 	 */
 	public void voxelCentreTo(double[] destination, int[] coord)
 	{
@@ -1198,7 +1198,7 @@ public abstract class Shape implements
 	 * \brief Find the location of the centre of the voxel specified by the
 	 * given coordinates.
 	 * 
-	 * @param coords Discrete coordinates of a voxel in this shape.
+	 * @param coord Discrete coordinates of a voxel in this shape.
 	 * @return Continuous location of the centre of this voxel.
 	 */
 	public double[] getVoxelCentre(int[] coord)

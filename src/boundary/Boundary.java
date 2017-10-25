@@ -112,6 +112,13 @@ public abstract class Boundary implements Settable, Instantiable
 							XmlRef.dimensionBoundary);
 		}
 	}
+
+	public boolean isReadyForLaunch()
+	{
+		if ( this._environment == null || this._agents == null )
+			return false;
+		return true;
+	}
 	
 	/* ***********************************************************************
 	 * BASIC SETTERS & GETTERS
@@ -471,13 +478,6 @@ public abstract class Boundary implements Settable, Instantiable
 	public Collection<Agent> agentsToGrab()
 	{
 		return new LinkedList<Agent>();
-	}
-
-	public boolean isReadyForLaunch()
-	{
-		if ( this._environment == null || this._agents == null )
-			return false;
-		return true;
 	}
 
 	/* ***********************************************************************
