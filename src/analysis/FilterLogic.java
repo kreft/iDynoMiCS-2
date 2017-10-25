@@ -5,6 +5,7 @@ import analysis.filter.Filter;
 import analysis.filter.SoluteFilter;
 import analysis.filter.AndFilter;
 import analysis.filter.SpecificationFilter;
+import analysis.filter.TimerFilter;
 import analysis.filter.ValueFilter;
 import gereralPredicates.*;
 import idynomics.Compartment;
@@ -15,6 +16,8 @@ import idynomics.Compartment;
  * , splits the individual filters captured in a CategoryFilter
  * + splits the individual filters captured in a AndFilter
  * 
+ * # calls the timer filter for current time
+ * 
  * specification filters:
  * == isSame (always)
  * = isEquals (if numeric) otherwise isSame
@@ -24,6 +27,7 @@ import idynomics.Compartment;
  * NO operator results in a ValueFilter.
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
+ * @author Sankalp Arya (stxsa33@nottingham.ac.uk), UoN, Nottingham.
  *
  */
 public class FilterLogic {
@@ -33,6 +37,11 @@ public class FilterLogic {
 		if ( filter.contains( "%" ) )
 		{
 			return new SoluteFilter( filter, comp );
+		}
+		else if ( filter.contains( "#" ))
+		{
+			String f = filter.split( "#" )[1];
+			return new TimerFilter( f );
 		}
 		else
 			return filterFromString(filter);

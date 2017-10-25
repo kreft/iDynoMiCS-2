@@ -4,6 +4,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -135,7 +136,9 @@ public class XmlCreate
 		
 		CsvExport toCSV = new CsvExport();
 		Idynomics.global.outputLocation = sim.getAttribute( XmlRef.outputFolder );
-		toCSV.createCustomFile("xVal");
+		SimpleDateFormat dateFormat = 
+				new SimpleDateFormat("yyyy.MM.dd_HH.mm.ss");
+		toCSV.createCustomFile("xVal_"+dateFormat);
 		toCSV.writeLine(csvHeader);
 		
 		for (int row = 0; row < r*(k+1); row++) {
@@ -150,7 +153,7 @@ public class XmlCreate
 			}
 			String xValCSV = Vector.toString(states[row]);
 			toCSV.writeLine(xValCSV);
-			sim.setAttribute( XmlRef.nameAttribute, simName+suffix );
+			sim.setAttribute( XmlRef.nameAttribute, simName+"_"+suffix );
 			newProtocolFile(suffix);
 		}
 		toCSV.closeFile();

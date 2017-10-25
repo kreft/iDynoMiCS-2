@@ -147,7 +147,7 @@ public class Lsoda {
 			int iwork6, int iwork7, int iwork8, int iwork9, double rwork1, double rwork5,
 			double rwork6, double rwork7, Object data)
 	{
-		int mxstp0 = 500, mxhnl0 = 10, i, iflag = 0, lenyh;
+		int mxstp0 = 5000, mxhnl0 = 10, i, iflag = 0, lenyh;
 		boolean ihit = false;
 		double atoli, ayi, big, h0 = 0.0, hmax, hmx, rtoli, tcrit = 0, tdist, tnext, tol,
 				tolsf, tp, size, sum, w0;
@@ -1178,10 +1178,11 @@ public class Lsoda {
 	 * @param data
 	 */
 	private static void stoda(int neq, Object data) {
-		int corflag = 0;
 		int i, i1, j, ncf;
 		double delp = 0.0, dsm = 0, dup, exup, r, told;
 		double pnorm;
+		
+		corflag = 0;
 
 		kflag = 0;
 		orderflag = 0;
