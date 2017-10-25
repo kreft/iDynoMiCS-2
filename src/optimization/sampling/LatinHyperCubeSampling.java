@@ -1,5 +1,8 @@
 package optimization.sampling;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import utility.ExtraMath;
 
 public class LatinHyperCubeSampling {
@@ -13,8 +16,17 @@ public class LatinHyperCubeSampling {
 
 		for (int i = 0; i < dimensions; i++) 
 		{
+			List<Double> rowShuffle = new ArrayList<Double>();
 			for (int j = 0; j < stripes; j++) 
-				temp[j] = ExtraMath.getUniRand(j * d, (j + 1) * d );
+			{
+				rowShuffle.add( ExtraMath.getUniRand(j * d, (j + 1) * d) );
+			}			
+			
+			for ( int j = 0; j < stripes; j++ )
+			{
+				temp[j] = rowShuffle.remove( ExtraMath.getUniRandInt( 
+						rowShuffle.size() ) );
+			}
 
 			for (int j = 0; j < stripes; j++) 
 				out[j][i] = temp[j];
@@ -22,20 +34,3 @@ public class LatinHyperCubeSampling {
 		return out;
 	}	
 }
-
-/*
- * 	Alternatively we could add an additional shuffle pass
- * 
-		List<Double> rowShuffle = new ArrayList<Double>();
-		for (int j = 0; j < stripes; j++) 
-		{
-			rowShuffle.add( ExtraMath.getUniRand(j * d, (j + 1) * d) );
-		}			
-		
-		for ( int j = 0; j < stripes; j++ )
-		{
-			temp[j] = rowShuffle.remove( ExtraMath.getUniRandInt( 
-					rowShuffle.size() ) );
-		}
- * 
- */

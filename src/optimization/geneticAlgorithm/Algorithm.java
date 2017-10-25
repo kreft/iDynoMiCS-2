@@ -1,18 +1,24 @@
 package optimization.geneticAlgorithm;
 
+import linearAlgebra.Vector;
+import optimization.objectiveFunction.ObjectiveFunction;
+import utility.ExtraMath;
+
 public class Algorithm {
 
     /* GA parameters */
-    private static final double uniformRate = 0.5;
-    private static final double mutationRate = 0.015;
+    private static final double uniformRate = 0.0;
+    private static final double mutationRate = 0.5;
+    private static final double mutationScale = 1.0;
     private static final int tournamentSize = 5;
     private static final boolean elitism = true;
 
     /* Public methods */
     
     // Evolve a population
-    public static Population evolvePopulation(Population pop) {
-        Population newPopulation = new Population(pop.size(), false);
+    public static Population evolvePopulation(Population pop, ObjectiveFunction of, double[] x) {
+    	
+        Population newPopulation = new Population( of , pop.size());
 
         // Keep our best individual
         if (elitism) {
@@ -29,9 +35,9 @@ public class Algorithm {
         // Loop over the population size and create new individuals with
         // crossover
         for (int i = elitismOffset; i < pop.size(); i++) {
-            Individual indiv1 = tournamentSelection(pop);
-            Individual indiv2 = tournamentSelection(pop);
-            Individual newIndiv = crossover(indiv1, indiv2);
+            Individual indiv1 = tournamentSelection(pop, of);
+            Individual indiv2 = tournamentSelection(pop, of);
+            Individual newIndiv = crossover(indiv1, indiv2, x);
             newPopulation.saveIndividual(i, newIndiv);
         }
 
@@ -39,18 +45,18 @@ public class Algorithm {
         for (int i = elitismOffset; i < newPopulation.size(); i++) {
             mutate(newPopulation.getIndividual(i));
         }
-
+        
         return newPopulation;
     }
 
     // Crossover individuals
-    private static Individual crossover(Individual indiv1, Individual indiv2) {
-        Individual newSol = new Individual();
+    private static Individual crossover(Individual indiv1, Individual indiv2, double[] x) {
+        Individual newSol = new Individual( new double[] { indiv1.getGene(0), indiv1.getGene(1) } , x);
         // Loop through genes
         for (int i = 0; i < indiv1.size(); i++) {
             // Crossover
             if (Math.random() <= uniformRate) {
-                newSol.setGene(i, indiv1.getGene(i));
+                // already set
             } else {
                 newSol.setGene(i, indiv2.getGene(i));
             }
@@ -64,16 +70,19 @@ public class Algorithm {
         for (int i = 0; i < indiv.size(); i++) {
             if (Math.random() <= mutationRate) {
                 // Create random gene
-                byte gene = (byte) Math.round(Math.random());
+            	double gene = Double.MAX_VALUE;
+            	while (gene > 10.0 || gene < 0.0 )
+	                gene = indiv.getGene(i) + ExtraMath.getNormRand() * 
+	                		mutationScale;
                 indiv.setGene(i, gene);
             }
         }
     }
 
     // Select individuals for crossover
-    private static Individual tournamentSelection(Population pop) {
+    private static Individual tournamentSelection(Population pop, ObjectiveFunction of) {
         // Create a tournament population
-        Population tournament = new Population(tournamentSize, false);
+        Population tournament = new Population( of, tournamentSize );
         // For each place in the tournament get a random individual
         for (int i = 0; i < tournamentSize; i++) {
             int randomId = (int) (Math.random() * pop.size());

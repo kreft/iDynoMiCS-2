@@ -1,33 +1,19 @@
 package optimization.geneticAlgorithm;
 
+import linearAlgebra.Vector;
+import optimization.objectiveFunction.ObjectiveFunction;
 import optimization.sampling.LatinHyperCubeSampling;
 
 public class Population {
 
     Individual[] individuals;
-
-    /*
-     * Constructors
-     */
-    // Create a population
-    public Population(int populationSize, boolean initialise) {
-        individuals = new Individual[populationSize];
-        // Initialise population
-        if (initialise) {
-            // Loop and create individuals
-            for (int i = 0; i < size(); i++) {
-                Individual newIndividual = new Individual();
-                newIndividual.generateIndividual();
-                saveIndividual(i, newIndividual);
-            }
-        }
-    }
+    ObjectiveFunction _of;
     
     public Population( int slices, double[] lowerBound, 
-    		double[] upperBound )
+    		double[] upperBound, double[] x )
     {
     	/* initialize population parameters */
-    	int populationSize = slices*lowerBound.length;
+    	int populationSize = slices;
     	individuals = new Individual[populationSize];
     	
     	/* Latin hyper cube sampling for good coverage of parameter space */
@@ -36,13 +22,23 @@ public class Population {
     	
     	/* generate individuals */
         for (int i = 0; i < this.size(); i++) {
-            Individual newIndividual = new Individual( lhc[i] );
+            Individual newIndividual = new Individual( Vector.times(lhc[i], upperBound), x );
             saveIndividual(i, newIndividual);
         }
         
     }
 
-    /* Getters */
+    public Population(ObjectiveFunction of, int size) {
+		this._of = of;
+		individuals = new Individual[size];
+	}
+    
+    public void setObjectiveFunction( ObjectiveFunction of )
+    {
+    	this._of = of;
+    }
+
+	/* Getters */
     public Individual getIndividual(int index) {
         return individuals[index];
     }
@@ -51,7 +47,7 @@ public class Population {
         Individual fittest = individuals[0];
         // Loop through individuals to find fittest
         for (int i = 0; i < size(); i++) {
-            if (fittest.getFitness() <= getIndividual(i).getFitness()) {
+            if (fittest.getLoss( _of ) > getIndividual(i).getLoss( _of ) ) {
                 fittest = getIndividual(i);
             }
         }
