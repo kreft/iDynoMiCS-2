@@ -7,6 +7,7 @@ import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
 import javax.xml.transform.*;
@@ -138,7 +139,7 @@ public class XmlCreate
 		Idynomics.global.outputLocation = sim.getAttribute( XmlRef.outputFolder );
 		SimpleDateFormat dateFormat = 
 				new SimpleDateFormat("yyyy.MM.dd_HH.mm.ss");
-		toCSV.createCustomFile("xVal_"+dateFormat);
+		toCSV.createCustomFile("xVal_"+dateFormat.format(new Date()));
 		toCSV.writeLine(csvHeader);
 		
 		for (int row = 0; row < r*(k+1); row++) {
