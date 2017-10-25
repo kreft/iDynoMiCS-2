@@ -19,6 +19,7 @@ import linearAlgebra.Vector;
 import referenceLibrary.AspectRef;
 import shape.Shape;
 import surface.Ball;
+import surface.BoundingBox;
 import surface.Collision;
 import surface.Surface;
 
@@ -145,21 +146,26 @@ public class BiofilmBoundaryLayer extends WellMixedBoundary
 	{
 		Shape aShape = this._environment.getShape();
 		SpatialGrid grid = this._environment.getCommonGrid();
+		int numDim = aShape.getNumberOfDimensions();
 		/*
 		 * Iterate over all voxels, checking if there are agents nearby.
 		 */
 		int[] coords = aShape.resetIterator();
 		double[] voxelCenter = aShape.getVoxelCentre(coords);
+		double[] voxelCenterTrimmed = Vector.zerosDbl(numDim);
 		List<Agent> neighbors;
+		BoundingBox box;
 		while ( aShape.isIteratorValid() )
 		{
 			aShape.voxelCentreTo(voxelCenter, coords);
-			this._gridSphere.setCenter(aShape.getVoxelCentre(coords));
+			Vector.copyTo(voxelCenterTrimmed, voxelCenter);
+			this._gridSphere.setCenter(voxelCenterTrimmed);
 			/*
 			 * Find all nearby agents. Set the grid to zero if an agent is
 			 * within the grid's sphere
 			 */
-			neighbors = this._agents.treeSearch(this._gridSphere.boundingBox(this._agents.getShape()));
+			box = this._gridSphere.boundingBox(this._agents.getShape());
+			neighbors = this._agents.treeSearch(box);
 			for ( Agent a : neighbors )
 				for (Surface s : (List<Surface>) a.get(AspectRef.surfaceList))
 					if ( this._gridSphere.distanceTo(s) < 0.0 )
