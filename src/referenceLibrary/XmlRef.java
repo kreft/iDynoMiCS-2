@@ -497,5 +497,10 @@ public class XmlRef
 	 * chemostat volume flowrate
 	 */
 	public static final String volumeFlowRate = "volumeFlowRate";
+	
+	/**
+	 * chemostat volume flowrate for constant chemostat volume
+	 */
+	public static final String constantVolume = "constantVolume";
 
 }

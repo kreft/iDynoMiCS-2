@@ -270,7 +270,7 @@ public class SolveChemostat extends ProcessManager
 		/*
 		 * Loop over all boundaries, asking for their flow rates.
 		 */
-		for ( Boundary aBoundary : this._environment.getOtherBoundaries() )
+		for ( Boundary aBoundary : this._environment.getNonSpatialBoundaries() )
 		{
 			double volFlowRate = aBoundary.getVolumeFlowRate();
 			if ( volFlowRate < 0.0 )

@@ -37,7 +37,7 @@ public class Lsoda {
 
 	private static int nyh;
 
-	private static int ierpj;
+	private static int ierpj, ier = 0;
 
 	private static int iersl;
 
@@ -1067,10 +1067,8 @@ public class Lsoda {
 	 *            number of rows of a
 	 * @param ipvt
 	 *            n+1 integer vector of pivot indices
-	 * @param ier
-	 *            either 0 (singularity) or k (U[k][k] == 0)
 	 */
-	public static void dgefa(double[][] a, int n, int[] ipvt, int ier) {
+	public static void dgefa(double[][] a, int n, int[] ipvt) {
 		int j;
 		double t;
 		double[] aTemp = new double[a[0].length];
@@ -1701,7 +1699,6 @@ public class Lsoda {
 	 * @param y
 	 */
 	private static void prja(int neq) {
-		int ier = 0;
 		double fac, hl0, r, r0, yj;
 		nje++;
 		ierpj = 0;
@@ -1742,7 +1739,7 @@ public class Lsoda {
 			for (int i = 1; i <= n; i++)
 				wm[i][i] += 1.;
 			/* Do LU decomposition on P. */
-			dgefa(wm, n, ipvt, ier);
+			dgefa(wm, n, ipvt);
 			if (ier != 0)
 				ierpj = 1;
 			return;

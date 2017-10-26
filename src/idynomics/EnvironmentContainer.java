@@ -280,9 +280,9 @@ public class EnvironmentContainer implements CanPrelaunchCheck, Settable
 	 * 
 	 * @return
 	 */
-	public Collection<Boundary> getOtherBoundaries()
+	public Collection<Boundary> getNonSpatialBoundaries()
 	{
-		return this._shape.getOtherBoundaries();
+		return this._shape.getNonSpatialBoundaries();
 	}
 	
 	/**
