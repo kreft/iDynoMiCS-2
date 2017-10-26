@@ -368,7 +368,7 @@ public final class GuiMenu
 							false );
 				{
 					Raster raster = new Raster( 
-							Helper.selectSpatialCompartment() );
+							Helper.selectSpatialCompartment(), true );
 					raster.rasterize( Double.valueOf( 
 							Helper.obtainInput( null, "Raster scale" ) ) );
 					raster.plot( raster.agentMap(), 1.0, 

@@ -503,4 +503,9 @@ public class XmlRef
 	 */
 	public static final String constantVolume = "constantVolume";
 
+	/**
+	 * Toggle boundary agent removal on or of
+	 */
+	public static final String agentRemoval = "agentRemoval";
+
 }

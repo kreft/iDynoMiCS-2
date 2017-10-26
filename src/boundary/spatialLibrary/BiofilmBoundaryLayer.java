@@ -205,6 +205,11 @@ public class BiofilmBoundaryLayer extends WellMixedBoundary
 			 * Now that the agent is at the top of the boundary layer, perform
 			 * a random walk until it hits a boundary or another agent.
 			 */
+			// FIXME Bas[17.10.17] pull distance is an arbitrary distance which
+			// is used by the agent relaxation to have a search box in which any
+			// agent agent interaction may take place. This distance would
+			// always be larger then any actual interaction and thus I do not
+			// think it is right to use here.
 			double pull = anAgent.getDouble(CURRENT_PULL_DISTANCE);
 			if ( Log.shouldWrite(AGENT_ARRIVE_LEVEL) )
 			{

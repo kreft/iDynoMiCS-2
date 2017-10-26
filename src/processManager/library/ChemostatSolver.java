@@ -26,6 +26,13 @@ import utility.Helper;
 
 /**
  * 
+ * Used in combination with ODE solver, passing an ordered double array of 
+ * variable moieties, passed as initial values to the ODE solver (y). The
+ * ODEderivatives function returned by {@link #standardUpdater(
+ * EnvironmentContainer, AgentContainer) standardUpdater} is used to calculated 
+ * and return the derivative (dy/dt) in the same order. After the {@link 
+ * ODEsolver#solve(double[], double) ODE step} updated values are stored.
+ * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
  * @author Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.
  */
@@ -38,7 +45,7 @@ public class ChemostatSolver extends ProcessManager
 	public static String REACTIONS = AspectRef.agentReactions;
 	public static String SOLUTES = AspectRef.soluteNames;
 	public static String AGENT_VOLUME = AspectRef.agentVolume;
-	
+	public String DIVIDE = AspectRef.agentDivision;
 	/**
 	 * The ODE solver to use when updating solute concentrations. 
 	 */
@@ -143,6 +150,10 @@ public class ChemostatSolver extends ProcessManager
 			yAgent += agentMap.size();
 			ProcessMethods.updateAgentMass(a, agentMap );
 		}
+		
+		/* perform final clean-up and update agents to represent updated 
+		 * situation. */
+		this.postStep();
 	}
 	
 	/* ***********************************************************************
@@ -314,5 +325,17 @@ public class ChemostatSolver extends ProcessManager
 					dydt[i] /= y[ _n ];
 			}
 		};
+	}
+	
+	protected void postStep()
+	{
+
+		/**
+		 * act upon new agent situations
+		 */
+		for(Agent agent: this._agents.getAllAgents()) 
+		{
+			agent.event(DIVIDE);
+		}
 	}
 }
