@@ -22,7 +22,8 @@ public class Population {
     	
     	/* generate individuals */
         for (int i = 0; i < this.size(); i++) {
-            Individual newIndividual = new Individual( Vector.times(lhc[i], upperBound), x );
+            Individual newIndividual = new Individual( Vector.times(lhc[i], upperBound) );
+            newIndividual.evaluate(x);
             saveIndividual(i, newIndividual);
         }
         

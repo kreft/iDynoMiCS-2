@@ -8,7 +8,7 @@ public class Algorithm {
 
     /* GA parameters */
     private static final double uniformRate = 0.0;
-    private static final double mutationRate = 0.5;
+    private static final double mutationRate = 1.0;
     private static final double mutationScale = 1.0;
     private static final int tournamentSize = 5;
     private static final boolean elitism = true;
@@ -37,21 +37,22 @@ public class Algorithm {
         for (int i = elitismOffset; i < pop.size(); i++) {
             Individual indiv1 = tournamentSelection(pop, of);
             Individual indiv2 = tournamentSelection(pop, of);
-            Individual newIndiv = crossover(indiv1, indiv2, x);
+            Individual newIndiv = crossover(indiv1, indiv2);
             newPopulation.saveIndividual(i, newIndiv);
         }
 
         // Mutate population
         for (int i = elitismOffset; i < newPopulation.size(); i++) {
             mutate(newPopulation.getIndividual(i));
+            newPopulation.getIndividual(i).evaluate(x);
         }
-        
+
         return newPopulation;
     }
 
     // Crossover individuals
-    private static Individual crossover(Individual indiv1, Individual indiv2, double[] x) {
-        Individual newSol = new Individual( new double[] { indiv1.getGene(0), indiv1.getGene(1) } , x);
+    private static Individual crossover(Individual indiv1, Individual indiv2) {
+        Individual newSol = new Individual( Vector.copy( indiv1._inputs ) );
         // Loop through genes
         for (int i = 0; i < indiv1.size(); i++) {
             // Crossover
