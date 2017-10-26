@@ -11,13 +11,13 @@ import optimization.sampling.LatinHyperCubeSampling;
 public class Population {
 	
     /* GA parameters */
-    private static final double uniformRate = 0.25;
-    private static final double mutationRate = 0.6;
-    private static final double mutationScale = 0.25;
-    private static final int tournamentSize = 8;
-    private static final int elite = 2;
+    private double _uniformRate = 0.25;
+    private double _mutationRate = 0.6;
+    private double _mutationScale = 0.25;
+    private int _tournamentSize = 8;
+    private int _elite = 2;
 
-    private Individual[] individuals;
+    private Individual[] _individuals;
     private Collection<Constraint> _constraints;
     private ObjectiveFunction _of;
     
@@ -44,6 +44,10 @@ public class Population {
     	double[] upper = null;
     	double[] lower = null;
     	
+    	/* TODO currently only considering domain constraints in order to have a
+    	 * stable number of individuals out of LHC sampling, for fully random
+    	 * sampling methods we may want to consider conditional constraints to.
+    	 */
     	for( Constraint c : constraints)
     		if( c instanceof Bound)
     			if( c.isUpperBound() )
@@ -56,11 +60,9 @@ public class Population {
         {
             Individual newIndividual = new Individual( Vector.add( lower, 
             		Vector.times(Vector.minus( upper, lower) , lhc[i]) ) );
-
             newIndividual.evaluate(x);
             set(i, newIndividual);
         }
-        
     }
 
     /**
@@ -74,9 +76,27 @@ public class Population {
     {
 		this._of = of;
 		this._constraints = constraints;
-		individuals = new Individual[size];
+		_individuals = new Individual[size];
 	}
     
+    /**
+     * Set parameters for genetic algorithm
+     * @param crossOverProbability
+     * @param mutationProbability
+     * @param mutationScalar
+     * @param tournamentSize
+     * @param elite
+     */
+    public void setGeneticAlgorithm( double crossOverProbability, 
+    		double mutationProbability, double mutationScalar,
+    		int tournamentSize, int elite )
+    {
+    	this._uniformRate = crossOverProbability;
+    	this._mutationRate = mutationProbability;
+    	this._mutationScale = mutationScalar;
+    	this._tournamentSize = tournamentSize;
+    	this._elite = elite;
+    }
     
     /**
      * amount of individuals in this population
@@ -84,7 +104,7 @@ public class Population {
      */
     public int size() 
     {
-        return individuals.length;
+        return _individuals.length;
     }
 
     /**
@@ -95,7 +115,7 @@ public class Population {
      */
     public void set(int index, Individual indiv) 
     {
-        individuals[index] = indiv;
+        _individuals[index] = indiv;
     }
 
     /**
@@ -105,7 +125,7 @@ public class Population {
      */
     public Individual get(int index) 
     {
-        return individuals[index];
+        return _individuals[index];
     }
 
     /**
@@ -114,7 +134,7 @@ public class Population {
      */
     public Individual fittest() 
     {
-        Individual fittest = individuals[0];
+        Individual fittest = _individuals[0];
         for (int i = 0; i < size(); i++)
         {
             if (fittest.loss( _of ) > get(i).loss( _of ) )
@@ -205,21 +225,21 @@ public class Population {
         Population newPopulation = new Population( _of , this.size(), 
         		this._constraints );
         
-        for (int i = 0; i < elite; i++)
-        	newPopulation.set(i, fittest( elite )[i] );
+        for (int i = 0; i < _elite; i++)
+        	newPopulation.set(i, fittest( _elite )[i] );
         
         /* crossover population */
-        for (int i = elite; i < newPopulation.size(); i++) 
+        for (int i = _elite; i < newPopulation.size(); i++) 
         {
-            Individual indiv1 = this.tournament( tournamentSize );
-            Individual indiv2 = this.tournament( tournamentSize );
-            newPopulation.set(i, indiv1.crossover(indiv2, uniformRate) );
+            Individual indiv1 = this.tournament( _tournamentSize );
+            Individual indiv2 = this.tournament( _tournamentSize );
+            newPopulation.set(i, indiv1.crossover(indiv2, _uniformRate) );
         }
 
         /* Mutate population */
-        for (int i = elite; i < newPopulation.size(); i++) 
+        for (int i = _elite; i < newPopulation.size(); i++) 
         {
-            newPopulation.get(i).mutate(mutationRate, mutationScale, 
+            newPopulation.get(i).mutate(_mutationRate, _mutationScale, 
             		this._constraints);
             newPopulation.get(i).evaluate(x);
         }

@@ -498,4 +498,9 @@ public class XmlRef
 	 */
 	public static final String volumeFlowRate = "volumeFlowRate";
 
+	/**
+	 * Toggle boundary agent removal on or of
+	 */
+	public static final String agentRemoval = "agentRemoval";
+
 }

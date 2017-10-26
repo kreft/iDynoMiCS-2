@@ -12,6 +12,7 @@ import java.util.Map;
 import agent.Agent;
 import agent.Body;
 import aspect.Aspect.AspectClass;
+import aspect.Aspect;
 import aspect.AspectInterface;
 import aspect.Event;
 import dataIO.Log;
@@ -102,7 +103,7 @@ public class CoccoidDivision extends Event
 		/* Make one new agent, copied from the mother.*/
 		Agent daughter = new Agent(mother);
 		/* Transfer an appropriate amount of mass from mother to daughter. */
-		this.transferMass(mother, daughter);
+		CoccoidDivision.transferMass(mother, daughter);
 		/* Update their bodies, if they have them. */
 		if ( mother.isAspect(this.BODY) && mother.isAspect(this.RADIUS) )
 			this.shiftBodies(mother, daughter);
@@ -133,8 +134,11 @@ public class CoccoidDivision extends Event
 		}
 		/* The bodies of both cells may now need updating. */
 
-		mother.event(UPDATE_BODY);
-		daughter.event(UPDATE_BODY);
+		if ( mother.isAspect(UPDATE_BODY) && mother.isAspect(BODY) )
+		{
+			mother.event(UPDATE_BODY);
+			daughter.event(UPDATE_BODY);
+		}
 		/* Call the plasmid loss event */
 		if (daughter.isAspect(PLASMID_LOSS))
 			daughter.event(PLASMID_LOSS);
@@ -213,11 +217,13 @@ public class CoccoidDivision extends Event
 		/*
 		 * Transfer the mass from mother to daughter, using mumMassFrac.
 		 */
+		Double motherMass = null, product = null;
+		
 		Object mumMass = mother.get(MASS);
 		if ( mumMass instanceof Double && mother.getAspectType( MASS ) ==
 				AspectClass.PRIMARY )
 		{
-			double motherMass = (Double) mumMass;
+			motherMass = (Double) mumMass;
 			mother.set(MASS, motherMass * mumMassFrac);
 			daughter.set(MASS, motherMass * (1.0 - mumMassFrac));
 		}
@@ -227,10 +233,11 @@ public class CoccoidDivision extends Event
 		if ( massMap != null && massMap instanceof Map )
 		{
 			@SuppressWarnings("unchecked")
-			Map<String,Double> mumProducts = (Map<String,Double>) massMap;
+			Map<String,Double> mumProducts = 
+					(Map<String,Double>) massMap;
 			@SuppressWarnings("unchecked")
-			Map<String,Double> daughterProducts = (Map<String,Double>) daughter.get(MASS_MAP);
-			double product;
+			Map<String,Double> daughterProducts = 
+					(Map<String,Double>) daughter.get(MASS_MAP);
 			for ( String key : mumProducts.keySet() )
 			{
 				product = mumProducts.get(key);
@@ -240,7 +247,7 @@ public class CoccoidDivision extends Event
 			mother.set(MASS_MAP, mumProducts);
 			daughter.set(MASS_MAP, daughterProducts);
 		}
-		else
+		if ( motherMass == null && product == null )
 		{
 			Log.out(Tier.CRITICAL, "Agent "+mother.identity()+
 					" has an unrecognised mass type: "+
