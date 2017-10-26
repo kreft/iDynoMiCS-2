@@ -406,28 +406,24 @@ public class EnvironmentContainer implements CanPrelaunchCheck, Settable
 		 * of its influence over the concentration.
 		 */
 		double scaleFactor = 0.0;
-		for ( SpatialBoundary b : bndrs )
+		for ( WellMixedBoundary b : bndrs )
 			scaleFactor += b.getTotalSurfaceArea();
 		scaleFactor = 1.0 / scaleFactor;
 		/*
 		 * At least one of the boundaries need to update the well-mixed array,
 		 * so loop through all of them.
 		 */
-		for ( SpatialBoundary b: bndrs )
+		for ( WellMixedBoundary b: bndrs )
 		{
 			b.updateWellMixedArray();
-			/*
-			 * Only need to gather concentrations from well-mixed boundaries.
-			 */
 			if ( b.needsToUpdateWellMixed() )
 			{
-				WellMixedBoundary wmb = (WellMixedBoundary) b;
 				double sAreaFactor = b.getTotalSurfaceArea() * scaleFactor;
 				for ( SpatialGrid solute : this._solutes )
 				{
 					name = solute.getName();
 					double concn = wellMixedConcns.get(name);
-					concn += wmb.getConcentration(name) * sAreaFactor;
+					concn += b.getConcentration(name) * sAreaFactor;
 					wellMixedConcns.put(name, concn);
 				}
 			}
