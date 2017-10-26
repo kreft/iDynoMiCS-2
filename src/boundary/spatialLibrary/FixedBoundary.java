@@ -74,7 +74,7 @@ public class FixedBoundary extends SpatialBoundary implements Instantiable
 	{
 		return null;
 	}
-	
+
 	/* ***********************************************************************
 	 * SOLUTE TRANSFERS
 	 * **********************************************************************/
@@ -108,7 +108,10 @@ public class FixedBoundary extends SpatialBoundary implements Instantiable
 	{
 		this.setWellMixedByDistance();
 	}
-	
+
+	@Override
+	public void additionalPartnerUpdate() {}
+
 	/* ***********************************************************************
 	 * AGENT TRANSFERS
 	 * **********************************************************************/

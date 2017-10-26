@@ -73,6 +73,9 @@ public class ChemostatToChemostat extends Boundary
 	 * SOLUTE TRANSFERS
 	 * **********************************************************************/
 
+	@Override
+	public void additionalPartnerUpdate() {}
+
 	/* ***********************************************************************
 	 * AGENT TRANSFERS
 	 * **********************************************************************/

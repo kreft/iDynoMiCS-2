@@ -54,7 +54,18 @@ public class ChemostatToBoundaryLayer extends Boundary
 	/* ***********************************************************************
 	 * SOLUTE TRANSFERS
 	 * **********************************************************************/
+
+	@Override 
+	public void additionalPartnerUpdate()
+	{
+		this._partner.additionalPartnerUpdate();
+	}
 	
+	public double getSoluteConcentration(String soluteName)
+	{
+		return this._environment.getAverageConcentration(soluteName);
+	}
+
 	/* ***********************************************************************
 	 * AGENT TRANSFERS
 	 * **********************************************************************/

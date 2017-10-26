@@ -57,6 +57,9 @@ public class SolidBoundary extends SpatialBoundary
 		this.setWellMixedByDistance();
 	}
 
+	@Override
+	public void additionalPartnerUpdate() {}
+
 	/* ***********************************************************************
 	 * AGENT TRANSFERS
 	 * **********************************************************************/

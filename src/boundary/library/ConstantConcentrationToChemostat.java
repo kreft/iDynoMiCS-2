@@ -92,6 +92,10 @@ public class ConstantConcentrationToChemostat extends Boundary
 		}
 	}
 	
+
+	@Override
+	public void additionalPartnerUpdate() {}
+
 	/* ***********************************************************************
 	 * AGENT TRANSFERS
 	 * **********************************************************************/

@@ -79,7 +79,7 @@
 					<!-- arbitrary unit -->
 					<aspect name="mass" type="PRIMARY" class="Double" value="1.0" />
 					<!-- µm -->
-					<spawn number="8" domain="0.5" />
+					<spawn number="1" domain="0.5" />
 				</agent>
 			</agents>
 			<processManagers>
@@ -88,13 +88,6 @@
 					firstStep="0.0"  timerStepSize="1.0">	
 					<aspect name="soluteNames" type="PRIMARY" class="String[]" value="hydrogen" /> 
 					<!-- µm^2 ms^-1-->
-				</process>
-				<process name="svgWriter" class="GraphicalOutput"  priority="0"
-					firstStep="0.0"  timerStepSize="1.0">
-					<aspect name="solute" type="PRIMARY" class="String" value="hydrogen" />
-					<!-- µM --> 
-					<aspect name="maxConcentration" type="PRIMARY" class="Double" value="5.0" />
-					<aspect name="outputWriter" type="PRIMARY" class="String" value="SvgExport" />
 				</process>
 				
 			</processManagers>

@@ -177,6 +177,14 @@ public class BiofilmBoundaryLayer extends WellMixedBoundary
 		}
 	}
 
+	@Override
+	public void additionalPartnerUpdate()
+	{
+		ChemostatToBoundaryLayer p = (ChemostatToBoundaryLayer) this._partner;
+		for ( String soluteName : this._environment.getSoluteNames() )
+			this._concns.put(soluteName, p.getSoluteConcentration(soluteName));
+	}
+
 	/* ***********************************************************************
 	 * AGENT TRANSFERS
 	 * **********************************************************************/

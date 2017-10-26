@@ -3,6 +3,9 @@ package boundary;
 import java.util.HashMap;
 import java.util.Map;
 
+import dataIO.Log;
+import dataIO.Log.Tier;
+
 /**
  * \brief A well-mixed boundary is a spatial boundary that <i>must</i> have a
  * well-mixed region associated with it.
@@ -38,6 +41,14 @@ public abstract class WellMixedBoundary extends SpatialBoundary
 	 */
 	public double getConcentration(String soluteName)
 	{
-		return this._concns.get(soluteName);
+		try
+		{
+			return this._concns.get(soluteName);
+		}
+		catch (Exception e)
+		{
+			Log.out(Tier.CRITICAL, "Error getting solute \""+soluteName+"\"");
+			throw e;
+		}
 	}
 }

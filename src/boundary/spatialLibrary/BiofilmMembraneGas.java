@@ -53,6 +53,9 @@ public class BiofilmMembraneGas extends SpatialBoundary
 		this.setWellMixedByDistance();
 	}
 
+	@Override
+	public void additionalPartnerUpdate() {}
+
 	/* ***********************************************************************
 	 * AGENT TRANSFERS
 	 * **********************************************************************/

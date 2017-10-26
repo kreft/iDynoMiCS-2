@@ -73,6 +73,9 @@ public class ChemostatOut extends Boundary
 			this.setMassFlowRate(name, this.getMassFlowRate(name));
 	}
 	
+	@Override
+	public void additionalPartnerUpdate() {}
+	
 	/* ***********************************************************************
 	 * AGENT TRANSFERS
 	 * **********************************************************************/
