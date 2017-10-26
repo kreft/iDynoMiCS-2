@@ -1,28 +1,46 @@
 package optimization.constraint;
 
-import java.util.function.Predicate;
+import linearAlgebra.Vector;
 
-public class Bound implements Predicate<Double> {
+public class Bound implements Constraint {
 	
-	protected Double _bound;
+	protected double[] _bound;
 	protected boolean _sign;
 
-	public Bound(Double bound, boolean upper)
+	public Bound(double[] bound, boolean isUpperBound)
 	{
 		this._bound = bound;
-		this._sign = upper;
+		this._sign = isUpperBound;
 	}
 
 	@Override
-	public boolean test(Double t) 
+	public boolean test( double[] values ) 
+	{
+		for(int i = 0; i < values.length; i++)
+		{
+			if (this._sign)
+				if ( values[i] > this._bound[i] )
+					return false;
+			else
+				if ( values[i] < this._bound[i] )
+					return false;
+		}
+		return true;
+	}	
+	
+	public boolean test( double value, int position ) 
 	{
 		if (this._sign)
-			return ( t <= this._bound );
+			if ( value > this._bound[position] )
+				return false;
 		else
-			return ( t >= this._bound );
-	}
+			if ( value < this._bound[position] )
+				return false;
+
+		return true;
+	}	
 	
-	public double bound()
+	public double[] bound()
 	{
 		return this._bound;
 	}
@@ -37,6 +55,6 @@ public class Bound implements Predicate<Double> {
 	@Override
 	public String toString()
 	{
-		return (this._sign ? "<=" : " => ") + this._bound;
+		return (this._sign ? "<=" : " => ") + Vector.toString( this._bound );
 	}
 }

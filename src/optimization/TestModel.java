@@ -4,7 +4,7 @@ import utility.ExtraMath;
 
 public class TestModel {
 	
-	double _a = 2.0;
+	double _a = -2.0;
 	double _b = 5.5;
 	
 	public TestModel()

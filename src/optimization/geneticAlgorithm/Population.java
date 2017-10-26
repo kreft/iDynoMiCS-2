@@ -1,68 +1,230 @@
 package optimization.geneticAlgorithm;
 
+import java.util.Collection;
+
 import linearAlgebra.Vector;
+import optimization.constraint.Bound;
+import optimization.constraint.Constraint;
 import optimization.objectiveFunction.ObjectiveFunction;
 import optimization.sampling.LatinHyperCubeSampling;
 
 public class Population {
+	
+    /* GA parameters */
+    private static final double uniformRate = 0.25;
+    private static final double mutationRate = 0.6;
+    private static final double mutationScale = 0.25;
+    private static final int tournamentSize = 8;
+    private static final int elite = 2;
 
-    Individual[] individuals;
-    ObjectiveFunction _of;
+    private Individual[] individuals;
+    private Collection<Constraint> _constraints;
+    private ObjectiveFunction _of;
     
-    public Population( int slices, double[] lowerBound, 
-    		double[] upperBound, double[] x )
+    /**
+     * Constructor for initial population
+     * 
+     * @param of
+     * @param slices
+     * @param lowerBound
+     * @param upperBound
+     * @param x
+     */
+    public Population(ObjectiveFunction of, int slices, 
+    		Collection<Constraint> constraints, double[] x )
     {
     	/* initialize population parameters */
-    	int populationSize = slices;
-    	individuals = new Individual[populationSize];
+    	this(of, slices, constraints);
     	
     	/* Latin hyper cube sampling for good coverage of parameter space */
     	double[][] lhc = LatinHyperCubeSampling.sample( slices, 
-    			lowerBound.length );
+    			constraints.size() );
     	
-    	/* generate individuals */
-        for (int i = 0; i < this.size(); i++) {
-            Individual newIndividual = new Individual( Vector.times(lhc[i], upperBound) );
+    	/* identify absolute bounds */
+    	double[] upper = null;
+    	double[] lower = null;
+    	
+    	for( Constraint c : constraints)
+    		if( c instanceof Bound)
+    			if( c.isUpperBound() )
+    				upper = ((Bound) c).bound();
+    			else
+    				lower = ((Bound) c).bound();
+    	
+    	/* generate individuals and scale random position with domain bounds */
+        for (int i = 0; i < this.size(); i++) 
+        {
+            Individual newIndividual = new Individual( Vector.add( lower, 
+            		Vector.times(Vector.minus( upper, lower) , lhc[i]) ) );
+
             newIndividual.evaluate(x);
-            saveIndividual(i, newIndividual);
+            set(i, newIndividual);
         }
         
     }
 
-    public Population(ObjectiveFunction of, int size) {
+    /**
+     * basic population constructor
+     * 
+     * @param of
+     * @param size
+     */
+    public Population(ObjectiveFunction of, int size, 
+    		Collection<Constraint> constraints) 
+    {
 		this._of = of;
+		this._constraints = constraints;
 		individuals = new Individual[size];
 	}
     
-    public void setObjectiveFunction( ObjectiveFunction of )
+    
+    /**
+     * amount of individuals in this population
+     * @return
+     */
+    public int size() 
     {
-    	this._of = of;
+        return individuals.length;
     }
 
-	/* Getters */
-    public Individual getIndividual(int index) {
+    /**
+     * save an individual
+     * 
+     * @param index
+     * @param indiv
+     */
+    public void set(int index, Individual indiv) 
+    {
+        individuals[index] = indiv;
+    }
+
+    /**
+     * get an individual
+     * @param index
+     * @return
+     */
+    public Individual get(int index) 
+    {
         return individuals[index];
     }
 
-    public Individual getFittest() {
+    /**
+     * get the fittest individual
+     * @return
+     */
+    public Individual fittest() 
+    {
         Individual fittest = individuals[0];
-        // Loop through individuals to find fittest
-        for (int i = 0; i < size(); i++) {
-            if (fittest.getLoss( _of ) > getIndividual(i).getLoss( _of ) ) {
-                fittest = getIndividual(i);
+        for (int i = 0; i < size(); i++)
+        {
+            if (fittest.loss( _of ) > get(i).loss( _of ) )
+            {
+                fittest = get(i);
             }
         }
         return fittest;
     }
-
-    /* Public methods */
-    // Get population size
-    public int size() {
-        return individuals.length;
+    
+    /**
+     * select the most fit out of a population
+     * @param num
+     * @return
+     */
+    public Individual[] fittest( int num ) {
+    	
+    	Individual[] fittest = new Individual[num];
+    	double[] fitness = Vector.vector(num, Double.MAX_VALUE);
+    	int slowest = 0;
+        double current;
+        
+        for (int i = 0; i < size(); i++) {
+        	current = get(i).loss( _of );
+            if ( fitness[slowest] > current ) 
+            {
+                fittest[slowest] = get(i);
+                fitness[slowest] = current;
+                slowest = largest( fitness );
+            }
+        }
+        return fittest;
+    }
+    
+    /**
+     * Helper method that identifies largest field in double array 
+     * @param vector
+     * @return
+     */
+    public int largest(double[] vector)
+    {
+    	int out = 0;
+    	double slowest = vector[out];
+    	for( int i = 1; i < vector.length; i++)
+    	{
+    		if( vector[i] > slowest )
+    		{
+    			slowest = vector[i];
+    			out = i;
+    		}
+    	}
+    	return out;
+    }
+    
+    /**
+     * get the fittest individual from a random subset
+     * 
+     * @param of
+     * @param tournamentSize
+     * @return
+     */
+    public Individual tournament( int tournamentSize ) 
+    {
+        /* Create a tournament population */
+        Population tournament = new Population( this._of, tournamentSize, 
+        		this._constraints );
+        
+        /* For each place in the tournament get a random individual */
+        for (int i = 0; i < tournamentSize; i++) {
+            int randomId = (int) (Math.random() * this.size() );
+            tournament.set(i, this.get( randomId ) );
+        }
+        /* Get the fittest */
+        Individual fittest = tournament.fittest();
+        return fittest;
     }
 
-    // Save individual
-    public void saveIndividual(int index, Individual indiv) {
-        individuals[index] = indiv;
+    /**
+     * get a new generation
+     * 
+     * @param of
+     * @param x
+     * @return
+     */
+    public Population evolvePopulation( double[] x ) 
+    {
+ 
+        Population newPopulation = new Population( _of , this.size(), 
+        		this._constraints );
+        
+        for (int i = 0; i < elite; i++)
+        	newPopulation.set(i, fittest( elite )[i] );
+        
+        /* crossover population */
+        for (int i = elite; i < newPopulation.size(); i++) 
+        {
+            Individual indiv1 = this.tournament( tournamentSize );
+            Individual indiv2 = this.tournament( tournamentSize );
+            newPopulation.set(i, indiv1.crossover(indiv2, uniformRate) );
+        }
+
+        /* Mutate population */
+        for (int i = elite; i < newPopulation.size(); i++) 
+        {
+            newPopulation.get(i).mutate(mutationRate, mutationScale, 
+            		this._constraints);
+            newPopulation.get(i).evaluate(x);
+        }
+
+        return newPopulation;
     }
+
 }
