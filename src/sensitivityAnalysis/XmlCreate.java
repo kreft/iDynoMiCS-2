@@ -18,7 +18,6 @@ import org.w3c.dom.*;
 import referenceLibrary.XmlRef;
 import utility.Helper;
 import dataIO.CsvExport;
-import dataIO.XmlHandler;
 import idynomics.Idynomics;
 import idynomics.launchable.SamplerLaunch;
 import idynomics.launchable.SamplerLaunch.*;
