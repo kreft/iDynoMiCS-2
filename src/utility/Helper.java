@@ -534,7 +534,7 @@ public final class Helper
 	 * @param command
 	 * @return
 	 */
-	public String executeCommand(String command) {
+	public static String executeCommand(String command) {
 
 		StringBuffer output = new StringBuffer();
 		Process p;
@@ -565,4 +565,11 @@ public final class Helper
 		return out;
 	}
 
+	public static String[] subset( String[] in, int start, int stop)
+	{
+		String[] out = new String[stop-start];
+		for ( int i = start; i < stop; i++ )
+			out[i-start] = in[i];
+		return out;
+	}
 }

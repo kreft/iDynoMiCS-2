@@ -97,6 +97,8 @@ public class Settings
 	public static String version_description = 
 			settings.getProperty( SettingsRef.version_description );
 
+	public static String exitCommand;
+	
 	/**************************************************************************
 	 * Appearance
 	 * Still also suplying default value's for if the cfg file is corrupted.

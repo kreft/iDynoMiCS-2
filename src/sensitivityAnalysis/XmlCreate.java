@@ -18,6 +18,7 @@ import org.w3c.dom.*;
 import referenceLibrary.XmlRef;
 import utility.Helper;
 import dataIO.CsvExport;
+import dataIO.XmlHandler;
 import idynomics.Idynomics;
 import idynomics.launchable.SamplerLaunch;
 import idynomics.launchable.SamplerLaunch.*;
@@ -68,9 +69,19 @@ public class XmlCreate
 	 * Attributes are changed only for those XML elements which have
 	 * <b>range</b> and <b>rangeFor</b> attributes defined.
 	 */
-	public static void xmlCopy(Document doc, SampleMethod method, int... pars) 
+	public static void xmlCopy(String doc, SampleMethod method, int... pars) 
 	{
-		NodeList allNodes = doc.getElementsByTagName("*");
+		
+		_filePath = doc;
+		
+		try {
+			_masterDoc = XmlHandler.xmlLoad(doc);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		NodeList allNodes = _masterDoc.getElementsByTagName("*");
 		for (int i = 0; i < allNodes.getLength(); i++) {
 			if (allNodes.item(i).getNodeType() == Node.ELEMENT_NODE) {
 				Element currAspect = (Element) allNodes.item(i);
@@ -93,21 +104,31 @@ public class XmlCreate
 				return;
 			}
 			
-			/* Number of levels. Ask in input file? */
-			p = Integer.valueOf( Helper.obtainInput( "", 
-					"Number of sampling levels.", false));
-			/* Number of repetitions. From input? */
-			r = Integer.valueOf( Helper.obtainInput( "", 
-					"Number of repetitions", false));         
+			if ( pars.length < 1)
+				/* Number of levels. Ask in input file? */
+				p = Integer.valueOf( Helper.obtainInput( "", 
+						"Number of sampling levels.", false));
+			else
+				p = pars[0];
+			
+			if ( pars.length < 2)
+				/* Number of repetitions. From input? */
+				r = Integer.valueOf( Helper.obtainInput( "", 
+						"Number of repetitions", false));    
+			else
+				r = pars[1];
 			
 			double[][] states = MorrisSampling.morrisSamples(k,p,r, _sampleParams);
 			writeOutputs(r*(k+1), states);
 		break;
 		
 		case LHC :
-			/* Number of levels. Ask in input file? */
-			p = Integer.valueOf( Helper.obtainInput( "", 
-					"Number of stripes.", false));
+			if ( pars.length < 1)
+				/* Number of levels. Ask in input file? */
+				p = Integer.valueOf( Helper.obtainInput( "", 
+						"Number of stripes.", false));
+			else
+				p = pars[0];
 			
 			k = _sampleParams.size();
 			double[] ones = Vector.onesDbl(p);
