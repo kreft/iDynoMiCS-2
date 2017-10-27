@@ -20,9 +20,12 @@ import utility.Helper;
 import dataIO.CsvExport;
 import dataIO.XmlHandler;
 import idynomics.Idynomics;
+import idynomics.launchable.SamplerLaunch;
+import idynomics.launchable.SamplerLaunch.*;
 import linearAlgebra.Matrix;
 import linearAlgebra.Vector;
 import optimization.sampling.LatinHyperCubeSampling;
+
 
 /**
  * \brief Creates multiple protocol file from an XML file defining the 
@@ -55,52 +58,9 @@ public class XmlCreate
 	 * 
 	 */
 	public static void main(String args[]) throws IOException {
-		System.out.println("Creating protocol files for Sensitivity Analysis");
-		
-		String xmlFilePath;
-		String samplingChoice;
-		if ( args == null || args.length == 0 || args[0] == null )
-		{
-			@SuppressWarnings("resource")
-			Scanner user_input = new Scanner( System.in );
-			System.out.print("Enter the sampling method choice," +
-					" '1' for Morris and '2' for Latin Hypercube: ");
-			samplingChoice = user_input.next();
-			System.out.print("Enter protocol file path: ");
-			xmlFilePath = user_input.next();
-//			user_input.close();
-		}
-		else if (args[1] == null)
-		{
-			{
-				@SuppressWarnings("resource")
-				Scanner user_input = new Scanner( System.in );
-				System.out.print("Enter the sampling method choice," +
-						" '1' for Morris and '2' for Latin Hypercube: ");
-				samplingChoice = user_input.next();
-				System.out.print("Enter protocol file path: ");
-				xmlFilePath = user_input.next();
-			}
-		}
-		else {
-			samplingChoice = args[0];
-			xmlFilePath = args[1];
-		}
-		
-		switch (samplingChoice) {
-			case "1":
-				_morrisMethod = true;
-				break;
-			case "2":
-				_lhsMethod = true;
-				break;
-			default:
-				break;
-		}
-		
-		_filePath = xmlFilePath;
-		_masterDoc = XmlHandler.xmlLoad(_filePath);
-		xmlCopy();
+
+		SamplerLaunch sl = new SamplerLaunch();
+		sl.initialize( args );
 	}
 	
 	/**
@@ -109,8 +69,9 @@ public class XmlCreate
 	 * Attributes are changed only for those XML elements which have
 	 * <b>range</b> and <b>rangeFor</b> attributes defined.
 	 */
-	public static void xmlCopy() {
-		NodeList allNodes = _masterDoc.getElementsByTagName("*");
+	public static void xmlCopy(Document doc, SampleMethod method, int... pars) 
+	{
+		NodeList allNodes = doc.getElementsByTagName("*");
 		for (int i = 0; i < allNodes.getLength(); i++) {
 			if (allNodes.item(i).getNodeType() == Node.ELEMENT_NODE) {
 				Element currAspect = (Element) allNodes.item(i);
@@ -120,9 +81,13 @@ public class XmlCreate
 			}
 		}
 		
-		if (_morrisMethod) {
+		int p, r, k;
+		
+		switch ( method )
+		{
+		case MORRIS :
 			/* Parameters for Morris method */
-			int k = _sampleParams.size();
+			k = _sampleParams.size();
 			if (k == 0) {
 				System.err.println("No range attribute defined for any parameter. "
 						+ "Exiting.");
@@ -130,22 +95,22 @@ public class XmlCreate
 			}
 			
 			/* Number of levels. Ask in input file? */
-			int p = Integer.valueOf( Helper.obtainInput( "", 
+			p = Integer.valueOf( Helper.obtainInput( "", 
 					"Number of sampling levels.", false));
 			/* Number of repetitions. From input? */
-			int r = Integer.valueOf( Helper.obtainInput( "", 
+			r = Integer.valueOf( Helper.obtainInput( "", 
 					"Number of repetitions", false));         
 			
 			double[][] states = MorrisSampling.morrisSamples(k,p,r, _sampleParams);
 			writeOutputs(r*(k+1), states);
-		}
+		break;
 		
-		if (_lhsMethod) {
+		case LHC :
 			/* Number of levels. Ask in input file? */
-			int p = Integer.valueOf( Helper.obtainInput( "", 
+			p = Integer.valueOf( Helper.obtainInput( "", 
 					"Number of stripes.", false));
 			
-			int k = _sampleParams.size();
+			k = _sampleParams.size();
 			double[] ones = Vector.onesDbl(p);
 			
 			double[] inpMax = new double[k];
