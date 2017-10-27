@@ -1,6 +1,8 @@
 package utility;
 
 import java.awt.Color;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -525,6 +527,34 @@ public final class Helper
 	public static String removeWhitespace(String input)
 	{
 		return input.replaceAll("\\s+","");
+	}
+	
+	/**
+	 * Submit command to kernel
+	 * @param command
+	 * @return
+	 */
+	public String executeCommand(String command) {
+
+		StringBuffer output = new StringBuffer();
+		Process p;
+		
+		try {
+			p = Runtime.getRuntime().exec( command );
+			p.waitFor();
+			BufferedReader reader = new BufferedReader( 
+					new InputStreamReader( p.getInputStream() ) );
+
+            String line = "";
+			while ( (line = reader.readLine() ) != null ) 
+			{
+				if (Log.shouldWrite(Tier.NORMAL) )
+						Log.out(Tier.NORMAL, line + "\n");
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return output.toString();
 	}
 	
 	public static String[] copyStringA(String[] in)

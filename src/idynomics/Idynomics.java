@@ -17,8 +17,6 @@ import dataIO.Log;
 
 import static dataIO.Log.Tier.*;
 
-import java.util.HashMap;
-
 import dataIO.XmlHandler;
 import idynomics.launchable.ConsoleLaunch;
 import idynomics.launchable.GeneticAlgorithmLaunch;
