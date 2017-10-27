@@ -3,9 +3,11 @@ package sensitivityAnalysis;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import org.w3c.dom.*;
 
 import linearAlgebra.Matrix;
 import linearAlgebra.Vector;
+import referenceLibrary.XmlRef;
 import utility.ExtraMath;
 
 /**
@@ -27,13 +29,13 @@ public class MorrisSampling {
 	}
 	
 	/**
-	 * \brief Morris method for creating sample distribution within provided 
-	 * range.
+	 * \brief Morris method for creating sample distribution probabilities 
+	 * (between 0 and 1).
 	 * @param k Integer value for number of input parameters to be changed
 	 * @param p Integer value for the number of levels.
 	 * @param r Integer value for the number of repetitions.
 	 */
-	public static double[][] morris( int k, int p, int r ) 
+	public static double[][] morrisProbs( int k, int p, int r ) 
 	{
 		/* initialise random number generator */
 		ExtraMath.initialiseRandomNumberGenerator();
@@ -128,5 +130,50 @@ public class MorrisSampling {
 			}
 		}
 		return X;
+	}
+	
+	/**
+	 * \brief Morris method for creating sample distribution within provided 
+	 * range.
+	 * @param k Integer value for number of input parameters to be changed
+	 * @param p Integer value for the number of levels.
+	 * @param r Integer value for the number of repetitions.
+	 * @param elementParameters List of XML elements from master protocol file
+	 */
+	public static double[][] morrisSamples( int k, int p, int r, List<Element> elementParameters ) 
+	{
+		double[][] discreteUniformProbs = morrisProbs(k,p,r);
+		double[] ones = Vector.onesDbl(r*(k+1));
+
+		double[] inpMax = new double[k];
+		double[] inpMin = new double[k];
+		
+		String[] rangeAspectNames = new String[k];
+		String[][] ranges = new String[k][2];
+		
+		for (Element currAspect : elementParameters) 
+		{
+			int idx = elementParameters.indexOf( currAspect );
+			rangeAspectNames[idx] = currAspect.getAttribute( 
+					XmlRef.nameAttribute );
+			/* TODO Vector.dblFromString(vectorString) */
+			String[] inRange = currAspect.getAttribute(
+					XmlRef.rangeAttribute ).split(",");
+			inRange = XmlCreate.checkRange(inRange);
+			inpMax[idx] = Double.parseDouble(inRange[1]);
+			inpMin[idx] = Double.parseDouble(inRange[0]);
+			ranges[idx] = inRange.clone();
+			XmlCreate.csvHeader += currAspect.getAttribute( XmlRef.nameAttribute )
+					+ ( (idx == (elementParameters.size() - 1)) ? "" : ", ");
+		}
+		
+		/* Variable states: ( ones*inpMin + 
+		 * ( ones*( inpMax-inpMin ) ).*discreteUniformProbs )
+		 */
+		double[][] states = Matrix.add(Vector.outerProduct(ones, inpMin),
+				Matrix.elemTimes(Vector.outerProduct(ones, 
+						Vector.minus(inpMax, inpMin) ), discreteUniformProbs) );
+		return states;
+		
 	}
 }
