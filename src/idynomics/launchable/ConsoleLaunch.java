@@ -1,13 +1,16 @@
-package idynomics;
+package idynomics.launchable;
 
 import java.util.Scanner;
+
+import idynomics.Idynomics;
+import idynomics.Settings;
 
 /**\brief General class to launch simulation from the console, asks user for
  * protocol file path as input.
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
-public strictfp class ConsoleLaunch
+public strictfp class ConsoleLaunch implements Launchable
 {
 	/**
 	 * \brief Launch a simulation from the Eclipse console.
@@ -16,6 +19,12 @@ public strictfp class ConsoleLaunch
 	 */
 	public static void main(String[] args)
 	{
+		ConsoleLaunch con = new ConsoleLaunch();
+		con.initialize(args);
+	}
+
+	@Override
+	public void initialize(String[] args) {
 		System.out.print("Starting iDynoMiCS " +Settings.version_number+ "\n");
 		/* Acquire a protocol file. */
 		String protocolPath;

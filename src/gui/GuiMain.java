@@ -4,8 +4,8 @@ package gui;
 import javax.swing.JComponent;
 import javax.swing.JTabbedPane;
 
-import idynomics.GuiLaunch;
 import idynomics.Idynomics;
+import idynomics.launchable.GuiLaunch;
 
 
 /**

@@ -1,4 +1,4 @@
-package idynomics;
+package idynomics.launchable;
 
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
@@ -14,6 +14,7 @@ import gui.GuiActions;
 import gui.GuiButtons;
 import gui.GuiMain;
 import gui.GuiMenu;
+import idynomics.Idynomics;
 
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
@@ -34,7 +35,7 @@ import utility.Helper;
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
-public strictfp class GuiLaunch implements Runnable
+public strictfp class GuiLaunch implements Runnable, Launchable
 {
 	/**
 	 * 
@@ -53,17 +54,15 @@ public strictfp class GuiLaunch implements Runnable
 	 */
 	public static void main(String[] args) 
 	{
-		new GuiLaunch();
+		GuiLaunch gui = new GuiLaunch();
+		gui.run();
 	}
 	
-  	/**
-  	 * \brief Construct the GUI and run it.
-  	 */
-	public GuiLaunch() 
+	public void initialize(String[] args)
 	{
-		_masterFrame = new JFrame();
 		run();
 	}
+
 	
 	public static boolean classicGui()
 	{
@@ -76,6 +75,7 @@ public strictfp class GuiLaunch implements Runnable
     */
 	public void run()
 	{
+		_masterFrame = new JFrame();
 		try 
 		{
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
