@@ -6,6 +6,7 @@ import java.util.List;
 import agent.Agent;
 import analysis.filter.Filter;
 import analysis.filter.SoluteFilter;
+import analysis.filter.TimerFilter;
 import aspect.AspectInterface;
 import dataIO.CsvExport;
 import dataIO.Log;
@@ -168,6 +169,11 @@ public class FilteredTable {
 				out += columns.get(i).stringValue(null)
 						+ (i < columns.size()-1 ? "\t| " : "\n" );
 			}
+			else if ( columns.get(i) instanceof TimerFilter )
+			{
+				out += columns.get(i).stringValue(null)
+						+ (i < columns.size()-1 ? "\t| " : "\n" );
+			}
 			else
 			{
 				for (Agent a : compartment.agents.getAllAgents())
@@ -194,6 +200,11 @@ public class FilteredTable {
 		for (int i = 0; i < columns.size(); i++)
 		{
 			if ( columns.get(i) instanceof SoluteFilter )
+			{
+				out += columns.get(i).stringValue(null)
+						+ (i < columns.size()-1 ? delimiter : "" );
+			}
+			else if ( columns.get(i) instanceof TimerFilter )
 			{
 				out += columns.get(i).stringValue(null)
 						+ (i < columns.size()-1 ? delimiter : "" );
@@ -237,6 +248,11 @@ public class FilteredTable {
 			{
 				out += columns.get(i).header()
 						+ (i < columns.size()-1 ? delimiter : "" );
+			}
+			else if ( columns.get(i) instanceof TimerFilter)
+			{
+				out += columns.get(i).header()
+						+ (i < columns.size()-1 ? delimiter : "");
 			}
 			else
 			{				

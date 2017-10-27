@@ -216,7 +216,7 @@ public class ChemostatSolver extends ProcessManager
 				/*
 				 * In and out flows
 				 */
-				for ( Boundary aBoundary : environment.getOtherBoundaries() )
+				for ( Boundary aBoundary : environment.getNonSpatialBoundaries() )
 				{
 					double volFlowRate = aBoundary.getVolumeFlowRate();
 					if ( volFlowRate < 0.0 )

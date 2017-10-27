@@ -52,7 +52,13 @@ public class Report {
 		
 		_reportFile.write(
 				"```{r, echo=FALSE}\n" +
-				"library(DiagrammeR)\n" +
+					"packageList <- c(\"DiagrammeR\")\n" +
+					"packagesToInstall <- packageList[!(packageList %in% " +
+					"installed.packages()[,\"Package\"])]\n" +
+					"if(length(packagesToInstall))\n" +
+					"\t install.packages(packagesToInstall)\n" +
+					"if (!any(search() == \"package:DiagrammeR\"))\n" +
+					"\t library(DiagrammeR)\n" +
 				"grViz(\"" + fileName + ".dot\")\n" +
 				"```\n\n");
 		

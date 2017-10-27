@@ -1056,7 +1056,7 @@ public abstract class Shape implements
 	/**
 	 * @return Collection of all boundaries that do not belong to a dimension.
 	 */
-	public Collection<Boundary> getOtherBoundaries()
+	public Collection<Boundary> getNonSpatialBoundaries()
 	{
 		return this._otherBoundaries;
 	}

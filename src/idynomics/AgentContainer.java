@@ -693,7 +693,7 @@ public class AgentContainer implements Settable
 					Log.out(level, "   boundary defined, agents ariving");
 			}
 		}
-		for ( Boundary bndry : this._shape.getOtherBoundaries() )
+		for ( Boundary bndry : this._shape.getNonSpatialBoundaries() )
 		{
 			if ( Log.shouldWrite(level) )
 			{
@@ -791,7 +791,7 @@ public class AgentContainer implements Settable
 				dim.getBoundary(extreme).pushAllOutboundAgents();
 			}
 		}
-		for ( Boundary bndry : this._shape.getOtherBoundaries() )
+		for ( Boundary bndry : this._shape.getNonSpatialBoundaries() )
 		{
 			if ( Log.shouldWrite(level) )
 			{
