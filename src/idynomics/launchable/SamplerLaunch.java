@@ -5,6 +5,7 @@ import java.util.Scanner;
 
 import dataIO.XmlHandler;
 import sensitivityAnalysis.XmlCreate;
+import utility.Helper;
 
 public class SamplerLaunch implements Launchable {
 	
@@ -63,13 +64,7 @@ public class SamplerLaunch implements Launchable {
 		else
 			r = 563854578;
 		
-		try {
-			XmlCreate.xmlCopy( XmlHandler.xmlLoad(xmlFilePath), 
-					samplingChoice, p, r);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		XmlCreate.xmlCopy( xmlFilePath, samplingChoice, p, r);
 	}
 
 }

@@ -92,6 +92,8 @@ public class Settings
 	public static String version_description = 
 			settings.getProperty( SettingsRef.version_description );
 	
+	public static String exitCommand;
+	
 
 	/**************************************************************************
 	 * Appearance
