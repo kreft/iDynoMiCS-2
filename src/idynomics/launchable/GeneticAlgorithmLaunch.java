@@ -4,6 +4,7 @@ import java.util.Collection;
 
 import optimization.GeneticAlgorithm;
 import optimization.constraint.Constraint;
+import optimization.geneticAlgorithm.GetDataFromCSV;
 import optimization.geneticAlgorithm.Population;
 import optimization.objectiveFunction.ObjectiveFunction;
 
@@ -59,11 +60,11 @@ public class GeneticAlgorithmLaunch implements Launchable {
 		 *  TODO error function etc, GA parameters
 		 */
 		
-		double[][] inMatrix = null; // csvReader( rootFolder.. generation / input matrix.csv )
+		double[][] inMatrix = GetDataFromCSV.getInput(rootFolder); // csvReader( rootFolder.. generation / input matrix.csv )
 		
-		double[] dataVector = null; // csvReader( dataFile );
+		double[] dataVector = GetDataFromCSV.getData(dataFile); // csvReader( dataFile );
 		
-		double[][] outMatrix = null; // csvReader( rootFolder.. / dataFile / iterate over subs, read in datapoints corresponding to data file )
+		double[][] outMatrix = GetDataFromCSV.getOutput(rootFolder); // csvReader( rootFolder.. / dataFile / iterate over subs, read in datapoints corresponding to data file )
 		
 		
 		

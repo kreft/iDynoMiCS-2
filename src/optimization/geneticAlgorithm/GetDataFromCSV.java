@@ -19,7 +19,7 @@ import utility.Helper;
  * @author Sankalp Arya (sankalp.arya@nottingham.ac.uk) University of Nottingham, U.K.
  */
 
-public class Data 
+public class GetDataFromCSV 
 {
 	public static String DELIMITER = ",";
 	
@@ -31,7 +31,13 @@ public class Data
 	
 	private static int _outCols;
 	
-	protected double[][] getMatrix(String filePath)
+	/**
+	 * Gets the matrix as a double[][] removing any headers, if present
+	 * 
+	 * @param filePath
+	 * @return
+	 */
+	protected static double[][] getMatrix(String filePath)
 	{
 		String[][] strData = CsvImport.readFile(filePath);
 		String dataAsStr = "";
@@ -55,7 +61,14 @@ public class Data
 		return values;
 	}
 	
-	protected double[] getData(String dataPath)
+	/**
+	 * Get observed data, storing timepoints to extract the simulation
+	 * output data at correct time points.
+	 * 
+	 * @param dataPath
+	 * @return
+	 */
+	public static double[] getData(String dataPath)
 	{
 		double[][] obsData = getMatrix(dataPath);
 		ArrayList<Double> dataVals = new ArrayList<Double>();
@@ -80,13 +93,27 @@ public class Data
 		return dataValues;
 	}
 	
-	protected double[][] getInput(String filePath)
+	/**
+	 * Get input data
+	 * 
+	 * @param filePath
+	 * @return
+	 */
+	
+	public static double[][] getInput(String filePath)
 	{
 		double[][] inputData = getMatrix(filePath);
 		return inputData;
 	}
 	
-	protected double[][] getOutput(String genFolderPath)
+	/**
+	 * Get output data formatted to match timepoints in observed data
+	 * Each row represents output data from a single run
+	 * 
+	 * @param genFolderPath
+	 * @return
+	 */
+	public static double[][] getOutput(String genFolderPath)
 	{
 		double[][] outData = new double[_timePoints.size()][_outCols];
 		try (Stream<Path> dataFilePaths = Files.find(
