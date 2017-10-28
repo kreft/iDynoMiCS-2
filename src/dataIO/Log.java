@@ -176,11 +176,12 @@ public class Log
 	{
 		_logFile.fnew(Idynomics.global.outputLocation + "/log.txt");
 		_logFile.flushAll();
-		out(Tier.QUIET, Idynomics.fullDescription() + 
-				"\nOutput level is " + _outputLevel +
-				", starting at " + _ft.format(new Date()) + 
-				"\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-				+ "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+		if( shouldWrite(Tier.QUIET))
+			out(Tier.QUIET, Idynomics.fullDescription() + 
+					"\nOutput level is " + _outputLevel +
+					", starting at " + _ft.format(new Date()) + 
+					"\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+					+ "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
 	}
 	
 	/**

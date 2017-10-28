@@ -16,15 +16,12 @@ import javax.xml.transform.stream.*;
 import org.w3c.dom.*;
 
 import referenceLibrary.XmlRef;
-import utility.Helper;
 import dataIO.CsvExport;
 import dataIO.XmlHandler;
 import idynomics.Idynomics;
 import idynomics.launchable.SamplerLaunch;
-import idynomics.launchable.SamplerLaunch.*;
-import linearAlgebra.Matrix;
 import linearAlgebra.Vector;
-import optimization.sampling.LatinHyperCubeSampling;
+import optimization.sampling.Sampler;
 
 
 /**
@@ -34,21 +31,21 @@ import optimization.sampling.LatinHyperCubeSampling;
  * @author Sankalp Arya (sankalp.arya@nottingham.ac.uk), University of Nottingham, U.K.
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
  */
-public class XmlCreate
+public class ProtocolCreater
 {
-	public static Document _masterDoc;
+	public Document _masterDoc;
 	
-	public static String _filePath;
+	public String _filePath;
 	
-	public static boolean _morrisMethod = false;
+	private List<Element> _sampleParams = new ArrayList<Element>();
 	
-	public static boolean _lhsMethod = false;
+	public String csvHeader = "";
 	
-	private static List<Element> _sampleParams = new ArrayList<Element>();
+	public String resultsFolder = "";
 	
-	public static String csvHeader = "";
+	public Sampler _sampler;
 	
-	public static String resultsFolder = "";
+	public double[][] _bounds;
 	
 	/**
 	 * \brief Main function for creating the protocol files from sensitivity 
@@ -63,13 +60,18 @@ public class XmlCreate
 		sl.initialize( args );
 	}
 	
+	public ProtocolCreater()
+	{
+		
+	}
+
 	/**
 	 * \brief Copies the master XML file to multiple output protocol
 	 * files, changing the parameter values within provided ranges.
 	 * Attributes are changed only for those XML elements which have
 	 * <b>range</b> and <b>rangeFor</b> attributes defined.
 	 */
-	public static void xmlCopy(String doc, SampleMethod method, int... pars) 
+	public ProtocolCreater( String doc ) 
 	{
 		
 		_filePath = doc;
@@ -90,65 +92,49 @@ public class XmlCreate
 				}
 			}
 		}
-		
-		int p, r, k;
-		
-		switch ( method )
-		{
-		case MORRIS :
-			/* Parameters for Morris method */
-			k = _sampleParams.size();
-			if (k == 0) {
-				System.err.println("No range attribute defined for any parameter. "
-						+ "Exiting.");
-				return;
-			}
-			
-			if ( pars.length < 1)
-				/* Number of levels. Ask in input file? */
-				p = Integer.valueOf( Helper.obtainInput( "", 
-						"Number of sampling levels.", false));
-			else
-				p = pars[0];
-			
-			if ( pars.length < 2)
-				/* Number of repetitions. From input? */
-				r = Integer.valueOf( Helper.obtainInput( "", 
-						"Number of repetitions", false));    
-			else
-				r = pars[1];
-			
-			double[][] states = MorrisSampling.morrisSamples(k,p,r, _sampleParams);
-			writeOutputs(r*(k+1), states);
-		break;
-		
-		case LHC :
-			if ( pars.length < 1)
-				/* Number of levels. Ask in input file? */
-				p = Integer.valueOf( Helper.obtainInput( "", 
-						"Number of stripes.", false));
-			else
-				p = pars[0];
-			
-			k = _sampleParams.size();
-			double[] ones = Vector.onesDbl(p);
-			
-			double[] inpMax = new double[k];
-			double[] inpMin = new double[k];
-			
-			double[][] lhsProbs = LatinHyperCubeSampling.sample(p, _sampleParams.size());
-			double[][] samples = Matrix.add(Vector.outerProduct(ones, inpMin),
-					Matrix.elemTimes(Vector.outerProduct(ones, 
-							Vector.minus(inpMax, inpMin) ), lhsProbs) );
-			writeOutputs(p ,samples);
-		}
+		this._bounds = getRanges(_sampleParams.size(), _sampleParams);
 	}
 	
+	public void setSampler( Sampler.SampleMethod method, int... pars )
+	{
+		int[] temp = new int[pars.length+1];
+		temp[0] = _sampleParams.size();
+		for( int i = 0; i < pars.length; i++)
+			temp[i+1] = pars[i];
+		
+		this._sampler = Sampler.getSampler(method, temp);
+	}
+	
+	public void xmlWrite()
+	{
+		writeOutputs( _sampler.size(), _sampler.sample( this._bounds ));
+	}
+	
+	public double[][] getBounds()
+	{
+		return this._bounds;
+	}
+	
+	public double[][] getRanges(int k, List<Element> elementParameters )
+	{
+		double[][] bounds = new double[2][k];
+		for (Element currAspect : elementParameters) 
+		{
+			int idx = elementParameters.indexOf( currAspect );
+			String[] inRange = currAspect.getAttribute(
+					XmlRef.rangeAttribute ).split(",");
+			inRange = checkRange(inRange);
+			bounds[0][idx] = Double.parseDouble(inRange[0]);
+			bounds[1][idx] = Double.parseDouble(inRange[1]);
+
+		}
+		return bounds;
+	}
 	/**
 	 * \brief Checks if the provided range is in proper format
 	 * @param valRange String array provided in XML
 	 */
-	public static String[] checkRange(String[] valRange) {
+	public String[] checkRange(String[] valRange) {
 		if (valRange.length != 2 || Double.parseDouble(valRange[0]) >= 
 				Double.parseDouble(valRange[1])) {
 			System.out.println("Invalid range provided. Please enter range "
@@ -168,7 +154,7 @@ public class XmlCreate
 	 * @param suffix A string value to be appended to the name of the protocol 
 	 * files, which provides the information about the changed attributes.
 	 */
-	public static void newProtocolFile(String suffix)
+	public void newProtocolFile(String suffix)
 	{
 		String[] fileDirs = _filePath.split("/");
 		String fileName = fileDirs[fileDirs.length-1].split("\\.")[0];
@@ -202,7 +188,7 @@ public class XmlCreate
 	 * @param n Integer specifying the number of protocol files to be created
 	 * @param samples A double matrix which holds the sample space
 	 */
-	public static void writeOutputs(int n, double[][] samples)
+	public void writeOutputs(int n, double[][] samples)
 	{
 		Element sim = (Element) _masterDoc.getElementsByTagName(
 				XmlRef.simulation ).item(0);

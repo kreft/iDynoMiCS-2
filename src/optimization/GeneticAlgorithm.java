@@ -3,7 +3,7 @@ package optimization;
 import optimization.geneticAlgorithm.Population;
 import optimization.objectiveFunction.ObjectiveFunction;
 import optimization.objectiveFunction.QuadraticLossFunction;
-import sensitivityAnalysis.XmlCreate;
+import sensitivityAnalysis.ProtocolCreater;
 
 public class GeneticAlgorithm {
 
@@ -17,6 +17,7 @@ public class GeneticAlgorithm {
 	public static void step(ObjectiveFunction op, double fitnessThreshold, 
 			Population pop, int generationCount , int maxIter)
 	{
+		ProtocolCreater xmlc = new ProtocolCreater();
         System.out.println("Generation: " + generationCount + " Fittest: " + 
         		pop.fittest().loss( op ) + " " + pop.fittest() );
         generationCount++;
@@ -26,7 +27,7 @@ public class GeneticAlgorithm {
     		pop = pop.evolvePopulation();
     		
     		double[][] inMatrix = pop.getInMatrix();
-    		XmlCreate.writeOutputs( pop.size(), inMatrix );
+    		xmlc.writeOutputs( pop.size(), inMatrix );
         }
     	else
     	{

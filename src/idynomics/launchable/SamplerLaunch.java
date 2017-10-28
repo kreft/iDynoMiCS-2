@@ -1,20 +1,17 @@
 package idynomics.launchable;
 
 import java.util.Scanner;
-import sensitivityAnalysis.XmlCreate;
+
+import optimization.sampling.Sampler;
+import sensitivityAnalysis.ProtocolCreater;
 
 public class SamplerLaunch implements Launchable {
 	
-	public enum SampleMethod {
-		MORRIS,
-		LHC;
-	}
-
 	@Override
 	public void initialize(String[] args) 
 	{
 		String xmlFilePath;
-		SampleMethod samplingChoice;
+		Sampler.SampleMethod samplingChoice;
 		
 		@SuppressWarnings("resource")
 		Scanner user_input = new Scanner( System.in );
@@ -22,13 +19,13 @@ public class SamplerLaunch implements Launchable {
 		if ( args == null || args.length == 1 || args[1] == null )
 		{
 			System.out.print("Enter the sampling method choice: \n");
-			for ( SampleMethod s : SampleMethod.values() )
+			for ( Sampler.SampleMethod s : Sampler.SampleMethod.values() )
 				System.out.print( s.toString() + " " );
 			System.out.print( "\n");
-			samplingChoice = SampleMethod.valueOf( user_input.next() );
+			samplingChoice = Sampler.SampleMethod.valueOf( user_input.next() );
 		}
 		else
-			samplingChoice = SampleMethod.valueOf( args[1] );
+			samplingChoice = Sampler.SampleMethod.valueOf( args[1] );
 		
 		if ( args == null || args.length == 2 || args[2] == null )
 		{
@@ -48,19 +45,21 @@ public class SamplerLaunch implements Launchable {
 		else
 			p = Integer.valueOf( args[3] );
 		
-		if ( samplingChoice == SampleMethod.MORRIS && 
+		if ( samplingChoice == Sampler.SampleMethod.MORRIS && 
 				( args == null || args.length == 4 || args[4] == null ) )
 		{
 			System.out.print("Number of repetitions: ");
 			r = Integer.valueOf( user_input.next() );
 
 		}
-		else if ( samplingChoice == SampleMethod.MORRIS )
+		else if ( samplingChoice == Sampler.SampleMethod.MORRIS )
 			r = Integer.valueOf( args[4] );
 		else
-			r = 563854578; //not used
+			r = 0000000; //not used
 		
-		XmlCreate.xmlCopy( xmlFilePath, samplingChoice, p, r);
+		ProtocolCreater xmlc = new ProtocolCreater( xmlFilePath );
+		xmlc.setSampler( samplingChoice, p, r);
+		xmlc.xmlWrite();
 	}
 
 }

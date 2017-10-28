@@ -39,8 +39,9 @@ public class Population {
     	this(of, slices, constraints);
     	
     	/* Latin hyper cube sampling for good coverage of parameter space */
-    	double[][] lhc = LatinHyperCubeSampling.sample( slices, 
-    			constraints.size() );
+    	LatinHyperCubeSampling lhcSampler = new LatinHyperCubeSampling( slices, 
+    			constraints.size());
+    	double[][] lhc = lhcSampler.sample();
     	
     	/* identify absolute bounds */
     	double[] upper = null;

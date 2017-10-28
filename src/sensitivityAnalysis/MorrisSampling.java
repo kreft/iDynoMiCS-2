@@ -7,6 +7,7 @@ import org.w3c.dom.*;
 
 import linearAlgebra.Matrix;
 import linearAlgebra.Vector;
+import optimization.sampling.Sampler;
 import referenceLibrary.XmlRef;
 import utility.ExtraMath;
 
@@ -21,11 +22,25 @@ import utility.ExtraMath;
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
  */
 
-public class MorrisSampling {
-
+public class MorrisSampling extends Sampler {
+	
+	private int _k, _p, _r;
+	
 	public MorrisSampling() 
 	{
 		/* This constructor intentionally left blank */
+	}
+	
+	public MorrisSampling( int k, int p, int r ) 
+	{
+		this._k = k;
+		this._p = k;
+		this._r = k;
+	}
+	
+	public int size()
+	{
+		return _r*(_k+1);
 	}
 	
 	/**
@@ -35,16 +50,34 @@ public class MorrisSampling {
 	 * @param p Integer value for the number of levels.
 	 * @param r Integer value for the number of repetitions.
 	 */
-	public static double[][] morrisProbs( int k, int p, int r ) 
+	public double[][] morrisProbs( int k, int p, int r ) 
+	{
+		this._k = k;
+		this._p = k;
+		this._r = k;
+		return sample() ;
+	}
+	
+	/**
+	 * \brief Morris method for creating sample distribution probabilities 
+	 * (between 0 and 1).
+	 * @param _k Integer value for number of input parameters to be changed
+	 * @param _p Integer value for the number of levels.
+	 * @param _r Integer value for the number of repetitions.
+	 * 
+	 */
+	@Override
+	public double[][] sample() 
 	{
 		/* initialise random number generator */
-		ExtraMath.initialiseRandomNumberGenerator();
+		if( !ExtraMath.isAvailable() )
+			ExtraMath.initialiseRandomNumberGenerator();
 		
-		double delta = p/(2.0*(p-1));
-		double[][] B = new double[k+1][k];
-		double[][] J = Matrix.matrix(k+1, k, 1.0);
-		for (int row = 0; row < k+1; row++) {
-			for (int col = 0; col < k; col++) {
+		double delta = _p/(2.0*(_p-1));
+		double[][] B = new double[_k+1][_k];
+		double[][] J = Matrix.matrix(_k+1, _k, 1.0);
+		for (int row = 0; row < _k+1; row++) {
+			for (int col = 0; col < _k; col++) {
 				if (row <= col)
 					B[row][col] = 0;
 				else
@@ -53,45 +86,45 @@ public class MorrisSampling {
 		}		
 		
 		List<Double> xRange = new ArrayList<Double>();
-		for (Double val = 0.0; val <= (1-delta); val=val+(1.0/(p-1.0))) {
+		for (Double val = 0.0; val <= (1-delta); val=val+(1.0/(_p-1.0))) {
 			xRange.add(val);
 		}
 		int m = xRange.size();
 		
-		double X[][] = new double[r*(k+1)][k];
+		double X[][] = new double[_r*(_k+1)][_k];
 		
-		for (int idx = 0; idx < r; idx++) 
+		for (int idx = 0; idx < _r; idx++) 
 		{
-			int[][] D = Matrix.identityInt(k);
+			int[][] D = Matrix.identityInt(_k);
 			
 			/* 
 			 * NOTE: it is important to use the iDynoMiCS random number
 			 * generator as this allows us to produce the same result given a
 			 * random seed
 			 */
-			double[] probs = Vector.randomZeroOne( k ); 
-			int[] randInts = Vector.randomInts( k, 0, m );
-			double[] xVals = new double[k];
+			double[] probs = Vector.randomZeroOne( _k ); 
+			int[] randInts = Vector.randomInts( _k, 0, m );
+			double[] xVals = new double[_k];
 			
-			int[][] idMatrix = Matrix.identityInt(k);
-			int[][] permIdMatrix = new int[k][k];
+			int[][] idMatrix = Matrix.identityInt(_k);
+			int[][] permIdMatrix = new int[_k][_k];
 			
 			/* construct a shuffled list of integers from 0 to k-1. */
 			List<Integer> rowNums = new ArrayList<Integer>();
-			for (int row = 0; row < k; row++)
+			for (int row = 0; row < _k; row++)
 			{
 				rowNums.add(row);
 			}
 			/* Implementing Fisher-Yates shuffle */
-			for (int row = k; row > 1; row--)
+			for (int row = _k; row > 1; row--)
 			{
 				Collections.swap(rowNums, row-1, ExtraMath.getUniRandInt(row));
 			}
 			
 			/* generate random input matrix */
-			for (int row = 0; row < k; row++) 
+			for (int row = 0; row < _k; row++) 
 			{
-				for (int col = 0; col < k; col++) 
+				for (int col = 0; col < _k; col++) 
 				{
 				/* step 1: make a diagonal matrix with integer values of 1 or -1 
 				 * selected with equal probability. */
@@ -121,59 +154,14 @@ public class MorrisSampling {
 			// Bp = (first Expression + second Expression)*permIdMatrix
 			double[][] Bp = Matrix.times( Matrix.add( firstExpr, secondExpr ), 
 					Matrix.toDbl( permIdMatrix ) );
-			for (int row = 0; row < k+1; row++) 
+			for (int row = 0; row < _k+1; row++) 
 			{
-				for (int col = 0; col < k; col++) 
+				for (int col = 0; col < _k; col++) 
 				{
-					X[ row+( idx*( k+1 ) ) ][col] = Bp[row][col];
+					X[ row+( idx*( _k+1 ) ) ][col] = Bp[row][col];
 				}
 			}
 		}
 		return X;
-	}
-	
-	/**
-	 * \brief Morris method for creating sample distribution within provided 
-	 * range.
-	 * @param k Integer value for number of input parameters to be changed
-	 * @param p Integer value for the number of levels.
-	 * @param r Integer value for the number of repetitions.
-	 * @param elementParameters List of XML elements from master protocol file
-	 */
-	public static double[][] morrisSamples( int k, int p, int r, List<Element> elementParameters ) 
-	{
-		double[][] discreteUniformProbs = morrisProbs(k,p,r);
-		double[] ones = Vector.onesDbl(r*(k+1));
-
-		double[] inpMax = new double[k];
-		double[] inpMin = new double[k];
-		
-		String[] rangeAspectNames = new String[k];
-		String[][] ranges = new String[k][2];
-		
-		for (Element currAspect : elementParameters) 
-		{
-			int idx = elementParameters.indexOf( currAspect );
-			rangeAspectNames[idx] = currAspect.getAttribute( 
-					XmlRef.nameAttribute );
-			/* TODO Vector.dblFromString(vectorString) */
-			String[] inRange = currAspect.getAttribute(
-					XmlRef.rangeAttribute ).split(",");
-			inRange = XmlCreate.checkRange(inRange);
-			inpMax[idx] = Double.parseDouble(inRange[1]);
-			inpMin[idx] = Double.parseDouble(inRange[0]);
-			ranges[idx] = inRange.clone();
-			XmlCreate.csvHeader += currAspect.getAttribute( XmlRef.nameAttribute )
-					+ ( (idx == (elementParameters.size() - 1)) ? "" : ", ");
-		}
-		
-		/* Variable states: ( ones*inpMin + 
-		 * ( ones*( inpMax-inpMin ) ).*discreteUniformProbs )
-		 */
-		double[][] states = Matrix.add(Vector.outerProduct(ones, inpMin),
-				Matrix.elemTimes(Vector.outerProduct(ones, 
-						Vector.minus(inpMax, inpMin) ), discreteUniformProbs) );
-		return states;
-		
 	}
 }

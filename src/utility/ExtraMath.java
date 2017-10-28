@@ -59,6 +59,11 @@ public final class ExtraMath
 	 */
 	public static Random random;
 	
+	public static boolean isAvailable()
+	{
+		return !(random == null);
+	}
+	
 	/* ----------------------- Initialising random ------------------------ */
 	
 	/**
