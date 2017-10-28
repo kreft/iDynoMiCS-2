@@ -1,15 +1,19 @@
 package dataIO;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 
 /**
  * \brief Handles file operations, create folders and files, write output.
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
+ * @author Sankalp Arya (sankalp.arya@nottingham.ac.uk) University of Nottingham, U.K.
  */
 public class FileHandler
 {
@@ -109,9 +113,26 @@ public class FileHandler
 	/**
 	 * opens file
 	 */
-	public void fopen(String file)
+	public ArrayList<String> fopen(String file)
 	{
-		//TODO
+		ArrayList<String> lines = new ArrayList<String>();
+		try
+		  {
+		    BufferedReader reader = new BufferedReader(new FileReader(file));
+		    String line;
+		    while ( (line = reader.readLine()) != null )
+		    {
+		      lines.add(line);
+		    }
+		    reader.close();
+		    return lines;
+		  }
+		  catch (Exception e)
+		  {
+		    System.err.format("Exception occurred trying to read '%s'.", file);
+		    e.printStackTrace();
+		    return null;
+		  }
 	}
 
 	/**
