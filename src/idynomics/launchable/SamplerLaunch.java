@@ -1,11 +1,7 @@
 package idynomics.launchable;
 
-import java.io.IOException;
 import java.util.Scanner;
-
-import dataIO.XmlHandler;
 import sensitivityAnalysis.XmlCreate;
-import utility.Helper;
 
 public class SamplerLaunch implements Launchable {
 	
@@ -62,7 +58,7 @@ public class SamplerLaunch implements Launchable {
 		else if ( samplingChoice == SampleMethod.MORRIS )
 			r = Integer.valueOf( args[4] );
 		else
-			r = 563854578;
+			r = 563854578; //not used
 		
 		XmlCreate.xmlCopy( xmlFilePath, samplingChoice, p, r);
 	}

@@ -15,11 +15,24 @@ public class Individual {
 
 	public double[] _inputs;
 	public double[] _outputs;
+	
+	@Deprecated
 	public TestModel _model;
 
     /**
-     * Constructor including parameter values
+     * Constructor including parameter values and evaluation outputs.
+     * @param outputs 
      * @param input parameter values (ordered).
+     */
+    public Individual( double[] inputs, double[] outputs )
+    {
+    	this._inputs = inputs;
+    	this._outputs = outputs;
+    }
+    
+    /**
+     * Constructor including parameter values
+     * @param inputs
      */
     public Individual( double[] inputs )
     {

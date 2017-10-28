@@ -42,10 +42,5 @@ public strictfp class ConsoleLaunch implements Launchable
 		/* Now run the simulation with the given protocol file. */
 		Idynomics.setupSimulator(protocolPath);
 		Idynomics.launchSimulator();
-		/* If a scanner was created, close it down before finishing. */
-		if ( userInput != null )
-		{
-			userInput.close();
-		}
 	}
 }

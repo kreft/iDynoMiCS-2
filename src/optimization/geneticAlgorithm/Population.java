@@ -22,13 +22,15 @@ public class Population {
     private ObjectiveFunction _of;
     
     /**
-     * Constructor for initial population
+     * Constructor for initial population (tester method).
      * 
      * @param of
      * @param slices
      * @param lowerBound
      * @param upperBound
      * @param x
+     * 
+     * @deprecated
      */
     public Population(ObjectiveFunction of, int slices, 
     		Collection<Constraint> constraints, double[] x )
@@ -61,6 +63,19 @@ public class Population {
             Individual newIndividual = new Individual( Vector.add( lower, 
             		Vector.times(Vector.minus( upper, lower) , lhc[i]) ) );
             newIndividual.evaluate(x);
+            set(i, newIndividual);
+        }
+    }
+    
+    public Population(ObjectiveFunction of, double[][] inMatrix, 
+    		double[][] outMatrix, Collection<Constraint> constraints)
+    {
+    	/* initialize population parameters */
+    	this(of, inMatrix.length, constraints);
+        for (int i = 0; i < this.size(); i++) 
+        {
+            Individual newIndividual = new Individual( inMatrix[i], 
+            		outMatrix[i] );
             set(i, newIndividual);
         }
     }
@@ -190,6 +205,18 @@ public class Population {
     }
     
     /**
+     * Returns the inMatrix
+     * @return
+     */
+    public double[][] getInMatrix()
+    {
+    	double[][] out = new double[ size() ][ _individuals[0].size() ];
+    	for(int i = 0; i < this.size(); i++)
+    		out[i] = _individuals[i]._inputs;
+    	return out;
+    }
+    
+    /**
      * get the fittest individual from a random subset
      * 
      * @param of
@@ -213,11 +240,13 @@ public class Population {
     }
 
     /**
-     * get a new generation
+     * get a new generation (Tester method)
      * 
      * @param of
      * @param x
      * @return
+     * 
+     * @deprecated
      */
     public Population evolvePopulation( double[] x ) 
     {
@@ -242,6 +271,37 @@ public class Population {
             newPopulation.get(i).mutate(_mutationRate, _mutationScale, 
             		this._constraints);
             newPopulation.get(i).evaluate(x);
+        }
+
+        return newPopulation;
+    }
+    
+    /**
+     * 
+     * @return
+     */
+    public Population evolvePopulation() 
+    {
+ 
+        Population newPopulation = new Population( _of , this.size(), 
+        		this._constraints );
+        
+        for (int i = 0; i < _elite; i++)
+        	newPopulation.set(i, fittest( _elite )[i] );
+        
+        /* crossover population */
+        for (int i = _elite; i < newPopulation.size(); i++) 
+        {
+            Individual indiv1 = this.tournament( _tournamentSize );
+            Individual indiv2 = this.tournament( _tournamentSize );
+            newPopulation.set(i, indiv1.crossover(indiv2, _uniformRate) );
+        }
+
+        /* Mutate population */
+        for (int i = _elite; i < newPopulation.size(); i++) 
+        {
+            newPopulation.get(i).mutate(_mutationRate, _mutationScale, 
+            		this._constraints);
         }
 
         return newPopulation;
