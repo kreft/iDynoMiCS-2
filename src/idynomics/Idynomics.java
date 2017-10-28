@@ -17,9 +17,6 @@ import dataIO.Log;
 
 import static dataIO.Log.Tier.*;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import dataIO.XmlHandler;
 import idynomics.launchable.ConsoleLaunch;
 import idynomics.launchable.ExitCommand;
@@ -202,13 +199,15 @@ public strictfp class Idynomics
 		Idynomics.global.protocolFile = protocolPath;
 		Idynomics.global.xmlDoc = XmlHandler.loadDocument(protocolPath);
 		
-		Element simElem = XmlHandler.findUniqueChild(Idynomics.global.xmlDoc, XmlRef.simulation);
+		Element simElem = XmlHandler.findUniqueChild( Idynomics.global.xmlDoc, 
+				XmlRef.simulation );
 		/*
 		 * Initialise the global parameters.
 		 */
 		Settings.init(simElem);
-		Log.out(NORMAL, Idynomics.global.simulationComment);
-		Log.out(NORMAL, "Storing results in " + Idynomics.global.outputLocation+"\n");
+		Log.out(NORMAL, Idynomics.global.simulationComment );
+		Log.out(NORMAL, "Storing results in " + Idynomics.global.outputLocation
+				+ "\n" );
 		/*
 		 * Create a new Simulator object and intialise it.
 		 */

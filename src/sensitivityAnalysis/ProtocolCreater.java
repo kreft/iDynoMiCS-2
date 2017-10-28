@@ -107,7 +107,7 @@ public class ProtocolCreater
 	
 	public void xmlWrite()
 	{
-		writeOutputs( _sampler.size(), _sampler.sample( this._bounds ));
+		writeOutputs( _sampler.size(), _sampler.sample( this._bounds ) );
 	}
 	
 	public double[][] getBounds()
