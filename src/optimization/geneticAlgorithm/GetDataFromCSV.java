@@ -45,17 +45,18 @@ public class GetDataFromCSV
 		{
 			for (int j = 0; j < strData[i].length; j++)
 			{
+				String delim = (j == (strData[i].length - 1) ) ? NEWLINE : DELIMITER;
 				if (Helper.dblParseable(strData[i][j]))
 				{
-					dataAsStr += strData[i][j]+DELIMITER;
+					dataAsStr += strData[i][j] + delim;
+							
 				}
 				else if (strData[i][j] == "" || strData[i][j] == "NaN" ||
 						strData[i][j] == null || strData[i][j] == "null")
 				{
-					dataAsStr += "NaN"+DELIMITER;
+					dataAsStr += "NaN" + delim;
 				}
 			}
-			dataAsStr += NEWLINE;
 		}
 		double[][] values = Matrix.dblFromString(dataAsStr);
 		return values;

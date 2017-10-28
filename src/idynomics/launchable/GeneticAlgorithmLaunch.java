@@ -16,9 +16,9 @@ public class GeneticAlgorithmLaunch implements Launchable {
 	@Override
 	public void initialize(String[] args) {
 
-		String rootFolder = null;
-		String dataFile = null;
-		String protocolfile = null;
+		String rootFolder = null; // Idynomics.global.outputRoot;
+		String dataFile = null; // rootFolder+"/"+Idynomics.global.subFolderStruct+"obsData.csv";
+		String protocolfile = null; // Idynomics.global.protocolFile;
 		int generation = 0;
 		double fitnessThreshold = 0;
 		int maxIter = 0;
@@ -28,7 +28,7 @@ public class GeneticAlgorithmLaunch implements Launchable {
 			System.out.print("No generation speciefied! \n");
 		}
 		else
-			generation = Integer.valueOf( args[2] );
+			generation = Integer.valueOf( args[1] );
 		if ( args == null || args.length == 2 || args[2] == null )
 		{
 			System.out.print("No generation path speciefied! \n");
@@ -63,17 +63,17 @@ public class GeneticAlgorithmLaunch implements Launchable {
 		 *  TODO error function etc, GA parameters
 		 */
 		
-		double[][] inMatrix = GetDataFromCSV.getInput(rootFolder); // csvReader( rootFolder.. generation / input matrix.csv )
+		Collection<Constraint> constraints = new LinkedList<Constraint>();
 		
 		double[] dataVector = GetDataFromCSV.getData(dataFile); // csvReader( dataFile );
 		
 		double[][] outMatrix = GetDataFromCSV.getOutput(rootFolder); // csvReader( rootFolder.. / dataFile / iterate over subs, read in datapoints corresponding to data file )
 		
-		
-		Collection<Constraint> constraints = new LinkedList<Constraint>();
-    	
 		ProtocolCreater xmlc = new ProtocolCreater( protocolfile );
-    	constraints.add( new Bound( xmlc.getBounds()[0], false) );
+    	
+		double[][] inMatrix = GetDataFromCSV.getInput(rootFolder+"/xVal.csv"); // csvReader( rootFolder.. generation / input matrix.csv )
+				
+		constraints.add( new Bound( xmlc.getBounds()[0], false) );
     	constraints.add( new Bound( xmlc.getBounds()[1], true) );
 		
 		ObjectiveFunction op = GeneticAlgorithm.getOp( dataVector );

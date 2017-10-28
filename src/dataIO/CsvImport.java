@@ -35,7 +35,6 @@ public class CsvImport
 			for (int i = 0; i < csvLines.size(); i++) {
 				csvData[i] = csvLines.get(i).split(",");
 			}
-			closeFile();
 			return csvData;
 		}
 		else 
@@ -44,13 +43,5 @@ public class CsvImport
 			Log.out(Tier.NORMAL, "No csv file found in the given path: "+ filePath);
 			return null;
 		}
-	}
-	
-	/**
-	 * close the csv file
-	 */
-	public static void closeFile()
-	{
-		_csvFile.fclose();
 	}
 }

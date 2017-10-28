@@ -3,12 +3,10 @@ package sensitivityAnalysis;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import org.w3c.dom.*;
 
 import linearAlgebra.Matrix;
 import linearAlgebra.Vector;
 import optimization.sampling.Sampler;
-import referenceLibrary.XmlRef;
 import utility.ExtraMath;
 
 /**
@@ -34,8 +32,8 @@ public class MorrisSampling extends Sampler {
 	public MorrisSampling( int k, int p, int r ) 
 	{
 		this._k = k;
-		this._p = k;
-		this._r = k;
+		this._p = p;
+		this._r = r;
 	}
 	
 	public int size()
@@ -53,8 +51,8 @@ public class MorrisSampling extends Sampler {
 	public double[][] morrisProbs( int k, int p, int r ) 
 	{
 		this._k = k;
-		this._p = k;
-		this._r = k;
+		this._p = p;
+		this._r = r;
 		return sample() ;
 	}
 	
