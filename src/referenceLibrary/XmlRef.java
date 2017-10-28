@@ -507,5 +507,10 @@ public class XmlRef
 	 * Toggle boundary agent removal on or of
 	 */
 	public static final String agentRemoval = "agentRemoval";
+	
+	/**
+	 * Indicates sub folder (set for SA or GA).
+	 */
+	public final static String subFolder = "subFolder";
 
 }

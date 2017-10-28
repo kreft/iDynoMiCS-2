@@ -62,7 +62,7 @@ public class Settings
 	 * All output is written to this folder and sub-folders
 	 */
 	public String outputLocation;
-
+	
 	/**
 	 * If a comment is defined in the protocol file it will be stored here.
 	 */
@@ -72,6 +72,11 @@ public class Settings
 	 * Root folder for this simulation
 	 */
 	public String idynomicsRoot = "";
+	
+	/**
+	 * Sub folder structure for sensitivity analysis/parameter estimation
+	 */
+	public String subFolderStruct = "";
 	
 	/**
 	 * 
@@ -91,10 +96,9 @@ public class Settings
 	 */
 	public static String version_description = 
 			settings.getProperty( SettingsRef.version_description );
-	
+
 	public static String exitCommand;
 	
-
 	/**************************************************************************
 	 * Appearance
 	 * Still also suplying default value's for if the cfg file is corrupted.
@@ -131,6 +135,12 @@ public class Settings
 		 */
 		Idynomics.global.outputRoot = XmlHandler.obtainAttribute( elem, 
 				XmlRef.outputFolder, XmlRef.simulation);
+		
+		/*
+		 *  set output sub folder structure from protocol file
+		 */
+		Idynomics.global.subFolderStruct = XmlHandler.gatherAttribute(
+				elem, XmlRef.subFolder);
 		
 		/* set simulation name from xml file */
 		Idynomics.global.simulationName = XmlHandler.obtainAttribute( elem, 
@@ -206,6 +216,7 @@ public class Settings
 			/* set output root for this simulation */
 			Idynomics.global.outputLocation = 
 					Idynomics.global.outputRoot + "/" + 
+					Idynomics.global.subFolderStruct +
 					dateFormat.format(new Date()) + 
 					Idynomics.global.simulationName + "/";
 		}

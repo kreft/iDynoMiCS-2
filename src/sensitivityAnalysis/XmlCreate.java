@@ -48,6 +48,8 @@ public class XmlCreate
 	
 	public static String csvHeader = "";
 	
+	public static String resultsFolder = "";
+	
 	/**
 	 * \brief Main function for creating the protocol files from sensitivity 
 	 * analysis 
@@ -210,7 +212,7 @@ public class XmlCreate
 		Idynomics.global.outputLocation = sim.getAttribute( XmlRef.outputFolder );
 		SimpleDateFormat dateFormat = 
 				new SimpleDateFormat("yyyy.MM.dd_HH.mm.ss");
-		toCSV.createCustomFile("xVal_"+dateFormat.format(new Date()));
+		toCSV.createCustomFile("xVal_" + dateFormat.format(new Date()));
 		toCSV.writeLine(csvHeader);
 		
 		for (int row = 0; row < n; row++) {
@@ -226,6 +228,7 @@ public class XmlCreate
 			String xValCSV = Vector.toString(samples[row]);
 			toCSV.writeLine(xValCSV);
 			sim.setAttribute( XmlRef.nameAttribute, simName+"_"+suffix );
+			sim.setAttribute( XmlRef.subFolder, resultsFolder + "/" );
 			newProtocolFile(suffix);
 		}
 		toCSV.closeFile();
