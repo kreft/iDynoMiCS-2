@@ -356,6 +356,10 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 				"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 				+ "~~~~~~~~~~~~~~~~~~~~~~~~\n");
 		this.printProcessManagerRealTimeStats();
+		
+		/* execute exit command if any */
+		if( !Helper.isNullOrEmpty( Settings.exitCommand ) )
+			Helper.executeCommand( Settings.exitCommand );
 	}
 	
 	/* ***********************************************************************

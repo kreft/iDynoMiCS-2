@@ -112,18 +112,11 @@ public strictfp class Idynomics
 		
 		public String toString()
 		{
-			int max = 60;
 			String out = "";
 			for( String s : _flags )
 				out += "-" + s + " ";
 			out += "\n";
-
-			Pattern p = Pattern.compile( "\\G\\s*(.{1," +max+ "})(?=\\s|$)", 
-					Pattern.DOTALL);
-			Matcher m = p.matcher( _description );
-			while (m.find())
-			    out += "\t" + m.group(1) + "\n";
-			return out;
+			return out + Helper.limitLineLength(_description, 60, "\t");
 		}
 	}
 
@@ -158,7 +151,8 @@ public strictfp class Idynomics
 			}
 		}
 		
-		if( !Helper.isNullOrEmpty( Settings.exitCommand ) )
+		/* execute exit command if any and if it is not handled by a simulator*/
+		if( !Helper.isNullOrEmpty( Settings.exitCommand ) && simulator == null )
 			Helper.executeCommand( Settings.exitCommand );
 	}
 

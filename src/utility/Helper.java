@@ -9,6 +9,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Scanner;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import dataIO.Log;
 import dataIO.Log.Tier;
@@ -563,6 +565,17 @@ public final class Helper
 		for ( int i = 0; i < in.length; i++ )
 			out[i] = in[i];
 		return out;
+	}
+	
+	public static String limitLineLength(String in, int length, String linePre)
+	{
+		String out = "";
+		Pattern p = Pattern.compile( "\\G\\s*(.{1," +length+ "})(?=\\s|$)", 
+				Pattern.DOTALL);
+		Matcher m = p.matcher( in );
+		while (m.find())
+		    out += linePre + m.group(1) + "\n";
+		return out.substring(0, out.length()-1);
 	}
 
 	public static String[] subset( String[] in, int start, int stop)

@@ -63,6 +63,8 @@ public class Log
 	 */
 	private static Tier _outputLevel;
 	
+	private static Tier _screenLevel;
+	
 	/**
 	 * Log file handler.
 	 */
@@ -190,6 +192,7 @@ public class Log
 	// TODO move this method to Helper?
 	public static void printToScreen(String message, boolean isError)
 	{
+		message = Helper.limitLineLength(message, 80, "");
 		if ( Helper.isSystemRunningInGUI )
 		{
 			if ( isError )
