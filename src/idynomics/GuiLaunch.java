@@ -45,7 +45,7 @@ public strictfp class GuiLaunch implements Runnable
 	 * System file path to the iDynoMiCS logo.
 	 */
 	private final static String ICON_PATH = "icons/iDynoMiCS_logo_icon.png";
-	
+
 	/**
 	 * \brief Launch with a Graphical User Interface (GUI).
 	 * 
@@ -55,25 +55,25 @@ public strictfp class GuiLaunch implements Runnable
 	{
 		new GuiLaunch();
 	}
-	
-  	/**
-  	 * \brief Construct the GUI and run it.
-  	 */
+
+	/**
+	 * \brief Construct the GUI and run it.
+	 */
 	public GuiLaunch() 
 	{
 		_masterFrame = new JFrame();
 		run();
 	}
-	
+
 	public static boolean classicGui()
 	{
 		return (_masterFrame != null);
 	}
-			    	  
-   /**
-    * \brief The GUI is runnable otherwise it will become unresponsive until
-    * the simulation finishes.
-    */
+
+	/**
+	 * \brief The GUI is runnable otherwise it will become unresponsive until
+	 * the simulation finishes.
+	 */
 	public void run()
 	{
 		try 
@@ -81,7 +81,7 @@ public strictfp class GuiLaunch implements Runnable
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} 
 		catch (UnsupportedLookAndFeelException | ClassNotFoundException 
-			  | InstantiationException  | IllegalAccessException e)
+				| InstantiationException  | IllegalAccessException e)
 		{
 			/* do nothing, if we cannot set the system look and feel we should 
 			 * get the java default look and feel which should still work.  */
@@ -101,31 +101,31 @@ public strictfp class GuiLaunch implements Runnable
 		_masterFrame.setMinimumSize(new Dimension(520,60));
 		_masterFrame.setPreferredSize(new Dimension(800,800));
 		_masterFrame.setLocationByPlatform(true);
-		
+
 		/* set layout and menubar */
 		_masterFrame.setLayout(new GridBagLayout());
 		GridBagConstraints c = new GridBagConstraints();
 		_masterFrame.setJMenuBar(GuiMenu.getMenuBar());
-		
-	    /* Set, size and scale upper part part */
+
+		/* Set, size and scale upper part part */
 		c.fill = GridBagConstraints.BOTH;
-	    c.gridx = 0;
-	    c.gridy = 0;
-	    c.weightx = 1.0;
-	    _masterFrame.add(GuiButtons.getButtons(),c);
-		
-	    /* Set, size and scale lower part part */
-        c.fill = GridBagConstraints.BOTH;
-        c.weighty = 1.0;
-        c.weightx = 1.0;
-        c.anchor = GridBagConstraints.PAGE_END; 
-        c.gridx = 0;
-        c.gridy = 1;
-        _masterFrame.add(GuiMain.getConstructor(),c);
-		
+		c.gridx = 0;
+		c.gridy = 0;
+		c.weightx = 1.0;
+		_masterFrame.add(GuiButtons.getButtons(),c);
+
+		/* Set, size and scale lower part part */
+		c.fill = GridBagConstraints.BOTH;
+		c.weighty = 1.0;
+		c.weightx = 1.0;
+		c.anchor = GridBagConstraints.PAGE_END; 
+		c.gridx = 0;
+		c.gridy = 1;
+		_masterFrame.add(GuiMain.getConstructor(),c);
+
 		/* Bind keys and display window */
 		keyBindings(_masterFrame.getRootPane());
-        _masterFrame.pack();		
+		_masterFrame.pack();		
 		_masterFrame.setVisible(true);
 
 	}
@@ -152,4 +152,4 @@ public strictfp class GuiLaunch implements Runnable
 			}
 		});
 	}
- }
+}
