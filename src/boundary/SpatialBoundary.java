@@ -321,7 +321,7 @@ public abstract class SpatialBoundary extends Boundary
 	{
 		super.setParent(parent);
 		
-		Dimension dimension = (Dimension)parent;
+		Dimension dimension = (Dimension) parent;
 		this._dim = dimension.getName();
 	}
 }

@@ -33,6 +33,7 @@ import shape.Dimension.DimName;
 import shape.iterator.ShapeIterator;
 import shape.resolution.ResolutionCalculator;
 import shape.resolution.UniformResolution;
+import shape.ShapeConventions.SingleVoxel;
 import shape.subvoxel.SubvoxelPoint;
 import surface.Collision;
 import surface.Plane;
@@ -164,6 +165,11 @@ public abstract class Shape implements
 		NodeList childNodes;
 		Element childElem;
 		String str;
+		/* */
+		double insignificantDimsLength = 1.0;
+		str = XmlHandler.gatherAttribute(xmlElem, "insignificantDimsLength");
+		if ( str != null )
+			insignificantDimsLength = Double.parseDouble(str);
 		/* Set up the dimensions. */
 		Dimension dim;
 		ResolutionCalculator rC;
@@ -188,7 +194,14 @@ public abstract class Shape implements
 							resCal );
 					rC.setDimension(dim);
 					rC.setResolution(dim._targetRes);
-					this.setDimensionResolution(dimName, rC);	
+					this.setDimensionResolution(dimName, rC);
+				}
+				else
+				{
+					rC = new SingleVoxel(dim);
+					rC.setResolution(insignificantDimsLength);
+					this.setDimensionResolution(dimName, rC);
+					dim.setLength(insignificantDimsLength);
 				}
 			}
 			catch (IllegalArgumentException e)

@@ -415,8 +415,12 @@ public class EnvironmentContainer implements CanPrelaunchCheck, Settable
 		 * of its influence over the concentration.
 		 */
 		double scaleFactor = 0.0;
+		double boundarySurface;
 		for ( WellMixedBoundary b : bndrs )
-			scaleFactor += b.getTotalSurfaceArea();
+		{
+			boundarySurface = b.getTotalSurfaceArea();
+			scaleFactor += boundarySurface;
+		}
 		scaleFactor = 1.0 / scaleFactor;
 		/*
 		 * At least one of the boundaries need to update the well-mixed array,
