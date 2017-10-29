@@ -3,6 +3,7 @@ package boundary;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import org.w3c.dom.Element;
@@ -19,6 +20,7 @@ import referenceLibrary.XmlRef;
 import settable.Attribute;
 import settable.Module;
 import settable.Settable;
+import utility.Helper;
 
 /**
  * \brief General class of boundary for a {@code Shape}.
@@ -508,6 +510,17 @@ public abstract class Boundary implements Settable, Instantiable
 		modelNode.add(new Attribute(XmlRef.classAttribute,
 				this.getClass().getSimpleName(),
 				null, true));
+		/* Partner compartment. */
+		if ( this.needsPartner() )
+		{
+			List<String> cList = Idynomics.simulator.getCompartmentNames();
+			String[] cArray = Helper.listToArray(cList);
+			modelNode.add(new Attribute(
+					XmlRef.partnerCompartment,
+					this._partnerCompartmentName, 
+					cArray,
+					true));
+		}
 		// TODO
 		// modelNode.requirement = Requirements.?
 		return modelNode;
