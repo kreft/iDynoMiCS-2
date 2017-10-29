@@ -13,6 +13,7 @@ import boundary.library.ChemostatToBoundaryLayer;
 import dataIO.Log;
 import dataIO.Log.Tier;
 import grid.SpatialGrid;
+import grid.WellMixedConstants;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
 import linearAlgebra.Vector;
@@ -170,7 +171,8 @@ public class BiofilmBoundaryLayer extends WellMixedBoundary
 				for (Surface s : (List<Surface>) a.get(AspectRef.surfaceList))
 					if ( this._gridSphere.distanceTo(s) < 0.0 )
 						{
-							grid.setValueAt(WELLMIXED, coords, 0.0);
+							grid.setValueAt(WELLMIXED, coords, 
+									WellMixedConstants.NOT_MIXED);
 							break;
 						}
 			coords = aShape.iteratorNext();

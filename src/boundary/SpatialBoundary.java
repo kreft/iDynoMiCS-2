@@ -13,6 +13,7 @@ import dataIO.XmlHandler;
 import dataIO.Log.Tier;
 import grid.ArrayType;
 import grid.SpatialGrid;
+import grid.WellMixedConstants;
 import linearAlgebra.Vector;
 import referenceLibrary.AspectRef;
 import referenceLibrary.XmlRef;
@@ -241,7 +242,12 @@ public abstract class SpatialBoundary extends Boundary
 			double distance = aShape
 					.currentDistanceFromBoundary(this._dim, this._extreme);
 			if ( distance <= this._layerThickness )
-				grid.setValueAt(WELLMIXED, aShape.iteratorCurrent(), 0.0);
+			{
+				grid.setValueAt(
+						WELLMIXED, 
+						aShape.iteratorCurrent(), 
+						WellMixedConstants.NOT_MIXED);
+			}
 			aShape.iteratorNext();
 		}
 	}

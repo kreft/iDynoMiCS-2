@@ -14,6 +14,7 @@ import generalInterfaces.CanPrelaunchCheck;
 import static grid.ArrayType.CONCN;
 import static grid.ArrayType.WELLMIXED;
 import grid.SpatialGrid;
+import grid.WellMixedConstants;
 import instantiable.object.InstantiableList;
 import reaction.Reaction;
 import referenceLibrary.ClassRef;
@@ -388,7 +389,15 @@ public class EnvironmentContainer implements CanPrelaunchCheck, Settable
 		Collection<WellMixedBoundary> bndrs = 
 				this.getShape().getWellMixedBoundaries();
 		if ( bndrs.isEmpty() )
+		{
+			commonGrid.setAllTo(WELLMIXED, WellMixedConstants.NOT_MIXED);
 			return;
+		}
+		/*
+		 * Otherwise, we assume that every voxel is mixed until the boundaries
+		 * say that it is not.
+		 */
+		commonGrid.setAllTo(WELLMIXED, WellMixedConstants.COMPLETELY_MIXED);
 		/*
 		 * We will eventually need to set the concentration of each solute in 
 		 * the well-mixed region, so prepare to collect the appropriate values.
@@ -432,17 +441,21 @@ public class EnvironmentContainer implements CanPrelaunchCheck, Settable
 		 * Now apply the well-mixed boundary concentrations to the voxels of 
 		 * the well-mixed region.
 		 */
+		double wellMixedness;
 		for ( int[] coord = this._shape.resetIterator();
 				this._shape.isIteratorValid();
 				coord = this._shape.iteratorNext() )
 		{
+			wellMixedness = commonGrid.getValueAt(WELLMIXED, coord);
 			// TODO this should really be > some threshold
-			if ( commonGrid.getValueAt(WELLMIXED, coord) == 1.0 )
+			if ( wellMixedness >= WellMixedConstants.COMPLETELY_MIXED )
+			{
 				for ( SpatialGrid solute : this._solutes )
 				{
 					name = solute.getName();
 					solute.setValueAt(CONCN, coord, wellMixedConcns.get(name));
 				}
+			}
 		}
 	}
 	
