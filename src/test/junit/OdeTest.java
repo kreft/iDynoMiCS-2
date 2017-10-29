@@ -22,7 +22,8 @@ import utility.ExtraMath;
 public class OdeTest
 {
 	@Test
-	public void exponentialDecayWorks() throws IllegalArgumentException, Exception
+	public void exponentialDecayWorks()
+			throws IllegalArgumentException, Exception
 	{
 		AllTests.setupSimulatorForTest(1.0, 1.0, "exponentialDecayWorks");
 		/* Parameters. */
@@ -49,6 +50,36 @@ public class OdeTest
 			y = solver.solve(y, tStep);
 			t += tStep;
 			assertTrue(ExtraMath.areEqual(y[0], Math.exp(k*t), TOLERANCE));
+		}
+	}
+	
+	@Test
+	public void rosenbrockSolverKeepsVariablesSameWhenNoDerivatives()
+			throws IllegalArgumentException, Exception
+	{
+		AllTests.setupSimulatorForTest(1.0, 1.0,
+				"rosenbrockSolverKeepsVariablesSameWhenNoDerivatives");
+		/* Parameters. */
+		String[] names = new String[]{"var"};
+		double absTol = 0.001;
+		double hMax = 0.01;
+		double tStep = 1.0;
+		int nStep = 10;
+		double[] y = new double[]{1.0};
+		/* Solve the system. */
+		ODErosenbrock solver = new ODErosenbrock(names, false, absTol, hMax);
+		solver.setDerivatives(new ODEderivatives()
+		{
+			@Override
+			public void firstDeriv(double[] destination, double[] y)
+			{
+				Vector.setAll(destination, 0.0);
+			}
+		});
+		for ( int i = 0; i < nStep; i++ )
+		{
+			y = solver.solve(y, tStep);
+			assertTrue(ExtraMath.areEqual(y[0], 1.0, TOLERANCE));
 		}
 	}
 }
