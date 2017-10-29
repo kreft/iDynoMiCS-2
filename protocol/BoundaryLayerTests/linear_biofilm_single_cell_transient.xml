@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document>
-	<simulation name="linear_biofilm_single_cell" outputfolder="../results" log="NORMAL"
-		comment="this is a file for testing purposes only.">
+	<simulation name="linear_biofilm_single_cell_transient" outputfolder="../results" 
+		log="NORMAL" comment="this is a file for testing purposes only.">
 		<!-- ms -->
-		<timer stepSize="1.0" endOfSimulation="2.0" />
+		<timer stepSize="1.0" endOfSimulation="5.0" />
 		<speciesLib>
 			<species name="Consumer">
 				<aspect name="pigment" type="PRIMARY" class="String" value="BLUE" />

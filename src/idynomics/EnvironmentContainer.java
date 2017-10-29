@@ -451,7 +451,11 @@ public class EnvironmentContainer implements CanPrelaunchCheck, Settable
 				coord = this._shape.iteratorNext() )
 		{
 			wellMixedness = commonGrid.getValueAt(WELLMIXED, coord);
-			// TODO this should really be > some threshold
+			/* 
+			 * Note that threshold below COMPLETELY_MIXED, as used by PDEsolver,
+			 * is not necessary here, as we will only deal with the finest
+			 * grids (i.e. never with multigrids, etc).
+			 */
 			if ( wellMixedness >= WellMixedConstants.COMPLETELY_MIXED )
 			{
 				for ( SpatialGrid solute : this._solutes )

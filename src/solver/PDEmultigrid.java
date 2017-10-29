@@ -70,10 +70,6 @@ public class PDEmultigrid extends PDEsolver
 	private int _numCoarseStep = 150;
 	
 	private int _numPostSteps = 1500;
-	/**
-	 * TODO this should be settable by the user.
-	 */
-	private double _boundaryThreshold = 1.0;
 	
 	/* ***********************************************************************
 	 * SOLVER METHODS
@@ -528,7 +524,7 @@ public class PDEmultigrid extends PDEsolver
 		{
 			/* Skip this voxel if it is considered well-mixed. */
 			if ( commonGrid.getValueAt(WELLMIXED, current) >= 
-					this._boundaryThreshold )
+					this._wellMixednessThreshold )
 			{
 				continue;
 			}
@@ -644,7 +640,7 @@ public class PDEmultigrid extends PDEsolver
 				current = shape.iteratorNext() )
 		{
 			if ( commonGrid.getValueAt(WELLMIXED, current) >= 
-					this._boundaryThreshold )
+					this._wellMixednessThreshold )
 			{
 				/* Reset the value here in case it used to be inside the
 				 * boundary layer and move on to the next voxel. */

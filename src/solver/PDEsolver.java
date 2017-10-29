@@ -23,6 +23,15 @@ import shape.Shape;
 public abstract class PDEsolver extends Solver
 {
 	/**
+	 * Any voxels with a well-mixed value in the common grid above this
+	 * threshold will be considered well-mixed, and so handled differently by
+	 * the diffusion solver.
+	 */
+	// TODO this should be settable by the user.
+	protected double _wellMixednessThreshold = 
+			0.9 * WellMixedConstants.COMPLETELY_MIXED;
+	
+	/**
 	 * TODO
 	 */
 	protected PDEupdater _updater;
@@ -118,9 +127,8 @@ public abstract class PDEsolver extends Solver
 		for ( current = shape.resetIterator(); shape.isIteratorValid();
 											  current = shape.iteratorNext())
 		{
-			// TODO this should really be > some threshold
 			if ( commonGrid.getValueAt(WELLMIXED, current) >= 
-					WellMixedConstants.COMPLETELY_MIXED )
+					this._wellMixednessThreshold )
 			{
 				continue;
 			}
@@ -149,10 +157,8 @@ public abstract class PDEsolver extends Solver
 				 */
 				if ( shape.isNbhIteratorInside() )
 				{
-					// TODO this should really be >= some threshold
-					if ( commonGrid != null && 
-							commonGrid.getValueAt(WELLMIXED, nhb) >= 
-							WellMixedConstants.COMPLETELY_MIXED )
+					if ( commonGrid.getValueAt(WELLMIXED, nhb) >= 
+							this._wellMixednessThreshold )
 					{
 						this.increaseWellMixedFlow(grid.getName(), - nhbFlow);
 					}
