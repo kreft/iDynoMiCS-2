@@ -19,9 +19,9 @@ cd idy
 if [ "" == "$protocol" ] ; then
     echo "Master protocol file not set"
 else
-idy.jar -s LHC $protocol 100
+idy.jar -s LHC $protocol $pop_size
 
-# check target path and submit single Job scripts
+# check target path and submit single Job scripts protocols/gen_0
 if [ "" == "$path" ] ; then
     echo "path not set"
 else
@@ -29,6 +29,9 @@ cd "$path"; for j in *; do qsub -v "protocol=$j" -N "$j" single.sh ; done
 fi
 
 # todo wait until all jobs have finished?
+
+while 
+wait 
 
 idy.jar -ga 1 $path $data $protocol $fit $max
 
