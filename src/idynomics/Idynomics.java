@@ -173,6 +173,28 @@ public strictfp class Idynomics
 		
 	}
 	
+	public static void setupGlobals(String protocolPath)
+	{
+		if ( protocolPath == null )
+		{
+			/* prevent writing logFile before tier and location is set */
+			Log.printToScreen("No protocol path set!", true);
+			return;
+		}
+		/* 
+		 * Load the protocol file and find the elements we need
+		 */
+		Idynomics.global.protocolFile = protocolPath;
+		Idynomics.global.xmlDoc = XmlHandler.loadDocument(protocolPath);
+		
+		Element simElem = XmlHandler.findUniqueChild( Idynomics.global.xmlDoc, 
+				XmlRef.simulation );
+		/*
+		 * Initialise the global parameters.
+		 */
+		Settings.init(simElem);
+	}
+	
 	/**
 	 * \brief Set up a simulation from XML protocol file.
 	 * 
@@ -204,7 +226,8 @@ public strictfp class Idynomics
 		/*
 		 * Initialise the global parameters.
 		 */
-		Settings.init(simElem);
+		setupGlobals( protocolPath );
+		
 		Log.out(NORMAL, Idynomics.global.simulationComment );
 		Log.out(NORMAL, "Storing results in " + Idynomics.global.outputLocation
 				+ "\n" );

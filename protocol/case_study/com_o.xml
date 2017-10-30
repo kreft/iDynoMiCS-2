@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document>
-	<simulation log="DEBUG" outputfolder="../results" name="Comammox_case">
+	<simulation log="DEBUG" outputfolder="../results" name="Comammox_case" subfolder="test">
 	<timer stepSize="60.0" endOfSimulation="10000.0" />
 		<general>
 			<param name="timeStepSize" value="1.0"/>

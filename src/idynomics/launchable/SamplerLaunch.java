@@ -2,6 +2,7 @@ package idynomics.launchable;
 
 import java.util.Scanner;
 
+import idynomics.Idynomics;
 import optimization.sampling.Sampler;
 import sensitivityAnalysis.ProtocolCreater;
 
@@ -56,6 +57,8 @@ public class SamplerLaunch implements Launchable {
 			r = Integer.valueOf( args[4] );
 		else
 			r = 0000000; //not used
+		
+		Idynomics.setupGlobals( xmlFilePath );
 		
 		ProtocolCreater xmlc = new ProtocolCreater( xmlFilePath );
 		xmlc.setSampler( samplingChoice, p, r);

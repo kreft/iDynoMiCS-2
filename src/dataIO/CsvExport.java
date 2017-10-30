@@ -64,6 +64,14 @@ public class CsvExport
 		Log.out(Tier.EXPRESSIVE, "Writing new file: " + fileString);
 	}
 	
+	public void createCustomFile(String fileName, String outputfolder) 
+	{
+		String fileString = outputfolder + "/" 
+				+ fileName + ".csv";
+		_csvFile.fnew(fileString);
+		Log.out(Tier.EXPRESSIVE, "Writing new file: " + fileString);
+	}
+	
 	/**
 	 * close the svg file and increment file number for next file
 	 */

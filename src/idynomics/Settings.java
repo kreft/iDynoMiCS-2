@@ -77,7 +77,6 @@ public class Settings
 	 * Sub folder structure for sensitivity analysis/parameter estimation
 	 */
 	public String subFolderStruct = "";
-	
 	/**
 	 * 
 	 */
@@ -139,8 +138,9 @@ public class Settings
 		/*
 		 *  set output sub folder structure from protocol file
 		 */
-		Idynomics.global.subFolderStruct = XmlHandler.gatherAttribute(
-				elem, XmlRef.subFolder) + "/";
+		if ( XmlHandler.hasAttribute(elem, XmlRef.subFolder) )
+			Idynomics.global.subFolderStruct = XmlHandler.gatherAttribute(
+					elem, XmlRef.subFolder) + "/";
 		
 		/* set simulation name from xml file */
 		Idynomics.global.simulationName = XmlHandler.obtainAttribute( elem, 
@@ -216,7 +216,7 @@ public class Settings
 			/* set output root for this simulation */
 			Idynomics.global.outputLocation = 
 					Idynomics.global.outputRoot + "/" + 
-					Idynomics.global.subFolderStruct +
+					Idynomics.global.subFolderStruct + "/" + 
 					dateFormat.format(new Date()) + 
 					Idynomics.global.simulationName + "/";
 		}

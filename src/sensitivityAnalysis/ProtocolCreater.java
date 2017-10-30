@@ -14,6 +14,7 @@ import javax.xml.transform.stream.*;
 import org.w3c.dom.*;
 
 import referenceLibrary.XmlRef;
+import utility.Helper;
 import dataIO.CsvExport;
 import dataIO.XmlHandler;
 import idynomics.Idynomics;
@@ -154,8 +155,12 @@ public class ProtocolCreater
 	 * @param suffix A string value to be appended to the name of the protocol 
 	 * files, which provides the information about the changed attributes.
 	 */
-	public void newProtocolFile(String suffix)
+	public void newProtocolFile(String suffix, String folder)
 	{
+		String sub = ( Helper.isNullOrEmpty( Idynomics.global.subFolderStruct) ?
+				"output" : Idynomics.global.subFolderStruct );
+		String protocol_loc = Idynomics.global.outputRoot + "/" + sub;
+		
 		String[] fileDirs = _filePath.split("/");
 		String fileName = fileDirs[fileDirs.length-1].split("\\.")[0];
 		fileDirs = Arrays.copyOf(fileDirs, fileDirs.length-1);
@@ -170,6 +175,7 @@ public class ProtocolCreater
 			dirPath = String.join("/", fileDirs) + "/"
 					+ "SensitivityAnalysisFiles/" + fileName + "/";
 		}
+		dirPath = protocol_loc + "/" + folder + "/";
 		String fileString = dirPath + fileName + "_" + suffix + ".xml";
 		try {
 			Files.createDirectories(Paths.get(dirPath));
@@ -181,6 +187,7 @@ public class ProtocolCreater
 			_protocolFile.setOutputProperty(
 					"{http://xml.apache.org/xslt}indent-amount", "4" );
 		
+
 			_protocolFile.transform(new DOMSource(_masterDoc), 
 					new StreamResult(new FileOutputStream(fileString)));
 		}
@@ -204,15 +211,13 @@ public class ProtocolCreater
 		String simName = sim.getAttribute( XmlRef.nameAttribute );
 		
 		CsvExport toCSV = new CsvExport();
-		//TODO This will always read from xml file. 
-		// Should also include the default location.
-		Idynomics.global.outputLocation = sim.getAttribute( XmlRef.outputFolder );
-		if (sim.hasAttribute( XmlRef.subFolder ))
-		{
-			resultsFolder = sim.getAttribute( XmlRef.subFolder );
-			Idynomics.global.outputLocation += "/"+resultsFolder;
-		}
-		toCSV.createCustomFile("xVal");
+		
+		String sub = ( Helper.isNullOrEmpty( Idynomics.global.subFolderStruct) ?
+				"output" : Idynomics.global.subFolderStruct );
+		String csv_loc = Idynomics.global.outputRoot + "/" + sub + "/input/gen_" + genCount;
+		
+	
+		toCSV.createCustomFile("xVal", csv_loc);
 		toCSV.writeLine( csvHeader.substring(0, csvHeader.length() - 1) );
 		
 		for (int row = 0; row < n; row++)
@@ -230,8 +235,8 @@ public class ProtocolCreater
 			String xValCSV = Vector.toString(samples[row]);
 			toCSV.writeLine(xValCSV);
 			sim.setAttribute( XmlRef.nameAttribute, simName+"_"+suffix );
-			sim.setAttribute( XmlRef.subFolder, resultsFolder + "/" );
-			newProtocolFile(suffix);
+			sim.setAttribute( XmlRef.subFolder, Idynomics.global.subFolderStruct + "/result/gen_" + (genCount) );
+			newProtocolFile(suffix, "protocol/gen_" + genCount);
 		}
 		toCSV.closeFile();
 	}

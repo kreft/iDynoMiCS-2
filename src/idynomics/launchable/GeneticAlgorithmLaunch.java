@@ -3,13 +3,15 @@ package idynomics.launchable;
 import java.util.Collection;
 import java.util.LinkedList;
 
+import dataIO.Log;
+import dataIO.Log.Tier;
+import idynomics.Idynomics;
 import optimization.GeneticAlgorithm;
 import optimization.constraint.Bound;
 import optimization.constraint.Constraint;
 import optimization.geneticAlgorithm.GetDataFromCSV;
 import optimization.geneticAlgorithm.Population;
 import optimization.objectiveFunction.ObjectiveFunction;
-import optimization.sampling.Sampler.SampleMethod;
 import sensitivityAnalysis.ProtocolCreater;
 
 public class GeneticAlgorithmLaunch implements Launchable {
@@ -23,8 +25,7 @@ public class GeneticAlgorithmLaunch implements Launchable {
 		int generation = 0;
 		double fitnessThreshold = 0;
 		int maxIter = 0;
-		int stripes = 0;
-		
+
 		if ( args == null || args.length == 1 || args[1] == null )
 		{
 			System.out.print("No generation speciefied! \n");
@@ -61,42 +62,45 @@ public class GeneticAlgorithmLaunch implements Launchable {
 		}
 		else
 			maxIter = Integer.valueOf( args[6] );
-		if (generation == 0)
-		{
-			System.out.println("Generation is 0, calling LHC for creating initial population.");
-			if ( args == null || args.length == 7 || args[7] == null )
-			{
-				System.err.print("No stripe number given for LHC protocol \n");
-				return;
-			}
-			else
-				stripes = Integer.valueOf(args[7]);
-		}
 		/*
 		 *  TODO error function etc, GA parameters
 		 */
-		
-		Collection<Constraint> constraints = new LinkedList<Constraint>();
-		
-		double[] dataVector = GetDataFromCSV.getData(dataFile); // csvReader( dataFile );
-		
-		double[][] outMatrix = GetDataFromCSV.getOutput(rootFolder); // csvReader( rootFolder.. / dataFile / iterate over subs, read in datapoints corresponding to data file )
-		
+		Idynomics.setupGlobals( protocolfile );
 		ProtocolCreater xmlc = new ProtocolCreater( protocolfile );
+		
 		if (generation == 0)
 		{
-			xmlc.setSampler(SampleMethod.LHC, stripes);
-			xmlc.xmlWrite();
+			/* We can try to create a generation 0 to nudge the user in the
+			 * right direction, but this will probably mean the run has to be
+			 * restart.  */
+			if (Log.shouldWrite(Tier.NORMAL))
+				Log.out(Tier.NORMAL, "Warning GA cannot evolve population"
+						+ "without generation 0, trying to generate population"
+						+ "(Not recomended).");
+			SamplerLaunch sl = new SamplerLaunch();
+			String[] sl_args = new String[] { "-s", protocolfile };
+			sl.initialize(sl_args);
 		}
-    	
-		double[][] inMatrix = GetDataFromCSV.getInput(rootFolder+"/xVal.csv"); // csvReader( rootFolder.. generation / input matrix.csv )
-				
-		constraints.add( new Bound( xmlc.getBounds()[0], false) );
-    	constraints.add( new Bound( xmlc.getBounds()[1], true) );
-		
-		ObjectiveFunction op = GeneticAlgorithm.getOp( dataVector );
-		Population pop = new Population( op, inMatrix, outMatrix, constraints);
-		GeneticAlgorithm.step(op, fitnessThreshold, pop, generation, maxIter);
+		else
+			/* We cannot create a new generation if the previous one has not
+			 * been evaluated! */
+		{
+			
+			Collection<Constraint> constraints = new LinkedList<Constraint>();
+			
+			double[] dataVector = GetDataFromCSV.getData(dataFile);
+			
+			double[][] outMatrix = GetDataFromCSV.getOutput(rootFolder);
+			
+			double[][] inMatrix = GetDataFromCSV.getInput(rootFolder+"/xVal.csv");
+					
+			constraints.add( new Bound( xmlc.getBounds()[0], false) );
+	    	constraints.add( new Bound( xmlc.getBounds()[1], true) );
+			
+			ObjectiveFunction op = GeneticAlgorithm.getOp( dataVector );
+			Population pop = new Population( op, inMatrix, outMatrix, constraints);
+			GeneticAlgorithm.step(op, fitnessThreshold, pop, generation, maxIter);
+		}
 	}
 
 }

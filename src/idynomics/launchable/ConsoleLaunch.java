@@ -29,7 +29,7 @@ public strictfp class ConsoleLaunch implements Launchable
 		/* Acquire a protocol file. */
 		String protocolPath;
 		Scanner userInput = null;
-		if ( args == null || args.length == 0 || args[0] == null )
+		if ( args == null || args.length == 1 || args[1] == null )
 		{
 			userInput = new Scanner( System.in );
 			System.out.print("Enter protocol file path: ");
@@ -37,7 +37,7 @@ public strictfp class ConsoleLaunch implements Launchable
 		}
 		else
 		{
-			protocolPath = args[0];
+			protocolPath = args[1];
 		}
 		/* Now run the simulation with the given protocol file. */
 		Idynomics.setupSimulator(protocolPath);
