@@ -3,6 +3,8 @@ package dataIO;
 import java.util.ArrayList;
 
 import dataIO.Log.Tier;
+import linearAlgebra.Matrix;
+import utility.Helper;
 
 
 /**
@@ -19,12 +21,16 @@ public class CsvImport
 	 */
 	protected static FileHandler _csvFile = new FileHandler();	
 	
+	public static String DELIMITER = ",";
+	
+	public static String NEWLINE = ";";
+	
 	/**
 	 * Read the csv file and return the data as a String[][] matrix
 	 * @param filePath Path to the csv file (including filename)
 	 * @return String[][] table of data from the file.
 	 */
-	public static String[][] readFile(String filePath)
+	public static String[][] getStringMatrixFromCSV(String filePath)
 	{
 		if (_csvFile.doesFileExist(filePath))
 		{
@@ -43,5 +49,36 @@ public class CsvImport
 			Log.out(Tier.NORMAL, "No csv file found in the given path: "+ filePath);
 			return null;
 		}
+	}
+	
+	/**
+	 * Gets the matrix as a double[][] removing any headers, if present
+	 * 
+	 * @param filePath
+	 * @return
+	 */
+	public static double[][] getDblMatrixFromCSV(String filePath)
+	{
+		String[][] strData = getStringMatrixFromCSV(filePath);
+		String dataAsStr = "";
+		for (int i = 0; i < strData.length; i++)
+		{
+			for (int j = 0; j < strData[i].length; j++)
+			{
+				String delim = (j == (strData[i].length - 1) ) ? NEWLINE : DELIMITER;
+				if (Helper.dblParseable(strData[i][j]))
+				{
+					dataAsStr += strData[i][j] + delim;
+							
+				}
+				else if (strData[i][j] == "" || strData[i][j] == "NaN" ||
+						strData[i][j] == null || strData[i][j] == "null")
+				{
+					dataAsStr += "NaN" + delim;
+				}
+			}
+		}
+		double[][] values = Matrix.dblFromString(dataAsStr);
+		return values;
 	}
 }

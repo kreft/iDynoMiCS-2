@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document>
-	<simulation log="NORMAL" outputfolder="../results" name="ComammoxAOB_case" subfolder="GA_comAgents">
+	<simulation log="NORMAL" outputfolder="../results_GA" name="ComammoxAOB_case" subfolder="generation_0">
 	<timer stepSize="60.0" endOfSimulation="100000.0" /> <!-- 10 weeks -->
 		<speciesLib>
 			<!-- species/species library The species library contains all agent species 
@@ -112,7 +112,7 @@
 				</aspect>
 				<speciesModule name="coccoid" />
 			</species>
-			
+
 			<species name="coccoid">
 				<aspect name="density" type="PRIMARY" class="Double" value="1" />
 				<aspect name="divide" type="EVENT" class="CoccoidDivision"	/>
@@ -124,14 +124,13 @@
 		</speciesLib>
 		<compartment name="chemostat">
 			<shape class="Dimensionless" volume="1e18"> <!-- 1 cubic meter -->
-				<boundary  class="constantConcentrationToChemostat" volumeFlowRate="1.0E13" 
-					range="1.0E11,1.0E15" rangeFor="volumeFlowRate"> <!-- 0.6 liter / hour -->
+				<boundary  class="constantConcentrationToChemostat" volumeFlowRate="1.0E13" range="1.0E11,1.0E15" rangeFor="volumeFlowRate"> <!-- 0.6 liter / hour -->
 					<solute name="ammonium" range="1.0E-11,1.0E-3" rangeFor="concentration" concentration="1.00E-7"  />
 					<solute name="oxygen" 	range="8.74E-10,8.74E-2" rangeFor="concentration" concentration="8.74E-6"  />
 					<solute name="nitrite" 	range="5.0E-13,5.0E-5" rangeFor="concentration" concentration="5.00E-9"  />
 					<solute name="nitrate" 	range="1.0E-10,1.0E-2" rangeFor="concentration" concentration="1.00E-6"  />
 				</boundary>
-				<boundary  class="chemostatOut" volumeFlowRate="-1.0E13" agentRemoval="true" > <!-- 0.6 liter / hour -->
+				<boundary  class="chemostatOut" agentRemoval="true" constantVolume="true" > <!-- 0.6 liter / hour -->
 				</boundary> 
 			</shape>
 			<solutes>

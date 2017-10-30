@@ -10,8 +10,6 @@ import java.util.stream.Stream;
 
 
 import dataIO.CsvImport;
-import linearAlgebra.Matrix;
-import utility.Helper;
 
 /**
  * \brief Get the input, output and data matrices from csv files.
@@ -20,47 +18,12 @@ import utility.Helper;
  */
 
 public class GetDataFromCSV 
-{
-	public static String DELIMITER = ",";
-	
-	public static String NEWLINE = ";";
-	
+{	
 	private static ArrayList<Double> _timePoints = new ArrayList<Double>();
 	
 	private static ArrayList<int[]> _nanPos = new ArrayList<int[]>();
 	
 	private static int _outCols;
-	
-	/**
-	 * Gets the matrix as a double[][] removing any headers, if present
-	 * 
-	 * @param filePath
-	 * @return
-	 */
-	protected static double[][] getMatrix(String filePath)
-	{
-		String[][] strData = CsvImport.readFile(filePath);
-		String dataAsStr = "";
-		for (int i = 0; i < strData.length; i++)
-		{
-			for (int j = 0; j < strData[i].length; j++)
-			{
-				String delim = (j == (strData[i].length - 1) ) ? NEWLINE : DELIMITER;
-				if (Helper.dblParseable(strData[i][j]))
-				{
-					dataAsStr += strData[i][j] + delim;
-							
-				}
-				else if (strData[i][j] == "" || strData[i][j] == "NaN" ||
-						strData[i][j] == null || strData[i][j] == "null")
-				{
-					dataAsStr += "NaN" + delim;
-				}
-			}
-		}
-		double[][] values = Matrix.dblFromString(dataAsStr);
-		return values;
-	}
 	
 	/**
 	 * Get observed data, storing timepoints to extract the simulation
@@ -71,7 +34,7 @@ public class GetDataFromCSV
 	 */
 	public static double[] getData(String dataPath)
 	{
-		double[][] obsData = getMatrix(dataPath);
+		double[][] obsData = CsvImport.getDblMatrixFromCSV(dataPath);
 		ArrayList<Double> dataVals = new ArrayList<Double>();
 		for (int i = 0; i < obsData.length; i++)
 		{
@@ -103,7 +66,7 @@ public class GetDataFromCSV
 	
 	public static double[][] getInput(String filePath)
 	{
-		double[][] inputData = getMatrix(filePath);
+		double[][] inputData = CsvImport.getDblMatrixFromCSV(filePath);
 		return inputData;
 	}
 	
@@ -123,7 +86,7 @@ public class GetDataFromCSV
 		{
 			dataFilePaths.forEach((f) -> {
 				String fileName = f.toString();
-				double[][] simOutput = getMatrix(fileName);
+				double[][] simOutput = CsvImport.getDblMatrixFromCSV(fileName);
 				for (int i = 0; i < _timePoints.size(); i++)
 				{
 					ArrayList<Double> absDiff = new ArrayList<Double>();

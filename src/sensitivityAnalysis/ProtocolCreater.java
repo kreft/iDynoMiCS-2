@@ -159,8 +159,17 @@ public class ProtocolCreater
 		String[] fileDirs = _filePath.split("/");
 		String fileName = fileDirs[fileDirs.length-1].split("\\.")[0];
 		fileDirs = Arrays.copyOf(fileDirs, fileDirs.length-1);
-		String dirPath = String.join("/", fileDirs) + "/" 
-				+ "SensitivityAnalysisFiles/" + fileName + "/";
+		String dirPath = "";
+		if (resultsFolder != "")
+		{
+			dirPath = String.join("/", fileDirs) + "/"
+					+ resultsFolder + "/";
+		}
+		else
+		{
+			dirPath = String.join("/", fileDirs) + "/"
+					+ "SensitivityAnalysisFiles/" + fileName + "/";
+		}
 		String fileString = dirPath + fileName + "_" + suffix + ".xml";
 		try {
 			Files.createDirectories(Paths.get(dirPath));
@@ -195,8 +204,15 @@ public class ProtocolCreater
 		String simName = sim.getAttribute( XmlRef.nameAttribute );
 		
 		CsvExport toCSV = new CsvExport();
+		//TODO This will always read from xml file. 
+		// Should also include the default location.
 		Idynomics.global.outputLocation = sim.getAttribute( XmlRef.outputFolder );
-		toCSV.createCustomFile("xVal_" + genCount);
+		if (sim.hasAttribute( XmlRef.subFolder ))
+		{
+			resultsFolder = sim.getAttribute( XmlRef.subFolder );
+			Idynomics.global.outputLocation += "/"+resultsFolder;
+		}
+		toCSV.createCustomFile("xVal");
 		toCSV.writeLine( csvHeader.substring(0, csvHeader.length() - 1) );
 		
 		for (int row = 0; row < n; row++)

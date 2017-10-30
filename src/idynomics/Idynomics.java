@@ -17,9 +17,6 @@ import dataIO.Log;
 
 import static dataIO.Log.Tier.*;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import dataIO.XmlHandler;
 import idynomics.launchable.ConsoleLaunch;
 import idynomics.launchable.ExitCommand;

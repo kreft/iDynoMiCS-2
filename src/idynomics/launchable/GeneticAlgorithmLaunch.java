@@ -9,6 +9,7 @@ import optimization.constraint.Constraint;
 import optimization.geneticAlgorithm.GetDataFromCSV;
 import optimization.geneticAlgorithm.Population;
 import optimization.objectiveFunction.ObjectiveFunction;
+import optimization.sampling.Sampler.SampleMethod;
 import sensitivityAnalysis.ProtocolCreater;
 
 public class GeneticAlgorithmLaunch implements Launchable {
@@ -22,6 +23,7 @@ public class GeneticAlgorithmLaunch implements Launchable {
 		int generation = 0;
 		double fitnessThreshold = 0;
 		int maxIter = 0;
+		int stripes = 0;
 		
 		if ( args == null || args.length == 1 || args[1] == null )
 		{
@@ -43,7 +45,7 @@ public class GeneticAlgorithmLaunch implements Launchable {
 			dataFile = args[3];
 		if ( args == null || args.length == 4 || args[4] == null )
 		{
-			System.out.print("No master protocolfile profided! \n");
+			System.out.print("No master protocolfile provided! \n");
 		}
 		else
 			protocolfile = args[4];
@@ -59,6 +61,17 @@ public class GeneticAlgorithmLaunch implements Launchable {
 		}
 		else
 			maxIter = Integer.valueOf( args[6] );
+		if (generation == 0)
+		{
+			System.out.println("Generation is 0, calling LHC for creating initial population.");
+			if ( args == null || args.length == 7 || args[7] == null )
+			{
+				System.err.print("No stripe number given for LHC protocol \n");
+				return;
+			}
+			else
+				stripes = Integer.valueOf(args[7]);
+		}
 		/*
 		 *  TODO error function etc, GA parameters
 		 */
@@ -70,6 +83,11 @@ public class GeneticAlgorithmLaunch implements Launchable {
 		double[][] outMatrix = GetDataFromCSV.getOutput(rootFolder); // csvReader( rootFolder.. / dataFile / iterate over subs, read in datapoints corresponding to data file )
 		
 		ProtocolCreater xmlc = new ProtocolCreater( protocolfile );
+		if (generation == 0)
+		{
+			xmlc.setSampler(SampleMethod.LHC, stripes);
+			xmlc.xmlWrite();
+		}
     	
 		double[][] inMatrix = GetDataFromCSV.getInput(rootFolder+"/xVal.csv"); // csvReader( rootFolder.. generation / input matrix.csv )
 				
