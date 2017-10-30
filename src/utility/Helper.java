@@ -400,11 +400,6 @@ public final class Helper
 		
 	}
 	
-	/**
-	 * Write String array to comma separated string
-	 * @param array
-	 * @return
-	 */
 	public static String stringAToString(String[] array, String delim)
 	{
 		String out = "";
