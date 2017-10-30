@@ -18,6 +18,7 @@ import dataIO.Log;
 import static dataIO.Log.Tier.*;
 
 import dataIO.XmlHandler;
+import dataIO.Log.Tier;
 import idynomics.launchable.ConsoleLaunch;
 import idynomics.launchable.ExitCommand;
 import idynomics.launchable.GeneticAlgorithmLaunch;
@@ -124,6 +125,9 @@ public strictfp class Idynomics
 	*/
 	public static void main(String[] args)
 	{
+
+		Log.out(Tier.NORMAL, "command: "+ Helper.stringAToString( Helper.subset( args, 0, args.length) , " "));
+		
 		if ( args.length == 0 )
 		{
 			System.out.println( "Initiating gui..." );
