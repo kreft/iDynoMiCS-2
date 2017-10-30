@@ -511,6 +511,6 @@ public class XmlRef
 	/**
 	 * Indicates sub folder (set for SA or GA).
 	 */
-	public final static String subFolder = "subFolder";
+	public final static String subFolder = "subfolder";
 
 }

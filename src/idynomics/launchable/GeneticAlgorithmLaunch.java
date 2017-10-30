@@ -9,6 +9,7 @@ import optimization.constraint.Constraint;
 import optimization.geneticAlgorithm.GetDataFromCSV;
 import optimization.geneticAlgorithm.Population;
 import optimization.objectiveFunction.ObjectiveFunction;
+import optimization.sampling.Sampler.SampleMethod;
 import sensitivityAnalysis.ProtocolCreater;
 
 public class GeneticAlgorithmLaunch implements Launchable {
@@ -16,19 +17,20 @@ public class GeneticAlgorithmLaunch implements Launchable {
 	@Override
 	public void initialize(String[] args) {
 
-		String rootFolder = null;
-		String dataFile = null;
-		String protocolfile = null;
+		String rootFolder = null; // Idynomics.global.outputRoot;
+		String dataFile = null; // rootFolder+"/"+Idynomics.global.subFolderStruct+"obsData.csv";
+		String protocolfile = null; // Idynomics.global.protocolFile;
 		int generation = 0;
 		double fitnessThreshold = 0;
 		int maxIter = 0;
+		int stripes = 0;
 		
 		if ( args == null || args.length == 1 || args[1] == null )
 		{
 			System.out.print("No generation speciefied! \n");
 		}
 		else
-			generation = Integer.valueOf( args[2] );
+			generation = Integer.valueOf( args[1] );
 		if ( args == null || args.length == 2 || args[2] == null )
 		{
 			System.out.print("No generation path speciefied! \n");
@@ -43,7 +45,7 @@ public class GeneticAlgorithmLaunch implements Launchable {
 			dataFile = args[3];
 		if ( args == null || args.length == 4 || args[4] == null )
 		{
-			System.out.print("No master protocolfile profided! \n");
+			System.out.print("No master protocolfile provided! \n");
 		}
 		else
 			protocolfile = args[4];
@@ -59,21 +61,37 @@ public class GeneticAlgorithmLaunch implements Launchable {
 		}
 		else
 			maxIter = Integer.valueOf( args[6] );
+		if (generation == 0)
+		{
+			System.out.println("Generation is 0, calling LHC for creating initial population.");
+			if ( args == null || args.length == 7 || args[7] == null )
+			{
+				System.err.print("No stripe number given for LHC protocol \n");
+				return;
+			}
+			else
+				stripes = Integer.valueOf(args[7]);
+		}
 		/*
 		 *  TODO error function etc, GA parameters
 		 */
 		
-		double[][] inMatrix = GetDataFromCSV.getInput(rootFolder); // csvReader( rootFolder.. generation / input matrix.csv )
+		Collection<Constraint> constraints = new LinkedList<Constraint>();
 		
 		double[] dataVector = GetDataFromCSV.getData(dataFile); // csvReader( dataFile );
 		
 		double[][] outMatrix = GetDataFromCSV.getOutput(rootFolder); // csvReader( rootFolder.. / dataFile / iterate over subs, read in datapoints corresponding to data file )
 		
-		
-		Collection<Constraint> constraints = new LinkedList<Constraint>();
-    	
 		ProtocolCreater xmlc = new ProtocolCreater( protocolfile );
-    	constraints.add( new Bound( xmlc.getBounds()[0], false) );
+		if (generation == 0)
+		{
+			xmlc.setSampler(SampleMethod.LHC, stripes);
+			xmlc.xmlWrite();
+		}
+    	
+		double[][] inMatrix = GetDataFromCSV.getInput(rootFolder+"/xVal.csv"); // csvReader( rootFolder.. generation / input matrix.csv )
+				
+		constraints.add( new Bound( xmlc.getBounds()[0], false) );
     	constraints.add( new Bound( xmlc.getBounds()[1], true) );
 		
 		ObjectiveFunction op = GeneticAlgorithm.getOp( dataVector );

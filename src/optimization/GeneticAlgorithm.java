@@ -27,7 +27,7 @@ public class GeneticAlgorithm {
     		pop = pop.evolvePopulation();
     		
     		double[][] inMatrix = pop.getInMatrix();
-    		xmlc.writeOutputs( pop.size(), inMatrix );
+    		xmlc.writeOutputs( pop.size(), inMatrix, generationCount );
         }
     	else
     	{

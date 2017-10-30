@@ -140,7 +140,7 @@ public class Settings
 		 *  set output sub folder structure from protocol file
 		 */
 		Idynomics.global.subFolderStruct = XmlHandler.gatherAttribute(
-				elem, XmlRef.subFolder);
+				elem, XmlRef.subFolder) + "/";
 		
 		/* set simulation name from xml file */
 		Idynomics.global.simulationName = XmlHandler.obtainAttribute( elem, 

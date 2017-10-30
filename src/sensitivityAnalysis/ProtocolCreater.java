@@ -4,10 +4,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
 import javax.xml.transform.*;
@@ -89,6 +87,8 @@ public class ProtocolCreater
 				Element currAspect = (Element) allNodes.item(i);
 				if (currAspect.hasAttribute(XmlRef.rangeAttribute)) {
 					_sampleParams.add(currAspect);
+					csvHeader += currAspect.getAttribute(
+							XmlRef.nameAttribute) + ",";
 				}
 			}
 		}
@@ -107,7 +107,7 @@ public class ProtocolCreater
 	
 	public void xmlWrite()
 	{
-		writeOutputs( _sampler.size(), _sampler.sample( this._bounds ) );
+		writeOutputs( _sampler.size(), _sampler.sample( this._bounds ), 0);
 	}
 	
 	public double[][] getBounds()
@@ -159,8 +159,17 @@ public class ProtocolCreater
 		String[] fileDirs = _filePath.split("/");
 		String fileName = fileDirs[fileDirs.length-1].split("\\.")[0];
 		fileDirs = Arrays.copyOf(fileDirs, fileDirs.length-1);
-		String dirPath = String.join("/", fileDirs) + "/" 
-				+ "SensitivityAnalysisFiles/" + fileName + "/";
+		String dirPath = "";
+		if (resultsFolder != "")
+		{
+			dirPath = String.join("/", fileDirs) + "/"
+					+ resultsFolder + "/";
+		}
+		else
+		{
+			dirPath = String.join("/", fileDirs) + "/"
+					+ "SensitivityAnalysisFiles/" + fileName + "/";
+		}
 		String fileString = dirPath + fileName + "_" + suffix + ".xml";
 		try {
 			Files.createDirectories(Paths.get(dirPath));
@@ -188,22 +197,29 @@ public class ProtocolCreater
 	 * @param n Integer specifying the number of protocol files to be created
 	 * @param samples A double matrix which holds the sample space
 	 */
-	public void writeOutputs(int n, double[][] samples)
+	public void writeOutputs(int n, double[][] samples, int genCount)
 	{
 		Element sim = (Element) _masterDoc.getElementsByTagName(
 				XmlRef.simulation ).item(0);
 		String simName = sim.getAttribute( XmlRef.nameAttribute );
 		
 		CsvExport toCSV = new CsvExport();
+		//TODO This will always read from xml file. 
+		// Should also include the default location.
 		Idynomics.global.outputLocation = sim.getAttribute( XmlRef.outputFolder );
-		SimpleDateFormat dateFormat = 
-				new SimpleDateFormat("yyyy.MM.dd_HH.mm.ss");
-		toCSV.createCustomFile("xVal_" + dateFormat.format(new Date()));
-		toCSV.writeLine(csvHeader);
+		if (sim.hasAttribute( XmlRef.subFolder ))
+		{
+			resultsFolder = sim.getAttribute( XmlRef.subFolder );
+			Idynomics.global.outputLocation += "/"+resultsFolder;
+		}
+		toCSV.createCustomFile("xVal");
+		toCSV.writeLine( csvHeader.substring(0, csvHeader.length() - 1) );
 		
-		for (int row = 0; row < n; row++) {
+		for (int row = 0; row < n; row++)
+		{
 			String suffix = Integer.toString(row+1);
-			for (Element currAspect : _sampleParams) {
+			for (Element currAspect : _sampleParams)
+			{
 				int col = _sampleParams.indexOf(currAspect);
 				String attrToChange = currAspect.getAttribute(
 						XmlRef.rangeForAttribute );

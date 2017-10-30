@@ -462,6 +462,10 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 		modelNode.add(new Attribute(XmlRef.outputFolder, 
 				Idynomics.global.outputRoot, null, false ));
 		
+		/* the subfolder structure for GA/SA runs */
+//		modelNode.add(new Attribute(XmlRef.subFolder,
+//				Idynomics.global.subFolderStruct, null, false ));
+		
 		/* the log level */
 		modelNode.add(new Attribute(XmlRef.logLevel, Log.level(), 
 				Helper.enumToString(Tier.class).split(" "), false ));
@@ -518,6 +522,10 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 			/* update output root folder */
 			Idynomics.global.outputRoot = 
 					node.getAttribute(XmlRef.outputFolder).getValue();
+			
+			/* the subfolder structure for GA/SA runs */
+//			Idynomics.global.subFolderStruct =
+//					node.getAttribute(XmlRef.subFolder).getValue();
 			
 			/* set output level */
 			Log.set(node.getAttribute(XmlRef.logLevel).getValue());

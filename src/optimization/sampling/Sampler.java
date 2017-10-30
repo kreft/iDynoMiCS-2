@@ -21,14 +21,14 @@ public class Sampler {
 		int k, p, r;
 		
 		if ( pars.length < 1)
-			/* Number of levels. Ask in input file? */
+			/* Number of levels. */
 			k = Integer.valueOf( Helper.obtainInput( "", 
 					"Number of dimensions in sampling space", false));
 		else
 			k = pars[0];
 		
 		if ( pars.length < 2)
-			/* Number of levels. Ask in input file? */
+			/* Number of levels. */
 			p = Integer.valueOf( Helper.obtainInput( "", 
 					"Number of sampling levels.", false));
 		else
