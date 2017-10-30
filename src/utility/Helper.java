@@ -401,6 +401,25 @@ public final class Helper
 	}
 	
 	/**
+	 * Write String array to comma separated string
+	 * @param array
+	 * @return
+	 */
+	public static String stringAToString(String[] array, String delim)
+	{
+		String out = "";
+		if (array != null)
+		{
+			for ( String o : array )
+				out += o+delim;
+			return out.substring(0, out.length()-1);
+		}
+		else
+			 return out;
+		
+	}
+	
+	/**
 	 * convert first character of String to uppercase.
 	 * @param string
 	 * @return

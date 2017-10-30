@@ -98,7 +98,7 @@ public class GetDataFromCSV
 					int idxMin = absDiff.indexOf(Collections.min(absDiff));
 					for (int j = 0; j < _outCols; j++)
 					{
-						outData[i][j] = simOutput[idxMin][j];
+						outData[i][j] = simOutput[idxMin][j+1];
 					}
 				}
 			});
