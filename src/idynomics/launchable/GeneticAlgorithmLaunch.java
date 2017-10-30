@@ -89,10 +89,12 @@ public class GeneticAlgorithmLaunch implements Launchable {
 			Collection<Constraint> constraints = new LinkedList<Constraint>();
 			
 			double[] dataVector = GetDataFromCSV.getData(dataFile);
+			int prev = generation-1;
 			
-			double[][] outMatrix = GetDataFromCSV.getOutput(rootFolder);
+			double[][] outMatrix = GetDataFromCSV.getOutput(rootFolder+"/result/gen_"+ prev +"/");
 			
-			double[][] inMatrix = GetDataFromCSV.getInput(rootFolder+"/xVal.csv");
+			
+			double[][] inMatrix = GetDataFromCSV.getInput( rootFolder+"/input/gen_"+ prev +"/xVal.csv" );
 					
 			constraints.add( new Bound( xmlc.getBounds()[0], false) );
 	    	constraints.add( new Bound( xmlc.getBounds()[1], true) );
