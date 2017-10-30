@@ -87,18 +87,22 @@ public class GetDataFromCSV
 			dataFilePaths.forEach((f) -> {
 				String fileName = f.toString();
 				double[][] simOutput = CsvImport.getDblMatrixFromCSV(fileName);
-				for (int i = 0; i < _timePoints.size(); i++)
+				for (int ii = 0; ii < _outCols; ii++)
 				{
-					ArrayList<Double> absDiff = new ArrayList<Double>();
-					for (int j = 0; j < simOutput.length; j++)
+					for (int i = 0; i < _timePoints.size(); i++)
 					{
-						absDiff.add(Math.abs(
-								_timePoints.get(i) - simOutput[j][0]));
-					}
-					int idxMin = absDiff.indexOf(Collections.min(absDiff));
-					for (int j = 0; j < _outCols; j++)
-					{
-						outData[i][j] = simOutput[idxMin][j+1];
+						ArrayList<Double> absDiff = new ArrayList<Double>();
+						for (int j = 0; j < simOutput.length; j++)
+						{
+							absDiff.add(Math.abs(
+									_timePoints.get(i) - simOutput[j][0]));
+						}
+						int idxMin = absDiff.indexOf(Collections.min(absDiff));
+						for (int j = 1; j < simOutput[idxMin].length; j++)
+						{
+							if (! _nanPos.contains(new int[] {idxMin, j}))
+								outData[i][ii] = simOutput[idxMin][j];
+						}
 					}
 				}
 			});
