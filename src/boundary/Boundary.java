@@ -390,6 +390,8 @@ public abstract class Boundary implements Settable, Instantiable
 			{
 				// TODO throw exception? Error message to log?
 			}
+			for( Agent a : this._departureLounge )
+				this._agents.registerRemoveAgent(a);
 		}
 		else
 		{
@@ -399,6 +401,8 @@ public abstract class Boundary implements Settable, Instantiable
 						this._departureLounge.size()+" agents to partner");
 			}
 			this._partner.acceptInboundAgents(this._departureLounge);
+			for( Agent a : this._departureLounge )
+				this._agents.registerRemoveAgent(a);
 			this._departureLounge.clear();
 		}
 	}

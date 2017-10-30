@@ -126,7 +126,6 @@ public class ChemostatOut extends Boundary
 	@Override
 	public Collection<Agent> agentsToGrab()
 	{
-		List<Agent> out = new LinkedList<Agent>();
 		int nAllAgents = this._agents.getNumAllAgents();
 		if ( (nAllAgents > 0) && (this._volumeFlowRate < 0.0) )
 		{
@@ -149,8 +148,8 @@ public class ChemostatOut extends Boundary
 					if( ExtraMath.getUniRandDbl() > e )
 					{
 						Agent a = this._agents.chooseAgent(i);
-						out.add(a);
-						this._agents.registerRemoveAgent(a);
+						if ( !this._departureLounge.contains(a))
+							this._departureLounge.add(a);
 						if ( Log.shouldWrite(Tier.NORMAL) )
 							Log.out(Tier.NORMAL, "Washed out agent");
 					}
@@ -168,6 +167,6 @@ public class ChemostatOut extends Boundary
 			 */
 			this._agentsToDiluteTally = 0.0;
 		}
-		return out;
+		return this._departureLounge;
 	}
 }
