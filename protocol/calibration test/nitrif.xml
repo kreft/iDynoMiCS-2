@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document>
-	<simulation log="NORMAL" outputfolder="../results" name="Nitrification_case">
-	<timer stepSize="60.0" endOfSimulation="100000.0" /> <!-- 10 weeks -->
+	<simulation log="NORMAL" outputfolder="../results" subfolder="nitrif_GA" name="Nitrification_case" outputskip="20">
+	<timer stepSize="0.001" endOfSimulation="0.12" /> <!-- 10 weeks -->
 		<speciesLib>
 			<!-- species/species library The species library contains all agent species 
 				in the simulations. This may include microbial species, plasmid and vector 
@@ -21,15 +21,15 @@
 									( ammonium / ( ammonium + Kam ) ) * 
 									( oxygen / ( oxygen + Kox ) )">
 								<!-- pg/µm3 --> 
-								<constant name="Kam" 	value="0.5" /> 
-								<constant name="Kox" 	value="0.7" />
+								<constant name="Kam" 	value="0.5" range="0.05,5.0" rangeFor="value" /> 
+								<constant name="Kox" 	value="0.7" range="0.07,7.0" rangeFor="value" />
 								<!-- per minute -->
-								<constant name="mumax" 	value="1.5" />  
+								<constant name="mumax" 	value="1.5" range="0.15,15.0" rangeFor="value" />  
 							</expression>
-							<stoichiometric component="mass" 		coefficient="0.15" />
-							<stoichiometric component="ammonium" 	coefficient="-1" />
-							<stoichiometric component="nitrite" 	coefficient="1" />
-							<stoichiometric component="oxygen" 		coefficient="-3.43" />
+							<stoichiometric component="mass" 		coefficient="1" />
+							<stoichiometric component="ammonium" 	coefficient="-6.6667" />
+							<stoichiometric component="nitrite" 	coefficient="6.6667" />
+							<stoichiometric component="oxygen" 		coefficient="-21.8667" />
 						</reaction> 
 						<reaction name="decay">
 							<expression value="mass * b ">
@@ -37,7 +37,7 @@
 								<!-- per minute -->
 								<constant name="b" 	value="0.1" />  
 							</expression>
-							<stoichiometric component="mass" 		coefficient="-1.0" />
+							<stoichiometric component="mass" coefficient="-1.0" />
 						</reaction> 
 					</list>
 				</aspect>
@@ -60,10 +60,10 @@
 								<!-- per minute -->
 								<constant name="mumax" 	value="0.5" />  
 							</expression>
-							<stoichiometric component="mass" 		coefficient="0.05" />
-							<stoichiometric component="nitrite" 	coefficient="-1" />
-							<stoichiometric component="nitrate" 	coefficient="1" />
-							<stoichiometric component="oxygen" 		coefficient="-1.14" />
+							<stoichiometric component="mass" 		coefficient="1.0" />
+							<stoichiometric component="nitrite" 	coefficient="-20.0" />
+							<stoichiometric component="nitrate" 	coefficient="20.0" />
+							<stoichiometric component="oxygen" 		coefficient="-21.8" />
 						</reaction> 
 						<reaction name="decay">
 							<expression value="mass *  b ">
@@ -89,6 +89,14 @@
 				<solute name="nitrate" 	concentration="0.0"  defaultDiffusivity="1"  />
 			</solutes>
 			<reactions>
+				<reaction name="oxygen_transfer">
+					<expression value="kla * (o2sat - oxygen)">
+						<!-- pg/µm3 --> 
+						<constant name="kla" 	value="360.0" /> 
+						<constant name="o2sat" 	value="8.0" />
+					</expression>
+					<stoichiometric component="oxygen" 		coefficient="1" />
+				</reaction> 
 			</reactions>
 			<agents>
 				<agent>
@@ -104,17 +112,17 @@
 			</agents>
 			<processManagers>
 				<process name="solveChemostat" class="ChemostatSolver" priority="0"
-					firstStep="0.0"  timerStepSize="60.0">
+					firstStep="0.0"  timerStepSize="0.001">
 					<aspect name="soluteNames" type="PRIMARY" class="String[]" value="ammonium,oxygen,nitrite,nitrate" />
-					<aspect name="hMax" type="PRIMARY" class="Double" value="0.1" />
+					<aspect name="hMax" type="PRIMARY" class="Double" value="0.0001" />
 					<aspect name="solver" type="PRIMARY" class="String" value="heun" />
 					<aspect name="tolerance" class="Double" value="1.0E-6" />
 				</process>
 				<process name="summary" class="Summary"  priority="2"
-					firstStep="0.0" timerStepSize="60.0">
+					firstStep="0.0" timerStepSize="0.001">
 					<aspect name="includeHeader" type="PRIMARY" class="Boolean" value="TRUE" />
 					<aspect name="tableSpecification" type="PRIMARY" class="String"
-					value="0 ~ mass ? species == ComammoxAOB | mass  ? species == CanonicalAOB | mass ?  species == CanonicalNOB | %oxygen | %ammonium | %nitrite | %nitrate" />
+					value="0 ~ #time | %oxygen | %ammonium | %nitrite | %nitrate" />
 					<aspect name="fileName" type="PRIMARY" class="String" value="data" />
 				</process>
 			</processManagers>

@@ -513,4 +513,9 @@ public class XmlRef
 	 */
 	public final static String subFolder = "subfolder";
 
+	/**
+	 * Number of global time steps to skip for next xml out
+	 */
+	public static final String outputskip = "outputskip";
+
 }

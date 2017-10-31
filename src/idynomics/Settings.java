@@ -83,6 +83,8 @@ public class Settings
 	public Boolean ignore_protocol_out =  Boolean.valueOf( 
 			settings.getProperty( SettingsRef.ignore_protocol_out ) );
 
+	public int outputskip = 0;
+
 	/**
 	* Version number of this iteration of iDynoMiCS - required by update
 	* procedure.
@@ -145,6 +147,11 @@ public class Settings
 		/* set simulation name from xml file */
 		Idynomics.global.simulationName = XmlHandler.obtainAttribute( elem, 
 				XmlRef.nameAttribute, XmlRef.simulation);
+		
+		if ( XmlHandler.hasAttribute(elem, XmlRef.subFolder) )
+			Idynomics.global.outputskip = Integer.valueOf( 
+					XmlHandler.obtainAttribute( elem, XmlRef.outputskip, 
+					XmlRef.simulation));
 		
 		updateSettings();
 		/* 

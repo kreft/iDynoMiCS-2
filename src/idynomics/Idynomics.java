@@ -125,8 +125,6 @@ public strictfp class Idynomics
 	*/
 	public static void main(String[] args)
 	{
-
-		Log.out(Tier.NORMAL, "command: "+ Helper.stringAToString( Helper.subset( args, 0, args.length) , " "));
 		
 		if ( args.length == 0 )
 		{
@@ -135,6 +133,7 @@ public strictfp class Idynomics
 		}
 		else
 		{
+			Log.out(Tier.NORMAL, "command: "+ Helper.stringAToString( Helper.subset( args, 0, args.length) , " "));
 			for( int i = 0; i < args.length; i++)
 			{
 				if( args[i].startsWith("-") )

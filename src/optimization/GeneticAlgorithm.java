@@ -1,6 +1,7 @@
 package optimization;
 
 import optimization.geneticAlgorithm.Population;
+import optimization.objectiveFunction.MeanSquareError;
 import optimization.objectiveFunction.ObjectiveFunction;
 import optimization.objectiveFunction.QuadraticLossFunction;
 import sensitivityAnalysis.ProtocolCreater;
@@ -9,9 +10,9 @@ public class GeneticAlgorithm {
 
 	public static ObjectiveFunction getOp( double[] dataVector )
 	{
-		ObjectiveFunction qlf = new QuadraticLossFunction();
-    	qlf.setData( dataVector );
-    	return qlf;
+		ObjectiveFunction of = new MeanSquareError();
+    	of.setData( dataVector );
+    	return of;
 	}
 	
 	public static void step(ObjectiveFunction op, double fitnessThreshold, 

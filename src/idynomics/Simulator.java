@@ -56,6 +56,8 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 	
 	private long _timeSpentOnXmlOutput = 0;
 	
+	private int _outputTicker = 0;
+	
 	/**
 	 * Simulator is the top node in iDynoMiCS and stores its own modelNode and 
 	 * within that all child nodes, simulator is the exception to the rule not
@@ -308,9 +310,16 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 		/*
 		 * Write state to new XML file.
 		 */
-		long tick = System.currentTimeMillis();
-		this._xmlOut.writeFile();
-		this._timeSpentOnXmlOutput = System.currentTimeMillis() - tick;
+		
+		if( this._outputTicker < Idynomics.global.outputskip )
+			this._outputTicker++;
+		else
+		{
+			long tick = System.currentTimeMillis();
+			this._xmlOut.writeFile();
+			this._timeSpentOnXmlOutput = System.currentTimeMillis() - tick;
+			this._outputTicker = 0;
+		}
 
 		/*
 		 * Reporting agents.
