@@ -19,11 +19,15 @@ public class Bound implements Constraint {
 		for(int i = 0; i < values.length; i++)
 		{
 			if (this._sign)
+			{
 				if ( values[i] > this._bound[i] )
 					return false;
+			}
 			else
+			{
 				if ( values[i] < this._bound[i] )
 					return false;
+			}
 		}
 		return true;
 	}	
@@ -31,12 +35,15 @@ public class Bound implements Constraint {
 	public boolean test( double value, int position ) 
 	{
 		if (this._sign)
+		{
 			if ( value > this._bound[position] )
 				return false;
-		else
+		}
+		else 
+		{
 			if ( value < this._bound[position] )
 				return false;
-
+		}
 		return true;
 	}	
 	

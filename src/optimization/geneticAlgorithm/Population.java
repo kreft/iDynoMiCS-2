@@ -2,6 +2,8 @@ package optimization.geneticAlgorithm;
 
 import java.util.Collection;
 
+import dataIO.Log;
+import dataIO.Log.Tier;
 import linearAlgebra.Vector;
 import optimization.constraint.Bound;
 import optimization.constraint.Constraint;
@@ -13,7 +15,7 @@ public class Population {
     /* GA parameters */
     private double _uniformRate = 0.25;
     private double _mutationRate = 0.6;
-    private double _mutationScale = 0.25;
+    private double _mutationScale = 0.1;
     private int _tournamentSize = 8;
     private int _elite = 2;
 
@@ -151,11 +153,11 @@ public class Population {
     public Individual fittest() 
     {
         Individual fittest = _individuals[0];
-        for (int i = 0; i < size(); i++)
+        for (Individual i : _individuals)
         {
-            if (fittest.loss( _of ) > get(i).loss( _of ) )
+            if (fittest.loss( _of ) > i.loss( _of ) )
             {
-                fittest = get(i);
+                fittest = i;
             }
         }
         return fittest;
@@ -173,7 +175,8 @@ public class Population {
     	int slowest = 0;
         double current;
         
-        for (int i = 0; i < size(); i++) {
+        for (int i = 0; i < size(); i++) 
+        {
         	current = get(i).loss( _of );
             if ( fitness[slowest] > current ) 
             {
@@ -213,7 +216,7 @@ public class Population {
     {
     	double[][] out = new double[ size() ][ _individuals[0].size() ];
     	for(int i = 0; i < this.size(); i++)
-    		out[i] = _individuals[i]._inputs;
+    		out[i] = Vector.copy( _individuals[i].get() );
     	return out;
     }
     
@@ -283,18 +286,25 @@ public class Population {
      */
     public Population evolvePopulation() 
     {
- 
         Population newPopulation = new Population( _of , this.size(), 
         		this._constraints );
         
+        Individual[] elites = fittest( _elite );
         for (int i = 0; i < _elite; i++)
-        	newPopulation.set(i, fittest( _elite )[i] );
+        {
+        	newPopulation.set(i, new Individual( elites[i] ) );
+        	if( Log.shouldWrite(Tier.DEBUG) )
+        		Log.out(Tier.DEBUG, elites[i].toString() );
+        }
+        
         
         /* crossover population */
         for (int i = _elite; i < newPopulation.size(); i++) 
         {
-            Individual indiv1 = this.tournament( _tournamentSize );
-            Individual indiv2 = this.tournament( _tournamentSize );
+            Individual indiv1 = 
+            		new Individual( this.tournament( _tournamentSize ) );
+            Individual indiv2 = 
+            		new Individual( this.tournament( _tournamentSize ) );
             newPopulation.set(i, indiv1.crossover(indiv2, _uniformRate) );
         }
 
@@ -304,7 +314,7 @@ public class Population {
             newPopulation.get(i).mutate(_mutationRate, _mutationScale, 
             		this._constraints);
         }
-
+        
         return newPopulation;
     }
 

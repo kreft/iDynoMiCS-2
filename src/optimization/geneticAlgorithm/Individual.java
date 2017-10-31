@@ -13,8 +13,8 @@ import utility.Helper;
 
 public class Individual {
 
-	public double[] _inputs;
-	public double[] _outputs;
+	private double[] _inputs;
+	private double[] _outputs;
 	
 	@Deprecated
 	public TestModel _model;
@@ -41,6 +41,12 @@ public class Individual {
     public Individual( double[] inputs )
     {
     	this._inputs = inputs;
+    }
+    
+    public Individual( Individual individual )
+    {
+    	this._inputs = Vector.copy( individual._inputs);
+    	this._outputs = Vector.copy( individual._outputs);
     }
 
     /**
@@ -71,7 +77,7 @@ public class Individual {
                 /* Create random gene */
             	double[] temp = Vector.copy(_inputs);
             	temp[i] = this.get(i) + ExtraMath.getNormRand() * scale;
-            	while ( Constraint.allMet(constraints, temp) )
+            	while ( ! Constraint.allMet(constraints, temp) )
             		temp[i] = this.get(i) + ExtraMath.getNormRand() * scale;
                 this.set(i, temp[i]);
             }
@@ -112,6 +118,11 @@ public class Individual {
     	return this._inputs[i];
     }
     
+    public double[] get()
+    {
+    	return this._inputs;
+    }
+    
     /**
      * set d as input parameter i 'gene'
      * @param i
@@ -145,7 +156,7 @@ public class Individual {
     @Override
     public String toString() 
     {
-        return "inputs: " + Vector.toString( _inputs ) + "\noutputs: " + 
-        		Vector.toString( _outputs );
+        return "inputs: " + Vector.toString( this._inputs ) + "\noutputs: " + 
+        		Vector.toString( this._outputs );
     }
 }

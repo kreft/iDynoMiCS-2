@@ -6,11 +6,13 @@ import java.util.LinkedList;
 import dataIO.Log;
 import dataIO.Log.Tier;
 import idynomics.Idynomics;
+import linearAlgebra.Vector;
 import optimization.GeneticAlgorithm;
 import optimization.constraint.Bound;
 import optimization.constraint.Constraint;
 import optimization.geneticAlgorithm.GetDataFromCSV;
 import optimization.geneticAlgorithm.Population;
+import optimization.geneticAlgorithm.DataFromCSV;
 import optimization.objectiveFunction.ObjectiveFunction;
 import sensitivityAnalysis.ProtocolCreater;
 
@@ -88,22 +90,29 @@ public class GeneticAlgorithmLaunch implements Launchable {
 			
 			Collection<Constraint> constraints = new LinkedList<Constraint>();
 			
-			double[] dataVector = GetDataFromCSV.getData(dataFile);
+			DataFromCSV csvIn = new DataFromCSV();
+			double[] dataVector = csvIn.getData(dataFile);
 			int prev = generation-1;
 			
-			double[][] outMatrix = GetDataFromCSV.getOutput( 
+			Log.out(Tier.NORMAL, "pervious: " + prev + " current: " + generation);
+			
+			double[][] outMatrix = DataFromCSV.getOutput( 
 					Idynomics.global.outputRoot + "/" + Idynomics.global.subFolderStruct +
 					"/result/gen_"+ prev +"/");
 			
-			double[][] inMatrix = GetDataFromCSV.getInput( 
+			double[][] inMatrix = DataFromCSV.getInput( 
 					Idynomics.global.outputRoot + "/" + Idynomics.global.subFolderStruct  +
 					"/input/gen_"+ prev +"/xVal.csv" );
 			
 			constraints.add( new Bound( xmlc.getBounds()[0], false) );
 	    	constraints.add( new Bound( xmlc.getBounds()[1], true) );
+	    	
+	    	System.out.println(Vector.toString( xmlc.getBounds()[0]));
+	    	System.out.println(Vector.toString( xmlc.getBounds()[1]));
 			
 			ObjectiveFunction op = GeneticAlgorithm.getOp( dataVector );
 			Population pop = new Population( op, inMatrix, outMatrix, constraints);
+						
 			GeneticAlgorithm.step(op, fitnessThreshold, pop, generation, maxIter, xmlc);
 		}
 	}

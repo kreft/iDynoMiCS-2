@@ -1,7 +1,8 @@
 package optimization;
 
+import dataIO.Log;
+import dataIO.Log.Tier;
 import optimization.geneticAlgorithm.Population;
-import optimization.objectiveFunction.MeanSquareError;
 import optimization.objectiveFunction.ObjectiveFunction;
 import optimization.objectiveFunction.QuadraticLossFunction;
 import sensitivityAnalysis.ProtocolCreater;
@@ -10,7 +11,7 @@ public class GeneticAlgorithm {
 
 	public static ObjectiveFunction getOp( double[] dataVector )
 	{
-		ObjectiveFunction of = new MeanSquareError();
+		ObjectiveFunction of = new QuadraticLossFunction();
     	of.setData( dataVector );
     	return of;
 	}
@@ -20,8 +21,9 @@ public class GeneticAlgorithm {
 	{
 		// Getting ProtocolCreater from the calling class so that _master is defined 
 		// ProtocolCreater xmlc = new ProtocolCreater();
-        System.out.println("Generation: " + generationCount + " Fittest: " + 
-        		pop.fittest().loss( op ) + " " + pop.fittest() );
+		Log.out(Tier.NORMAL, "Generation: " + generationCount + " Population: " + 
+				pop.size() + " \nFittest: " + pop.fittest().loss( op )  + " " 
+				+ pop.fittest() );
         
     	if ( pop.fittest().loss( op ) > fitnessThreshold && 
     			maxIter > generationCount ) {

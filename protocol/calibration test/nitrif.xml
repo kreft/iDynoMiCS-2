@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document>
-	<simulation log="NORMAL" outputfolder="../results" subfolder="nitrif_GA" name="Nitrification_case" outputskip="20">
-	<timer stepSize="0.001" endOfSimulation="0.12" /> <!-- 10 weeks -->
+	<simulation log="NORMAL" outputfolder="../results" subfolder="nitrif_GA" name="Nitrification_case" outputskip="600">
+	<timer stepSize="0.0001" endOfSimulation="0.12" /> <!-- 10 weeks -->
 		<speciesLib>
 			<!-- species/species library The species library contains all agent species 
 				in the simulations. This may include microbial species, plasmid and vector 
@@ -112,14 +112,14 @@
 			</agents>
 			<processManagers>
 				<process name="solveChemostat" class="ChemostatSolver" priority="0"
-					firstStep="0.0"  timerStepSize="0.001">
+					firstStep="0.0"  timerStepSize="0.0001">
 					<aspect name="soluteNames" type="PRIMARY" class="String[]" value="ammonium,oxygen,nitrite,nitrate" />
 					<aspect name="hMax" type="PRIMARY" class="Double" value="0.0001" />
 					<aspect name="solver" type="PRIMARY" class="String" value="heun" />
 					<aspect name="tolerance" class="Double" value="1.0E-6" />
 				</process>
 				<process name="summary" class="Summary"  priority="2"
-					firstStep="0.0" timerStepSize="0.001">
+					firstStep="0.0" timerStepSize="0.0001">
 					<aspect name="includeHeader" type="PRIMARY" class="Boolean" value="TRUE" />
 					<aspect name="tableSpecification" type="PRIMARY" class="String"
 					value="0 ~ #time | %oxygen | %ammonium | %nitrite | %nitrate" />

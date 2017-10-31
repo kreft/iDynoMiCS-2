@@ -148,7 +148,7 @@ public class Settings
 		Idynomics.global.simulationName = XmlHandler.obtainAttribute( elem, 
 				XmlRef.nameAttribute, XmlRef.simulation);
 		
-		if ( XmlHandler.hasAttribute(elem, XmlRef.subFolder) )
+		if ( XmlHandler.hasAttribute(elem, XmlRef.outputskip) )
 			Idynomics.global.outputskip = Integer.valueOf( 
 					XmlHandler.obtainAttribute( elem, XmlRef.outputskip, 
 					XmlRef.simulation));

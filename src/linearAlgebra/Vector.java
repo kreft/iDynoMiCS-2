@@ -1,5 +1,6 @@
 package linearAlgebra;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
@@ -114,6 +115,24 @@ public final class Vector
 			vector[i] = object.get(i);
 		return vector;
 	}
+	
+	/**
+	 * \brief Create a double vector from an existing Collection<Double> (capital D)
+	 * @param object
+	 * @return double[] array obtained from list<Double> object
+	 */
+	public static double[] vector(Collection<Double> object)
+	{
+		double[] vector = new double[object.size()];
+		int i = 0;
+		for(Double d : object)
+		{
+			vector[i] = d;
+			i++;
+		}
+		return vector;
+	}
+	
 	
 	/**
 	 * \brief A new integer vector of length <b>n</b>, and all elements set to
