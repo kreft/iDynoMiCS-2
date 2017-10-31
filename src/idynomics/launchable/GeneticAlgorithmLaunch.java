@@ -104,7 +104,7 @@ public class GeneticAlgorithmLaunch implements Launchable {
 			
 			ObjectiveFunction op = GeneticAlgorithm.getOp( dataVector );
 			Population pop = new Population( op, inMatrix, outMatrix, constraints);
-			GeneticAlgorithm.step(op, fitnessThreshold, pop, generation, maxIter);
+			GeneticAlgorithm.step(op, fitnessThreshold, pop, generation, maxIter, xmlc);
 		}
 	}
 
