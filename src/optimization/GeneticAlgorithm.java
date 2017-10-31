@@ -15,12 +15,12 @@ public class GeneticAlgorithm {
 	}
 	
 	public static void step(ObjectiveFunction op, double fitnessThreshold, 
-			Population pop, int generationCount , int maxIter)
+			Population pop, int generationCount , int maxIter, ProtocolCreater xmlc)
 	{
-		ProtocolCreater xmlc = new ProtocolCreater();
+		// Getting ProtocolCreater from the calling class so that _master is defined 
+		// ProtocolCreater xmlc = new ProtocolCreater();
         System.out.println("Generation: " + generationCount + " Fittest: " + 
         		pop.fittest().loss( op ) + " " + pop.fittest() );
-        generationCount++;
         
     	if ( pop.fittest().loss( op ) > fitnessThreshold && 
     			maxIter > generationCount ) {
@@ -45,5 +45,6 @@ public class GeneticAlgorithm {
     		
     		//further reporting
     	}
+    	generationCount++;
 	}
 }

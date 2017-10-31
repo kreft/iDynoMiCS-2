@@ -26,6 +26,10 @@ public class Individual {
      */
     public Individual( double[] inputs, double[] outputs )
     {
+    	// initialising random number generator
+    	// ExtraMath.rand was null
+    	ExtraMath.initialiseRandomNumberGenerator();
+    	
     	this._inputs = inputs;
     	this._outputs = outputs;
     }
