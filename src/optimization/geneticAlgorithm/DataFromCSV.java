@@ -12,6 +12,7 @@ import java.util.stream.Stream;
 import dataIO.CsvImport;
 import dataIO.Log;
 import dataIO.Log.Tier;
+import linearAlgebra.Matrix;
 import linearAlgebra.Vector;
 
 
@@ -105,20 +106,29 @@ public class DataFromCSV
 			outData = new double[ fileNames.length ][ _dataPoints.size() ];
 			for(String s : fileNames )
 			{
+				// get the row number from the folder name
 				int rowIdx = Integer.parseInt(s.substring(s.lastIndexOf("_")+1)
 						.split(File.separator)[0]) - 1;
+				
 				if( Log.shouldWrite(Tier.DEBUG))
 					Log.out(Tier.DEBUG, s);
+				
 				double[][] simOutput = 
 						CsvImport.getDblMatrixFromCSV( s );
+				
 				for( DataPoint p : _dataPoints.keySet())
 				{
 					int t = 0;
+					
+					// Could be calculated as the minimum of the difference
+					// indexOf ( min(abs( p.timePoint - simOutput[:,0] )))
+					// Too much hassle in this case though.
 					while( (t+1 < simOutput.length) && 
 							(p.timePoint > simOutput[t][0] ) && 
 							(p.timePoint - simOutput[t][0] ) > 
 							(p.timePoint - simOutput[t+1][0] ) )
-						t++; 
+						t++;
+					// Fill rowIdx
 					outData[rowIdx][p.p] = simOutput[t][p.coll];
 				}
 			}
