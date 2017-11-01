@@ -1,5 +1,6 @@
 package optimization.geneticAlgorithm;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -12,7 +13,6 @@ import dataIO.CsvImport;
 import dataIO.Log;
 import dataIO.Log.Tier;
 import linearAlgebra.Vector;
-import utility.Helper;
 
 
 public class DataFromCSV 
@@ -102,22 +102,15 @@ public class DataFromCSV
 		{
 			String[] fileNames = dataFilePaths.map(path -> 
 					path.toString()).toArray(String[]::new);
-			TreeMap<Integer,String> fileMap = new TreeMap<Integer,String>();
+			outData = new double[ fileNames.length ][ _dataPoints.size() ];
 			for(String s : fileNames )
 			{
-				String[] chunks = s.split("_");
-				String[] tail = chunks[chunks.length-1].replaceAll("\\\\", "").replaceAll("/", "").split("d");
-				fileMap.put( Integer.valueOf( tail[0] ), s);
-			}
-			
-			outData = new double[ fileMap.size() ][_dataPoints.size() ];
-			int cnt = 0;
-			for (String fl : fileMap.values())
-			{
+				int rowIdx = Integer.parseInt(s.substring(s.lastIndexOf("_")+1)
+						.split(File.separator)[0]) - 1;
 				if( Log.shouldWrite(Tier.DEBUG))
-					Log.out(Tier.DEBUG, fl);
+					Log.out(Tier.DEBUG, s);
 				double[][] simOutput = 
-						CsvImport.getDblMatrixFromCSV( fl );
+						CsvImport.getDblMatrixFromCSV( s );
 				for( DataPoint p : _dataPoints.keySet())
 				{
 					int t = 0;
@@ -126,9 +119,8 @@ public class DataFromCSV
 							(p.timePoint - simOutput[t][0] ) > 
 							(p.timePoint - simOutput[t+1][0] ) )
 						t++; 
-					outData[cnt][p.p] = simOutput[t][p.coll];
+					outData[rowIdx][p.p] = simOutput[t][p.coll];
 				}
-				cnt++;
 			}
 		} 
 		catch (IOException e)

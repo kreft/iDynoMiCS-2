@@ -10,7 +10,6 @@ import linearAlgebra.Vector;
 import optimization.GeneticAlgorithm;
 import optimization.constraint.Bound;
 import optimization.constraint.Constraint;
-import optimization.geneticAlgorithm.GetDataFromCSV;
 import optimization.geneticAlgorithm.Population;
 import optimization.geneticAlgorithm.DataFromCSV;
 import optimization.objectiveFunction.ObjectiveFunction;
@@ -95,7 +94,7 @@ public class GeneticAlgorithmLaunch implements Launchable {
 			int prev = generation-1;
 			
 			Log.out(Tier.NORMAL, "pervious: " + prev + " current: " + generation);
-			
+
 			double[][] outMatrix = DataFromCSV.getOutput( 
 					Idynomics.global.outputRoot + "/" + Idynomics.global.subFolderStruct +
 					"/result/gen_"+ prev +"/");

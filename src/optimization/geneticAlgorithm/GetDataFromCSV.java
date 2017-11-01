@@ -79,7 +79,6 @@ public class GetDataFromCSV
 	 */
 	public static double[][] getOutput(String genFolderPath)
 	{
-		double[][] outData = new double[_timePoints.size()][_outCols];
 		try (Stream<Path> dataFilePaths = Files.find(
 				Paths.get(genFolderPath), 2,
 				(p, bfa) -> p.getFileName().toString().equalsIgnoreCase("data.csv")))
@@ -87,9 +86,14 @@ public class GetDataFromCSV
 			String[] fileNames = dataFilePaths
 									.map(path -> path.toString())
 									.toArray(String[]::new);
+			double[][] outData = new double[fileNames.length][_outCols];
+			// Loop over all files
 			for (int cnt = 0; cnt < fileNames.length; cnt++)
 			{
 				double[][] simOutput = CsvImport.getDblMatrixFromCSV(fileNames[cnt]);
+				int rowIndex = Integer.parseInt(fileNames[cnt].substring(
+						fileNames[cnt].lastIndexOf("_")+1).split("/")[0]) - 1;
+				// Loop over all timepoints of known data
 				for (int i = 0; i < _timePoints.size(); i++)
 				{
 					ArrayList<Double> absDiff = new ArrayList<Double>();
@@ -104,7 +108,7 @@ public class GetDataFromCSV
 						if (! _nanPos.contains(new int[] {idxMin, j}))
 						{
 							int ii = j - 1 + i*(simOutput[idxMin].length - 1);
-							outData[cnt][ii] = simOutput[idxMin][j];
+							outData[rowIndex][ii] = simOutput[idxMin][j];
 						}
 					}
 				}
@@ -114,6 +118,6 @@ public class GetDataFromCSV
 		{
 			e.printStackTrace();
 		}
-		return outData;
+		return null;
 	}
 }
