@@ -12,6 +12,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import grid.SpatialGrid;
+import linearAlgebra.Vector;
 import shape.Dimension;
 import shape.Dimension.DimName;
 import shape.Shape;
@@ -121,6 +122,47 @@ public class PDEmultigridTestsForSquare
 				this._common, 1.0);
 		/* Confirm that diffusion has smoothed out the concentration. */
 		this.assertConvergence(this._solute1);
+	}
+	
+	@Test
+	public void multigridPdeConvergesForSimpleSquareWithWellMixed()
+	{
+		/* Set up a concentration gradient to be smoothed out. */
+		this.setUnevenConcn(this._solute1);
+		/* */
+		int numVMO = (int)(this._numVoxels) - 1;
+		int[] coord = Vector.zerosInt(3);
+		this._common.setValueAt(WELLMIXED, coord, 1.0);
+		this._solute1.setValueAt(CONCN, coord, numVMO);
+		coord[0] = numVMO;
+		coord[1] = numVMO;
+		this._common.setValueAt(WELLMIXED, coord, 1.0);
+		this._solute1.setValueAt(CONCN, coord, 0.0);
+		/* The PDE multigrid solver. */
+		this._solver.init(new String[] { "solute1" }, false);
+		this._solver.setUpdater(new PDEupdater() { } );
+		/* Solve the diffusion. */
+		this._solver.solve(AllTests.gridsAsCollection(this._solute1),
+				this._common, 1.0);
+		/* Confirm that diffusion has reversed the concentration gradient. */
+		double[][][] concn = this._solute1.getArray(CONCN);
+		assertEquals(numVMO, concn[0][0][0], TOLERANCE);
+		assertEquals(0.0, concn[numVMO][numVMO][0], TOLERANCE);
+		/* Check that the matrix is symmetric. */
+		for ( int i = 0; i < this._numVoxels; i++ )
+			for ( int j = i + 1; j < this._numVoxels; j++ )
+				assertEquals(concn[j][i][0], concn[i][j][0], TOLERANCE);
+		/*
+		 * Assert that the concentration decreases steadily as we go
+		 * from (0,0) to (numVMO, numVMO).
+		 */
+		for ( int i = 0; i < numVMO; i++ )
+			for ( int j = i; j < numVMO; j++ )
+			{
+				assertTrue(concn[i][j][0] > concn[i + 1][j][0]);
+				assertTrue(concn[i][j][0] > concn[i][j + 1][0]);
+				assertTrue(concn[i][j][0] > concn[i + 1][j + 1][0]);
+			}
 	}
 	
 	/* ***********************************************************************
