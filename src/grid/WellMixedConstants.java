@@ -1,5 +1,7 @@
 package grid;
 
+import idynomics.Idynomics;
+
 /**
  * Constants for the {@code WELLMIXED} array type.
  * 
@@ -17,4 +19,20 @@ public final class WellMixedConstants
 	 * Completely well-mixed, i.e. the effect of diffusion is neglible.
 	 */
 	public final static double COMPLETELY_MIXED = 1.0;
+	
+	/**
+	 * 
+	 * @param commonGrid
+	 * @param coord
+	 * @return
+	 */
+	public final static boolean isWellMixed(SpatialGrid commonGrid, int[] coord)
+	{
+		if (commonGrid == null)
+			return false;
+		
+		return commonGrid.getValueAt(ArrayType.WELLMIXED, coord) >= 
+				Idynomics.global.relativeThresholdWellMixedness * 
+				COMPLETELY_MIXED;
+	}
 }

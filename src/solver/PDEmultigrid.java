@@ -6,7 +6,6 @@ import static grid.ArrayType.LOCALERROR;
 import static grid.ArrayType.NONLINEARITY;
 import static grid.ArrayType.PRODUCTIONRATE;
 import static grid.ArrayType.RELATIVEERROR;
-import static grid.ArrayType.WELLMIXED;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -18,6 +17,7 @@ import dataIO.Log;
 import dataIO.Log.Tier;
 import grid.ArrayType;
 import grid.SpatialGrid;
+import grid.WellMixedConstants;
 import shape.Shape;
 import solver.multigrid.MultigridLayer;
 import utility.ExtraMath;
@@ -523,11 +523,8 @@ public class PDEmultigrid extends PDEsolver
 				current = shape.iteratorNext() )
 		{
 			/* Skip this voxel if it is considered well-mixed. */
-			if ( commonGrid.getValueAt(WELLMIXED, current) >= 
-					this._wellMixednessThreshold )
-			{
+			if ( WellMixedConstants.isWellMixed(commonGrid, current))
 				continue;
-			}
 			concn = variable.getValueAtCurrent(CONCN);
 			prod = variable.getValueAtCurrent(PRODUCTIONRATE);
 			diffusivity = variable.getValueAtCurrent(DIFFUSIVITY);
@@ -639,8 +636,7 @@ public class PDEmultigrid extends PDEsolver
 		for ( current = shape.resetIterator(); shape.isIteratorValid();
 				current = shape.iteratorNext() )
 		{
-			if ( commonGrid.getValueAt(WELLMIXED, current) >= 
-					this._wellMixednessThreshold )
+			if ( WellMixedConstants.isWellMixed(commonGrid, current) )
 			{
 				/* Reset the value here in case it used to be inside the
 				 * boundary layer and move on to the next voxel. */

@@ -445,25 +445,16 @@ public class EnvironmentContainer implements CanPrelaunchCheck, Settable
 		 * Now apply the well-mixed boundary concentrations to the voxels of 
 		 * the well-mixed region.
 		 */
-		double wellMixedness;
 		for ( int[] coord = this._shape.resetIterator();
 				this._shape.isIteratorValid();
 				coord = this._shape.iteratorNext() )
 		{
-			wellMixedness = commonGrid.getValueAt(WELLMIXED, coord);
-			/* 
-			 * Note that threshold below COMPLETELY_MIXED, as used by PDEsolver,
-			 * is not necessary here, as we will only deal with the finest
-			 * grids (i.e. never with multigrids, etc).
-			 */
-			if ( wellMixedness >= WellMixedConstants.COMPLETELY_MIXED )
-			{
+			if ( WellMixedConstants.isWellMixed(commonGrid, coord) )
 				for ( SpatialGrid solute : this._solutes )
 				{
 					name = solute.getName();
 					solute.setValueAt(CONCN, coord, wellMixedConcns.get(name));
 				}
-			}
 		}
 	}
 	
