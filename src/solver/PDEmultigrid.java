@@ -195,7 +195,7 @@ public class PDEmultigrid extends PDEsolver
 			currentLayer = currentLayer.getCoarser();
 			// NOTE iDynoMiCS 1 uses fracOfOldValueKept of 0.5
 			for ( ArrayType type : variable.getAllArrayTypes() )
-				currentLayer.fillArrayFromFiner(type, 0.0);
+				currentLayer.fillArrayFromFiner(type, 0.0, null);
 		}
 	}
 	
@@ -324,9 +324,12 @@ public class PDEmultigrid extends PDEsolver
 			for ( SpatialGrid variable : variables )
 			{
 				variableMultigrid = this.getMultigrid(variable);
-				variableMultigrid.fillArrayFromFiner(CONCN, 0.5);
-				variableMultigrid.fillArrayFromFiner(LOCALERROR, 0.5);
-				variableMultigrid.fillArrayFromFiner(NONLINEARITY, 0.5);
+				variableMultigrid.fillArrayFromFiner(
+						CONCN, 0.5, currentCommon);
+				variableMultigrid.fillArrayFromFiner(
+						LOCALERROR, 0.5, currentCommon);
+				variableMultigrid.fillArrayFromFiner(
+						NONLINEARITY, 0.5, currentCommon);
 				currentGrids.add(variableMultigrid.getGrid());
 			}
 			/* Update the PRODUCTIONRATE arrays using updated CONCN values. */
@@ -401,11 +404,13 @@ public class PDEmultigrid extends PDEsolver
 			{
 				Log.out(level, "Upward stroke: "+layerCounter+"/"+numLayers);
 			}
+			currentCommon = this._commonMultigrid.getGrid();
 			for ( SpatialGrid variable : variables )
 			{
 				variableMultigrid = this.getMultigrid(variable);
 				currentLayer = variableMultigrid.getGrid();
-				variableMultigrid.fillArrayFromFiner(LOCALERROR, CONCN, 0.0);
+				variableMultigrid.fillArrayFromFiner(
+						LOCALERROR, CONCN, 0.0, currentCommon);
 				currentLayer.subtractArrayFromArray(CONCN, LOCALERROR);
 			}
 			
@@ -417,7 +422,8 @@ public class PDEmultigrid extends PDEsolver
 				variableMultigrid = this.getMultigrid(variable).getFiner();
 				this.setMultigrid(variableMultigrid);
 				currentLayer = variableMultigrid.getGrid();
-				variableMultigrid.fillArrayFromCoarser(RELATIVEERROR, CONCN, currentCommon);
+				variableMultigrid.fillArrayFromCoarser(
+						RELATIVEERROR, CONCN, currentCommon);
 				currentLayer.addArrayToArray(CONCN, RELATIVEERROR);
 				if ( ! this._allowNegatives )
 					currentLayer.makeNonnegative(CONCN);
