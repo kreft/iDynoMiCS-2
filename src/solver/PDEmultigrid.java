@@ -103,7 +103,7 @@ public class PDEmultigrid extends PDEsolver
 			for ( SpatialGrid var : variables )
 			{
 				currentLayer = this.getMultigrid(var);
-				currentLayer.fillArrayFromCoarser(CONCN);
+				currentLayer.fillArrayFromCoarser(CONCN, commonGrid);
 				currentLayer.getGrid().reset(NONLINEARITY);
 			}
 			/* 
@@ -417,7 +417,7 @@ public class PDEmultigrid extends PDEsolver
 				variableMultigrid = this.getMultigrid(variable).getFiner();
 				this.setMultigrid(variableMultigrid);
 				currentLayer = variableMultigrid.getGrid();
-				variableMultigrid.fillArrayFromCoarser(RELATIVEERROR, CONCN);
+				variableMultigrid.fillArrayFromCoarser(RELATIVEERROR, CONCN, currentCommon);
 				currentLayer.addArrayToArray(CONCN, RELATIVEERROR);
 				if ( ! this._allowNegatives )
 					currentLayer.makeNonnegative(CONCN);

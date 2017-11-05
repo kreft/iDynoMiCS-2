@@ -9,6 +9,7 @@ import dataIO.Log;
 import dataIO.Log.Tier;
 import grid.ArrayType;
 import grid.SpatialGrid;
+import grid.WellMixedConstants;
 import linearAlgebra.Vector;
 import settable.Settable;
 import shape.Shape;
@@ -156,10 +157,11 @@ public class MultigridLayer
 	 * <i>Numerical Recipes in C</i>.</p>
 	 * 
 	 * @param type The type of array to update.
+	 * @param commonGrid The spatial grid which contains the well-mixed array.
 	 */
-	public void fillArrayFromCoarser(ArrayType type)
+	public void fillArrayFromCoarser(ArrayType type, SpatialGrid commonGrid)
 	{
-		this.fillArrayFromCoarser(type, type);
+		this.fillArrayFromCoarser(type, type, commonGrid);
 	}
 	
 	/**
@@ -172,8 +174,10 @@ public class MultigridLayer
 	 * 
 	 * @param finerType The type of array to update in this layer (overwritten).
 	 * @param coarserType The type of array to get values from (unaffected).
+	 * @param commonGrid The spatial grid which contains the well-mixed array.
 	 */
-	public void fillArrayFromCoarser(ArrayType finerType, ArrayType coarserType)
+	public void fillArrayFromCoarser(
+			ArrayType finerType, ArrayType coarserType, SpatialGrid commonGrid)
 	{
 		/* Safety */
 		if ( this._coarser == null )
@@ -195,6 +199,8 @@ public class MultigridLayer
 		int[] coarserVoxel = Vector.zeros(current);
 		for (; thisShape.isIteratorValid(); current = thisShape.iteratorNext())
 		{
+			if ( WellMixedConstants.isWellMixed(commonGrid, current) )
+				continue;
 			/*
 			 * (i & 1) == 1 is a slightly quicker way of determining evenness
 			 * that (i % 2) == 0. (The modulo operation also deals with the

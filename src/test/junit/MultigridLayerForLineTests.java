@@ -161,7 +161,7 @@ public class MultigridLayerForLineTests
 		this._coarser.getGrid().newArray(ArrayType.WELLMIXED, wellMixed);
 		/* Act */
 		this._finer.getGrid().newArray(ArrayType.WELLMIXED, wellMixed - 1.0);
-		this._finer.fillArrayFromCoarser(ArrayType.WELLMIXED);
+		this._finer.fillArrayFromCoarser(ArrayType.WELLMIXED, null);
 		/* Assert */
 		SpatialGrid grid = this._finer.getGrid();
 		Shape shape = grid.getShape();
@@ -184,7 +184,7 @@ public class MultigridLayerForLineTests
 		this._coarser.getGrid().setTo(ArrayType.DIFFUSIVITY, diffusivity);
 		/* Act */
 		this._finer.getGrid().newArray(ArrayType.DIFFUSIVITY);
-		this._finer.fillArrayFromCoarser(ArrayType.DIFFUSIVITY);
+		this._finer.fillArrayFromCoarser(ArrayType.DIFFUSIVITY, null);
 		/* Assert */
 		SpatialGrid grid = this._finer.getGrid();
 		Shape shape = grid.getShape();
