@@ -3,7 +3,7 @@ package idynomics.launchable;
 import java.util.Scanner;
 
 import idynomics.Idynomics;
-import idynomics.Settings;
+import idynomics.Global;
 
 /**\brief General class to launch simulation from the console, asks user for
  * protocol file path as input.
@@ -25,7 +25,7 @@ public strictfp class ConsoleLaunch implements Launchable
 
 	@Override
 	public void initialize(String[] args) {
-		System.out.print("Starting iDynoMiCS " +Settings.version_number+ "\n");
+		System.out.print("Starting iDynoMiCS " +Global.version_number+ "\n");
 		/* Acquire a protocol file. */
 		String protocolPath;
 		Scanner userInput = null;

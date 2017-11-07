@@ -102,6 +102,11 @@ public class ClassRef
 		return parts[parts.length-1];
 	}
 	
+	/**
+	 * Get the path from the full specification of a class
+	 * @param name
+	 * @return
+	 */
 	public static String path(String name)
 	{
 		if (name.contains("$"))

@@ -8,7 +8,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import idynomics.Idynomics;
-import idynomics.Settings;
+import idynomics.Global;
 import idynomics.Simulator;
 import referenceLibrary.XmlRef;
 import utility.Helper;
@@ -44,7 +44,7 @@ public class GuiButtons {
 			public void actionPerformed(ActionEvent event)
 			{
 				Idynomics.simulator = new Simulator();
-				Idynomics.global = new Settings();
+				Idynomics.global = new Global();
 				GuiMain.getConstructor();
 				if ( ! Idynomics.global.ignore_protocol_out )
 				{

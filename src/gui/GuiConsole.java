@@ -27,7 +27,7 @@ import javax.swing.text.StyleConstants;
 import dataIO.Log;
 import dataIO.Log.Tier;
 import idynomics.Idynomics;
-import idynomics.Settings;
+import idynomics.Global;
 import utility.Helper;
 
 /**
@@ -70,7 +70,7 @@ public final class GuiConsole
 			return _scrollsole;
 		
 		_console = new JTextPane();
-		_console.setBackground( Settings.console_color );
+		_console.setBackground( Global.console_color );
 		_console.setEditable(false);
 		
 		/**
@@ -147,8 +147,8 @@ public final class GuiConsole
 		StyleConstants.setAlignment(a, StyleConstants.ALIGN_LEFT);
 		/* Background not set here: see GuiLaunch.consoleBackground. */
 		/* Bold not set here. */
-		StyleConstants.setFontFamily(a, Settings.font );
-		StyleConstants.setFontSize(a, Settings.font_size );
+		StyleConstants.setFontFamily(a, Global.font );
+		StyleConstants.setFontSize(a, Global.font_size );
 
 		/* Foreground not set here. */
 		StyleConstants.setItalic(a, false);
@@ -164,7 +164,7 @@ public final class GuiConsole
 	{
 		SimpleAttributeSet a = defaultStyle();
 		StyleConstants.setBold(a, false);
-		StyleConstants.setForeground(a, Settings.text_color);
+		StyleConstants.setForeground(a, Global.text_color);
 		return a;
 	}
 	
@@ -177,7 +177,7 @@ public final class GuiConsole
 	{
 		SimpleAttributeSet a = defaultStyle();
 		StyleConstants.setBold(a, true);
-		StyleConstants.setForeground(a, Settings.error_color);
+		StyleConstants.setForeground(a, Global.error_color);
 		return a;
 	}
 	

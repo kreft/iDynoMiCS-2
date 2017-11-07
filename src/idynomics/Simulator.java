@@ -367,8 +367,8 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 		this.printProcessManagerRealTimeStats();
 		
 		/* execute exit command if any */
-		if( !Helper.isNullOrEmpty( Settings.exitCommand ) )
-			Helper.executeCommand( Settings.exitCommand );
+		if( !Helper.isNullOrEmpty( Global.exitCommand ) )
+			Helper.executeCommand( Global.exitCommand );
 	}
 	
 	/* ***********************************************************************
@@ -454,7 +454,7 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 		modelNode.setRequirements(Requirements.EXACTLY_ONE);
 		
 		/* required if we start without a protocol file */
-		Settings.updateSettings();
+		Global.updateSettings();
 		if(! Log.isSet())
 			Log.set(Tier.NORMAL);
 		

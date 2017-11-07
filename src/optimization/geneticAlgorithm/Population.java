@@ -10,6 +10,12 @@ import optimization.constraint.Constraint;
 import optimization.objectiveFunction.ObjectiveFunction;
 import optimization.sampling.LatinHyperCubeSampling;
 
+/**
+ * This gentetic algorithm implementation is based on the online tutorial by:
+ * Lee Jacobson, 2012
+ * 
+ * http://www.theprojectspot.com/tutorial-post/creating-a-genetic-algorithm-for-beginners/3
+ */
 public class Population {
 	
     /* GA parameters */

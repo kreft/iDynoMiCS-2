@@ -22,7 +22,7 @@ import utility.Helper;
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
-public class Settings
+public class Global
 {
 	/**************************************************************************
 	 * Default settings from cfg file

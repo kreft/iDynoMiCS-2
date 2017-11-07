@@ -301,7 +301,7 @@ public abstract class ProcessManager implements Instantiable, AspectInterface,
 	
 	public static List<String> getAllOptions()
 	{
-		return Idynomics.xmlPackageLibrary.getAll("processManager.library.");
+		return ClassRef.getAllOptions("processManager.library");
 	}
 	
 	

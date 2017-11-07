@@ -10,7 +10,7 @@ import javax.swing.JFileChooser;
 
 import dataIO.Log;
 import idynomics.Idynomics;
-import idynomics.Settings;
+import idynomics.Global;
 import idynomics.Simulator;
 import render.AgentMediator;
 import render.Render;
@@ -52,7 +52,7 @@ public final class GuiActions
 	public static void openFile(File f) 
 	{
 		Idynomics.simulator = new Simulator();
-		Idynomics.global = new Settings();
+		Idynomics.global = new Global();
     	/* load content if a protocol file has been selected */
     	if ( f == null )
     	{

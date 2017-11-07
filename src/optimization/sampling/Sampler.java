@@ -5,15 +5,37 @@ import linearAlgebra.Vector;
 import sensitivityAnalysis.MorrisSampling;
 import utility.Helper;
 
-public class Sampler {
+/**
+ * \brief Super class for methods sampling in unit space;
+ * 
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
+ *
+ */
+public abstract class Sampler {
 	
+	/**
+	 * Available sampling methods
+	 */
 	public enum SampleMethod {
 		MORRIS,
 		LHC;
 	}
 
-	public int size() {
-		return 0;
+	/**
+	 * 
+	 * @return number of samples
+	 */
+	public abstract int size();
+	
+	/**
+	 * 
+	 * @return sample drawn from unit space (between 0 and 1)
+	 */
+	public abstract double[][] sample();
+
+	public double[][] sample( double[][] bounds )
+	{
+		return scale( sample(), bounds);
 	}
 	
 	public static Sampler getSampler(Sampler.SampleMethod method, int... pars)
@@ -46,12 +68,9 @@ public class Sampler {
 			else
 				r = pars[2];
 			return new MorrisSampling(k,p,r);
-
-//			writeOutputs(r*(k+1), states);
 		
 		case LHC :
 			return new LatinHyperCubeSampling(p, k);
-//			writeOutputs(p ,samples);
 		}
 		return null;
 	}
@@ -62,15 +81,5 @@ public class Sampler {
 		return Matrix.add(Vector.outerProduct(ones, bounds[0]),
 				Matrix.elemTimes(Vector.outerProduct( ones, 
 				Vector.minus(bounds[1], bounds[0]) ), probs) );
-	}
-	
-	public double[][] sample()
-	{
-		return null;
-	}
-
-	public double[][] sample( double[][] bounds )
-	{
-		return scale( sample(), bounds);
 	}
 }

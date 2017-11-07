@@ -1,5 +1,12 @@
 package optimization.objectiveFunction;
 
+/**
+ * \brief returns the mean square error of the provided data set and a given x 
+ * set.
+ * 
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
+ *
+ */
 public class MeanSquareError implements ObjectiveFunction {
 	
 	private double[] _data;

@@ -1,5 +1,12 @@
 package optimization.objectiveFunction;
 
+/**
+ * \brief the quadratic loss function returns the Sum of the quadratic error of
+ * x and the dataset.
+ * 
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
+ *
+ */
 public class QuadraticLossFunction implements ObjectiveFunction {
 	
 	private double[] _data;
