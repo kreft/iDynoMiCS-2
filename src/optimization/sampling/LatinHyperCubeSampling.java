@@ -87,8 +87,8 @@ public class LatinHyperCubeSampling extends Sampler {
 		}
 		
 		/* initialise random number generator */
-		if( !ExtraMath.isAvailable() )
-			ExtraMath.initialiseRandomNumberGenerator();
+		if( ExtraMath.random == null )
+    		ExtraMath.initialiseRandomNumberGenerator();
 		
 		double[][] out = new double[_s][_d];
 		double[] temp = new double[_s];

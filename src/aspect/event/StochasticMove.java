@@ -80,7 +80,7 @@ public class StochasticMove extends Event
 			/* Evaluate a new stochastic move */
 			// FIXME this assumes a time step to always be 1.0 or lower,
 			// improve on this
-			if ( ExtraMath.random.nextDouble() > timeStep*4.0 ) 
+			if ( ExtraMath.getUniRandDbl() > timeStep*4.0 ) 
 				agent.set(STOCHASTIC_PAUSE, timeStep);
 			else
 			{

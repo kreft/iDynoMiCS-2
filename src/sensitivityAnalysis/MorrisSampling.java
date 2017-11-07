@@ -75,8 +75,8 @@ public class MorrisSampling extends Sampler {
 	public double[][] sample() 
 	{
 		/* initialise random number generator */
-		if( !ExtraMath.isAvailable() )
-			ExtraMath.initialiseRandomNumberGenerator();
+		if( ExtraMath.random == null )
+    		ExtraMath.initialiseRandomNumberGenerator();
 		
 		double delta = _p/(2.0*(_p-1));
 		double[][] B = new double[_k+1][_k];

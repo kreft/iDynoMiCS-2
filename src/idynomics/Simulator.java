@@ -71,8 +71,9 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 		
 	public Simulator()
 	{
-		//TODO fully implement MTRandom (reading in random seed)
-		ExtraMath.initialiseRandomNumberGenerator();
+		/* Just for unit tests initialize random number generator here */
+		if( ExtraMath.random == null )
+    		ExtraMath.initialiseRandomNumberGenerator();
 		this.timer = new Timer();
 		this._xmlOut = new XmlExport();
 	}
@@ -94,47 +95,28 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 					XmlRef.simulation : Idynomics.global.simulationName;
 	}
 	
-	/**
-	 * get the current seed, used to create intermediate restartable save points
-	 * @return
-	 */
-	public long seed()
-	{
-		long currentSeed = ExtraMath.random.nextLong();
-		ExtraMath.initialiseRandomNumberGenerator(currentSeed);
-		return currentSeed;
-	}
-	
-	/**
-	 * Initiate random number generator with given seed
-	 * @param seed
-	 */
-	public void seed(long seed)
-	{
-		ExtraMath.initialiseRandomNumberGenerator(seed);
-	}
-	
 	public void instantiate(Element xmlElem, Settable parent)
 	{
 		/* 
 		 * retrieve seed from xml file and initiate random number generator with
 		 * that seed
 		 */
-		String seed =XmlHandler.gatherAttribute(xmlElem, XmlRef.seed);
+		String seed = XmlHandler.gatherAttribute(xmlElem, XmlRef.seed);
 		if (seed != "" && seed != null)
 			ExtraMath.initialiseRandomNumberGenerator(Long.valueOf(seed));
 		
 		/*
 		 * Set up the Timer.
 		 */
-		this.timer.instantiate( XmlHandler.findUniqueChild( xmlElem, XmlRef.timer ), this);
+		this.timer.instantiate( XmlHandler.findUniqueChild( xmlElem, 
+				XmlRef.timer ), this);
 		/*
 		 * Set up the species library.
 		 */
 		if (XmlHandler.hasChild(Idynomics.global.xmlDoc, XmlRef.speciesLibrary))
 		{
 			this.speciesLibrary = (SpeciesLib) Instance.getNew(
-					XmlHandler.findUniqueChild( xmlElem, XmlRef.speciesLibrary ), 
+					XmlHandler.findUniqueChild( xmlElem, XmlRef.speciesLibrary), 
 					this, ClassRef.speciesLibrary );
 		}
 		/*
@@ -461,7 +443,7 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 		/* add attributes */
 		/* the current random seed */
 		modelNode.add( new Attribute(XmlRef.seed,
-				String.valueOf(seed()), null, true));
+				String.valueOf( ExtraMath.seed() ), null, true));
 		
 		/* the simulation name */
 		modelNode.add( new Attribute(XmlRef.nameAttribute, 
@@ -542,7 +524,8 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 			Log.set(node.getAttribute(XmlRef.logLevel).getValue());
 			
 			/* set random seed */
-			this.seed(Long.valueOf(node.getAttribute(XmlRef.seed).getValue()));
+			ExtraMath.seed( Long.valueOf( 
+					node.getAttribute( XmlRef.seed ).getValue()));
 			
 			/* Set values for all child nodes. */
 			Settable.super.setModule(node);

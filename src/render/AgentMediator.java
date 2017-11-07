@@ -140,9 +140,9 @@ public class AgentMediator implements CommandMediator {
 		soluteColors = new HashMap<>();
 		for (String s : solutes){
 			soluteColors.put(s, new Color(
-					ExtraMath.random.nextFloat(),
-					ExtraMath.random.nextFloat(),
-					ExtraMath.random.nextFloat()));
+					ExtraMath.getUniRandFlt(),
+					ExtraMath.getUniRandFlt(),
+					ExtraMath.getUniRandFlt()));
 		}
 		this._compartment = c;
 		this._domainMaxima = new double[3];
