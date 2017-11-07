@@ -33,7 +33,7 @@ public class InstantiationTestForLine
 		xElem.setAttribute("max", "40.0");
 		shapeElem.appendChild(xElem);
 		
-		this._shape = (Shape)Instance.getNew(shapeElem);
+		this._shape = (Shape)Instance.getNew(shapeElem, null, (String[]) null);
 	}
 	
 	@Test

@@ -4,13 +4,10 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import aspect.Aspect.AspectClass;
 import dataIO.Log;
 import dataIO.ObjectFactory;
 import dataIO.Log.Tier;
-import instantiable.Instance;
 import referenceLibrary.XmlRef;
-import utility.Helper;
 
 /**
  * The aspect interface is implemented by classes with an aspect registry,

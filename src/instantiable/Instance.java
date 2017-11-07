@@ -58,6 +58,7 @@ public class Instance
 			String... className)
 	{
 		Object out = null;
+		
 		/* If no class name is provided continue try to obtain from xml.  */
 		if (className == null || className.length == 0)
 		{
@@ -92,10 +93,10 @@ public class Instance
 				out = getNew( className[0], 
 						Idynomics.xmlPackageLibrary.get( className[0] ) );
 			}
-			if ( parent == null && Log.shouldWrite(Tier.DEBUG) )
-				Log.out(Tier.DEBUG, "Warning initiating without parent");
-			else if ( xmlElem == null && Log.shouldWrite(Tier.DEBUG) )
-				Log.out(Tier.DEBUG, "Warning initiating without xml element");
+			if ( parent == null && Log.shouldWrite(Tier.BULK) )
+				Log.out(Tier.BULK, "Warning initiating without parent");
+			else if ( xmlElem == null && Log.shouldWrite(Tier.BULK) )
+				Log.out(Tier.BULK, "Warning initiating without xml element");
 			((Instantiable) out).instantiate( xmlElem, parent );
 			return out;
 		} 
@@ -110,6 +111,9 @@ public class Instance
 	}
 	
 	/**
+	 * FIXME @Deprecated only used in unit test, use getNew(className, null) 
+	 * instead
+	 * 
 	 * \brief general method for creating a new instance for an object from the
 	 * classRef library.
 	 * 
@@ -125,6 +129,7 @@ public class Instance
 	 * "packageName.ClassLibrary$".
 	 * @return A new instance of the class required.
 	 */
+	@Deprecated 
 	public static Object getNew(String className)
 	{
 		return getNew(className, Idynomics.xmlPackageLibrary.get(className));
@@ -157,6 +162,12 @@ public class Instance
 		 */
 		if ( prefix != null )
 			className = prefix + className;
+		
+		/*
+		 * if path is missing
+		 */
+		if ( prefix == null &! className.contains("."))
+			className = Idynomics.xmlPackageLibrary.getFull( className );
 		/*
 		 * Finally, try to create a new instance.
 		 */
@@ -172,31 +183,6 @@ public class Instance
 			e.printStackTrace();
 		}
 		return out;
-	}
-	
-	/**
-	 * \brief General constructor from xmlNodes, returns a new instance
-	 * directly from an XML node.
-	 * 
-	 * <p><b>IMPORTANT:</b> Static methods cannot be overwritten.</p>
-	 * 
-	 * @param xmlNode Input from protocol file.
-	 */
-	public static Object getNew(Node xmlNode)
-	{
-		return getNew((Element) xmlNode, null, (String[]) null);
-	}
-	
-	/**
-	 * \brief General constructor from xmlNodes, attempts to resolve package
-	 * from <b>className</b>.
-	 * 
-	 * @param xmlNode Input from protocol file.
-	 * @param className 
-	 */
-	public static Object getNew(Node xmlNode, String className)
-	{
-		return getNew(className, Idynomics.xmlPackageLibrary.get(className));
 	}
 	
 	@SuppressWarnings("unused")
