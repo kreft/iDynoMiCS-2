@@ -283,11 +283,11 @@ public class InstantiableMap<K,T> extends HashMap<K,T> implements Settable,
 				for ( int i = 0; i < nodes.getLength(); i++ )
 				{
 					T object = (T) ObjectFactory.loadObject( (Element) nodes.item(i), 
-							this.valueLabel, this.entryClass.getSimpleName() ); 
+							this.valueLabel, this.entryClass.getSimpleName(), null, null ); 
 					if( object instanceof Settable )
 						((Settable) object).setParent(this);
 					this.put((K) ObjectFactory.loadObject( (Element) nodes.item(i), 
-							this.keyLabel, this.keyClass.getSimpleName() ),
+							this.keyLabel, this.keyClass.getSimpleName(), null, null ),
 							object );
 				}
 			}

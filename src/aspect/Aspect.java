@@ -296,9 +296,7 @@ public class Aspect implements Instantiable, Settable
 		default:
 			objectClass = Helper.obtainInput( ObjectRef.getAllOptions(), 
 					"Primary type", false);
-			this.set( ObjectFactory.loadObject( 
-					null, 
-					objectClass), name);
+			this.set( ObjectFactory.loadObject( null, objectClass), name);
 			break;
 		}
 		this.registry = ((AspectInterface) parent).reg();

@@ -83,26 +83,12 @@ public class ObjectFactory
 	 * @param parent: set parent object
 	 * @return A new instance of an object.
 	 */
-	private static Object loadObject( Element elem, String input, 
+	public static Object loadObject( Element elem, String input, 
 			String objectClass, String objectClassLabel, Settable parent )
 	{
 		/* Obtain object class */
-		if ( Helper.isNullOrEmpty( objectClass ) )
-		{
-			if ( Helper.isNullOrEmpty( objectClassLabel ) && 
-					Log.shouldWrite( Tier.NORMAL ) )
-				Log.out(Tier.NORMAL, ObjectFactory.class.getSimpleName() + 
-						" could not find any object class specification.");
-			else
-				objectClass = elem.getAttribute( objectClassLabel );
-		}
-		
-		/* used by reactions, may be a cleaner way */
-		if ( Helper.isNullOrEmpty( objectClass ) )
-				objectClass = objectClassLabel;
-		
-		/* Make sure the class is capitalized */
-		objectClass = Helper.firstToUpper( objectClass );
+		objectClass = ObjectFactory.inferObjectClass( 
+				elem, input, objectClass, objectClassLabel );
 
 		/* identify and create object */
 		switch ( objectClass )
@@ -253,6 +239,58 @@ public class ObjectFactory
 
 		/* Either the input was already given or now obtained, return it */
 		return input;
+	}
+	
+	/**
+	 * structured way to determine what class the object should be
+	 * 
+	 * Order:
+	 * If the object class is passed directly use that.
+	 * If the object class is defined in xml use that.
+	 * Otherwise try to guess from the content.
+	 * 
+	 * @param elem
+	 * @param input
+	 * @param objectClass
+	 * @param objectClassLabel
+	 * @return
+	 */
+	private static String inferObjectClass( Element elem, String input, 
+			String objectClass, String objectClassLabel )
+	{
+		/* Obtain object class */
+		if ( Helper.isNullOrEmpty( objectClass ) )
+		{
+			if ( Helper.isNullOrEmpty( objectClassLabel ) && 
+					Log.shouldWrite( Tier.NORMAL ) )
+				Log.out(Tier.NORMAL, ObjectFactory.class.getSimpleName() + 
+						" could not find any object class specification.");
+			else
+				objectClass = elem.getAttribute( objectClassLabel );
+		}
+		
+		/* If no object class is defined in the xml file (Used by reactions, 
+		 * may be a cleaner way) TODO check whether really nothing relies on 
+		 * this anymore 
+			if ( Helper.isNullOrEmpty( objectClass ) )
+					objectClass = objectClassLabel; */
+		
+		/* If the class is also not defined trough the objectClassLabel then
+		 * try to infer what type the class should be */
+		if ( Helper.isNullOrEmpty( objectClass ) || 
+				objectClass.equals( XmlRef.classAttribute ) )
+		{
+			String value = input(input, elem);
+			if ( Helper.dblParseable( value ) )
+				objectClass = java.lang.Double.class.getSimpleName();
+			else if ( Helper.boolParseable( value ) )
+				objectClass = java.lang.Boolean.class.getSimpleName();
+			else
+				objectClass = java.lang.String.class.getSimpleName();
+		}
+			
+		/* Make sure the class is capitalized */
+		return Helper.firstToUpper( objectClass );
 	}
 
 	/**

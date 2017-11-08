@@ -655,4 +655,15 @@ public final class Helper
 		}
 		return false;
 	}
+	
+	public static boolean boolParseable(String strParse)
+	{
+		for( String s : Helper.rejections)
+			if (s.equals(strParse))
+				return true;
+		for( String s : Helper.confirmations)
+			if (s.equals(strParse))
+				return true;
+		return false;
+	}
 }
