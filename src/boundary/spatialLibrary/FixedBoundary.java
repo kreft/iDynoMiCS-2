@@ -54,20 +54,27 @@ public class FixedBoundary extends SpatialBoundary implements Instantiable
 		}
 	}
 	
+
+	/* ***********************************************************************
+	 * BASIC SETTERS & GETTERS
+	 * **********************************************************************/
+
+	@Override
+	protected boolean needsLayerThickness()
+	{
+		return false;
+	}
+
 	/* ***********************************************************************
 	 * PARTNER BOUNDARY
 	 * **********************************************************************/
 
 	@Override
-	protected Class<?> getPartnerClass()
+	public Class<?> getPartnerClass()
 	{
-		/* 
-		 * This boundary shouldn't really have a partner, but if one is
-		 * requested then just return another fixed boundary.
-		 */
-		return FixedBoundary.class;
+		return null;
 	}
-	
+
 	/* ***********************************************************************
 	 * SOLUTE TRANSFERS
 	 * **********************************************************************/
@@ -101,7 +108,10 @@ public class FixedBoundary extends SpatialBoundary implements Instantiable
 	{
 		this.setWellMixedByDistance();
 	}
-	
+
+	@Override
+	public void additionalPartnerUpdate() {}
+
 	/* ***********************************************************************
 	 * AGENT TRANSFERS
 	 * **********************************************************************/

@@ -115,25 +115,26 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 	public void instantiate(Element xmlElem, Settable parent)
 	{
 		/* 
-		 * retrieve seed from xml file and initiate random number generator with
-		 * that seed
+		 * Retrieve seed from xml file and initiate random number generator with
+		 * that seed.
 		 */
-		String seed =XmlHandler.gatherAttribute(xmlElem, XmlRef.seed);
-		if (seed != "" && seed != null)
+		String seed = XmlHandler.gatherAttribute(xmlElem, XmlRef.seed);
+		if ( ! Helper.isNullOrEmpty(seed) )
 			ExtraMath.initialiseRandomNumberGenerator(Long.valueOf(seed));
 		
 		/*
 		 * Set up the Timer.
 		 */
-		this.timer.instantiate( XmlHandler.findUniqueChild( xmlElem, XmlRef.timer ), this);
+		Element element = XmlHandler.findUniqueChild( xmlElem, XmlRef.timer );
+		this.timer.instantiate( element, this);
 		/*
 		 * Set up the species library.
 		 */
 		if (XmlHandler.hasChild(Idynomics.global.xmlDoc, XmlRef.speciesLibrary))
 		{
-			this.speciesLibrary = (SpeciesLib) Instance.getNew(
-					XmlHandler.findUniqueChild( xmlElem, XmlRef.speciesLibrary ), 
-					this, ClassRef.speciesLibrary );
+			element = XmlHandler.findUniqueChild(xmlElem, XmlRef.speciesLibrary);
+			this.speciesLibrary = (SpeciesLib) 
+					Instance.getNew( element, this, ClassRef.speciesLibrary );
 		}
 		/*
 		 * Set up the compartments.
@@ -150,9 +151,14 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 		for ( int i = 0; i < children.getLength(); i++ )
 		{
 			child = (Element) children.item(i);
+			/* Compartments add themselves to the simulator. */
 			Instance.getNew( child, this, XmlRef.compartment );
 		}
 		Log.out(Tier.NORMAL, "Compartments loaded!\n");
+		Log.out(Tier.NORMAL, "Checking connective boundaries...");
+		for ( Compartment compartment : this._compartments )
+			compartment.checkBoundaryConnections(this._compartments);
+		Log.out(Tier.NORMAL, "Boundaries connected!\n");
 	}
 	
 	/* ***********************************************************************

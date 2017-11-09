@@ -33,7 +33,7 @@ public class ChemostatToMembrane extends Boundary
 	 * **********************************************************************/
 	
 	@Override
-	protected Class<?> getPartnerClass()
+	public Class<?> getPartnerClass()
 	{
 		return BiofilmMembraneLiquid.class;
 	}
@@ -41,7 +41,10 @@ public class ChemostatToMembrane extends Boundary
 	/* ***********************************************************************
 	 * SOLUTE TRANSFERS
 	 * **********************************************************************/
-	
+
+	@Override
+	public void additionalPartnerUpdate() {}
+
 	/* ***********************************************************************
 	 * AGENT TRANSFERS
 	 * **********************************************************************/

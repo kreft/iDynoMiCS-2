@@ -269,7 +269,7 @@ public final class Helper
 			boolean shouldLogMessage, Collection<String> options)
 	{
 		if( isNullOrEmpty(input) )
-			return obtainInput(options,description, shouldLogMessage);
+			return obtainInput(options, description, shouldLogMessage);
 		else 
 			return input;
 	}
@@ -465,50 +465,64 @@ public final class Helper
 		return new Color( color[0], color[1], color[2] );
 	}
 	
+	/**
+	 * \brief Select a spatial compartment from the simulator, asking for the
+	 * user's help if necessary.
+	 * 
+	 * @return A spatial compartment in the simulator.
+	 */
 	public static Compartment selectSpatialCompartment()
 	{
-		/* identify the spatial compartments */
-		List<String> compartments = 
-				Idynomics.simulator.getSpatialCompartmentNames();
+		/* Identify the spatial compartments. */
+		List<String> names = Idynomics.simulator.getSpatialCompartmentNames();
 		Compartment c = null;
-		if ( compartments.isEmpty() )
-			/* abort if no compartment is available */
+		if ( names.isEmpty() )
+		{
+			/* Abort if no spatial compartment is available */
 			Log.printToScreen("No spatial compartments available.", false);
-		else if ( compartments.size() == 1 )
-			/* render directly if only 1 compartment is available */
-			c = Idynomics.simulator.getCompartment(compartments.get(0));
+		}
+		else if ( names.size() == 1 )
+		{
+			/* Return first compartment if only one is available. */
+			c = Idynomics.simulator.getCompartment(names.get(0));
+		}
 		else
 		{
-			/* otherwise ask for user input */
-			String s = Helper.obtainInput(compartments, 
-					"select compartment for rendering", false);
+			/* Otherwise ask for user input. */
+			String s = Helper.obtainInput(names, "select compartment", false);
 			c = Idynomics.simulator.getCompartment(s);
 		}
 		return c;
 	}
 	
+	/**
+	 * \brief Select a compartment from the simulator, asking for the user's
+	 * help if necessary.
+	 * 
+	 * @return A compartment in the simulator.
+	 */
 	public static Compartment selectCompartment()
 	{
-		/* identify the spatial compartments */
-		List<String> compartments = 
-				Idynomics.simulator.getCompartmentNames();
-		Compartment c = null;
-		if ( compartments.isEmpty() )
-			/* abort if no compartment is available */
+		/* Identify all the compartments. */
+		List<String> names = Idynomics.simulator.getCompartmentNames();
+		if ( names.isEmpty() )
+		{
+			/* Return first compartment if only one is available. */
 			Log.printToScreen("No compartments available.", false);
-		else if ( compartments.size() == 1 )
+			return null;
+		}
+		else if ( names.size() == 1 )
+		{
 			/* render directly if only 1 compartment is available */
-			c = Idynomics.simulator.getCompartment(compartments.get(0));
+			return Idynomics.simulator.getCompartment(names.get(0));
+		}
 		else
 		{
 			/* otherwise ask for user input */
-			String s = Helper.obtainInput(compartments, 
-					"select compartment for rendering", false);
-			c = Idynomics.simulator.getCompartment(s);
+			String s = Helper.obtainInput(names, "select compartment", false);
+			return Idynomics.simulator.getCompartment(s);
 		}
-		return c;
 	}
-	
 	
 	public static String removeWhitespace(String input)
 	{

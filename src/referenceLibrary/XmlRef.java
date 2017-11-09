@@ -382,9 +382,9 @@ public class XmlRef
 	public final static String identity = "identity";
 
 	/**
-	 * TODO
+	 * Name of the compartment for a boundary's partner boundary.
 	 */
-	public final static String boundaryPartner = "partner";
+	public final static String partnerCompartment = "partnerCompartment";
 
 	/**
 	 * TODO

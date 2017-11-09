@@ -358,8 +358,10 @@ public class ODErosenbrock extends ODEsolver
 			 * Check if we've reached a steady-state solution.
 			 * NOTE: do not use absTol when comparing y and ynext!
 			 */
-			if( (h == hMax) && Vector.areSame(y, ynext) )
-				return ynext;
+			// FIXME this is the cause of the solute concentrations disappearing
+			// when there are no reactions or agents, etc
+			//if( (h == hMax) && Vector.areSame(y, ynext) )
+			//	return ynext;
 			/*
 			 * Update the y and the first derivative dYdT.
 			 */
