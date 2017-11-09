@@ -1,12 +1,7 @@
 package boundary.library;
 
-import java.util.Collection;
-
 import org.w3c.dom.Element;
-
-import agent.Agent;
 import boundary.Boundary;
-import boundary.standardBehaviours.DilutionAgentOutflowBehaviour;
 import idynomics.Compartment;
 import settable.Settable;
 
@@ -15,20 +10,16 @@ import settable.Settable;
  * 
  * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
-public class ChemostatToChemostat extends Boundary
+public class ChemostatToChemostat extends ChemostatBoundary
 {
 	/**
 	 * \brief This boundary's behaviour for grabbing agents to be removed by
 	 * outflow.
-	 * 
-	 * Encapsulated here as it is used by many other chemostat boundaries.
 	 */
-	private DilutionAgentOutflowBehaviour _agentOutflowBehaviour;
 
 	public ChemostatToChemostat()
 	{
 		super();
-		this._agentOutflowBehaviour = new DilutionAgentOutflowBehaviour();
 	}
 
 	@Override
@@ -75,26 +66,4 @@ public class ChemostatToChemostat extends Boundary
 
 	@Override
 	public void additionalPartnerUpdate() {}
-
-	/* ***********************************************************************
-	 * AGENT TRANSFERS
-	 * **********************************************************************/
-
-	@Override
-	public void addOutboundAgent(Agent anAgent)
-	{
-		/*
-		 * Add the outbound agent to the departure lounge as normal, but also
-		 * knock the dilution tally down by one.
-		 */
-		super.addOutboundAgent(anAgent);
-		this._agentOutflowBehaviour.reduceTallyByOne();
-	}
-
-	@Override
-	public Collection<Agent> agentsToGrab()
-	{
-		return this._agentOutflowBehaviour.agentsToGrab(
-				this._agents, this.getDilutionRate());
-	}
 }

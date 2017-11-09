@@ -707,6 +707,11 @@ public class AgentContainer implements Settable
 	}
 
 	/**
+	 * FIXME what is happening here? Step one: agents leave a compartment trough
+	 * a boundary (detachment/dilution/some other process) Step two agents that
+	 * left a previous compartment should be introduced to a new compartment or
+	 * simply exit the system. -> description needs to be clarified and checked.
+	 * 
 	 * \brief Loop through all boundaries on this shape, trying to grab the
 	 * agents each wants.
 	 * 
@@ -715,7 +720,7 @@ public class AgentContainer implements Settable
 	 */
 	public void boundariesGrabAgents()
 	{
-		Map<Agent,List<Boundary>> grabs = 
+		Map<Agent,List<Boundary>> toTransfer = 
 				new HashMap<Agent,List<Boundary>>();
 		/*
 		 * Ask each boundary which agents it wants to grab. Since more than one
@@ -726,19 +731,21 @@ public class AgentContainer implements Settable
 			Collection<Agent> wishes = b.agentsToGrab();
 			for ( Agent wishAgent : wishes )
 			{
-				if ( ! grabs.containsKey(wishAgent) )
-					grabs.put(wishAgent, new LinkedList<Boundary>());
-				grabs.get(wishAgent).add(b);
+				if ( ! toTransfer.containsKey( wishAgent ) )
+					toTransfer.put(wishAgent, new LinkedList<Boundary>());
+				toTransfer.get(wishAgent).add(b);
 			}
 		}
 		/*
 		 * For each agent to be grabbed, see how many boundaries want it.
 		 * If only one, then simply depart through this boundary.
 		 * If more than one, then pick one at random.
+		 * 
+		 * FIXME here the opposite of what is in the description is happening
 		 */
-		for ( Agent grabbedAgent : grabs.keySet() )
+		for ( Agent grabbedAgent : toTransfer.keySet() )
 		{
-			List<Boundary> destinations = grabs.get(grabbedAgent);
+			List<Boundary> destinations = toTransfer.get(grabbedAgent);
 			if ( destinations.size() == 1 )
 				destinations.get(0).addOutboundAgent(grabbedAgent);
 			else

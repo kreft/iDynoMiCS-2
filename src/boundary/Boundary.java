@@ -39,7 +39,7 @@ public abstract class Boundary implements Settable, Instantiable
 	 * Reference to the agents of the compartment this process belongs to.
 	 * Contains a reference to the compartment shape.
 	 */
-	protected AgentContainer _agents;
+	public AgentContainer _agents;
 	/**
 	 * XML tag for the name of the partner boundary.
 	 */
