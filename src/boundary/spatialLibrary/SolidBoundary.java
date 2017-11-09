@@ -18,17 +18,23 @@ public class SolidBoundary extends SpatialBoundary
 	}
 
 	/* ***********************************************************************
+	 * BASIC SETTERS & GETTERS
+	 * **********************************************************************/
+	
+	@Override
+	protected boolean needsLayerThickness()
+	{
+		return false;
+	}
+	
+	/* ***********************************************************************
 	 * PARTNER BOUNDARY
 	 * **********************************************************************/
 
 	@Override
-	protected Class<?> getPartnerClass()
+	public Class<?> getPartnerClass()
 	{
-		/* 
-		 * This boundary shouldn't really have a partner, but if one is
-		 * requested then just return another solid boundary.
-		 */
-		return SolidBoundary.class;
+		return null;
 	}
 
 	/* ***********************************************************************
@@ -50,6 +56,9 @@ public class SolidBoundary extends SpatialBoundary
 	{
 		this.setWellMixedByDistance();
 	}
+
+	@Override
+	public void additionalPartnerUpdate() {}
 
 	/* ***********************************************************************
 	 * AGENT TRANSFERS

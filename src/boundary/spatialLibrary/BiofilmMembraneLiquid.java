@@ -15,6 +15,18 @@ public class BiofilmMembraneLiquid extends SpatialBoundary
 {
 	public BiofilmMembraneLiquid()
 	{
+		super();
+	}
+
+	/* ***********************************************************************
+	 * BASIC SETTERS & GETTERS
+	 * **********************************************************************/
+
+	@Override
+	protected boolean needsLayerThickness()
+	{
+		// TODO check this!
+		return true;
 	}
 
 	/* ***********************************************************************
@@ -22,7 +34,7 @@ public class BiofilmMembraneLiquid extends SpatialBoundary
 	 * **********************************************************************/
 
 	@Override
-	protected Class<?> getPartnerClass()
+	public Class<?> getPartnerClass()
 	{
 		return ChemostatToMembrane.class;
 	}
@@ -44,6 +56,9 @@ public class BiofilmMembraneLiquid extends SpatialBoundary
 		// TODO default method used for now, check this is appropriate
 		this.setWellMixedByDistance();
 	}
+
+	@Override
+	public void additionalPartnerUpdate() {}
 
 	/* ***********************************************************************
 	 * AGENT TRANSFERS

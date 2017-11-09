@@ -4,6 +4,8 @@
 package test.junit;
 
 import org.junit.Test;
+import org.w3c.dom.Element;
+
 import static org.junit.Assert.assertTrue;
 
 import agent.Agent;
@@ -15,6 +17,7 @@ import dataIO.Log.Tier;
 import idynomics.Compartment;
 import idynomics.Idynomics;
 import referenceLibrary.AspectRef;
+import referenceLibrary.XmlRef;
 import shape.Dimension;
 import shape.Dimension.DimName;
 import test.AllTests;
@@ -38,15 +41,19 @@ public class BoundaryTest
 		double agentRadius = 1.0;
 		// TODO set this in the boundary method
 		double boundaryLayerThickness = 10.0;
-		String compName = "oneDim";
+		String compName = "oneDim", dummyCompName = "dummy";
 		/*
-		 * Set up the Simulator, Timer, and Compartment
+		 * Set up the Simulator, Timer, and Compartments
 		 */
 		AllTests.setupSimulatorForTest(tStep, tMax, "agentInsertionBoundaryLayer");
 		Compartment comp = Idynomics.simulator.addCompartment(compName);
 		Shape shape = AllTests.GetShape("Line");
 		comp.setShape(shape);
 		comp.setSideLengths(new double[]{compartmentLength});
+		/* Dummy compartment */
+		Compartment dummyComp = Idynomics.simulator.addCompartment(dummyCompName);
+		Shape dummyShape = AllTests.GetShape("Dimensionless");
+		dummyComp.setShape(dummyShape);
 		/*
 		 * The agent to be inserted: give its position as nonsense to check
 		 * that it is inserted correctly. To prevent the random walk, we set
@@ -62,7 +69,10 @@ public class BoundaryTest
 		 */
 		Dimension x = shape.getDimension(DimName.X);
 		BiofilmBoundaryLayer bL = new BiofilmBoundaryLayer();
-		bL.instantiate(AllTests.getSpatialBoundaryElement(1), x);
+		Element elem = AllTests.getSpatialBoundaryElement(1);
+		elem.setAttribute(XmlRef.layerThickness, "10.0");
+		elem.setAttribute(XmlRef.partnerCompartment, dummyCompName);
+		bL.instantiate(elem, x);
 		bL.setContainers(comp.environment, comp.agents);
 		bL.acceptInboundAgent(insertAgent);
 		bL.setLayerThickness(boundaryLayerThickness);

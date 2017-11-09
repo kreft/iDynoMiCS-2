@@ -13,12 +13,24 @@ import grid.SpatialGrid;
  */
 public class BiofilmMembraneGas extends SpatialBoundary
 {
+
+	/* ***********************************************************************
+	 * BASIC SETTERS & GETTERS
+	 * **********************************************************************/
+
+	@Override
+	protected boolean needsLayerThickness()
+	{
+		// TODO check this!
+		return true;
+	}
+
 	/* ***********************************************************************
 	 * PARTNER BOUNDARY
 	 * **********************************************************************/
 
 	@Override
-	protected Class<?> getPartnerClass()
+	public Class<?> getPartnerClass()
 	{
 		return GasToMembrane.class;
 	}
@@ -40,6 +52,9 @@ public class BiofilmMembraneGas extends SpatialBoundary
 		// TODO default method used for now, check this is appropriate
 		this.setWellMixedByDistance();
 	}
+
+	@Override
+	public void additionalPartnerUpdate() {}
 
 	/* ***********************************************************************
 	 * AGENT TRANSFERS

@@ -6,7 +6,6 @@ import static grid.ArrayType.LOCALERROR;
 import static grid.ArrayType.NONLINEARITY;
 import static grid.ArrayType.PRODUCTIONRATE;
 import static grid.ArrayType.RELATIVEERROR;
-import static grid.ArrayType.WELLMIXED;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -18,6 +17,7 @@ import dataIO.Log;
 import dataIO.Log.Tier;
 import grid.ArrayType;
 import grid.SpatialGrid;
+import grid.WellMixedConstants;
 import shape.Shape;
 import solver.multigrid.MultigridLayer;
 import utility.ExtraMath;
@@ -70,10 +70,6 @@ public class PDEmultigrid extends PDEsolver
 	private int _numCoarseStep = 150;
 	
 	private int _numPostSteps = 1500;
-	/**
-	 * TODO this should be settable by the user.
-	 */
-	private double _boundaryThreshold = 1.0;
 	
 	/* ***********************************************************************
 	 * SOLVER METHODS
@@ -107,7 +103,7 @@ public class PDEmultigrid extends PDEsolver
 			for ( SpatialGrid var : variables )
 			{
 				currentLayer = this.getMultigrid(var);
-				currentLayer.fillArrayFromCoarser(CONCN);
+				currentLayer.fillArrayFromCoarser(CONCN, commonGrid);
 				currentLayer.getGrid().reset(NONLINEARITY);
 			}
 			/* 
@@ -199,7 +195,7 @@ public class PDEmultigrid extends PDEsolver
 			currentLayer = currentLayer.getCoarser();
 			// NOTE iDynoMiCS 1 uses fracOfOldValueKept of 0.5
 			for ( ArrayType type : variable.getAllArrayTypes() )
-				currentLayer.fillArrayFromFiner(type, 0.0);
+				currentLayer.fillArrayFromFiner(type, 0.0, null);
 		}
 	}
 	
@@ -328,9 +324,12 @@ public class PDEmultigrid extends PDEsolver
 			for ( SpatialGrid variable : variables )
 			{
 				variableMultigrid = this.getMultigrid(variable);
-				variableMultigrid.fillArrayFromFiner(CONCN, 0.5);
-				variableMultigrid.fillArrayFromFiner(LOCALERROR, 0.5);
-				variableMultigrid.fillArrayFromFiner(NONLINEARITY, 0.5);
+				variableMultigrid.fillArrayFromFiner(
+						CONCN, 0.5, currentCommon);
+				variableMultigrid.fillArrayFromFiner(
+						LOCALERROR, 0.5, currentCommon);
+				variableMultigrid.fillArrayFromFiner(
+						NONLINEARITY, 0.5, currentCommon);
 				currentGrids.add(variableMultigrid.getGrid());
 			}
 			/* Update the PRODUCTIONRATE arrays using updated CONCN values. */
@@ -405,11 +404,13 @@ public class PDEmultigrid extends PDEsolver
 			{
 				Log.out(level, "Upward stroke: "+layerCounter+"/"+numLayers);
 			}
+			currentCommon = this._commonMultigrid.getGrid();
 			for ( SpatialGrid variable : variables )
 			{
 				variableMultigrid = this.getMultigrid(variable);
 				currentLayer = variableMultigrid.getGrid();
-				variableMultigrid.fillArrayFromFiner(LOCALERROR, CONCN, 0.0);
+				variableMultigrid.fillArrayFromFiner(
+						LOCALERROR, CONCN, 0.0, currentCommon);
 				currentLayer.subtractArrayFromArray(CONCN, LOCALERROR);
 			}
 			
@@ -421,7 +422,8 @@ public class PDEmultigrid extends PDEsolver
 				variableMultigrid = this.getMultigrid(variable).getFiner();
 				this.setMultigrid(variableMultigrid);
 				currentLayer = variableMultigrid.getGrid();
-				variableMultigrid.fillArrayFromCoarser(RELATIVEERROR, CONCN);
+				variableMultigrid.fillArrayFromCoarser(
+						RELATIVEERROR, CONCN, currentCommon);
 				currentLayer.addArrayToArray(CONCN, RELATIVEERROR);
 				if ( ! this._allowNegatives )
 					currentLayer.makeNonnegative(CONCN);
@@ -527,11 +529,8 @@ public class PDEmultigrid extends PDEsolver
 				current = shape.iteratorNext() )
 		{
 			/* Skip this voxel if it is considered well-mixed. */
-			if ( commonGrid.getValueAt(WELLMIXED, current) >= 
-					this._boundaryThreshold )
-			{
+			if ( WellMixedConstants.isWellMixed(commonGrid, current))
 				continue;
-			}
 			concn = variable.getValueAtCurrent(CONCN);
 			prod = variable.getValueAtCurrent(PRODUCTIONRATE);
 			diffusivity = variable.getValueAtCurrent(DIFFUSIVITY);
@@ -643,8 +642,7 @@ public class PDEmultigrid extends PDEsolver
 		for ( current = shape.resetIterator(); shape.isIteratorValid();
 				current = shape.iteratorNext() )
 		{
-			if ( commonGrid.getValueAt(WELLMIXED, current) >= 
-					this._boundaryThreshold )
+			if ( WellMixedConstants.isWellMixed(commonGrid, current) )
 			{
 				/* Reset the value here in case it used to be inside the
 				 * boundary layer and move on to the next voxel. */

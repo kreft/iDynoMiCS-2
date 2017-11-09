@@ -9,6 +9,7 @@ import dataIO.Log;
 import dataIO.Log.Tier;
 import grid.ArrayType;
 import grid.SpatialGrid;
+import grid.WellMixedConstants;
 import linearAlgebra.Vector;
 import settable.Settable;
 import shape.Shape;
@@ -72,7 +73,7 @@ public class MultigridLayer
 		for ( ArrayType type : this._grid.getAllArrayTypes() )
 		{
 			this._coarser._grid.newArray(type);
-			this._coarser.fillArrayFromFiner(type, 0.0);
+			this._coarser.fillArrayFromFiner(type, 0.0, null);
 		}
 		return this._coarser;
 	}
@@ -145,7 +146,7 @@ public class MultigridLayer
 		{
 			layer = layer.getCoarser();
 			for ( ArrayType type : types )
-				layer.fillArrayFromFiner(type, 0.0);
+				layer.fillArrayFromFiner(type, 0.0, null);
 		}
 	}/**
 	 * \brief Use array values from the layer that is coarser than this one to
@@ -156,10 +157,11 @@ public class MultigridLayer
 	 * <i>Numerical Recipes in C</i>.</p>
 	 * 
 	 * @param type The type of array to update.
+	 * @param commonGrid The spatial grid which contains the well-mixed array.
 	 */
-	public void fillArrayFromCoarser(ArrayType type)
+	public void fillArrayFromCoarser(ArrayType type, SpatialGrid commonGrid)
 	{
-		this.fillArrayFromCoarser(type, type);
+		this.fillArrayFromCoarser(type, type, commonGrid);
 	}
 	
 	/**
@@ -172,8 +174,10 @@ public class MultigridLayer
 	 * 
 	 * @param finerType The type of array to update in this layer (overwritten).
 	 * @param coarserType The type of array to get values from (unaffected).
+	 * @param commonGrid The spatial grid which contains the well-mixed array.
 	 */
-	public void fillArrayFromCoarser(ArrayType finerType, ArrayType coarserType)
+	public void fillArrayFromCoarser(
+			ArrayType finerType, ArrayType coarserType, SpatialGrid commonGrid)
 	{
 		/* Safety */
 		if ( this._coarser == null )
@@ -195,6 +199,8 @@ public class MultigridLayer
 		int[] coarserVoxel = Vector.zeros(current);
 		for (; thisShape.isIteratorValid(); current = thisShape.iteratorNext())
 		{
+			if ( WellMixedConstants.isWellMixed(commonGrid, current) )
+				continue;
 			/*
 			 * (i & 1) == 1 is a slightly quicker way of determining evenness
 			 * that (i % 2) == 0. (The modulo operation also deals with the
@@ -213,6 +219,8 @@ public class MultigridLayer
 		double volume, totalVolume;
 		for (; thisShape.isIteratorValid(); current = thisShape.iteratorNext())
 		{
+			if ( WellMixedConstants.isWellMixed(commonGrid, current) )
+				continue;
 			/*
 			 * (i & 1) == 0 is a slightly quicker way of determining evenness
 			 * that (i % 2) == 0. (The modulo operation also deals with the
@@ -256,9 +264,10 @@ public class MultigridLayer
 	 * updating: 0 to completely replace them, 1 to leave them unchanged, any
 	 * value between 0 and 1 as a compromise.
 	 */
-	public void fillArrayFromFiner(ArrayType type, double fracOfOldValueKept)
+	public void fillArrayFromFiner(ArrayType type,
+			double fracOfOldValueKept, SpatialGrid commonGrid)
 	{
-		this.fillArrayFromFiner(type, type, fracOfOldValueKept);
+		this.fillArrayFromFiner(type, type, fracOfOldValueKept, commonGrid);
 	}
 	
 	/**
@@ -275,8 +284,8 @@ public class MultigridLayer
 	 * updating: 0 to completely replace them, 1 to leave them unchanged, any
 	 * value between 0 and 1 as a compromise.
 	 */
-	public void fillArrayFromFiner(ArrayType coarserType, 
-			ArrayType finerType, double fracOfOldValueKept)
+	public void fillArrayFromFiner(ArrayType coarserType, ArrayType finerType,
+			double fracOfOldValueKept, SpatialGrid commonGrid)
 	{
 		double fracOfNewValueUsed = 1.0 - fracOfOldValueKept;
 		/* Safety */
@@ -297,6 +306,8 @@ public class MultigridLayer
 		int[] current = thisShape.resetIterator();
 		for (; thisShape.isIteratorValid(); current = thisShape.iteratorNext())
 		{
+			if ( WellMixedConstants.isWellMixed(commonGrid, current) )
+				continue;
 			/* 
 			 * Find all relevant finer voxels.
 			 */
