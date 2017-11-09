@@ -77,7 +77,7 @@
 				</agent>
 			</agents>
 			<processManagers>
-				<process name="solveChemostat" class="SolveChemostat" priority="0" timerStepSize="1.0" firstStep="1.0" >
+				<process name="solveChemostat" class="ChemostatSolver" priority="0" timerStepSize="1.0" firstStep="1.0" >
 					<aspect name="soluteNames" type="PRIMARY" class="String[]" value="Res,Sns" />
 					<aspect name="hMax" type="PRIMARY" class="Double" value="0.001" />
 					<aspect name="tolerance" type="PRIMARY" class="Double" value="0.001" />

@@ -12,7 +12,7 @@ import grid.ArrayType;
 import grid.SpatialGrid;
 import idynomics.Compartment;
 import idynomics.Idynomics;
-import processManager.library.SolveChemostat;
+import processManager.library.ChemostatSolver;
 import shape.ShapeLibrary.Dimensionless;
 import test.AllTests;
 import utility.ExtraMath;
@@ -45,7 +45,7 @@ public class ChemostatsTest
 		shape.setVolume(1.0);
 		chemo.setShape(shape);
 		chemo.environment.addSolute(new SpatialGrid(soluteName, 0.0, chemo.environment));
-		SolveChemostat p1 = new SolveChemostat();
+		ChemostatSolver p1 = new ChemostatSolver();
 		p1.setName("SolveChemostat");
 		p1.init(null, chemo.environment, 
 				chemo.agents, chemo.getName());

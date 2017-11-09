@@ -77,6 +77,7 @@ public class Raster {
 	protected SpatialMap<Integer> _agentDistanceMap;
 	protected SpatialMap<Integer> _edgeDistanceMap;
 	private SpatialMap<Double> _edgeDistanceMapDbl;
+	private double _voxelLength;
 	
 	/* header for default analysis output */
 	protected final static String[] header = new String[]{
@@ -137,6 +138,8 @@ public class Raster {
 	{
 		/* domain dimension lengths */
 		double[] dimLengths = _shape.getDimensionLengths();
+		
+		this._voxelLength = voxelLength;
 		
 		/* discrete size, amount of voxels per dimension */
 		this.size = Vector.zerosInt( dimLengths.length );
@@ -207,6 +210,14 @@ public class Raster {
 		
 		/* NOTE for testing: looking for co-ocurance 
 		traitLocalization("species=CanonicalAOB", "species=CanonicalNOB" ); */
+	}
+	
+
+	public double[] voxelCenter(int[] vox) {
+		double[] out = new double[vox.length];
+		for( int i = 0; i < out.length; i++)
+			out[i] = this._voxelLength * vox[i] + (0.5 * this._voxelLength);
+		return out;
 	}
 	
 	/**
@@ -1254,4 +1265,5 @@ public class Raster {
 		}
 		this.plot(distance, 1, name, Helper.giveMeAGradient(max+1));
 	}
+
 }

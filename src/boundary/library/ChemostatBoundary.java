@@ -60,8 +60,7 @@ public abstract class ChemostatBoundary extends Boundary {
 				}
 			}
 		}
-		return removals;
-						
+		return removals;			
 	}
 
 }

@@ -66,7 +66,12 @@ public class ChemostatOut extends ChemostatBoundary
 	 * SOLUTE TRANSFERS
 	 * **********************************************************************/
 
+	/**
+	 * NOTE: Using this method degrades any solver using it to doing euler steps
+	 * on the solute transfer over the boundaries.
+	 */
 	@Override
+	@Deprecated
 	public double getMassFlowRate(String name)
 	{
 		if (this.constantVolume)
@@ -87,7 +92,12 @@ public class ChemostatOut extends ChemostatBoundary
 
 	}
 	
+	/**
+	 * NOTE: Using this method degrades any solver using it to doing euler steps
+	 * on the solute transfer over the boundaries.
+	 */
 	@Override
+	@Deprecated
 	public void updateMassFlowRates()
 	{
 		if (this.constantVolume)

@@ -15,6 +15,13 @@ import spatialRegistry.SpatialMap;
 import utility.ExtraMath;
 import utility.Helper;
 
+/**
+ * \brief agent detachment based scaled to distance from 'bulk area' at distance
+ * 'regiondepth' from the biofilm.
+ * 
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
+ *
+ */
 public class AgentDetachment extends ProcessManager
 {
 	
