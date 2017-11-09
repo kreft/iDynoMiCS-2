@@ -2,6 +2,14 @@ package analysis.toolset;
 
 /******************************************************************************
  * 
+ *  Copyright
+ *  Copyright © 2000–2017 by Robert Sedgewick and Kevin Wayne.
+ *  
+ *  License
+ *  This code is released under GPLv3.
+ *  https://github.com/kevin-wayne/algs4/blob/master/LICENSE
+ *
+ *  https://github.com/kevin-wayne/algs4
  *  http://algs4.cs.princeton.edu/14analysis/LinearRegression.java.html
  *  
  *  Compilation:  javac LinearRegression.java
