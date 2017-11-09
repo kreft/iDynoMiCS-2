@@ -102,7 +102,7 @@ public class Global
 	
 	/**************************************************************************
 	 * Appearance
-	 * Still also suplying default value's for if the cfg file is corrupted.
+	 * Still also supplying default value's for if the cfg file is corrupted.
 	 *************************************************************************/
 	
 	public static Color console_color = Helper.obtainColor( 
@@ -119,6 +119,17 @@ public class Global
 	
 	public static int font_size = Helper.setIfNone( Integer.valueOf( 
 			settings.getProperty( SettingsRef.console_font_size ) ), 12 );
+	
+	/**************************************************************************
+	 * Global simulation settings
+	 *************************************************************************/
+	
+	/**
+	 * Any voxels with a relative well-mixed value of this or greater are
+	 * considered well-mixed. this is particularly important to the multi-grid
+	 * PDE solver.
+	 */
+	public double relativeThresholdWellMixedness = 0.9;
 	
 	/**************************************************************************
 	 * LOADING

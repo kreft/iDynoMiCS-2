@@ -3,17 +3,13 @@
  */
 package boundary.library;
 
-import java.util.Iterator;
 import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
 
 import org.w3c.dom.Element;
 
 import agent.Agent;
 import boundary.Boundary;
-import dataIO.Log;
-import dataIO.Log.Tier;
+import boundary.standardBehaviours.DilutionAgentOutflowBehaviour;
 import dataIO.XmlHandler;
 import idynomics.Idynomics;
 import referenceLibrary.XmlRef;
@@ -26,16 +22,23 @@ import utility.Helper;
  * concentration that equals the concentration in the chemostat.
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
+ * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
 public class ChemostatOut extends Boundary
 {
+	/**
+	 * \brief This boundary's behaviour for grabbing agents to be removed by
+	 * outflow.
+	 * 
+	 * Encapsulated here as it is used by many other chemostat boundaries.
+	 */
+	private DilutionAgentOutflowBehaviour _agentOutflowBehaviour;
 	private boolean constantVolume = false;
-	protected double _agentsToDiluteTally = 0.0;
-	protected boolean _agentRemoval = false;
-
+	
 	public ChemostatOut()
 	{
 		super();
+		this._agentOutflowBehaviour = new DilutionAgentOutflowBehaviour();
 	}
 
 	@Override
@@ -52,7 +55,7 @@ public class ChemostatOut extends Boundary
 	}
 	
 	@Override
-	protected Class<?> getPartnerClass()
+	public Class<?> getPartnerClass()
 	{
 		return null;
 	}
@@ -102,11 +105,11 @@ public class ChemostatOut extends Boundary
 			this.setVolumeFlowRate(totalOutFlow);
 		}
 		for ( String name : this._environment.getSoluteNames() )
-		{
-			this._massFlowRate.put(name, 
-					this.getConcentration(name) * this._volumeFlowRate);
-		}
+			this.setMassFlowRate(name, this.getMassFlowRate(name));
 	}
+	
+	@Override
+	public void additionalPartnerUpdate() {}
 	
 	/* ***********************************************************************
 	 * AGENT TRANSFERS
@@ -120,53 +123,57 @@ public class ChemostatOut extends Boundary
 		 * knock the dilution tally down by one.
 		 */
 		super.addOutboundAgent(anAgent);
-		this._agentsToDiluteTally--;
+		this._agentOutflowBehaviour.reduceTallyByOne();
 	}
 
 	@Override
 	public Collection<Agent> agentsToGrab()
 	{
-		int nAllAgents = this._agents.getNumAllAgents();
-		if ( (nAllAgents > 0) && (this._volumeFlowRate < 0.0) )
-		{
-			/* 
-			 * This is an outflow: remember to subtract, since dilution out
-			 * is negative.
-			 */
-			this._agentsToDiluteTally -= this.getDilutionRate() * 
-					Idynomics.simulator.timer.getTimeStepSize();
-			
-			if ( _agentRemoval )
-			{
-				/*
-				 * dA/dt = rA
-				 * A(t) = A(0) * e^(rt)
-				 */
-				double e = Math.exp( ( this.getDilutionRate() * 
-						Idynomics.simulator.timer.getTimeStepSize() ) ); 
-				for ( int i = 0; i < nAllAgents; i++ )
-					if( ExtraMath.getUniRandDbl() > e )
-					{
-						Agent a = this._agents.chooseAgent(i);
-						if ( !this._departureLounge.contains(a))
-							this._departureLounge.add(a);
-						if ( Log.shouldWrite(Tier.NORMAL) )
-							Log.out(Tier.NORMAL, "Washed out agent");
-					}
-			}
-		}
-		else
-		{
-			/*
-			 * If the agent container is empty, set the tally to zero: we
-			 * shouldn't accumulate a high tally while the compartment is
-			 * waiting for agents to arrive.
-			 * 
-			 * If the flow rate is positive, this is an inflow and so no agents
-			 * to remove.
-			 */
-			this._agentsToDiluteTally = 0.0;
-		}
-		return this._departureLounge;
+	//TODO move this into agentOutflowBehaviour
+	//	int nAllAgents = this._agents.getNumAllAgents();
+	//	if ( (nAllAgents > 0) && (this._volumeFlowRate < 0.0) )
+	//	{
+	//		/* 
+	//		 * This is an outflow: remember to subtract, since dilution out
+	//		 * is negative.
+	//		 */
+	//		this._agentsToDiluteTally -= this.getDilutionRate() * 
+	//				Idynomics.simulator.timer.getTimeStepSize();
+	//		
+	//		if ( _agentRemoval )
+	//		{
+	//			/*
+	//			 * dA/dt = rA
+	//			 * A(t) = A(0) * e^(rt)
+	//			 */
+	//			double e = Math.exp( ( this.getDilutionRate() * 
+	//					Idynomics.simulator.timer.getTimeStepSize() ) ); 
+	//			for ( int i = 0; i < nAllAgents; i++ )
+	//				if( ExtraMath.getUniRandDbl() > e )
+	//				{
+	//					Agent a = this._agents.chooseAgent(i);
+	//					if ( !this._departureLounge.contains(a))
+	//							this._departureLounge.add(a);
+	//					if ( Log.shouldWrite(Tier.NORMAL) )
+	//						Log.out(Tier.NORMAL, "Washed out agent");
+	//				}
+	//		}
+	//	}
+	//	else
+	//	{
+	//		/*
+	//		 * If the agent container is empty, set the tally to zero: we
+	//		 * shouldn't accumulate a high tally while the compartment is
+	//		 * waiting for agents to arrive.
+	//		 * 
+	//		 * If the flow rate is positive, this is an inflow and so no agents
+	//		 * to remove.
+	//		 */
+	//		this._agentsToDiluteTally = 0.0;
+	//	}
+	//	return this._departureLounge;
+	//					
+		return this._agentOutflowBehaviour.agentsToGrab(
+				this._agents, this.getDilutionRate());
 	}
 }
