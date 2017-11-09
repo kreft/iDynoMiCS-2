@@ -12,7 +12,6 @@ import org.w3c.dom.Element;
 import dataIO.Log;
 import dataIO.XmlHandler;
 import dataIO.Log.Tier;
-import referenceLibrary.SettingsRef;
 import referenceLibrary.XmlRef;
 import utility.Helper;
 
@@ -22,22 +21,53 @@ import utility.Helper;
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
-public class Global
+public class Global extends ParameterSet
 {
 	/**************************************************************************
 	 * Default settings from cfg file
 	 *************************************************************************/
 	
-	/**
-	 * default settings from cfg file
-	 */
-	public static Properties settings = defaults();
+	public Global()
+	{
+		Properties settings = new Properties();
+		try {
+			settings.load(new FileInputStream("default.cfg"));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		set( settings );
+	}
 	
+	public Global(Properties... properties)
+	{
+		super( properties );
+
+	}
+
 	/**************************************************************************
 	 * GENERAL PARAMETERS 
 	 * all directly loaded from xml file as string.
 	 *************************************************************************/
+	
+	/**
+	 * Version description.
+	 */
+	public static String version_description = "version_description";
 
+	/**
+	* Version number of this iteration of iDynoMiCS - required by update
+	* procedure.
+	*/
+	public static String version_number = "version_number";
+
+	/**
+	 * default output location
+	 */
+	public String default_out = "default_out";
+	/**
+	 * console font
+	 */
+	public static String console_font = "consolas";
 	/**
 	 * Simulation name.
 	 */
@@ -80,45 +110,24 @@ public class Global
 	/**
 	 * 
 	 */
-	public Boolean ignore_protocol_out =  Boolean.valueOf( 
-			settings.getProperty( SettingsRef.ignore_protocol_out ) );
+	public static Boolean ignore_protocol_out = false;
 
 	public int outputskip = 0;
 
-	/**
-	* Version number of this iteration of iDynoMiCS - required by update
-	* procedure.
-	*/
-	public static String version_number = 
-			settings.getProperty( SettingsRef.version_number );
-
-	/**
-	 * Version description.
-	 */
-	public static String version_description = 
-			settings.getProperty( SettingsRef.version_description );
-
 	public static String exitCommand;
-	
+
 	/**************************************************************************
 	 * Appearance
 	 * Still also supplying default value's for if the cfg file is corrupted.
 	 *************************************************************************/
 	
-	public static Color console_color = Helper.obtainColor( 
-			SettingsRef.console_color, settings, "38,45,48");
+	public static Color console_color = Helper.obtainColor( "38,45,48" );
 	
-	public static Color text_color = Helper.obtainColor( 
-			SettingsRef.text_color, settings, "220,220,220");
+	public static Color text_color = Helper.obtainColor( "220,220,220" );
 	
-	public static Color error_color = Helper.obtainColor( 
-			SettingsRef.error_color, settings, "250,50,50");
+	public static Color error_color = Helper.obtainColor( "250,50,50" );
 	
-	public static String font =  Helper.setIfNone( settings.getProperty( 
-			SettingsRef.console_font ), "consolas" );
-	
-	public static int font_size = Helper.setIfNone( Integer.valueOf( 
-			settings.getProperty( SettingsRef.console_font_size ) ), 12 );
+	public static int font_size = 12;
 	
 	/**************************************************************************
 	 * Global simulation settings
@@ -140,14 +149,13 @@ public class Global
 	 * 
 	 * @param elem
 	 */
-	public static void init(Element elem)
+	public void init(Element elem)
 	{
 		/*
 		 *   set output root from xml file
 		 */
 		Idynomics.global.outputRoot = XmlHandler.obtainAttribute( elem, 
 				XmlRef.outputFolder, XmlRef.simulation);
-		
 		/*
 		 *  set output sub folder structure from protocol file
 		 */
@@ -164,7 +172,7 @@ public class Global
 					XmlHandler.obtainAttribute( elem, XmlRef.outputskip, 
 					XmlRef.simulation));
 		
-		updateSettings();
+		this.updateSettings();
 		/* 
 		 * Set up the log file.
 		 * 
@@ -194,49 +202,36 @@ public class Global
 				XmlHandler.gatherAttribute(elem, XmlRef.commentAttribute);
 	}
 	
-	
-	public static Properties defaults()
-	{
-		Properties settings = new Properties();
-		try {
-			settings.load(new FileInputStream("default.cfg"));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		return settings;
-	}
-	
-	public static void updateSettings()
+	public void updateSettings()
 	{
 		/* if no Root location is set use the default out.
 		 * TODO safety: check the root exists, and the name is acceptable
 		 */
-		if (Idynomics.global.idynomicsRoot == null || Idynomics.global.ignore_protocol_out )
+		if (this.idynomicsRoot == null || ignore_protocol_out )
 		{
-			Idynomics.global.outputRoot = 
-					settings.getProperty( SettingsRef.default_out );
+			this.outputRoot = this.default_out ;
 		}
 		
 		/* if no simulation name is given ask the user */
-		if (Idynomics.global.simulationName == null)
+		if ( this.simulationName == null)
 		{
-			Idynomics.global.simulationName = 
-					Helper.obtainInput(Idynomics.global.simulationName,
-							"Required simulation name", true);
+			this.simulationName = Helper.obtainInput( this.simulationName,
+					"Required simulation name", false); /* keep this false!! .. 
+			the output location is not set here! */
 		}
 		
-		if ( Idynomics.global.outputLocation == null )
+		if ( this.outputLocation == null )
 		{
 			/* set date format for folder naming */
 			SimpleDateFormat dateFormat = 
 					new SimpleDateFormat("yyyy.MM.dd_HH.mm.ss_SSS_");
 			
 			/* set output root for this simulation */
-			Idynomics.global.outputLocation = 
-					Idynomics.global.outputRoot + "/" + 
-					Idynomics.global.subFolderStruct + "/" + 
+			this.outputLocation = 
+					this.outputRoot + "/" + 
+							this.subFolderStruct + "/" + 
 					dateFormat.format(new Date()) + 
-					Idynomics.global.simulationName + "/";
+					this.simulationName + "/";
 		}
 	}
 }

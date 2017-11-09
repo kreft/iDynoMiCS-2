@@ -147,7 +147,7 @@ public final class GuiConsole
 		StyleConstants.setAlignment(a, StyleConstants.ALIGN_LEFT);
 		/* Background not set here: see GuiLaunch.consoleBackground. */
 		/* Bold not set here. */
-		StyleConstants.setFontFamily(a, Global.font );
+		StyleConstants.setFontFamily(a, Global.console_font );
 		StyleConstants.setFontSize(a, Global.font_size );
 
 		/* Foreground not set here. */

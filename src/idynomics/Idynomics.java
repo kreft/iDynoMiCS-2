@@ -196,7 +196,7 @@ public strictfp class Idynomics
 		/*
 		 * Initialise the global parameters.
 		 */
-		Global.init(simElem);
+		global.init(simElem);
 	}
 	
 	/**

@@ -40,7 +40,7 @@ public class PDEBenchmark {
 		 */
 		Idynomics.global.outputRoot = "./Benchmarks";
 		Idynomics.global.simulationName = "BenchmarkCartesianShape";
-		Global.updateSettings();
+		Idynomics.global.updateSettings();
 		Log.set(Tier.QUIET);
 		Log.setupFile();
 		BufferedWriter bw = null;
@@ -140,7 +140,7 @@ public class PDEBenchmark {
 		 */
 		Idynomics.global.outputRoot = "./Benchmarks";
 		Idynomics.global.simulationName = "BenchmarkCylindricalShape";
-		Global.updateSettings();
+		Idynomics.global.updateSettings();
 		Log.set(Tier.QUIET);
 		Log.setupFile();
 		BufferedWriter bw = null;
@@ -241,7 +241,7 @@ public class PDEBenchmark {
 		 */
 		Idynomics.global.outputRoot = "./Benchmarks";
 		Idynomics.global.simulationName = "BenchmarkSphericalShape";
-		Global.updateSettings();
+		Idynomics.global.updateSettings();
 		Log.set(Tier.QUIET);
 		Log.setupFile();
 		BufferedWriter bw = null;

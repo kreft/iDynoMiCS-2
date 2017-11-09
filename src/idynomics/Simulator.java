@@ -442,7 +442,7 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 		modelNode.setRequirements(Requirements.EXACTLY_ONE);
 		
 		/* required if we start without a protocol file */
-		Global.updateSettings();
+		Idynomics.global.updateSettings();
 		if(! Log.isSet())
 			Log.set(Tier.NORMAL);
 		

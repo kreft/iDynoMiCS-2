@@ -62,7 +62,7 @@ public class AllTests
 		Idynomics.simulator = new Simulator();
 		Idynomics.global.outputRoot = "./unitTests";
 		Idynomics.global.simulationName = name;
-		Global.updateSettings();
+		Idynomics.global.updateSettings();
 		Idynomics.simulator.timer.setTimeStepSize(tStep);
 		Idynomics.simulator.timer.setEndOfSimulation(tMax);
 		Log.set(Tier.DEBUG);

@@ -528,12 +528,18 @@ public final class Helper
 		return out;
 	}
 	
-	public static Color obtainColor(String settingName, Properties properties, String defaultCol)
+	public static Color obtainColor(String settingName, Properties properties, 
+			String defaultCol)
+	{
+		return obtainColor( Helper.setIfNone( 
+				properties.getProperty( settingName ), defaultCol ) );
+	}
+	
+	public static Color obtainColor(String colorString )
 	{
 		/* color vector, get color from config file, use default if not 
 		 * specified */
-		int[] color = Vector.intFromString( Helper.setIfNone( 
-				properties.getProperty( settingName ) , defaultCol) );
+		int[] color = Vector.intFromString( colorString );
 		
 		/* return as color */
 		return new Color( color[0], color[1], color[2] );
