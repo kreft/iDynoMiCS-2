@@ -1,11 +1,10 @@
 package boundary.library;
 
 import java.util.Collection;
+import java.util.LinkedList;
 
 import agent.Agent;
 import boundary.Boundary;
-import dataIO.Log;
-import dataIO.Log.Tier;
 import idynomics.Idynomics;
 import utility.ExtraMath;
 
@@ -44,27 +43,24 @@ public abstract class ChemostatBoundary extends Boundary {
 	public Collection<Agent> agentsToGrab()
 	{
 		int nAllAgents = this._agents.getNumAllAgents();
+		LinkedList<Agent> removals = new LinkedList<Agent>();
 		if ( (nAllAgents > 0) && (this._volumeFlowRate < 0.0) )
 		{
 			/* do not remove if agent removal is disabled */
 			if ( _agentRemoval )
 			{
-				/* calculate removal chance */
+				/* calculate (1 - removal chance) */
 				double e = Math.exp( ( this.getDilutionRate() * 
 						Idynomics.simulator.timer.getTimeStepSize() ) ); 
+				
 				for ( int i = 0; i < nAllAgents; i++ )
+				{
 					if( ExtraMath.getUniRandDbl() > e )
-					{
-						/* add to be removed agents to departure launch */
-						Agent a = this._agents.chooseAgent(i);
-						if ( !this._departureLounge.contains(a))
-								this._departureLounge.add(a);
-						if ( Log.shouldWrite(Tier.DEBUG) )
-							Log.out(Tier.DEBUG, "Washed out agent");
-					}
+						removals.add( this._agents.chooseAgent(i) );
+				}
 			}
 		}
-		return this._departureLounge;
+		return removals;
 						
 	}
 

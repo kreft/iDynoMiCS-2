@@ -429,26 +429,31 @@ public abstract class Boundary implements Settable, Instantiable
 	 */
 	public void pushAllOutboundAgents()
 	{
-		if ( this._partner == null )
+		if ( ! this._departureLounge.isEmpty() )
 		{
-			if ( ! this._departureLounge.isEmpty() )
+			if ( this._partner == null )
 			{
-				// TODO throw exception? Error message to log?
+				if ( Log.shouldWrite(Tier.EXPRESSIVE) )
+				{
+					Log.out(Tier.EXPRESSIVE, "Boundary "+this.getName()+" removing "+
+							this._departureLounge.size()+" agents");
+				}
+				for( Agent a : this._departureLounge )
+					this._agents.registerRemoveAgent(a);
+				this._departureLounge.clear();
 			}
-			for( Agent a : this._departureLounge )
-				this._agents.registerRemoveAgent(a);
-		}
-		else
-		{
-			if ( Log.shouldWrite(AGENT_LEVEL) )
+			else
 			{
-				Log.out(AGENT_LEVEL, "Boundary "+this.getName()+" pushing "+
-						this._departureLounge.size()+" agents to partner");
+				if ( Log.shouldWrite(Tier.EXPRESSIVE) )
+				{
+					Log.out(Tier.EXPRESSIVE, "Boundary "+this.getName()+" pushing "+
+							this._departureLounge.size()+" agents to partner");
+				}
+				this._partner.acceptInboundAgents(this._departureLounge);
+				for( Agent a : this._departureLounge )
+					this._agents.registerRemoveAgent(a);
+				this._departureLounge.clear();
 			}
-			this._partner.acceptInboundAgents(this._departureLounge);
-			for( Agent a : this._departureLounge )
-				this._agents.registerRemoveAgent(a);
-			this._departureLounge.clear();
 		}
 	}
 
