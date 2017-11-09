@@ -56,6 +56,7 @@ public final class Helper
 			"orange", "springgreen", "azure", "pink", "chartreuse", "black" };
 	
 	/**
+	 * https://docs.oracle.com/javase/6/docs/api/java/lang/Double.html#valueOf%28java.lang.String%29
 	 * regex expressions for checking for double.
 	 */
 	private static final String Digits     = "(\\p{Digit}+)";
