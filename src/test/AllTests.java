@@ -18,7 +18,7 @@ import dataIO.XmlHandler;
 import dataIO.Log.Tier;
 import grid.SpatialGrid;
 import idynomics.Idynomics;
-import idynomics.Settings;
+import idynomics.Global;
 import idynomics.Simulator;
 import shape.Shape;
 import test.junit.*;
@@ -62,7 +62,7 @@ public class AllTests
 		Idynomics.simulator = new Simulator();
 		Idynomics.global.outputRoot = "./unitTests";
 		Idynomics.global.simulationName = name;
-		Settings.updateSettings();
+		Idynomics.global.updateSettings();
 		Idynomics.simulator.timer.setTimeStepSize(tStep);
 		Idynomics.simulator.timer.setEndOfSimulation(tMax);
 		Log.set(Tier.DEBUG);

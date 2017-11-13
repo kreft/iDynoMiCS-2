@@ -46,7 +46,7 @@ public strictfp class Idynomics
 	/**
 	 * global parameters
 	 */
-	public static Settings global = new Settings();
+	public static Global global = new Global();
 	
 	/**
 	 * Simulator thread
@@ -133,7 +133,8 @@ public strictfp class Idynomics
 		}
 		else
 		{
-			Log.out(Tier.NORMAL, "command: "+ Helper.stringAToString( Helper.subset( args, 0, args.length) , " "));
+			Log.out(Tier.NORMAL, "command: "+ Helper.stringAToString( 
+					Helper.subset( args, 0, args.length) , " ") );
 			for( int i = 0; i < args.length; i++)
 			{
 				if( args[i].startsWith("-") )
@@ -152,8 +153,8 @@ public strictfp class Idynomics
 		}
 		
 		/* execute exit command if any and if it is not handled by a simulator*/
-		if( !Helper.isNullOrEmpty( Settings.exitCommand ) && simulator == null )
-			Helper.executeCommand( Settings.exitCommand );
+		if( !Helper.isNullOrEmpty( Global.exitCommand ) && simulator == null )
+			Helper.executeCommand( Global.exitCommand );
 	}
 
 	
@@ -195,7 +196,7 @@ public strictfp class Idynomics
 		/*
 		 * Initialise the global parameters.
 		 */
-		Settings.init(simElem);
+		global.init(simElem);
 	}
 	
 	/**
@@ -257,7 +258,7 @@ public strictfp class Idynomics
 	 */
 	public static String fullDescription()
 	{
-		return "iDynoMiCS "+Settings.version_number+
-				" ("+Settings.version_description+")";
+		return "iDynoMiCS "+Global.version_number+
+				" ("+Global.version_description+")";
 	}
 }

@@ -2,10 +2,7 @@
  * 
  */
 package boundary.library;
-
 import org.w3c.dom.Element;
-
-import boundary.Boundary;
 import boundary.spatialLibrary.BiofilmBoundaryLayer;
 import settable.Settable;
 
@@ -15,8 +12,12 @@ import settable.Settable;
  * 
  * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
-public class ChemostatToBoundaryLayer extends Boundary
+public class ChemostatToBoundaryLayer extends ChemostatBoundary
 {
+	/**
+	 * \brief This boundary's behaviour for grabbing agents to be removed by
+	 * outflow.
+	 */
 	public ChemostatToBoundaryLayer()
 	{
 		super();
@@ -33,7 +34,7 @@ public class ChemostatToBoundaryLayer extends Boundary
 	 * ***********************************************************************/
 
 	@Override
-	protected Class<?> getPartnerClass()
+	public Class<?> getPartnerClass()
 	{
 		return BiofilmBoundaryLayer.class;
 	}
@@ -41,11 +42,16 @@ public class ChemostatToBoundaryLayer extends Boundary
 	/* ***********************************************************************
 	 * SOLUTE TRANSFERS
 	 * **********************************************************************/
-	
-	/* ***********************************************************************
-	 * AGENT TRANSFERS
-	 * **********************************************************************/
 
-	// TODO [Rob 13June2016]: We need to grab agents from the chemostat here,
-	// in a similar way to ChemostatToChemostat, but there is no "flow rate".
+	@Override 
+	public void additionalPartnerUpdate()
+	{
+		this._partner.additionalPartnerUpdate();
+	}
+	
+	public double getSoluteConcentration(String soluteName)
+	{
+		return this._environment.getAverageConcentration(soluteName);
+	}
+
 }

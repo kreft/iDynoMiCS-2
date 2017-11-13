@@ -71,8 +71,9 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 		
 	public Simulator()
 	{
-		//TODO fully implement MTRandom (reading in random seed)
-		ExtraMath.initialiseRandomNumberGenerator();
+		/* Just for unit tests initialize random number generator here */
+		if( ExtraMath.random == null )
+    		ExtraMath.initialiseRandomNumberGenerator();
 		this.timer = new Timer();
 		this._xmlOut = new XmlExport();
 	}
@@ -94,47 +95,29 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 					XmlRef.simulation : Idynomics.global.simulationName;
 	}
 	
-	/**
-	 * get the current seed, used to create intermediate restartable save points
-	 * @return
-	 */
-	public long seed()
-	{
-		long currentSeed = ExtraMath.random.nextLong();
-		ExtraMath.initialiseRandomNumberGenerator(currentSeed);
-		return currentSeed;
-	}
-	
-	/**
-	 * Initiate random number generator with given seed
-	 * @param seed
-	 */
-	public void seed(long seed)
-	{
-		ExtraMath.initialiseRandomNumberGenerator(seed);
-	}
-	
 	public void instantiate(Element xmlElem, Settable parent)
 	{
 		/* 
-		 * retrieve seed from xml file and initiate random number generator with
-		 * that seed
+		 * Retrieve seed from xml file and initiate random number generator with
+		 * that seed.
 		 */
-		String seed =XmlHandler.gatherAttribute(xmlElem, XmlRef.seed);
-		if (seed != "" && seed != null)
+		String seed = XmlHandler.gatherAttribute(xmlElem, XmlRef.seed);
+
+		if ( ! Helper.isNullOrEmpty(seed) )
 			ExtraMath.initialiseRandomNumberGenerator(Long.valueOf(seed));
 		
 		/*
 		 * Set up the Timer.
 		 */
-		this.timer.instantiate( XmlHandler.findUniqueChild( xmlElem, XmlRef.timer ), this);
+		this.timer.instantiate( XmlHandler.findUniqueChild( xmlElem, 
+				XmlRef.timer ), this);
 		/*
 		 * Set up the species library.
 		 */
 		if (XmlHandler.hasChild(Idynomics.global.xmlDoc, XmlRef.speciesLibrary))
 		{
 			this.speciesLibrary = (SpeciesLib) Instance.getNew(
-					XmlHandler.findUniqueChild( xmlElem, XmlRef.speciesLibrary ), 
+					XmlHandler.findUniqueChild( xmlElem, XmlRef.speciesLibrary), 
 					this, ClassRef.speciesLibrary );
 		}
 		/*
@@ -152,9 +135,14 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 		for ( int i = 0; i < children.getLength(); i++ )
 		{
 			child = (Element) children.item(i);
+			/* Compartments add themselves to the simulator. */
 			Instance.getNew( child, this, XmlRef.compartment );
 		}
 		Log.out(Tier.NORMAL, "Compartments loaded!\n");
+		Log.out(Tier.NORMAL, "Checking connective boundaries...");
+		for ( Compartment compartment : this._compartments )
+			compartment.checkBoundaryConnections(this._compartments);
+		Log.out(Tier.NORMAL, "Boundaries connected!\n");
 	}
 	
 	/* ***********************************************************************
@@ -367,8 +355,8 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 		this.printProcessManagerRealTimeStats();
 		
 		/* execute exit command if any */
-		if( !Helper.isNullOrEmpty( Settings.exitCommand ) )
-			Helper.executeCommand( Settings.exitCommand );
+		if( !Helper.isNullOrEmpty( Global.exitCommand ) )
+			Helper.executeCommand( Global.exitCommand );
 	}
 	
 	/* ***********************************************************************
@@ -454,14 +442,14 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 		modelNode.setRequirements(Requirements.EXACTLY_ONE);
 		
 		/* required if we start without a protocol file */
-		Settings.updateSettings();
+		Idynomics.global.updateSettings();
 		if(! Log.isSet())
 			Log.set(Tier.NORMAL);
 		
 		/* add attributes */
 		/* the current random seed */
 		modelNode.add( new Attribute(XmlRef.seed,
-				String.valueOf(seed()), null, true));
+				String.valueOf( ExtraMath.seed() ), null, true));
 		
 		/* the simulation name */
 		modelNode.add( new Attribute(XmlRef.nameAttribute, 
@@ -542,7 +530,8 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 			Log.set(node.getAttribute(XmlRef.logLevel).getValue());
 			
 			/* set random seed */
-			this.seed(Long.valueOf(node.getAttribute(XmlRef.seed).getValue()));
+			ExtraMath.seed( Long.valueOf( 
+					node.getAttribute( XmlRef.seed ).getValue()));
 			
 			/* Set values for all child nodes. */
 			Settable.super.setModule(node);

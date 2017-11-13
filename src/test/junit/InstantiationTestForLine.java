@@ -2,6 +2,7 @@ package test.junit;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static test.AllTests.TOLERANCE;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -10,6 +11,7 @@ import org.w3c.dom.Element;
 
 import dataIO.XmlHandler;
 import instantiable.Instance;
+import shape.Dimension.DimName;
 import shape.Shape;
 import shape.ShapeLibrary.Line;
 
@@ -33,7 +35,7 @@ public class InstantiationTestForLine
 		xElem.setAttribute("max", "40.0");
 		shapeElem.appendChild(xElem);
 		
-		this._shape = (Shape)Instance.getNew(shapeElem);
+		this._shape = (Shape)Instance.getNew(shapeElem, null, (String[]) null);
 	}
 	
 	@Test
@@ -52,5 +54,14 @@ public class InstantiationTestForLine
 			assertEquals(1, array[i].length);
 			assertEquals(1, array[i][0].length);
 		}
+	}
+	
+	@Test
+	public void insignificantBoundariesHaveNominalLength()
+	{
+		double yLength = this._shape.getDimension(DimName.Y).getLength();
+		double zLength = this._shape.getDimension(DimName.Z).getLength();
+		assertEquals(1.0, yLength, TOLERANCE);
+		assertEquals(1.0, zLength, TOLERANCE);
 	}
 }

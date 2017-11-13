@@ -12,6 +12,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import grid.SpatialGrid;
+import linearAlgebra.Vector;
 import shape.Dimension.DimName;
 import shape.Dimension;
 import shape.Shape;
@@ -33,7 +34,7 @@ public class PDEmultigridTestsForLine
 	 * SETUP
 	 * **********************************************************************/
 	
-	private double _numVoxels = Math.pow(2.0, 3.0);
+	private double _numVoxels = Math.pow(2.0, 4.0);
 	
 	private Shape _shape;
 	
@@ -95,6 +96,31 @@ public class PDEmultigridTestsForLine
 				this._common, 1.0);
 		/* Confirm that diffusion has smoothed out the concentration. */
 		this.assertConvergence(this._solute1);
+	}
+	
+	@Test
+	public void multigridPdeConvergesForSimpleLineWithWellMixed()
+	{
+		/* Set up a concentration gradient to be smoothed out. */
+		this.setUnevenConcn(this._solute1);
+		/* */
+		int numVMO = (int)(this._numVoxels) - 1;
+		int[] coord = Vector.zerosInt(3);
+		this._common.setValueAt(WELLMIXED, coord, 1.0);
+		this._solute1.setValueAt(CONCN, coord, numVMO);
+		coord[0] = numVMO;
+		this._common.setValueAt(WELLMIXED, coord, 1.0);
+		this._solute1.setValueAt(CONCN, coord, 0.0);
+		/* The PDE multigrid solver. */
+		this._solver.init(new String[] { "solute1" }, false);
+		this._solver.setUpdater(new PDEupdater() { } );
+		/* Solve the diffusion. */
+		this._solver.solve(AllTests.gridsAsCollection(this._solute1),
+				this._common, 1.0);
+		/* Confirm that diffusion has reversed the concentration gradient. */
+		double[][][] concn = this._solute1.getArray(CONCN);
+		for ( int i = 0; i < this._numVoxels; i++ )
+			assertEquals(this._numVoxels - i - 1.0, concn[i][0][0], TOLERANCE);
 	}
 	
 	/* ***********************************************************************

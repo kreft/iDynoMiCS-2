@@ -344,31 +344,40 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable
 	 * **********************************************************************/
 	
 	/**
+	 * \brief Connects any disconnected boundaries to a new partner boundary on 
+	 * the appropriate compartment.
 	 * 
-	 * @param compartments
+	 * Note that generation of spatial boundaries by this method is not yet
+	 * possible. It is therefore necessary to specify spatial boundaries and to
+	 * omit their partners in the protocol file.
+	 * @param compartments List of compartments to choose from.
 	 */
-	// TODO temporary work, still in progress!
 	public void checkBoundaryConnections(List<Compartment> compartments)
 	{
+		List<String> compartmentNames = new LinkedList<String>();
+		for ( Compartment c : compartments )
+			compartmentNames.add(c.getName());
+		
 		for ( Boundary b : this._shape.getDisconnectedBoundaries() )
 		{
 			String name = b.getPartnerCompartmentName();
-			Compartment comp = null;
-			for ( Compartment c : compartments )
-				if ( c.getName().equals(name) )
-				{
-					comp = c;
-					break;
-				}
-			if ( comp == null )
+			Compartment comp = findByName(compartments, name);
+			while ( comp == null )
 			{
-				// TODO safety
+				Log.out(Tier.CRITICAL, 
+						"Cannot connect boundary " + b.getName() +
+						" in compartment " + this.getName());
+				name = Helper.obtainInput(compartmentNames, 
+						"Please choose a compartment:", true);
+				comp = findByName(compartments, name);
 			}
-			else
-			{
-				Boundary partner = b.makePartnerBoundary();
-				comp.getShape().addOtherBoundary(partner);
-			}
+			Log.out(Tier.NORMAL, 
+					"Connecting boundary " + b.getName() +
+					" to a partner boundary of type " + 
+					b.getPartnerClass().toString() + " in compartment " +
+					comp.getName());
+			Boundary partner = b.makePartnerBoundary();
+			comp.addBoundary(partner);
 		}
 	}
 	
@@ -590,5 +599,18 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable
 	public Settable getParent() 
 	{
 		return this._parentNode;
+	}
+	
+	/* ***********************************************************************
+	 * Helper methods
+	 * **********************************************************************/
+	
+	public static Compartment findByName(
+			List<Compartment> compartments, String name)
+	{
+		for ( Compartment c : compartments )
+			if ( c.getName().equals(name) )
+				return c;
+		return null;
 	}
 }

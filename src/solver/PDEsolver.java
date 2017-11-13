@@ -11,6 +11,7 @@ import static grid.ArrayType.*;
 
 import grid.ArrayType;
 import grid.SpatialGrid;
+import grid.WellMixedConstants;
 import linearAlgebra.Vector;
 import shape.Shape;
 
@@ -117,8 +118,7 @@ public abstract class PDEsolver extends Solver
 		for ( current = shape.resetIterator(); shape.isIteratorValid();
 											  current = shape.iteratorNext())
 		{
-			// TODO this should really be > some threshold
-			if ( commonGrid.getValueAt(WELLMIXED, current) == 1.0 )
+			if ( WellMixedConstants.isWellMixed(commonGrid, current) )
 				continue;
 			totalFlow = 0.0;
 			if ( Log.shouldWrite(level) )
@@ -145,12 +145,8 @@ public abstract class PDEsolver extends Solver
 				 */
 				if ( shape.isNbhIteratorInside() )
 				{
-					// TODO this should really be > some threshold
-					if ( commonGrid != null && 
-							commonGrid.getValueAt(WELLMIXED, nhb) == 1.0 )
-					{
+					if ( WellMixedConstants.isWellMixed(commonGrid, nhb) )
 						this.increaseWellMixedFlow(grid.getName(), - nhbFlow);
-					}
 				}
 				else if ( shape.isNbhIteratorValid() )
 				{

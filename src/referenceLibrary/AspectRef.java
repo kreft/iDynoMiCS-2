@@ -462,6 +462,10 @@ public class AspectRef
 	/**
 	 * 
 	 */
+	public static final String attachmentRate = "attachmentRate";
+	/**
+	 * 
+	 */
 	public static final String rasterScale = "rasterScale";
 
 	/**

@@ -10,11 +10,18 @@ import optimization.sampling.Sampler;
 import utility.ExtraMath;
 
 /**
- * Morris sampling follows the procedure described in: 
+ * Morris sampling follows the procedure described by: 
  * 
  * Max D. Morris. 1991. Factorial sampling plans for preliminary computational 
  * experiments. Technometrics 33, 2 (April 1991), 161-174. 
  * DOI: http://dx.doi.org/10.2307/1269043
+ * 
+ * As well as by:
+ * 
+ * Sin, Gürkan, Anne S. Meyer, and Krist V. Gernaey. "Assessing reliability of 
+ * cellulose hydrolysis models to support biofuel process design—Identifiability
+ * and uncertainty analysis." Computers & Chemical Engineering 34.9 (2010): 
+ * 1385-1392.
  * 
  * @author Sankalp Arya (sankalp.arya@nottingham.ac.uk), University of Nottingham, U.K.
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
@@ -68,8 +75,8 @@ public class MorrisSampling extends Sampler {
 	public double[][] sample() 
 	{
 		/* initialise random number generator */
-		if( !ExtraMath.isAvailable() )
-			ExtraMath.initialiseRandomNumberGenerator();
+		if( ExtraMath.random == null )
+    		ExtraMath.initialiseRandomNumberGenerator();
 		
 		double delta = _p/(2.0*(_p-1));
 		double[][] B = new double[_k+1][_k];

@@ -3,10 +3,14 @@ package boundary;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
+
+import org.w3c.dom.Element;
 
 import agent.Agent;
 import dataIO.Log;
+import dataIO.XmlHandler;
 import dataIO.Log.Tier;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
@@ -16,6 +20,7 @@ import referenceLibrary.XmlRef;
 import settable.Attribute;
 import settable.Module;
 import settable.Settable;
+import utility.Helper;
 
 /**
  * \brief General class of boundary for a {@code Shape}.
@@ -34,12 +39,12 @@ public abstract class Boundary implements Settable, Instantiable
 	 * Reference to the agents of the compartment this process belongs to.
 	 * Contains a reference to the compartment shape.
 	 */
-	protected AgentContainer _agents;
+	public AgentContainer _agents;
 	/**
 	 * XML tag for the name of the partner boundary.
 	 */
 	// TODO implement this in node construction
-	public final static String PARTNER = XmlRef.boundaryPartner;
+	public final static String PARTNER = XmlRef.partnerCompartment;
 	/**
 	 * The boundary this is connected with (not necessarily set).
 	 */
@@ -77,6 +82,9 @@ public abstract class Boundary implements Settable, Instantiable
 	 * and need to be entered into this compartment.
 	 */
 	protected Collection<Agent> _arrivalsLounge = new LinkedList<Agent>();
+	/**
+	 * TODO
+	 */
 	private Settable _parentNode;
 	/**
 	 * Log verbosity level for debugging purposes (set to BULK when not using).
@@ -86,6 +94,33 @@ public abstract class Boundary implements Settable, Instantiable
 	 * Log verbosity level for debugging purposes (set to BULK when not using).
 	 */
 	protected static final Tier AGENT_LEVEL = Tier.DEBUG;
+	
+	/* ***********************************************************************
+	 * CONSTRUCTORS
+	 * **********************************************************************/
+	
+	public void instantiate(Element xmlElement, Settable parent) 
+	{
+		this.setParent(parent);
+		/* 
+		 * If this class of boundary needs a partner, find the name of the
+		 * compartment it connects to.
+		 */
+		if ( this.getPartnerClass() != null )
+		{
+			this._partnerCompartmentName = XmlHandler.obtainAttribute(
+							xmlElement,
+							PARTNER,
+							XmlRef.dimensionBoundary);
+		}
+	}
+
+	public boolean isReadyForLaunch()
+	{
+		if ( this._environment == null || this._agents == null )
+			return false;
+		return true;
+	}
 	
 	/* ***********************************************************************
 	 * BASIC SETTERS & GETTERS
@@ -122,7 +157,7 @@ public abstract class Boundary implements Settable, Instantiable
 	 * @return The class of boundary that can be a partner of this one, making
 	 * a connection between compartments.
 	 */
-	protected abstract Class<?> getPartnerClass();
+	public abstract Class<?> getPartnerClass();
 
 	/**
 	 * \brief Set the given boundary as this boundary's partner.
@@ -140,7 +175,7 @@ public abstract class Boundary implements Settable, Instantiable
 	 */
 	public boolean needsPartner()
 	{
-		return ( this._partnerCompartmentName != null ) &&
+		return ( this.getPartnerClass() != null ) &&
 				( this._partner == null );
 	}
 
@@ -318,6 +353,10 @@ public abstract class Boundary implements Settable, Instantiable
 				this._partner.setMassFlowRate(name, thisRate);
 			}
 			/*
+			 * If there is any additional updating to do, do it now.
+			 */
+			this.additionalPartnerUpdate();
+			/*
 			 * Update the iteration numbers so that the partner boundary
 			 * doesn't reverse the changes we just made!
 			 */
@@ -325,6 +364,12 @@ public abstract class Boundary implements Settable, Instantiable
 			this._partner._iterLastUpdated = currentIter;
 		}
 	}
+	
+	/**
+	 * Method for doing any additional pre-step updates that are specific to
+	 * the concrete sub-class of Boundary.
+	 */
+	public abstract void additionalPartnerUpdate();
 
 	/* ***********************************************************************
 	 * AGENT TRANSFERS
@@ -384,26 +429,31 @@ public abstract class Boundary implements Settable, Instantiable
 	 */
 	public void pushAllOutboundAgents()
 	{
-		if ( this._partner == null )
+		if ( ! this._departureLounge.isEmpty() )
 		{
-			if ( ! this._departureLounge.isEmpty() )
+			if ( this._partner == null )
 			{
-				// TODO throw exception? Error message to log?
+				if ( Log.shouldWrite(Tier.EXPRESSIVE) )
+				{
+					Log.out(Tier.EXPRESSIVE, "Boundary "+this.getName()+" removing "+
+							this._departureLounge.size()+" agents");
+				}
+				for( Agent a : this._departureLounge )
+					this._agents.registerRemoveAgent(a);
+				this._departureLounge.clear();
 			}
-			for( Agent a : this._departureLounge )
-				this._agents.registerRemoveAgent(a);
-		}
-		else
-		{
-			if ( Log.shouldWrite(AGENT_LEVEL) )
+			else
 			{
-				Log.out(AGENT_LEVEL, "Boundary "+this.getName()+" pushing "+
-						this._departureLounge.size()+" agents to partner");
+				if ( Log.shouldWrite(Tier.EXPRESSIVE) )
+				{
+					Log.out(Tier.EXPRESSIVE, "Boundary "+this.getName()+" pushing "+
+							this._departureLounge.size()+" agents to partner");
+				}
+				this._partner.acceptInboundAgents(this._departureLounge);
+				for( Agent a : this._departureLounge )
+					this._agents.registerRemoveAgent(a);
+				this._departureLounge.clear();
 			}
-			this._partner.acceptInboundAgents(this._departureLounge);
-			for( Agent a : this._departureLounge )
-				this._agents.registerRemoveAgent(a);
-			this._departureLounge.clear();
 		}
 	}
 
@@ -451,13 +501,6 @@ public abstract class Boundary implements Settable, Instantiable
 		return new LinkedList<Agent>();
 	}
 
-	public boolean isReadyForLaunch()
-	{
-		if ( this._environment == null || this._agents == null )
-			return false;
-		return true;
-	}
-
 	/* ***********************************************************************
 	 * NODE CONTRUCTION
 	 * **********************************************************************/
@@ -476,6 +519,17 @@ public abstract class Boundary implements Settable, Instantiable
 		modelNode.add(new Attribute(XmlRef.classAttribute,
 				this.getClass().getSimpleName(),
 				null, true));
+		/* Partner compartment. */
+		if ( this.needsPartner() )
+		{
+			List<String> cList = Idynomics.simulator.getCompartmentNames();
+			String[] cArray = Helper.listToArray(cList);
+			modelNode.add(new Attribute(
+					XmlRef.partnerCompartment,
+					this._partnerCompartmentName, 
+					cArray,
+					true));
+		}
 		// TODO
 		// modelNode.requirement = Requirements.?
 		return modelNode;

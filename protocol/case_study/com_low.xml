@@ -150,7 +150,7 @@
 				</agent>
 			</agents>
 			<processManagers>
-				<process name="solveChemostat" class="SolveChemostat" priority="0"
+				<process name="solveChemostat" class="ChemostatSolver" priority="0"
 					firstStep="0.0"  timerStepSize="60.0">
 					<aspect name="soluteNames" type="PRIMARY" class="String[]" value="ammonium,oxygen,nitrite,nitrate" />
 					<aspect name="hMax" type="PRIMARY" class="Double" value="0.005" />

@@ -227,8 +227,7 @@ public class InstantiableList<T> extends LinkedList<T> implements Settable,
 				{
 					T object = (T) ObjectFactory.loadObject( 
 							(Element) nodes.item(i), 
-							this.valueLabel, this.entryClass.getSimpleName() );
-					
+							this.valueLabel, this.entryClass.getSimpleName(), null, null );
 					if( object instanceof Settable )
 						((Settable) object).setParent(this);
 					this.add( object );

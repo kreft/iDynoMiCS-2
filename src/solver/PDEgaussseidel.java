@@ -10,6 +10,7 @@ import java.util.Collection;
 import dataIO.Log;
 import dataIO.Log.Tier;
 import grid.SpatialGrid;
+import grid.WellMixedConstants;
 import linearAlgebra.Vector;
 import shape.Shape;
 
@@ -112,8 +113,7 @@ public class PDEgaussseidel extends PDEsolver
 		for ( current = shape.resetIterator(); shape.isIteratorValid();
 				current = shape.iteratorNext() )
 		{
-			// TODO this should really be > some threshold
-			if ( commonGrid.getValueAt(WELLMIXED, current) == 1.0 )
+			if ( WellMixedConstants.isWellMixed(commonGrid, current) )
 				continue;
 			currConcn = variable.getValueAtCurrent(CONCN);
 			currVolume = shape.getCurrVoxelVolume();

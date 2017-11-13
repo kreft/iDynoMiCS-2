@@ -13,6 +13,7 @@ import dataIO.XmlHandler;
 import dataIO.Log.Tier;
 import grid.ArrayType;
 import grid.SpatialGrid;
+import grid.WellMixedConstants;
 import linearAlgebra.Vector;
 import referenceLibrary.AspectRef;
 import referenceLibrary.XmlRef;
@@ -53,10 +54,20 @@ public abstract class SpatialBoundary extends Boundary
 	
 	public void instantiate(Element xmlElement, Settable parent) 
 	{
-		this.setParent(parent);
+		super.instantiate(xmlElement, parent);
 		
-		this._extreme = Integer.valueOf(XmlHandler.obtainAttribute(
-				xmlElement, XmlRef.extreme, XmlRef.dimensionBoundary)); // shape and this are inconsistent
+		String s;
+		// FIXME shape and this are inconsistent
+		s = XmlHandler.obtainAttribute(
+				xmlElement, XmlRef.extreme, XmlRef.dimensionBoundary);
+		this._extreme = Integer.valueOf(s);
+		
+		if ( this.needsLayerThickness() )
+		{
+			s = XmlHandler.obtainAttribute(xmlElement,
+					XmlRef.layerThickness, XmlRef.dimensionBoundary);
+			this.setLayerThickness(Double.valueOf(s));
+		}
 	}
 	
 	/* ***********************************************************************
@@ -86,11 +97,17 @@ public abstract class SpatialBoundary extends Boundary
 	{
 		return this._extreme;
 	}
+
+	/**
+	 * Internal boolean for construction: declares whether a concrete sub-class
+	 * of SpatialBoundary needs a layer thickness set or not.
+	 */
+	protected abstract boolean needsLayerThickness();
 	
 	/**
-	 * \brief TODO
+	 * \brief Set the thickness of the boundary layer.
 	 * 
-	 * @param thickness
+	 * @param thickness Strictly positive real number.
 	 */
 	public void setLayerThickness(double thickness)
 	{
@@ -225,7 +242,12 @@ public abstract class SpatialBoundary extends Boundary
 			double distance = aShape
 					.currentDistanceFromBoundary(this._dim, this._extreme);
 			if ( distance <= this._layerThickness )
-				grid.setValueAt(WELLMIXED, aShape.iteratorCurrent(), 0.0);
+			{
+				grid.setValueAt(
+						WELLMIXED, 
+						aShape.iteratorCurrent(), 
+						WellMixedConstants.NOT_MIXED);
+			}
 			aShape.iteratorNext();
 		}
 	}
@@ -291,15 +313,13 @@ public abstract class SpatialBoundary extends Boundary
 		/* Minimum or maximum extreme of this dimension? */
 		modelNode.add(new Attribute(XmlRef.extreme, 
 				String.valueOf(this._extreme), new String[]{"0", "1"}, true));
+		/* Boundary layer thickness. */
+		if ( this.needsLayerThickness() )
+		{
+			modelNode.add(new Attribute(XmlRef.layerThickness,
+					String.valueOf(this._layerThickness), null, true));
+		}
 		return modelNode;
-	}
-	
-	@Override
-	public boolean isReadyForLaunch()
-	{
-		if ( ! super.isReadyForLaunch() )
-			return false;
-		return true;
 	}
 
 	@Override
@@ -307,7 +327,7 @@ public abstract class SpatialBoundary extends Boundary
 	{
 		super.setParent(parent);
 		
-		Dimension dimension = (Dimension)parent;
+		Dimension dimension = (Dimension) parent;
 		this._dim = dimension.getName();
 	}
 }

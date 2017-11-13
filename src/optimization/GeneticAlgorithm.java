@@ -3,15 +3,22 @@ package optimization;
 import dataIO.Log;
 import dataIO.Log.Tier;
 import optimization.geneticAlgorithm.Population;
+import optimization.objectiveFunction.MeanSquareError;
 import optimization.objectiveFunction.ObjectiveFunction;
 import optimization.objectiveFunction.QuadraticLossFunction;
 import sensitivityAnalysis.ProtocolCreater;
 
+/**
+ * This gentetic algorithm implementation is based on the online tutorial by:
+ * Lee Jacobson, 2012
+ * 
+ * http://www.theprojectspot.com/tutorial-post/creating-a-genetic-algorithm-for-beginners/3
+ */
 public class GeneticAlgorithm {
 
 	public static ObjectiveFunction getOp( double[] dataVector )
 	{
-		ObjectiveFunction of = new QuadraticLossFunction();
+		ObjectiveFunction of = new MeanSquareError();
     	of.setData( dataVector );
     	return of;
 	}

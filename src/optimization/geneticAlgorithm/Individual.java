@@ -11,6 +11,12 @@ import optimization.objectiveFunction.ObjectiveFunction;
 import utility.ExtraMath;
 import utility.Helper;
 
+/**
+ * This gentetic algorithm implementation is based on the online tutorial by:
+ * Lee Jacobson, 2012
+ * 
+ * http://www.theprojectspot.com/tutorial-post/creating-a-genetic-algorithm-for-beginners/3
+ */
 public class Individual {
 
 	private double[] _inputs;
@@ -26,9 +32,8 @@ public class Individual {
      */
     public Individual( double[] inputs, double[] outputs )
     {
-    	// initialising random number generator
-    	// ExtraMath.rand was null
-    	ExtraMath.initialiseRandomNumberGenerator();
+    	if( ExtraMath.random == null )
+    		ExtraMath.initialiseRandomNumberGenerator();
     	
     	this._inputs = inputs;
     	this._outputs = outputs;

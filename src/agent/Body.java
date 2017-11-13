@@ -150,24 +150,27 @@ public class Body implements Copyable, Instantiable
 
 	public void instantiate(Element xmlElem, Settable parent)
 	{
-		//FIXME: not finished only accounts for simple coccoids
-		List<Point> pointList = new LinkedList<Point>();
-		NodeList pointNodes = xmlElem.getElementsByTagName(XmlRef.point);
-		for (int k = 0; k < pointNodes.getLength(); k++) 
+		if( !Helper.isNullOrEmpty( xmlElem ))
 		{
-			Element point = (Element) pointNodes.item(k);
-			pointList.add(new Point(Vector.dblFromString(
-					point.getAttribute(XmlRef.position))));
-		}
-		this._points.addAll(pointList);
-		if(this._points.size() == 1)
-			this._surfaces.add(new Ball(pointList.get(0), 0.0)); //FIXME
-		else
-		{
-			for(int i = 0; pointList.size()-1 > i; i++)
+			//FIXME: not finished only accounts for simple coccoids
+			List<Point> pointList = new LinkedList<Point>();
+			NodeList pointNodes = xmlElem.getElementsByTagName(XmlRef.point);
+			for (int k = 0; k < pointNodes.getLength(); k++) 
 			{
-				this._surfaces.add(new Rod(pointList.get(i), pointList.get(i+1), 
-						0.0, 0.0)); //FIXME
+				Element point = (Element) pointNodes.item(k);
+				pointList.add(new Point(Vector.dblFromString(
+						point.getAttribute(XmlRef.position))));
+			}
+			this._points.addAll(pointList);
+			if(this._points.size() == 1)
+				this._surfaces.add(new Ball(pointList.get(0), 0.0)); //FIXME
+			else
+			{
+				for(int i = 0; pointList.size()-1 > i; i++)
+				{
+					this._surfaces.add(new Rod(pointList.get(i), 
+							pointList.get(i+1), 0.0, 0.0)); //FIXME
+				}
 			}
 		}
 	}

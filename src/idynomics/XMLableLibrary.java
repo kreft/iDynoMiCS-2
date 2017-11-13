@@ -14,6 +14,8 @@ import utility.Helper;
  * \brief Library used to store packages associated with common classes, allows
  * for quick class assignment in XML files.
  * 
+ * TODO this could be combined into ClassRef
+ * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
 public class XMLableLibrary

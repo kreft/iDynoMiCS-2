@@ -102,6 +102,11 @@ public class ClassRef
 		return parts[parts.length-1];
 	}
 	
+	/**
+	 * Get the path from the full specification of a class
+	 * @param name
+	 * @return
+	 */
 	public static String path(String name)
 	{
 		if (name.contains("$"))
@@ -326,33 +331,34 @@ public class ClassRef
 	 */
 	public final static String refreshMassGrids =
 			processManager.library.RefreshMassGrids.class.getName();
-	
-	/**
-	 * solve chemostat process manager
-	 */
-	public final static String solveChemostat =
-			processManager.library.SolveChemostat.class.getName();
-	
 	/**
 	 * solve transient diffusion process manager
 	 */
 	public final static String solveDiffusionTransient =
 			processManager.library.SolveDiffusionTransient.class.getName();
-	
+	/**
+	 * solve steady state diffusion process manager
+	 */
 	public final static String solveDiffusionSteadyState =
 			processManager.library.SolveDiffusionSteadyState.class.getName();
+	/**
+	 * solve chemostat process manager
+	 */
+	public final static String chemostatSolver =
+			processManager.library.ChemostatSolver.class.getName();
 	/**
 	 * write xml output process manager
 	 */
 	public final static String writeXmlOutput =
 			processManager.library.WriteXmlOutput.class.getName();
-	
+	/**
+	 * Write summary process manager
+	 */
 	public final static String summary =
 			processManager.library.Summary.class.getName();
-	
-	public final static String chemostatSolver =
-			processManager.library.ChemostatSolver.class.getName();
-	
+	/**
+	 * Agent detachment process manager
+	 */
 	public final static String agentDetachment =
 			processManager.library.AgentDetachment.class.getName();
 	

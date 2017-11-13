@@ -707,15 +707,16 @@ public class AgentContainer implements Settable
 	}
 
 	/**
-	 * \brief Loop through all boundaries on this shape, trying to grab the
-	 * agents each wants.
 	 * 
-	 * <p>If multiple boundaries want the same agent, choose one of these by
-	 * random.</p>
+	 * \brief Loop through all boundaries on this shape, try to transfer agents
+	 * over the boundaries
+	 * 
+	 * <p>If multiple boundaries want to transfer the same agent, choose one of
+	 * these by random.</p>
 	 */
 	public void boundariesGrabAgents()
 	{
-		Map<Agent,List<Boundary>> grabs = 
+		Map<Agent,List<Boundary>> toTransfer = 
 				new HashMap<Agent,List<Boundary>>();
 		/*
 		 * Ask each boundary which agents it wants to grab. Since more than one
@@ -723,24 +724,27 @@ public class AgentContainer implements Settable
 		 */
 		for ( Boundary b : this._shape.getAllBoundaries() )
 		{
-			Collection<Agent> wishes = b.agentsToGrab();
-			for ( Agent wishAgent : wishes )
+			Collection<Agent> boundaryDepartures = b.agentsToGrab();
+			for ( Agent wishAgent : boundaryDepartures )
 			{
-				if ( ! grabs.containsKey(wishAgent) )
-					grabs.put(wishAgent, new LinkedList<Boundary>());
-				grabs.get(wishAgent).add(b);
+				if ( ! toTransfer.containsKey( wishAgent ) )
+					toTransfer.put(wishAgent, new LinkedList<Boundary>());
+				toTransfer.get(wishAgent).add(b);
 			}
 		}
 		/*
-		 * For each agent to be grabbed, see how many boundaries want it.
-		 * If only one, then simply depart through this boundary.
+		 * For each of the leaving agents, see how many boundaries tried to
+		 * remove it. If only one, then simply depart through this boundary.
 		 * If more than one, then pick one at random.
 		 */
-		for ( Agent grabbedAgent : grabs.keySet() )
+		for ( Agent grabbedAgent : toTransfer.keySet() )
 		{
-			List<Boundary> destinations = grabs.get(grabbedAgent);
+			List<Boundary> destinations = toTransfer.get(grabbedAgent);
 			if ( destinations.size() == 1 )
-				destinations.get(0).addOutboundAgent(grabbedAgent);
+				/* add out-bound agent to departures list, agents are added to 
+				 * the the arrivals list of the partner boundary when the agents
+				 * are pushed */
+				destinations.get(0).addOutboundAgent( grabbedAgent );
 			else
 			{
 				int i = ExtraMath.getUniRandInt(destinations.size());

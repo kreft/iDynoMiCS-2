@@ -8,6 +8,7 @@ import agent.Body;
 import aspect.calculated.StateExpression;
 import dataIO.Log;
 import dataIO.ObjectFactory;
+import idynomics.Idynomics;
 import dataIO.Log.Tier;
 import instantiable.Instance;
 import instantiable.Instantiable;
@@ -165,28 +166,29 @@ public class Aspect implements Instantiable, Settable
 		/* Primaries */
 		if(this.type.equals(Aspect.AspectClass.PRIMARY) )
 		{
-			modelNode.add(new Attribute(XmlRef.typeAttribute, 
-					this.type.toString(), null, false ) );
-			
+			/* class name */
 			modelNode.add(new Attribute(XmlRef.classAttribute, 
 					simpleName, null, false ) );
 			
-			if ( simpleName.equals( ClassRef.simplify(ClassRef.hashMap) ))
+			/* handle special cases */
+			if ( simpleName.equals(ClassRef.simplify(ClassRef.hashMap)))
 			{
 				HashMap<Object,Object> h = (HashMap<Object,Object>) aspect;
 				for (Object k : h.keySet() )
 					modelNode.add(new HashMapSetter<Object,Object>(
 							h.get(k), k, h).getModule() );
 			}
-			else if ( simpleName.equals( ClassRef.simplify(ClassRef.linkedList) ))
+			else if ( simpleName.equals(ClassRef.simplify(ClassRef.linkedList)))
 			{
 				LinkedList<Object> linkedList = (LinkedList<Object>) aspect;
 				for (Object o : linkedList)
 					modelNode.add(new LinkedListSetter<Object>(
 							o, linkedList ).getModule() );
 			}
-			else if ( simpleName.equals( ClassRef.simplify(ClassRef.body) ))
+			else if ( simpleName.equals(ClassRef.simplify(ClassRef.body)))
 			{
+				/* Note special case can be avoided here if body is given a list
+				 * of points in xml rather then just points  */
 				Body myBody = (Body) aspect;
 				for (Point p : myBody.getPoints() )
 					modelNode.add(p.getModule() );
@@ -209,12 +211,13 @@ public class Aspect implements Instantiable, Settable
 		/* events and calculated */
 		else
 		{
-			modelNode.add(new Attribute(XmlRef.typeAttribute, 
-					this.type.toString(), null, false ) );
-
-			modelNode.add(new Attribute(XmlRef.classAttribute, 
-					simpleName, null , false ) );
-			
+			if ( Idynomics.xmlPackageLibrary.has(simpleName))
+				modelNode.add(new Attribute(XmlRef.classAttribute, 
+						simpleName, null , false ) );
+			else
+				modelNode.add(new Attribute(XmlRef.classAttribute, 
+						this.aspect.getClass().getName(), null , false ) );
+				
 			if (simpleName.equals( StateExpression.class.getSimpleName() ) )
 			{
 				modelNode.add(new Attribute(XmlRef.inputAttribute, 
@@ -236,8 +239,7 @@ public class Aspect implements Instantiable, Settable
 	{
 		if ( node.getAttribute(XmlRef.valueAttribute) != null )
 		{
-			switch (AspectClass.valueOf( 
-					node.getAttribute( XmlRef.typeAttribute).getValue() ) )
+			switch ( this.type )
 	    	{
 	    	case CALCULATED:
 	    		this.set( Calculated.instanceFromString(
@@ -294,9 +296,7 @@ public class Aspect implements Instantiable, Settable
 		default:
 			objectClass = Helper.obtainInput( ObjectRef.getAllOptions(), 
 					"Primary type", false);
-			this.set( ObjectFactory.loadObject( 
-					null, 
-					objectClass), name);
+			this.set( ObjectFactory.loadObject( null, objectClass), name);
 			break;
 		}
 		this.registry = ((AspectInterface) parent).reg();
