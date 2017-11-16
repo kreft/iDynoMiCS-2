@@ -1,5 +1,7 @@
 package surface;
 
+import dataIO.Log;
+import dataIO.Log.Tier;
 import generalInterfaces.Copyable;
 import linearAlgebra.Vector;
 import referenceLibrary.XmlRef;
@@ -167,9 +169,10 @@ public class Point implements Copyable, Settable
 	 * Currently the viscosity of water is assumed.
 	 * 
 	 * @param dt Current timestep of the mechanical relaxation.
+	 * @Param baseU background velocity of susspension
 	 * @param radius Radius of a sphere (in units of micrometer).
 	 */
-	public void euStep(double dt, double radius) 
+	public void euStep(double dt, double radius, double[] baseU) 
 	{
 		// TODO for (longer) rod segments we cannot simply use the radius or
 		// diameter but need to use the equivalent spherical diameter
@@ -177,9 +180,13 @@ public class Point implements Copyable, Settable
 		// particle is equal to a diameter of a spherical particle that exhibits 
 		// identical properties (in this case hydrodynamic).
 		// see pdf forces in microbial systems.
-		double[] diff = this.dxdt(radius);
+		double[] diff = (baseU != null ? Vector.add(this.dxdt(radius),baseU) : 
+			this.dxdt(radius));
 		Vector.timesEquals(diff, dt);
 		Vector.addEquals(this._p, diff);
+		
+		if (diff[0] > 0.5 || diff[1] > 0.5)
+			Log.out(Tier.DEBUG, "Large point displacement detected in Point.euStep() " + Vector.toString(diff));
 		this.resetForce();
 	}
 
@@ -238,7 +245,7 @@ public class Point implements Copyable, Settable
 	public double[] dxdt(double radius)
 	{
 		return Vector.times(this.getForce(), 
-				1.0/Drag.dragOnSphere(radius, VISCOSITY));
+				1.0/Drag.dragOnSphere(radius, 3.6e12*VISCOSITY));
 	}
 
 	/**

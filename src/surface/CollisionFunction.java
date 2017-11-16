@@ -2,6 +2,7 @@ package surface;
 
 import org.w3c.dom.Element;
 
+import agent.Agent;
 import dataIO.Log;
 import dataIO.XmlHandler;
 import idynomics.Global;
@@ -27,13 +28,15 @@ public interface CollisionFunction extends Instantiable
 	
 	/**
 	 * \brief calculate a force between two objects based on the distance
+	 * @param neighbour 
+	 * @param agent 
 	 * 
 	 * @param distance
 	 * @param var: functions as a scratch book to pass multiple in/output 
 	 * variables between methods
 	 * @return force vector
 	 */
-	public CollisionVariables interactionForce(CollisionVariables var);
+	public CollisionVariables interactionForce(CollisionVariables var, Agent agent, Agent neighbour);
 
 	/**
 	 * default pull CollisionFunction
@@ -74,23 +77,47 @@ public interface CollisionFunction extends Instantiable
 		 * variables between methods
 		 * @return force vector
 		 */
-		public CollisionVariables interactionForce(CollisionVariables var)
+		public CollisionVariables interactionForce(CollisionVariables var, 
+				Agent agent, Agent neighbour)
 		{
-			/*
-			 * If distance is in the range, apply the pull force.
-			 * Otherwise, return a zero vector. A small distance is allowed to
-			 * prevent objects bouncing in equilibrium 
-			 */
-			if ( var.distance > 0.001 && var.distance < var.pullRange ) 
-			{
-				/* Linear. */
-				double c = Math.abs(this._forceScalar * var.distance);
-				/* dP is overwritten here. */
-				Vector.normaliseEuclidEquals(var.interactionVector, c);
+			if (neighbour == null) {
+				/*
+				 * If distance is in the range, apply the pull force.
+				 * Otherwise, return a zero vector. A small distance is allowed
+				 * to prevent objects bouncing in equilibrium 
+				 */
+				if ( var.distance > 0.0 && var.distance < var.pullRange ) 
+				{
+					/* Linear. */
+					double c = Math.abs(this._forceScalar * var.distance);
+					/* dP is overwritten here. */
+					Vector.normaliseEuclidEquals(var.interactionVector, c);
+					return var;
+				} 
+				Vector.setAll(var.interactionVector, 0.0);
 				return var;
-			} 
-			Vector.setAll(var.interactionVector, 0.0);
-			return var;
+			}
+			else
+			{
+				/*
+				 * If distance is in the range, apply the pull force.
+				 * Otherwise, return a zero vector. A small distance is allowed
+				 * to prevent objects bouncing in equilibrium 
+				 */
+				if ( var.distance > 0.0 && var.distance < var.pullRange ) 
+				{
+					/* note converting from µm to si */
+					agent.set("currentDistance", var.distance);
+					agent.event("resolveForce", neighbour);
+					/* note converting from si to kg * µm /s2 */
+					double c = agent.getDouble("scaledForce");
+					/* dP is overwritten here. */
+					Vector.normaliseEuclidEquals(var.interactionVector, c);
+					return var;
+				} 
+				Vector.setAll(var.interactionVector, 0.0);
+				return var;
+			}
 		}
 	};
 	
@@ -112,6 +139,11 @@ public interface CollisionFunction extends Instantiable
 			if( !Helper.isNullOrEmpty( forceScalar ) )
 					this._forceScalar = Double.valueOf( forceScalar );
 			Log.out(Tier.BULK, "initiating DefaultPullFunction");
+
+			/* push forces should not be to far of from pull forces in ordrer
+			 * of magnitude. Aggressive pushing will result in overshooting the
+			 * interaction distance.
+			 */
 		}
 		
 		/**
@@ -134,7 +166,8 @@ public interface CollisionFunction extends Instantiable
 		 * between methods
 		 * @return force vector
 		 */
-		public CollisionVariables interactionForce(CollisionVariables var)
+		public CollisionVariables interactionForce(CollisionVariables var, 
+				Agent agent, Agent neighbour)
 		{
 			/*
 			 * If distance is negative, apply the repulsive force.
@@ -149,12 +182,14 @@ public interface CollisionFunction extends Instantiable
 				double c = this._forceScalar * (  Math.abs( var.distance ) + var.distance * var.distance * 1e2 );
 				/* dP is overwritten here. */
 				Vector.normaliseEuclidEquals( var.interactionVector, c );
+
 				return var;
 			}
 			/* dP is not overwritten here. */
 			Vector.setAll(var.interactionVector, 0.0);
 			return var;
 		}
+
 	};
 }
 

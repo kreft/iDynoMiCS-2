@@ -1,6 +1,3 @@
-/**
- * 
- */
 package gui;
 
 import java.awt.event.ActionEvent;
@@ -21,6 +18,7 @@ import dataIO.Log;
 import dataIO.Log.Tier;
 import idynomics.Idynomics;
 import idynomics.Simulator;
+import linearAlgebra.Vector;
 import utility.Helper;
 
 /**
@@ -134,6 +132,11 @@ public final class GuiMenu
 		menuItem = new JMenuItem(new GuiMenu.StructureAnalysis());
 		menuItem.getAccessibleContext().setAccessibleDescription(
 				"Draw raster to file");
+		menu.add(menuItem);
+		
+		menuItem = new JMenuItem(new GuiMenu.PlotProperties());
+		menuItem.getAccessibleContext().setAccessibleDescription(
+				"Draw property plot");
 		menu.add(menuItem);
 		/*
 		 * Draw species diagram

@@ -1,4 +1,6 @@
 *.class
+*.dat
+LBDEM/
 
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
@@ -23,5 +25,8 @@ unitTests
 
 # other
 iDynoMiCS_logo.eps
-default.cfg
 protocol/Case_study/
+/PeriodicTest_rho.dat
+/PeriodicTest_u.dat
+/PeriodicTest_x.dat
+/PeriodicTest_y.dat
