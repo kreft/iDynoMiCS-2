@@ -44,7 +44,7 @@ public class Point implements Copyable, Settable
 	 */
 	// TODO make this settable from protocol or, even better, get this value
 	// from a temperature or viscosity array on a grid.
-	private final static double VISCOSITY = Drag.viscosityWater(298.15);
+	private final static double VISCOSITY = Drag.dynamicViscosity();
 	
 	/* ***********************************************************************
 	 * CONSTRUCTORS

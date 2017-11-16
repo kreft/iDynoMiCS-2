@@ -233,8 +233,8 @@ public class Collision
 	 * margin.
 	 * 
 	 * <p>This method always also sets the internal variables {@link #_flip}
-	 * and {@link #interactionVector}. It may also set {@link #s} and {@link #t}, depending on
-	 * the surface types.</p>
+	 * and {@link #interactionVector}. It may also set {@link #s} and 
+	 * {@link #t}, depending on the surface types.</p>
 	 * 
 	 * @param a One surface, of unknown type.
 	 * @param b Another surface, of unknown type.

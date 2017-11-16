@@ -3,6 +3,8 @@
  */
 package surface;
 
+import idynomics.Global;
+
 /**
  * \brief Standard methods for drag forces under low Reynold's number.
  * 
@@ -26,6 +28,9 @@ public final class Drag
 	 * \brief Calculate the (dynamic) viscosity of water at the given
 	 * temperature.
 	 * 
+	 * FIXME this does not account for/ allow for the use of other unit systems
+	 * then SI.
+	 * 
 	 * <p>This formula and constants are taken from <a
 	 * href="https://en.wikipedia.org/wiki/Viscosity#Water">Wikipedia</a>.</p>
 	 * 
@@ -39,6 +44,19 @@ public final class Drag
 	public static double viscosityWater(double temperature)
 	{
 		return 2.414E-5 * Math.pow(10, 247.8/(temperature - 140.0));
+	}
+	
+	/**
+	 * \brief get the dynamic viscosity ( currently a global parameter )
+	 * 
+	 * TODO this is a quickfix to allow for non SI unit systems
+	 * @return
+	 */
+	public static double dynamicViscosity()
+	{
+		if ( Global.dynamic_viscosity == 0.0 )
+			return viscosityWater( 298.0 );
+		return Global.dynamic_viscosity;
 	}
 	
 	/**

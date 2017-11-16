@@ -1,11 +1,8 @@
 package idynomics;
 
 import java.awt.Color;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Properties;
 
 import org.w3c.dom.Element;
 
@@ -24,126 +21,15 @@ import utility.Helper;
 public class Global extends ParameterSet
 {
 	/**************************************************************************
-	 * Default settings from cfg file
+	 * Constructing and loading
 	 *************************************************************************/
 	
 	public Global()
 	{
-		Properties settings = new Properties();
-		try {
-			settings.load(new FileInputStream("default.cfg"));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		set( settings );
-	}
-	
-	public Global(Properties... properties)
-	{
-		super( properties );
-
+		set( "default.cfg" );
+		set( supplementary_property_files );
 	}
 
-	/**************************************************************************
-	 * GENERAL PARAMETERS 
-	 * all directly loaded from xml file as string.
-	 *************************************************************************/
-	
-	/**
-	 * Version description.
-	 */
-	public static String version_description = "version_description";
-
-	/**
-	* Version number of this iteration of iDynoMiCS - required by update
-	* procedure.
-	*/
-	public static String version_number = "version_number";
-
-	/**
-	 * default output location
-	 */
-	public String default_out = "default_out";
-	/**
-	 * console font
-	 */
-	public static String console_font = "consolas";
-	/**
-	 * Simulation name.
-	 */
-	public String simulationName;
-	
-	/**
-	 * String is set to the location of the protocol file
-	 */
-	public String protocolFile;
-	
-	/**
-	 * xml document root element.
-	 */
-	public Element xmlDoc;
-	
-	/**
-	 * the simulation folder will be placed in this folder
-	 */
-	public String outputRoot;
-	
-	/**
-	 * All output is written to this folder and sub-folders
-	 */
-	public String outputLocation;
-	
-	/**
-	 * If a comment is defined in the protocol file it will be stored here.
-	 */
-	public String simulationComment;
-
-	/**
-	 * Root folder for this simulation
-	 */
-	public String idynomicsRoot = "";
-	
-	/**
-	 * Sub folder structure for sensitivity analysis/parameter estimation
-	 */
-	public String subFolderStruct = "";
-	/**
-	 * 
-	 */
-	public static Boolean ignore_protocol_out = false;
-
-	public int outputskip = 0;
-
-	public static String exitCommand;
-
-	/**************************************************************************
-	 * Appearance
-	 * Still also supplying default value's for if the cfg file is corrupted.
-	 *************************************************************************/
-	
-	public static Color console_color = Helper.obtainColor( "38,45,48" );
-	
-	public static Color text_color = Helper.obtainColor( "220,220,220" );
-	
-	public static Color error_color = Helper.obtainColor( "250,50,50" );
-	
-	public static int font_size = 12;
-	
-	/**************************************************************************
-	 * Global simulation settings
-	 *************************************************************************/
-	
-	/**
-	 * Any voxels with a relative well-mixed value of this or greater are
-	 * considered well-mixed. this is particularly important to the multi-grid
-	 * PDE solver.
-	 */
-	public double relativeThresholdWellMixedness = 0.9;
-	
-	/**************************************************************************
-	 * LOADING
-	 *************************************************************************/
-	
 	/**
 	 * \brief Method for loading the 
 	 * 
@@ -204,12 +90,13 @@ public class Global extends ParameterSet
 	
 	public void updateSettings()
 	{
-		/* if no Root location is set use the default out.
-		 * TODO safety: check the root exists, and the name is acceptable
-		 */
+		/* set any additionally suplied property files */
+		set( supplementary_property_files );
+		
+		/* if no Root location is set use the default out. */
 		if (this.idynomicsRoot == null || ignore_protocol_out )
 		{
-			this.outputRoot = this.default_out ;
+			this.outputRoot = this.default_out;
 		}
 		
 		/* if no simulation name is given ask the user */
@@ -217,21 +104,149 @@ public class Global extends ParameterSet
 		{
 			this.simulationName = Helper.obtainInput( this.simulationName,
 					"Required simulation name", false); /* keep this false!! .. 
-			the output location is not set here! */
+			the output location is not always set here! */
 		}
 		
 		if ( this.outputLocation == null )
-		{
-			/* set date format for folder naming */
-			SimpleDateFormat dateFormat = 
-					new SimpleDateFormat("yyyy.MM.dd_HH.mm.ss_SSS_");
-			
+		{		
 			/* set output root for this simulation */
 			this.outputLocation = 
 					this.outputRoot + "/" + 
 							this.subFolderStruct + "/" + 
-					dateFormat.format(new Date()) + 
+					long_date_format.format(new Date()) + 
 					this.simulationName + "/";
 		}
 	}
+	
+	/**************************************************************************
+	 * GENERAL PARAMETERS 
+	 * all directly loaded from xml file as string.
+	 *************************************************************************/
+	
+	/**
+	 * Version description.
+	 */
+	public static String version_description = "version_description";
+	
+	/**
+	* Version number of this iteration of iDynoMiCS - required by update
+	* procedure.
+	*/
+	public static String version_number = "version_number";
+	
+	/**
+	 * default output location
+	 */
+	public String default_out = "default_out";
+	
+	/**
+	 * console font
+	 */
+	public static String console_font = "consolas";
+	
+	/**
+	 * Date format used for folder naming
+	 */
+	public static SimpleDateFormat long_date_format = 
+			new SimpleDateFormat("yyyy.MM.dd_HH.mm.ss_SSS_");
+	
+	/**
+	 * Simulation name.
+	 */
+	public String simulationName;
+	
+	/**
+	 * String is set to the location of the protocol file
+	 */
+	public String protocolFile;
+	
+	/**
+	 * xml document root element.
+	 */
+	public Element xmlDoc;
+	
+	/**
+	 * the simulation folder will be placed in this folder
+	 */
+	public String outputRoot;
+	
+	/**
+	 * All output is written to this folder and sub-folders
+	 */
+	public String outputLocation;
+	
+	/**
+	 * If a comment is defined in the protocol file it will be stored here.
+	 */
+	public String simulationComment;
+
+	/**
+	 * Root folder for this simulation
+	 */
+	public String idynomicsRoot = "";
+	
+	/**
+	 * Sub folder structure for sensitivity analysis/parameter estimation
+	 */
+	public String subFolderStruct = "";
+	
+	/**
+	 * Ignore the output location defined in the protocol file, and use the
+	 * location as specified in the default.cfg file instead.
+	 */
+	public static Boolean ignore_protocol_out = false;
+	
+	/**
+	 * Skip writing xml output for this number of global time steps
+	 */
+	public int outputskip = 0;
+	
+	/**
+	 * The exit command is passed to kernel once the simulation is finished
+	 */
+	public static String exitCommand;
+	
+	/**
+	 * Supplementary property files to be loaded in after default.
+	 */
+	public static String[] supplementary_property_files;
+
+	/**************************************************************************
+	 * Appearance
+	 *************************************************************************/
+	
+	public static Color console_color = Helper.obtainColor( "38,45,48" );
+	
+	public static Color text_color = Helper.obtainColor( "220,220,220" );
+	
+	public static Color error_color = Helper.obtainColor( "250,50,50" );
+	
+	public static int font_size = 12;
+	
+	/**************************************************************************
+	 * Global simulation settings
+	 *************************************************************************/
+	
+	/**
+	 * Any voxels with a relative well-mixed value of this or greater are
+	 * considered well-mixed. this is particularly important to the multi-grid
+	 * PDE solver.
+	 */
+	public static double relativeThresholdWellMixedness = 0.9;
+	
+	/**
+	 * 
+	 */
+	public static double collision_scalar = 0.0;
+	
+	/**
+	 * 
+	 */
+	public static double pull_scalar = 0.0;
+	
+	/**
+	 * dynamic viscosity of the medium
+	 */
+	public static double dynamic_viscosity = 0.0;
+	
 }

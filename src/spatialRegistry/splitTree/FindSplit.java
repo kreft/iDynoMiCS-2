@@ -12,6 +12,7 @@ import java.util.concurrent.RecursiveTask;
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
  *
  */
+@SuppressWarnings("rawtypes")
 public class FindSplit extends RecursiveTask<List<List<Entry>>> 
 {
 	
