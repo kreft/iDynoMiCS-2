@@ -9,7 +9,6 @@ import aspect.calculated.StateExpression;
 import dataIO.Log;
 import dataIO.ObjectFactory;
 import dataIO.Log.Tier;
-import idynomics.Idynomics;
 import instantiable.Instance;
 import instantiable.Instantiable;
 import referenceLibrary.ClassRef;
@@ -237,8 +236,7 @@ public class Aspect implements Instantiable, Settable
 	{
 		if ( node.getAttribute(XmlRef.valueAttribute) != null )
 		{
-			switch (AspectClass.valueOf( 
-					node.getAttribute( XmlRef.typeAttribute).getValue() ) )
+			switch ( this.type )
 	    	{
 	    	case CALCULATED:
 	    		this.set( Calculated.instanceFromString(

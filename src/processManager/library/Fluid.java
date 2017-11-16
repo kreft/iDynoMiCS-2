@@ -20,7 +20,6 @@ import idynomics.EnvironmentContainer;
 import idynomics.Idynomics;
 import lb.D2Q9;
 import lb.D2Q9Lattice;
-import lb.collision.BounceBack;
 import lb.collision.CollisionOperator;
 import lb.collision.D2Q9RegularizedBoundary;
 import lb.collision.LBGK;
@@ -169,10 +168,6 @@ public class Fluid extends ProcessManager
 
 	public double OMEGA; // relaxation parameter
 	
-	public int OBST_X = 15;
-	public int OBST_Y = 15;
-	public int OBST_R = 2;
-	
 	/* 
 	 * Lattice units conversion (wiki)
 	 * 
@@ -250,7 +245,8 @@ public class Fluid extends ProcessManager
 		this._maxMovement = Helper.setIfNone( this.getDouble(MAX_MOVEMENT), 0.01 );	
 		this._method = Method.valueOf( Helper.setIfNone(
 				this.getString(RELAXATION_METHOD), Method.EULER.toString() ) );
-
+		this._timeLeap	= true;
+		
 		this._shape = agents.getShape();
 		this._shapeSurfs  = this._shape.getSurfaces();
 		this._iterator = this._shape.getCollision();
@@ -260,13 +256,13 @@ public class Fluid extends ProcessManager
 		/*
 		 * Lattice Boltzmann settings
 		 */
-		this.LX = Helper.setIfNone( this.getDouble("lengthScale"), 1e-4 );	//m
+		this.LX = Helper.setIfNone( this.getDouble("lengthScale"), 1e-4 );	
 		this.RE = Helper.setIfNone( this.getDouble("reynolds"), 100.0 );	
 		this.NU = Helper.setIfNone( this.getDouble("kinematicViscosity"), 1e-6);	
 		this.U_scale = Helper.setIfNone( this.getDouble("velocityScale"), 
 				latticeMultiplier / _dtBase );	
 		
-		this.U_MAX = RE*NU/LX;
+		this.U_MAX = (1 / U_scale) * RE*NU/LX;
 		this.OMEGA = 1.0 / ( 3.0 * NU + 0.5 );
 		
 		/*
@@ -298,8 +294,6 @@ public class Fluid extends ProcessManager
 		
 			lattice.addRectangularBoundary(1,XX,1,1,southRegul);
 			lattice.addRectangularBoundary(1,XX,YY,YY,northRegul);
-			
-			addObstacle(lattice);
 				
 			initializeVelocity(lattice,lbgk);
 		}
@@ -329,17 +323,6 @@ public class Fluid extends ProcessManager
 				}
 			}
 		}	
-	}
-	
-	public void addObstacle(D2Q9Lattice lattice) {
-		CollisionOperator bounceBack = new BounceBack(D2Q9.getInstance());
-		for (int x=1; x<=XX; x++) {
-			for (int y=1; y<=YY; y++) {
-				if ( ( x-OBST_X )*( x-OBST_X ) + ( y-OBST_Y )*( y-OBST_Y ) <= OBST_R*OBST_R ) {
-					lattice.setCollision(x,y,bounceBack);
-				}
-			}
-		}
 	}
 	
 	public void initializeVelocityb(D2Q9Lattice lattice, LBGK lbgk) {
@@ -528,7 +511,7 @@ public class Fluid extends ProcessManager
 						Driver p = new Driver( 
 								Vector.randomInts( 1, 0, this.XX )[0], 
 								Vector.randomInts( 1, 0, this.YY )[0],
-								500, vec );
+								50, vec );
 						this._drivers.add(p);
 //						System.out.println(Vector.toString(vec)+" "+a+" "+b);
 					}
