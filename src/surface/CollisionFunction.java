@@ -43,7 +43,7 @@ public interface CollisionFunction extends Instantiable
 	 */
 	public CollisionFunction DefaultPullFunction = new CollisionFunction()
 	{
-		private double _forceScalar = Global.collision_scalar;
+		private double _forceScalar = Global.pull_scalar;
 		
 		/**
 		 * Implementation of the Instantiatable interface
@@ -127,7 +127,7 @@ public interface CollisionFunction extends Instantiable
 	 */
 	public CollisionFunction DefaultPushFunction = new CollisionFunction()
 	{
-		private double _forceScalar = Global.pull_scalar;
+		private double _forceScalar = Global.collision_scalar;
 		
 		/**
 		 * Implementation of the Instantiatable interface

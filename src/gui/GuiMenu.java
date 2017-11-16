@@ -134,10 +134,10 @@ public final class GuiMenu
 				"Draw raster to file");
 		menu.add(menuItem);
 		
-		menuItem = new JMenuItem(new GuiMenu.PlotProperties());
-		menuItem.getAccessibleContext().setAccessibleDescription(
-				"Draw property plot");
-		menu.add(menuItem);
+//		menuItem = new JMenuItem(new GuiMenu.PlotProperties());
+//		menuItem.getAccessibleContext().setAccessibleDescription(
+//				"Draw property plot");
+//		menu.add(menuItem);
 		/*
 		 * Draw species diagram
 		 */

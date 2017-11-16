@@ -69,8 +69,7 @@ public class Analysis extends ProcessManager {
 		@Override
 		protected void internalStep()
 		{
-			Raster raster = new Raster( Idynomics.simulator.getCompartment( 
-					this.getString( AspectRef.compartmentName ) ) );
+			Raster raster = new Raster( _agents );
 
 			raster.rasterize( this.getDouble( AspectRef.rasterScale ) );
 			

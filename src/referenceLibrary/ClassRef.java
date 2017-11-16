@@ -315,11 +315,6 @@ public class ClassRef
 	public final static String plasmidDynamics =
 			processManager.library.PlasmidDynamics.class.getName();
 
-	 * agent mechanical relaxation with LB process manager
-	 */
-	public final static String LBDEM =
-			processManager.library.LBDEM.class.getName();
-	
 	/**
 	 * agent stochastiv move manager
 
@@ -367,9 +362,6 @@ public class ClassRef
 	 */
 	public final static String agentDetachment =
 			processManager.library.AgentDetachment.class.getName();
-	
-	public final static String lbdem =
-			processManager.library.LBDEM.class.getName();
 	
 	public final static String analysis =
 			processManager.library.Analysis.class.getName();
