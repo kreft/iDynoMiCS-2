@@ -264,8 +264,7 @@ public class AgentRelaxation extends ProcessManager
 						pull = 0.0;
 					body = ((Body) neighbour.get(BODY));
 					List<Surface> t = body.getSurfaces();
-					this._iterator.collision(agentSurfs, t, pull, agent, 
-							neighbour );
+					this._iterator.collision(agentSurfs, t, pull);
 				}
 			/*
 			 * Boundary collisions
@@ -273,8 +272,7 @@ public class AgentRelaxation extends ProcessManager
 			 * TODO friction
 			 */
 			// FIXME here we need to selectively apply surface collision methods
-			this._iterator.collision(this._shapeSurfs, agentSurfs, 0.0, agent, 
-					null );
+			this._iterator.collision(this._shapeSurfs, agentSurfs, 0.0);
 			
 			/*
 			 * NOTE: testing purposes only
@@ -393,7 +391,7 @@ public class AgentRelaxation extends ProcessManager
 			{
 				for ( Agent agent : allAgents )
 					for ( Point point: ( (Body) agent.get(BODY) ).getPoints() )
-						point.euStep( dtMech, agent.getDouble(RADIUS) , null);
+						point.euStep( dtMech, agent.getDouble(RADIUS) );
 				tMech += dtMech;
 				break;
 			}

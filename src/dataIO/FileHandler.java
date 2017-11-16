@@ -32,7 +32,7 @@ public class FileHandler
 	 * Set to true if each line needs to be written to file immediately (for
 	 * instance for the log file).
 	 */
-	protected boolean _flushAll = true;
+	protected boolean _flushAll = false;
 
 	/**
 	 * \brief Creates directory if it does not exist.

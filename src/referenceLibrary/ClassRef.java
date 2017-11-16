@@ -314,10 +314,9 @@ public class ClassRef
 	 */
 	public final static String plasmidDynamics =
 			processManager.library.PlasmidDynamics.class.getName();
-
+	
 	/**
-	 * agent stochastiv move manager
-
+	 * agent stochastic move manager
 	 */
 	public final static String agentStochasticMove =
 			processManager.library.AgentStochasticMove.class.getName();
@@ -362,12 +361,6 @@ public class ClassRef
 	 */
 	public final static String agentDetachment =
 			processManager.library.AgentDetachment.class.getName();
-	
-	public final static String analysis =
-			processManager.library.Analysis.class.getName();
-	
-	public final static String analysisTrait =
-			processManager.library.AnalysisTrait.class.getName();
 	
 	/* ************************************************************************
 	 * IdynoMiCS main classes

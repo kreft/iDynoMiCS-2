@@ -110,10 +110,7 @@ public final class Helper
 		}
 		return colors;
 	}
-
-	public static final char[] ALPHABET = 
-			"abcdefghijklmnopqrstuvwxyz".toCharArray();
-
+	
 	/**
 	 * \brief restrict int to bounds min and max
 	 * @param a

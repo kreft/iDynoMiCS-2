@@ -20,11 +20,4 @@
 		<nature>net.sourceforge.texlipse.builder.TexlipseNature</nature>
 		<nature>org.eclipse.jdt.core.javanature</nature>
 	</natures>
-	<linkedResources>
-		<link>
-			<name>DAH</name>
-			<type>2</type>
-			<location>C:/Build/DAH</location>
-		</link>
-	</linkedResources>
 </projectDescription>

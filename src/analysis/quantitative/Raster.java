@@ -5,7 +5,6 @@ import java.util.List;
 
 import idynomics.AgentContainer;
 import idynomics.Compartment;
-import idynomics.Idynomics;
 import instantiable.Instance;
 import linearAlgebra.Array;
 import linearAlgebra.Vector;
@@ -25,8 +24,6 @@ import analysis.filter.Filter;
 import analysis.toolset.LinearRegression;
 import aspect.AspectInterface;
 import dataIO.CsvExport;
-
-import dataIO.FileHandler;
 import dataIO.GraphicalExporter;
 import dataIO.Log;
 import dataIO.Log.Tier;
@@ -34,7 +31,7 @@ import dataIO.Log.Tier;
 /**
  * \Brief Raster is used to rasterize and quantify spatial properties of
  * biofilms.
- *
+ * 
  * NOTE: This class in an active state of development, please do not make
  * changes but give feedback as in-line comments instead.
  * 
@@ -54,32 +51,25 @@ public class Raster {
 	/**
 	 * The compartment shape
 	 */
-
-	private Compartment _compartment;
-
 	private Shape _shape;
 	/**
 	 * The svg exporter
 	 */
 	private GraphicalExporter _graphics;
 	private boolean[] _periodic;
-
 	/**
 	 * Include additional debug and visual analysis output
 	 */
 	private boolean _verbose = false;
-
 	
 	/* raster sizes including margins (rX and rY) and actual size */
 	private int rX, rY;
 	private int[] size;
-
-	private boolean _debugPlots = false;
 	
 	/* default distance map positions */
 	protected final int[] max_value = 
 			new int[] { Integer.MAX_VALUE, Integer.MAX_VALUE };
-
+	
 	protected final int[] zeros = 
 			new int[] { 0, 0 };
 	
@@ -170,7 +160,6 @@ public class Raster {
 			 * set this voxel instead of creating a new one. */
 			Voxel v = new Voxel( toContinuous(c, voxelLength), vox );
 			List<Agent> agents = _agentContainer.treeSearch( 
-
 					v.boundingBox(null) );
 			
 			/* iterate over all surfaces of all potential colliders and only
@@ -201,7 +190,6 @@ public class Raster {
 		int[][][] edge = Array.copy( agents );
 		
 		agents = this.distanceMatrix( agents );
-
 		long millis = System.currentTimeMillis();
 		if ( this._verbose )
 			this.plotArray(agents, "ag" + millis );
@@ -219,7 +207,7 @@ public class Raster {
 		this._edgeDistanceMap = euclideanMap( edge );
 		
 		this._edgeDistanceMapDbl = euclideanMapDbl( edge );
-
+		
 		/* NOTE for testing: looking for co-ocurance 
 		traitLocalization("species=CanonicalAOB", "species=CanonicalNOB" ); */
 	}
@@ -299,10 +287,10 @@ public class Raster {
 		matrix = presenceMapToArray(matrix, aMap, false, true);
 		
 		matrix = this.distanceMatrix( matrix );
+
 		long millis = System.currentTimeMillis();
 		if ( this._verbose )
 			this.plotArray(matrix, "a1" + millis);
-
 		
 		SpatialMap<Integer> aDist = gradientMap(matrix);
 		
@@ -321,6 +309,7 @@ public class Raster {
 		
 	public void traitLocalization( String filterA, String filterB )
 	{
+
 		long millis = System.currentTimeMillis();
 		if ( this._verbose )
 			plotPropertyAnalysis( filterA, "traitA" + millis, 
@@ -334,6 +323,7 @@ public class Raster {
 		matrix = presenceMapToArray(matrix, aMap, false, true);
 		
 		matrix = this.distanceMatrix( matrix );
+		
 		if ( this._verbose )
 			this.plotArray(matrix, "a1" + millis);
 		
@@ -359,7 +349,7 @@ public class Raster {
 		matrix = presenceMapToArray(matrix, bMap, false, true);
 		
 		matrix = this.distanceMatrix( matrix );
-
+		
 		if ( this._verbose )
 			this.plotArray(matrix, "n1" + millis);
 		
@@ -557,7 +547,7 @@ public class Raster {
 					diam[i] = Math.exp( steps[i] );
 				}
 		}
-
+		
 		double[] lnPerimeter = new double[count.length];
 		for ( int i = 0; i < count.length; i++ )
 		{
@@ -568,6 +558,7 @@ public class Raster {
 		Log.out(Tier.DEBUG, Vector.toString( diam ) );
 		Log.out(Tier.DEBUG, Vector.toString( lnPerimeter ) );
 		Log.out(Tier.DEBUG, Vector.toString( count ) );
+		
 		LinearRegression fractalReg = new LinearRegression(steps, lnPerimeter);
 		Log.out(Tier.DEBUG, fractalReg.toString() );
 		Log.out(Tier.EXPRESSIVE, String.format( "fractal dimension %.3f, stdErr"
@@ -634,7 +625,6 @@ public class Raster {
 			_graphics.rectangle( toContinuous(c, scale), 
 					new double[] { scale, scale }, 
 					colors[ Math.min( raster.get(c), colors.length-1 ) ] );
-
 
 		/* Close the file */
 		_graphics.closeFile();
@@ -704,11 +694,11 @@ public class Raster {
 							( (Double) euclidean( array[i][j] ) ).intValue() ); 
 			}
 		}
+		
 
 		long millis = System.currentTimeMillis();
 		if ( this._verbose )
 			plot( distance, 1, "raster" + millis, Helper.giveMeAGradient( max+1 ) );
-
 		
 		/* fill encapsulated void spaces */
 		if ( plugHoles )
@@ -806,7 +796,6 @@ public class Raster {
 	private LinkedList<int[]> regionDetect( int[][][] array, Region region, 
 			int passLim, int purgeLim )
 	{
-
 		int passes = 0, purgeLimit = 0;
 		int d = array.length, e = array[0].length;
 
@@ -944,6 +933,7 @@ public class Raster {
 		int[] p, q, step;
 		int d = out.length;
 		int e = out[0].length;
+		
 		/* iterations, first pass */
 		for ( int j = 0; j < e; j++)
 		{
@@ -1231,6 +1221,7 @@ public class Raster {
     {
     	return this._agentRaster;
     }
+    
     /* ************************************************************************
      * Debugging tools 
      * ***********************************************************************/
@@ -1243,7 +1234,6 @@ public class Raster {
 	{
 		String out = "";
 		for( int i = 0; i < array.length; i++ )
-
 		{
 			for ( int j = 0; j < array[0].length; j++ )
 				out += ( Vector.toString( array[i][j] ) + "\t" );
