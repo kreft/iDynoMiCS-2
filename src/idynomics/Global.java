@@ -58,6 +58,14 @@ public class Global extends ParameterSet
 					XmlHandler.obtainAttribute( elem, XmlRef.outputskip, 
 					XmlRef.simulation));
 		
+		if ( XmlHandler.hasAttribute(elem, XmlRef.configuration) )
+		{
+			Global.supplementary_property_files = 
+					Helper.concatinate(supplementary_property_files, 
+					XmlHandler.obtainAttribute( elem, XmlRef.configuration, 
+					XmlRef.simulation).split(",") );
+		}
+		
 		this.updateSettings();
 		/* 
 		 * Set up the log file.

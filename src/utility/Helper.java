@@ -415,6 +415,16 @@ public final class Helper
 		
 	}
 	
+	public static String[] concatinate(String[] in, String... extra)
+	{
+		String[] out = new String[ in.length + extra.length ];
+		for ( int i = 0; i < in.length; i++)
+			out[i] = in[i];
+		for ( int i = 0; i < extra.length; i++)
+			out[i+in.length] = extra[i];
+		return out;
+	}
+	
 	/**
 	 * convert first character of String to uppercase.
 	 * @param string

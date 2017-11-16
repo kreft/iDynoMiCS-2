@@ -518,4 +518,9 @@ public class XmlRef
 	 */
 	public static final String outputskip = "outputskip";
 
+	/**
+	 * Additional required configuration files to be loaded.
+	 */
+	public static final String configuration = "configuration";
+
 }
