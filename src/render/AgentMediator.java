@@ -24,6 +24,7 @@ import linearAlgebra.Vector;
 import referenceLibrary.AspectRef;
 import shape.CartesianShape;
 import shape.CylindricalShape;
+import shape.Dimension;
 import shape.Dimension.DimName;
 import shape.iterator.ShapeIterator;
 import shape.Shape;
@@ -145,11 +146,15 @@ public class AgentMediator implements CommandMediator {
 					ExtraMath.getUniRandFlt()));
 		}
 		this._compartment = c;
-		this._domainMaxima = new double[3];
+		
+		/* keep dimensions that are not significant at 0 */
+		this._domainMaxima = new double[] { 0.0, 0.0, 0.0 };
 		/* determine kickback for camera positioning */
 		_kickback = 0.0f;
-		for (DimName dn : _shape.getDimensionNames()){
-			float max = (float)_shape.getDimension(dn).getExtreme(1);
+		
+		for (Dimension dn : _shape.getSignificantDimensions())
+		{
+			float max = (float) dn.getExtreme(1);
 			_kickback  = (float) Math.max(_kickback, max);
 			_domainMaxima[_shape.getDimensionIndex(dn)] = max;
 		}

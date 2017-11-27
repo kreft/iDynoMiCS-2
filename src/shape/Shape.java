@@ -165,7 +165,11 @@ public abstract class Shape implements
 		NodeList childNodes;
 		Element childElem;
 		String str;
-		/* */
+		/* FIXME is this a correct implementation? This would create multiple
+		 * layers of voxels if we have a small target resolution eg 0.5µm. 
+		 * Shouldn't this be calculated from a target volume? or maybe just
+		 * equal to the resolution so we always have 1 layer in the
+		 * insignificant dimension. [Bas 27-11-2017] */
 		double insignificantDimsLength = 1.0;
 		str = XmlHandler.gatherAttribute(xmlElem, "insignificantDimsLength");
 		if ( str != null )
