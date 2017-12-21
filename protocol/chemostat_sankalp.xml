@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+	<simulation log="DEBUG" outputfolder="../results" name="mySim">
+	<timer stepSize="1.0" endOfSimulation="50.0" />
+	<speciesLib>
+			<!-- species/species library The species library contains all agent species 
+				in the simulations. This may include microbial species, plasmid and vector 
+				species, particle species etc. Species states are states that are in principal 
+				identical for all agents of that species. However note that iDynoMiCS 2.0 
+				does allow you to overwrite states on agent level. Thus if a state is defined 
+				both on species level and on agent level, the agent state will be used in 
+				the simulation. small test -->
+			<species name="species1">
+				<aspect name="pigment" type="PRIMARY" class="String" value="RED" />
+				<speciesModule name="coccoid" />
+				<!-- <speciesModule name="stochasticMover" /> -->
+				<speciesModule name="producer" />
+				<aspect name="reactions" type="PRIMARY"  class="InstantiableList"> 
+					<list class="Reaction" nodeLabel="reaction" entryClass="Reaction" keyClass="String" keyLabel="name">
+						<reaction name="testReact" comment="biomass specific growth rate">
+							<expression value="mass * mumax *(solute1 / (solute1 + k) )">
+								<constant name="k" value="0.001" />
+								<constant name="mumax" value="1.0" />
+							</expression>
+							<stoichiometric component="mass" coefficient="0.9" />
+							<stoichiometric component="solute1" coefficient="-1.0" />
+						</reaction> 
+					</list>
+				</aspect>
+			</species>
+			<species name="coccoid">
+				<aspect name="density" type="PRIMARY" class="Double" value="1" />
+				<aspect name="#isLocated" type="PRIMARY" class="Boolean" value="false" />
+				<aspect name="surfaces"			type="CALCULATED"	class="AgentSurfaces"	/>
+				<aspect name="morphology" 		type="PRIMARY" class="String" 		value="coccoid" />
+				<aspect name="volume" 			type="CALCULATED" 	class="SimpleVolumeState" />
+				<aspect name="radius" 			type="CALCULATED" 	class="CoccoidRadius" />
+				<aspect name="divide" 			type="EVENT" 		class="CoccoidDivision"	/>
+				<aspect name="updateBody" 		type="EVENT" 		class="UpdateBody" />
+				<aspect name="searchDist"		type="PRIMARY" class="Double"		value="0.0"  />
+			</species>
+		</speciesLib>
+		<general>
+			<param name="timeStepSize" value="1.0"/>
+			<param name="endOfSimulation" value="60.0"/>
+		</general>
+		<compartment name="chemostat">
+			<shape class="Dimensionless" volume="250.0" />
+			<solutes>
+				<solute name="solute1" concentration="2.0" defaultDiffusivity="1"  />
+			</solutes>
+			<agents>
+				<agent>
+					<aspect name="species" type="PRIMARY" class="String" value="species1" />
+					<aspect name="mass" type="PRIMARY" class="Double" value="0.15" />
+					<aspect name="density" type="PRIMARY" class="Double" value="1" />
+					<aspect name="pigment" type="PRIMARY" class="String" value="RED" />
+					<aspect name="betaLacRes" type="PRIMARY" class="HashMap">
+						<item type="PRIMARY" class="Double" value="0.75" key="transfer_probability" keyType="String" />
+						<item type="PRIMARY" class="Double" value="0.10" key="loss_probability" keyType="String" />
+						<item type="PRIMARY" class="Double" value="1.0" key="copy" keyType="String" />
+						<item type="PRIMARY" class="Double" value="5.6" key="pili_length" keyType="String" />
+						<item type="PRIMARY" class="String" value="BLUE" key="loss_pigment" keyType="String" />
+					</aspect>
+					<aspect name="pili_length" type="PRIMARY" class="Double" value="5.6" />
+					<aspect name="fitness_cost" type="PRIMARY" class="Double" value="0.1" />
+					<aspect name="cool_down" type="PRIMARY" class="Double" value="0.4" />
+				</agent>
+				<agent>
+					<aspect name="species" type="PRIMARY" class="String" value="species1" />
+					<aspect name="mass" type="PRIMARY" class="Double" value="0.15" />
+					<aspect name="density" type="PRIMARY" class="Double" value="1" />
+					<aspect name="pigment" type="PRIMARY" class="String" value="GREEN" />
+				</agent>
+			</agents>
+			<processManagers>
+				<process name="solveChemostat" class="ChemostatSolver" priority="0"
+					firstStep="0.0" >
+					<aspect name="soluteNames" type="PRIMARY" class="String[]" value="solute1" />
+					<aspect name="tolerance" type="PRIMARY" class="Double" value="1.0e-3" />
+					<aspect name="hMax" type="PRIMARY" class="Double" value="1.0e-3" />
+					<aspect name="solver" type="PRIMARY" class="String" value="other" />
+				</process>
+			</processManagers>
+		</compartment>
+	</simulation>
+</document>
