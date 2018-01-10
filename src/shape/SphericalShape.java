@@ -150,6 +150,55 @@ public abstract class SphericalShape extends Shape
 		return volMax - volMin;
 	}
 	
+	@Override
+	public double getTotalRealVolume()
+	{
+		/*
+		 * Volume of a complete sphere: (4/3) pi * r^3
+		 * (2/3) * theta gives the angle (pi in complete cylinder).
+		 * Need to subtract the inner cylinder from the outer one, hence
+		 * rFactor = rMax^3 - rMin^3
+		 */
+		Dimension r = this.getDimension(R);
+		double rMin = r.getRealExtreme(0);
+		double rMax = r.getRealExtreme(1);
+		double thetaLength = this.getDimension(THETA).getRealLength();
+		/*
+		 * 
+		 */
+		double sphereFactor = 2.0 * ONE_THIRD * thetaLength;
+		double volMax = sphereFactor * ExtraMath.cube(rMax);
+		double volMin = sphereFactor * ExtraMath.cube(rMin);
+		/*
+		 * The tricky bit if for non-standard values of phi:
+		 */
+		Dimension phi = this.getDimension(PHI);
+		double phiMin = phi.getRealExtreme(0);
+		
+		if ( phiMin <= 0.0 )
+		{
+			volMax -= volConeCap(rMax, thetaLength, phiMin);
+			volMin -= volConeCap(rMin, thetaLength, phiMin);
+		}
+		else
+		{
+			volMax = volConeCap(rMax, thetaLength, phiMin);
+			volMin = volConeCap(rMin, thetaLength, phiMin);
+		}
+		double phiMax = phi.getRealExtreme(1);
+		if ( phiMax >= 0.0 )
+		{
+			volMax -= volConeCap(rMax, thetaLength, phiMax);
+			volMin -= volConeCap(rMin, thetaLength, phiMax);
+		}
+		else
+		{
+			volMax = volConeCap(rMax, thetaLength, phiMax) - volMax;
+			volMin = volConeCap(rMin, thetaLength, phiMax) - volMin;
+		}
+		return volMax - volMin;
+	}
+	
 	public void setTotalVolume( double volume)
 	{
 		Log.out(Tier.CRITICAL, "Cannot adjust Spherical shape volume" );
@@ -421,6 +470,102 @@ public abstract class SphericalShape extends Shape
 			double rMin = r.getExtreme(0);
 			double rMax = r.getExtreme(1);
 			double thetaLength = this.getDimension(THETA).getLength();
+			double thetaScalar = thetaLength / (2.0 * Math.PI);
+			
+			double maxCone = ExtraMath.lateralAreaOfACone(rMax, phiExt);
+			double minCone = ExtraMath.lateralAreaOfACone(rMin, phiExt);
+			double area = thetaScalar * (maxCone - minCone);
+			return area;
+		}
+		default:
+		{
+			// TODO safety
+			return Double.NaN;
+		}
+		}
+	}
+	
+	@Override
+	public double getRealSurfaceArea(DimName dimN, int extreme)
+	{
+		switch( dimN )
+		{
+		case R:
+		{
+			/* 
+			 * Area is a cross-over between an spherical segment and a
+			 * spherical lune. See
+			 * http://mathworld.wolfram.com/SphericalSegment.html
+			 * equation (15) and 
+			 * http://mathworld.wolfram.com/SphericalWedge.html
+			 * equation (2) for inspiration.
+			 */
+			/* In a full sphere: thetaLength = 2 * pi */
+			double rExt = this.getDimension(R).getRealExtreme(extreme);
+			double thetaLength = this.getDimension(THETA).getRealLength();
+			Dimension phi = this.getDimension(PHI);
+			double phiMin = phi.getRealExtreme(0);
+			double phiMax = phi.getRealExtreme(1);
+			/* In a full sphere: h = 2 * rExt */
+			double h = rExt * ( Math.sin(phiMax) - Math.sin(phiMin) );
+			/* In a full sphere: area = 2 * pi * rExt * 2 * rExt */
+			double area = thetaLength * rExt * h;
+			return area;
+		}
+		case THETA:
+		{
+			/* 
+			 * For theta boundaries, it makes no difference which extreme.
+			 * The area is essentially half that of a circle with circular
+			 * segments above phiMax and below phiMin removed (if appropriate).
+			 * See http://mathworld.wolfram.com/CircularSegment.html for
+			 * inspiration.
+			 */
+			// TODO this section could do with some streamlining!
+			Dimension r = this.getDimension(R);
+			double rMin = r.getRealExtreme(0);
+			double rMax = r.getRealExtreme(1);
+			Dimension phi = this.getDimension(PHI);
+			double phiMin = phi.getRealExtreme(0);
+			double phiMax = phi.getRealExtreme(1);
+			double maxSegment, minSegment;
+			/* */
+			double areaMax = ExtraMath.areaOfACircle(rMax);
+			maxSegment = ExtraMath.areaOfACircleSegment(rMax, phiMax);
+			minSegment = ExtraMath.areaOfACircleSegment(rMax, phiMin);
+			if ( phiMax > 0.0 )
+				areaMax -= maxSegment;
+			else
+				areaMax = maxSegment;
+			if ( phiMin < 0.0 )
+				areaMax -= minSegment;
+			else
+				areaMax = minSegment - maxSegment;
+			/* */
+			double areaMin = ExtraMath.areaOfACircle(rMin);
+			minSegment = ExtraMath.areaOfACircleSegment(rMin, phiMax);
+			minSegment = ExtraMath.areaOfACircleSegment(rMin, phiMin);
+			if ( phiMax > 0.0 )
+				areaMin -= maxSegment;
+			else
+				areaMin = maxSegment;
+			if ( phiMin < 0.0 )
+				areaMin -= minSegment;
+			else
+				areaMin = minSegment - maxSegment;
+			return areaMax - areaMin;
+		}
+		case PHI:
+		{
+			/*
+			 * This is the area of a cone
+			 * 
+			 */
+			double phiExt =  this.getDimension(PHI).getRealExtreme(extreme);
+			Dimension r = this.getDimension(R);
+			double rMin = r.getRealExtreme(0);
+			double rMax = r.getRealExtreme(1);
+			double thetaLength = this.getDimension(THETA).getRealLength();
 			double thetaScalar = thetaLength / (2.0 * Math.PI);
 			
 			double maxCone = ExtraMath.lateralAreaOfACone(rMax, phiExt);

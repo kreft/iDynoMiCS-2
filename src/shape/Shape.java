@@ -105,6 +105,11 @@ public abstract class Shape implements
 	 */
 	protected Integer _numSignificantDimension;
 	/**
+	 * Name of the dimension, whose extreme holds the surface for biofilm
+	 * attachment. Set to null for volume based calculation of scaling factor.
+	 */
+	protected DimName _realDimExtremeName = null;
+	/**
 	 * A helper vector for finding the location of the origin of a voxel.
 	 */
 	protected final static double[] VOXEL_ORIGIN_HELPER = Vector.vector(3,0.0);
@@ -118,6 +123,7 @@ public abstract class Shape implements
 	protected final static double[] VOXEL_All_ONE_HELPER = Vector.vector(3,1.0);
 	
 	protected Settable _parentNode;
+	private Element _currElement;
 	
 	/* ***********************************************************************
 	 * CONSTRUCTION
@@ -161,6 +167,7 @@ public abstract class Shape implements
 	public void instantiate(Element xmlElem, Settable parent )
 	{
 		this._parentNode = parent;
+		this._currElement = xmlElem;
 		
 		NodeList childNodes;
 		Element childElem;
@@ -175,7 +182,6 @@ public abstract class Shape implements
 		ResolutionCalculator rC;
 		for ( DimName dimName : this.getDimensionNames() )
 		{
-
 			childElem = (Element) XmlHandler.getSpecific(xmlElem, 
 					XmlRef.shapeDimension, XmlRef.nameAttribute, dimName.name());
 			try
@@ -211,9 +217,9 @@ public abstract class Shape implements
 						+ "recognised by shape " + this.getClass().getName()
 						+ ", use: " + Helper.enumToString(DimName.class));
 			}
-			this._defaultCollision = new Collision(this);
-			
+			this._defaultCollision = new Collision(this);	
 		}
+		this.setRealDimExtremeName();
 		
 		/* Set up any other boundaries. */
 		Boundary aBoundary;
@@ -258,6 +264,13 @@ public abstract class Shape implements
 	 * @return
 	 */
 	public abstract double getTotalVolume();
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * @return
+	 */
+	public abstract double getTotalRealVolume();
 	
 	/**
 	 * 
@@ -525,6 +538,63 @@ public abstract class Shape implements
 	 * @return The relevant Resolution Calculator.
 	 */
 	public abstract ResolutionCalculator getResolutionCalculator(int[] coord, int dim);
+	
+	/**
+	 * \brief Gets the real lengths of only the significant dimensions.
+	 * 
+	 * @return lengths {@code double} array of significant side lengths.
+	 */
+	public double[] getRealLengths()
+	{
+		double[] out = new double[this.getNumberOfDimensions()];
+		int i = 0;
+		for ( Dimension dim : this._dimensions.values() )
+			if ( dim.isSignificant() )
+			{
+				out[i] = dim.getRealLength();
+				i++;
+			}
+		return out;
+	}
+	
+	/**
+	 * \brief Gets the dimension name whose extreme holds the surface for attachment
+	 * 
+	 * @return dimension name {@code DimName}.
+	 */
+	public DimName getRealDimExtremeName()
+	{
+		return this._realDimExtremeName;
+	}
+	
+	/**
+	 * \brief Set the dimension name which does not have realMax defined.
+	 */
+	public void setRealDimExtremeName()
+	{
+		Dimension dim;
+		int sigDims = this.getNumberOfDimensions();
+		if (sigDims == this._dimensions.size())
+		{
+			for ( DimName d : this._dimensions.keySet() )
+			{
+				Element childElem = (Element) XmlHandler.getSpecific(this._currElement, 
+						XmlRef.shapeDimension, XmlRef.nameAttribute, d.name());
+				String str = XmlHandler.gatherAttribute(childElem, XmlRef.realMax);
+				this._realDimExtremeName = Helper.isNullOrEmpty(str) ? d : null;
+			}
+		}
+		else
+		{
+			for ( DimName d : this._dimensions.keySet() )
+			{
+				dim = this.getDimension(d);
+				if (dim.isSignificant())
+					continue;
+				this._realDimExtremeName = d;
+			}
+		}
+	}
 	
 	/* ***********************************************************************
 	 * POINT LOCATIONS
@@ -1082,6 +1152,15 @@ public abstract class Shape implements
 	 * @return
 	 */
 	public abstract double getBoundarySurfaceArea(DimName dimN, int extreme);
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param dimN
+	 * @param extreme
+	 * @return
+	 */
+	public abstract double getRealSurfaceArea(DimName dimN, int extreme);
 	
 	/* ***********************************************************************
 	 * VOXELS

@@ -58,6 +58,7 @@ import shape.Dimension.DimName;
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  * @author Stefan Lang (stefan.lang@uni-jena.de)
  *     Friedrich-Schiller University Jena, Germany
+ * @author Sankalp Arya (sankalp.arya@nottingham.ac.uk) University of Nottingham, U.K.
  */
 public class Compartment implements CanPrelaunchCheck, Instantiable, Settable
 {
@@ -71,6 +72,12 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable
 	 * TODO also the resolution calculators?
 	 */
 	protected Shape _shape;
+	/**
+	 * Scaling factor determines the ratio of real to modelled size.
+	 * All calculations for boundary movement will use this for scaling up from
+	 * the modelled size to actual biofilm size.
+	 */
+	protected double _scalingFactor;
 	/**
 	 * AgentContainer deals with all agents, whether they have spatial location
 	 * or not.
@@ -164,8 +171,39 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable
 		String[] str = new String[] { XmlHandler.gatherAttribute(elem, XmlRef.classAttribute) };
 		if ( str[0] == null )
 			str = Shape.getAllOptions();
-		this.setShape( (Shape) Instance.getNew(elem, this, str) );	
-
+		this.setShape( (Shape) Instance.getNew(elem, this, str) );
+		
+		double[] simulatedLengths = this.getShape().getDimensionLengths();
+		// Check for significant dimensions.
+		if (simulatedLengths.length != 0)
+		{
+			// Check for scale element, specifying explicitl provided scale.
+			Element scaleElem = XmlHandler.findUniqueChild(elem, XmlRef.compartmentScale);
+			if ( !Helper.isNullOrEmpty(scaleElem) )
+			{
+				String scalingFac = XmlHandler.gatherAttribute(scaleElem, XmlRef.valueAttribute);
+				double scFac = Helper.isNullOrEmpty(scalingFac) ? 1.0 : Double.valueOf(scalingFac);
+				this.setScalingFactor(scFac);
+			}
+			else
+			{
+				// Scaling factor not provided explicitly, calculate from realLengths
+				Shape compShape = this.getShape();
+				DimName dimN = compShape.getRealDimExtremeName();
+				if ( Helper.isNullOrEmpty(compShape.getRealDimExtremeName()) )
+				{
+					double simulatedVolume = compShape.getTotalVolume();
+					double realVolume = compShape.getTotalRealVolume();
+					this.setScalingFactor(realVolume / simulatedVolume);
+				}
+				else
+				{
+					double simulatedArea = compShape.getBoundarySurfaceArea(dimN, 1);
+					double realArea = compShape.getRealSurfaceArea(dimN, 1);
+					this.setScalingFactor(realArea / simulatedArea);
+				}
+			}
+		}
 
 		for( Boundary b : this._shape.getAllBoundaries())
 		{
@@ -612,5 +650,15 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable
 			if ( c.getName().equals(name) )
 				return c;
 		return null;
+	}
+	
+	public void setScalingFactor(double scFac)
+	{
+		this._scalingFactor = scFac;
+	}
+	
+	public double getScalingFactor()
+	{
+		return this._scalingFactor;
 	}
 }

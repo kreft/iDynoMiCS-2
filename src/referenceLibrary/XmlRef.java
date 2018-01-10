@@ -11,6 +11,7 @@ import dataIO.Log.Tier;
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
+ * @author Sankalp Arya (sankalp.arya@nottingham.ac.uk) University of Nottingham, U.K.
  */
 public class XmlRef
 {
@@ -517,5 +518,20 @@ public class XmlRef
 	 * Number of global time steps to skip for next xml out
 	 */
 	public static final String outputskip = "outputskip";
+	
+	/**
+	 * Scaling factor determined by the real to modelled ratio
+	 */
+	public final static String compartmentScale = "scale";
+	
+	/**
+	 * Actual size of the dimension
+	 */
+	public final static String realMax = "realMax";
+	
+	/**
+	 * Actual size of the dimension
+	 */
+	public final static String realMin = "realMin";
 
 }

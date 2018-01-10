@@ -107,6 +107,24 @@ public abstract class CylindricalShape extends Shape
 		return 0.5 * thetaLength * rFactor * zLength;
 	}
 	
+	@Override
+	public double getTotalRealVolume()
+	{
+		/*
+		 * Volume of a complete cylinder: pi * r^2 * z
+		 * Half theta gives the angle (pi in complete cylinder).
+		 * Need to subtract the inner cylinder from the outer one, hence
+		 * rFactor = rMax^2 - rMin^2
+		 */
+		Dimension r = this.getDimension(R);
+		double rMin = r.getRealExtreme(0);
+		double rMax = r.getRealExtreme(1);
+		double rFactor = ExtraMath.sq(rMax) - ExtraMath.sq(rMin);
+		double thetaLength = this.getDimension(THETA).getRealLength();
+		double zLength = this.getDimension(Z).getRealLength();
+		return 0.5 * thetaLength * rFactor * zLength;
+	}
+	
 	public void setTotalVolume( double volume)
 	{
 		Log.out(Tier.CRITICAL, "Cannot adjust Cylindrical shape volume" );
@@ -298,6 +316,56 @@ public abstract class CylindricalShape extends Shape
 			Dimension r = this.getDimension(R);
 			double rMin = r.getExtreme(0);
 			double rMax = r.getExtreme(1);
+			double area = thetaLength*(ExtraMath.sq(rMax)-ExtraMath.sq(rMin));
+			return area;
+		}
+		default:
+		{
+			// TODO safety
+			return Double.NaN;
+		}
+		}
+	}
+	
+	@Override
+	public double getRealSurfaceArea(DimName dimN, int extreme)
+	{
+		switch( dimN )
+		{
+		case R:
+		{
+			/* 
+			 * Area is a curved rectangle (cylinder if theta length is 2 pi).
+			 */
+			double rExt = this.getDimension(R).getRealExtreme(extreme);
+			double thetaLength = this.getDimension(THETA).getRealLength();
+			double arcLength = rExt * thetaLength;
+			double zLength = this.getDimension(Z).getRealLength();
+			double area = arcLength * zLength;
+			return area;
+		}
+		case THETA:
+		{
+			/* 
+			 * For theta boundaries, it makes no difference which extreme.
+			 * Area is simply a rectangle of area (r * z).
+			 */
+			double rLength = this.getDimension(R).getRealLength();
+			double zLength = this.getDimension(Z).getRealLength();
+			double area = rLength * zLength;
+			return area;
+		}
+		case Z:
+		{
+			/* 
+			 * For z boundaries, it makes no difference which extreme.
+			 * Area is simply the area of the rMax circle, minus the area of
+			 * the rMin circle (this may be zero). Assumes rMax > rMin > 0
+			 */
+			double thetaLength = this.getDimension(THETA).getRealLength();
+			Dimension r = this.getDimension(R);
+			double rMin = r.getRealExtreme(0);
+			double rMax = r.getRealExtreme(1);
 			double area = thetaLength*(ExtraMath.sq(rMax)-ExtraMath.sq(rMin));
 			return area;
 		}

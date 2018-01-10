@@ -42,7 +42,7 @@ public class ChemostatsTest
 		 */
 		Compartment chemo = Idynomics.simulator.addCompartment("chemostat");
 		Dimensionless shape = new Dimensionless();
-		shape.setVolume(1.0);
+		shape.setTotalVolume(1.0);
 		chemo.setShape(shape);
 		chemo.environment.addSolute(new SpatialGrid(soluteName, 0.0, chemo.environment));
 		ChemostatSolver p1 = new ChemostatSolver();

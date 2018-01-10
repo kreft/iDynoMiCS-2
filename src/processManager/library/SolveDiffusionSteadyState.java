@@ -161,7 +161,7 @@ public class SolveDiffusionSteadyState extends ProcessDiffusion
 		for ( int[] coord : distributionMap.keySet() )
 		{
 			volume = shape.getVoxelVolume(coord);
-			perVolume = Math.pow(volume, -1.0);
+			perVolume = 1.0/volume;
 			for ( Reaction r : reactions )
 			{
 				/* 
@@ -273,7 +273,7 @@ public class SolveDiffusionSteadyState extends ProcessDiffusion
 		for ( int[] coord : distributionMap.keySet() )
 		{
 			volume = shape.getVoxelVolume(coord);
-			perVolume = Math.pow(volume, -1.0);
+			perVolume = 1.0/volume;
 			for ( Reaction r : reactions )
 			{
 				/* 

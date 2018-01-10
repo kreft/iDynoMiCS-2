@@ -5,14 +5,18 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import org.w3c.dom.Element;
 
 import agent.Agent;
+import boundary.library.ChemostatToBoundaryLayer;
+import boundary.spatialLibrary.BiofilmBoundaryLayer;
 import dataIO.Log;
 import dataIO.XmlHandler;
 import dataIO.Log.Tier;
 import idynomics.AgentContainer;
+import idynomics.Compartment;
 import idynomics.EnvironmentContainer;
 import idynomics.Idynomics;
 import instantiable.Instantiable;
@@ -449,7 +453,37 @@ public abstract class Boundary implements Settable, Instantiable
 					Log.out(Tier.EXPRESSIVE, "Boundary "+this.getName()+" pushing "+
 							this._departureLounge.size()+" agents to partner");
 				}
-				this._partner.acceptInboundAgents(this._departureLounge);
+				Random randomSelector = new Random();
+				Collection<Agent> acceptanceLounge = new LinkedList<Agent>();
+				Agent[] departureArray = (Agent[]) this._departureLounge.toArray();
+				int numAgentsDepart = this._departureLounge.size();
+				String partnerCompName = this.getPartnerCompartmentName();
+				Compartment partnerComp = Idynomics.simulator.getCompartment(partnerCompName);
+				double scFac = partnerComp.getScalingFactor();
+				if (this.getPartnerClass() == BiofilmBoundaryLayer.class)
+				{
+					int numAgentsToAccept = (int) Math.ceil(numAgentsDepart / scFac);
+					for (int i = 0; i < numAgentsToAccept; i++)
+					{
+						Agent accepted = departureArray[randomSelector.nextInt(numAgentsDepart)];
+						acceptanceLounge.add(accepted);
+					}
+					this._partner.acceptInboundAgents(acceptanceLounge);
+				}
+				else if (this.getPartnerClass() == ChemostatToBoundaryLayer.class)
+				{
+					int numAgentsToAccept = (int) Math.ceil(numAgentsDepart * scFac);
+					for (int i = 0; i < numAgentsToAccept; i++)
+					{
+						Agent accepted = departureArray[randomSelector.nextInt(numAgentsDepart)];
+						acceptanceLounge.add(accepted);
+					}
+					this._partner.acceptInboundAgents(acceptanceLounge);
+				}
+				else
+				{
+					this._partner.acceptInboundAgents(this._departureLounge);
+				}
 				for( Agent a : this._departureLounge )
 					this._agents.registerRemoveAgent(a);
 				this._departureLounge.clear();

@@ -88,6 +88,15 @@ public abstract class CartesianShape extends Shape
 		return out;
 	}
 	
+	@Override
+	public double getTotalRealVolume()
+	{
+		double out = 1.0;
+		for ( Dimension dim : this._dimensions.values() )
+			out *= dim.getRealLength();
+		return out;
+	}
+	
 	public void setTotalVolume( double volume)
 	{
 		Log.out(Tier.CRITICAL, "Cannot adjust Cartesian shape volume" );
@@ -152,6 +161,19 @@ public abstract class CartesianShape extends Shape
 			if ( iDimN.equals(dimN) )
 				continue;
 			area *= this.getDimension(iDimN).getLength();
+		}
+		return area;
+	}
+	
+	@Override
+	public double getRealSurfaceArea(DimName dimN, int extreme)
+	{
+		double area = 1.0;
+		for ( DimName iDimN : this._dimensions.keySet() )
+		{
+			if ( iDimN.equals(dimN) )
+				continue;
+			area *= this.getDimension(iDimN).getRealLength();
 		}
 		return area;
 	}
