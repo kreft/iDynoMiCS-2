@@ -314,6 +314,8 @@ public class EnvironmentContainer implements CanPrelaunchCheck, Settable
 		/* If there are none, then we have nothing more to do. */
 		if ( boundaries.isEmpty() )
 			return;
+		Compartment thisComp = (Compartment) this.getParent();
+		double scFac = thisComp.getScalingFactor();		
 		/*
 		 * If there is just one well-mixed boundary, then simply transfer the
 		 * flow over from each grid to the boundary. Once this is done, finish.
@@ -323,8 +325,11 @@ public class EnvironmentContainer implements CanPrelaunchCheck, Settable
 			Boundary b = boundaries.iterator().next();
 			for ( SpatialGrid solute : this._solutes )
 			{
+				double solMassFlow = solute.getWellMixedMassFlow();
+				if (solMassFlow < 0)
+					scFac = 1/scFac;
 				b.increaseMassFlowRate(solute.getName(), 
-						solute.getWellMixedMassFlow());
+						solMassFlow * scFac);
 				solute.resetWellMixedMassFlow();
 			}
 			return;
@@ -342,8 +347,11 @@ public class EnvironmentContainer implements CanPrelaunchCheck, Settable
 			scaleFactor = boundary.getTotalSurfaceArea()/totalArea;
 			for ( SpatialGrid solute : this._solutes )
 			{
+				double solMassFlow = solute.getWellMixedMassFlow();
+				if (solMassFlow < 0)
+					scFac = 1/scFac;
 				boundary.increaseMassFlowRate(solute.getName(), 
-						solute.getWellMixedMassFlow() * scaleFactor);
+						solMassFlow * scaleFactor * scFac);
 			}
 		}
 		for ( SpatialGrid solute : this._solutes )
