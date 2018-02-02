@@ -523,4 +523,14 @@ public class XmlRef
 	 */
 	public static final String configuration = "configuration";
 
+	public static final String chemicalLibrary = "chemicalLib";
+
+	public static final String chemical = "chemical";
+
+	public static final String formationGibbs = "formationGibbs";
+
+	public static final String composition = "composition";
+
+	public static final String oxidationState = "oxidationState";
+
 }

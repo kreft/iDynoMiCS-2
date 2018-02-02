@@ -9,6 +9,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 import agent.SpeciesLib;
+import chemical.ChemicalLib;
 import dataIO.Log;
 import dataIO.XmlExport;
 import dataIO.XmlHandler;
@@ -44,6 +45,7 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 	 */
 	public SpeciesLib speciesLibrary = new SpeciesLib();
 
+	public ChemicalLib chemicalLibrary = new ChemicalLib();
 	/**
 	 * The timer
 	 */
@@ -119,6 +121,15 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 			this.speciesLibrary = (SpeciesLib) Instance.getNew(
 					XmlHandler.findUniqueChild( xmlElem, XmlRef.speciesLibrary), 
 					this, ClassRef.speciesLibrary );
+		}
+		/*
+		 * Set up the chemical library.
+		 */
+		if (XmlHandler.hasChild(Idynomics.global.xmlDoc, XmlRef.chemicalLibrary))
+		{
+			this.chemicalLibrary = (ChemicalLib) Instance.getNew(
+					XmlHandler.findUniqueChild( xmlElem, XmlRef.chemicalLibrary), 
+					this, ClassRef.chemicalLibrary );
 		}
 		/*
 		 * Set up the compartments.

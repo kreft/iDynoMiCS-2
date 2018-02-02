@@ -556,4 +556,20 @@ public class ClassRef
 	*/		
 	public final static String doub =		
 				Double.class.getName();
+
+	/************
+	 * to be sorted
+	 */
+	
+	/*
+	 * Chemical library
+	 */
+	public static final String chemicalLibrary = 
+			chemical.ChemicalLib.class.getName();
+	
+	/*
+	 * Chemical
+	 */
+	public static final String chemical = 
+			chemical.Chemical.class.getName();
 }
