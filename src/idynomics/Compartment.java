@@ -77,7 +77,7 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable
 	 * All calculations for boundary movement will use this for scaling up from
 	 * the modelled size to actual biofilm size.
 	 */
-	protected double _scalingFactor;
+	protected double _scalingFactor = 1.0;
 	/**
 	 * AgentContainer deals with all agents, whether they have spatial location
 	 * or not.
@@ -177,7 +177,7 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable
 		// Check for significant dimensions.
 		if (simulatedLengths.length != 0)
 		{
-			// Check for scale element, specifying explicitl provided scale.
+			// Check for scale element, specifying explicitly provided scale.
 			Element scaleElem = XmlHandler.findUniqueChild(elem, XmlRef.compartmentScale);
 			if ( !Helper.isNullOrEmpty(scaleElem) )
 			{

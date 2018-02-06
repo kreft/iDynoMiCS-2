@@ -20,6 +20,7 @@ import idynomics.Compartment;
 import idynomics.EnvironmentContainer;
 import idynomics.Idynomics;
 import instantiable.Instantiable;
+import referenceLibrary.AspectRef;
 import referenceLibrary.XmlRef;
 import settable.Attribute;
 import settable.Module;
@@ -455,27 +456,31 @@ public abstract class Boundary implements Settable, Instantiable
 				}
 				Random randomSelector = new Random();
 				Collection<Agent> acceptanceLounge = new LinkedList<Agent>();
-				Agent[] departureArray = (Agent[]) this._departureLounge.toArray();
+				//Agent[] departureArray = (Agent[]) this._departureLounge.toArray();
 				int numAgentsDepart = this._departureLounge.size();
-				String partnerCompName = this.getPartnerCompartmentName();
-				Compartment partnerComp = Idynomics.simulator.getCompartment(partnerCompName);
-				double scFac = partnerComp.getScalingFactor();
 				if (this.getPartnerClass() == BiofilmBoundaryLayer.class)
 				{
+					String partnerCompName = this.getPartnerCompartmentName();
+					Compartment partnerComp = Idynomics.simulator.getCompartment(partnerCompName);
+					double scFac = partnerComp.getScalingFactor();
 					int numAgentsToAccept = (int) Math.ceil(numAgentsDepart / scFac);
 					for (int i = 0; i < numAgentsToAccept; i++)
 					{
-						Agent accepted = departureArray[randomSelector.nextInt(numAgentsDepart)];
+						Agent accepted = (Agent) this._departureLounge.toArray()[randomSelector.nextInt(numAgentsDepart)];
+						accepted.set(AspectRef.isLocated, true);
 						acceptanceLounge.add(accepted);
 					}
 					this._partner.acceptInboundAgents(acceptanceLounge);
 				}
 				else if (this.getPartnerClass() == ChemostatToBoundaryLayer.class)
 				{
+					Compartment thisComp = (Compartment) this._environment.getParent();
+					double scFac = thisComp.getScalingFactor();
 					int numAgentsToAccept = (int) Math.ceil(numAgentsDepart * scFac);
 					for (int i = 0; i < numAgentsToAccept; i++)
 					{
-						Agent accepted = departureArray[randomSelector.nextInt(numAgentsDepart)];
+						Agent accepted = (Agent) this._departureLounge.toArray()[randomSelector.nextInt(numAgentsDepart)];
+						accepted.set(AspectRef.isLocated, false);
 						acceptanceLounge.add(accepted);
 					}
 					this._partner.acceptInboundAgents(acceptanceLounge);
