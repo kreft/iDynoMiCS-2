@@ -193,7 +193,8 @@ public class GuiEditor
 		JTabbedPane hostPane = getFirstTabParent(parent);
 		node.getTag();
 		/* placement of this ModelNode in the gui */
-		if ( XmlRef.speciesLibrary.equals(node.getTag()) )
+		if ( XmlRef.speciesLibrary.equals(node.getTag()) || 
+				XmlRef.chemicalLibrary.equals(node.getTag()) )
 		{
 			hostPane = (JTabbedPane) 
 					parent.getParent().getParent().getParent().getParent();

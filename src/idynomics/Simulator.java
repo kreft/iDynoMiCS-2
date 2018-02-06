@@ -488,6 +488,10 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 		
 		/* add species lib */
 		modelNode.add(speciesLibrary.getModule());
+		
+		/* add chemical lib */
+		modelNode.add(chemicalLibrary.getModule());
+		
 		/* add compartment nodes */
 		for ( Compartment c : this._compartments )
 			modelNode.add(c.getModule());

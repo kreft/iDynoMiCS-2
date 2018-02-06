@@ -198,21 +198,15 @@ public class SolveDiffusionSteadyState extends ProcessDiffusion
 					}
 					concns.put(varName, concn);
 				}
-				/*
-				 * Calculate the reaction rate based on the variables just 
-				 * retrieved.
-				 */
-				rate = r.getRate(concns);
 				/* 
 				 * Now that we have the reaction rate, we can distribute the 
 				 * effects of the reaction. Note again that the names in the 
 				 * stoichiometry may not be the same as those in the reaction
 				 * variables (although there is likely to be a large overlap).
 				 */
-				stoichiometry = r.getStoichiometry();
-				for ( String productName : stoichiometry.keySet() )
+				for ( String productName : r.getReactantNames() )
 				{
-					productRate = rate * stoichiometry.get(productName);
+					productRate = r.getProductionRate(concns, productName);
 					solute = FindGrid(variables, productName);
 					if ( solute != null )
 						solute.addValueAt(PRODUCTIONRATE, coord, productRate);
@@ -312,21 +306,15 @@ public class SolveDiffusionSteadyState extends ProcessDiffusion
 					}
 					concns.put(varName, concn);
 				}
-				/*
-				 * Calculate the reaction rate based on the variables just 
-				 * retrieved.
-				 */
-				rate = r.getRate(concns);
 				/* 
 				 * Now that we have the reaction rate, we can distribute the 
 				 * effects of the reaction. Note again that the names in the 
 				 * stoichiometry may not be the same as those in the reaction
 				 * variables (although there is likely to be a large overlap).
 				 */
-				stoichiometry = r.getStoichiometry();
-				for ( String productName : stoichiometry.keySet() )
+				for ( String productName : r.getReactantNames() )
 				{
-					productRate = rate * stoichiometry.get(productName);
+					productRate = r.getProductionRate(concns, productName);
 					if ( agent.isAspect(productName) )
 					{
 						/*

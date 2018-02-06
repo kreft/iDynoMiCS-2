@@ -234,14 +234,13 @@ public abstract class ProcessDiffusion extends ProcessManager
 			/* Iterate over each compartment reactions. */
 			for ( Reaction r : reactions )
 			{
-				rate = r.getRate(concns);
-				productNames = r.getStoichiometry().keySet();
 				/* Write rate for each product to grid. */
-				for ( String product : productNames )
+				for ( String product : r.getReactantNames() )
 					for ( SpatialGrid soluteGrid : solutes )
 						if ( product.equals(soluteGrid.getName()) )
 						{
-							productRate = rate * r.getStoichiometry(product);
+							productRate = r.getProductionRate( concns, 
+									product);
 							soluteGrid.addValueAt(PRODUCTIONRATE,
 									coord, productRate);
 							totals.put(product,

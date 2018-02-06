@@ -90,7 +90,7 @@ public class Diagram
 			this._diagramFile.write(reacDesc + "\n");
 			Map<String,Double> sto = r.getStoichiometry();
 			String product;
-			for ( String s : sto.keySet() )
+			for ( String s : r.getReactantNames() )
 			{
 				product = s.equals(AspectRef.agentMass) || s.equalsIgnoreCase(
 						AspectRef.biomass) ? reactions.get(r) : s;

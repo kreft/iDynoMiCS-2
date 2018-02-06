@@ -2,15 +2,20 @@ package chemical;
 
 import org.w3c.dom.Element;
 
+import agent.Species;
 import dataIO.Log;
 import dataIO.XmlHandler;
 import dataIO.Log.Tier;
+import expression.Expression;
+import idynomics.EnvironmentContainer;
 import instantiable.Instantiable;
 import linearAlgebra.Vector;
+import referenceLibrary.ClassRef;
 import referenceLibrary.XmlRef;
+import settable.Attribute;
 import settable.Module;
 import settable.Settable;
-import utility.Helper;
+import settable.Module.Requirements;
 
 public class Chemical implements Settable, Instantiable
 {
@@ -33,6 +38,8 @@ public class Chemical implements Settable, Instantiable
 	 * 
 	 */
 	private double _referenceOxidationState;
+
+	private Settable _parentNode;
 	
 	/**
 	 * named compounds in chemical composition vector, default: 
@@ -88,33 +95,25 @@ public class Chemical implements Settable, Instantiable
 	public double molarWeight() {
 		return Vector.dotProduct(_composition, atomicMass);
 	}
-
-	@Override
-	public void instantiate(Element xmlElement, Settable parent) 
+	
+	public void setComposition(String input)
 	{
-		this._name = XmlHandler.obtainAttribute(
-				xmlElement, XmlRef.nameAttribute, this.defaultXmlTag() );
-		
-		this._formationGibbs = Double.valueOf( XmlHandler.obtainAttribute(
-				xmlElement, XmlRef.formationGibbs, this.defaultXmlTag() ) );
-		
-
-		if( xmlElement.getAttribute( XmlRef.composition ).split(",").length > 1 )
+		if( input.split(",").length > 1 )
 		{
 			/* simply a vector with a position for each chemical element */
-			this._composition = Vector.dblFromString( XmlHandler.obtainAttribute(
-					xmlElement, XmlRef.composition, this.defaultXmlTag() ) );
+			this._composition = Vector.dblFromString( input );
 		}
 		else
 		{
 			/* for instance CHO3e-1 for bicarbonate */
 			this._composition = Vector.zerosDbl(components.length);
-			String temp = xmlElement.getAttribute( XmlRef.composition );
-			int count = 0;
+			String temp = input;
+			int count;
 			boolean match;
 			for (int i = 0; i < temp.length(); i++)
 			{
 				match = false;
+				count = 0;
 				for( int j = 0; j < components.length; j++)
 				{
 					if ( components[j] == temp.charAt(i) )
@@ -141,6 +140,19 @@ public class Chemical implements Settable, Instantiable
 				}
 			}
 		}
+	}
+
+	@Override
+	public void instantiate(Element xmlElement, Settable parent) 
+	{
+		this._name = XmlHandler.obtainAttribute(
+				xmlElement, XmlRef.nameAttribute, this.defaultXmlTag() );
+		
+		this._formationGibbs = Double.valueOf( XmlHandler.obtainAttribute(
+				xmlElement, XmlRef.formationGibbs, this.defaultXmlTag() ) );
+		
+
+		setComposition( xmlElement.getAttribute( XmlRef.composition ) );
 		
 		if( XmlHandler.hasAttribute(xmlElement, XmlRef.oxidationState))
 		{
@@ -153,27 +165,67 @@ public class Chemical implements Settable, Instantiable
 	}
 
 	@Override
-	public Module getModule() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+	public Module getModule()
+	{
+		Module modelNode = new Module(XmlRef.chemical, this);
 
-	@Override
-	public String defaultXmlTag() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void setParent(Settable parent) {
-		// TODO Auto-generated method stub
+		modelNode.setRequirements(Requirements.ZERO_TO_MANY);
+		modelNode.setTitle(this._name);
 		
+		modelNode.add(new Attribute(XmlRef.nameAttribute, 
+				this._name, null, false ));
+		
+		modelNode.add(new Attribute(XmlRef.composition, 
+				Vector.toString(this._composition), null, true ));
+		
+		modelNode.add(new Attribute(XmlRef.formationGibbs, 
+				Double.toString(this._formationGibbs), null, true ));
+
+		modelNode.add(new Attribute(XmlRef.oxidationState, 
+				Double.toString(this._referenceOxidationState), null, true ));
+		
+		return modelNode;
+	}
+	
+	/**
+	 * Load and interpret the values of the given ModelNode to this 
+	 * NodeConstructor object
+	 * @param node
+	 */
+	public void setModule(Module node)
+	{
+		
+		this.setComposition(node.getAttribute( XmlRef.composition ).getValue());
+		
+		this._formationGibbs = Double.valueOf( 
+				node.getAttribute( XmlRef.timerStepSize ).getValue() );
+		
+
+		this._referenceOxidationState = Double.valueOf( 
+				node.getAttribute( XmlRef.oxidationState ).getValue() );
+	}
+	
+	public void removeModule(String specifier)
+	{
+		((ChemicalLib) this.getParent()).remove(this);
 	}
 
 	@Override
-	public Settable getParent() {
-		// TODO Auto-generated method stub
-		return null;
+	public String defaultXmlTag() 
+	{
+		return XmlRef.chemical;
+	}
+
+	@Override
+	public void setParent(Settable parent) 
+	{
+		this._parentNode = parent;
+	}
+
+	@Override
+	public Settable getParent() 
+	{
+		return this._parentNode;
 	}
 
 }

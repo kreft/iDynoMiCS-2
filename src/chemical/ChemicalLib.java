@@ -8,14 +8,17 @@ import org.w3c.dom.NodeList;
 import dataIO.Log;
 import dataIO.Log.Tier;
 import instantiable.Instantiable;
+import referenceLibrary.ClassRef;
 import referenceLibrary.XmlRef;
 import settable.Module;
 import settable.Settable;
+import settable.Module.Requirements;
 
 public class ChemicalLib implements Instantiable, Settable
 {
 	private HashMap<String,Chemical> _chemicals = 
 			new HashMap<String,Chemical>();
+	private Settable _parentNode;
 
 	@Override
 	public void instantiate(Element xmlElement, Settable parent) {
@@ -37,31 +40,49 @@ public class ChemicalLib implements Instantiable, Settable
 	{
 		Chemical out = new Chemical();
 		out.instantiate(chem, this);
+		out.setParent(this);
 		this._chemicals.put(out.getName(), out);
 	}
-
-	@Override
-	public Module getModule() {
-		// TODO Auto-generated method stub
-		return null;
+	
+	public void remove(Chemical chem)
+	{
+		this._chemicals.remove(chem);
 	}
 
 	@Override
-	public String defaultXmlTag() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void setParent(Settable parent) {
-		// TODO Auto-generated method stub
+	public Module getModule()
+	{
+		/* the Chemical lib node */
+		Module modelNode = new Module(XmlRef.chemicalLibrary, this);
+		modelNode.setRequirements(Requirements.EXACTLY_ONE);
 		
+		/* Species constructor */
+		modelNode.addChildSpec( ClassRef.chemical,
+				Module.Requirements.ZERO_TO_MANY);
+		
+		/* the already existing species */
+		for ( String s : this._chemicals.keySet() )
+			modelNode.add(((Chemical) _chemicals.get(s)).getModule());
+	
+		return modelNode;
 	}
 
 	@Override
-	public Settable getParent() {
-		// TODO Auto-generated method stub
-		return null;
+	public String defaultXmlTag()
+	{
+		return XmlRef.chemicalLibrary;
+	}
+
+	@Override
+	public void setParent(Settable parent)
+	{
+		this._parentNode = parent;
+	}
+
+	@Override
+	public Settable getParent()
+	{
+		return this._parentNode;
 	}
 
 }

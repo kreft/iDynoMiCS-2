@@ -505,12 +505,17 @@ public class ClassRef
 	public final static String spatialGrid =
 			grid.SpatialGrid.class.getName();
 	
+	
+	public static final String halfReaction =
+			reaction.HalfReaction.class.getName();
+	
 	/**
 	 * TODO
 	 */
 	public static final String reaction =
 			reaction.Reaction.class.getName();
 	
+
 	/**
 	 * TODO
 	 */
@@ -572,4 +577,5 @@ public class ClassRef
 	 */
 	public static final String chemical = 
 			chemical.Chemical.class.getName();
+
 }

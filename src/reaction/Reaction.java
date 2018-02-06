@@ -146,7 +146,7 @@ public class Reaction implements Instantiable, Copyable, Settable
 	public Reaction(String chemSpecies, double stoichiometry, 
 											String kinetic, String name)
 	{
-		this(getHM(chemSpecies, stoichiometry), new Expression(kinetic), name);
+		this( getHM(chemSpecies, stoichiometry), new Expression(kinetic), name);
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -213,6 +213,11 @@ public class Reaction implements Instantiable, Copyable, Settable
 	public Collection<String> getVariableNames()
 	{
 		return this._kinetic.getAllVariablesNames();
+	}
+	
+	public Collection<String> getReactantNames()
+	{
+		return this.getStoichiometry().keySet();
 	}
 	
 	public Collection<String> getConstituentNames()
@@ -298,7 +303,7 @@ public class Reaction implements Instantiable, Copyable, Settable
 	 * @param withRespectTo
 	 * @return
 	 */
-	// TODO consider deletion
+	// TODO never used, consider deletion
 	public double getDiffRate(HashMap<String, Double> concentrations, 
 														String withRespectTo)
 	{
@@ -340,6 +345,7 @@ public class Reaction implements Instantiable, Copyable, Settable
 		return modelNode;
 	}
 	
+	// TODO never used, consider deletion
 	public Module getStoNode(Settable constructor, String component, 
 			Double coefficient) {
 		

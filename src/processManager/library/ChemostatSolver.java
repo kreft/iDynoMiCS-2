@@ -239,11 +239,10 @@ public class ChemostatSolver extends ProcessManager
 				 */
 				for ( Reaction aReac : environment.getReactions() )
 				{
-					rate = aReac.getRate( soluteMap );
 					for ( int i = 0; i < _n; i++ )
 					{
-						stoichio = aReac.getStoichiometry( _solutes[i] );
-						dydt[i] += rate * stoichio;
+						dydt[i] += aReac.getProductionRate( soluteMap, 
+								_solutes[i]);
 					}
 				}
 				/*
@@ -297,9 +296,8 @@ public class ChemostatSolver extends ProcessManager
 						 */
 						for ( int i = 0; i < _n; i++ )
 						{
-							/* solutes */
-							stoichio = aReac.getStoichiometry( _solutes[i]);
-							dydt[i] += rate * stoichio;
+							dydt[i] += aReac.getProductionRate( reactionMap, 
+									_solutes[i] );
 						}
 						/*
 						 * Apply the effect of this reaction to the agent and
@@ -312,8 +310,8 @@ public class ChemostatSolver extends ProcessManager
 							{
 								i++;
 								/* mass and internal products */
-								stoichio = aReac.getStoichiometry( s );
-								dydt[ _n + yAgent + i ] += rate * stoichio;
+								dydt[ _n + yAgent + i ] += 
+										aReac.getProductionRate(reactionMap, s);
 							}
 						}
 					}

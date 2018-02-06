@@ -533,4 +533,6 @@ public class XmlRef
 
 	public static final String oxidationState = "oxidationState";
 
+	public static final String halfReaction = "halfReaction";
+
 }
