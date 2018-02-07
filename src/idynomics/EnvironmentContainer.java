@@ -16,6 +16,7 @@ import static grid.ArrayType.WELLMIXED;
 import grid.SpatialGrid;
 import grid.WellMixedConstants;
 import instantiable.object.InstantiableList;
+import reaction.RegularReaction;
 import reaction.Reaction;
 import referenceLibrary.ClassRef;
 import referenceLibrary.XmlRef;
@@ -45,7 +46,7 @@ public class EnvironmentContainer implements CanPrelaunchCheck, Settable
 	 * Collection of extracellular reactions specific to this compartment
 	 * (each Reaction knows its own name).
 	 */
-	protected InstantiableList<Reaction> _reactions = new InstantiableList<Reaction>(Reaction.class, null, XmlRef.reactions, XmlRef.reaction);
+	protected InstantiableList<RegularReaction> _reactions = new InstantiableList<RegularReaction>(RegularReaction.class, null, XmlRef.reactions, XmlRef.reaction);
 	/**
 	 * Name of the common grid.
 	 */
@@ -190,9 +191,9 @@ public class EnvironmentContainer implements CanPrelaunchCheck, Settable
 	/**
 	 * @return All of this {@code Compartment}'s extracellular reactions.
 	 */
-	public Collection<Reaction> getReactions()
+	public Collection<RegularReaction> getReactions()
 	{
-		Collection<Reaction> out = new LinkedList<Reaction>();
+		Collection<RegularReaction> out = new LinkedList<RegularReaction>();
 		out.addAll(this._reactions);
 		return this._reactions;
 	}
@@ -219,7 +220,7 @@ public class EnvironmentContainer implements CanPrelaunchCheck, Settable
 	 * 
 	 * @param reaction Reaction to add to this compartment.
 	 */
-	public void addReaction(Reaction reaction)
+	public void addReaction(RegularReaction reaction)
 	{
 		// TODO Safety: check this reaction is not already present?
 		this._reactions.add(reaction);

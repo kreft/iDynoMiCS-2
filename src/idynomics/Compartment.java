@@ -19,7 +19,7 @@ import instantiable.Instance;
 import instantiable.Instantiable;
 import processManager.ProcessComparator;
 import processManager.ProcessManager;
-import reaction.Reaction;
+import reaction.RegularReaction;
 import referenceLibrary.ClassRef;
 import referenceLibrary.XmlRef;
 import settable.Attribute;
@@ -203,7 +203,7 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable
 		 */
 		Log.out(level, "Compartment reading in (environmental) reactions");
 		for ( Element e : XmlHandler.getElements( xmlElem, XmlRef.reaction) )
-			new Reaction(e, this.environment);	
+			new RegularReaction(e, this.environment);	
 		/*
 		 * Read in agents.
 		 */
@@ -301,7 +301,7 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable
 		agent.setCompartment(this);
 	}
 	
-	public void addReaction(Reaction reaction)
+	public void addReaction(RegularReaction reaction)
 	{
 		this.environment.addReaction(reaction);
 	}

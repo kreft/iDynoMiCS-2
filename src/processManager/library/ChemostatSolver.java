@@ -16,6 +16,7 @@ import idynomics.EnvironmentContainer;
 import linearAlgebra.Vector;
 import processManager.ProcessManager;
 import processManager.ProcessMethods;
+import reaction.RegularReaction;
 import reaction.Reaction;
 import referenceLibrary.AspectRef;
 import solver.ODEderivatives;
@@ -124,6 +125,7 @@ public class ChemostatSolver extends ProcessManager
 			yODE = this._solver.solve( yODE , this._timeStepSize);
 		} catch (Exception e) {
 			Log.out(Tier.CRITICAL, "Error in ODE solver: " + e);
+			e.printStackTrace();
 		}
 
 		/*
@@ -206,7 +208,6 @@ public class ChemostatSolver extends ProcessManager
 				/*
 				 * Setup and re-used objects
 				 */
-				double rate, stoichio;
 				Vector.setAll(dydt, 0.0);
 				HashMap<String, Double> soluteMap = 
 						new HashMap<String, Double>();
@@ -252,8 +253,8 @@ public class ChemostatSolver extends ProcessManager
 				for ( Agent a : agents.getAllAgents() )
 				{
 					@SuppressWarnings("unchecked")
-					List<Reaction> reactions = 
-							(List<Reaction>) a.get(REACTIONS);
+					List<RegularReaction> reactions = 
+							(List<RegularReaction>) a.get(REACTIONS);
 					if ( reactions == null )
 						return;
 
@@ -287,9 +288,7 @@ public class ChemostatSolver extends ProcessManager
 									reactionMap.put(var , 0.0);
 							}
 						
-						reactionMap.putAll( agentMap );
-						rate = aReac.getRate( reactionMap );
-						
+						reactionMap.putAll( agentMap );						
 						/*
 						 * Apply the effect of this reaction on the relevant 
 						 * solutes and agent constituents.

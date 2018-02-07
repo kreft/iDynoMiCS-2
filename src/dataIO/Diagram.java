@@ -10,6 +10,7 @@ import agent.SpeciesLib;
 import dataIO.Log.Tier;
 import idynomics.Compartment;
 import idynomics.Idynomics;
+import reaction.RegularReaction;
 import reaction.Reaction;
 import referenceLibrary.AspectRef;
 import referenceLibrary.XmlRef;
@@ -88,7 +89,7 @@ public class Diagram
 		{
 			String reacDesc = r.getName()+ "_" + reactions.get(r);
 			this._diagramFile.write(reacDesc + "\n");
-			Map<String,Double> sto = r.getStoichiometry();
+			Map<String,Double> sto = r.getStoichiometryAtStdConcentration();
 			String product;
 			for ( String s : r.getReactantNames() )
 			{

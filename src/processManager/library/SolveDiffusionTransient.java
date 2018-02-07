@@ -19,6 +19,7 @@ import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
 import processManager.ProcessDiffusion;
 import processManager.ProcessMethods;
+import reaction.RegularReaction;
 import reaction.Reaction;
 import referenceLibrary.XmlRef;
 import shape.subvoxel.CoordinateMap;
@@ -127,8 +128,8 @@ public class SolveDiffusionTransient extends ProcessDiffusion
 		 * more to do.
 		 */
 		@SuppressWarnings("unchecked")
-		List<Reaction> reactions = 
-				(List<Reaction>) agent.getValue(XmlRef.reactions);
+		List<RegularReaction> reactions = 
+				(List<RegularReaction>) agent.getValue(XmlRef.reactions);
 		if ( reactions == null )
 			return;
 		/*
@@ -153,10 +154,10 @@ public class SolveDiffusionTransient extends ProcessDiffusion
 		 * Now look at all the voxels this agent covers.
 		 */
 		Map<String,Double> concns = new HashMap<String,Double>();
-		Map<String,Double> stoichiometry;
+
 		SpatialGrid solute;
 		Shape shape = this._agents.getShape();
-		double concn, rate, productRate, volume, perVolume;
+		double concn, productRate, volume, perVolume;
 		for ( int[] coord : distributionMap.keySet() )
 		{
 			volume = shape.getVoxelVolume(coord);

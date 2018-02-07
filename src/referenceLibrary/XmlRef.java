@@ -535,4 +535,7 @@ public class XmlRef
 
 	public static final String halfReaction = "halfReaction";
 
+	public static final String metabolicReaction = "metabolicReaction";
+
+
 }

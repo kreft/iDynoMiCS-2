@@ -44,6 +44,11 @@ public class ChemicalLib implements Instantiable, Settable
 		this._chemicals.put(out.getName(), out);
 	}
 	
+	public Chemical get(String chemical)
+	{
+		return this._chemicals.get(chemical);
+	}
+	
 	public void remove(Chemical chem)
 	{
 		this._chemicals.remove(chem);

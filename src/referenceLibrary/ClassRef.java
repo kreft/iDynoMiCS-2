@@ -509,13 +509,16 @@ public class ClassRef
 	public static final String halfReaction =
 			reaction.HalfReaction.class.getName();
 	
+	public static final String metabolicReaction =
+			reaction.MetabolicReaction.class.getName();
 	/**
 	 * TODO
 	 */
 	public static final String reaction =
-			reaction.Reaction.class.getName();
+			reaction.RegularReaction.class.getName();
 	
-
+	
+	
 	/**
 	 * TODO
 	 */

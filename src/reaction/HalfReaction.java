@@ -1,6 +1,5 @@
 package reaction;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -8,12 +7,13 @@ import java.util.Map;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
+import chemical.Chemical;
 import dataIO.Log;
 import dataIO.ObjectFactory;
 import dataIO.XmlHandler;
 import dataIO.Log.Tier;
 import generalInterfaces.Copyable;
-import idynomics.EnvironmentContainer;
+import idynomics.Idynomics;
 import instantiable.Instantiable;
 import instantiable.object.InstantiableList;
 import instantiable.object.InstantiableMap;
@@ -24,6 +24,11 @@ import settable.Settable;
 import settable.Module.Requirements;
 import utility.Helper;
 
+/**
+ * 
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
+ *
+ */
 public class HalfReaction implements Instantiable, Copyable, Settable
 {
 	protected String _name;
@@ -97,6 +102,25 @@ public class HalfReaction implements Instantiable, Copyable, Settable
 		if ( this._stoichiometry.containsKey(reactantName) )
 			return this._stoichiometry.get(reactantName);
 		return 0.0;
+	}
+	
+	public double electrons()
+	{
+		/* TODO nicefy */
+		return this.getStoichiometry("electron");
+	}
+	
+	public Chemical maxCarbon()
+	{
+		Chemical chemical = null;
+		double temp = 0.0;
+		for( String chem : getConstituentNames() )
+		{
+			Chemical c = Idynomics.simulator.chemicalLibrary.get(chem);
+			if( chemical == null || c.get("C") > temp)
+				chemical = c;
+		}
+		return chemical;
 	}
 
 	public Map<String,Double> getStoichiometry()

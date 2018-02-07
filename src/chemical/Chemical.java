@@ -44,8 +44,9 @@ public class Chemical implements Settable, Instantiable
 	/**
 	 * named compounds in chemical composition vector, default: 
 	 * Charge e, Carbon C, Hydrogen H, Oxygen O, Nitrogen N, Phosphorus P, Sulfur S.
+	 * 
 	 */
-	public static final char[] components = "eCHONPS".toCharArray();
+	public static final String components = "eCHONPS";
 	
 	public static final double[] atomicMass = 
 			new double[] { 0, 12, 1, 16, 14, 31, 32};
@@ -92,8 +93,23 @@ public class Chemical implements Settable, Instantiable
 		}
 	}
 	
+	public double getOxidationState()
+	{
+		return this._referenceOxidationState;
+	}
+	
+	public double getFormation()
+	{
+		return this._formationGibbs;
+	}
+	
 	public double molarWeight() {
 		return Vector.dotProduct(_composition, atomicMass);
+	}
+	
+	public double get(String component)
+	{
+		return this._composition[components.indexOf(component)];
 	}
 	
 	public void setComposition(String input)
@@ -106,7 +122,7 @@ public class Chemical implements Settable, Instantiable
 		else
 		{
 			/* for instance CHO3e-1 for bicarbonate */
-			this._composition = Vector.zerosDbl(components.length);
+			this._composition = Vector.zerosDbl(components.length());
 			String temp = input;
 			int count;
 			boolean match;
@@ -114,13 +130,13 @@ public class Chemical implements Settable, Instantiable
 			{
 				match = false;
 				count = 0;
-				for( int j = 0; j < components.length; j++)
+				for( int j = 0; j < components.length(); j++)
 				{
-					if ( components[j] == temp.charAt(i) )
+					if ( components.charAt(j) == temp.charAt(i) )
 					{
 						for(int k = 0; k < temp.length()-i-1; k++)
 						{
-							for ( char c : components )
+							for ( char c : components.toCharArray() )
 								if ( c == temp.charAt(i+k+1) )
 								{
 									match = true;
@@ -198,7 +214,7 @@ public class Chemical implements Settable, Instantiable
 		this.setComposition(node.getAttribute( XmlRef.composition ).getValue());
 		
 		this._formationGibbs = Double.valueOf( 
-				node.getAttribute( XmlRef.timerStepSize ).getValue() );
+				node.getAttribute( XmlRef.formationGibbs ).getValue() );
 		
 
 		this._referenceOxidationState = Double.valueOf( 

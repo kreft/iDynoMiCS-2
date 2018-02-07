@@ -10,7 +10,7 @@
 				<aspect name="fitness_cost" type="PRIMARY" class="Double" value="0.1" />
 				<aspect name="zeta" type="PRIMARY" class="Double" value="1.0" />
 				<aspect name="reactions" type="PRIMARY" class="InstantiableList"> 
-					<list class="Reaction" nodeLabel="reaction" entryClass="Reaction" keyClass="String" keyLabel="name">
+					<list class="RegularReaction" nodeLabel="reaction" entryClass="RegularReaction" keyClass="String" keyLabel="name">
 						<reaction name="growth">
 							<expression value="(1.0-(emax*(antibiotic^hillcoef)/((mic^hillcoef)+(antibiotic^hillcoef))))*(1.0-fitness_cost)*mumax*mass*solute1/(Ks+solute1)">
 								<constant name="Ks" value="3.2707e-005" />

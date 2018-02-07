@@ -18,7 +18,7 @@
 			<species name="CanonicalAOB">
 				<aspect name="pigment" type="PRIMARY" class="String" value="RED" />
 				<aspect name="reactions" type="PRIMARY"  class="InstantiableList"> 
-					<list class="Reaction" nodeLabel="reaction" entryClass="Reaction" keyClass="String" keyLabel="name">
+					<list class="RegularReaction" nodeLabel="reaction" entryClass="RegularReaction" keyClass="String" keyLabel="name">
 						<reaction name="growth">
 							<expression value="mass * mumax * ( ammonium / ( ammonium + Kam ) ) * ( ( oxygen / ( oxygen + Kox ) )">
 								<!-- pg/µm3 --> 
@@ -39,7 +39,7 @@
 			<species name="CanonicalNOB">
 				<aspect name="pigment" type="PRIMARY" class="String" value="BLUE" />
 				<aspect name="reactions" type="PRIMARY"  class="InstantiableList"> 
-					<list class="Reaction" nodeLabel="reaction" entryClass="Reaction" keyClass="String" keyLabel="name">
+					<list class="RegularReaction" nodeLabel="reaction" entryClass="RegularReaction" keyClass="String" keyLabel="name">
 						<reaction name="growth">
 							<expression value="mass * mumax * 
 									( nitrite / ( nitrite + Kni ) ) * ( ( oxygen / ( oxygen + Kox ) ) * ( ammonium / ( ammonium + 0.000000000001 ) )">
@@ -62,7 +62,7 @@
 			<species name="Comammox">
 				<aspect name="pigment" type="PRIMARY" class="String" value="GREEN" />
 				<aspect name="reactions" type="PRIMARY"  class="InstantiableList"> 
-					<list class="Reaction" nodeLabel="reaction" entryClass="Reaction" keyClass="String" keyLabel="name">
+					<list class="RegularReaction" nodeLabel="reaction" entryClass="RegularReaction" keyClass="String" keyLabel="name">
 						<reaction name="growth">
 							<expression value="mass * mumax * ( ammonium / ( ammonium + Kam ) ) * ( ( oxygen / ( oxygen + Kox ) )">
 								<!-- pg/µm3 --> 

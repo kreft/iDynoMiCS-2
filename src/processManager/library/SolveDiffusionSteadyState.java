@@ -17,6 +17,7 @@ import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
 import processManager.ProcessDiffusion;
 import processManager.ProcessMethods;
+import reaction.RegularReaction;
 import reaction.Reaction;
 import referenceLibrary.XmlRef;
 import shape.Shape;
@@ -132,8 +133,8 @@ public class SolveDiffusionSteadyState extends ProcessDiffusion
 		 * more to do.
 		 */
 		@SuppressWarnings("unchecked")
-		List<Reaction> reactions = 
-				(List<Reaction>) agent.getValue(XmlRef.reactions);
+		List<RegularReaction> reactions = 
+				(List<RegularReaction>) agent.getValue(XmlRef.reactions);
 		if ( reactions == null )
 			return;
 		/*
@@ -234,8 +235,8 @@ public class SolveDiffusionSteadyState extends ProcessDiffusion
 		 * more to do.
 		 */
 		@SuppressWarnings("unchecked")
-		List<Reaction> reactions = 
-				(List<Reaction>) agent.getValue(XmlRef.reactions);
+		List<RegularReaction> reactions = 
+				(List<RegularReaction>) agent.getValue(XmlRef.reactions);
 		if ( reactions == null )
 			return;
 		/*
