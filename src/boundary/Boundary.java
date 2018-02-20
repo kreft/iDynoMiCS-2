@@ -423,7 +423,14 @@ public abstract class Boundary implements Settable, Instantiable
 					agents.size()+" agents to arrivals lounge");
 		}
 		for ( Agent anAgent : agents )
+		{
+			Compartment thisComp = (Compartment) this._environment.getParent();
+			if (thisComp.isDimensionless())
+				anAgent.set(AspectRef.isLocated, false);
+			else
+				anAgent.set(AspectRef.isLocated, true);
 			this.acceptInboundAgent(anAgent);
+		}
 		if ( Log.shouldWrite(AGENT_LEVEL) )
 			Log.out(AGENT_LEVEL, " Done!");
 	}
@@ -463,25 +470,43 @@ public abstract class Boundary implements Settable, Instantiable
 					String partnerCompName = this.getPartnerCompartmentName();
 					Compartment partnerComp = Idynomics.simulator.getCompartment(partnerCompName);
 					double scFac = partnerComp.getScalingFactor();
-					int numAgentsToAccept = (int) Math.ceil(numAgentsDepart / scFac);
-					for (int i = 0; i < numAgentsToAccept; i++)
-					{
-						Agent accepted = (Agent) this._departureLounge.toArray()[randomSelector.nextInt(numAgentsDepart)];
-						accepted.set(AspectRef.isLocated, true);
-						acceptanceLounge.add(accepted);
+					if (scFac == 1)
+						this._partner.acceptInboundAgents(this._departureLounge);
+					else {
+						int numAgentsToAccept = (int) Math.ceil(numAgentsDepart / scFac);
+						for (int i = 0; i < numAgentsToAccept; i++)
+						{
+							int agentIndex = randomSelector.nextInt(numAgentsDepart);
+							Agent accepted = (Agent) this._departureLounge.toArray()[agentIndex];
+							if (acceptanceLounge.contains(accepted))
+							{
+								Agent acceptedCopy = new Agent(accepted);
+								acceptedCopy.set(AspectRef.isLocated, true);
+								acceptanceLounge.add(acceptedCopy);
+							}
+							else
+								acceptanceLounge.add(accepted);
+						}
+						this._partner.acceptInboundAgents(acceptanceLounge);
 					}
-					this._partner.acceptInboundAgents(acceptanceLounge);
 				}
 				else if (this.getPartnerClass() == ChemostatToBoundaryLayer.class)
 				{
 					Compartment thisComp = (Compartment) this._environment.getParent();
 					double scFac = thisComp.getScalingFactor();
-					int numAgentsToAccept = (int) Math.ceil(numAgentsDepart * scFac);
-					for (int i = 0; i < numAgentsToAccept; i++)
-					{
-						Agent accepted = (Agent) this._departureLounge.toArray()[randomSelector.nextInt(numAgentsDepart)];
-						accepted.set(AspectRef.isLocated, false);
-						acceptanceLounge.add(accepted);
+					if (scFac == 1)
+						this._partner.acceptInboundAgents(this._departureLounge);
+					else {
+						int numAgentsToAccept = (int) Math.ceil(numAgentsDepart * scFac);
+						for (int i = 0; i < numAgentsToAccept; i++)
+						{
+							int agentIndex = randomSelector.nextInt(numAgentsDepart);
+							// if scFac = 1: no randomisation required. Copy agents which have to be accepted more than once.
+							Agent accepted = (Agent) this._departureLounge.toArray()[agentIndex];
+							// 	move this to accept function.
+							accepted.set(AspectRef.isLocated, false);
+							acceptanceLounge.add(accepted);
+						}
 					}
 					this._partner.acceptInboundAgents(acceptanceLounge);
 				}
