@@ -478,14 +478,9 @@ public abstract class Boundary implements Settable, Instantiable
 						{
 							int agentIndex = randomSelector.nextInt(numAgentsDepart);
 							Agent accepted = (Agent) this._departureLounge.toArray()[agentIndex];
-							if (acceptanceLounge.contains(accepted))
-							{
-								Agent acceptedCopy = new Agent(accepted);
-								acceptedCopy.set(AspectRef.isLocated, true);
-								acceptanceLounge.add(acceptedCopy);
-							}
-							else
-								acceptanceLounge.add(accepted);
+							Agent acceptedCopy = new Agent(accepted);
+							acceptedCopy.set(AspectRef.isLocated, true);
+							acceptanceLounge.add(acceptedCopy);
 						}
 						this._partner.acceptInboundAgents(acceptanceLounge);
 					}
