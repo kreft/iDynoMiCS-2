@@ -491,10 +491,9 @@ public abstract class Boundary implements Settable, Instantiable
 						for (int i = 0; i < numAgentsToAccept; i++)
 						{
 							int agentIndex = randomSelector.nextInt(numAgentsDepart);
-							// if scFac = 1: no randomisation required. Copy agents which have to be accepted more than once.
 							Agent accepted = (Agent) this._departureLounge.toArray()[agentIndex];
 							Agent acceptedCopy = new Agent(accepted);
-							acceptedCopy.set(AspectRef.isLocated, true);
+							acceptedCopy.set(AspectRef.isLocated, false);
 							acceptanceLounge.add(acceptedCopy);
 						}
 					}
