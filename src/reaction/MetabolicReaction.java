@@ -167,8 +167,8 @@ public class MetabolicReaction
 	
 	public double fCat( Map<String,Double> concns )
 	{
-		return ( this.anabolicGibbs( concns ) - this.dissipationGibbs() ) / 
-		( CatabolicGibbs( concns ) );
+		return ( this.anabolicGibbs( concns ) + this.dissipationGibbs() ) / 
+		( - CatabolicGibbs( concns ) );
 	}
 	
 	public double maxGrowth( Map<String,Double> concns )
