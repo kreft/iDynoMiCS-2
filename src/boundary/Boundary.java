@@ -471,7 +471,9 @@ public abstract class Boundary implements Settable, Instantiable
 						int numAgentsToAccept = (int) Math.ceil(numAgentsDepart / scFac);
 						for (int i = 0; i < numAgentsToAccept; i++)
 						{
-							int agentIndex = randomSelector.nextInt(numAgentsDepart);
+							int agentIndex = i;
+							if (agentIndex >= numAgentsDepart)
+								agentIndex = randomSelector.nextInt(numAgentsDepart);
 							Agent accepted = (Agent) this._departureLounge.toArray()[agentIndex];
 							Agent acceptedCopy = new Agent(accepted);
 							acceptedCopy.set(AspectRef.isLocated, true);
@@ -490,7 +492,9 @@ public abstract class Boundary implements Settable, Instantiable
 						int numAgentsToAccept = (int) Math.ceil(numAgentsDepart * scFac);
 						for (int i = 0; i < numAgentsToAccept; i++)
 						{
-							int agentIndex = randomSelector.nextInt(numAgentsDepart);
+							int agentIndex = i;
+							if (agentIndex >= numAgentsDepart)
+								agentIndex = randomSelector.nextInt(numAgentsDepart);
 							Agent accepted = (Agent) this._departureLounge.toArray()[agentIndex];
 							Agent acceptedCopy = new Agent(accepted);
 							acceptedCopy.set(AspectRef.isLocated, false);
