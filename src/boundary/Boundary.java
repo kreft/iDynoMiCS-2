@@ -424,11 +424,6 @@ public abstract class Boundary implements Settable, Instantiable
 		}
 		for ( Agent anAgent : agents )
 		{
-			Compartment thisComp = (Compartment) this._environment.getParent();
-			if (thisComp.isDimensionless())
-				anAgent.set(AspectRef.isLocated, false);
-			else
-				anAgent.set(AspectRef.isLocated, true);
 			this.acceptInboundAgent(anAgent);
 		}
 		if ( Log.shouldWrite(AGENT_LEVEL) )
@@ -498,9 +493,9 @@ public abstract class Boundary implements Settable, Instantiable
 							int agentIndex = randomSelector.nextInt(numAgentsDepart);
 							// if scFac = 1: no randomisation required. Copy agents which have to be accepted more than once.
 							Agent accepted = (Agent) this._departureLounge.toArray()[agentIndex];
-							// 	move this to accept function.
-							accepted.set(AspectRef.isLocated, false);
-							acceptanceLounge.add(accepted);
+							Agent acceptedCopy = new Agent(accepted);
+							acceptedCopy.set(AspectRef.isLocated, true);
+							acceptanceLounge.add(acceptedCopy);
 						}
 					}
 					this._partner.acceptInboundAgents(acceptanceLounge);
