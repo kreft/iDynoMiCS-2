@@ -511,6 +511,7 @@ public abstract class Boundary implements Settable, Instantiable
 					this._agents.registerRemoveAgent(a);
 				this._departureLounge.clear();
 			}
+			this._agents.refreshSpatialRegistry();
 		}
 	}
 

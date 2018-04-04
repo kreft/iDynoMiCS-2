@@ -697,6 +697,11 @@ public class Dimension implements CanPrelaunchCheck, Settable,
 				String.valueOf(this._extreme[0]), null, false ));
 		modelNode.add(new Attribute(XmlRef.max, 
 				String.valueOf(this._extreme[1]), null, false ));
+		/* Real Extremes */
+		modelNode.add( new Attribute(XmlRef.realMin,
+                String.valueOf(this._realExtreme[0]), null, false ) );
+		modelNode.add( new Attribute(XmlRef.realMax,
+                String.valueOf(this._realExtreme[1]), null, false ) );
 		/* Boundaries */
 		if ( ! this._isCyclic )
 		{

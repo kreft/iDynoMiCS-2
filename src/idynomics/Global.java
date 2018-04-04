@@ -115,6 +115,8 @@ public class Global extends ParameterSet
 	public int outputskip = 0;
 
 	public static String exitCommand;
+	
+	public static double densityScale = 1.0;
 
 	/**************************************************************************
 	 * Appearance

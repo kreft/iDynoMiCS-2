@@ -14,6 +14,7 @@ import utility.Helper;
  * quicker.</p>
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
+ * @author Sankalp Arya (sankalp.arya@nottingham.ac.uk) University of Nottingham, U.K.
  * 
  * Input: mass, density.
  */
@@ -52,7 +53,8 @@ public class SimpleVolumeState extends Calculated {
 		}
 		// TODO could look at what class of object density is, as it may also 
 		// be an array or map.
-		return totalMass / aspectOwner.getDouble(DENSITY);
+		double densityVal = aspectOwner.getDouble(DENSITY) * idynomics.Global.densityScale;
+		return totalMass / densityVal;
 	}
 
 }

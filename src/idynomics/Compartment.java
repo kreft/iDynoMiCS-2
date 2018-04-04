@@ -172,17 +172,18 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable
 		if ( str[0] == null )
 			str = Shape.getAllOptions();
 		this.setShape( (Shape) Instance.getNew(elem, this, str) );
+		if (this._shape.getNumberOfDimensions() < 3)
+			Global.densityScale = 0.82;
 		
 		double[] simulatedLengths = this.getShape().getDimensionLengths();
 		// Check for significant dimensions.
 		if (simulatedLengths.length != 0)
 		{
-			// Check for scale element, specifying explicitly provided scale.
-			Element scaleElem = XmlHandler.findUniqueChild(elem, XmlRef.compartmentScale);
-			if ( !Helper.isNullOrEmpty(scaleElem) )
+			// Check for scale attribute, specifying explicitly provided scale.
+			String scalingFac = XmlHandler.gatherAttribute(xmlElem, XmlRef.compartmentScale);
+			if ( !Helper.isNullOrEmpty(scalingFac) )
 			{
-				String scalingFac = XmlHandler.gatherAttribute(scaleElem, XmlRef.valueAttribute);
-				double scFac = Helper.isNullOrEmpty(scalingFac) ? 1.0 : Double.valueOf(scalingFac);
+				double scFac = Double.valueOf(scalingFac);
 				this.setScalingFactor(scFac);
 			}
 			else
@@ -551,6 +552,8 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable
 		/* Add the name attribute. */
 		modelNode.add( new Attribute(XmlRef.nameAttribute, 
 				this.getName(), null, true ) );
+		modelNode.add( new Attribute(XmlRef.compartmentScale,
+                String.valueOf(this.getScalingFactor()), null, true ) );
 		/* Add the shape if it exists. */
 		if ( this._shape != null )
 			modelNode.add( this._shape.getModule() );
