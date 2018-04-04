@@ -2,15 +2,11 @@ package chemical;
 
 import org.w3c.dom.Element;
 
-import agent.Species;
 import dataIO.Log;
 import dataIO.XmlHandler;
 import dataIO.Log.Tier;
-import expression.Expression;
-import idynomics.EnvironmentContainer;
 import instantiable.Instantiable;
 import linearAlgebra.Vector;
-import referenceLibrary.ClassRef;
 import referenceLibrary.XmlRef;
 import settable.Attribute;
 import settable.Module;
@@ -112,6 +108,12 @@ public class Chemical implements Settable, Instantiable
 		return this._composition[components.indexOf(component)];
 	}
 	
+	/**
+	 * Read out chemical formula from string, currently limited amount of
+	 * chemicals. For full chemical library we would need to restructure
+	 * the components field to a dictionary of multi-character components.
+	 * @param input
+	 */
 	public void setComposition(String input)
 	{
 		if( input.split(",").length > 1 )
