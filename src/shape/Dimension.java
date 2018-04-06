@@ -70,6 +70,12 @@ public class Dimension implements CanPrelaunchCheck, Settable,
 	protected double[] _extreme = new double[]{0.0, Double.MIN_VALUE};
 	
 	/**
+	 * Actual values of min and max for this dimension. This will determine the
+	 * multiplicative factor, if not provided.
+	 */
+	protected double[] _realExtreme = new double[]{0.0, Double.MIN_VALUE};
+	
+	/**
 	 * Boundary objects at the minimum (0) and maximum (1).
 	 */
 	private SpatialBoundary[] _boundary = new SpatialBoundary[2];
@@ -158,6 +164,16 @@ public class Dimension implements CanPrelaunchCheck, Settable,
 			val = Math.toRadians(val);
 		this.setExtreme(val, 1);
 		
+		/* Set the real max from xml or equal to the compartment size. */
+		str = XmlHandler.gatherAttribute(elem, XmlRef.realMax);
+		if ( !Helper.isNullOrEmpty(str) )
+		{
+			val = Double.valueOf(str);
+			if ( this.isAngular() )
+				val = Math.toRadians(val);
+		}
+		this.setRealExtreme(val, 1);
+		
 		/* By default the minimum is 0.0 */
 		str = XmlHandler.gatherAttribute(elem, XmlRef.min);
 		val = Helper.isNullOrEmpty(str) ? 0.0 : Double.valueOf(str);
@@ -165,6 +181,16 @@ public class Dimension implements CanPrelaunchCheck, Settable,
 		if ( this.isAngular() )
 			val = Math.toRadians(val);
 		this.setExtreme(val, 0);
+		
+		/* Set the real min from xml or equal to the compartment size. */
+		str = XmlHandler.gatherAttribute(elem, XmlRef.realMin);
+		if ( !Helper.isNullOrEmpty(str) )
+		{
+			val = Double.valueOf(str);
+			if ( this.isAngular() )
+				val = Math.toRadians(val);
+		}
+		this.setRealExtreme(val, 0);
 		
 		/* Calculate length from dimension extremes. */
 		double length = this.getLength();
@@ -224,11 +250,21 @@ public class Dimension implements CanPrelaunchCheck, Settable,
 	}
 	
 	/**
+	 * \brief Get the real length of this dimension.
+	 * 
+	 * @return A positive {@code double}.
+	 */
+	public double getRealLength()
+	{
+		return this._realExtreme[1] - this._realExtreme[0];
+	}
+	
+	/**
 	 * \brief Confirm that the maximum extreme is greater than the minimum.
 	 */
-	protected void checkExtremes()
+	protected void checkExtremes(double[] extremeVal)
 	{
-		if ( this._extreme[1] < this._extreme[0] )
+		if ( extremeVal[1] < extremeVal[0] )
 		{
 			throw new 
 					IllegalArgumentException("Dimension length must be > 0");
@@ -244,7 +280,7 @@ public class Dimension implements CanPrelaunchCheck, Settable,
 	public void setExtreme(double value, int index)
 	{
 		this._extreme[index] = value;
-		this.checkExtremes();
+		this.checkExtremes(this._extreme);
 	}
 	
 	/**
@@ -259,7 +295,19 @@ public class Dimension implements CanPrelaunchCheck, Settable,
 	{
 		this._extreme[0] = minValue;
 		this._extreme[1] = maxValue;
-		this.checkExtremes();
+		this.checkExtremes(this._extreme);
+	}
+	
+	/**
+	 * \brief Set the value for real extreme to take.
+	 * 
+	 * @param value Value for the specified extreme to take.
+	 * @param index Which extreme to set: 0 for minimum, 1 for maximum.
+	 */
+	public void setRealExtreme(double value, int index)
+	{
+		this._realExtreme[index] = value;
+		this.checkExtremes(this._realExtreme);
 	}
 	
 	/**
@@ -272,6 +320,15 @@ public class Dimension implements CanPrelaunchCheck, Settable,
 	}
 	
 	/**
+	 * @param index Index of the extreme: must be 0 or 1.
+	 * @return Position in space of the required extreme.
+	 */
+	public double getRealExtreme(int index)
+	{
+		return this._realExtreme[index];
+	}
+	
+	/**
 	 * \brief Set the length of this dimension.
 	 * 
 	 * @param length Positive {@code double}.
@@ -279,7 +336,7 @@ public class Dimension implements CanPrelaunchCheck, Settable,
 	public void setLength(double length)
 	{
 		this._extreme[1] = this._extreme[0] + length;
-		this.checkExtremes();
+		this.checkExtremes(this._extreme);
 	}
 	
 	/**
@@ -640,6 +697,11 @@ public class Dimension implements CanPrelaunchCheck, Settable,
 				String.valueOf(this._extreme[0]), null, false ));
 		modelNode.add(new Attribute(XmlRef.max, 
 				String.valueOf(this._extreme[1]), null, false ));
+		/* Real Extremes */
+		modelNode.add( new Attribute(XmlRef.realMin,
+                String.valueOf(this._realExtreme[0]), null, false ) );
+		modelNode.add( new Attribute(XmlRef.realMax,
+                String.valueOf(this._realExtreme[1]), null, false ) );
 		/* Boundaries */
 		if ( ! this._isCyclic )
 		{

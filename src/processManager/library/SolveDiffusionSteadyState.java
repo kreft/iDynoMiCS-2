@@ -69,7 +69,7 @@ public class SolveDiffusionSteadyState extends ProcessDiffusion
 		 * Estimate the steady-state mass flows in or out of the well-mixed
 		 * region, and distribute it among the relevant boundaries.
 		 */
-		//TODO
+		this._environment.distributeWellMixedFlows();
 		/*
 		 * Estimate agent growth based on the steady-state solute 
 		 * concentrations.
@@ -162,7 +162,7 @@ public class SolveDiffusionSteadyState extends ProcessDiffusion
 		for ( int[] coord : distributionMap.keySet() )
 		{
 			volume = shape.getVoxelVolume(coord);
-			perVolume = Math.pow(volume, -1.0);
+			perVolume = 1.0/volume;
 			for ( Reaction r : reactions )
 			{
 				/* 
@@ -268,7 +268,7 @@ public class SolveDiffusionSteadyState extends ProcessDiffusion
 		for ( int[] coord : distributionMap.keySet() )
 		{
 			volume = shape.getVoxelVolume(coord);
-			perVolume = Math.pow(volume, -1.0);
+			perVolume = 1.0/volume;
 			for ( Reaction r : reactions )
 			{
 				/* 

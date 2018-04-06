@@ -219,6 +219,9 @@ public class Global extends ParameterSet
 	 */
 	public static String[] supplementary_property_files;
 
+	public static double densityScale = 1.0;
+
+
 	/**************************************************************************
 	 * Appearance
 	 *************************************************************************/

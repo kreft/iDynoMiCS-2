@@ -115,6 +115,9 @@ public class PDEmultigrid extends PDEsolver
 				continueVCycle = this.doVCycle(variables, outer);
 		}
 		
+		//Calculate mass movement
+		double massMove = 0.0;
+		
 		/* Apply all computations. */
 		// TODO Rob [15Jan2017]: Not sure this is necessary, try removing once
 		// everything is working.
@@ -124,8 +127,11 @@ public class PDEmultigrid extends PDEsolver
 			currentLayer = this.getMultigrid(var);
 			while ( currentLayer.hasFiner() )
 				currentLayer = currentLayer.getFiner();
+			massMove = var.getTotal(PRODUCTIONRATE);
+			var.increaseWellMixedMassFlow(massMove);
 			var.setTo(CONCN, currentLayer.getGrid().getArray(CONCN));
 		}
+		
 	}
 
 	private void refreshCommonGrid(SpatialGrid commonGrid)

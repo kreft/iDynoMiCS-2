@@ -237,6 +237,8 @@ public abstract class SpatialBoundary extends Boundary
 		Shape aShape = this._environment.getShape();
 		SpatialGrid grid = this._environment.getCommonGrid();
 		aShape.resetIterator();
+		//NOTE: Check this. Seems to be setting the well mixed region from
+		// boundary to layerThicness?
 		while ( aShape.isIteratorValid() )
 		{
 			double distance = aShape
