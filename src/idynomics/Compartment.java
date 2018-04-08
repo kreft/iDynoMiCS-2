@@ -492,7 +492,7 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable
 		/*
 		 * 
 		 */
-		// TODO update concentrations again?
+		this.environment.updateSoluteBoundaries();
 	}
 	
 	/* ***********************************************************************

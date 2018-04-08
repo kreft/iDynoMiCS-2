@@ -33,6 +33,7 @@ import surface.Collision;
 import surface.Surface;
 import surface.predicate.AreColliding;
 import utility.ExtraMath;
+import utility.Helper;
 
 /**
  * \brief Plasmid Operations - Conjugation, Segregation Loss and affect on growth
@@ -177,10 +178,17 @@ public class PlasmidDynamics extends ProcessManager {
 				return false;
 			}
 		}
-		
-		double transfer_probability = (Double) newPlasmid.get(TRANS_PROB);
+		double transfer_frequency;
+		double transfer_probability;
+		if (Helper.isNullOrEmpty(newPlasmid.get(TRANS_PROB))) {
+			transfer_frequency = (Double) newPlasmid.get(TRANS_FREQ);
+			transfer_probability = transfer_frequency * neighbours.size();
+		}
+		else {
+			transfer_probability = (Double) newPlasmid.get(TRANS_PROB);
+			transfer_frequency = transfer_probability;
+		}
 		double maxPiliLength = (Double) newPlasmid.get(PILUS_LENGTH);
-		double transfer_frequency = (Double) newPlasmid.get(TRANS_FREQ);
 		String[] aspects_transfer = (String[]) newPlasmid.get(ASPECTS_TRANS);
 		this._aspectsToCopy.addAll(Arrays.asList(aspects_transfer));
 		
