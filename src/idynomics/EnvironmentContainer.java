@@ -299,6 +299,7 @@ public class EnvironmentContainer implements CanPrelaunchCheck, Settable
 			b.updateMassFlowRates();
 		if ( Log.shouldWrite(level) )
 			Log.out(level, " All solute boundaries now updated");
+		updateWellMixed();
 	}
 	
 	/**
@@ -439,7 +440,6 @@ public class EnvironmentContainer implements CanPrelaunchCheck, Settable
 			b.updateWellMixedArray();
 			if ( b.needsToUpdateWellMixed() )
 			{
-				//NOTE: This will always be 1
 				double sAreaFactor = b.getTotalSurfaceArea() * scaleFactor;
 				for ( SpatialGrid solute : this._solutes )
 				{
