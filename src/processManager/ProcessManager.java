@@ -101,7 +101,7 @@ public abstract class ProcessManager implements Instantiable, AspectInterface,
 	public void instantiate(Element xmlElem, Settable parent)
 	{
 		this.init(xmlElem, ((Compartment) parent).environment, 
-				((Compartment) parent).agents, ((Compartment) parent).getName());
+				((Compartment) parent).agents,((Compartment) parent).getName());
 	}
 	
 	/**
@@ -270,7 +270,8 @@ public abstract class ProcessManager implements Instantiable, AspectInterface,
 		/*
 		 * Move the time for next step forward by the step size.
 		 */
-		this._timeForNextStep += _timeStepSize;
+		this._timeForNextStep = BigDecimal.valueOf( _timeForNextStep ).add(
+				BigDecimal.valueOf( _timeStepSize ) ).doubleValue();
 		/*
 		 * 
 		 */

@@ -313,17 +313,36 @@ public class SolveDiffusionSteadyState extends ProcessDiffusion
 				 * stoichiometry may not be the same as those in the reaction
 				 * variables (although there is likely to be a large overlap).
 				 */
+				double dt = this.getTimeStepSize();
 				for ( String productName : r.getReactantNames() )
 				{
-					productRate = r.getProductionRate(concns, productName);
-					if ( agent.isAspect(productName) )
+					productRate = r.getProductionRate(concns,productName);
+					if ( this._environment.isSoluteName(productName) )
+					{
+						solute = this._environment.getSoluteGrid(productName);
+						solute.addValueAt(PRODUCTIONRATE, coord, productRate);
+					}
+					else if ( newBiomass.containsKey(productName) )
+					{
+						newBiomass.put(productName, newBiomass.get(productName)
+								+ (productRate * dt * volume));
+					}
+					else if ( agent.isAspect(productName) )
 					{
 						/*
 						 * Check if the agent has other mass-like aspects
 						 * (e.g. EPS).
 						 */
 						newBiomass.put(productName, agent.getDouble(productName)
-								+ (productRate * this._timeStepSize * volume));
+								+ (productRate * dt * volume));
+					}
+					else
+					{
+						//TODO quick fix If not defined elsewhere add it to the map
+						newBiomass.put(productName, (productRate * dt * volume));
+						System.out.println("agent reaction catched " + 
+								productName);
+						// TODO safety?
 					}
 				}
 			}
