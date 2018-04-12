@@ -490,9 +490,9 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable
 		 */
 		this.agents.agentsDepart();
 		/*
-		 * 
+		 * Ask all boundaries to update their solute concentrations.
 		 */
-		// TODO update concentrations again?
+		this.environment.updateSoluteBoundaries();
 	}
 	
 	/* ***********************************************************************

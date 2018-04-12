@@ -358,16 +358,16 @@ public abstract class Boundary implements Settable, Instantiable
 				this._partner.setMassFlowRate(name, thisRate);
 			}
 			/*
-			 * If there is any additional updating to do, do it now.
-			 */
-			this.additionalPartnerUpdate();
-			/*
 			 * Update the iteration numbers so that the partner boundary
 			 * doesn't reverse the changes we just made!
 			 */
 			this._iterLastUpdated = currentIter;
 			this._partner._iterLastUpdated = currentIter;
 		}
+		/*
+		 * If there is any additional updating to do, do it now.
+		 */
+		this.additionalPartnerUpdate();
 	}
 	
 	/**
