@@ -226,7 +226,7 @@ public class GuiEditor
 			GuiComponent.addTab( hostPane, 
 					node.getTag(), tabs, "");
 		}
-		else if ( node.isTagIn(new String[] {XmlRef.reaction}) )
+		else if ( node.isTagIn(new String[] {XmlRef.reaction, XmlRef.shapeDimension}) )
 		{
 			GuiComponent.addTab( getFirstTabParent(parent), 
 					node.getTag() + " " + node.getTitle(), tabs, ""); 
@@ -239,8 +239,8 @@ public class GuiEditor
 			parent.revalidate();
 		}
 		else if ( node.isTagIn(new String[] 
-				{XmlRef.shapeDimension, XmlRef.point, XmlRef.stoichiometric,
-						XmlRef.constant, XmlRef.speciesModule}) )
+				{XmlRef.point, XmlRef.stoichiometric,
+						XmlRef.constant, XmlRef.speciesModule, XmlRef.dimensionBoundary}) )
 		{
 			
 			parent.add(component, null);

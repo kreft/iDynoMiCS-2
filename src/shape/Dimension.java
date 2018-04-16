@@ -685,6 +685,7 @@ public class Dimension implements CanPrelaunchCheck, Settable,
 	public Module getModule()
 	{
 		Module modelNode = new Module(this.defaultXmlTag(), this);
+		modelNode.setTitle( this._dimName.toString() );
 		modelNode.setRequirements(Requirements.IMMUTABLE);
 		modelNode.add(new Attribute(XmlRef.nameAttribute, 
 										this._dimName.name(), null, false ));

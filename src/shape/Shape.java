@@ -144,6 +144,8 @@ public abstract class Shape implements
 		for ( Dimension dim : this._dimensions.values() )
 			if ( dim._isSignificant )
 				modelNode.add( dim.getModule() );
+		
+		
 		/* NOTE: no constructible child modules for this class thus no 
 		 * addChildSpec */
 		return modelNode;

@@ -25,6 +25,7 @@ import referenceLibrary.XmlRef;
 import settable.Attribute;
 import settable.Module;
 import settable.Settable;
+import settable.Module.Requirements;
 import utility.Helper;
 
 /**
@@ -183,7 +184,13 @@ public abstract class Boundary implements Settable, Instantiable
 		return ( this.getPartnerClass() != null ) &&
 				( this._partner == null );
 	}
-
+	
+	public boolean checkPartner()
+	{
+		return ( this.getPartnerClass() != null ) &&
+				( this._partner != null );
+	}
+	
 	/**
 	 * @return The name of the compartment this boundary should have a partner
 	 * boundary with.
@@ -574,11 +581,12 @@ public abstract class Boundary implements Settable, Instantiable
 	public Module getModule()
 	{
 		Module modelNode = new Module(this.defaultXmlTag(), this);
+		modelNode.setRequirements(Requirements.IMMUTABLE);
 		modelNode.add(new Attribute(XmlRef.classAttribute,
 				this.getClass().getSimpleName(),
 				null, true));
 		/* Partner compartment. */
-		if ( this.needsPartner() )
+		if ( this.checkPartner() )
 		{
 			List<String> cList = Idynomics.simulator.getCompartmentNames();
 			String[] cArray = Helper.listToArray(cList);
