@@ -7,6 +7,7 @@ import java.util.Map;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
+import dataIO.Log;
 import dataIO.ObjectFactory;
 import dataIO.XmlHandler;
 import expression.Component;
@@ -39,6 +40,7 @@ import utility.Helper;
 public class RegularReaction 
 	implements Instantiable, Copyable, Settable, Reaction
 {
+	private long reaction_tally = 0;
 	/**
 	 * The name of this reaction. This is particularly useful for writing
 	 * reaction rate to a grid as output.
@@ -295,6 +297,9 @@ public class RegularReaction
 	public double getProductionRate(Map<String, Double> concentrations, 
 														String reactantName)
 	{
+		reaction_tally++;
+		if( reaction_tally/1000.0 == Math.round(reaction_tally/1000.0) && Log.shouldWrite(Log.Tier.DEBUG))
+			Log.out(Log.Tier.DEBUG, reaction_tally + " reactions");
 		return this.getStoichiometry(reactantName) * 
 											this.getRate(concentrations);
 	}
