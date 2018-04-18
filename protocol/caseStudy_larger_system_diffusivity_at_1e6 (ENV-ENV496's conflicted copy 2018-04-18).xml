@@ -137,8 +137,8 @@
 		<compartment name="first">
 			<shape class="Rectangle" resolutionCalculator="MultigridResolution">
 				<!-- µm -->
-				<dimension name="X" isCyclic="true" 	targetResolution="4.0" max="128.0"/>
-				<dimension name="Y" isCyclic="false" 	targetResolution="4.0" max="128.0">
+				<dimension name="X" isCyclic="true" 	targetResolution="2.0" max="128.0"/>
+				<dimension name="Y" isCyclic="false" 	targetResolution="2.0" max="128.0">
 					<boundary extreme="0" class="SolidBoundary" />
 					<boundary extreme="1" class="FixedBoundary">
 						<solute name="ammonium" concentration="1e-5" />
