@@ -1,5 +1,6 @@
 package boundary;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -469,11 +470,13 @@ public abstract class Boundary implements Settable, Instantiable
 						this._partner.acceptInboundAgents(this._departureLounge);
 					else {
 						int numAgentsToAccept = (int) Math.ceil(numAgentsDepart / scFac);
+						List<Integer> acceptedIndices = new ArrayList<Integer>();
 						for (int i = 0; i < numAgentsToAccept; i++)
 						{
-							int agentIndex = i;
-							if (agentIndex >= numAgentsDepart)
+							int agentIndex = randomSelector.nextInt(numAgentsDepart);
+							while (acceptedIndices.contains(agentIndex))
 								agentIndex = randomSelector.nextInt(numAgentsDepart);
+							acceptedIndices.add(agentIndex);
 							Agent accepted = (Agent) this._departureLounge.toArray()[agentIndex];
 							Agent acceptedCopy = new Agent(accepted);
 							acceptedCopy.set(AspectRef.isLocated, true);
@@ -494,7 +497,7 @@ public abstract class Boundary implements Settable, Instantiable
 						{
 							int agentIndex = i;
 							if (agentIndex >= numAgentsDepart)
-								agentIndex = randomSelector.nextInt(numAgentsDepart);
+								agentIndex = agentIndex - numAgentsDepart;
 							Agent accepted = (Agent) this._departureLounge.toArray()[agentIndex];
 							Agent acceptedCopy = new Agent(accepted);
 							acceptedCopy.set(AspectRef.isLocated, false);
