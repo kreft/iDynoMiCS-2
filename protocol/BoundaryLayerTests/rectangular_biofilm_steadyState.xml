@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document>
 	<simulation name="rectangular_biofilm_single_cell_steadyState" outputfolder="../results"
-		log="NORMAL" comment="this is a file for testing purposes only.">
+		log="DEBUG" comment="this is a file for testing purposes only.">
 		<!-- ms -->
-		<timer stepSize="1.0" endOfSimulation="20.0" />
+		<timer stepSize="1.0" endOfSimulation="200.0" />
 		<speciesLib>
 			<species name="Consumer">
 				<aspect name="pigment" type="PRIMARY" class="String" value="BLUE" />
@@ -17,7 +17,7 @@
 								<!-- zmol/µg/ms -->
 								<constant name="qMaxB" 	value="5.0" />  
 								<!-- µM --> 
-								<constant name="hMin" 	value="0.04" /> 
+								<constant name="hMin" 	value="0.00" /> 
 								<constant name="kB" 	value="3.0" />
 							</expression>
 							<stoichiometric component="hydrogen" coefficient="-1.0" />
@@ -40,7 +40,7 @@
 		</speciesLib>
 
 		<compartment name="chemostat">
-			<shape class="Dimensionless" volume="1.0" />
+			<shape class="Dimensionless" volume="100.0" />
 			<solutes>
 				<solute name="hydrogen" concentration="5.0" defaultDiffusivity="3"  />
 				<solute name="solute2" concentration="0.0" defaultDiffusivity="3"  />
@@ -51,7 +51,7 @@
 					<aspect name="soluteNames" type="PRIMARY" class="String[]" value="hydrogen,solute2" />
 					<aspect name="tolerance" type="PRIMARY" class="Double" value="1.0e-3" />
 					<aspect name="hMax" type="PRIMARY" class="Double" value="1.0e-3" />
-					<aspect name="solver" type="PRIMARY" class="String" value="rosenbrock" />
+					<aspect name="solver" type="PRIMARY" class="String" value="heun" />
 				</process>
 			</processManagers>
 		</compartment>
@@ -62,7 +62,7 @@
 				<dimension name="X" isCyclic="false" targetResolution="1.0" max="16.0"></dimension>
 				<dimension name="Y" isCyclic="false" targetResolution="1.0" max="16.0">
 					<boundary extreme="0" class="SolidBoundary" />
-					<boundary extreme="1" class="BiofilmBoundaryLayer" partnerCompartment="chemostat" layerThickness="10" />
+					<boundary extreme="1" class="BiofilmBoundaryLayer" partnerCompartment="chemostat" layerThickness="4" />
 				</dimension>
 			</shape>
 			<solutes>

@@ -466,41 +466,33 @@ public abstract class Boundary implements Settable, Instantiable
 					String partnerCompName = this.getPartnerCompartmentName();
 					Compartment partnerComp = Idynomics.simulator.getCompartment(partnerCompName);
 					double scFac = partnerComp.getScalingFactor();
-					if (scFac == 1)
-						this._partner.acceptInboundAgents(this._departureLounge);
-					else {
-						int numAgentsToAccept = (int) Math.ceil(numAgentsDepart / scFac);
-						List<Integer> acceptedIndices = new ArrayList<Integer>();
-						for (int i = 0; i < numAgentsToAccept; i++)
-						{
-							int agentIndex = randomSelector.nextInt(numAgentsDepart);
-							while (acceptedIndices.contains(agentIndex))
-								agentIndex = randomSelector.nextInt(numAgentsDepart);
-							acceptedIndices.add(agentIndex);
-							Agent accepted = (Agent) this._departureLounge.toArray()[agentIndex];
-							Agent acceptedCopy = new Agent(accepted);
-							acceptedCopy.set(AspectRef.isLocated, true);
-							acceptanceLounge.add(acceptedCopy);
-						}
-						this._partner.acceptInboundAgents(acceptanceLounge);
+					int numAgentsToAccept = (int) Math.ceil(numAgentsDepart / scFac);
+					List<Integer> acceptedIndices = new ArrayList<Integer>();
+					for (int i = 0; i < numAgentsToAccept; i++)
+					{
+						int agentIndex = randomSelector.nextInt(numAgentsDepart);
+						while (acceptedIndices.contains(agentIndex))
+							agentIndex = randomSelector.nextInt(numAgentsDepart);
+						acceptedIndices.add(agentIndex);
+						Agent accepted = (Agent) this._departureLounge.toArray()[agentIndex];
+						Agent acceptedCopy = new Agent(accepted);
+						acceptedCopy.set(AspectRef.isLocated, true);
+						acceptanceLounge.add(acceptedCopy);
 					}
+					this._partner.acceptInboundAgents(acceptanceLounge);
 				}
 				else if (this.getPartnerClass() == ChemostatToBoundaryLayer.class)
 				{
 					Compartment thisComp = (Compartment) this._environment.getParent();
 					double scFac = thisComp.getScalingFactor();
-					if (scFac == 1)
-						this._partner.acceptInboundAgents(this._departureLounge);
-					else {
-						int numAgentsToAccept = (int) Math.ceil(numAgentsDepart * scFac);
-						for (int i = 0; i < numAgentsToAccept; i++)
-						{
-							int agentIndex = i - (numAgentsDepart * (i/numAgentsDepart));
-							Agent accepted = (Agent) this._departureLounge.toArray()[agentIndex];
-							Agent acceptedCopy = new Agent(accepted);
-							acceptedCopy.set(AspectRef.isLocated, false);
-							acceptanceLounge.add(acceptedCopy);
-						}
+					int numAgentsToAccept = (int) Math.ceil(numAgentsDepart * scFac);
+					for (int i = 0; i < numAgentsToAccept; i++)
+					{
+						int agentIndex = i - (numAgentsDepart * (i/numAgentsDepart));
+						Agent accepted = (Agent) this._departureLounge.toArray()[agentIndex];
+						Agent acceptedCopy = new Agent(accepted);
+						acceptedCopy.set(AspectRef.isLocated, false);
+						acceptanceLounge.add(acceptedCopy);
 					}
 					this._partner.acceptInboundAgents(acceptanceLounge);
 				}
