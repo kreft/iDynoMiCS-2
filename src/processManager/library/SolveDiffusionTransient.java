@@ -19,6 +19,7 @@ import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
 import processManager.ProcessDiffusion;
 import processManager.ProcessMethods;
+import reaction.RegularReaction;
 import reaction.Reaction;
 import referenceLibrary.XmlRef;
 import shape.subvoxel.CoordinateMap;
@@ -127,8 +128,8 @@ public class SolveDiffusionTransient extends ProcessDiffusion
 		 * more to do.
 		 */
 		@SuppressWarnings("unchecked")
-		List<Reaction> reactions = 
-				(List<Reaction>) agent.getValue(XmlRef.reactions);
+		List<RegularReaction> reactions = 
+				(List<RegularReaction>) agent.getValue(XmlRef.reactions);
 		if ( reactions == null )
 			return;
 		/*
@@ -153,10 +154,10 @@ public class SolveDiffusionTransient extends ProcessDiffusion
 		 * Now look at all the voxels this agent covers.
 		 */
 		Map<String,Double> concns = new HashMap<String,Double>();
-		Map<String,Double> stoichiometry;
+
 		SpatialGrid solute;
 		Shape shape = this._agents.getShape();
-		double concn, rate, productRate, volume, perVolume;
+		double concn, productRate, volume, perVolume;
 		for ( int[] coord : distributionMap.keySet() )
 		{
 			volume = shape.getVoxelVolume(coord);
@@ -199,21 +200,15 @@ public class SolveDiffusionTransient extends ProcessDiffusion
 					}
 					concns.put(varName, concn);
 				}
-				/*
-				 * Calculate the reaction rate based on the variables just 
-				 * retrieved.
-				 */
-				rate = r.getRate(concns);
 				/* 
 				 * Now that we have the reaction rate, we can distribute the 
 				 * effects of the reaction. Note again that the names in the 
 				 * stoichiometry may not be the same as those in the reaction
 				 * variables (although there is likely to be a large overlap).
 				 */
-				stoichiometry = r.getStoichiometry();
-				for ( String productName : stoichiometry.keySet() )
+				for ( String productName : r.getReactantNames() )
 				{
-					productRate = rate * stoichiometry.get(productName);
+					productRate = r.getProductionRate(concns,productName);
 					if ( this._environment.isSoluteName(productName) )
 					{
 						solute = this._environment.getSoluteGrid(productName);

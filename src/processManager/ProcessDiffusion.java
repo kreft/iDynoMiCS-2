@@ -20,6 +20,7 @@ import grid.SpatialGrid;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
 import linearAlgebra.Vector;
+import reaction.RegularReaction;
 import reaction.Reaction;
 import referenceLibrary.AspectRef;
 import shape.CartesianShape;
@@ -195,7 +196,7 @@ public abstract class ProcessDiffusion extends ProcessManager
 		Tier level = BULK;
 		if ( Log.shouldWrite(level) )
 			Log.out(level, "Applying environmental reactions");
-		Collection<Reaction> reactions = this._environment.getReactions();
+		Collection<RegularReaction> reactions = this._environment.getReactions();
 		if ( reactions.isEmpty() )
 		{
 			Log.out(level, "No reactions to apply, skipping");
@@ -220,8 +221,7 @@ public abstract class ProcessDiffusion extends ProcessManager
 		 * applying extracellular reactions as required.
 		 */
 		Shape shape = solutes.iterator().next().getShape();
-		Set<String> productNames;
-		double rate, productRate;
+		double productRate;
 		for ( int[] coord = shape.resetIterator(); 
 				shape.isIteratorValid(); coord = shape.iteratorNext() )
 		{
@@ -234,14 +234,12 @@ public abstract class ProcessDiffusion extends ProcessManager
 			/* Iterate over each compartment reactions. */
 			for ( Reaction r : reactions )
 			{
-				rate = r.getRate(concns);
-				productNames = r.getStoichiometry().keySet();
 				/* Write rate for each product to grid. */
-				for ( String product : productNames )
+				for ( String product : r.getReactantNames() )
 					for ( SpatialGrid soluteGrid : solutes )
 						if ( product.equals(soluteGrid.getName()) )
 						{
-							productRate = rate * r.getStoichiometry(product);
+							productRate = r.getProductionRate( concns, product);
 							soluteGrid.addValueAt(PRODUCTIONRATE,
 									coord, productRate);
 							totals.put(product,

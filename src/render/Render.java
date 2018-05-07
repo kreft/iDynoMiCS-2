@@ -18,6 +18,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.Map;
 
 import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
@@ -40,6 +41,7 @@ import com.jogamp.opengl.util.FPSAnimator;
 import com.jogamp.opengl.util.awt.TextRenderer;
 
 import idynomics.Idynomics;
+import linearAlgebra.Vector;
 
 /**
  * TODO clean-up commenting
@@ -164,6 +166,16 @@ public class Render implements GLEventListener, Runnable {
 	         textRenderer.beginRendering(drawable.getSurfaceWidth(), drawable.getSurfaceHeight());
 	  
 	         textRenderer.draw( _fps + " fps", 10, y - font.getSize());
+	         
+	         Map<String,String> solutes = 
+	        		 ((AgentMediator) this._commandMediator).soluteColors;
+	         for( String c : solutes.keySet())
+	         {
+	        	 y-=15;
+	        	 textRenderer.draw( solutes.get(c)+ ": " + c, 10, y - font.getSize());
+	         }
+	         
+	         
 	         textRenderer.endRendering();
 	     }
 			
@@ -717,6 +729,18 @@ public class Render implements GLEventListener, Runnable {
 			public void actionPerformed(ActionEvent g) {
 				System.out.println("grid");
 				((AgentMediator) r._commandMediator).grid ^= true;
+			}
+		});	
+		
+		/* solute transparancy */
+		inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_I, 0), "solute") ;
+		actionMap.put("solute", new AbstractAction(){
+			private static final long serialVersionUID = 346448974654345823L;
+			
+			@Override
+			public void actionPerformed(ActionEvent g) {
+				System.out.println("solute");
+				((AgentMediator) r._commandMediator).solutTranparancy();
 			}
 		});	
 		

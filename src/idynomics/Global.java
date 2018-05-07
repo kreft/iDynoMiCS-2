@@ -1,11 +1,8 @@
 package idynomics;
 
 import java.awt.Color;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Properties;
 
 import org.w3c.dom.Element;
 
@@ -24,26 +21,111 @@ import utility.Helper;
 public class Global extends ParameterSet
 {
 	/**************************************************************************
-	 * Default settings from cfg file
+	 * Constructing and loading
 	 *************************************************************************/
 	
 	public Global()
 	{
-		Properties settings = new Properties();
-		try {
-			settings.load(new FileInputStream("default.cfg"));
-		} catch (IOException e) {
-			e.printStackTrace();
+		set( "default.cfg" );
+		set( supplementary_property_files );
+	}
+
+	/**
+	 * \brief Method for loading the 
+	 * 
+	 * @param elem
+	 */
+	public void init(Element elem)
+	{
+		/*
+		 *   set output root from xml file
+		 */
+		Idynomics.global.outputRoot = XmlHandler.obtainAttribute( elem, 
+				XmlRef.outputFolder, XmlRef.simulation);
+		/*
+		 *  set output sub folder structure from protocol file
+		 */
+		if ( XmlHandler.hasAttribute(elem, XmlRef.subFolder) )
+			Idynomics.global.subFolderStruct = XmlHandler.gatherAttribute(
+					elem, XmlRef.subFolder) + "/";
+		
+		/* set simulation name from xml file */
+		Idynomics.global.simulationName = XmlHandler.obtainAttribute( elem, 
+				XmlRef.nameAttribute, XmlRef.simulation);
+		
+		if ( XmlHandler.hasAttribute(elem, XmlRef.outputskip) )
+			Idynomics.global.outputskip = Integer.valueOf( 
+					XmlHandler.obtainAttribute( elem, XmlRef.outputskip, 
+					XmlRef.simulation));
+		
+		if ( XmlHandler.hasAttribute(elem, XmlRef.configuration) )
+		{
+			Global.supplementary_property_files = 
+					Helper.concatinate(supplementary_property_files, 
+					XmlHandler.obtainAttribute( elem, XmlRef.configuration, 
+					XmlRef.simulation).split(",") );
 		}
-		set( settings );
+		
+		this.updateSettings();
+		/* 
+		 * Set up the log file.
+		 * 
+		 * TODO check that this will be a new log file if we're running
+		 * multiple simulations.
+		 */
+		Tier t = null;
+		while ( t == null ) 
+		{
+			try
+			{
+				t = Tier.valueOf( XmlHandler.obtainAttribute( elem, 
+						XmlRef.logLevel, XmlRef.simulation ) );
+			}
+			catch (IllegalArgumentException e)
+			{
+				System.out.println("Log level not recognized, use: " + 
+						Helper.enumToString(Tier.class));
+			}
+		}
+		if( ! Log.isSet() )
+			Log.set(t);
+		/* 
+		 * 
+		 */
+		Idynomics.global.simulationComment = 
+				XmlHandler.gatherAttribute(elem, XmlRef.commentAttribute);
 	}
 	
-	public Global(Properties... properties)
+	public void updateSettings()
 	{
-		super( properties );
-
+		/* set any additionally suplied property files */
+		set( supplementary_property_files );
+		
+		/* if no Root location is set use the default out. */
+		if (this.idynomicsRoot == null || ignore_protocol_out )
+		{
+			this.outputRoot = this.default_out;
+		}
+		
+		/* if no simulation name is given ask the user */
+		if ( this.simulationName == null)
+		{
+			this.simulationName = Helper.obtainInput( this.simulationName,
+					"Required simulation name", false); /* keep this false!! .. 
+			the output location is not always set here! */
+		}
+		
+		if ( this.outputLocation == null )
+		{		
+			/* set output root for this simulation */
+			this.outputLocation = 
+					this.outputRoot + "/" + 
+							this.subFolderStruct + "/" + 
+					long_date_format.format(new Date()) + 
+					this.simulationName + "/";
+		}
 	}
-
+	
 	/**************************************************************************
 	 * GENERAL PARAMETERS 
 	 * all directly loaded from xml file as string.
@@ -53,21 +135,29 @@ public class Global extends ParameterSet
 	 * Version description.
 	 */
 	public static String version_description = "version_description";
-
+	
 	/**
 	* Version number of this iteration of iDynoMiCS - required by update
 	* procedure.
 	*/
 	public static String version_number = "version_number";
-
+	
 	/**
 	 * default output location
 	 */
 	public String default_out = "default_out";
+	
 	/**
 	 * console font
 	 */
 	public static String console_font = "consolas";
+	
+	/**
+	 * Date format used for folder naming
+	 */
+	public static SimpleDateFormat long_date_format = 
+			new SimpleDateFormat("yyyy.MM.dd_HH.mm.ss_SSS_");
+	
 	/**
 	 * Simulation name.
 	 */
@@ -107,20 +197,33 @@ public class Global extends ParameterSet
 	 * Sub folder structure for sensitivity analysis/parameter estimation
 	 */
 	public String subFolderStruct = "";
+	
 	/**
-	 * 
+	 * Ignore the output location defined in the protocol file, and use the
+	 * location as specified in the default.cfg file instead.
 	 */
 	public static Boolean ignore_protocol_out = false;
-
+	
+	/**
+	 * Skip writing xml output for this number of global time steps
+	 */
 	public int outputskip = 0;
-
+	
+	/**
+	 * The exit command is passed to kernel once the simulation is finished
+	 */
 	public static String exitCommand;
 	
+	/**
+	 * Supplementary property files to be loaded in after default.
+	 */
+	public static String[] supplementary_property_files;
+
 	public static double densityScale = 1.0;
+
 
 	/**************************************************************************
 	 * Appearance
-	 * Still also supplying default value's for if the cfg file is corrupted.
 	 *************************************************************************/
 	
 	public static Color console_color = Helper.obtainColor( "38,45,48" );
@@ -140,100 +243,21 @@ public class Global extends ParameterSet
 	 * considered well-mixed. this is particularly important to the multi-grid
 	 * PDE solver.
 	 */
-	public double relativeThresholdWellMixedness = 0.9;
-	
-	/**************************************************************************
-	 * LOADING
-	 *************************************************************************/
+	public static double relativeThresholdWellMixedness = 0.9;
 	
 	/**
-	 * \brief Method for loading the 
 	 * 
-	 * @param elem
 	 */
-	public void init(Element elem)
-	{
-		/*
-		 *   set output root from xml file
-		 */
-		Idynomics.global.outputRoot = XmlHandler.obtainAttribute( elem, 
-				XmlRef.outputFolder, XmlRef.simulation);
-		/*
-		 *  set output sub folder structure from protocol file
-		 */
-		if ( XmlHandler.hasAttribute(elem, XmlRef.subFolder) )
-			Idynomics.global.subFolderStruct = XmlHandler.gatherAttribute(
-					elem, XmlRef.subFolder) + "/";
-		
-		/* set simulation name from xml file */
-		Idynomics.global.simulationName = XmlHandler.obtainAttribute( elem, 
-				XmlRef.nameAttribute, XmlRef.simulation);
-		
-		if ( XmlHandler.hasAttribute(elem, XmlRef.outputskip) )
-			Idynomics.global.outputskip = Integer.valueOf( 
-					XmlHandler.obtainAttribute( elem, XmlRef.outputskip, 
-					XmlRef.simulation));
-		
-		this.updateSettings();
-		/* 
-		 * Set up the log file.
-		 * 
-		 * TODO check that this will be a new log file if we're running
-		 * multiple simulations.
-		 */
-		Tier t = null;
-		while ( t == null ) 
-		{
-			try
-			{
-				t = Tier.valueOf( XmlHandler.obtainAttribute( elem, 
-						XmlRef.logLevel, XmlRef.simulation ) );
-			}
-			catch (IllegalArgumentException e)
-			{
-				System.out.println("Log level not recognized, use: " + 
-						Helper.enumToString(Tier.class));
-			}
-		}
-		if( ! Log.isSet() )
-			Log.set(t);
-		/* 
-		 * 
-		 */
-		Idynomics.global.simulationComment = 
-				XmlHandler.gatherAttribute(elem, XmlRef.commentAttribute);
-	}
+	public static double collision_scalar = 0.0;
 	
-	public void updateSettings()
-	{
-		/* if no Root location is set use the default out.
-		 * TODO safety: check the root exists, and the name is acceptable
-		 */
-		if (this.idynomicsRoot == null || ignore_protocol_out )
-		{
-			this.outputRoot = this.default_out ;
-		}
-		
-		/* if no simulation name is given ask the user */
-		if ( this.simulationName == null)
-		{
-			this.simulationName = Helper.obtainInput( this.simulationName,
-					"Required simulation name", false); /* keep this false!! .. 
-			the output location is not set here! */
-		}
-		
-		if ( this.outputLocation == null )
-		{
-			/* set date format for folder naming */
-			SimpleDateFormat dateFormat = 
-					new SimpleDateFormat("yyyy.MM.dd_HH.mm.ss_SSS_");
-			
-			/* set output root for this simulation */
-			this.outputLocation = 
-					this.outputRoot + "/" + 
-							this.subFolderStruct + "/" + 
-					dateFormat.format(new Date()) + 
-					this.simulationName + "/";
-		}
-	}
+	/**
+	 * 
+	 */
+	public static double pull_scalar = 0.0;
+	
+	/**
+	 * dynamic viscosity of the medium
+	 */
+	public static double dynamic_viscosity = 0.0;
+	
 }

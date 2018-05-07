@@ -19,7 +19,7 @@
 				<speciesModule name="stochasticMover" />
 				<speciesModule name="producer" />
 				<aspect name="reactions" type="PRIMARY"  class="InstantiableList"> 
-					<list class="Reaction" nodeLabel="reaction" entryClass="Reaction" keyClass="String" keyLabel="name">
+					<list class="RegularReaction" nodeLabel="reaction" entryClass="RegularReaction" keyClass="String" keyLabel="name">
 						<reaction name="species1React">
 							<expression value="mass * mumax *(solute2 / (solute2 + k) ) * (kinh / (kinh + solute1)">
 								<constant name="k" value="0.01" />
@@ -46,7 +46,7 @@
 				<speciesModule name="coccoid" />
 				<speciesModule name="stochasticMover" />
 				<aspect name="reactions" type="PRIMARY"  class="InstantiableList"> 
-					<list class="Reaction" nodeLabel="reaction" entryClass="Reaction" keyClass="String" keyLabel="name">
+					<list class="RegularReaction" nodeLabel="reaction" entryClass="RegularReaction" keyClass="String" keyLabel="name">
 						<reaction name="species1React">
 							<expression value="mass * mumax *(solute2 / (solute2 + k) ) * (kinh / (kinh + solute1)">
 								<constant name="k" value="0.01" />
@@ -65,7 +65,7 @@
 				<speciesModule name="coccoid" />
 				<speciesModule name="stochasticMover" />
 				<aspect name="reactions" type="PRIMARY"  class="InstantiableList"> 
-					<list class="Reaction" nodeLabel="reaction" entryClass="Reaction" keyClass="String" keyLabel="name">
+					<list class="RegularReaction" nodeLabel="reaction" entryClass="RegularReaction" keyClass="String" keyLabel="name">
 						<reaction name="species2React">
 							<expression value="mass * mumax *(solute1 / (solute1 + k) )">
 								<constant name="k" value="0.01" />

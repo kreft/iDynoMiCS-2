@@ -7,6 +7,7 @@ import dataIO.Log;
 import dataIO.Log.Tier;
 import linearAlgebra.Vector;
 
+@SuppressWarnings( {"rawtypes", "unchecked"} )
 public class Node<T> extends Area
 {
 	
@@ -30,6 +31,7 @@ public class Node<T> extends Area
 		this._tree = tree;
 	}
 
+	
 	public List<Entry> find(Area test) 
 	{
 		LinkedList<Entry> out = new LinkedList<Entry>();
@@ -240,12 +242,6 @@ public class Node<T> extends Area
 	/* ************************************************************************
 	 * Helper methods
 	 */
-		
-	private double split(int dim)
-	{
-		return this.low[dim] + ( (this.high[dim] - this.low[dim]) / 2.0 );
-	}
-	
 	double[] splits()
 	{
 		double[] split = new double[this.low.length];

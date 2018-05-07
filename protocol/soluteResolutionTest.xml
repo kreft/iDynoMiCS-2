@@ -15,7 +15,7 @@
 				the simulation. small test -->
 			<species name="AOB">
 				<aspect name="reactions" type="PRIMARY"  class="InstantiableList"> 
- <list class="Reaction" nodeLabel="reaction" entryClass="Reaction" keyClass="String" keyLabel="name">
+ <list class="RegularReaction" nodeLabel="reaction" entryClass="RegularReaction" keyClass="String" keyLabel="name">
 						<reaction name="testReact">
 							<expression value="mass * solute1 * k">
 								<constant name="k" value="0.1" />

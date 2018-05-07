@@ -24,6 +24,7 @@ import linearAlgebra.Vector;
 import referenceLibrary.AspectRef;
 import shape.CartesianShape;
 import shape.CylindricalShape;
+import shape.Dimension;
 import shape.Dimension.DimName;
 import shape.iterator.ShapeIterator;
 import shape.Shape;
@@ -51,7 +52,7 @@ public class AgentMediator implements CommandMediator {
 	
 	protected Compartment _compartment;
 	
-	HashMap<String, Color> soluteColors;
+	HashMap<String, String> soluteColors;
 	
 	/*
 	 * shape
@@ -112,6 +113,8 @@ public class AgentMediator implements CommandMediator {
 	private float[] _orthoX = new float[]{1,0,0}, _orthoY = new float[]{0,1,0},
 					_orthoZ = new float[]{0,0,1}, _rotTemp = new float[16];
 
+	private float _soluteTranparancy = 0.5f;
+
 	/**
 	 * used to set up the open gl camera
 	 */
@@ -138,18 +141,23 @@ public class AgentMediator implements CommandMediator {
 		this._shape = c.agents.getShape();
 		Collection<String> solutes = c.environment.getSoluteNames();
 		soluteColors = new HashMap<>();
-		for (String s : solutes){
-			soluteColors.put(s, new Color(
-					ExtraMath.getUniRandFlt(),
-					ExtraMath.getUniRandFlt(),
-					ExtraMath.getUniRandFlt()));
-		}
+		if( solutes.size() > 0 )
+			soluteColors.put("Red", (String)solutes.toArray()[0]);
+		if( solutes.size() > 1 )
+			soluteColors.put("Green", (String)solutes.toArray()[1]);
+		if( solutes.size() > 2 )
+			soluteColors.put("Blue", (String)solutes.toArray()[2]);
+		
 		this._compartment = c;
-		this._domainMaxima = new double[3];
+		
+		/* keep dimensions that are not significant at 0 */
+		this._domainMaxima = new double[] { 0.0, 0.0, 0.0 };
 		/* determine kickback for camera positioning */
 		_kickback = 0.0f;
-		for (DimName dn : _shape.getDimensionNames()){
-			float max = (float)_shape.getDimension(dn).getExtreme(1);
+		
+		for (Dimension dn : _shape.getSignificantDimensions())
+		{
+			float max = (float) dn.getExtreme(1);
 			_kickback  = (float) Math.max(_kickback, max);
 			_domainMaxima[_shape.getDimensionIndex(dn)] = max;
 		}
@@ -362,15 +370,14 @@ public class AgentMediator implements CommandMediator {
 			 *  scaled to the next highest decimal of the current maximum conc. 
 			 */
 			ShapeIterator it = _shape.getNewIterator();
-			float max = -1;
+			float max = 0f;
+			
 			if (soluteColors.values().size() > 0){
 				/* get the current maximum concentration */
 				for (String s : soluteColors.keySet()){
-					SpatialGrid grid = _compartment.getSolute(s);
-					max += (float)grid.getMax(ArrayType.CONCN);
+					SpatialGrid grid = _compartment.getSolute(soluteColors.get(s));
+					max = Math.max((float) grid.getMax(ArrayType.CONCN), max);
 				}
-				/* Scale the maximum to the next highest decimal */
-				max = (int)(max / 10) * 10f + 10f;
 			}
 			
 			for (int[] cur = it.resetIterator(); it.isIteratorValid(); cur = it.iteratorNext())
@@ -378,27 +385,24 @@ public class AgentMediator implements CommandMediator {
 				_gl.glPushMatrix();
 				/* print solutes */ 
 				if (soluteColors.values().size() > 0){
-					/* Transparent white as base color*/
-					Color c0 = new Color(1f,1f,1f,0f);
-					/* blend concentrations w.r.t. their conc. ratio */
-					float sumConc = 0f;
+
+					float[] col = new float[] { 0f, 0f, 0f };
+					int j = 0;
 					for (String s : soluteColors.keySet()){
-						SpatialGrid grid = _compartment.getSolute(s);
-						Color c = soluteColors.get(s);
-						float conc = (float)grid.getValueAt(ArrayType.CONCN, it.iteratorCurrent());
-						c0 = blend(c0, c, sumConc / (sumConc + conc));
-						sumConc += conc;
-						c0 = new Color(
-								c0.getRed() / 255f,
-								c0.getGreen() / 255f,
-								c0.getBlue() / 255f,
-								Math.min(1f, Math.max(0f, sumConc / max)));
+						SpatialGrid grid = _compartment.getSolute(soluteColors.get(s));
+						float conc = (float)grid.getValueAt(ArrayType.CONCN, 
+								it.iteratorCurrent()) / max;
+						col[j++] = conc;
 					}
-					_rgba = c0.getColorComponents(_rgba);
-					/* apply current color with transparency of max. 0.5 */
-					applyCurrentColor(c0.getAlpha() / 255f * 0.5f);
+					
+					_rgba=col;
+					applyCurrentColor(_soluteTranparancy);
 				}
-				drawVoxel(_shape, cur);
+				
+				if (shape.getNumberOfDimensions() > 2)
+					drawVoxel(_shape, cur);
+				else
+					drawsquare(_shape, cur);
 				_gl.glPopMatrix();
 			}
 		}
@@ -542,6 +546,26 @@ public class AgentMediator implements CommandMediator {
 		_gl.glEnd();
 	}
 	
+	private void drawsquare(Shape shape, int[] coord)
+	{
+//		Vector3f norm = new Vector3f(0f,0f,1f);
+		double[] in = new double[]{0,0,0};
+		
+		double[] p1 = shape.getGlobalLocation(shape.getLocation(coord, in)); in[1]++;			 // [0 0 0]
+		double[] p2 = shape.getGlobalLocation(shape.getLocation(coord, in)); in[0]++;			 // [0 1 0]
+		double[] p7 = shape.getGlobalLocation(shape.getLocation(coord, in)); in[1]--;			 // [1 1 0]
+		double[] p8 = shape.getGlobalLocation(shape.getLocation(coord, in)); 					 // [1 0 0]
+		
+		_gl.glBegin(GL2.GL_QUADS);
+		// p==0
+		_gl.glVertex3fv(Vector.toFloat(p1), 0);
+		_gl.glVertex3fv(Vector.toFloat(p2), 0);
+		_gl.glVertex3fv(Vector.toFloat(p7), 0);
+		_gl.glVertex3fv(Vector.toFloat(p8), 0);
+		
+		_gl.glEnd();
+	}
+	
 	Color blend( Color c1, Color c2, float ratio ) {
 	    if ( ratio > 1f ) ratio = 1f;
 	    else if ( ratio < 0f ) ratio = 0f;
@@ -566,5 +590,23 @@ public class AgentMediator implements CommandMediator {
 	    int b = (int)((b1 * iRatio) + (b2 * ratio));
 
 	    return new Color( a << 24 | r << 16 | g << 8 | b );
+	}
+	
+	Color addBlend( Color c1, Color c2, float ratio ) {
+
+	    int a = ( c1.getAlpha() * c2.getAlpha()) / 255;
+	    int r = ( c1.getRed() * c2.getRed()) / 255;
+	    int g = ( c1.getGreen() * c2.getGreen()) / 255;
+	    int b = ( c1.getGreen() * c2.getBlue()) / 255;
+
+	    return new Color( r, g, b, a );
+	}
+
+	public void solutTranparancy() {
+		if(_soluteTranparancy >= 0.49f)
+			_soluteTranparancy = 0.05f;
+		else
+			_soluteTranparancy += 0.05f;
+		
 	}
 }

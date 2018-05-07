@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document>
+	<simulation log="DEBUG" name="Comammox_case_2" outputfolder="../results" subfolder="protocols/">
+	<timer endOfSimulation="10000.0" stepSize="60.0"/>
+		<general>
+			<param name="timeStepSize" value="1.0"/>
+			<param name="endOfSimulation" value="60.0"/>
+		</general>
+		<speciesLib>
+			<!-- species/species library The species library contains all agent species 
+				in the simulations. This may include microbial species, plasmid and vector 
+				species, particle species etc. Species states are states that are in principal 
+				identical for all agents of that species. However note that iDynoMiCS 2.0 
+				does allow you to overwrite states on agent level. Thus if a state is defined 
+				both on species level and on agent level, the agent state will be used in 
+				the simulation. small test 
+				-->
+			<species name="CanonicalAOB">
+				<aspect class="String" name="pigment" type="PRIMARY" value="RED"/>
+				<aspect class="InstantiableList" name="reactions" type="PRIMARY"> 
+					<list class="RegularReaction" entryClass="RegularReaction" keyClass="String" keyLabel="name" nodeLabel="reaction">
+						<reaction name="growth">
+							<expression value="mass * mumax * ( ammonium / ( ammonium + Kam ) ) * ( ( oxygen / ( oxygen + Kox ) )">
+								<!-- pg/µm3 --> 
+								<constant name="Kam" range="4.2E-09,5.60E-08" rangeFor="value" value="2.4310291386413576E-8"/> 
+								<constant name="Kox" value="6.00E-07"/>
+								<!-- per minute -->
+								<constant name="mumax" range="1.74E-03,2.38E-03" rangeFor="value" value="0.002140111624890292"/>  
+							</expression>
+							<stoichiometric coefficient="1.0" component="mass"/>
+							<stoichiometric coefficient="-7.951966182" component="ammonium"/>
+							<stoichiometric coefficient="7.828426182" component="nitrite"/>
+							<stoichiometric coefficient="-25.41235268" component="oxygen"/>
+						</reaction> 
+					</list>
+				</aspect>
+			</species>
+			
+			<species name="CanonicalNOB">
+				<aspect class="String" name="pigment" type="PRIMARY" value="BLUE"/>
+				<aspect class="InstantiableList" name="reactions" type="PRIMARY"> 
+					<list class="RegularReaction" entryClass="RegularReaction" keyClass="String" keyLabel="name" nodeLabel="reaction">
+						<reaction name="growth">
+							<expression value="mass * mumax *           ( nitrite / ( nitrite + Kni ) ) * ( ( oxygen / ( oxygen + Kox ) ) * ( ammonium / ( ammonium + 0.000000000001 ) )">
+								<!-- pg/µm3 --> 
+								<constant name="Kni" range="4.20E-07,4.2E-06" rangeFor="value" value="5.437994418096474E-7"/> 
+								<constant name="Kox" value="2.20E-06"/>
+								<!-- per minute -->
+								<constant name="mumax" value="1.01E-03"/>  
+							</expression>
+							<stoichiometric coefficient="1.0" component="mass"/>
+							<stoichiometric coefficient="-0.12" component="ammonium"/>
+							<stoichiometric coefficient="-31.70487973" component="nitrite"/>
+							<stoichiometric coefficient="31.70487973" component="nitrate"/>
+							<stoichiometric coefficient="-34.80" component="oxygen"/>
+						</reaction> 
+					</list>
+				</aspect>
+			</species>
+			
+			<species name="Comammox">
+				<aspect class="String" name="pigment" type="PRIMARY" value="GREEN"/>
+				<aspect class="InstantiableList" name="reactions" type="PRIMARY"> 
+					<list class="RegularReaction" entryClass="RegularReaction" keyClass="String" keyLabel="name" nodeLabel="reaction">
+						<reaction name="growth">
+							<expression value="mass * mumax * ( ammonium / ( ammonium + Kam ) ) * ( ( oxygen / ( oxygen + Kox ) )">
+								<!-- pg/µm3 --> 
+								<constant name="Kam" range="6.86E-11,6.86E-09" rangeFor="value" value="2.4575349299617393E-9"/> 
+								<constant name="Kox" range="6.0E-07,2.4E-06" rangeFor="value" value="2.092515619675973E-6"/>
+								<!-- per minute -->
+								<constant name="mumax" value="1.05E-03"/>  
+							</expression>
+							<stoichiometric coefficient="1.0" component="mass"/>
+							<stoichiometric coefficient="-6.40" component="ammonium"/>
+							<stoichiometric coefficient="6.27357762" component="nitrate"/>
+							<stoichiometric coefficient="-27.25032733" component="oxygen"/>
+						</reaction> 
+					</list>
+				</aspect>
+			</species>
+		</speciesLib>
+		<compartment name="chemostat">
+			<shape class="Dimensionless" volume="1e18"/>
+			<solutes>
+				<!-- pg / µm3 -->
+				<solute concentration="1.00E-03" defaultDiffusivity="1" name="ammonium"/>
+				<solute concentration="8.74E-03" defaultDiffusivity="1" name="oxygen"/>
+				<solute concentration="5.00E-06" defaultDiffusivity="1" name="nitrite"/>
+				<solute concentration="1.00E-03" defaultDiffusivity="1" name="nitrate"/>
+			</solutes>
+			<reactions>
+			</reactions>
+			<agents>
+				<agent>
+					<aspect class="String" name="species" type="PRIMARY" value="CanonicalAOB"/>
+					<!-- pg -->
+					<aspect class="Double" name="mass" type="PRIMARY" value="1e12"/>
+				</agent>
+				<agent>
+					<aspect class="String" name="species" type="PRIMARY" value="CanonicalNOB"/>
+					<!-- pg -->
+					<aspect class="Double" name="mass" type="PRIMARY" value="1e12"/>
+				</agent>
+				<agent>
+					<aspect class="String" name="species" type="PRIMARY" value="Comammox"/>
+					<!-- pg -->
+					<aspect class="Double" name="mass" type="PRIMARY" value="1e12"/>
+				</agent>
+			</agents>
+			<processManagers>
+				<process class="ChemostatSolver" firstStep="0.0" name="solveChemostat" priority="0" timerStepSize="60.0">
+					<aspect class="String[]" name="soluteNames" type="PRIMARY" value="ammonium,oxygen,nitrite,nitrate"/>
+					<aspect class="Double" name="hMax" type="PRIMARY" value="0.1"/>
+					<aspect class="String" name="solver" type="PRIMARY" value="heun"/>
+				</process>
+				<process class="processManager.library.Summary" firstStep="0.0" name="summary" priority="2" timerStepSize="60.0">
+					<aspect class="String" name="tableSpecification" type="PRIMARY" value="0 ~ mass"/>
+				</process>
+			</processManagers>
+		</compartment>
+	</simulation>
+</document>

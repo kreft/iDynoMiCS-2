@@ -14,8 +14,8 @@
 			<species name="CanonicalAOB">
 				<aspect name="pigment" type="PRIMARY" class="String" value="RED" />
 				<aspect name="reactions" type="PRIMARY"  class="InstantiableList"> 
-					<list class="Reaction" nodeLabel="reaction" 
-					entryClass="Reaction" keyClass="String" keyLabel="name">
+					<list class="RegularReaction" nodeLabel="reaction" 
+					entryClass="RegularReaction" keyClass="String" keyLabel="name">
 						<reaction name="growth">
 							<expression value="bioMass * mumax * 
 									( ammonium / ( ammonium + Kam ) ) * 
@@ -49,8 +49,8 @@
 			<species name="CanonicalNOB">
 				<aspect name="pigment" type="PRIMARY" class="String" value="BLUE" />
 				<aspect name="reactions" type="PRIMARY"  class="InstantiableList"> 
-					<list class="Reaction" nodeLabel="reaction" 
-					entryClass="Reaction" keyClass="String" keyLabel="name">
+					<list class="RegularReaction" nodeLabel="reaction" 
+					entryClass="RegularReaction" keyClass="String" keyLabel="name">
 						<reaction name="growth">
 							<expression value="bioMass * mumax * 
 									( nitrite / ( nitrite + Kni ) ) * 

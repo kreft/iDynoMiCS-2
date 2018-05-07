@@ -19,8 +19,8 @@
 				<speciesModule name="coccoid" />
 				<speciesModule name="producer" />
 				<aspect name="reactions" type="PRIMARY"  class="InstantiableList"> 
-					<list class="Reaction" nodeLabel="reaction" 
-					entryClass="Reaction" keyClass="String" keyLabel="name">
+					<list class="RegularReaction" nodeLabel="reaction" 
+					entryClass="RegularReaction" keyClass="String" keyLabel="name">
 						<reaction name="growth">
 							<expression value="mass * mumax * 
 									( ammonium / ( ammonium + Kam ) ) * 
@@ -46,8 +46,8 @@
 				<speciesModule name="coccoid" />
 				<speciesModule name="producer" />
 				<aspect name="reactions" type="PRIMARY"  class="InstantiableList"> 
-					<list class="Reaction" nodeLabel="reaction" 
-					entryClass="Reaction" keyClass="String" keyLabel="name">
+					<list class="RegularReaction" nodeLabel="reaction" 
+					entryClass="RegularReaction" keyClass="String" keyLabel="name">
 						<reaction name="growth">
 							<expression value="mass * mumax * 
 									( nitrite / ( nitrite + Kni ) ) * 
@@ -74,8 +74,8 @@
 				<speciesModule name="coccoid" />
 				<speciesModule name="producer" />
 				<aspect name="reactions" type="PRIMARY"  class="InstantiableList"> 
-					<list class="Reaction" nodeLabel="reaction" 
-					entryClass="Reaction" keyClass="String" keyLabel="name">
+					<list class="RegularReaction" nodeLabel="reaction" 
+					entryClass="RegularReaction" keyClass="String" keyLabel="name">
 						<reaction name="growth">
 							<expression value="mass * mumax * 
 									( ammonium / ( ammonium + Kam ) ) * 

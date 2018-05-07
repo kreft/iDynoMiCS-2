@@ -463,6 +463,7 @@ public class AspectRef
 	 * 
 	 */
 	public static final String attachmentRate = "attachmentRate";
+	
 	/**
 	 * 
 	 */

@@ -534,4 +534,24 @@ public class XmlRef
 	 */
 	public final static String realMin = "realMin";
 
+	/**
+	 * Additional required configuration files to be loaded.
+	 */
+	public static final String configuration = "configuration";
+
+	public static final String chemicalLibrary = "chemicalLib";
+
+	public static final String chemical = "chemical";
+
+	public static final String formationGibbs = "formationGibbs";
+
+	public static final String composition = "composition";
+
+	public static final String oxidationState = "oxidationState";
+
+	public static final String halfReaction = "halfReaction";
+
+	public static final String metabolicReaction = "metabolicReaction";
+
+
 }

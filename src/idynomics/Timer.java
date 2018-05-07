@@ -211,15 +211,6 @@ public class Timer implements Instantiable, Settable
 		this.setEndOfSimulation( Double.valueOf( 
 				node.getAttribute( XmlRef.endOfSimulation ).getValue() ));
 	}
-	
-	/**
-	 * Create a new minimal object of this class and return it
-	 * @return NodeConstructor
-	 */
-	public Settable newBlank()
-	{
-		return new Timer();
-	}
 
 	/**
 	 * return the default XMLtag for the XML node of this object

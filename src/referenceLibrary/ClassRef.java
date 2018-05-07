@@ -505,11 +505,19 @@ public class ClassRef
 	public final static String spatialGrid =
 			grid.SpatialGrid.class.getName();
 	
+	
+	public static final String halfReaction =
+			reaction.HalfReaction.class.getName();
+	
+	public static final String metabolicReaction =
+			reaction.MetabolicReaction.class.getName();
 	/**
 	 * TODO
 	 */
 	public static final String reaction =
-			reaction.Reaction.class.getName();
+			reaction.RegularReaction.class.getName();
+	
+	
 	
 	/**
 	 * TODO
@@ -556,4 +564,21 @@ public class ClassRef
 	*/		
 	public final static String doub =		
 				Double.class.getName();
+
+	/************
+	 * to be sorted
+	 */
+	
+	/*
+	 * Chemical library
+	 */
+	public static final String chemicalLibrary = 
+			chemical.ChemicalLib.class.getName();
+	
+	/*
+	 * Chemical
+	 */
+	public static final String chemical = 
+			chemical.Chemical.class.getName();
+
 }

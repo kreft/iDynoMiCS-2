@@ -17,6 +17,7 @@ import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
 import processManager.ProcessDiffusion;
 import processManager.ProcessMethods;
+import reaction.RegularReaction;
 import reaction.Reaction;
 import referenceLibrary.XmlRef;
 import shape.Shape;
@@ -132,8 +133,8 @@ public class SolveDiffusionSteadyState extends ProcessDiffusion
 		 * more to do.
 		 */
 		@SuppressWarnings("unchecked")
-		List<Reaction> reactions = 
-				(List<Reaction>) agent.getValue(XmlRef.reactions);
+		List<RegularReaction> reactions = 
+				(List<RegularReaction>) agent.getValue(XmlRef.reactions);
 		if ( reactions == null )
 			return;
 		/*
@@ -198,21 +199,15 @@ public class SolveDiffusionSteadyState extends ProcessDiffusion
 					}
 					concns.put(varName, concn);
 				}
-				/*
-				 * Calculate the reaction rate based on the variables just 
-				 * retrieved.
-				 */
-				rate = r.getRate(concns);
 				/* 
 				 * Now that we have the reaction rate, we can distribute the 
 				 * effects of the reaction. Note again that the names in the 
 				 * stoichiometry may not be the same as those in the reaction
 				 * variables (although there is likely to be a large overlap).
 				 */
-				stoichiometry = r.getStoichiometry();
-				for ( String productName : stoichiometry.keySet() )
+				for ( String productName : r.getReactantNames() )
 				{
-					productRate = rate * stoichiometry.get(productName);
+					productRate = r.getProductionRate(concns, productName);
 					solute = FindGrid(variables, productName);
 					if ( solute != null )
 						solute.addValueAt(PRODUCTIONRATE, coord, productRate);
@@ -240,8 +235,8 @@ public class SolveDiffusionSteadyState extends ProcessDiffusion
 		 * more to do.
 		 */
 		@SuppressWarnings("unchecked")
-		List<Reaction> reactions = 
-				(List<Reaction>) agent.getValue(XmlRef.reactions);
+		List<RegularReaction> reactions = 
+				(List<RegularReaction>) agent.getValue(XmlRef.reactions);
 		if ( reactions == null )
 			return;
 		/*
@@ -312,29 +307,42 @@ public class SolveDiffusionSteadyState extends ProcessDiffusion
 					}
 					concns.put(varName, concn);
 				}
-				/*
-				 * Calculate the reaction rate based on the variables just 
-				 * retrieved.
-				 */
-				rate = r.getRate(concns);
 				/* 
 				 * Now that we have the reaction rate, we can distribute the 
 				 * effects of the reaction. Note again that the names in the 
 				 * stoichiometry may not be the same as those in the reaction
 				 * variables (although there is likely to be a large overlap).
 				 */
-				stoichiometry = r.getStoichiometry();
-				for ( String productName : stoichiometry.keySet() )
+				double dt = this.getTimeStepSize();
+				for ( String productName : r.getReactantNames() )
 				{
-					productRate = rate * stoichiometry.get(productName);
-					if ( agent.isAspect(productName) )
+					productRate = r.getProductionRate(concns,productName);
+					if ( this._environment.isSoluteName(productName) )
+					{
+						solute = this._environment.getSoluteGrid(productName);
+						solute.addValueAt(PRODUCTIONRATE, coord, productRate);
+					}
+					else if ( newBiomass.containsKey(productName) )
+					{
+						newBiomass.put(productName, newBiomass.get(productName)
+								+ (productRate * dt * volume));
+					}
+					else if ( agent.isAspect(productName) )
 					{
 						/*
 						 * Check if the agent has other mass-like aspects
 						 * (e.g. EPS).
 						 */
 						newBiomass.put(productName, agent.getDouble(productName)
-								+ (productRate * this._timeStepSize * volume));
+								+ (productRate * dt * volume));
+					}
+					else
+					{
+						//TODO quick fix If not defined elsewhere add it to the map
+						newBiomass.put(productName, (productRate * dt * volume));
+						System.out.println("agent reaction catched " + 
+								productName);
+						// TODO safety?
 					}
 				}
 			}

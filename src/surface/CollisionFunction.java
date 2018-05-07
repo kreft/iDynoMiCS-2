@@ -4,6 +4,7 @@ import org.w3c.dom.Element;
 
 import dataIO.Log;
 import dataIO.XmlHandler;
+import idynomics.Global;
 import dataIO.Log.Tier;
 import instantiable.Instantiable;
 import linearAlgebra.Vector;
@@ -39,16 +40,18 @@ public interface CollisionFunction extends Instantiable
 	 */
 	public CollisionFunction DefaultPullFunction = new CollisionFunction()
 	{
-		private double _forceScalar;
+		private double _forceScalar = Global.pull_scalar;
 		
 		/**
 		 * Implementation of the Instantiatable interface
+		 * FIXME currently not settable from xml yet
 		 */
 		public void instantiate(Element xmlElement, Settable parent)
 		{
-			this._forceScalar = Double.valueOf((String) Helper.setIfNone(
-					XmlHandler.gatherAttribute(xmlElement, XmlRef.forceScalar), 
-					"-2.0" ) );
+			String forceScalar = XmlHandler.gatherAttribute(xmlElement, 
+					XmlRef.forceScalar);
+			if( !Helper.isNullOrEmpty( forceScalar ) )
+					this._forceScalar = Double.valueOf( forceScalar );
 			Log.out(Tier.BULK, "initiating DefaultPullFunction");
 		}
 		
@@ -93,19 +96,21 @@ public interface CollisionFunction extends Instantiable
 	
 	/**
 	 * default push CollisionFunction
+	 * FIXME currently not settable from xml yet
 	 */
 	public CollisionFunction DefaultPushFunction = new CollisionFunction()
 	{
-		private double _forceScalar;
+		private double _forceScalar = Global.collision_scalar;
 		
 		/**
 		 * Implementation of the Instantiatable interface
 		 */
 		public void instantiate(Element xmlElement, Settable parent)
 		{
-			this._forceScalar = Double.valueOf((String) Helper.setIfNone(
-					XmlHandler.gatherAttribute(xmlElement, XmlRef.forceScalar), 
-					"6.0" ) );
+			String forceScalar = XmlHandler.gatherAttribute( xmlElement, 
+					XmlRef.forceScalar);
+			if( !Helper.isNullOrEmpty( forceScalar ) )
+					this._forceScalar = Double.valueOf( forceScalar );
 			Log.out(Tier.BULK, "initiating DefaultPullFunction");
 		}
 		

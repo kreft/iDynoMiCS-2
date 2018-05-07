@@ -1,7 +1,10 @@
 package idynomics;
 
 import java.awt.Color;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.lang.reflect.Field;
+import java.text.SimpleDateFormat;
 import java.util.Properties;
 
 import utility.Helper;
@@ -18,36 +21,80 @@ public abstract class ParameterSet {
 		this.set( properties );
 	}
 	
-	public void set(Properties... properties)
+	public void set(String...properties)
 	{
-		for (Properties p : properties )
+		Properties props = new Properties();
+		if ( ! Helper.isNullOrEmpty( properties ) )
 		{
-			Field[] fields = this.getClass().getDeclaredFields();
-			for( Field f : fields)
+			for( String s : properties)
 			{
-				if( p.containsKey( f.getName() ) )
-				{
-					try {
-						if( f.getType().equals( String.class ) )
-							f.set(this, (String) p.get( f.getName() ) );
-						if( f.getType().equals( Double.class ) )
-							f.set(this, Double.valueOf( 
-									(String) p.get( f.getName() ) ) );
-						if( f.getType().equals( Integer.class ) )
-							f.set(this, Integer.valueOf( 
-									(String) p.get( f.getName() ) ) );
-						if( f.getType().equals( Color.class ) )
-							f.set(this, Helper.obtainColor( 
-									(String) p.get( f.getName() ) ) );
-						if( f.getType().equals( Boolean.class ) )
-							f.set(this, Boolean.valueOf(
-									(String) p.get( f.getName() ) ) );
-					} catch (IllegalArgumentException | 
-							IllegalAccessException e) {
-						e.printStackTrace();
-					}
+				try {
+					props.load( new FileInputStream(s) );
+				} catch (IOException e) {
+					e.printStackTrace();
 				}
 			}
+			set( props );
+		}
+	}
+	
+	public void set(Properties... properties)
+	{
+		if ( ! Helper.isNullOrEmpty( properties ) )
+		{
+			for (Properties p : properties )
+			{
+				Field[] fields = this.getClass().getDeclaredFields();
+				for( Field f : fields)
+				{
+					if( p.containsKey( f.getName() ) )
+						setField( p, f );
+				}
+			}
+		}
+	}
+	
+	private void setField(Properties p, Field f)
+	{
+		try 
+		{
+			if( f.getType().equals( String.class ) )
+			{
+				f.set(this, (String) p.get( f.getName() ) );
+			}
+			else if( f.getType().equals( Double.class ) ||  
+					f.getType().equals( double.class ) )
+			{
+				f.set(this, Double.valueOf( (String) p.get( f.getName() ) ) );
+			}
+			else if( f.getType().equals( Integer.class ) ||
+					f.getType().equals( int.class ) )
+			{
+				f.set(this, Integer.valueOf( (String) p.get( f.getName() ) ) );
+			}
+			else if( f.getType().equals( Color.class ) )
+			{
+				f.set(this, 
+						Helper.obtainColor( (String) p.get( f.getName() ) ) );
+			}
+			else if( f.getType().equals( Boolean.class ) || 
+					f.getType().equals( boolean.class ))
+			{
+				f.set(this, Boolean.valueOf( (String) p.get( f.getName() ) ) );
+			}
+			else if( f.getType().equals( String[].class ) )
+			{
+				f.set(this, ( (String) p.get( f.getName() ) ).split(",") );
+			}
+			else if( f.getType().equals( SimpleDateFormat.class) )
+			{
+				f.set(this, 
+						new SimpleDateFormat( (String) p.get( f.getName() ) ) );
+			}
+		} 
+		catch (IllegalArgumentException | IllegalAccessException e) 
+		{
+			e.printStackTrace();
 		}
 	}
 }

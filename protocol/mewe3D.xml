@@ -17,7 +17,7 @@
 				<!-- <speciesModule name="stochasticMover" /> -->
 				<speciesModule name="producer" />
 				<aspect name="reactions" type="PRIMARY"  class="InstantiableList"> 
-					<list class="Reaction" nodeLabel="reaction" entryClass="Reaction" keyClass="String" keyLabel="name">
+					<list class="RegularReaction" nodeLabel="reaction" entryClass="RegularReaction" keyClass="String" keyLabel="name">
 						<reaction name="testReact" comment="biomass specific growth rate">
 							<expression value="mass * mumax *(solute1 / (solute1 + k) )">
 								<constant name="k" value="0.001" />
@@ -37,7 +37,7 @@
 				<!-- <speciesModule name="stochasticMover" /> -->
 				<speciesModule name="producer" />
 				<aspect name="reactions" type="PRIMARY"  class="InstantiableList"> 
-					<list class="Reaction" nodeLabel="reaction" entryClass="Reaction" keyClass="String" keyLabel="name">
+					<list class="RegularReaction" nodeLabel="reaction" entryClass="RegularReaction" keyClass="String" keyLabel="name">
 						<reaction name="testReact2" comment="biomass specific growth rate">
 							<expression value="mass * mumax *(solute2 / (solute2 + k) ) * (kinh / (kinh + solute1)">
 								<constant name="k" value="0.001" />		
