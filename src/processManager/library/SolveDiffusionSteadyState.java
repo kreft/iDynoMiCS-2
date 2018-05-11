@@ -11,10 +11,13 @@ import java.util.Map;
 import org.w3c.dom.Element;
 
 import agent.Agent;
+import dataIO.Log;
+import dataIO.Log.Tier;
 import dataIO.ObjectFactory;
 import grid.SpatialGrid;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
+import linearAlgebra.Matrix;
 import processManager.ProcessDiffusion;
 import processManager.ProcessMethods;
 import reaction.RegularReaction;
@@ -198,6 +201,8 @@ public class SolveDiffusionSteadyState extends ProcessDiffusion
 						concn = 0.0;
 					}
 					concns.put(varName, concn);
+					if (varName.equals("hydrogen") && concn < 0.01)
+						Log.out(Tier.DEBUG, "Hydrogen concentration less than 0.01");
 				}
 				/* 
 				 * Now that we have the reaction rate, we can distribute the 

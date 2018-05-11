@@ -259,7 +259,7 @@ public class PDEmultigrid extends PDEsolver
 	
 	private boolean doVCycle(Collection<SpatialGrid> variables, int numLayers)
 	{
-		Tier level = Tier.BULK;
+		Tier level = Tier.DEBUG;
 		MultigridLayer variableMultigrid;
 		SpatialGrid currentLayer, currentCommon;
 		double truncationError, residual;
@@ -524,6 +524,8 @@ public class PDEmultigrid extends PDEsolver
 	 */
 	private void relax(SpatialGrid variable, SpatialGrid commonGrid)
 	{
+		if ( ! this._allowNegatives )
+			variable.makeNonnegative(CONCN);
 		Shape shape = variable.getShape();
 		/* Temporary storage. */
 		double prod, concn, diffusivity, vol, rhs;

@@ -260,6 +260,8 @@ public class ODErosenbrock extends ODEsolver
 					/* ynext = y + h * k2 */
 					Vector.timesTo(ynext, k2, h);
 					Vector.addEquals(ynext, y);
+					if ( ! this._allowNegatives )
+						Vector.makeNonnegative(ynext);
 					/* f2 = dYdT(ynext) */
 					this._deriv.firstDeriv(f2, ynext);
 					/*
