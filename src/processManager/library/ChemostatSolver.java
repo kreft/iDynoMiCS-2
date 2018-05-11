@@ -320,6 +320,9 @@ public class ChemostatSolver extends ProcessManager
 				 * concentration rates */
 				for ( int i = 0; i < _n; i++ )
 					dydt[i] /= y[ _n ];
+				/* FIXME test thing
+				for ( int i = 0; i < _n; i++ )
+					System.out.println(y[i] + " " + dydt[ i ]); */
 			}
 		};
 	}

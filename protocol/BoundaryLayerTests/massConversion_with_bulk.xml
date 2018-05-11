@@ -23,7 +23,7 @@
 		<compartment name="chemostat">
 			<shape class="Dimensionless" volume="100.0" />
 			<solutes>
-				<solute name="hydrogen" concentration="5.0" defaultDiffusivity="3"  />
+				<solute name="hydrogen" concentration="1.0" defaultDiffusivity="3"  />
 				<solute name="solute2" concentration="0.0" defaultDiffusivity="3"  />
 			</solutes>
 			<processManagers>

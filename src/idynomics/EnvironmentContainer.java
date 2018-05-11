@@ -297,7 +297,9 @@ public class EnvironmentContainer implements CanPrelaunchCheck, Settable
 		if ( Log.shouldWrite(level) )
 			Log.out(level, "Updating solute boundaries...");
 		for ( Boundary b : this._shape.getAllBoundaries() )
+		{
 			b.updateMassFlowRates();
+		}
 		if ( Log.shouldWrite(level) )
 			Log.out(level, " All solute boundaries now updated");
 		updateWellMixed();

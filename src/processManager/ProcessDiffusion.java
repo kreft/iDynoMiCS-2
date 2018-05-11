@@ -14,6 +14,7 @@ import java.util.function.Predicate;
 import org.w3c.dom.Element;
 
 import agent.Agent;
+import boundary.Boundary;
 import dataIO.Log;
 import dataIO.Log.Tier;
 import grid.SpatialGrid;
@@ -111,7 +112,10 @@ public abstract class ProcessDiffusion extends ProcessManager
 	protected void internalStep()
 	{
 		
-
+		for ( Boundary b : this._environment.getShape().getAllBoundaries() )
+		{
+			b.resetMassFlowRates();
+		}
 		/* gets specific solutes from process manager aspect registry if they
 		 * are defined, if not, solve for all solutes.
 		 */
