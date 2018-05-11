@@ -297,11 +297,21 @@ public class RegularReaction
 	public double getProductionRate(Map<String, Double> concentrations, 
 														String reactantName)
 	{
+		checkNegatives(concentrations);
 //		reaction_tally++;
 //		if( reaction_tally/1000.0 == Math.round(reaction_tally/1000.0) && Log.shouldWrite(Log.Tier.DEBUG))
 //			Log.out(Log.Tier.DEBUG, reaction_tally + " reactions");
 		return this.getStoichiometry(reactantName) * 
 											this.getRate(concentrations);
+	}
+	
+	private void checkNegatives( Map<String, Double> concentrations )
+	{
+		for ( String s : concentrations.keySet() )
+		{
+			if( concentrations.get(s) < 0.0 )
+				System.out.println( s + concentrations.get(s) );
+		}
 	}
 	
 	/**
