@@ -335,6 +335,8 @@ public class MultigridLayer
 			 */
 			newValue = (fracOfNewValueUsed * newValue) +
 					(fracOfOldValueKept * this._grid.getValueAtCurrent(coarserType));
+			if ( grid.ArrayType.CONCN.equals(coarserType) && newValue < 0.0 )
+				newValue = 0.0;
 			this._grid.setValueAt(coarserType, current, newValue);
 		}
 	}
