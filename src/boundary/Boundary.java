@@ -100,7 +100,7 @@ public abstract class Boundary implements Settable, Instantiable
 	/**
 	 * Log verbosity level for debugging purposes (set to BULK when not using).
 	 */
-	protected static final Tier AGENT_LEVEL = Tier.DEBUG;
+	protected static final Tier AGENT_LEVEL = Tier.BULK;
 	
 	/* ***********************************************************************
 	 * CONSTRUCTORS
@@ -448,32 +448,27 @@ public abstract class Boundary implements Settable, Instantiable
 		{
 			if ( this._partner == null )
 			{
-				if ( Log.shouldWrite(Tier.EXPRESSIVE) )
-				{
-					Log.out(Tier.EXPRESSIVE, "Boundary "+this.getName()+" removing "+
+				Log.out(Tier.EXPRESSIVE, "Boundary "+this.getName()+" removing "+
 							this._departureLounge.size()+" agents");
-				}
 				for( Agent a : this._departureLounge )
 					this._agents.registerRemoveAgent(a);
 				this._departureLounge.clear();
 			}
 			else
 			{
-				if ( Log.shouldWrite(Tier.EXPRESSIVE) )
-				{
-					Log.out(Tier.EXPRESSIVE, "Boundary "+this.getName()+" pushing "+
+				Log.out(Tier.EXPRESSIVE, "Boundary "+this.getName()+" pushing "+
 							this._departureLounge.size()+" agents to partner");
-				}
 				Random randomSelector = new Random();
 				Collection<Agent> acceptanceLounge = new LinkedList<Agent>();
 				//Agent[] departureArray = (Agent[]) this._departureLounge.toArray();
 				int numAgentsDepart = this._departureLounge.size();
-				if (this.getPartnerClass() == BiofilmBoundaryLayer.class)
+				String partnerCompName = this.getPartnerCompartmentName();
+				Compartment partnerComp = Idynomics.simulator.getCompartment(partnerCompName);
+				Compartment thisComp = (Compartment) this._environment.getParent();
+				double scFac = thisComp.getScalingFactor() / partnerComp.getScalingFactor();
+				int numAgentsToAccept = (int) Math.ceil(numAgentsDepart * scFac);
+				if (numAgentsToAccept < numAgentsDepart)
 				{
-					String partnerCompName = this.getPartnerCompartmentName();
-					Compartment partnerComp = Idynomics.simulator.getCompartment(partnerCompName);
-					double scFac = partnerComp.getScalingFactor();
-					int numAgentsToAccept = (int) Math.ceil(numAgentsDepart / scFac);
 					List<Integer> acceptedIndices = new ArrayList<Integer>();
 					for (int i = 0; i < numAgentsToAccept; i++)
 					{
@@ -483,22 +478,25 @@ public abstract class Boundary implements Settable, Instantiable
 						acceptedIndices.add(agentIndex);
 						Agent accepted = (Agent) this._departureLounge.toArray()[agentIndex];
 						Agent acceptedCopy = new Agent(accepted);
-						acceptedCopy.set(AspectRef.isLocated, true);
+						if (this.getPartnerClass() == BiofilmBoundaryLayer.class)
+							acceptedCopy.set(AspectRef.isLocated, true);
+						if (this.getPartnerClass() == ChemostatToBoundaryLayer.class)
+							acceptedCopy.set(AspectRef.isLocated, false);
 						acceptanceLounge.add(acceptedCopy);
 					}
 					this._partner.acceptInboundAgents(acceptanceLounge);
 				}
-				else if (this.getPartnerClass() == ChemostatToBoundaryLayer.class)
+				else if (numAgentsToAccept > numAgentsDepart)
 				{
-					Compartment thisComp = (Compartment) this._environment.getParent();
-					double scFac = thisComp.getScalingFactor();
-					int numAgentsToAccept = (int) Math.ceil(numAgentsDepart * scFac);
 					for (int i = 0; i < numAgentsToAccept; i++)
 					{
-						int agentIndex = i - (numAgentsDepart * (i/numAgentsDepart));
+						int agentIndex = i - (numAgentsToAccept * (i/numAgentsDepart));
 						Agent accepted = (Agent) this._departureLounge.toArray()[agentIndex];
 						Agent acceptedCopy = new Agent(accepted);
-						acceptedCopy.set(AspectRef.isLocated, false);
+						if (this.getPartnerClass() == BiofilmBoundaryLayer.class)
+							acceptedCopy.set(AspectRef.isLocated, true);
+						if (this.getPartnerClass() == ChemostatToBoundaryLayer.class)
+							acceptedCopy.set(AspectRef.isLocated, false);
 						acceptanceLounge.add(acceptedCopy);
 					}
 					this._partner.acceptInboundAgents(acceptanceLounge);

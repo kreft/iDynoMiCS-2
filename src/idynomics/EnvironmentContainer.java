@@ -319,7 +319,7 @@ public class EnvironmentContainer implements CanPrelaunchCheck, Settable
 		if ( boundaries.isEmpty() )
 			return;
 		Compartment thisComp = (Compartment) this.getParent();
-		double scFac = thisComp.getScalingFactor();		
+
 		/*
 		 * If there is just one well-mixed boundary, then simply transfer the
 		 * flow over from each grid to the boundary. Once this is done, finish.
@@ -327,11 +327,12 @@ public class EnvironmentContainer implements CanPrelaunchCheck, Settable
 		if ( boundaries.size() == 1 )
 		{
 			Boundary b = boundaries.iterator().next();
+			String partnerCompName = b.getPartnerCompartmentName();
+			Compartment partnerComp = Idynomics.simulator.getCompartment(partnerCompName);
+			double scFac = thisComp.getScalingFactor() / partnerComp.getScalingFactor();
 			for ( SpatialGrid solute : this._solutes )
 			{
 				double solMassFlow = solute.getWellMixedMassFlow();
-				if (solMassFlow < 0)
-					scFac = 1/scFac;
 				b.increaseMassFlowRate(solute.getName(), 
 						solMassFlow * scFac);
 				solute.resetWellMixedMassFlow();
@@ -349,11 +350,12 @@ public class EnvironmentContainer implements CanPrelaunchCheck, Settable
 		for ( SpatialBoundary boundary : boundaries )
 		{
 			scaleFactor = boundary.getTotalSurfaceArea()/totalArea;
+			String partnerCompName = boundary.getPartnerCompartmentName();
+			Compartment partnerComp = Idynomics.simulator.getCompartment(partnerCompName);
+			double scFac = thisComp.getScalingFactor() / partnerComp.getScalingFactor();
 			for ( SpatialGrid solute : this._solutes )
 			{
 				double solMassFlow = solute.getWellMixedMassFlow();
-				if (solMassFlow < 0)
-					scFac = 1/scFac;
 				boundary.increaseMassFlowRate(solute.getName(), 
 						solMassFlow * scaleFactor * scFac);
 			}

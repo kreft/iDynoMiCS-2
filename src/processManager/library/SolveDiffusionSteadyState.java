@@ -201,8 +201,6 @@ public class SolveDiffusionSteadyState extends ProcessDiffusion
 						concn = 0.0;
 					}
 					concns.put(varName, concn);
-					if (varName.equals("hydrogen") && concn < 0.01)
-						Log.out(Tier.DEBUG, "Hydrogen concentration less than 0.01");
 				}
 				/* 
 				 * Now that we have the reaction rate, we can distribute the 
