@@ -176,33 +176,30 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable
 			Global.densityScale = 0.82;
 		
 		double[] simulatedLengths = this.getShape().getDimensionLengths();
-		// Check for significant dimensions.
-		if (simulatedLengths.length != 0)
+		// Check for scale attribute, specifying explicitly provided scale.
+		String scalingFac = XmlHandler.gatherAttribute(xmlElem, XmlRef.compartmentScale);
+		if ( !Helper.isNullOrEmpty(scalingFac) )
 		{
-			// Check for scale attribute, specifying explicitly provided scale.
-			String scalingFac = XmlHandler.gatherAttribute(xmlElem, XmlRef.compartmentScale);
-			if ( !Helper.isNullOrEmpty(scalingFac) )
+			double scFac = Double.valueOf(scalingFac);
+			this.setScalingFactor(scFac);
+		}
+		// Check for significant dimensions.
+		else if (simulatedLengths.length != 0)
+		{
+			// Scaling factor not provided explicitly, calculate from realLengths
+			Shape compShape = this.getShape();
+			DimName dimN = compShape.getRealDimExtremeName();
+			if ( Helper.isNullOrEmpty(compShape.getRealDimExtremeName()) )
 			{
-				double scFac = Double.valueOf(scalingFac);
-				this.setScalingFactor(scFac);
+				double simulatedVolume = compShape.getTotalVolume();
+				double realVolume = compShape.getTotalRealVolume();
+				this.setScalingFactor(realVolume / simulatedVolume);
 			}
 			else
 			{
-				// Scaling factor not provided explicitly, calculate from realLengths
-				Shape compShape = this.getShape();
-				DimName dimN = compShape.getRealDimExtremeName();
-				if ( Helper.isNullOrEmpty(compShape.getRealDimExtremeName()) )
-				{
-					double simulatedVolume = compShape.getTotalVolume();
-					double realVolume = compShape.getTotalRealVolume();
-					this.setScalingFactor(realVolume / simulatedVolume);
-				}
-				else
-				{
-					double simulatedArea = compShape.getBoundarySurfaceArea(dimN, 1);
-					double realArea = compShape.getRealSurfaceArea(dimN, 1);
-					this.setScalingFactor(realArea / simulatedArea);
-				}
+				double simulatedArea = compShape.getBoundarySurfaceArea(dimN, 1);
+				double realArea = compShape.getRealSurfaceArea(dimN, 1);
+				this.setScalingFactor(realArea / simulatedArea);
 			}
 		}
 
