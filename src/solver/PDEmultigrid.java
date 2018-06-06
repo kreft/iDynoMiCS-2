@@ -72,6 +72,10 @@ public class PDEmultigrid extends PDEsolver
 	
 	private int _numPostSteps = 1500;
 	
+	private double _toleranceLevel;
+	
+	private boolean _earlyStop = false;
+	
 	/* ***********************************************************************
 	 * SOLVER METHODS
 	 * **********************************************************************/
@@ -500,11 +504,17 @@ public class PDEmultigrid extends PDEsolver
 		for ( MultigridLayer layer : this._multigrids.values() )
 			currentGrids.add(layer.getGrid());
 		SpatialGrid currentCommon = this._commonMultigrid.getGrid();
-		for ( int i = 0; i < numRepetitions; i++ )
+		relaxLoops: for ( int i = 0; i < numRepetitions; i++ )
 		{
 			this._updater.prestep(currentGrids, 0.0);
-			for ( SpatialGrid grid : currentGrids )
+			for ( SpatialGrid grid : currentGrids ) {
 				this.relax(grid, currentCommon);
+			}
+			if (this._earlyStop) {
+				this._earlyStop = false;
+				Log.out(Tier.DEBUG, "Breaking early: "+ i +" of "+ numRepetitions);
+				break relaxLoops;
+			}
 		}
 	}
 	
@@ -608,14 +618,19 @@ public class PDEmultigrid extends PDEsolver
 			/*
 			 * For the FAS, the source term is implicit in the L-operator
 			 * (see Equations 19.6.21-22).
+			 * 
+			 * NOTE: lop has units of concentration per time whereas prod would
+			 * have units of mass per time
 			 */
-			lop += prod;
+			lop += prod / vol;
 			/* 
 			 * TODO
 			 */
 			residual = (lop - rhs) / totalNhbWeight;
 			/* Prepare to update the local concentration. */
 			concn += residual;
+			if (residual < this._toleranceLevel)
+				this._earlyStop = true;
 			/* Check if we need to remain non-negative. */
 			if ( (!this._allowNegatives) && (concn < 0.0) )
 				concn = 0.0;
@@ -735,6 +750,11 @@ public class PDEmultigrid extends PDEsolver
 					shape.getCurrVoxelVolume();
 			variable.setValueAt(destinationType, current, residual);
 		}
+	}
+	
+	@Override
+	public void setTolerance(double tol) {
+		this._toleranceLevel = tol;
 	}
 
 	/* ***********************************************************************

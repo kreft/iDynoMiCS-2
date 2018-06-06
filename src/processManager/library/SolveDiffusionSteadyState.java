@@ -14,6 +14,7 @@ import agent.Agent;
 import dataIO.Log;
 import dataIO.Log.Tier;
 import dataIO.ObjectFactory;
+import dataIO.XmlHandler;
 import grid.SpatialGrid;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
@@ -22,6 +23,7 @@ import processManager.ProcessDiffusion;
 import processManager.ProcessMethods;
 import reaction.RegularReaction;
 import reaction.Reaction;
+import referenceLibrary.AspectRef;
 import referenceLibrary.XmlRef;
 import shape.Shape;
 import shape.subvoxel.CoordinateMap;
@@ -37,6 +39,8 @@ import solver.PDEupdater;
  */
 public class SolveDiffusionSteadyState extends ProcessDiffusion
 {
+	public static String TOLERANCE = AspectRef.solverTolerance;
+	
 	/* ***********************************************************************
 	 * CONSTRUCTORS
 	 * **********************************************************************/
@@ -51,9 +55,13 @@ public class SolveDiffusionSteadyState extends ProcessDiffusion
 			AgentContainer agents, String compartmentName)
 	{
 		super.init(xmlElem, environment, agents, compartmentName);
+		
+		double tol = (double) this.getOr(TOLERANCE, 1.0e-6);
 
 		// TODO Let the user choose which ODEsolver to use.
 		this._solver = new PDEmultigrid();
+		
+		this._solver.setTolerance(tol);
 
 	}
 	

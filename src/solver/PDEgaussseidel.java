@@ -168,4 +168,10 @@ public class PDEgaussseidel extends PDEsolver
 		}
 		return (numVoxels > 0.0) ? (totalResidual/numVoxels) : 0.0;
 	}
+
+	@Override
+	public void setTolerance(double tol) {
+		// TODO Auto-generated method stub
+		
+	}
 }

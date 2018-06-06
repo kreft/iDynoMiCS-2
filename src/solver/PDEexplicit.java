@@ -175,4 +175,10 @@ public class PDEexplicit extends PDEsolver
 	{
 		this._wellMixedChanges.put(name, 0.0);
 	}
+
+	@Override
+	public void setTolerance(double tol) {
+		// TODO Auto-generated method stub
+		
+	}
 }

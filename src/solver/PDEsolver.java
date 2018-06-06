@@ -213,4 +213,6 @@ public abstract class PDEsolver extends Solver
 	 * @param flow
 	 */
 	protected abstract void increaseWellMixedFlow(String name, double flow);
+
+	public abstract void setTolerance(double tol);
 }
