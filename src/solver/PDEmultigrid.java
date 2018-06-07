@@ -136,7 +136,6 @@ public class PDEmultigrid extends PDEsolver
 			var.increaseWellMixedMassFlow(massMove);
 			var.setTo(CONCN, currentLayer.getGrid().getArray(CONCN));
 		}
-		
 	}
 
 	private void refreshCommonGrid(SpatialGrid commonGrid)
@@ -512,7 +511,7 @@ public class PDEmultigrid extends PDEsolver
 			}
 			if (this._earlyStop) {
 				this._earlyStop = false;
-				Log.out(Tier.DEBUG, "Breaking early: "+ i +" of "+ numRepetitions);
+//				Log.out(Tier.DEBUG, "Breaking early: "+ i +" of "+ numRepetitions);
 				break relaxLoops;
 			}
 		}
@@ -629,8 +628,10 @@ public class PDEmultigrid extends PDEsolver
 			residual = (lop - rhs) / totalNhbWeight;
 			/* Prepare to update the local concentration. */
 			concn += residual;
-			if (residual < this._toleranceLevel)
+			if (Math.abs(residual) < this._toleranceLevel) {
 				this._earlyStop = true;
+//				Log.out(Tier.DEBUG, "residual = "+residual);
+			}
 			/* Check if we need to remain non-negative. */
 			if ( (!this._allowNegatives) && (concn < 0.0) )
 				concn = 0.0;
