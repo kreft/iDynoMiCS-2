@@ -87,17 +87,17 @@ public class ChemostatSolver extends ProcessManager
 		 * initial values
 		 */
 		LinkedList<Double> y = new LinkedList<Double>();
-		Map<String,Double> solutes = new HashMap<String, Double>(); 
+		
+		double vol = this._environment.getShape().getTotalVolume();
 		
 		/* solutes */
 		for( int i = 0; i < this._n; i++ )
 		{
-			y.add(i, this._environment.getAverageConcentration( _solutes[i] ) );
-			solutes.put( this._solutes[i], y.get(i) );
+			y.add(i, this._environment.getAverageConcentration( _solutes[i] ) * vol );
 		}
 		
 		/* volume: Store in y vector allows for changing volume */
-		y.add( _n , this._environment.getShape().getTotalVolume() );	
+		y.add( _n , vol );	
 		
 		/* Agents: obtain mass map and add to the y vector */
 		int yAgent = 0;
@@ -127,6 +127,11 @@ public class ChemostatSolver extends ProcessManager
 			Log.out(Tier.CRITICAL, "Error in ODE solver: " + e);
 			e.printStackTrace();
 		}
+		
+		/* convert solute mass rate to concentration rate to 
+		 * concentration rates */
+		for ( int i = 0; i < _n; i++ )
+			yODE[i] /= yODE[ _n ];
 
 		/*
 		 * Update the environment
@@ -134,6 +139,7 @@ public class ChemostatSolver extends ProcessManager
 		for ( int i = 0; i < this._n; i++ )
 			this._environment.setAllConcentration( this._solutes[i], yODE[i]);
 		this._environment.getShape().setTotalVolume( yODE[ _n ] );
+		Log.out(Tier.DEBUG, "new volume: " + yODE[ _n ] );
 		
 		/* 
 		 * Update the agents 
@@ -212,7 +218,7 @@ public class ChemostatSolver extends ProcessManager
 				HashMap<String, Double> soluteMap = 
 						new HashMap<String, Double>();
 				for( int i = 0; i < _n; i++ )
-					soluteMap.put( _solutes[i], y[i] );
+					soluteMap.put( _solutes[i], y[i]/y[_n] );
 				
 				/*
 				 * In and out flows
@@ -233,6 +239,12 @@ public class ChemostatSolver extends ProcessManager
 						dydt [_n ] += volFlowRate;
 						for ( int i = 0; i < _n; i++ )
 							dydt[i] += aBoundary.getMassFlowRate( _solutes[i] );
+					}
+					if ( volFlowRate != 0.0 )
+					{
+						if( Log.shouldWrite(Tier.DEBUG))
+							Log.out(Tier.DEBUG, "volume change: " + volFlowRate 
+									+ "temp net change: " + dydt [_n]);
 					}
 				}
 				/*
@@ -316,10 +328,6 @@ public class ChemostatSolver extends ProcessManager
 					}
 					yAgent += agentMap.size();
 				}
-				/* convert solute mass rate to concentration rate to 
-				 * concentration rates */
-				for ( int i = 0; i < _n; i++ )
-					dydt[i] /= y[ _n ];
 			}
 		};
 	}
