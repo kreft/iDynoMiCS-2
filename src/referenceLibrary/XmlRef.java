@@ -554,4 +554,9 @@ public class XmlRef
 	public static final String metabolicReaction = "metabolicReaction";
 
 
+	/**
+	 * allows for setting exponential (exp) range scaling in sampler
+	 */
+	public static final String rangeScaleAttribute = "scaling";
+
 }

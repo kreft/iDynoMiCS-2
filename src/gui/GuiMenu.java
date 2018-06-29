@@ -21,6 +21,7 @@ import dataIO.Log;
 import dataIO.Log.Tier;
 import idynomics.Idynomics;
 import idynomics.Simulator;
+import idynomics.launchable.SamplerLaunch;
 import utility.Helper;
 
 /**
@@ -93,6 +94,15 @@ public final class GuiMenu
 			levelMenu.add(rbMenuItem);
 		}
 		menu.add(levelMenu);
+		/*
+		 * Master protocol sampling
+		 */
+		menu.addSeparator();
+		menuItem = new JMenuItem(new GuiMenu.Sampling());
+		menuItem.getAccessibleContext().setAccessibleDescription(
+				"Sample master protocol file");
+		menu.add(menuItem);
+		
 		/*
 		 * Finally, return the File menu.
 		 */
@@ -442,6 +452,22 @@ public final class GuiMenu
 		public void actionPerformed(ActionEvent e)
 		{
 			Log.set(this._tier);
+		}
+	}
+	
+	public static class Sampling extends AbstractAction
+	{
+		
+		private SamplerLaunch smp = new SamplerLaunch();
+		
+		public Sampling()
+		{
+	        super("Sample master");
+		}
+	
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			smp.initialize(null);
 		}
 	}
 	

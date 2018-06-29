@@ -182,6 +182,16 @@ public final class Helper
 		return obtainInput(out, description, shouldLogMessage);
 	}
 	
+	public static String obtainInput(Object[] options,
+			String description, boolean shouldLogMessage)
+	{
+		String[] out = new String[options.length];
+		int i = 0;
+		for (Object s : options)
+			out[i++] = String.valueOf(s);
+		return obtainInput(out, description, shouldLogMessage);
+	}
+	
 	/**
 	 * \brief Obtain user input as string from a limited set of options.
 	 * 

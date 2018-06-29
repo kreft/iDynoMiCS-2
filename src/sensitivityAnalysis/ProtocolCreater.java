@@ -6,6 +6,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
 import javax.xml.transform.*;
@@ -44,7 +45,9 @@ public class ProtocolCreater
 	
 	public Sampler _sampler;
 	
-	public double[][] _bounds;
+	public double[][] _ranges;
+
+	private int[] _scale;
 	
 	/**
 	 * \brief Main function for creating the protocol files from sensitivity 
@@ -70,7 +73,7 @@ public class ProtocolCreater
 	 * Attributes are changed only for those XML elements which have
 	 * <b>range</b> and <b>rangeFor</b> attributes defined.
 	 */
-	public ProtocolCreater( String doc ) 
+	public ProtocolCreater( String doc, boolean custom ) 
 	{
 		
 		_filePath = doc;
@@ -93,7 +96,12 @@ public class ProtocolCreater
 				}
 			}
 		}
-		this._bounds = getRanges(_sampleParams.size(), _sampleParams);
+		if( custom )
+			this._ranges = getCustomRanges(_sampleParams.size(), _sampleParams);
+		else
+			this._ranges = getRanges(_sampleParams.size(), _sampleParams);
+		
+		this._scale = getType(_sampleParams.size(),_sampleParams);
 	}
 	
 	public void setSampler( Sampler.SampleMethod method, int... pars )
@@ -103,21 +111,22 @@ public class ProtocolCreater
 		for( int i = 0; i < pars.length; i++)
 			temp[i+1] = pars[i];
 		
-		this._sampler = Sampler.getSampler(method, temp);
+		this._sampler = Sampler.getSampler(method, this._ranges, temp);
 	}
 	
 	public void xmlWrite()
 	{
-		writeOutputs( _sampler.size(), _sampler.sample( this._bounds ), 0);
+		writeOutputs( _sampler.size(), _sampler.sample( this._ranges, this._scale ), 0);
 	}
 	
 	public double[][] getBounds()
 	{
-		return this._bounds;
+		return this._ranges;
 	}
 	
-	public double[][] getRanges(int k, List<Element> elementParameters )
+	public double[][] getRanges( int k, List<Element> elementParameters )
 	{
+
 		double[][] bounds = new double[2][k];
 		for (Element currAspect : elementParameters) 
 		{
@@ -131,6 +140,51 @@ public class ProtocolCreater
 		}
 		return bounds;
 	}
+	
+	public double[][] getCustomRanges( int k, List<Element> elementParameters )
+	{
+		HashMap<Integer,double[]> range = new HashMap<Integer,double[]>();
+		int l = 0;
+		for (int i = 0; i < elementParameters.size(); i++) 
+		{
+			Element currAspect = elementParameters.get(i);
+			String[] inRange = currAspect.getAttribute(
+					XmlRef.rangeAttribute ).split(",");
+			double[] temp = new double[inRange.length];
+			
+			l = Math.max(l, inRange.length);
+			for( int j = 0; j < temp.length; j++)
+				temp[j] = Double.parseDouble(inRange[j]);
+			range.put(i, temp);
+		}
+		double[][] out = new double[l][k];
+		for(int i = 0; i < range.size(); i++)
+		{
+			double[] tmp = range.get(i);
+			for( int j = 0; j < l; j++)
+				out[j][i] = ( j > tmp.length ? Double.MAX_VALUE : tmp[j]);
+		}
+		return out;
+	}
+
+	
+	public int[] getType(int k, List<Element> elementParameters )
+	{
+		int[] out = new int[k];
+		String t;
+		int idx;
+		for (Element currAspect : elementParameters) 
+		{
+			idx = elementParameters.indexOf( currAspect );
+			t = XmlHandler.gatherAttribute(currAspect, XmlRef.rangeScaleAttribute);
+			if( t != null && t.equals("exp") )
+				out[idx] = 1;
+			else
+				out[idx] = 0;
+		}
+		return out;
+	}
+	
 	/**
 	 * \brief Checks if the provided range is in proper format
 	 * @param valRange String array provided in XML
@@ -161,7 +215,15 @@ public class ProtocolCreater
 				"output" : Idynomics.global.subFolderStruct );
 		String protocol_loc = Idynomics.global.outputRoot + "/" + sub;
 		
-		String[] fileDirs = _filePath.split("/");
+		String[] fileDirs;
+		/* In case of windows */
+		if( _filePath.contains("\\"))
+		{
+			fileDirs = _filePath.split("\\\\");
+		}
+		else
+			fileDirs = _filePath.split("/");
+		
 		String fileName = fileDirs[fileDirs.length-1].split("\\.")[0];
 		fileDirs = Arrays.copyOf(fileDirs, fileDirs.length-1);
 		String dirPath = "";

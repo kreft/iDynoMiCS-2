@@ -67,7 +67,7 @@ public class GeneticAlgorithmLaunch implements Launchable {
 		 *  TODO error function etc, GA parameters
 		 */
 		Idynomics.setupGlobals( protocolfile );
-		ProtocolCreater xmlc = new ProtocolCreater( protocolfile );
+		ProtocolCreater xmlc = new ProtocolCreater( protocolfile, false );
 		
 		if (generation == 0)
 		{
@@ -94,7 +94,7 @@ public class GeneticAlgorithmLaunch implements Launchable {
 			int prev = generation-1;
 			
 			Log.out(Tier.NORMAL, "pervious: " + prev + " current: " + generation);
-
+			
 			double[][] outMatrix = DataFromCSV.getOutput( 
 					Idynomics.global.outputRoot + "/" + Idynomics.global.subFolderStruct +
 					"/result/gen_"+ prev +"/");

@@ -1,10 +1,9 @@
 package idynomics.launchable;
 
-import java.util.Scanner;
-
 import idynomics.Idynomics;
 import optimization.sampling.Sampler;
 import sensitivityAnalysis.ProtocolCreater;
+import utility.Helper;
 
 public class SamplerLaunch implements Launchable {
 	
@@ -14,34 +13,41 @@ public class SamplerLaunch implements Launchable {
 		String xmlFilePath;
 		Sampler.SampleMethod samplingChoice;
 		
-		@SuppressWarnings("resource")
-		Scanner user_input = new Scanner( System.in );
+		boolean customSampling = false;
+
 		int p, r;
 		if ( args == null || args.length == 1 || args[1] == null )
 		{
-			System.out.print("Enter the sampling method choice: \n");
-			for ( Sampler.SampleMethod s : Sampler.SampleMethod.values() )
-				System.out.print( s.toString() + " " );
-			System.out.print( "\n");
-			samplingChoice = Sampler.SampleMethod.valueOf( user_input.next() );
+			samplingChoice = Sampler.SampleMethod.valueOf( 
+					Helper.obtainInput(	Sampler.SampleMethod.values(), 
+					"Enter the sampling method choice:", true) );
 		}
 		else
 			samplingChoice = Sampler.SampleMethod.valueOf( args[1] );
 		
 		if ( args == null || args.length == 2 || args[2] == null )
 		{
-			System.out.print("Enter protocol file path: ");
-			xmlFilePath = user_input.next();
-
+			if( Idynomics.global.protocolFile == null )
+			{
+				xmlFilePath = Helper.obtainInput("",
+						"Enter protocol file path: ",true);
+			}
+			else
+			{
+				xmlFilePath = Idynomics.global.protocolFile;
+			}
 		}
 		else
 			xmlFilePath = args[2];
-		
-		if ( args == null || args.length == 3 || args[3] == null )
+		if ( samplingChoice == Sampler.SampleMethod.CUSTOM || samplingChoice == Sampler.SampleMethod.EXTERNAL )
 		{
-			System.out.print("Number sampling levels/ stripes: ");
-			p = Integer.valueOf( user_input.next() );
-
+			customSampling = true;
+			p = 0; /* not used */
+		}
+		else if ( args == null || args.length == 3 || args[3] == null )
+		{
+			p = Integer.valueOf( Helper.obtainInput("",
+					"Number sampling levels/ stripes: ",true) );
 		}
 		else
 			p = Integer.valueOf( args[3] );
@@ -49,18 +55,29 @@ public class SamplerLaunch implements Launchable {
 		if ( samplingChoice == Sampler.SampleMethod.MORRIS && 
 				( args == null || args.length == 4 || args[4] == null ) )
 		{
-			System.out.print("Number of repetitions: ");
-			r = Integer.valueOf( user_input.next() );
+			r = Integer.valueOf( Helper.obtainInput("",
+					"Number of repetitions: ",true) );
 
+		}
+		else if ( samplingChoice == Sampler.SampleMethod.SIMPLE && 
+				( args == null || args.length == 4 || args[4] == null ) )
+		{
+			boolean force_round = Helper.obtainInput("Force rounding?",true);
+			if( force_round )
+				r = 1;
+			else
+				r = 0;
 		}
 		else if ( samplingChoice == Sampler.SampleMethod.MORRIS )
 			r = Integer.valueOf( args[4] );
+		else  if ( samplingChoice == Sampler.SampleMethod.CUSTOM || samplingChoice == Sampler.SampleMethod.EXTERNAL )
+			r = 0;
 		else
-			r = 0000000; //not used
+			r = Integer.valueOf( args[4] ); //switch
 		
 		Idynomics.setupGlobals( xmlFilePath );
 		
-		ProtocolCreater xmlc = new ProtocolCreater( xmlFilePath );
+		ProtocolCreater xmlc = new ProtocolCreater(xmlFilePath,customSampling);
 		xmlc.setSampler( samplingChoice, p, r);
 		xmlc.xmlWrite();
 	}
