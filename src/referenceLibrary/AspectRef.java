@@ -336,6 +336,16 @@ public class AspectRef
 	/**
 	 * TODO
 	 */
+	public final static String solverAbsTolerance = "absoluteTolerance";
+	
+	/**
+	 * TODO
+	 */
+	public final static String solverRelTolerance = "relativeTolerance";
+	
+	/**
+	 * TODO
+	 */
 	public final static String agentPigment = "pigment";
 
 	/**

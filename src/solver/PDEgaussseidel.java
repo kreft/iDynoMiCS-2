@@ -170,7 +170,13 @@ public class PDEgaussseidel extends PDEsolver
 	}
 
 	@Override
-	public void setTolerance(double tol) {
+	public void setAbsoluteTolerance(double tol) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setRelativeTolerance(double tol) {
 		// TODO Auto-generated method stub
 		
 	}

@@ -39,7 +39,9 @@ import solver.PDEupdater;
  */
 public class SolveDiffusionSteadyState extends ProcessDiffusion
 {
-	public static String TOLERANCE = AspectRef.solverTolerance;
+	public static String ABS_TOLERANCE = AspectRef.solverAbsTolerance;
+	
+	public static String REL_TOLERANCE = AspectRef.solverRelTolerance;
 	
 	/* ***********************************************************************
 	 * CONSTRUCTORS
@@ -56,12 +58,16 @@ public class SolveDiffusionSteadyState extends ProcessDiffusion
 	{
 		super.init(xmlElem, environment, agents, compartmentName);
 		
-		double tol = (double) this.getOr(TOLERANCE, 1.0e-18);
+		double absTol = (double) this.getOr(ABS_TOLERANCE, 1.0e-18);
+		
+		double relTol = (double) this.getOr(REL_TOLERANCE, 1.0e-18);
 
 		// TODO Let the user choose which ODEsolver to use.
 		this._solver = new PDEmultigrid();
 		
-		this._solver.setTolerance(tol);
+		this._solver.setAbsoluteTolerance(absTol);
+		
+		this._solver.setRelativeTolerance(relTol);
 
 	}
 	
