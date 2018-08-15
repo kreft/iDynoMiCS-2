@@ -450,6 +450,16 @@ public class AspectRef
 	 * Cool down period for the agent before it can undergo conjugation again.
 	 */
 	public final static String coolDownPeriod = "cool_down";
+	
+	/**
+	 * Pilus extension speed.
+	 */
+	public final static String extensionSpeed = "extension_speed";
+	
+	/**
+	 * Pilus retraction speed.
+	 */
+	public final static String retractionSpeed = "retraction_speed";
 
 	/**
 	 * Process manager output filename
