@@ -35,9 +35,9 @@ import shape.resolution.ResolutionCalculator;
 import shape.resolution.UniformResolution;
 import shape.ShapeConventions.SingleVoxel;
 import shape.subvoxel.SubvoxelPoint;
-import surface.Collision;
 import surface.Plane;
 import surface.Surface;
+import surface.collision.Collision;
 import utility.Helper;
 /**
  * \brief Abstract class for all shape objects.

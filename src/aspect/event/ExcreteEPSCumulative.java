@@ -17,9 +17,9 @@ import idynomics.Compartment;
 import linearAlgebra.Vector;
 import referenceLibrary.AspectRef;
 import referenceLibrary.XmlRef;
-import surface.Collision;
 import surface.Point;
 import surface.Surface;
+import surface.collision.Collision;
 import surface.predicate.AreColliding;
 import utility.ExtraMath;
 

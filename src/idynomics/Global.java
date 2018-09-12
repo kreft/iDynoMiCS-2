@@ -260,4 +260,14 @@ public class Global extends ParameterSet
 	 */
 	public static double dynamic_viscosity = 0.0;
 	
+	/**
+	 * pass additional collision variables (required for more advanced collision
+	 * models but may cause slight slow down for models that do not use them).
+	 */
+	public static boolean additional_collision_variables = true;
+	
+	/**
+	 * Collision model
+	 */
+	public static String collision_model = "DefaultPushFunction";
 }

@@ -30,8 +30,8 @@ import shape.subvoxel.CoordinateMap;
 import shape.subvoxel.SubvoxelPoint;
 import solver.PDEsolver;
 import solver.PDEupdater;
-import surface.Collision;
 import surface.Surface;
+import surface.collision.Collision;
 import utility.Helper;
 
 /**
@@ -302,7 +302,7 @@ public abstract class ProcessDiffusion extends ProcessManager
 		List<Agent> nhbs;
 		List<Surface> surfaces;
 		double[] pLoc;
-		Collision collision = new Collision(null, shape);
+		Collision collision = new Collision(null, null, shape);
 		CoordinateMap distributionMap;
 
 		for ( int[] coord = shape.resetIterator(); 

@@ -511,7 +511,7 @@ public class PDEmultigrid extends PDEsolver
 			}
 			if (this._earlyStop) {
 				this._earlyStop = false;
-//				Log.out(Tier.DEBUG, "Breaking early: "+ i +" of "+ numRepetitions);
+				Log.out(Tier.DEBUG, "Breaking early: "+ i +" of "+ numRepetitions);
 				break relaxLoops;
 			}
 		}

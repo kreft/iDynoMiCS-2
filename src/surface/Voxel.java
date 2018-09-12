@@ -18,17 +18,17 @@ public class Voxel extends Surface implements HasBoundingBox {
 	/**
 	 * TODO
 	 */
-	protected double[] _dimensions;
+	private double[] _dimensions;
 
 	/**
 	 * TODO
 	 */
-	protected double[] _lower;
+	private double[] _lower;
     
     public Voxel(double[] lower, double[] dimensions)
     {
-    	this._lower = lower;
-    	this._dimensions = dimensions;
+    	this.setLower(lower);
+    	this.setDimensions(dimensions);
     }
 	
 	public Voxel(LinkedList<double[]> points)
@@ -43,7 +43,7 @@ public class Voxel extends Surface implements HasBoundingBox {
 	@Override
 	public int dimensions() 
 	{
-		return this._dimensions.length;
+		return this.getDimensions().length;
 	}
 	
 	protected BoundingBox boundingBox = new BoundingBox();
@@ -63,6 +63,26 @@ public class Voxel extends Surface implements HasBoundingBox {
 
 	public BoundingBox boundingBox(Shape shape)
 	{
-		return boundingBox.get(_dimensions,_lower);
+		return boundingBox.get(getDimensions(),getLower());
+	}
+
+	public double[] getLower() 
+	{
+		return _lower;
+	}
+
+	public void setLower(double[] _lower) 
+	{
+		this._lower = _lower;
+	}
+
+	public double[] getDimensions() 
+	{
+		return _dimensions;
+	}
+
+	public void setDimensions(double[] _dimensions) 
+	{
+		this._dimensions = _dimensions;
 	}
 }

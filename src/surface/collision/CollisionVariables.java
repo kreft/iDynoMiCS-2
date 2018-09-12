@@ -1,4 +1,4 @@
-package surface;
+package surface.collision;
 
 import linearAlgebra.Vector;
 
@@ -35,19 +35,19 @@ public class CollisionVariables
 	 * a result the direction vector dP also needs to be flipped before the 
 	 * force is applied to the mass-points.
 	 */
-	double[] interactionVector;
+	public double[] interactionVector;
 	
 	/*
 	 * Represents the closest point on the first line segment expressed as a
 	 * fraction of the line segment.
 	 */
-	double s;
+	public double s;
 	
 	/*
 	 * Represents the closest point on the second line segment expressed as 
 	 * a fraction of the line segment.
 	 */
-	double t;
+	public double t;
 	
 	/*
 	 * Flip if the force needs to be applied in the opposite direction to 
@@ -56,7 +56,7 @@ public class CollisionVariables
 	 * <p>This is set in {@link #distance(Surface, Surface)} and used in
 	 * {@link #collision(Collection, Collection, double)}.</p>
 	 */
-	boolean flip = false;
+	public boolean flip = false;
 			
 	/*
 	 * Internal variable used for passing a distance at with surfaces become
@@ -65,10 +65,15 @@ public class CollisionVariables
 	 * <p>This is set in {@link #collision(Collection, Collection, double)}
 	 * only.</p>
 	 */
-	double pullRange;
+	public double pullRange;
 	
 	/*
 	 * calculated distance between two objects.
 	 */
-	double distance;
+	public double distance;
+	
+	/*
+	 * Effective radius (required for Herz model).
+	 */
+	public double radiusEffective;
 }

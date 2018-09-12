@@ -1,11 +1,19 @@
-package surface;
+package surface.collision;
 
 import java.util.Collection;
 
 import dataIO.Log;
 import dataIO.Log.Tier;
+import idynomics.Global;
 import linearAlgebra.Vector;
 import shape.Shape;
+import surface.Ball;
+import surface.Plane;
+import surface.Rod;
+import surface.Surface;
+import surface.Voxel;
+import surface.Surface.Type;
+import surface.collision.model.*;
 
 /**
  * Distance methods are based on closest point algorithms from:
@@ -48,6 +56,10 @@ public class Collision
 	 * collision methods as efficiently, limiting required garbage collection
 	 */
 	private final CollisionVariables _variables;
+	/**
+	 * store additional collision variables for advanced collision models.
+	 */
+	private final boolean extend = Global.additional_collision_variables;
 	
 	/* ***********************************************************************
 	 * CONSTRUCTORS
@@ -61,18 +73,38 @@ public class Collision
 	 * @param compartmentShape
 	 */
 	public Collision(CollisionFunction collisionFunction, 
+			CollisionFunction pullFunction,
 			Shape compartmentShape)
 	{
 		this._shape = compartmentShape;
 		this._variables = new CollisionVariables(
 				this._shape.getNumberOfDimensions(), 0.0);
+
 		
 		if ( collisionFunction == null )
-			this._collisionFun = CollisionFunction.DefaultPushFunction;
+//			this._collisionFun = CollisionFunction.DefaultPushFunction;
+//		else if (true)
+		{
+			CollisionFunction temp;
+			String tew = HerzSoftSphere.class.getName();
+			String collFun = surface.collision.model.HerzSoftSphere.class.getName();
+			try {
+				temp = (CollisionFunction) Class.forName(collFun).newInstance();
+			} catch (InstantiationException | IllegalAccessException | 
+					ClassNotFoundException e) {
+				temp = new DefaultPushFunction();
+				Log.out(Tier.CRITICAL, "Catched erroneous collision function"
+						+ "input, using default instead.\n" + e.getMessage());
+			}
+			this._collisionFun = temp;
+		}
 		else
 			this._collisionFun = collisionFunction;
 		
-		this._pullFun = CollisionFunction.DefaultPullFunction;
+		if ( pullFunction == null )
+			this._pullFun = new DefaultPullFunction();
+		else
+			this._pullFun = pullFunction;
 		
 		this._pullFun.instantiate(null, null);
 		this._collisionFun.instantiate(null, null);
@@ -86,7 +118,7 @@ public class Collision
 	 */
 	public Collision(Shape aShape)
 	{
-		this(null, aShape);
+		this(null, null, aShape);
 	}
 	
 	/* ***********************************************************************
@@ -118,6 +150,7 @@ public class Collision
 	public void collision(Surface a, Surface b, CollisionVariables var)
 	{
 		this.distance(a, b, var);
+		
 		/* 
 		 * If the two surfaces overlap, then they should push each other away.
 		 */
@@ -507,6 +540,14 @@ public class Collision
 		}
 		/* Normal collision. */
 		var.distance -= a.getRadius() + b.getRadius();
+		/*
+		 * additional collision variables
+		 */
+		if (extend) 
+		{ 
+			var.radiusEffective = ( a.getRadius() * b.getRadius() ) / 
+					( a.getRadius() + b.getRadius() ); 
+		}
 		return var;
 	}
 	
@@ -573,6 +614,13 @@ public class Collision
 		 * the rod's surface.
 		 */
 		var.distance -= rod.getRadius();
+		/*
+		 * additional collision variables
+		 */
+		if (extend) 
+		{ 
+			var.radiusEffective = rod.getRadius();
+		}
 		return var;
 	}
 	
@@ -663,6 +711,14 @@ public class Collision
 		 * surfaces.
 		 */
 		var.distance -= aRod.getRadius() + aBall.getRadius();
+		/*
+		 * additional collision variables
+		 */
+		if (extend) 
+		{ 
+			var.radiusEffective = ( aRod.getRadius() * aBall.getRadius() ) / 
+					( aRod.getRadius() + aBall.getRadius() ); 
+		}
 		return var;
 	}
 	
@@ -777,6 +833,14 @@ public class Collision
 		 * surfaces.
 		 */
 		var.distance -= a.getRadius() + b.getRadius();
+		/*
+		 * additional collision variables
+		 */
+		if (extend) 
+		{ 
+			var.radiusEffective = ( a.getRadius() * b.getRadius() ) / 
+					( a.getRadius() + b.getRadius() ); 
+		}
 		return var;
 	}
 	
@@ -845,6 +909,13 @@ public class Collision
 		 * the rod's surface.
 		 */
 		var.distance -= sphere.getRadius();
+		/*
+		 * additional collision variables
+		 */
+		if (extend) 
+		{ 
+			var.radiusEffective = sphere.getRadius(); 
+		}
 		return var;
 	}
 	
@@ -880,8 +951,8 @@ public class Collision
 		double[] p = Vector.copy( sphere._point.getPosition() );
 		for(int i=0; i < p.length ; i++) 
 		{ 
-			p[i] = Math.max( p[i], voxel._lower[i] );
-			p[i] = Math.min( p[i], voxel._lower[i] + voxel._dimensions[i] );
+			p[i] = Math.max( p[i], voxel.getLower()[i] );
+			p[i] = Math.min( p[i], voxel.getLower()[i] + voxel.getDimensions()[i] );
 		}
 		return this.spherePoint(sphere, p, var);
 	}
