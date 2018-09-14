@@ -193,7 +193,11 @@ public class Log
 	// TODO move this method to Helper?
 	public static void printToScreen(String message, boolean isError)
 	{
-		message = Helper.limitLineLength(message, 80, "");
+		/* Disabled line as this creates line-breaks even if the line-break is 
+		 * already included in the string message.
+		 * 
+		 * message = Helper.limitLineLength(message, 80, "");
+		 */
 		if ( Helper.isSystemRunningInGUI )
 		{
 			if ( isError )

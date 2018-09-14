@@ -127,10 +127,17 @@ public class Render implements GLEventListener, Runnable {
     private int nbFrames = 0;
     private int _fps = 0;
     private boolean _dispFps = false;
+    
+    private Font font = new Font("consolas", Font.PLAIN, 10);
+    private TextRenderer textRenderer = new TextRenderer(font);
     /*
      * screendump
      */
     public boolean screenDump = false;
+
+	private float dist;
+
+	private double hDist;
     /*
      * this is what refreshes what is rendered on the screen
      */
@@ -154,11 +161,8 @@ public class Render implements GLEventListener, Runnable {
 	     }
 	     if ( this._dispFps )
 	     {
-	         Font font = new Font("consolas", Font.PLAIN, 10);
-	         TextRenderer textRenderer = new TextRenderer(font);
-	         textRenderer.setColor(Color.YELLOW);
-	         textRenderer.setSmoothing(true);
-	
+	    	 textRenderer.setColor(Color.YELLOW);
+	    	 textRenderer.setSmoothing(true);
 	         gl.glLoadIdentity();
 	         gl.glTranslatef(0f, 0f, -5.0f);
 	         int y = 10;
@@ -212,8 +216,8 @@ public class Render implements GLEventListener, Runnable {
 		 * adjust the camera settings to the size of the drawable and the user
 		 * defined camera setting adjustments (zoom, tilt, x, y)
 		 */
-		double dist = _commandMediator.kickback() - _zoom;
-		double hDist = Math.sin(_tilt+0.0001) * dist;
+		dist = _commandMediator.kickback() - _zoom;
+		hDist = Math.sin(_tilt+0.0001) * dist;
 		gl.glMatrixMode(GL2.GL_PROJECTION);
 		gl.glLoadIdentity();
 		

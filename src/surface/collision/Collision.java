@@ -5,6 +5,7 @@ import java.util.Collection;
 import dataIO.Log;
 import dataIO.Log.Tier;
 import idynomics.Global;
+import instantiable.Instance;
 import linearAlgebra.Vector;
 import shape.Shape;
 import surface.Ball;
@@ -69,27 +70,27 @@ public class Collision
 	 * \brief Construct a collision iterator with default pull function, but
 	 * given push function.
 	 * 
+	 * TODO ideally we would make this uniform with the instantiable interface
+	 * 
 	 * @param collisionFunction
 	 * @param compartmentShape
 	 */
 	public Collision(CollisionFunction collisionFunction, 
-			CollisionFunction pullFunction,
-			Shape compartmentShape)
+			CollisionFunction pullFunction, Shape compartmentShape)
 	{
 		this._shape = compartmentShape;
 		this._variables = new CollisionVariables(
 				this._shape.getNumberOfDimensions(), 0.0);
-
 		
 		if ( collisionFunction == null )
-//			this._collisionFun = CollisionFunction.DefaultPushFunction;
-//		else if (true)
 		{
+			/* if no collision function is passed, initiate collision function
+			 * as defined in config file, on failure initiate the default 
+			 * collision function and print message.  */
 			CollisionFunction temp;
-			String tew = HerzSoftSphere.class.getName();
-			String collFun = surface.collision.model.HerzSoftSphere.class.getName();
 			try {
-				temp = (CollisionFunction) Class.forName(collFun).newInstance();
+				temp = (CollisionFunction) 
+						Instance.getNewThrows(Global.collision_model, null);
 			} catch (InstantiationException | IllegalAccessException | 
 					ClassNotFoundException e) {
 				temp = new DefaultPushFunction();
@@ -102,7 +103,22 @@ public class Collision
 			this._collisionFun = collisionFunction;
 		
 		if ( pullFunction == null )
-			this._pullFun = new DefaultPullFunction();
+		{
+			/* if no attraction function is passed, initiate attraction function
+			 * as defined in config file, on failure initiate the default 
+			 * attraction function and print message.  */
+			CollisionFunction temp;
+			try {
+				temp = (CollisionFunction) 
+						Instance.getNewThrows(Global.attraction_model, null);
+			} catch (InstantiationException | IllegalAccessException | 
+					ClassNotFoundException e) {
+				temp = new DefaultPullFunction();
+				Log.out(Tier.CRITICAL, "Catched erroneous attraction function"
+						+ "input, using default instead.\n" + e.getMessage());
+			}
+			this._pullFun = temp;
+		}
 		else
 			this._pullFun = pullFunction;
 		

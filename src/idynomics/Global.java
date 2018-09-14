@@ -269,5 +269,12 @@ public class Global extends ParameterSet
 	/**
 	 * Collision model
 	 */
-	public static String collision_model = "DefaultPushFunction";
+	public static String collision_model = 
+			surface.collision.model.DefaultPushFunction.class.getName();
+	
+	/**
+	 * Attraction model
+	 */
+	public static String attraction_model = 
+			surface.collision.model.DefaultPullFunction.class.getName();
 }
