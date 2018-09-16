@@ -30,9 +30,9 @@ import shape.Dimension.DimName;
 import spatialRegistry.*;
 import spatialRegistry.splitTree.SplitTree;
 import surface.BoundingBox;
-import surface.Collision;
 import surface.predicate.IsNotColliding;
 import surface.Surface;
+import surface.collision.Collision;
 import utility.ExtraMath;
 import utility.Helper;
 

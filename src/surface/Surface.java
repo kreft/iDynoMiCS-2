@@ -3,6 +3,7 @@ package surface;
 import java.util.HashMap;
 import generalInterfaces.HasBoundingBox;
 import shape.Shape;
+import surface.collision.Collision;
 
 /**
  * \brief TODO

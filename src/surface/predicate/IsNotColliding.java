@@ -3,8 +3,8 @@ package surface.predicate;
 import java.util.Collection;
 import java.util.function.Predicate;
 
-import surface.Collision;
 import surface.Surface;
+import surface.collision.Collision;
 
 /**
  * 

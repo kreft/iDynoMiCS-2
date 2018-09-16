@@ -54,7 +54,7 @@ public class Summary extends ProcessManager
 	{
 		super.init(xmlElem, environment, agents, compartmentName);
 		/* Create new filtered table from table logic expression */
-		this.table = new FilteredTable( this.getString(TABLE_SPEC) );
+		this.table = new FilteredTable( this.getString(TABLE_SPEC), compartmentName );
 		
 		this.csvOut = this.getString(FILE_NAME);
 		

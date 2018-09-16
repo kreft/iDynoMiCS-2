@@ -151,6 +151,41 @@ public class Instance
 	 */
 	public static Object getNew(String className, String prefix)
 	{
+		className = contstructClassName(className, prefix);
+		/*
+		 * Finally, try to create a new instance.
+		 */
+		Object out = null;
+		try
+		{
+			out = Class.forName(className).newInstance();
+		}
+		catch ( Exception e )
+		{
+			Log.out(Tier.CRITICAL,
+					"ERROR! Problem in XMLable.getNewInstance("+className+")");
+			e.printStackTrace();
+		}
+		return out;
+	}
+	
+	public static Object getNewThrows(String className, String prefix) throws 
+		InstantiationException, IllegalAccessException, ClassNotFoundException
+	{
+		className = contstructClassName(className, prefix);
+		return Class.forName(className).newInstance();
+	}
+	
+	/**
+	 * constructs full class name including prefix using provided prefix or
+	 * from the xmlPackageLibrary if the prefix is missing.
+	 * 
+	 * @param className
+	 * @param prefix
+	 * @return
+	 */
+	private static String contstructClassName(String className, String prefix)
+	{
 		/*
 		 * Check the first letter is upper case if a separate prefix is provided.
 		 */
@@ -167,21 +202,7 @@ public class Instance
 		 */
 		if ( prefix == null &! className.contains("."))
 			className = Idynomics.xmlPackageLibrary.getFull( className );
-		/*
-		 * Finally, try to create a new instance.
-		 */
-		Object out = null;
-		try
-		{
-			out = Class.forName(className).newInstance();
-		}
-		catch ( Exception e )
-		{
-			Log.out(Tier.CRITICAL,
-					"ERROR! Problem in XMLable.getNewInstance("+className+")");
-			e.printStackTrace();
-		}
-		return out;
+		return className;
 	}
 	
 	@SuppressWarnings("unused")

@@ -115,6 +115,29 @@ public class AgentMediator implements CommandMediator {
 
 	private float _soluteTranparancy = 0.5f;
 
+	private Tier outputLevel;
+
+	/*
+	 * temporary variables (reused)
+	 */
+	private double[] temp_loc;
+
+	private double[] temp_posA;
+
+	private double[] temp_posB;
+
+	private double[] dp;
+
+	private double height;
+
+	private double[] length;
+
+	private float max;
+
+	private float conc;
+
+	private int j;
+
 	/**
 	 * used to set up the open gl camera
 	 */
@@ -273,8 +296,8 @@ public class AgentMediator implements CommandMediator {
 	private void draw(Ball ball){
 		_gl.glPushMatrix();
 		applyCurrentColor();
-		double[] loc = GLUtil.make3D(ball._point.getPosition());
-		_gl.glTranslated(loc[0], loc[1], loc[2]);
+		temp_loc = GLUtil.make3D(ball._point.getPosition());
+		_gl.glTranslated(temp_loc[0], temp_loc[1], temp_loc[2]);
 		GLUquadric qobj = _glu.gluNewQuadric();
 		_glu.gluQuadricDrawStyle(qobj, GLU.GLU_FILL);
 		_glu.gluQuadricNormals(qobj, GLU.GLU_SMOOTH);
@@ -285,35 +308,35 @@ public class AgentMediator implements CommandMediator {
 	
 	private void draw(Rod rod) 
 	{
-		Tier level = Tier.BULK;
+		outputLevel = Tier.BULK;
 		 /* first sphere */
-		double[] posA = GLUtil.make3D(rod._points[0].getPosition());
+		temp_posA = GLUtil.make3D(rod._points[0].getPosition());
 		 /* second sphere*/
-		double[] posB = GLUtil.make3D(rod._points[1].getPosition());
+		temp_posB = GLUtil.make3D(rod._points[1].getPosition());
 		
-		posA = GLUtil.searchClosestCyclicShadowPoint(_shape, posA, posB);
+		temp_posA = GLUtil.searchClosestCyclicShadowPoint(_shape, temp_posA, temp_posB);
 		
 		/* save the transformation matrix, so we do not disturb other drawings */
 		_gl.glPushMatrix();
 
 		applyCurrentColor();
 
-		if ( Log.shouldWrite(level) )
+		if ( Log.shouldWrite(outputLevel) )
 		{
-			Log.out(level, "Constructing Rod with radius " + rod._radius + " and " 
+			Log.out(outputLevel, "Constructing Rod with radius " + rod._radius + " and " 
 					+ _slices + " slices, " + _stacks + " stacks" );
 		}
 		GLUquadric qobj = _glu.gluNewQuadric();
 
 		/* draw first sphere */
-		_gl.glTranslated(posA[0], posA[1], posA[2]);
+		_gl.glTranslated(temp_posA[0], temp_posA[1], temp_posA[2]);
 		_glu.gluQuadricDrawStyle(qobj, GLU.GLU_FILL);
 		_glu.gluQuadricNormals(qobj, GLU.GLU_SMOOTH);
 		_glu.gluSphere(qobj, rod._radius, _slices, _stacks);
 		
 		/* direction from posB to posA */
-		double[] dp = Vector.minus(posB, posA);
-		double height = Vector.normEuclid(dp);
+		dp = Vector.minus(temp_posB, temp_posA);
+		height = Vector.normEuclid(dp);
 		
 		/* draw a cylinder in between */
 		/* save the matrix to rotate only the cylinder */
@@ -347,7 +370,7 @@ public class AgentMediator implements CommandMediator {
 	private void draw(Shape shape){
 		/* save the current modelview matrix */
 		_gl.glPushMatrix();
-		double[] length = GLUtil.make3D(shape.getDimensionLengths());
+		length = GLUtil.make3D(shape.getDimensionLengths());
 		/**
 		 * NOTE moved this here since it seems to resolve black lines in domain 
 		 * square, as long as the domain is drawn first this should not cause
@@ -370,7 +393,7 @@ public class AgentMediator implements CommandMediator {
 			 *  scaled to the next highest decimal of the current maximum conc. 
 			 */
 			ShapeIterator it = _shape.getNewIterator();
-			float max = 0f;
+			max = 0f;
 			
 			if (soluteColors.values().size() > 0){
 				/* get the current maximum concentration */
@@ -387,10 +410,10 @@ public class AgentMediator implements CommandMediator {
 				if (soluteColors.values().size() > 0){
 
 					float[] col = new float[] { 0f, 0f, 0f };
-					int j = 0;
+					j = 0;
 					for (String s : soluteColors.keySet()){
 						SpatialGrid grid = _compartment.getSolute(soluteColors.get(s));
-						float conc = (float)grid.getValueAt(ArrayType.CONCN, 
+						conc = (float)grid.getValueAt(ArrayType.CONCN, 
 								it.iteratorCurrent()) / max;
 						col[j++] = conc;
 					}

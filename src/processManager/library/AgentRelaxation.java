@@ -18,10 +18,10 @@ import linearAlgebra.Vector;
 import processManager.ProcessManager;
 import referenceLibrary.AspectRef;
 import shape.Shape;
-import surface.Collision;
 import surface.Point;
 import surface.Rod;
 import surface.Surface;
+import surface.collision.Collision;
 import utility.Helper;
 
 

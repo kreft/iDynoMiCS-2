@@ -21,8 +21,8 @@ import referenceLibrary.AspectRef;
 import shape.Shape;
 import surface.Ball;
 import surface.BoundingBox;
-import surface.Collision;
 import surface.Surface;
+import surface.collision.Collision;
 
 /**
  * \brief TODO
@@ -92,7 +92,7 @@ public class BiofilmBoundaryLayer extends WellMixedBoundary
 			return;
 		
 		Shape shape = this._agents.getShape();
-		Collision collision = new Collision(null, shape);
+		Collision collision = new Collision(null, null, shape);
 		double[] zeros = Vector.zerosDbl(shape.getNumberOfDimensions());
 		this._gridSphere = new Ball(zeros, 0.5 * this._layerThickness);
 		this._gridSphere.init(collision);

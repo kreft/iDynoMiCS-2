@@ -466,6 +466,26 @@ public class ClassRef
 			shape.ShapeLibrary.Sphere.class.getName();
 	
 	/* ************************************************************************
+	 * collision and attraction functions
+	 */	
+	
+	/**
+	 * TODO
+	 */
+	public final static String defaultPushFunction =
+			surface.collision.model.DefaultPushFunction.class.getName();
+	/**
+	 * TODO
+	 */
+	public final static String HerzSoftSphere =
+			surface.collision.model.HerzSoftSphere.class.getName();
+	/**
+	 * TODO
+	 */
+	public final static String defaultPullFunction =
+			surface.collision.model.DefaultPullFunction.class.getName();
+	
+	/* ************************************************************************
 	 * Shapes - resolution calculators
 	 */
 	
@@ -516,8 +536,6 @@ public class ClassRef
 	 */
 	public static final String reaction =
 			reaction.RegularReaction.class.getName();
-	
-	
 	
 	/**
 	 * TODO
