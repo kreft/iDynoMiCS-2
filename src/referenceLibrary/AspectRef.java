@@ -481,4 +481,17 @@ public class AspectRef
 	 */
 	public static final String regionDepth = "regionDepth";
 
+	/**
+	 * Increase speed of agent relaxation by scaling to object with highest
+	 * velocity
+	 */
+	public static final String fastAgentRelaxation = "fastRelaxation";
+
+	/**
+	 * force static dt in agent relaxation thereby ignoring max movement,
+	 * time leaping and stress threshold (and thus also does not quantify
+	 * related variables).
+	 */
+	public static final String staticAgentTimeStep = "staticAgentTimeStep";
+
 }

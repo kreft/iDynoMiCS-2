@@ -14,6 +14,7 @@ import expression.Expression;
 
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
+import idynomics.Global;
 import linearAlgebra.Vector;
 import processManager.ProcessManager;
 import referenceLibrary.AspectRef;
@@ -41,6 +42,8 @@ public class AgentRelaxation extends ProcessManager
 	public String PULL_EVALUATION = AspectRef.collisionPullEvaluation;
 	public String CURRENT_PULL_DISTANCE = AspectRef.collisionCurrentPullDistance;
 	public String RELAXATION_METHOD = AspectRef.collisionRelaxationMethod;
+	public String FAST_RELAXATION = AspectRef.fastAgentRelaxation;
+	public String STATIC_TIMESTEP = AspectRef.staticAgentTimeStep;
 	
 	public String BASE_DT = AspectRef.collisionBaseDT;
 	public String MAX_MOVEMENT = AspectRef.collisionMaxMOvement;
@@ -107,6 +110,11 @@ public class AgentRelaxation extends ProcessManager
 	/**
 	 * TODO
 	 */
+	private boolean _dtStatic;
+	
+	/**
+	 * TODO
+	 */
 	private Collision _iterator;
 	
 	/**
@@ -155,7 +163,12 @@ public class AgentRelaxation extends ProcessManager
 		this._method = Method.valueOf( Helper.setIfNone(
 				this.getString(RELAXATION_METHOD), Method.EULER.toString() ) );
 		/* Time leaping */
-		this._timeLeap	= true;
+		this._timeLeap = Helper.setIfNone( 
+				this.getBoolean(FAST_RELAXATION), false );	
+		/* force static dt (ignores maxMovement, timeleap, stress thresholds
+		 * but thereby does not has to evaluate these constituants either */
+		this._dtStatic = Helper.setIfNone( 
+				this.getBoolean(STATIC_TIMESTEP), false );	
 		/* Shape of associated compartment */
 		this._shape = agents.getShape();
 		/* Surface objects of compartment, FIXME discovered circle returns a 
@@ -310,9 +323,11 @@ public class AgentRelaxation extends ProcessManager
 		double radius;
 		/* highest velocity in the system squared */
 		double vs;
+		/* highest force in the system */
+		double st;
 		/* All located agents in this compartment */
 		Collection<Agent> allAgents = this._agents.getAllLocatedAgents();
-
+		
 		/* if higher order ODE solvers are used we need additional space to 
 		 * write. */
 		switch ( _method )
@@ -329,41 +344,55 @@ public class AgentRelaxation extends ProcessManager
 		{	
 			this._agents.refreshSpatialRegistry();
 			this.updateForces( this._agents );
-
-			/* obtain current highest particle velocity */
-			vs = 0.0;
-			for(Agent agent : allAgents )
+			
+			if( !this._dtStatic )
 			{
-				radius = agent.getDouble(RADIUS);
-				for ( Point point: ( (Body) agent.get(BODY) ).getPoints() )
-					if ( Vector.normSquare( point.dxdt( radius ) ) > vs )
-						vs = Vector.normSquare( point.dxdt( radius ) );		
-			}
-
-			/* FIXME this assumes linear force scaling improve.. */
-			vs = vs * Math.pow( _iterator.getMaxForceScalar(), 2.0 );
-			
-			/* Stress Threshold allows finishing relaxation early if the
-			 * mechanical stress is low. Default value is 0.0 -> only skip if
-			 * there is no mechanical stress in the system at all. */
-			if ( vs < _stressThreshold )
-				break;
-
-			/* When stochastic movement is enabled update vs to represent the
-			 * highest velocity object in the system accounting for stochastic
-			 * movement to. */
-			for( Agent agent : allAgents )
-				if ( agent.isAspect(STOCHASTIC_DIRECTION) )
+				/* obtain current highest particle velocity */
+				vs = 0.0;
+				st = 0.0;
+				for(Agent agent : allAgents )
 				{
-					double[] move = (double[]) agent.get(STOCHASTIC_DIRECTION);
-					vs = Math.max( Vector.dotProduct( move, move ), vs );
+					radius = agent.getDouble(RADIUS);
+					for ( Point point: ( (Body) agent.get(BODY) ).getPoints() )
+					{
+						if ( Vector.normSquare( point.dxdt( radius ) ) > vs )
+							vs = Vector.normSquare( point.dxdt( radius ) );	
+						if ( Vector.normSquare( point.getForce() ) > st )
+							st = Vector.normSquare( point.getForce() );
+					}
 				}
-			
-			/* time Leaping set the time step to match a max traveling distance
-			/ divined by 'maxMovement', for a 'fast' run. */
-			if ( this._timeLeap ) 
-				dtMech = this._maxMove / ( Math.sqrt( vs ) + 0.001 );
 
+				/* Stress Threshold allows finishing relaxation early if the
+				 * mechanical stress is low. Default value is 0.0 -> only skip 
+				 * if there is no mechanical stress in the system at all. */
+				if ( _stressThreshold != 0.0 )
+				{
+					if ( Math.sqrt(st) * Global.agent_stress_scaling < 
+							_stressThreshold )
+						break;
+				}
+	
+				/* When stochastic movement is enabled update vs to represent 
+				 * the highest velocity object in the system accounting for 
+				 * stochastic movement to. */
+				for( Agent agent : allAgents )
+					if ( agent.isAspect( STOCHASTIC_DIRECTION ) )
+					{
+						double[] move = 
+								(double[]) agent.get( STOCHASTIC_DIRECTION );
+						vs = Math.max( Vector.dotProduct( move, move ), vs );
+					}
+				
+				/* time Leaping set the time step to match a max traveling 
+				 * distance divined by 'maxMovement', for a 'fast' run. */
+				if ( this._timeLeap ) 
+					dtMech = this._maxMove / ( Math.sqrt(vs) + 
+							Global.agent_move_safety );
+				else
+					dtMech = this._maxMove / Math.max( Math.sqrt(vs) + 
+							Global.agent_move_safety, 1.0 );
+			}
+			
 			/* prevent to relaxing longer than the global _timeStepSize */
 			if (dtMech > this._timeStepSize - tMech )
 				dtMech = this._timeStepSize - tMech;
@@ -382,10 +411,7 @@ public class AgentRelaxation extends ProcessManager
 				for ( Agent agent : allAgents )
 					for ( Point point: ( (Body) agent.get(BODY) ).getPoints() )
 						point.shove( dtMech, agent.getDouble(RADIUS) );
-				/* Continue until nearly all overlap is resolved. */
-				if ( vs < 0.001 )
-					tMech = this._timeStepSize;
-				break;
+				/* NOTE stress threshold is now resolved beforehand. */
 			}
 			case EULER :
 			{
