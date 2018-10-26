@@ -15,6 +15,7 @@ import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
 import linearAlgebra.Vector;
 import processManager.ProcessManager;
+import processManager.ProcessMethods;
 import reaction.Reaction;
 import referenceLibrary.AspectRef;
 import solver.ODEderivatives;
@@ -39,7 +40,8 @@ public class SolveChemostat extends ProcessManager
 	public static String HMAX = AspectRef.solverhMax;
 	public static String TOLERANCE = AspectRef.solverTolerance;
 	public static String REACTIONS = AspectRef.agentReactions;
-	public String SOLUTES = AspectRef.soluteNames;
+	public static String SOLUTES = AspectRef.soluteNames;
+	public static String AGENT_VOLUME = AspectRef.agentVolume;
 	
 	/**
 	 * The ODE solver to use when updating solute concentrations. 
@@ -183,6 +185,12 @@ public class SolveChemostat extends ProcessManager
 				 */
 				Vector.timesTo(destination, y, - _dilution);
 				Vector.addEquals(destination, _dYdTinflow);
+				
+				/**
+				 * TODO: it seems that this was the problem, double check and 
+				 * make nice.
+				 */
+				Vector.timesTo(destination, destination, 1/environment.getShape().getTotalVolume());
 				/*
 				 * For the reactions, we will need the concentrations in
 				 * dictionary format.
@@ -265,6 +273,7 @@ public class SolveChemostat extends ProcessManager
 			if ( volFlowRate < 0.0 )
 			{
 				/*
+				 * FIXME ???
 				 * This is an outflow, so we calculate the mass flow rates as
 				 * the solver runs.
 				 */
@@ -302,7 +311,7 @@ public class SolveChemostat extends ProcessManager
 			Log.out(level, "Chemostat: total inflows "+inRate+
 					", total outflows "+outRate);
 		}
-		this._dilution = outRate;
+		this._dilution = inRate;
 	}
 	
 	/**
@@ -340,7 +349,7 @@ public class SolveChemostat extends ProcessManager
 	 */
 	private double volume()
 	{
-		return Math.pow(this._agents.getShape().getTotalVolume(), -1.0);
+		return this._agents.getShape().getTotalVolume();
 	}
 	
 	/**
@@ -370,8 +379,8 @@ public class SolveChemostat extends ProcessManager
 		 * reactions. Note that multiplication is computationally cheaper than
 		 * division, so we calculate perVolume just once.
 		 */
-		double perVolume = Math.pow(this.volume(), -1.0);
-		Map<String,Double> allConcns = AgentContainer.getAgentMassMap(agent);
+		double perVolume = 1.0/this.volume();
+		Map<String,Double> allConcns = ProcessMethods.getAgentMassMap(agent);
 		for ( String key : allConcns.keySet() )
 			allConcns.put(key, allConcns.get(key) * perVolume);
 		/*
@@ -389,7 +398,7 @@ public class SolveChemostat extends ProcessManager
 			 * Check first that we have all variables we need. If not, they may
 			 * be stored as other aspects of the agent (e.g. EPS).
 			 */
-			for ( String varName : aReac.getVariableNames() )
+			for ( String varName : aReac.getConstituentNames() )
 				if ( ! allConcns.containsKey(varName) )
 				{
 					if ( agent.isAspect(varName) )
@@ -440,13 +449,12 @@ public class SolveChemostat extends ProcessManager
 		 * Get the agent biomass kinds as a map. This map will be the one
 		 * updated with the results of the reactions.
 		 */
-		Map<String,Double> newBiomass = AgentContainer.getAgentMassMap(agent);
+		Map<String,Double> newBiomass = ProcessMethods.getAgentMassMap(agent);
 		/*
 		 * Make a new map with these converted to concentrations. Calculate the
 		 * one over volume part once, as multiplication is 
 		 */
-		double volume = this.volume();
-		double perVolume = Math.pow(volume, -1.0);
+		double perVolume = 1.0/this.volume();
 		Map<String,Double> allConcns = new HashMap<String,Double>();
 		for ( String key : newBiomass.keySet() )
 			allConcns.put(key, newBiomass.get(key) * perVolume);
@@ -467,7 +475,7 @@ public class SolveChemostat extends ProcessManager
 		{
 			stoichiometry = aReac.getStoichiometry();
 			// TODO store the reaction rate for XML output
-			reactionOccurances = aReac.getRate(allConcns) * timeStep * volume;
+			reactionOccurances = aReac.getRate(allConcns) * timeStep * this.volume();
 			for ( String key : stoichiometry.keySet() )
 				if ( this._environment.isSoluteName(key) )
 				{
@@ -479,16 +487,21 @@ public class SolveChemostat extends ProcessManager
 							(stoichiometry.get(key) * reactionOccurances);
 					newBiomass.put(key, biomass);
 				}
+				else if ( agent.isAspect(key))
+				{
+					newBiomass.put(key, agent.getDouble(key) +
+							stoichiometry.get(key) * reactionOccurances);
+				}
 				else
 				{
-					newBiomass.put(key, 
+					newBiomass.put(key,
 							stoichiometry.get(key) * reactionOccurances);
 				}
 		}
 		/*
 		 * Finally, update the biomass for this agent.
 		 */
-		AgentContainer.updateAgentMass(agent, newBiomass);
+		ProcessMethods.updateAgentMass(agent, newBiomass);
 	}
 	
 	/**

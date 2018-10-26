@@ -174,6 +174,12 @@ public class XmlRef
 	public final static String shapeDimension = "dimension";
 	
 	/**
+	 * Tag for the ResolutionCalculator class that should be used for a
+	 * dimension.
+	 */
+	public final static String resolutionCalculator = "resolutionCalculator";
+	
+	/**
 	 * Tag for the boolean denoting whether a dimension is cyclic (true) or
 	 * not (false).
 	 */
@@ -356,6 +362,11 @@ public class XmlRef
 	public final static String max = "max";
 
 	/**
+	 * The class of ResolutionCalculator that a Shape should use.
+	 */
+	public final static String resCalcClass = "resolutionCalculator";
+	
+	/**
 	 * TODO
 	 */
 	public final static String solutes = "solutes";
@@ -371,9 +382,9 @@ public class XmlRef
 	public final static String identity = "identity";
 
 	/**
-	 * TODO
+	 * Name of the compartment for a boundary's partner boundary.
 	 */
-	public final static String boundaryPartner = "partner";
+	public final static String partnerCompartment = "partnerCompartment";
 
 	/**
 	 * TODO
@@ -408,7 +419,7 @@ public class XmlRef
 	/**
 	 * 
 	 */
-	public static final String dictionary = "dictionary";
+	public static final String InstantiableMapLable = "map";
 
 	/**
 	 * species modules wrapper
@@ -454,5 +465,37 @@ public class XmlRef
 	 * Referring to instantiatable map node
 	 */
 	public static final String map = "map";
+
+	public static final String currentIter = "currentIter";
+
+	/**
+	 * number of joints for random spawn agents
+	 */
+	public static final String numberOfJoints = "numberOfJoints";
+
+	/**
+	 * number of points to spawn
+	 */
+	public static final String points = "points";
+	
+	/**
+	 * General range attribute.
+	 */
+	public final static String rangeAttribute = "range";
+	
+	/**
+	 * Range applicable to this attribute.
+	 */
+	public final static String rangeForAttribute = "rangeFor";
+
+	/**
+	 * volume (for nonspatial compartment)
+	 */
+	public static final String volume = "volume";
+
+	/**
+	 * chemostat volume flowrate
+	 */
+	public static final String volumeFlowRate = "volumeFlowRate";
 
 }

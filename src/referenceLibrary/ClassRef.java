@@ -149,10 +149,22 @@ public class ClassRef
 			aspect.calculated.StateExpression.class.getName();
 	
 	/**
+	 * class reference to the ComponentExpression
+	 */
+	public final static String componentExpressionAspect = 
+			aspect.calculated.ComponentExpression.class.getName();
+	
+	/**
 	 * the voxel distribution map
 	 */
 	public final static String voxelDistributionMap =
 			aspect.calculated.VoxelDistributionMap.class.getName();
+	
+	/**
+	 * 
+	 */
+	public final static String wetWeight = 
+			aspect.calculated.WetWeight.class.getName();
 	
 	/* ************************************************************************
 	 * Class reference library : Aspects - Event
@@ -195,6 +207,12 @@ public class ClassRef
 			aspect.event.ResolveInteractionDistance.class.getName();
 	
 	/**
+	 * the resolve interaction force event
+	 */
+	public final static String resolveInteractionForce =
+			aspect.event.ResolveInteractionForce.class.getName();
+	
+	/**
 	 * the rod division event
 	 */
 	public final static String rodDivision =
@@ -217,6 +235,12 @@ public class ClassRef
 	 */
 	public final static String updateBody =
 			aspect.event.UpdateBody.class.getName();
+	
+	/**
+	 * the plasmid loss event
+	 */
+	public final static String plasmidLoss =
+			aspect.event.PlasmidLoss.class.getName();
 	
 	/* ************************************************************************
 	 * Agents, Species and aspect modules
@@ -281,7 +305,13 @@ public class ClassRef
 			processManager.library.AgentRelaxation.class.getName();
 	
 	/**
-	 * agent stochastiv move manager
+	 * Plasmid transfer(Conjugation) and loss process manager
+	 */
+	public final static String plasmidDynamics =
+			processManager.library.PlasmidDynamics.class.getName();
+	
+	/**
+	 * agent stochastic move manager
 	 */
 	public final static String agentStochasticMove =
 			processManager.library.AgentStochasticMove.class.getName();
@@ -317,6 +347,12 @@ public class ClassRef
 	public final static String writeXmlOutput =
 			processManager.library.WriteXmlOutput.class.getName();
 	
+	public final static String summary =
+			processManager.library.Summary.class.getName();
+	
+	public final static String chemostatSolver =
+			processManager.library.ChemostatSolver.class.getName();
+	
 	/* ************************************************************************
 	 * IdynoMiCS main classes
 	 */
@@ -333,32 +369,46 @@ public class ClassRef
 	public final static String speciesLibrary =
 			agent.SpeciesLib.class.getName();
 	
+	/* ************************************************************************
+	 * Boundaries (non-spatial)
+	 */
+	
+	public final static String chemostatToBoundaryLayer =
+			boundary.library.ChemostatToBoundaryLayer.class.getName();
+	
+	public final static String chemostatToChemostat =
+			boundary.library.ChemostatToChemostat.class.getName();
+	
+	public final static String chemostatToMembrane =
+			boundary.library.ChemostatToMembrane.class.getName();
+	
+	public final static String constantConcentrationToChemostat =
+			boundary.library.ConstantConcentrationToChemostat.class.getName();
+	
+	public final static String chemostatOut =
+			boundary.library.ChemostatOut.class.getName();
+	
+	public final static String gasToMembrane =
+			boundary.library.GasToMembrane.class.getName();
 	
 	/* ************************************************************************
-	 * Grid classes
+	 * Boundaries (spatial)
 	 */
 	
-	/**
-	 * TODO
-	 */
-	public final static String allSameDiffuse =
-			grid.diffusivitySetter.AllSameDiffuse.class.getName();
+	public final static String biofilmBoundaryLayer =
+			boundary.spatialLibrary.BiofilmBoundaryLayer.class.getName();
 	
-	/**
-	 * TODO
-	 */
-	public final static String scaledIfBiomassPresent =
-			grid.diffusivitySetter.ScaledIfBiomassPresent.class.getName();
+	public final static String biofilmMembraneGas =
+			boundary.spatialLibrary.BiofilmMembraneGas.class.getName();
 	
-	/* ************************************************************************
-	 * boundaries
-	 */
+	public final static String biofilmMembraneLiquid =
+			boundary.spatialLibrary.BiofilmMembraneLiquid.class.getName();
 	
-	/**
-	 * TODO
-	 */
 	public final static String fixedBoundary =
 			boundary.spatialLibrary.FixedBoundary.class.getName();
+	
+	public final static String solidBoundary =
+			boundary.spatialLibrary.SolidBoundary.class.getName();
 	
 	/* ************************************************************************
 	 * shape classes
@@ -406,6 +456,23 @@ public class ClassRef
 	public final static String sphere =
 			shape.ShapeLibrary.Sphere.class.getName();
 	
+	/* ************************************************************************
+	 * Shapes - resolution calculators
+	 */
+	
+	/**
+	 * Uniform resolution class, used in combination with {@link 
+	 * shape.resolution.ResolutionCalculator}
+	 */
+	public final static String uniformResolution =
+			shape.resolution.UniformResolution.class.getName();
+	
+	/**
+	 * Multigrid resolution class, used in combination with {@link 
+	 * shape.resolution.ResolutionCalculator}
+	 */
+	public final static String multigridResolution =
+			shape.resolution.MultigridResolution.class.getName();
 	
 	/* ************************************************************************
 	 * miscellaneous
@@ -444,13 +511,13 @@ public class ClassRef
 	/**
 	 * TODO
 	 */
-	public static final String pile =
+	public static final String instantiableList =
 			instantiable.object.InstantiableList.class.getName();
 	
 	/**
 	 * 
 	 */
-	public static final String bundle = 
+	public static final String instantiableMap = 
 			instantiable.object.InstantiableMap.class.getName();
 	
 	/* ************************************************************************
@@ -474,4 +541,10 @@ public class ClassRef
 	 */
 	public final static String string =
 			String.class.getName();
+			
+	/**		
+	* String		
+	*/		
+	public final static String doub =		
+				Double.class.getName();
 }

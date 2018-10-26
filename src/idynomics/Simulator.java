@@ -13,6 +13,7 @@ import dataIO.Log;
 import dataIO.XmlExport;
 import dataIO.XmlHandler;
 import dataIO.Log.Tier;
+import dataIO.Report;
 import generalInterfaces.CanPrelaunchCheck;
 import instantiable.Instance;
 import instantiable.Instantiable;
@@ -52,6 +53,8 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 	 * Xml output writer
 	 */
 	private XmlExport _xmlOut;
+	
+	private long _timeSpentOnXmlOutput = 0;
 	
 	/**
 	 * Simulator is the top node in iDynoMiCS and stores its own modelNode and 
@@ -96,7 +99,7 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 	public long seed()
 	{
 		long currentSeed = ExtraMath.random.nextLong();
-		ExtraMath.intialiseRandomNumberGenerator(currentSeed);
+		ExtraMath.initialiseRandomNumberGenerator(currentSeed);
 		return currentSeed;
 	}
 	
@@ -106,31 +109,32 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 	 */
 	public void seed(long seed)
 	{
-		ExtraMath.intialiseRandomNumberGenerator(seed);
+		ExtraMath.initialiseRandomNumberGenerator(seed);
 	}
 	
 	public void instantiate(Element xmlElem, Settable parent)
 	{
 		/* 
-		 * retrieve seed from xml file and initiate random number generator with
-		 * that seed
+		 * Retrieve seed from xml file and initiate random number generator with
+		 * that seed.
 		 */
-		String seed =XmlHandler.gatherAttribute(xmlElem, XmlRef.seed);
-		if (seed != "" && seed != null)
-			ExtraMath.intialiseRandomNumberGenerator(Long.valueOf(seed));
+		String seed = XmlHandler.gatherAttribute(xmlElem, XmlRef.seed);
+		if ( ! Helper.isNullOrEmpty(seed) )
+			ExtraMath.initialiseRandomNumberGenerator(Long.valueOf(seed));
 		
 		/*
 		 * Set up the Timer.
 		 */
-		this.timer.instantiate( XmlHandler.loadUnique( xmlElem, XmlRef.timer ), this);
+		Element element = XmlHandler.findUniqueChild( xmlElem, XmlRef.timer );
+		this.timer.instantiate( element, this);
 		/*
 		 * Set up the species library.
 		 */
-		if (XmlHandler.hasNode(Idynomics.global.xmlDoc, XmlRef.speciesLibrary))
+		if (XmlHandler.hasChild(Idynomics.global.xmlDoc, XmlRef.speciesLibrary))
 		{
-			this.speciesLibrary = (SpeciesLib) Instance.getNew(
-					XmlHandler.loadUnique( xmlElem, XmlRef.speciesLibrary ), 
-					this, ClassRef.speciesLibrary );
+			element = XmlHandler.findUniqueChild(xmlElem, XmlRef.speciesLibrary);
+			this.speciesLibrary = (SpeciesLib) 
+					Instance.getNew( element, this, ClassRef.speciesLibrary );
 		}
 		/*
 		 * Set up the compartments.
@@ -147,9 +151,14 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 		for ( int i = 0; i < children.getLength(); i++ )
 		{
 			child = (Element) children.item(i);
+			/* Compartments add themselves to the simulator. */
 			Instance.getNew( child, this, XmlRef.compartment );
 		}
 		Log.out(Tier.NORMAL, "Compartments loaded!\n");
+		Log.out(Tier.NORMAL, "Checking connective boundaries...");
+		for ( Compartment compartment : this._compartments )
+			compartment.checkBoundaryConnections(this._compartments);
+		Log.out(Tier.NORMAL, "Boundaries connected!\n");
 	}
 	
 	/* ***********************************************************************
@@ -305,8 +314,9 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 		/*
 		 * Write state to new XML file.
 		 */
+		long tick = System.currentTimeMillis();
 		this._xmlOut.writeFile();
-	
+		this._timeSpentOnXmlOutput = System.currentTimeMillis() - tick;
 
 		/*
 		 * Reporting agents.
@@ -337,6 +347,14 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 		 */
 		this.printAll();
 		/*
+		 * Run report file.
+		 */
+		Report report = new Report();
+		report.createCustomFile("report");
+		report.writeReport();
+		report.closeFile();
+		
+		/*
 		 * Report simulation time.
 		 */
 		tic = (System.currentTimeMillis() - tic) * 0.001;
@@ -363,7 +381,8 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 	public void printProcessManagerRealTimeStats()
 	{
 		Map<String,Long> millis = new HashMap<String,Long>();
-		long total = 0;
+		millis.put("[XML OUTPUT]", this._timeSpentOnXmlOutput);
+		long total = this._timeSpentOnXmlOutput;
 		for ( Compartment c : this._compartments )
 		{
 			Map<String,Long> cStats = c.getRealTimeStats();
@@ -376,7 +395,7 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 		double scalar = 100.0 / total;
 		for ( String name : millis.keySet() )
 		{
-			Log.out(Tier.EXPRESSIVE, 
+			Log.out(Tier.NORMAL, 
 					name+" took "+(millis.get(name)*0.001)+
 					" seconds ("+(millis.get(name)*scalar)+"%)");
 		}
@@ -427,7 +446,8 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 		Module modelNode = new Module(XmlRef.simulation, this);
 		modelNode.setRequirements(Requirements.EXACTLY_ONE);
 		
-		Param.init();
+		/* required if we start without a protocol file */
+		Settings.updateSettings();
 		if(! Log.isSet())
 			Log.set(Tier.NORMAL);
 		

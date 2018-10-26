@@ -1,16 +1,18 @@
 package idynomics;
 
+import java.math.BigDecimal;
+
 import org.w3c.dom.Element;
 
 import dataIO.Log;
 import dataIO.XmlHandler;
+import gui.GuiButtons;
 import referenceLibrary.XmlRef;
 import settable.Attribute;
 import settable.Module;
 import settable.Settable;
 import settable.Module.Requirements;
 import dataIO.Log.Tier;
-import instantiable.Instance;
 import instantiable.Instantiable;
 import utility.Helper;
 
@@ -58,6 +60,10 @@ public class Timer implements Instantiable, Settable
 				XmlHandler.gatherAttribute(
 				xmlNode, XmlRef.currentTime ), "0.0" ) ) );
 		
+		this.setCurrentIteration( Integer.valueOf( Helper.setIfNone( 
+				XmlHandler.gatherAttribute(
+				xmlNode, XmlRef.currentIter ), "0" ) ) );
+		
 		/* Get the time step. */
 		this.setTimeStepSize( Double.valueOf( XmlHandler.obtainAttribute(
 				xmlNode, XmlRef.timerStepSize, this.defaultXmlTag() ) ) );
@@ -97,6 +103,11 @@ public class Timer implements Instantiable, Settable
 		return this._now;
 	}
 	
+	private void setCurrentIteration(int iteration) 
+	{
+		this._iteration = iteration;
+	}
+	
 	public int getCurrentIteration()
 	{
 		return this._iteration;
@@ -109,15 +120,16 @@ public class Timer implements Instantiable, Settable
 	
 	public double getEndOfCurrentIteration()
 	{
-		return this._now + getTimeStepSize();
+		return ( BigDecimal.valueOf( this._now ) ).
+				add( BigDecimal.valueOf( this._timerStepSize ) ).doubleValue();
 	}
 	
 	public void step()
 	{
-		this._now += getTimeStepSize();
+		this._now = getEndOfCurrentIteration();
 		this._iteration++;
-		if ( Helper.gui )
-			GuiLaunch.updateProgressBar();
+		if ( Helper.isSystemRunningInGUI )
+			GuiButtons.updateProgressBar();
 	}
 	
 	public double getEndOfSimulation()
@@ -130,9 +142,10 @@ public class Timer implements Instantiable, Settable
 		this._endOfSimulation = timeToStopAt;
 	}
 	
-	public int estimateLastIteration()
+	public int estimateIterationsRemaining()
 	{
-		return (int) (getEndOfSimulation() - this.getCurrentTime() / getTimeStepSize());
+		double timeLeft = this.getEndOfSimulation() - this.getCurrentTime();
+		return (int) (timeLeft / this.getTimeStepSize());
 	}
 	
 	public boolean isRunning()
@@ -146,7 +159,7 @@ public class Timer implements Instantiable, Settable
 	public void report(Tier outputLevel)
 	{
 		Log.out(outputLevel, "Timer: time is   = "+_now);
-		Log.out(outputLevel, "       iteration = "+_iteration);
+		Log.out(outputLevel, "       iteration = "+getCurrentIteration());
 		Log.out(outputLevel, "       step size = "+getTimeStepSize());
 		Log.out(outputLevel, "       end time  = "+getEndOfSimulation());
 	}
@@ -168,7 +181,7 @@ public class Timer implements Instantiable, Settable
 		/* now */
 		modelNode.add(new Attribute(XmlRef.currentTime, 
 				String.valueOf(this._now), null, true ));
-		
+
 		/* time step size */
 		modelNode.add(new Attribute(XmlRef.timerStepSize, 
 				String.valueOf(this._timerStepSize), null, true ));
@@ -187,7 +200,7 @@ public class Timer implements Instantiable, Settable
 	 */
 	public void setModule(Module node)
 	{
-		this.setTimeStepSize( Double.valueOf( 
+		this.setCurrentTime( Double.valueOf( 
 				node.getAttribute( XmlRef.currentTime ).getValue() ));
 		
 		/* time step size */

@@ -1,7 +1,11 @@
 package generalInterfaces;
 
+import org.w3c.dom.Element;
+
 import dataIO.Log;
+import dataIO.XmlHandler;
 import dataIO.Log.Tier;
+import referenceLibrary.XmlRef;
 
 public interface Redirectable {
 	
@@ -34,7 +38,17 @@ public interface Redirectable {
 			setField(direction[0], direction[1]);
 		}
 	}
-
+	
+	/**
+	 * 
+	 */
+	public default void redirect(Element xmlElem)
+	{
+		if (xmlElem != null && xmlElem.hasAttribute(XmlRef.fields))
+			this.redirect(XmlHandler.obtainAttribute(xmlElem, XmlRef.fields, 
+					"redirect fields"));
+	}
+	
 	/**
 	 * Set field "field" of this object to "value", assess existence and the 
 	 * class of the field before assignment

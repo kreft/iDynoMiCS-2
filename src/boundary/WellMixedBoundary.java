@@ -3,7 +3,8 @@ package boundary;
 import java.util.HashMap;
 import java.util.Map;
 
-import shape.Dimension.DimName;
+import dataIO.Log;
+import dataIO.Log.Tier;
 
 /**
  * \brief A well-mixed boundary is a spatial boundary that <i>must</i> have a
@@ -23,9 +24,9 @@ public abstract class WellMixedBoundary extends SpatialBoundary
 	protected Map<String,Double> _concns = new HashMap<String,Double>();
 	
 	
-	public WellMixedBoundary(DimName dim, int extreme)
+	public WellMixedBoundary()
 	{
-		super(dim, extreme);
+		super();
 	}
 	
 	@Override
@@ -40,6 +41,14 @@ public abstract class WellMixedBoundary extends SpatialBoundary
 	 */
 	public double getConcentration(String soluteName)
 	{
-		return this._concns.get(soluteName);
+		try
+		{
+			return this._concns.get(soluteName);
+		}
+		catch (Exception e)
+		{
+			Log.out(Tier.CRITICAL, "Error getting solute \""+soluteName+"\"");
+			throw e;
+		}
 	}
 }

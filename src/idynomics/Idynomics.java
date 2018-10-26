@@ -28,17 +28,6 @@ import referenceLibrary.XmlRef;
 public strictfp class Idynomics
 {
 	/**
-	* Version number of this iteration of iDynoMiCS - required by update
-	* procedure.
-	*/
-	public final static String version_number = "2.0";
-	
-	/**
-	 * Version description.
-	 */
-	public final static String version_description = "alpha build 2016.06.02";
-	
-	/**
 	 * {@code Simulator} object: there can only be one. 
 	 */
 	public static Simulator simulator;
@@ -46,7 +35,7 @@ public strictfp class Idynomics
 	/**
 	 * global parameters
 	 */
-	public static Param global = new Param();
+	public static Settings global = new Settings();
 	
 	/**
 	 * Simulator thread
@@ -116,17 +105,19 @@ public strictfp class Idynomics
 			Log.printToScreen("Initiating from: " + protocolPath + 
 				"\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 				+ "~~~~~~~~~~~~~~~~~~~~~~~~\n", false);
+			
+
 		/* 
 		 * Load the protocol file and find the elements we need
 		 */
 		Idynomics.global.protocolFile = protocolPath;
 		Idynomics.global.xmlDoc = XmlHandler.loadDocument(protocolPath);
 		
-		Element simElem = XmlHandler.loadUnique(Idynomics.global.xmlDoc, XmlRef.simulation);
+		Element simElem = XmlHandler.findUniqueChild(Idynomics.global.xmlDoc, XmlRef.simulation);
 		/*
 		 * Initialise the global parameters.
 		 */
-		Param.init(simElem);
+		Settings.init(simElem);
 		Log.out(NORMAL, Idynomics.global.simulationComment);
 		Log.out(NORMAL, "Storing results in " + Idynomics.global.outputLocation+"\n");
 		/*
@@ -152,7 +143,7 @@ public strictfp class Idynomics
 	 */
 	public static String fullDescription()
 	{
-		return "iDynoMiCS "+Idynomics.version_number+
-				" ("+Idynomics.version_description+")";
+		return "iDynoMiCS "+Settings.version_number+
+				" ("+Settings.version_description+")";
 	}
 }

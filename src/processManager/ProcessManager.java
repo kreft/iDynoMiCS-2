@@ -14,7 +14,6 @@ import idynomics.AgentContainer;
 import idynomics.Compartment;
 import idynomics.EnvironmentContainer;
 import idynomics.Idynomics;
-import instantiable.Instance;
 import instantiable.Instantiable;
 import referenceLibrary.ClassRef;
 import referenceLibrary.XmlRef;
@@ -121,7 +120,7 @@ public abstract class ProcessManager implements Instantiable, AspectInterface,
 		 * Read in the process attributes. 
 		 */
 		Element p = (Element) xmlElem;
-		if (Helper.isNone(this._name))
+		if (Helper.isNullOrEmpty(this._name))
 			this.setName( XmlHandler.obtainAttribute(p, XmlRef.nameAttribute, this.defaultXmlTag()));
 		/* Process priority - default is zero. */
 		int priority = 0;
@@ -139,8 +138,7 @@ public abstract class ProcessManager implements Instantiable, AspectInterface,
 			time = Double.valueOf( p.getAttribute(XmlRef.processTimeStepSize) );
 		this.setTimeStepSize(time);
 		
-		if (xmlElem != null && xmlElem.hasAttribute(XmlRef.fields))
-			this.redirect(XmlHandler.obtainAttribute(xmlElem, XmlRef.fields, "redirect fields"));
+		this.redirect(xmlElem);		
 		
 		Log.out(Tier.EXPRESSIVE, this._name + " loaded");
 	}

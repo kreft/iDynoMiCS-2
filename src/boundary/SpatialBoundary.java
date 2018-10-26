@@ -7,12 +7,13 @@ import org.w3c.dom.Node;
 
 import agent.Agent;
 import agent.Body;
+import agent.predicate.IsLocated;
 import dataIO.Log;
 import dataIO.XmlHandler;
 import dataIO.Log.Tier;
 import grid.ArrayType;
 import grid.SpatialGrid;
-import idynomics.AgentContainer;
+import grid.WellMixedConstants;
 import linearAlgebra.Vector;
 import referenceLibrary.AspectRef;
 import referenceLibrary.XmlRef;
@@ -47,44 +48,26 @@ public abstract class SpatialBoundary extends Boundary
 	// TODO set this from protocol file for the whole compartment
 	protected double _layerThickness;
 	
-	protected double _detachability;
-	
 	/* ***********************************************************************
 	 * CONSTRUCTORS
 	 * **********************************************************************/
 	
-	/**
-	 * FIXME essential for instantiation
-	 */
-	public SpatialBoundary()
-	{
-		
-	}
-	
-	/**
-	 * FIXME essential for instantiation
-	 */
 	public void instantiate(Element xmlElement, Settable parent) 
 	{
-		this._dim = DimName.valueOf(XmlHandler.obtainAttribute(
-				xmlElement, XmlRef.shapeDimension, XmlRef.dimensionBoundary));
-		this._extreme = Integer.valueOf(XmlHandler.obtainAttribute(
-				xmlElement, XmlRef.extreme, XmlRef.dimensionBoundary)); // shape and this are inconsistent
-	}
-	
-	/**
-	 * \brief Construct a spatial boundary by giving it the information it
-	 * needs about its location.
-	 * 
-	 * @param dim This boundary is at one extreme of a dimension: this is the
-	 * name of that dimension.
-	 * @param extreme This boundary is at one extreme of a dimension: this is
-	 * the index of that extreme (0 for minimum, 1 for maximum).
-	 */
-	public SpatialBoundary(DimName dim, int extreme)
-	{
-		this._dim = dim;
-		this._extreme = extreme;
+		super.instantiate(xmlElement, parent);
+		
+		String s;
+		// FIXME shape and this are inconsistent
+		s = XmlHandler.obtainAttribute(
+				xmlElement, XmlRef.extreme, XmlRef.dimensionBoundary);
+		this._extreme = Integer.valueOf(s);
+		
+		if ( this.needsLayerThickness() )
+		{
+			s = XmlHandler.obtainAttribute(xmlElement,
+					XmlRef.layerThickness, XmlRef.dimensionBoundary);
+			this.setLayerThickness(Double.valueOf(s));
+		}
 	}
 	
 	/* ***********************************************************************
@@ -100,17 +83,31 @@ public abstract class SpatialBoundary extends Boundary
 	}
 	
 	/**
+	 * @param extreme The index of the extreme (of a shape dimension) this is on.
+	 */
+	public void setExtreme(int extreme)
+	{
+		this._extreme = extreme;
+	}
+	
+	/**
 	 * @return The index of the extreme (of a shape dimension) this is on.
 	 */
 	public int getExtreme()
 	{
 		return this._extreme;
 	}
+
+	/**
+	 * Internal boolean for construction: declares whether a concrete sub-class
+	 * of SpatialBoundary needs a layer thickness set or not.
+	 */
+	protected abstract boolean needsLayerThickness();
 	
 	/**
-	 * \brief TODO
+	 * \brief Set the thickness of the boundary layer.
 	 * 
-	 * @param thickness
+	 * @param thickness Strictly positive real number.
 	 */
 	public void setLayerThickness(double thickness)
 	{
@@ -152,9 +149,6 @@ public abstract class SpatialBoundary extends Boundary
 	 */
 	public double getDiffusiveFlow(SpatialGrid grid)
 	{
-		// NOTE Rob [27June2016]: Tried this approach and am not happy with it.
-		if ( grid.getName().equals(AgentContainer.DETACHABILITY) )
-			return this.calcDiffusiveFlowFixed(grid,  this.getDetachability());
 		return this.calcDiffusiveFlow(grid);
 	}
 	
@@ -248,7 +242,12 @@ public abstract class SpatialBoundary extends Boundary
 			double distance = aShape
 					.currentDistanceFromBoundary(this._dim, this._extreme);
 			if ( distance <= this._layerThickness )
-				grid.setValueAt(WELLMIXED, aShape.iteratorCurrent(), 0.0);
+			{
+				grid.setValueAt(
+						WELLMIXED, 
+						aShape.iteratorCurrent(), 
+						WellMixedConstants.NOT_MIXED);
+			}
 			aShape.iteratorNext();
 		}
 	}
@@ -256,12 +255,6 @@ public abstract class SpatialBoundary extends Boundary
 	/* ***********************************************************************
 	 * AGENT TRANSFERS
 	 * **********************************************************************/
-	
-	/**
-	 * 
-	 * @return
-	 */
-	protected abstract double getDetachability();
 	
 	/**
 	 * \brief Helper method for placing agents in the arrivals lounge at random
@@ -281,7 +274,7 @@ public abstract class SpatialBoundary extends Boundary
 		Body body;
 		for ( Agent anAgent : this._arrivalsLounge )
 		{
-			if ( AgentContainer.isLocated(anAgent) )
+			if ( IsLocated.isLocated(anAgent) )
 			{
 				newLoc = aShape.getRandomLocationOnBoundary(
 						this._dim, this._extreme);
@@ -317,23 +310,24 @@ public abstract class SpatialBoundary extends Boundary
 	public Module getModule()
 	{
 		Module modelNode = super.getModule();
-		/* Which dimension? */
-		modelNode.add(new Attribute(XmlRef.dimensionNamesAttribute,
-				this._dim.toString(),
-				null, true));
 		/* Minimum or maximum extreme of this dimension? */
-		modelNode.add(new Attribute("extreme", 
-				Dimension.extremeToString(this._extreme),
-				new String[]{XmlRef.min, XmlRef.max}, true));
+		modelNode.add(new Attribute(XmlRef.extreme, 
+				String.valueOf(this._extreme), new String[]{"0", "1"}, true));
+		/* Boundary layer thickness. */
+		if ( this.needsLayerThickness() )
+		{
+			modelNode.add(new Attribute(XmlRef.layerThickness,
+					String.valueOf(this._layerThickness), null, true));
+		}
 		return modelNode;
 	}
-	
-	@Override
-	public boolean isReadyForLaunch()
-	{
-		if ( ! super.isReadyForLaunch() )
-			return false;
-		return true;
-	}
 
+	@Override
+	public void setParent(Settable parent)
+	{
+		super.setParent(parent);
+		
+		Dimension dimension = (Dimension) parent;
+		this._dim = dimension.getName();
+	}
 }

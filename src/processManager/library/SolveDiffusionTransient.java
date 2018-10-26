@@ -13,24 +13,18 @@ import java.util.Map;
 import org.w3c.dom.Element;
 
 import agent.Agent;
-import dataIO.Log;
 import dataIO.ObjectFactory;
-import dataIO.XmlHandler;
-import dataIO.Log.Tier;
 import grid.SpatialGrid;
-import grid.diffusivitySetter.AllSameDiffuse;
-import grid.diffusivitySetter.IsDiffusivitySetter;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
-import instantiable.Instance;
 import processManager.ProcessDiffusion;
+import processManager.ProcessMethods;
 import reaction.Reaction;
 import referenceLibrary.XmlRef;
 import shape.subvoxel.CoordinateMap;
 import shape.Shape;
 import solver.PDEexplicit;
 import solver.PDEupdater;
-import utility.Helper;
 
 /**
  * \brief Simulate the diffusion of solutes and their production/consumption by
@@ -49,44 +43,10 @@ public class SolveDiffusionTransient extends ProcessDiffusion
 			AgentContainer agents, String compartmentName)
 	{
 		super.init(xmlElem, environment, agents, compartmentName);
-		
-		/* gets specific solutes from process manager aspect registry if they
-		 * are defined, if not, solve for all solutes.
-		 */
-		this._soluteNames = (String[]) this.getOr(SOLUTES, 
-				Helper.collectionToArray(this._environment.getSoluteNames()));
 
 		// TODO Let the user choose which ODEsolver to use.
 		this._solver = new PDEexplicit();
-		this._solver.init(this._soluteNames, false);
-		this._solver.setUpdater(this.standardUpdater());
-		
-		/* Plug any gaps (FIXME temporary measure). */
-		for ( String sName : this._soluteNames )
-			if ( ! this._diffusivity.containsKey(sName) )
-			{
-				Log.out(Tier.CRITICAL, 
-						"WARNING: Using default diffusivity for solute "+sName);
-				this._diffusivity.put(sName, new AllSameDiffuse(1.0));
-			}
-		
-		String msg = "SolveDiffusionTransient responsible for solutes: ";
-		for ( String s : this._soluteNames )
-			msg += s + ", ";
-		Log.out(Tier.EXPRESSIVE, msg);
-		/*
-		 * Now look for diffusivity setters.
-		 */
-		Collection<Element> diffusivityElements =
-				XmlHandler.getElements(xmlElem, XmlRef.diffusivitySetter);
-		for ( Element dElem : diffusivityElements )
-		{
-			String soluteName = dElem.getAttribute(XmlRef.solute);
-			String className = dElem.getAttribute(XmlRef.classAttribute);
-			IsDiffusivitySetter diffusivity = (IsDiffusivitySetter)
-					Instance.getNew(dElem, this, className);
-			this._diffusivity.put(soluteName, diffusivity);
-		}
+
 	}
 		
 	/* ***********************************************************************
@@ -105,11 +65,10 @@ public class SolveDiffusionTransient extends ProcessDiffusion
 		 * distribute it among the relevant boundaries.
 		 */
 		this._environment.distributeWellMixedFlows();
-		/*
-		 * Clear agent mass distribution maps.
-		 */
-		this._agents.removeAgentDistibutionMaps();
 
+		/* perform final clean-up and update agents to represent updated 
+		 * situation. */
+		this.postStep();
 	}
 	
 	/* ***********************************************************************
@@ -123,7 +82,7 @@ public class SolveDiffusionTransient extends ProcessDiffusion
 	 * 
 	 * @return PDE updater method.
 	 */
-	private PDEupdater standardUpdater()
+	protected PDEupdater standardUpdater()
 	{
 		return new PDEupdater()
 		{
@@ -136,7 +95,7 @@ public class SolveDiffusionTransient extends ProcessDiffusion
 			{
 				for ( SpatialGrid var : variables )
 					var.newArray(PRODUCTIONRATE);
-				applyEnvReactions();
+				applyEnvReactions(variables);
 				for ( Agent agent : _agents.getAllLocatedAgents() )
 					applyAgentReactions(agent, dt);
 			}
@@ -176,14 +135,17 @@ public class SolveDiffusionTransient extends ProcessDiffusion
 		 * Get the distribution map and scale it so that its contents sum up to
 		 * one.
 		 */
+		@SuppressWarnings("unchecked")
+		Map<Shape, CoordinateMap> mapOfMaps = (Map<Shape, CoordinateMap>)
+						agent.getValue(VOLUME_DISTRIBUTION_MAP);
 		CoordinateMap distributionMap = 
-				(CoordinateMap) agent.getValue(VOLUME_DISTRIBUTION_MAP);
+				mapOfMaps.get(agent.getCompartment().getShape());
 		distributionMap.scale();
 		/*
 		 * Get the agent biomass kinds as a map. Copy it now so that we can
 		 * use this copy to store the changes.
 		 */
-		Map<String,Double> biomass = AgentContainer.getAgentMassMap(agent);
+		Map<String,Double> biomass = ProcessMethods.getAgentMassMap(agent);
 		@SuppressWarnings("unchecked")
 		Map<String,Double> newBiomass = (HashMap<String,Double>)
 				ObjectFactory.copy(biomass);
@@ -209,7 +171,7 @@ public class SolveDiffusionTransient extends ProcessDiffusion
 				 * affect the reaction, and not those that are affected by it.
 				 */
 				concns.clear();
-				for ( String varName : r.getVariableNames() )
+				for ( String varName : r.getConstituentNames() )
 				{
 					if ( this._environment.isSoluteName(varName) )
 					{
@@ -282,6 +244,6 @@ public class SolveDiffusionTransient extends ProcessDiffusion
 				}
 			}
 		}
-		AgentContainer.updateAgentMass(agent, newBiomass);
+		ProcessMethods.updateAgentMass(agent, newBiomass);
 	}
 }

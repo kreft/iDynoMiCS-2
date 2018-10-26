@@ -4,16 +4,17 @@
 package shape;
 
 import org.w3c.dom.Element;
-
 import dataIO.Log;
 import dataIO.Log.Tier;
 import dataIO.XmlHandler;
 import linearAlgebra.Array;
-import referenceLibrary.ObjectRef;
+import referenceLibrary.XmlRef;
+import settable.Attribute;
+import settable.Module;
 import settable.Settable;
 import shape.Dimension.DimName;
 import shape.iterator.ShapeIterator;
-import shape.resolution.ResolutionCalculator.ResCalc;
+import shape.resolution.ResolutionCalculator;
 
 /**
  * \brief Collection of instanciable {@code Shape} classes.
@@ -58,10 +59,27 @@ public final class ShapeLibrary
 		@Override
 		public void instantiate(Element xmlElem, Settable parent)
 		{
+			super.instantiate(xmlElem, parent);
 			// TODO read in as a Double
-			String str = XmlHandler.attributeFromUniqueNode(
-										xmlElem, "volume", ObjectRef.STR);
+			String str = XmlHandler.obtainAttribute(
+						xmlElem, XmlRef.volume, this.defaultXmlTag());
 			this._volume = Double.parseDouble(str);
+		}
+		
+		@Override
+		public Module getModule()
+		{
+			Module node = super.getModule();
+			node.add( new Attribute(XmlRef.volume, 
+						String.valueOf(this.getTotalVolume()), null, true ));
+			return node;
+		}
+		
+		public void setModule(Module node)
+		{
+			super.setModule(node);
+			this._volume = Double.parseDouble( 
+					node.getAttribute(XmlRef.volume).getValue() );
 		}
 		
 		/**
@@ -79,6 +97,11 @@ public final class ShapeLibrary
 			return this._volume;
 		}
 		
+		public void setTotalVolume( double volume)
+		{
+			this._volume = volume;
+		}
+		
 		@Override
 		public void getLocalPositionTo(double[] destination, double[] location)
 		{
@@ -92,13 +115,13 @@ public final class ShapeLibrary
 		}
 		
 		@Override
-		public ResCalc getResolutionCalculator(int[] coord, int axis)
+		public ResolutionCalculator getResolutionCalculator(int[] coord, int axis)
 		{
 			return null;
 		}
 		
 		@Override
-		public void setDimensionResolution(DimName dName, ResCalc resC)
+		public void setDimensionResolution(DimName dName, ResolutionCalculator resC)
 		{
 			/* Do nothing! */
 		}
@@ -106,6 +129,12 @@ public final class ShapeLibrary
 		public void setSurfaces()
 		{
 			/* Do nothing! */
+		}
+		
+		@Override
+		public int getTotalNumberOfVoxels()
+		{
+			return 1;
 		}
 		
 		@Override
@@ -159,6 +188,18 @@ public final class ShapeLibrary
 
 		@Override
 		public ShapeIterator getNewIterator(int strideLength)
+		{
+			return null;
+		}
+		
+		@Override
+		public boolean canGenerateCoarserMultigridLayer()
+		{
+			return false;
+		}
+		
+		@Override
+		public Shape generateCoarserMultigridLayer()
 		{
 			return null;
 		}

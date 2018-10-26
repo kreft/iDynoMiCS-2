@@ -3,12 +3,10 @@ package aspect;
 import generalInterfaces.Copyable;
 import generalInterfaces.Redirectable;
 import instantiable.Instantiable;
-import referenceLibrary.XmlRef;
 import settable.Settable;
 
 import org.w3c.dom.Element;
 
-import dataIO.XmlHandler;
 
 /**
  * An Event is a special agent aspect that performs an "action". This action can
@@ -23,9 +21,7 @@ public abstract class Event implements Copyable, Instantiable, Redirectable
 
 	public void instantiate(Element xmlElem, Settable parent)
 	{
-		String fields = XmlHandler.gatherAttribute(xmlElem, XmlRef.fields);
-		if (fields != null)
-			this.redirect(fields);
+		this.redirect(xmlElem);		
 	}
 	
 	/**

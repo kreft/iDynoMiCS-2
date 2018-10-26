@@ -1,7 +1,6 @@
 package settable.primarySetters;
 
 import java.util.Map;
-
 import dataIO.ObjectFactory;
 import referenceLibrary.XmlRef;
 import settable.Attribute;
@@ -85,7 +84,7 @@ public class HashMapSetter<K,T> implements Settable {
 		else
 		{
 			modelNode.add(new Attribute(valueLabel, 
-					String.valueOf(mapObject), null, true));
+					ObjectFactory.stringRepresentation(mapObject), null, true));
 		}
 		
 		return modelNode;
@@ -97,7 +96,7 @@ public class HashMapSetter<K,T> implements Settable {
 		Object key, value;
 		if (this.mapObject instanceof Settable)
 		{
-			value = node.getAllChildModules().get(0).getMyObject();
+			value = node.getAllChildModules().get(0).getAssociatedObject();
 			if ( this.muteClassDef )
 			{
 				key = ObjectFactory.loadObject(

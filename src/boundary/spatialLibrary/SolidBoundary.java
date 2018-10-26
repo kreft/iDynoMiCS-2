@@ -4,7 +4,6 @@ import boundary.SpatialBoundary;
 import dataIO.Log;
 import dataIO.Log.Tier;
 import grid.SpatialGrid;
-import shape.Dimension.DimName;
 
 /**
  * \brief Boundary that allows neither agents nor solutes to cross it.
@@ -13,33 +12,29 @@ import shape.Dimension.DimName;
  */
 public class SolidBoundary extends SpatialBoundary
 {
-	/**
-	 * \brief Construct a solid boundary by giving it the information it
-	 * needs about its location.
-	 * 
-	 * @param dim This boundary is at one extreme of a dimension: this is the
-	 * name of that dimension.
-	 * @param extreme This boundary is at one extreme of a dimension: this is
-	 * the index of that extreme (0 for minimum, 1 for maximum).
-	 */
-	public SolidBoundary(DimName dim, int extreme)
+	public SolidBoundary()
 	{
-		super(dim, extreme);
-		this._detachability = 0.0;
+		super();
 	}
 
+	/* ***********************************************************************
+	 * BASIC SETTERS & GETTERS
+	 * **********************************************************************/
+	
+	@Override
+	protected boolean needsLayerThickness()
+	{
+		return false;
+	}
+	
 	/* ***********************************************************************
 	 * PARTNER BOUNDARY
 	 * **********************************************************************/
 
 	@Override
-	protected Class<?> getPartnerClass()
+	public Class<?> getPartnerClass()
 	{
-		/* 
-		 * This boundary shouldn't really have a partner, but if one is
-		 * requested then just return another solid boundary.
-		 */
-		return SolidBoundary.class;
+		return null;
 	}
 
 	/* ***********************************************************************
@@ -62,16 +57,13 @@ public class SolidBoundary extends SpatialBoundary
 		this.setWellMixedByDistance();
 	}
 
+	@Override
+	public void additionalPartnerUpdate() {}
+
 	/* ***********************************************************************
 	 * AGENT TRANSFERS
 	 * **********************************************************************/
 
-	@Override
-	protected double getDetachability()
-	{
-		return 0.0;
-	}
-	
 	@Override
 	public void agentsArrive()
 	{

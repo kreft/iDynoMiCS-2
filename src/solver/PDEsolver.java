@@ -11,6 +11,7 @@ import static grid.ArrayType.*;
 
 import grid.ArrayType;
 import grid.SpatialGrid;
+import grid.WellMixedConstants;
 import linearAlgebra.Vector;
 import shape.Shape;
 
@@ -79,6 +80,14 @@ public abstract class PDEsolver extends Solver
 		}
 	}
 	
+	public Collection<Shape> getShapesForAgentMassDistributionMaps(
+			SpatialGrid commonGrid)
+	{
+		Collection<Shape> shapes = new LinkedList<Shape>();
+		shapes.add(commonGrid.getShape());
+		return shapes;
+	}
+	
 	/**
 	 * \brief Add the Laplacian Operator to the LOPERATOR array of the given
 	 * grid.
@@ -109,8 +118,7 @@ public abstract class PDEsolver extends Solver
 		for ( current = shape.resetIterator(); shape.isIteratorValid();
 											  current = shape.iteratorNext())
 		{
-			// TODO this should really be > some threshold
-			if ( commonGrid.getValueAt(WELLMIXED, current) == 1.0 )
+			if ( WellMixedConstants.isWellMixed(commonGrid, current) )
 				continue;
 			totalFlow = 0.0;
 			if ( Log.shouldWrite(level) )
@@ -137,12 +145,8 @@ public abstract class PDEsolver extends Solver
 				 */
 				if ( shape.isNbhIteratorInside() )
 				{
-					// TODO this should really be > some threshold
-					if ( commonGrid != null && 
-							commonGrid.getValueAt(WELLMIXED, nhb) == 1.0 )
-					{
+					if ( WellMixedConstants.isWellMixed(commonGrid, nhb) )
 						this.increaseWellMixedFlow(grid.getName(), - nhbFlow);
-					}
 				}
 				else if ( shape.isNbhIteratorValid() )
 				{
@@ -186,7 +190,7 @@ public abstract class PDEsolver extends Solver
 				Log.out(level, " Voxel volume = "+volume);
 				Log.out(level, " Total rate of change from flux = "+changeRate);
 			}
-			grid.addValueAt(LOPERATOR, current, changeRate);
+			grid.addValueAt(CHANGERATE, current, changeRate);
 		}
 	}
 	

@@ -3,8 +3,11 @@
  */
 package boundary.library;
 
+import org.w3c.dom.Element;
+
 import boundary.Boundary;
 import boundary.spatialLibrary.BiofilmMembraneGas;
+import settable.Settable;
 
 /**
  * \brief TODO
@@ -13,13 +16,22 @@ import boundary.spatialLibrary.BiofilmMembraneGas;
  */
 public class GasToMembrane extends Boundary
 {
-	
+	public GasToMembrane()
+	{
+		super();
+	}
+
+	@Override
+	public void instantiate(Element xmlElement, Settable parent) {
+		// TODO Auto-generated method stub
+		
+	}
 	/* ***********************************************************************
 	 * PARTNER BOUNDARY
 	 * **********************************************************************/
 	
 	@Override
-	protected Class<?> getPartnerClass()
+	public Class<?> getPartnerClass()
 	{
 		return BiofilmMembraneGas.class;
 	}
@@ -27,5 +39,7 @@ public class GasToMembrane extends Boundary
 	/* ***********************************************************************
 	 * SOLUTE TRANSFERS
 	 * **********************************************************************/
-	
+
+	@Override
+	public void additionalPartnerUpdate() {}
 }

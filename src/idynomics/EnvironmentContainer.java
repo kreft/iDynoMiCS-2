@@ -14,6 +14,7 @@ import generalInterfaces.CanPrelaunchCheck;
 import static grid.ArrayType.CONCN;
 import static grid.ArrayType.WELLMIXED;
 import grid.SpatialGrid;
+import grid.WellMixedConstants;
 import instantiable.object.InstantiableList;
 import reaction.Reaction;
 import referenceLibrary.ClassRef;
@@ -76,8 +77,14 @@ public class EnvironmentContainer implements CanPrelaunchCheck, Settable
 	 */
 	public void addSolute(SpatialGrid solute)
 	{
+		if (this.getSoluteNames().contains(solute.getName()))
+		{
+			Log.out(Tier.CRITICAL, 
+					"Warning: Two or more solute grids with same name \""+
+							solute.getName()+"\"");
+		}
 		this._solutes.add(solute);
-		Log.out(Tier.DEBUG, 
+		Log.out(Tier.NORMAL, 
 				"Added solute \""+ solute.getName() +"\" to environment");
 	}
 	
@@ -230,6 +237,18 @@ public class EnvironmentContainer implements CanPrelaunchCheck, Settable
 	}
 	
 	/**
+	 * \brief Get the local concentration of a solute.
+	 * 
+	 * @param soluteName
+	 * @param location
+	 * @return concentration
+	 */
+	public double getLocalConcentration(String soluteName, double[] location)
+	{
+		return this.getSoluteGrid(soluteName).getValueAt(CONCN, location);
+	}
+	
+	/**
 	 * @return Average concentrations of all solutes in this compartment.
 	 */
 	public Map<String,Double> getAverageConcentrations()
@@ -370,7 +389,15 @@ public class EnvironmentContainer implements CanPrelaunchCheck, Settable
 		Collection<WellMixedBoundary> bndrs = 
 				this.getShape().getWellMixedBoundaries();
 		if ( bndrs.isEmpty() )
+		{
+			commonGrid.setAllTo(WELLMIXED, WellMixedConstants.NOT_MIXED);
 			return;
+		}
+		/*
+		 * Otherwise, we assume that every voxel is mixed until the boundaries
+		 * say that it is not.
+		 */
+		commonGrid.setAllTo(WELLMIXED, WellMixedConstants.COMPLETELY_MIXED);
 		/*
 		 * We will eventually need to set the concentration of each solute in 
 		 * the well-mixed region, so prepare to collect the appropriate values.
@@ -388,28 +415,28 @@ public class EnvironmentContainer implements CanPrelaunchCheck, Settable
 		 * of its influence over the concentration.
 		 */
 		double scaleFactor = 0.0;
-		for ( SpatialBoundary b : bndrs )
-			scaleFactor += b.getTotalSurfaceArea();
+		double boundarySurface;
+		for ( WellMixedBoundary b : bndrs )
+		{
+			boundarySurface = b.getTotalSurfaceArea();
+			scaleFactor += boundarySurface;
+		}
 		scaleFactor = 1.0 / scaleFactor;
 		/*
 		 * At least one of the boundaries need to update the well-mixed array,
 		 * so loop through all of them.
 		 */
-		for ( SpatialBoundary b: bndrs )
+		for ( WellMixedBoundary b: bndrs )
 		{
 			b.updateWellMixedArray();
-			/*
-			 * Only need to gather concentrations from well-mixed boundaries.
-			 */
 			if ( b.needsToUpdateWellMixed() )
 			{
-				WellMixedBoundary wmb = (WellMixedBoundary) b;
 				double sAreaFactor = b.getTotalSurfaceArea() * scaleFactor;
 				for ( SpatialGrid solute : this._solutes )
 				{
 					name = solute.getName();
 					double concn = wellMixedConcns.get(name);
-					concn += wmb.getConcentration(name) * sAreaFactor;
+					concn += b.getConcentration(name) * sAreaFactor;
 					wellMixedConcns.put(name, concn);
 				}
 			}
@@ -422,8 +449,7 @@ public class EnvironmentContainer implements CanPrelaunchCheck, Settable
 				this._shape.isIteratorValid();
 				coord = this._shape.iteratorNext() )
 		{
-			// TODO this should really be > some threshold
-			if ( commonGrid.getValueAt(WELLMIXED, coord) == 1.0 )
+			if ( WellMixedConstants.isWellMixed(commonGrid, coord) )
 				for ( SpatialGrid solute : this._solutes )
 				{
 					name = solute.getName();
@@ -470,8 +496,7 @@ public class EnvironmentContainer implements CanPrelaunchCheck, Settable
 		/* Add the name attribute. */
 		modelNode.add( this.getSolutesNode() );
 		/* Add the reactions node. */
-		modelNode.add( this._reactions.getModule() );
-//		modelNode.add( this.getReactionNode() );
+		modelNode.add( this.getReactionNode() );
 		return modelNode;	
 	}
 	
@@ -501,21 +526,23 @@ public class EnvironmentContainer implements CanPrelaunchCheck, Settable
 	
 	private Module getReactionNode() 
 	{
-		/* The reactions node. */
-		Module modelNode = new Module(XmlRef.reactions, this);
-		modelNode.setTitle(XmlRef.reactions);
-		modelNode.setRequirements(Requirements.EXACTLY_ONE);
-		/* 
-		 * add solute nodes, yet only if the environment has been initiated, when
-		 * creating a new compartment solutes can be added later 
-		 */
-		for ( Reaction react : this.getReactions() )
-			modelNode.add( react.getModule() );
-		
-		modelNode.addChildSpec( ClassRef.reaction, 
-				null, Module.Requirements.ZERO_TO_MANY );
-		
-		return modelNode;
+		return this._reactions.getModule();
+		//TODO Check whether chicldspec is properly set as before
+//		/* The reactions node. */
+//		Module modelNode = new Module(XmlRef.reactions, this);
+//		modelNode.setTitle(XmlRef.reactions);
+//		modelNode.setRequirements(Requirements.EXACTLY_ONE);
+//		/* 
+//		 * add solute nodes, yet only if the environment has been initiated, when
+//		 * creating a new compartment solutes can be added later 
+//		 */
+//		for ( Reaction react : this.getReactions() )
+//			modelNode.add( react.getModule() );
+//		
+//		modelNode.addChildSpec( ClassRef.reaction, 
+//				null, Module.Requirements.ZERO_TO_MANY );
+//		
+//		return modelNode;
 	}
 	
 	public void setModule(Module node)

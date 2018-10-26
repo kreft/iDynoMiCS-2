@@ -14,8 +14,22 @@ import settable.Settable;
 import utility.Helper;
 
 /**
- * \brief Implementations of this interface will be able to instantiate and
- * initialise from a XML protocol file.
+ * \brief static get new instant methods
+ * 
+ * The Instance class contains a collection of static methods that perform part
+ * or all of the following: assess input class from string or xml, fetch package
+ * path from referenceLibrary.ClassRef} if only class name is given, perform 
+ * instantiate after object creation <b>only for {@link Instance#getNew(Element, 
+ * Settable, String...)} method</b> as this is the method that should be used in
+ * combination with the {@link instantiable.Instantiable} interface. All other
+ * getNew methods do not call the {@link Instantiable#instantiate(Element, 
+ * Settable)} method and thus fall outside the Instantiable paradigm. For
+ * specific purposes these other methods may still provide useful code
+ * simplification, but use with some caution.
+ * 
+ * For easy reference make sure target classes are all registered in the {@link 
+ * referenceLibrary.ClassRef} library. Classes that are not in the class
+ * reference library can only be instantiated with their full path as input.
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  * @author Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.
@@ -23,7 +37,9 @@ import utility.Helper;
 public class Instance
 {
 	/**
-	 * \brief Generic instantiation for objects added through GUI or xml.
+	 * \brief Generic instantiation for objects added through GUI or xml, this
+	 * should be used in combination with the 
+	 * interface
 	 * 
 	 * By default supply the XML element, the parent and the class name.
 	 * 
@@ -72,8 +88,10 @@ public class Instance
 				out = getNew( className[0], null );
 			/* if not lookup the path from the package library. */
 			else
+			{
 				out = getNew( className[0], 
 						Idynomics.xmlPackageLibrary.get( className[0] ) );
+			}
 			if ( parent == null && Log.shouldWrite(Tier.DEBUG) )
 				Log.out(Tier.DEBUG, "Warning initiating without parent");
 			else if ( xmlElem == null && Log.shouldWrite(Tier.DEBUG) )
@@ -91,16 +109,34 @@ public class Instance
 		}
 	}
 	
-	public static Object getNew(Element xmlElem, Settable parent)
+	/**
+	 * \brief general method for creating a new instance for an object from the
+	 * classRef library.
+	 * 
+	 * <b>NOTE: method does not call any post instance initiation methods. This
+	 * method falls outside the {@link instantiable.Instantiable} paradigm. For
+	 * specific purposes this may provide useful code simplification, but use 
+	 * with some caution.</b>
+	 * 
+	 * @param className {@code String} name of the class to be instantiated.
+	 * This method will ensure that the first letter is in upper case, but only
+	 * the first!
+	 * @param prefix {@code String} prefix to <b>className</b>. Typical format:
+	 * "packageName.ClassLibrary$".
+	 * @return A new instance of the class required.
+	 */
+	public static Object getNew(String className)
 	{
-		return getNew(xmlElem, parent, getClass(xmlElem));
+		return getNew(className, Idynomics.xmlPackageLibrary.get(className));
 	}
 
 	/**
 	 * \brief Internal method for creating a new instance.
 	 * 
-	 * <p><b>IMPORTANT:</b> This method should only be called by the class that
-	 * implements Instantiatable.</p>
+	 * <b>NOTE: method does not call any post instance initiation methods. This
+	 * method falls outside the {@link instantiable.Instantiable} paradigm. For
+	 * specific purposes this may provide useful code simplification, but use 
+	 * with some caution.</b>
 	 * 
 	 * @param className {@code String} name of the class to be instantiated.
 	 * This method will ensure that the first letter is in upper case, but only
@@ -160,10 +196,10 @@ public class Instance
 	 */
 	public static Object getNew(Node xmlNode, String className)
 	{
-		return getNew(className, 
-								Idynomics.xmlPackageLibrary.get(className));
+		return getNew(className, Idynomics.xmlPackageLibrary.get(className));
 	}
 	
+	@SuppressWarnings("unused")
 	private static String getClass(Element xml)
 	{
 		if ( ! xml.hasAttribute(XmlRef.classAttribute) )

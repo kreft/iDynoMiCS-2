@@ -1,8 +1,5 @@
 package aspect.event;
 
-import java.util.LinkedList;
-
-import agent.Agent;
 import aspect.AspectInterface;
 import aspect.Event;
 import referenceLibrary.AspectRef;

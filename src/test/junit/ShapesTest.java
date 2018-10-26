@@ -2,6 +2,8 @@ package test.junit;
 
 import java.util.LinkedList;
 import org.junit.Test;
+import org.w3c.dom.Element;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
@@ -14,12 +16,9 @@ import static dataIO.Log.Tier.DEBUG;
 import linearAlgebra.Matrix;
 import linearAlgebra.Vector;
 import shape.Shape;
-import shape.CartesianShape;
+import shape.Dimension;
 import shape.Dimension.DimName;
-import shape.ShapeLibrary.Circle;
-import shape.ShapeLibrary.Rectangle;
-import shape.ShapeLibrary.Sphere;
-import shape.resolution.ResolutionCalculator.UniformResolution;
+import shape.resolution.UniformResolution;
 import test.AllTests;
 import utility.ExtraMath;
 
@@ -106,40 +105,32 @@ public class ShapesTest
 	}
 	
 	@Test
-	public void shouldFindShortestDiff()
+	public void shouldFindShortestDiffInRectangle()
 	{
-		Shape aShape = null;
-		double[] a, b, diff, correct;
 		/*
 		 * Rectangle with one cyclic dimension.
 		 */
-		try {
-			aShape = (Shape) Class.forName("shape.ShapeLibrary$Rectangle").newInstance();
-		} catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}	
+		Shape aShape = AllTests.GetShape("Rectangle");
 		aShape.makeCyclic("X");
 		aShape.setDimensionLengths(Vector.onesDbl(2));
+		double[] a, b, diff, correct;
 		a = Vector.vector(2, 0.9);
 		b = Vector.vector(2, 0.1);
 		diff = aShape.getMinDifferenceVector(a, b);
 		correct = new double[]{-0.2, 0.8};
 		assertTrue("rectangle, 1 cyclic",
 									Vector.areSame(correct, diff, TOLERANCE));
-		/*
-		 * Circle
-		 */
-		try {
-			aShape = (Shape) Class.forName("shape.ShapeLibrary$Circle").newInstance();
-		} catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}	
+	}
+	
+	@Test
+	public void shouldFindShortestDiffInCircle()
+	{
+		Shape aShape = AllTests.GetShape("Circle");
 		aShape.makeCyclic("theta");
 		aShape.setDimensionLengths(new double[]{2.0, 2*Math.PI, 0.0});
-		a[0] = 1.0; a[1] = 1.0;
-		b[0] = -1.0; b[1] = 1.0;
+		double[] a, b, diff, correct;
+		a = new double[] {1.0, 1.0};
+		b = new double[] {-1.0, 1.0};
 		diff = aShape.getMinDifferenceVector(a, b);
 		//System.out.println("diff: "+Vector.toString(diff));
 		// FIXME
@@ -151,37 +142,45 @@ public class ShapesTest
 		AllTests.setupSimulatorForTest(1.0, 1.0, "shapesShouldIterateProperly");
 		int[][] trueNhb = new int[3][3];
 		DimName[] dims = new DimName[]{DimName.X, DimName.Y};
-		Shape shp = new Rectangle();
-		UniformResolution resCalc = new UniformResolution();
-		resCalc.setExtremes(0.0, 3.0);
-		resCalc.setResolution(1.0);
+		Shape shape = AllTests.GetShape("Rectangle");
 		for ( DimName d : dims )
-			shp.setDimensionResolution(d, resCalc);
+		{
+			Dimension dimension = shape.getDimension(d);
+			dimension.setLength(3.0);
+			UniformResolution resCalc = new UniformResolution(dimension);
+			resCalc.setResolution(1.0);
+			shape.setDimensionResolution(d, resCalc);
+		}
 		/*
 		 * Try first with solid boundaries.
 		 */
 		for ( DimName d : dims )
+		{
+			Dimension dimension = shape.getDimension(d);
 			for ( int extreme = 0; extreme < 2; extreme++ )
 			{
-				SolidBoundary bndry = new SolidBoundary(d, extreme);
-				shp.setBoundary(d, extreme, bndry);
+				SolidBoundary bndry = new SolidBoundary();
+				Element e = AllTests.getSpatialBoundaryElement(extreme);
+				bndry.instantiate(e, dimension);
+				shape.setBoundary(d, extreme, bndry);
 			}
+		}
 		/* Set up the array of true inside neighbor numbers. */
 		trueNhb[0][0] = 2; trueNhb[0][1] = 3; trueNhb[0][2] = 2;
 		trueNhb[1][0] = 3; trueNhb[1][1] = 4; trueNhb[1][2] = 3;
 		trueNhb[2][0] = 2; trueNhb[2][1] = 3; trueNhb[2][2] = 2;
 		/* Check it is correct. */
 		Log.out(DEBUG, "Solid boundaries");
-		checkIteration(shp, trueNhb);
+		checkIteration(shape, trueNhb);
 		Log.out(DEBUG, "");
 		/*
 		 * Now try with cyclic dimensions.
 		 */
 		for ( DimName d : dims )
-			shp.makeCyclic(d);
+			shape.makeCyclic(d);
 		Matrix.setAll(trueNhb, 4);
 		Log.out(DEBUG, "Cyclic dimensions");
-		checkIteration(shp, trueNhb);
+		checkIteration(shape, trueNhb);
 		Log.out(DEBUG, "");	
 	}
 	
@@ -206,35 +205,44 @@ public class ShapesTest
 			{ {1,1,0}, {1,2,0}, {2,2,0}, {2,4,0} }, 		
 		};
 		DimName[] dims = new DimName[]{DimName.R, DimName.THETA};
-		Shape shp = new Circle();
+		Shape shape = AllTests.GetShape("Circle");
 		
 		/* r-dimension */
-		UniformResolution resCalc = new UniformResolution();
-		resCalc.setExtremes(0.0, 3.0);
+		Dimension radial = shape.getDimension(DimName.R);
+		radial.setLength(3.0);
+		UniformResolution resCalc = new UniformResolution(radial);
 		resCalc.setResolution(1.0);
-		shp.setDimensionResolution(dims[0], resCalc);
+		shape.setDimensionResolution(DimName.R, resCalc);
 		
 		/* theta-dimension */
-		resCalc = new UniformResolution(); 
-		resCalc.setExtremes(0.0, 2 * Math.PI / 3);
+		Dimension theta = shape.getDimension(DimName.THETA);
+		theta.setLength(2 * Math.PI / 3);
+		resCalc = new UniformResolution(theta);
 		resCalc.setResolution(1.0);
-		shp.setDimensionResolution(dims[1], resCalc);
+		shape.setDimensionResolution(DimName.THETA, resCalc);
 		/*
 		 * Try first with solid boundaries.
 		 */
 		for ( DimName d : dims )
+		{
+			Dimension dimension = shape.getDimension(d);
 			for ( int extreme = 0; extreme < 2; extreme++ )
-				shp.setBoundary(d, extreme, new SolidBoundary(d, extreme));
-
+			{
+				SolidBoundary bndry = new SolidBoundary();
+				Element e = AllTests.getSpatialBoundaryElement(extreme);
+				bndry.instantiate(e, dimension);
+				shape.setBoundary(d, extreme, bndry);
+			}
+		}
 		/* Check it is correct. */
 		Log.out(DEBUG, "Solid boundaries");
 		/* circle with theta length 2 * pi / 3 and res 1 has 9 voxels in total */
-		checkIterationSamples(shp, coords, trueNhb, 9);
+		checkIterationSamples(shape, coords, trueNhb, 9);
 		Log.out(DEBUG, "");
 		/*
 		 * Now try with cyclic dimensions.
 		 */
-		shp.makeCyclic(dims[1]); /* only theta can be cyclic in the circle */
+		shape.makeCyclic(dims[1]); /* only theta can be cyclic in the circle */
 		trueNhb = new int[][][]{
 			/* current sample (0, 0) */
 			{{0,0,0}, {0,0,0}, {1,0,0}, {1,1,0}, {1,2,0}}, 	 
@@ -247,7 +255,7 @@ public class ShapesTest
 		};
 		Log.out(DEBUG, "Cyclic dimensions");
 		/* circle with length 2 * pi / 3 and res 1 has 9 voxels in total */
-		checkIterationSamples(shp, coords, trueNhb, 9);
+		checkIterationSamples(shape, coords, trueNhb, 9);
 		Log.out(DEBUG, "");	
 	}
 	
@@ -287,37 +295,47 @@ public class ShapesTest
 			  1.3414 }, 		
 		};
 		DimName[] dims = new DimName[]{DimName.R, DimName.PHI, DimName.THETA};
-		Shape shp = new Sphere();
+		Shape shape = AllTests.GetShape("Sphere");
 		
 		/* r-dimension */
-		UniformResolution resCalc = new UniformResolution();
-		resCalc.setExtremes(0.0, 3.0);
+		Dimension radial = shape.getDimension(DimName.R);
+		radial.setLength(3.0);
+		UniformResolution resCalc = new UniformResolution(radial);
 		resCalc.setResolution(1.0);
-		shp.setDimensionResolution(dims[0], resCalc);
+		shape.setDimensionResolution(DimName.R, resCalc);
 		
 		/* polar dimensions */
-		for (int i=1; i<3; ++i){
-			resCalc = new UniformResolution(); 
-			resCalc.setExtremes(0.0, Math.PI / 2);
+		for ( int i = 1; i < 3; i++ )
+		{
+			Dimension dimension = shape.getDimension(dims[i]);
+			dimension.setLength(Math.PI / 2);
+			resCalc = new UniformResolution(dimension); 
 			resCalc.setResolution(1.0);
-			shp.setDimensionResolution(dims[i], resCalc);
+			shape.setDimensionResolution(dims[i], resCalc);
 		}
 		/*
 		 * Try first with solid boundaries.
 		 */
 		for ( DimName d : dims )
+		{
+			Dimension dimension = shape.getDimension(d);
 			for ( int extreme = 0; extreme < 2; extreme++ )
-				shp.setBoundary(d, extreme, new SolidBoundary(d, extreme));
-
+			{
+				SolidBoundary bndry = new SolidBoundary();
+				Element e = AllTests.getSpatialBoundaryElement(extreme);
+				bndry.instantiate(e, dimension);
+				shape.setBoundary(d, extreme, bndry);
+			}
+		}
 		/* Check it is correct. */
 		Log.out(DEBUG, "Solid boundaries");
 		/* sphere with polar length pi / 2 and res 1 has 20 voxels in total */
-		checkIterationSamples(shp, coords, trueNhb, trueArea, 20);
+		checkIterationSamples(shape, coords, trueNhb, trueArea, 20);
 		Log.out(DEBUG, "");
 		/*
 		 * Now try with cyclic dimensions.
 		 */
-		shp.makeCyclic(dims[2]); /* only theta can be cyclic in the sphere */
+		shape.makeCyclic(dims[2]); /* only theta can be cyclic in the sphere */
 		trueNhb = new int[][][]{
 			/* current sample (0,0,0) */
 			{ {0,0,0}, {0,0,0}, {1,0,0}, {1,1,0}, {1,1,1}, {1,2,0}, {1,2,1} }, 
@@ -333,27 +351,29 @@ public class ShapesTest
 		};
 		Log.out(DEBUG, "Cyclic dimensions");
 		/* sphere with polar length pi / 2 and res 1 has 20 voxels in total */
-		checkIterationSamples(shp, coords, trueNhb, 20);
+		checkIterationSamples(shape, coords, trueNhb, 20);
 		Log.out(DEBUG, "");	
 	}
 	
-	private void checkIteration(Shape shp, int[][] trueNhb)
+	private void checkIteration(Shape shape, int[][] trueNhb)
 	{
 		int iterCount, nhbCount;
 		int[] coord;
 		iterCount = 0;
-		for ( shp.resetIterator(); shp.isIteratorValid(); shp.iteratorNext() )
+		for ( shape.resetIterator();
+				shape.isIteratorValid(); shape.iteratorNext() )
 		{
 			iterCount++;
 			nhbCount = 0;
-			for ( shp.resetNbhIterator();
-					shp.isNbhIteratorValid(); shp.nbhIteratorNext() )
+			for ( shape.resetNbhIterator();
+					shape.isNbhIteratorValid(); shape.nbhIteratorNext() )
 			{
-				if ( shp.isNbhIteratorInside() )
+				if ( shape.isNbhIteratorInside() )
 					nhbCount++;
 			}
-			coord = shp.iteratorCurrent();
-			Log.out(DEBUG, "Coord "+Vector.toString(coord)+" has "+nhbCount+" neighbors");
+			coord = shape.iteratorCurrent();
+			Log.out(DEBUG, "Coord " + Vector.toString(coord) +
+					" has " + nhbCount + " neighbors");
 			assertEquals(nhbCount, trueNhb[coord[0]][coord[1]]);
 		}
 		assertEquals(iterCount, 9);
@@ -386,28 +406,28 @@ public class ShapesTest
 	 * Assures that the shared surface area between the neighbors and the
 	 * current coord are equal to <b>trueAreas</b>, if not null.
 	 * 
-	 * @param shp A Shape.
+	 * @param shape A Shape.
 	 * @param sample_coords Several 3D sample coordinates to be evaluated.
 	 * @param trueNhb Array of true neighbors of the sample coordinates.  
 	 * @param nVoxelTotal The number of voxels in <b>shp</b> in total.
 	 */
-	private void checkIterationSamples(Shape shp, int[][] sample_coords,
+	private void checkIterationSamples(Shape shape, int[][] sample_coords,
 			int[][][] trueNhb, double[][] trueAreas, int nVoxelTotal)
 	{
 		int[] coord, nhb;
 		int iter_count = 0, sample_count = 0, nhb_count = 0;
-		for ( coord = shp.resetIterator(); shp.isIteratorValid(); 
-									iter_count++, coord = shp.iteratorNext() )
+		for ( coord = shape.resetIterator(); shape.isIteratorValid(); 
+									iter_count++, coord = shape.iteratorNext() )
 		{
 			/* only evaluate sample coordinates */
 			if (sample_count < sample_coords.length 
 					&& Vector.areSame(sample_coords[sample_count], coord)){
 				nhb_count = 0;
 				/* iterate through all neighbors */
-				for ( nhb = shp.resetNbhIterator();
-						shp.isNbhIteratorValid(); nhb = shp.nbhIteratorNext() )
+				for ( nhb = shape.resetNbhIterator();
+						shape.isNbhIteratorValid(); nhb = shape.nbhIteratorNext() )
 				{
-					if ( shp.isNbhIteratorInside() ){
+					if ( shape.isNbhIteratorInside() ){
 						/* check equality of neighbor and trueNhb coords */
 						Log.out(DEBUG, "Comparing current nhb " 
 							+ Vector.toString(nhb) + " with true nhb "
@@ -416,11 +436,11 @@ public class ShapesTest
 								trueNhb[sample_count][nhb_count], nhb));
 						if (trueAreas != null){
 							Log.out(DEBUG, "Comparing current nhb area " 
-									+ shp.nhbCurrSharedArea() 
+									+ shape.nhbCurrSharedArea() 
 									+ " with true nhb area "
 									+ trueAreas[sample_count][nhb_count]);
 							assertTrue(ExtraMath.areEqual(
-									shp.nhbCurrSharedArea(), 
+									shape.nhbCurrSharedArea(), 
 									trueAreas[sample_count][nhb_count],
 									1e-5));
 						}
@@ -448,36 +468,44 @@ public class ShapesTest
 	{
 		AllTests.setupSimulatorForTest(1.0, 1.0,
 				"redBlackIteratorShouldIterateCorrectly");
-		CartesianShape shp = new Rectangle();
-		UniformResolution resCalc = new UniformResolution();
-		resCalc.setExtremes(0.0, 4.0);
-		resCalc.setResolution(1.0);
+		Shape shape = AllTests.GetShape("Rectangle");
 		DimName[] dims = new DimName[]{DimName.X, DimName.Y};
 		for ( DimName d : dims )
-			shp.setDimensionResolution(d, resCalc);
+		{
+			Dimension dimension = shape.getDimension(d);
+			dimension.setLength(4.0);
+			UniformResolution resCalc = new UniformResolution(dimension);
+			resCalc.setResolution(1.0);
+			shape.setDimensionResolution(d, resCalc);
+		}
 		/*
 		 * Try first with solid boundaries.
 		 */
 		for ( DimName d : dims )
+		{
+			Dimension dimension = shape.getDimension(d);
 			for ( int extreme = 0; extreme < 2; extreme++ )
 			{
-				SolidBoundary bndry = new SolidBoundary(d, extreme);
-				shp.setBoundary(d, extreme, bndry);
+				SolidBoundary bndry = new SolidBoundary();
+				Element e = AllTests.getSpatialBoundaryElement(extreme);
+				bndry.instantiate(e, dimension);
+				shape.setBoundary(d, extreme, bndry);
 			}
+		}
 		Log.out(DEBUG, "Solid boundaries");
-		checkRedBlackIteration(shp);
+		checkRedBlackIteration(shape);
 		Log.out(DEBUG, "");
 		/*
 		 * Now try with cyclic dimensions.
 		 */
 		for ( DimName d : dims )
-			shp.makeCyclic(d);
+			shape.makeCyclic(d);
 		Log.out(DEBUG, "Cyclic dimensions");
-		checkRedBlackIteration(shp);
+		checkRedBlackIteration(shape);
 		Log.out(DEBUG, "");	
 	}
 	
-	private void checkRedBlackIteration(CartesianShape shape)
+	private void checkRedBlackIteration(Shape shape)
 	{
 		/* Reset the iterator. */
 		shape.setNewIterator(2);

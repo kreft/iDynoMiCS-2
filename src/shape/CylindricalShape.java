@@ -12,7 +12,7 @@ import shape.Dimension.DimName;
 import shape.ShapeConventions.SingleVoxel;
 import shape.iterator.CylindricalShapeIterator;
 import shape.iterator.ShapeIterator;
-import shape.resolution.ResolutionCalculator.ResCalc;
+import shape.resolution.ResolutionCalculator;
 import surface.Rod;
 import surface.Surface;
 import utility.ExtraMath;
@@ -22,14 +22,14 @@ import utility.ExtraMath;
  * 
  * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
  * @author Stefan Lang (stefan.lang@uni-jena.de)
- *     Friedrich-Schiller University Jena, Germany 
+ * 		Friedrich-Schiller University Jena, Germany 
  */
 public abstract class CylindricalShape extends Shape
 {
 	/**
 	 * Collection of resolution calculators for each dimension.
 	 */
-	protected ResCalc[][] _resCalc;
+	protected ResolutionCalculator[][] _resCalc;
 	
 	/* ***********************************************************************
 	 * CONSTRUCTION
@@ -38,55 +38,51 @@ public abstract class CylindricalShape extends Shape
 	public CylindricalShape()
 	{
 		super();
-		this._resCalc = new ResCalc[3][];
+		this._resCalc = new ResolutionCalculator[3][];
 		Dimension dim;
 		/* There is no need for an r-min boundary. */
 		dim = new Dimension(true, R);
 		dim.setBoundaryOptional(0);
 		this._dimensions.put(R, dim);
-		this._resCalc[getDimensionIndex(R)] = new ResCalc[1];
+		this._resCalc[this.getDimensionIndex(R)] = new ResolutionCalculator[1];
+		this._resCalc[this.getDimensionIndex(R)][0] = new SingleVoxel(dim);
 		/*
 		 * The theta-dimension must be significant.
 		 */
 		dim = new Dimension(true, THETA);
 		this._dimensions.put(THETA, dim);
-		this._resCalc[getDimensionIndex(THETA)] = new ResCalc[1];
+		this._resCalc[this.getDimensionIndex(THETA)] = new ResolutionCalculator[1];
+		this._resCalc[this.getDimensionIndex(THETA)][0] = new SingleVoxel(dim);
 		/*
 		 * The z-dimension is insignificant, unless told otherwise later.
 		 */
 		dim = new Dimension(false, Z);
 		this._dimensions.put(Z, dim);
-		this._resCalc[getDimensionIndex(Z)] = new ResCalc[1];
-		
-		for ( int i = 0; i < 3; i++ )
-		{
-			SingleVoxel sV = new SingleVoxel();
-			sV.init(1.0, 0.0, 1.0);
-			this._resCalc[i][0] = sV;
-		}
+		this._resCalc[this.getDimensionIndex(Z)] = new ResolutionCalculator[1];
+		this._resCalc[this.getDimensionIndex(Z)][0] = new SingleVoxel(dim);
 		
 		this._it = this.getNewIterator();
 	}
 	
 	@Override
-	public double[][][] getNewArray(double initialValue) {
-		int nr, nz;
-		if (getNumberOfDimensions() < 2)
+	public double[][][] getNewArray(double initialValue)
+	{
+		if ( this.getNumberOfDimensions() < 2 )
+		{
 			throw new IllegalArgumentException(
 					"A cylindrical array needs at least 2 dimensions");
-		nr = _resCalc[0][0].getNVoxel();
-		/* we need at least one voxel in each dimension */ 
-		nz = _resCalc[2][0] == null ? 1 : _resCalc[2][0].getNVoxel();
-		double[][][] a = new double[nr][][];
-		for ( int i = 0; i < nr; i++ )
-			a[i] = Matrix.matrix(_resCalc[1][i].getNVoxel(), nz, initialValue);
+		}
+		/* We need at least one voxel in each dimension. */
+		int nR, nTheta, nZ;
+		nR = this._resCalc[0][0].getNVoxel();
+		nZ = this._resCalc[2][0] == null ? 1 : this._resCalc[2][0].getNVoxel();
+		double[][][] a = new double[nR][][];
+		for ( int i = 0; i < nR; i++ )
+		{
+			nTheta = this._resCalc[1][i].getNVoxel();
+			a[i] = Matrix.matrix(nTheta, nZ, initialValue);
+		}
 		return a;
-	}
-	
-	@Override
-	public ShapeIterator getNewIterator(int strideLength)
-	{
-		return new CylindricalShapeIterator(this, strideLength);
 	}
 	
 	/* ***********************************************************************
@@ -110,6 +106,11 @@ public abstract class CylindricalShape extends Shape
 		double zLength = this.getDimension(Z).getLength();
 		return 0.5 * thetaLength * rFactor * zLength;
 	}
+	
+	public void setTotalVolume( double volume)
+	{
+		Log.out(Tier.CRITICAL, "Cannot adjust Cylindrical shape volume" );
+	}
 
 	@Override
 	public void getLocalPositionTo(double[] destination, double[] location)
@@ -128,7 +129,7 @@ public abstract class CylindricalShape extends Shape
 	 * **********************************************************************/
 	
 	@Override
-	public void setDimensionResolution(DimName dName, ResCalc resC)
+	public void setDimensionResolution(DimName dName, ResolutionCalculator resC)
 	{
 		int index = this.getDimensionIndex(dName);
 		switch ( dName )
@@ -141,7 +142,8 @@ public abstract class CylindricalShape extends Shape
 		}
 		case THETA:
 		{
-			ResCalc radiusC = this._resCalc[0][0];
+
+			ResolutionCalculator radiusC = this._resCalc[0][0];
 			/* If R only stores a single voxel, it is most 
 			 * probably not set already -> check again later */
 			if ( radiusC.getNVoxel() == 1 )
@@ -154,18 +156,18 @@ public abstract class CylindricalShape extends Shape
 				int nShell = radiusC.getNVoxel();
 				/* NOTE For varying resolution this has to be adjusted */
 				int rMin = (int)(this.getDimension(R).getExtreme(0)
-						/ radiusC.getResolution(0));
-				this._resCalc[index] = new ResCalc[nShell];
-				ResCalc shellResCalc;
+						/ radiusC.getResolution());
+				this._resCalc[index] = new ResolutionCalculator[nShell];
+				ResolutionCalculator shellResCalc;
 				for ( int i = 0; i < nShell; i++ )
 				{
-					shellResCalc = (ResCalc) resC.copy();
+					shellResCalc = (ResolutionCalculator) resC.copy();
 					/* since we do not allow initialization with varying 
 					 * resolutions, resC.getResolution(x) should all be the 
 					 * same at this point. 
 					 */
 					double res = ShapeHelper.scaleResolutionForShell(
-							rMin + i, resC.getResolution(0));
+							rMin + i, resC.getResolution());
 					shellResCalc.setResolution(res);
 					this._resCalc[index][i] = shellResCalc;
 				}
@@ -186,7 +188,7 @@ public abstract class CylindricalShape extends Shape
 	}
 	
 	@Override
-	public ResCalc getResolutionCalculator(int[] coord, int dim)
+	public ResolutionCalculator getResolutionCalculator(int[] coord, int dim)
 	{
 		/* 
 		 * If this is the radial dimension (0) or the z dimension (2),
@@ -317,6 +319,18 @@ public abstract class CylindricalShape extends Shape
 	 * VOXELS
 	 * **********************************************************************/
 	
+	@Override
+	public int getTotalNumberOfVoxels()
+	{
+		int n = 1;
+		int dimTheta = this.getDimensionIndex(THETA);
+		int nR = this._resCalc[this.getDimensionIndex(R)][0].getNVoxel();
+		for ( int i = 0; i < nR; i++ )
+			n += this._resCalc[dimTheta][i].getNVoxel();
+		return n * this._resCalc[this.getDimensionIndex(Z)][0].getNVoxel();
+	}
+	
+	@Override
 	public double getVoxelVolume(double[] origin, double[] upper){
 		/* 
 		 * r: pi times this number would be the area of a ring. 
@@ -340,6 +354,12 @@ public abstract class CylindricalShape extends Shape
 	/* ***********************************************************************
 	 * COORDINATE ITERATOR
 	 * **********************************************************************/
+
+	@Override
+	public ShapeIterator getNewIterator(int strideLength)
+	{
+		return new CylindricalShapeIterator(this, strideLength);
+	}
 	
 	/* ***********************************************************************
 	 * NEIGHBOR ITERATOR
@@ -406,5 +426,21 @@ public abstract class CylindricalShape extends Shape
 					+ ", r2 is "+r2+", theta2 is "+theta2+ ", z2 is "+z2);
 		}
 		return area;
+	}
+	
+	/* ***********************************************************************
+	 * MULTIGRID CONSTRUCTION
+	 * **********************************************************************/
+	
+	@Override
+	public boolean canGenerateCoarserMultigridLayer()
+	{
+		return false;
+	}
+	
+	@Override
+	public Shape generateCoarserMultigridLayer()
+	{
+		return null;
 	}
 }

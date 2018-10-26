@@ -1,8 +1,12 @@
 package agent;
+import java.util.LinkedList;
+import java.util.List;
+
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import aspect.Aspect.AspectClass;
 import aspect.AspectInterface;
 import aspect.AspectReg;
 import dataIO.XmlHandler;
@@ -20,6 +24,7 @@ import settable.Module;
 import settable.Settable;
 import settable.Module.Requirements;
 import surface.Point;
+import utility.Helper;
 
 /**
  * \brief TODO
@@ -45,7 +50,7 @@ public class Agent implements AspectInterface, Settable, Instantiable
 	 */
 	protected AspectReg _aspectRegistry = new AspectReg();
 	private Settable _parentNode;
-
+		
 	/*************************************************************************
 	 * CONSTRUCTORS
 	 ************************************************************************/
@@ -76,17 +81,22 @@ public class Agent implements AspectInterface, Settable, Instantiable
 			{
 				/* TODO this is a cheat, make a standard method for this */
 				int n = Integer.valueOf(XmlHandler.obtainAttribute(
-						temp.item(i), XmlRef.numberOfAgents, this.defaultXmlTag()));
-				double[] domain = Vector.dblFromString(XmlHandler.
-						obtainAttribute(temp.item(i), XmlRef.spawnDomain, this.defaultXmlTag()));
+						temp.item(i), XmlRef.numberOfAgents, 
+						this.defaultXmlTag() ) );
+				double[] domain = Vector.dblFromString(
+						XmlHandler.obtainAttribute(temp.item(i), 
+						XmlRef.spawnDomain, this.defaultXmlTag() ) );
+				int points = Integer.valueOf( Helper.setIfNone(  
+						XmlHandler.gatherAttribute(temp.item(i), XmlRef.points) 
+						, "1" ) );
 				for(int j = 0; j < n-1; j++)
 				{
-					Agent extra = new Agent(xmlNode, randBody(domain));
+					Agent extra = new Agent(xmlNode, randBody(domain, points));
 					extra._compartment = comp;
 					extra.registerBirth();
 				}
 				this.loadAspects(xmlNode);
-				this.set(AspectRef.agentBody, randBody(domain));
+				this.set(AspectRef.agentBody, randBody(domain, points));
 			}
 		}
 		else
@@ -109,9 +119,7 @@ public class Agent implements AspectInterface, Settable, Instantiable
 
 		this._aspectRegistry.addSubModule( (Species) 
 				Idynomics.simulator.speciesLibrary.get(species), species);
-
 	}
-
 	
 	/**
 	 * Instantiatable implementation
@@ -137,6 +145,18 @@ public class Agent implements AspectInterface, Settable, Instantiable
 		double[] v = Vector.randomZeroOne(domain);
 		Vector.timesEquals(v, domain);
 		return new Body(new Point(v), 0.0);
+	}
+	
+	/* FIXME work in progress */
+	public Body randBody(double[] domain, int p)
+	{
+		double[] v = Vector.randomZeroOne(domain);
+		Vector.timesEquals(v, domain);
+		List<Point> points = new LinkedList<Point>();
+		points.add(new Point(v));
+		for ( int i = 1; i < p; i++ )
+			points.add(new Point(Vector.add(v,Vector.randomZeroOne(domain))));
+		return new Body(points, 0, 0);
 	}
 
 	public Agent(Node xmlNode, Body body)
@@ -194,6 +214,11 @@ public class Agent implements AspectInterface, Settable, Instantiable
 	{
 		return _aspectRegistry.getValue(this, key);
 	}
+	
+	public AspectClass getAspectType(String key)
+	{
+		return reg().getType(this, key);
+	}
 
 	/**
 	 * return the compartment the agent is registered to
@@ -214,7 +239,7 @@ public class Agent implements AspectInterface, Settable, Instantiable
 	{
 		this._compartment = compartment;
 	}
-
+	
 	/*************************************************************************
 	 * STEPPING
 	 ************************************************************************/

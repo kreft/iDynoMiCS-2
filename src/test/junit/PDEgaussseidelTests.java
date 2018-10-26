@@ -8,8 +8,9 @@ import idynomics.Compartment;
 import idynomics.Idynomics;
 import processManager.library.SolveDiffusionSteadyState;
 import shape.Shape;
+import shape.Dimension;
 import shape.Dimension.DimName;
-import shape.resolution.ResolutionCalculator.UniformResolution;
+import shape.resolution.UniformResolution;
 import test.AllTests;
 
 public class PDEgaussseidelTests
@@ -34,9 +35,9 @@ public class PDEgaussseidelTests
 		Compartment comp = Idynomics.simulator.addCompartment("line");
 		Shape shape = AllTests.GetShape("Line");
 		comp.setShape(shape);
-		shape.getDimension(DimName.X).setLength(nVoxel);
-		UniformResolution resCalc = new UniformResolution();
-		resCalc.setExtremes(0, nVoxel);
+		Dimension x = shape.getDimension(DimName.X);
+		x.setLength(nVoxel);
+		UniformResolution resCalc = new UniformResolution(x);
 		resCalc.setResolution(1.0);
 		shape.setDimensionResolution(DimName.X, resCalc);
 		//shape.makeCyclic(DimName.X);

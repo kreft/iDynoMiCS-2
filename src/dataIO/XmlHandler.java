@@ -4,7 +4,6 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Field;
 import java.net.URLDecoder;
 import java.security.CodeSource;
 import java.util.Collection;
@@ -37,7 +36,7 @@ public class XmlHandler
 	/**
 	 * \brief Make a new {@code Document}.
 	 * 
-	 * @return
+	 * @return A new empty document.
 	 */
 	public static Document newDocument()
 	{
@@ -78,7 +77,7 @@ public class XmlHandler
 			Log.printToScreen("Error while loading: " + document + "\n"
 					+ "error message: " + e.getMessage(), true);
 			document = Helper.obtainInput("", "Atempt to re-obtain document",
-					true);
+					false);
 			return loadDocument(document);
 		} catch ( SAXException e ) {
 			Log.printToScreen("Error while loading: " + document + "\n"
@@ -86,6 +85,49 @@ public class XmlHandler
 			return null;
 		}			
 		
+	}
+	
+	/**
+	 * \brief Checks if there is an argument provided and loads the input XML file 
+	 * provided in the argument. If no argument provided, asks for file name.
+	 * @throws IOException 
+	 */
+	public static Document xmlLoad(String filePath) throws IOException {
+		if ( filePath == null )
+		{
+			Log.printToScreen("No XML File given!", true);
+			throw new IOException();
+		}
+		Log.printToScreen("Reading XML file: " + filePath + 
+			"\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+			+ "~~~~~~~~~~~~~~~~~~~~~~~~\n", false);
+		
+		return XmlHandler.getDocument(filePath);
+	}
+	
+	/**
+	 * \brief Load the input XML file provided in the argument
+	 */
+	public static Document getDocument(String filePath) {
+		try {
+			File fXmlFile = new File(filePath);
+			DocumentBuilderFactory dbF = DocumentBuilderFactory.newInstance();
+			DocumentBuilder dBuilder = dbF.newDocumentBuilder();
+			Document doc;
+			doc = dBuilder.parse(fXmlFile);
+			doc.getDocumentElement().normalize();
+			return doc;
+		} catch ( ParserConfigurationException | IOException e) {
+			Log.printToScreen("Error while loading: " + filePath + "\n"
+					+ "error message: " + e.getMessage(), true);
+			filePath = Helper.obtainInput("", "Atempt to re-obtain document",
+					false);
+			return getDocument(filePath);
+		} catch ( SAXException e ) {
+			Log.printToScreen("Error while loading: " + filePath + "\n"
+				+ "error message: " + e.getMessage(), true);
+			return null;
+		}			
 	}
 	
 	/**
@@ -107,7 +149,7 @@ public class XmlHandler
 			System.err.println("Error while loading: " + resource + "\n"
 					+ "error message: " + e.getMessage());
 			resource = Helper.obtainInput("", "Atempt to re-obtain document",
-					true);
+					false);
 			return null;
 		}
 	}
@@ -132,7 +174,7 @@ public class XmlHandler
 			System.err.println("Error while loading: " + document + "\n"
 					+ "error message: " + e.getMessage());
 			document = Helper.obtainInput("", "Atempt to re-obtain document",
-					true);
+					false);
 			return loadResource(document);
 		}
 	}
@@ -143,22 +185,27 @@ public class XmlHandler
 	 * @return
 	 * @throws Exception
 	 */
-	public static String getJarContainingFolder() throws Exception {
-		  CodeSource codeSource = Idynomics.class.getProtectionDomain().getCodeSource();
-
-		  File jarFile;
-
-		  if (codeSource.getLocation() != null) {
-		    jarFile = new File(codeSource.getLocation().toURI());
-		  }
-		  else {
-		    String path = Idynomics.class.getResource(Idynomics.class.getSimpleName() + ".class").getPath();
-		    String jarFilePath = path.substring(path.indexOf(":") + 1, path.indexOf("!"));
-		    jarFilePath = URLDecoder.decode(jarFilePath, "UTF-8");
-		    jarFile = new File(jarFilePath);
-		  }
-		  return jarFile.getParentFile().getAbsolutePath();
+	public static String getJarContainingFolder() throws Exception
+	{
+		CodeSource codeSource =
+				Idynomics.class.getProtectionDomain().getCodeSource();
+		File jarFile;
+		if (codeSource.getLocation() == null)
+		{
+			String name = Idynomics.class.getSimpleName() + ".class";
+			String path = Idynomics.class.getResource(name).getPath();
+			int start = path.indexOf(":") + 1;
+			int end = path.indexOf("!");
+			String jarFilePath = path.substring(start, end);
+			jarFilePath = URLDecoder.decode(jarFilePath, "UTF-8");
+			jarFile = new File(jarFilePath);
 		}
+		else
+		{
+			jarFile = new File(codeSource.getLocation().toURI());
+		}
+		return jarFile.getParentFile().getAbsolutePath();
+	}
 
 	/**
 	 * \brief Gathers non critical attributes, returns "" if the attribute is not
@@ -173,8 +220,11 @@ public class XmlHandler
 	}
 	
 	/**
-	 * \brief Gathers non critical attributes, returns "" if the attribute is not
-	 * defined. This method does not ask the user for any information.
+	 * \brief Gathers non critical attributes
+	 * 
+	 * <p>Returns "" if the attribute is not defined. This method does not ask
+	 * the user for any information.</p>
+	 * 
 	 * @param xmlElement
 	 * @param attribute
 	 * @return
@@ -185,17 +235,18 @@ public class XmlHandler
 	}
 
 	/**
-	 * \brief This method gets an attribute from an element, if the element does not
-	 * have this attribute it will ask the user.
+	 * \brief This method gets an attribute from an element: if the element
+	 * does not have this attribute it will ask the user.
 	 */
-	public static String obtainAttribute(Element xmlElement, String attribute, String tag)
+	public static String obtainAttribute(Element xmlElement,
+			String attribute, String tag)
 	{
 		if ( xmlElement != null && xmlElement.hasAttribute(attribute) )
-			return  xmlElement.getAttribute(attribute);
+			return xmlElement.getAttribute(attribute);
 		else
 		{
-			return Helper.obtainInput(null, "Required " + attribute +
-					" for node: "  + tag );
+			return Helper.obtainInput(null,
+					"Required " + attribute +" for node: " + tag );
 		}
 	}
 	
@@ -262,7 +313,10 @@ public class XmlHandler
 	}
 	
 	/**
-	 * \brief returning all child nodes identified by tag from parent node or element
+	 * \brief Gets all child nodes identified by tag from parent element.
+	 * 
+	 * @param parent TODO
+	 * @param tag
 	 */
 	public static NodeList getAll(Element parent, String tag)
 	{
@@ -271,6 +325,13 @@ public class XmlHandler
 		return parent.getElementsByTagName(tag);
 	}
 	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param parent
+	 * @param tag
+	 * @return
+	 */
 	public static Collection<Element> getElements(Element parent, String tag)
 	{
 		LinkedList<Element> out = new LinkedList<Element>();
@@ -283,61 +344,54 @@ public class XmlHandler
 		return out;
 	}
 	
-	public static Node getSpecific(Element parent, String tag, String attribute, String value)
+	/**
+	 * \brief TODO
+	 * 
+	 * @param parent
+	 * @param tag
+	 * @param attribute
+	 * @param value
+	 * @return
+	 */
+	public static Node getSpecific(Element parent, String tag,
+			String attribute, String value)
 	{
-		String v;
-		if (parent == null)
+		if ( parent == null )
 			return null;
+		String v;
 		NodeList list = parent.getElementsByTagName(tag);
 		for ( int i = 0; i < list.getLength(); i++ )
 		{
 			v = XmlHandler.gatherAttribute(list.item(i), attribute);
-			if (v.equals(value))
+			if ( v.equals(value) )
 				return list.item(i);
 		}
 		return null;
 	}
-	
-	/**
-	 * \brief Directly writes attributes from xml node to static field
-	 */
-	public static void setStaticField(Class<?> c, Element element)
-	{
-		try {
-			Field f = c.getDeclaredField(
-					element.getAttribute(XmlRef.nameAttribute));
-			f.set(c, element.getAttribute(XmlRef.valueAttribute));
-		} catch (IllegalArgumentException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (NoSuchFieldException e) {
-			// NOTE: do not log this since this may occur before the log
-			// is initiated (the log it self is start from a general 
-			// param
-			System.err.println("Warning: attempting to set non existend"
-					+ " general paramater: " + 
-					element.getAttribute(XmlRef.nameAttribute) );
-		} catch (SecurityException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
 
 	/**
-	 * \brief Checks for unique node exists and whether it is unique, than returns it.
+	 * \brief Checks that a child XML element belongs to that given and is
+	 * unique.
 	 * 
-	 * @param xmlElement
-	 * @param tagName
-	 * @return
+	 * <p>If the XML element is {@code null}, this method returns {@code null}
+	 * without warning.</p>
+	 * 
+	 * <p>If the given element does not own a child element with the given
+	 * name, this method prints a warning and returns {@code null}.</p>
+	 * 
+	 * <p>If there are multiple child elements with the give tag, this method
+	 * prints a warning and returns the first.</p>
+	 * 
+	 * @param xmlElement Element of an XML document.
+	 * @param tagName 
+	 * @return The child XML element.
 	 */
-	public static Element loadUnique(Element xmlElement, String tagName)
+	public static Element findUniqueChild(Element xmlElement, String tagName)
 	{
-		if (xmlElement == null)
+		if ( xmlElement == null )
 			return null;
-		NodeList nodes =  xmlElement.getElementsByTagName(tagName);
+		
+		NodeList nodes = xmlElement.getElementsByTagName(tagName);
 		if (nodes.getLength() > 1)
 		{
 			Log.out(Tier.NORMAL,"Warning: document contains more than 1"
@@ -354,12 +408,14 @@ public class XmlHandler
 	}		
 	
 	/**
-	 * returns true if a node tagName exists as childNode of xmlElement
-	 * @param xmlElement
+	 * \brief Check if an XML element has a child element with the given tag.
+	 * 
+	 * @param xmlElement Element of an XML document.
 	 * @param tagName
-	 * @return
+	 * @return True if at least one child element with the given tag exists
+	 * belongs xmlElement.
 	 */
-	public static boolean hasNode(Element xmlElement, String tagName)
+	public static boolean hasChild(Element xmlElement, String tagName)
 	{
 		NodeList nodes = xmlElement.getElementsByTagName(tagName);
 		return ( nodes.getLength() > 0 );
@@ -367,7 +423,8 @@ public class XmlHandler
 	
 	/**
 	 * \brief Loads attribute from a unique node
-	 * @param xmlElement
+	 * 
+	 * @param xmlElement Element of an XML document.
 	 * @param tagName
 	 * @param attribute
 	 * @return
@@ -375,7 +432,7 @@ public class XmlHandler
 	public static String attributeFromUniqueNode(Element xmlElement, String tagName, 
 			String attribute)
 	{
-		Element e = loadUnique(xmlElement, tagName);
+		Element e = findUniqueChild(xmlElement, tagName);
 		if(e == null)
 		{
 			return Helper.obtainInput(null, "Required " + attribute +

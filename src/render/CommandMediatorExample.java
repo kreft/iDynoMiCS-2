@@ -63,7 +63,7 @@ public class CommandMediatorExample implements CommandMediator
 	        gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_SPECULAR, rgba, 0);
 	        gl.glMaterialf(GL2.GL_FRONT, GL2.GL_SHININESS, 0.1f);
            gl.glColor3f(0.5f,0.5f,0.2f);
-           gl.glBegin(gl.GL_QUAD_STRIP);
+           gl.glBegin(GL2.GL_QUAD_STRIP);
            for(j = 0; j <= longs; j++) {
                double lng = 2 * Math.PI * (double) (j - 1) / longs;
                double x = Math.cos(lng);

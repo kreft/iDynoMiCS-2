@@ -16,16 +16,15 @@ public strictfp class ConsoleLaunch
 	 */
 	public static void main(String[] args)
 	{
-		System.out.print("Starting iDynoMiCS " +Idynomics.version_number+ "\n");
+		System.out.print("Starting iDynoMiCS " +Settings.version_number+ "\n");
 		/* Acquire a protocol file. */
 		String protocolPath;
-		if(args == null || args.length == 0 || args[0] == null)
+		Scanner userInput = null;
+		if ( args == null || args.length == 0 || args[0] == null )
 		{
-		@SuppressWarnings("resource")
-		// TODO Rob[24Fec2016]: Is is a problem that we don't close this?
-		Scanner user_input = new Scanner( System.in );
-		System.out.print("Enter protocol file path: ");
-		protocolPath = user_input.next();
+			userInput = new Scanner( System.in );
+			System.out.print("Enter protocol file path: ");
+			protocolPath = userInput.next();
 		}
 		else
 		{
@@ -34,6 +33,10 @@ public strictfp class ConsoleLaunch
 		/* Now run the simulation with the given protocol file. */
 		Idynomics.setupSimulator(protocolPath);
 		Idynomics.launchSimulator();
-		//user_input.close();
+		/* If a scanner was created, close it down before finishing. */
+		if ( userInput != null )
+		{
+			userInput.close();
+		}
 	}
 }

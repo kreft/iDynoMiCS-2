@@ -6,7 +6,6 @@ import org.w3c.dom.Node;
 import aspect.AspectInterface;
 import aspect.AspectReg;
 import idynomics.Idynomics;
-import instantiable.Instance;
 import instantiable.Instantiable;
 import referenceLibrary.ClassRef;
 import referenceLibrary.XmlRef;

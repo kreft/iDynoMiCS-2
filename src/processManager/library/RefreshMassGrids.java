@@ -20,7 +20,7 @@ public class RefreshMassGrids extends ProcessManager
 	protected void internalStep()
 	{
 		//FIXME: reset biomass for testing purpose, needs to be done properly
-		this._environment.getSoluteGrid(BIOMASS).setAllTo(ArrayType.CONCN, 0.0);
+		this._environment.getSoluteGrid(BIOMASS).reset(ArrayType.CONCN);
 		// FIXME: does massToGrid deserve a place in NameRef?
 		for ( Agent agent : this._agents.getAllAgents() )
 			agent.event(MASS_TO_GRID);

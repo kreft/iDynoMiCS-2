@@ -160,17 +160,16 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable
 		/*
 		 * Set up the shape.
 		 */
-		Element elem = XmlHandler.loadUnique(xmlElem, XmlRef.compartmentShape);
+		Element elem = XmlHandler.findUniqueChild(xmlElem, XmlRef.compartmentShape);
 		String[] str = new String[] { XmlHandler.gatherAttribute(elem, XmlRef.classAttribute) };
 		if ( str[0] == null )
 			str = Shape.getAllOptions();
-		this.setShape( (Shape) Instance.getNew(
-				elem, this, str) );	
+		this.setShape( (Shape) Instance.getNew(elem, this, str) );	
 
 
 		for( Boundary b : this._shape.getAllBoundaries())
 		{
-			b.init(environment, agents, name);
+			b.setContainers(environment, agents);
 			// FIXME trying to figure out how to get the well mixed region working,
 			// quite funky investigate
 //			if (b instanceof SpatialBoundary)
@@ -189,19 +188,22 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable
 		
 		String type = XmlHandler.gatherAttribute(xmlElem, XmlRef.tree);
 		type = Helper.setIfNone(type, String.valueOf(TreeType.RTREE));
-		this.agents.setSpatialTree(TreeType.valueOf(type));
+		this.agents.setSpatialTreeType(TreeType.valueOf(type));
 		/*
 		 * Load solutes.
 		 */
 		Log.out(level, "Compartment reading in solutes");
-		for ( Element e : XmlHandler.getElements(xmlElem, XmlRef.solute))
-			this.environment.addSolute( new SpatialGrid( e, this.environment) );
+		Element solutes = XmlHandler.findUniqueChild(xmlElem, XmlRef.solutes);
+		for ( Element e : XmlHandler.getElements(solutes, XmlRef.solute))
+		{
+			new SpatialGrid( e, this.environment);
+		}
 		/*
 		 * Load extra-cellular reactions.
 		 */
 		Log.out(level, "Compartment reading in (environmental) reactions");
 		for ( Element e : XmlHandler.getElements( xmlElem, XmlRef.reaction) )
-			this.environment.addReaction( new Reaction(	e, this.environment) );	
+			new Reaction(e, this.environment);	
 		/*
 		 * Read in agents.
 		 */
@@ -221,6 +223,7 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable
 		}
 		/* NOTE: we fetch the class from the xml node */
 	}
+	
 		
 	
 	/* ***********************************************************************
@@ -260,7 +263,7 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable
 	// TODO move this spatial/non-spatial splitting to Shape?
 	public void addBoundary(Boundary aBoundary)
 	{
-		aBoundary.init(this.environment, this.agents, this.name);
+		aBoundary.setContainers(this.environment, this.agents);
 		if ( aBoundary instanceof SpatialBoundary )
 		{
 			SpatialBoundary sB = (SpatialBoundary) aBoundary;
@@ -298,6 +301,17 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable
 		agent.setCompartment(this);
 	}
 	
+	public void addReaction(Reaction reaction)
+	{
+		this.environment.addReaction(reaction);
+	}
+	
+	
+	public void addSolute(SpatialGrid solute)
+	{
+		this.environment.addSolute(solute);
+	}
+	
 	/**
 	 * \brief Remove the given agent from this compartment, registering its
 	 * removal.
@@ -330,31 +344,40 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable
 	 * **********************************************************************/
 	
 	/**
+	 * \brief Connects any disconnected boundaries to a new partner boundary on 
+	 * the appropriate compartment.
 	 * 
-	 * @param compartments
+	 * Note that generation of spatial boundaries by this method is not yet
+	 * possible. It is therefore necessary to specify spatial boundaries and to
+	 * omit their partners in the protocol file.
+	 * @param compartments List of compartments to choose from.
 	 */
-	// TODO temporary work, still in progress!
 	public void checkBoundaryConnections(List<Compartment> compartments)
 	{
+		List<String> compartmentNames = new LinkedList<String>();
+		for ( Compartment c : compartments )
+			compartmentNames.add(c.getName());
+		
 		for ( Boundary b : this._shape.getDisconnectedBoundaries() )
 		{
 			String name = b.getPartnerCompartmentName();
-			Compartment comp = null;
-			for ( Compartment c : compartments )
-				if ( c.getName().equals(name) )
-				{
-					comp = c;
-					break;
-				}
-			if ( comp == null )
+			Compartment comp = findByName(compartments, name);
+			while ( comp == null )
 			{
-				// TODO safety
+				Log.out(Tier.CRITICAL, 
+						"Cannot connect boundary " + b.getName() +
+						" in compartment " + this.getName());
+				name = Helper.obtainInput(compartmentNames, 
+						"Please choose a compartment:", true);
+				comp = findByName(compartments, name);
 			}
-			else
-			{
-				Boundary partner = b.makePartnerBoundary();
-				comp.getShape().addOtherBoundary(partner);
-			}
+			Log.out(Tier.NORMAL, 
+					"Connecting boundary " + b.getName() +
+					" to a partner boundary of type " + 
+					b.getPartnerClass().toString() + " in compartment " +
+					comp.getName());
+			Boundary partner = b.makePartnerBoundary();
+			comp.addBoundary(partner);
 		}
 	}
 	
@@ -503,7 +526,7 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable
 		/* spatial registry NOTE we are handling this here since the agent
 		 * container does not have the proper init infrastructure */
 		modelNode.add( new Attribute(XmlRef.tree, 
-				String.valueOf( this.agents.getSpatialTree() ) , 
+				String.valueOf( this.agents.getSpatialTreeType() ) , 
 				Helper.enumToStringArray( TreeType.class ), false ) );
 
 		return modelNode;	
@@ -544,8 +567,8 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable
 			
 			/* set the tree type */
 			String tree = node.getAttribute( XmlRef.tree ).getValue();
-			if ( ! Helper.isNone( tree ) )
-				this.agents.setSpatialTree( TreeType.valueOf( tree ) );
+			if ( ! Helper.isNullOrEmpty( tree ) )
+				this.agents.setSpatialTreeType( TreeType.valueOf( tree ) );
 		}
 		/* 
 		 * Set the child nodes.
@@ -558,19 +581,6 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable
 	public void removeModule(String specifier)
 	{
 		Idynomics.simulator.removeCompartment(this);
-	}
-	
-	public void removeChildModule(Settable child)
-	{
-		if (child instanceof Shape)
-		{
-			this.setShape( (Shape) Instance.getNew(
-					null, this, Shape.getAllOptions()) );
-			// FIXME also remove solutes, spatial grids would be incompatible 
-			// with a new shape
-		}
-		if (child instanceof ProcessManager)
-			this._processes.remove((ProcessManager) child);
 	}
 
 	@Override
@@ -589,5 +599,18 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable
 	public Settable getParent() 
 	{
 		return this._parentNode;
+	}
+	
+	/* ***********************************************************************
+	 * Helper methods
+	 * **********************************************************************/
+	
+	public static Compartment findByName(
+			List<Compartment> compartments, String name)
+	{
+		for ( Compartment c : compartments )
+			if ( c.getName().equals(name) )
+				return c;
+		return null;
 	}
 }

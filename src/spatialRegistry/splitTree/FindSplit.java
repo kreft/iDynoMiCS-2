@@ -20,11 +20,11 @@ public class FindSplit extends RecursiveTask<List<List<Entry>>>
 	 */
 	private static final long serialVersionUID = -767857163097668802L;
 	
-	SplitTree tree;
+	SplitTree<?> tree;
 	
 	List<Area> objectives;
 	
-	public FindSplit(SplitTree tree, List<Area> objectives)
+	public FindSplit(SplitTree<?> tree, List<Area> objectives)
 	{
 		this.tree = tree;
 		this.objectives = objectives;

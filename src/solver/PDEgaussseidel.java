@@ -2,7 +2,6 @@ package solver;
 
 import static dataIO.Log.Tier.DEBUG;
 import static grid.ArrayType.CONCN;
-import static grid.ArrayType.DIFFUSIVITY;
 import static grid.ArrayType.PRODUCTIONRATE;
 import static grid.ArrayType.WELLMIXED;
 
@@ -11,9 +10,9 @@ import java.util.Collection;
 import dataIO.Log;
 import dataIO.Log.Tier;
 import grid.SpatialGrid;
+import grid.WellMixedConstants;
 import linearAlgebra.Vector;
 import shape.Shape;
-import utility.ExtraMath;
 
 /**
  * \brief Partial Differential Equation (PDE) solver that uses the Gauss-Seidel
@@ -24,7 +23,7 @@ import utility.ExtraMath;
  */
 public class PDEgaussseidel extends PDEsolver
 {
-	public int maxIter = 100;
+	public int maxIter = 10001;
 	
 	public double residualTolerance = 0.01;
 	
@@ -52,11 +51,18 @@ public class PDEgaussseidel extends PDEsolver
 			this._updater.prestep(variables, tFinal);
 			for ( SpatialGrid variable : variables )
 			{
-				residual = this.relax(variable, commonGrid, tFinal);
+				residual = this.relax(variable, commonGrid);
 				maxResidual = Math.max(residual, maxResidual);
 			}
-			if ( maxResidual < this.residualTolerance )
-				break;
+			//if ( maxResidual < this.residualTolerance )
+			//	break;
+			// FIXME This if clause is for debugging only, remove after
+			if (i%1000==0)
+			{
+				Log.out(Tier.CRITICAL, "Iteration: "+i+" Max residual: "+maxResidual);
+				for (SpatialGrid var : variables)
+					Log.out(Tier.CRITICAL, "\t"+var.getName()+" ("+var.getMin(CONCN)+", "+var.getMax(CONCN)+")");
+			}
 		}
 		
 		// TODO relax one more time, and use only this relaxation to update the
@@ -79,17 +85,16 @@ public class PDEgaussseidel extends PDEsolver
 	 * PRIVATE METHODS
 	 * **********************************************************************/
 	
-	private double relax(SpatialGrid variable,
-			SpatialGrid commonGrid, double tFinal)
+	public double relax(SpatialGrid variable, SpatialGrid commonGrid)
 	{
 		/* Logging verbosity. */
 		Tier level = DEBUG;
 		Shape shape = variable.getShape();
 		/* Coordinates of the current position. */
-		int[] current, nhb;
+		int[] current;
 		/* Temporary storage. */
-		double currConcn, currVolume, currDiffusivity, meanDiffusivity;
-		double norm, nhbWeight, diffusiveFlow, rateFromReactions, newConcn;
+		double currConcn, currVolume;
+		double timeScale, diffusiveFlow, rateFromReactions, newConcn;
 		/* 
 		 * The residual gives an estimation of how close to stead-state we are.
 		 */
@@ -108,40 +113,46 @@ public class PDEgaussseidel extends PDEsolver
 		for ( current = shape.resetIterator(); shape.isIteratorValid();
 				current = shape.iteratorNext() )
 		{
-			// TODO this should really be > some threshold
-			if ( commonGrid.getValueAt(WELLMIXED, current) == 1.0 )
+			if ( WellMixedConstants.isWellMixed(commonGrid, current) )
 				continue;
 			currConcn = variable.getValueAtCurrent(CONCN);
-			currDiffusivity = variable.getValueAtCurrent(DIFFUSIVITY);
 			currVolume = shape.getCurrVoxelVolume();
 			diffusiveFlow = 0.0;
-			norm = 0.0;
-			for ( nhb = shape.resetNbhIterator(); shape.isNbhIteratorValid();
-					nhb = shape.nbhIteratorNext() )
+			timeScale = 0.0;
+			for ( shape.resetNbhIterator(); shape.isNbhIteratorValid();
+					shape.nbhIteratorNext() )
 			{
-				meanDiffusivity = ExtraMath.harmonicMean(currDiffusivity, 
-						variable.getValueAt(DIFFUSIVITY, nhb));
-				nhbWeight = meanDiffusivity * shape.nhbCurrSharedArea() /
-						(shape.nhbCurrDistance() * currVolume);
-				norm += nhbWeight;
-				diffusiveFlow += nhbWeight * 
-						(variable.getValueAtNhb(CONCN) - currConcn);
+				timeScale += variable.getDiffusiveTimeScaleWithNeighbor();
+				diffusiveFlow += variable.getDiffusionFromNeighbor();
 			}
 			rateFromReactions = variable.getValueAt(PRODUCTIONRATE, current);
-			// TODO norm += variable.getValueAt(DIFFPRODUCTIONRATE, current);
-			residual = (diffusiveFlow + rateFromReactions) / norm;
+			// TODO norm += 1.0 / variable.getValueAt(DIFFPRODUCTIONRATE, current);
+			residual = (diffusiveFlow + rateFromReactions) * 
+					timeScale / currVolume;
 			newConcn = currConcn + residual;
 			if ( Log.shouldWrite(level) )
 			{
 				Log.out(level, "Coord "+Vector.toString(current)+
 						": curent value "+currConcn+", new value "+newConcn);
 			}
+			
+			// FIXME This if clause is for debugging only, remove after
+//			if (false)//( rateFromReactions != 0.0 )
+//			{
+//				Log.out(Tier.BULK, "Coord "+Vector.toString(current)+
+//						" variable "+variable.getName()+
+//						": curent value "+currConcn+", new value "+newConcn+"\n"
+//						+"\t Diffuse "+diffusiveFlow+" -> "+(diffusiveFlow*timeScale/currVolume)+"\n"
+//						+"\t React "+variable.getValueAt(PRODUCTIONRATE, current)+" -> "+(rateFromReactions*timeScale/currVolume));
+//			}
+			
 			if ( (! this._allowNegatives) && newConcn < 0.0 )
 			{
-				Log.out(Tier.CRITICAL, "Truncating concentration of "+
+				Log.out(Tier.EXPRESSIVE, "Truncating concentration of "+
 						variable.getName()+" to zero\n"+
 						"\tVoxel at "+Vector.toString(current)+"\n"+
-						"\tPrevious concn "+currConcn);
+						"\tPrevious concn "+currConcn+
+						"\tPrevented concn "+newConcn);
 				newConcn = 0.0;
 			}
 			variable.setValueAt(CONCN, current, newConcn);

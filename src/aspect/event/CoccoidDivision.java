@@ -6,16 +6,17 @@ import utility.Helper;
 import linearAlgebra.Vector;
 import referenceLibrary.AspectRef;
 
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 
 import agent.Agent;
 import agent.Body;
+import aspect.Aspect.AspectClass;
 import aspect.AspectInterface;
 import aspect.Event;
 import dataIO.Log;
 import dataIO.Log.Tier;
+import instantiable.object.InstantiableMap;
 
 /**
  * Simple coccoid division class, divides mother cell in two with a random
@@ -30,21 +31,27 @@ public class CoccoidDivision extends Event
 	/**
 	 * The Agent's mass.
 	 */
-	public String MASS = AspectRef.agentMass;
+	public static String MASS = AspectRef.agentMass;
+	
+	/**
+	 * The Agent's mass.
+	 */
+	public static String MASS_MAP = AspectRef.agentMassMap;
+	
 	/**
 	 * If the Agent's mass is above this value, trigger division.
 	 */
-	public String THRESHOLD_MASS = AspectRef.divisionMass;
+	public static String THRESHOLD_MASS = AspectRef.divisionMass;
 	/**
 	 * The fraction of mass that is kept by the mother Agent: 1 - this value
 	 * will be inherited by the daughter cell. Must be between 0 and 1
 	 * exclusive.
 	 */
-	public String MUM_MASS_FRAC = AspectRef.mumMassFrac;
+	public static String MUM_MASS_FRAC = AspectRef.mumMassFrac;
 	/**
 	 * Amount of stochastic variation used in {@code mumMassFrac}.
 	 */
-	public String MUM_MASS_FRAC_CV = AspectRef.mumMassFracCV;
+	public static String MUM_MASS_FRAC_CV = AspectRef.mumMassFracCV;
 	/**
 	 * The Agent's body.
 	 */
@@ -71,6 +78,11 @@ public class CoccoidDivision extends Event
 	 * this event, in case agents have grown a lot between time steps.
 	 */
 	public String DIVIDE = AspectRef.agentDivide;
+	/**
+	 * Name of the plasmid loss event that should be called for the daughter
+	 * agent, if specified in the agent definition.
+	 */
+	public String PLASMID_LOSS = AspectRef.agentPlasmidLoss;
 
 	
 	@Override
@@ -123,6 +135,9 @@ public class CoccoidDivision extends Event
 
 		mother.event(UPDATE_BODY);
 		daughter.event(UPDATE_BODY);
+		/* Call the plasmid loss event */
+		if (daughter.isAspect(PLASMID_LOSS))
+			daughter.event(PLASMID_LOSS);
 		/* Check if either agent should divide again. */
 		mother.event(DIVIDE);
 		daughter.event(DIVIDE);
@@ -178,7 +193,7 @@ public class CoccoidDivision extends Event
 	 * @param mother Agent with too much mass.
 	 * @param daughter Agent with no mass.
 	 */
-	private void transferMass(Agent mother, Agent daughter)
+	protected static void transferMass(Agent mother, Agent daughter)
 	{
 		/*
 		 * Find a "mother mass fraction", i.e. the fraction of mass that is
@@ -190,34 +205,31 @@ public class CoccoidDivision extends Event
 		double mumMassFrac = 0.5;
 		/* 5% seems like an appropriate default for cv */
 		double mumMassFracCV = 0.05; 
-		if ( mother.isAspect(this.MUM_MASS_FRAC) )
-			mumMassFrac = mother.getDouble(this.MUM_MASS_FRAC);
-		if ( mother.isAspect(this.MUM_MASS_FRAC_CV) )
-			mumMassFracCV = mother.getDouble(this.MUM_MASS_FRAC_CV);
+		if ( mother.isAspect(MUM_MASS_FRAC) )
+			mumMassFrac = mother.getDouble(MUM_MASS_FRAC);
+		if ( mother.isAspect(MUM_MASS_FRAC_CV) )
+			mumMassFracCV = mother.getDouble(MUM_MASS_FRAC_CV);
 		mumMassFrac = ExtraMath.deviateFromCV(mumMassFrac, mumMassFracCV);
 		/*
 		 * Transfer the mass from mother to daughter, using mumMassFrac.
 		 */
-		Object mumMass = mother.get(this.MASS);
-		if ( mumMass instanceof Double )
+		Object mumMass = mother.get(MASS);
+		if ( mumMass instanceof Double && mother.getAspectType( MASS ) ==
+				AspectClass.PRIMARY )
 		{
 			double motherMass = (Double) mumMass;
-			mother.set(this.MASS, motherMass * mumMassFrac);
-			daughter.set(this.MASS, motherMass * (1.0 - mumMassFrac));
+			mother.set(MASS, motherMass * mumMassFrac);
+			daughter.set(MASS, motherMass * (1.0 - mumMassFrac));
 		}
-		else if ( mumMass instanceof double[] )
-		{
-			double[] motherMass = (double[]) mumMass;
-			double[] daughterMass = Vector.times(motherMass, 1.0 - mumMassFrac);
-			Vector.timesEquals(motherMass, mumMassFrac);
-			mother.set(this.MASS, motherMass);
-			daughter.set(this.MASS, daughterMass);
-		}
-		else if ( mumMass instanceof Map )
+		
+		Object massMap = mother.get(MASS_MAP);
+		
+		if ( massMap != null && massMap instanceof Map )
 		{
 			@SuppressWarnings("unchecked")
-			Map<String,Double> mumProducts = (Map<String,Double>) mumMass;
-			Map<String,Double> daughterProducts = new HashMap<String,Double>();
+			Map<String,Double> mumProducts = (Map<String,Double>) massMap;
+			@SuppressWarnings("unchecked")
+			Map<String,Double> daughterProducts = (Map<String,Double>) daughter.get(MASS_MAP);
 			double product;
 			for ( String key : mumProducts.keySet() )
 			{
@@ -225,8 +237,8 @@ public class CoccoidDivision extends Event
 				daughterProducts.put(key, product * (1.0-mumMassFrac) );
 				mumProducts.put(key, product * mumMassFrac);
 			}
-			mother.set(this.MASS, mumProducts);
-			daughter.set(this.MASS, daughterProducts);
+			mother.set(MASS_MAP, mumProducts);
+			daughter.set(MASS_MAP, daughterProducts);
 		}
 		else
 		{
@@ -249,8 +261,7 @@ public class CoccoidDivision extends Event
 		Body momBody = (Body) mother.get(BODY);
 		Body daughterBody = (Body) daughter.get(BODY);
 		
-		// TODO Joints state will be removed
-		double[] originalPos = momBody.getJoints().get(0);
+		double[] originalPos = momBody.getPosition(0);
 		double[] shift = Vector.randomPlusMinus(originalPos.length, 
 				0.5*mother.getDouble(RADIUS));
 		

@@ -13,13 +13,14 @@ import boundary.library.ChemostatToBoundaryLayer;
 import dataIO.Log;
 import dataIO.Log.Tier;
 import grid.SpatialGrid;
+import grid.WellMixedConstants;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
 import linearAlgebra.Vector;
 import referenceLibrary.AspectRef;
 import shape.Shape;
-import shape.Dimension.DimName;
 import surface.Ball;
+import surface.BoundingBox;
 import surface.Collision;
 import surface.Surface;
 
@@ -66,31 +67,47 @@ public class BiofilmBoundaryLayer extends WellMixedBoundary
 	 * CONSTRUCTOR
 	 * **********************************************************************/
 	
-	/**
-	 * \brief Construct a biofilm boundary layer by giving it the information
-	 * it needs about its location.
-	 * 
-	 * @param dim This boundary is at one extreme of a dimension: this is the
-	 * name of that dimension.
-	 * @param extreme This boundary is at one extreme of a dimension: this is
-	 * the index of that extreme (0 for minimum, 1 for maximum).
-	 */
-	public BiofilmBoundaryLayer(DimName dim, int extreme)
+	public BiofilmBoundaryLayer()
+	{}
+	
+	@Override
+	public void setContainers(
+			EnvironmentContainer environment, AgentContainer agents)
 	{
-		super(dim, extreme);
+		super.setContainers(environment, agents);
+		this.tryToCreateGridSphere();
 	}
 	
-	public void init(EnvironmentContainer environment, 
-			AgentContainer agents, String compartmentName)
+	@Override
+	public boolean isReadyForLaunch()
 	{
-		super.init(environment, agents, compartmentName);
-		Collision collision = new Collision(null, this._agents.getShape());
-		this._gridSphere = new Ball(
-				Vector.zerosDbl(this._agents.getNumDims()),
-				this._layerThickness);
+		if ( ! super.isReadyForLaunch() )
+			return false;
+		return this._gridSphere != null;
+	}
+
+	private void tryToCreateGridSphere()
+	{
+		if ( this._agents == null || this._layerThickness <= 0.0 )
+			return;
+		
+		Shape shape = this._agents.getShape();
+		Collision collision = new Collision(null, shape);
+		double[] zeros = Vector.zerosDbl(shape.getNumberOfDimensions());
+		this._gridSphere = new Ball(zeros, 0.5 * this._layerThickness);
 		this._gridSphere.init(collision);
 	}
 	
+	/* ***********************************************************************
+	 * BASIC SETTERS & GETTERS
+	 * **********************************************************************/
+
+	@Override
+	protected boolean needsLayerThickness()
+	{
+		return true;
+	}
+
 	@Override
 	public void setLayerThickness(double thickness)
 	{
@@ -100,7 +117,7 @@ public class BiofilmBoundaryLayer extends WellMixedBoundary
 		 * NOTE: One sets a Ball's radius, not diameter
 		 */
 		super.setLayerThickness(thickness);
-		this._gridSphere.set(this._layerThickness / 2.0, 0.0);
+		this.tryToCreateGridSphere();
 	}
 
 	/* ***********************************************************************
@@ -108,7 +125,7 @@ public class BiofilmBoundaryLayer extends WellMixedBoundary
 	 * **********************************************************************/
 
 	@Override
-	protected Class<?> getPartnerClass()
+	public Class<?> getPartnerClass()
 	{
 		return ChemostatToBoundaryLayer.class;
 	}
@@ -130,30 +147,44 @@ public class BiofilmBoundaryLayer extends WellMixedBoundary
 	{
 		Shape aShape = this._environment.getShape();
 		SpatialGrid grid = this._environment.getCommonGrid();
+		int numDim = aShape.getNumberOfDimensions();
 		/*
 		 * Iterate over all voxels, checking if there are agents nearby.
 		 */
 		int[] coords = aShape.resetIterator();
 		double[] voxelCenter = aShape.getVoxelCentre(coords);
+		double[] voxelCenterTrimmed = Vector.zerosDbl(numDim);
 		List<Agent> neighbors;
+		BoundingBox box;
 		while ( aShape.isIteratorValid() )
 		{
 			aShape.voxelCentreTo(voxelCenter, coords);
-			this._gridSphere.setCenter(aShape.getVoxelCentre(coords));
+			Vector.copyTo(voxelCenterTrimmed, voxelCenter);
+			this._gridSphere.setCenter(voxelCenterTrimmed);
 			/*
 			 * Find all nearby agents. Set the grid to zero if an agent is
 			 * within the grid's sphere
 			 */
-			neighbors = this._agents.treeSearch(this._gridSphere.boundingBox());
+			box = this._gridSphere.boundingBox(this._agents.getShape());
+			neighbors = this._agents.treeSearch(box);
 			for ( Agent a : neighbors )
 				for (Surface s : (List<Surface>) a.get(AspectRef.surfaceList))
 					if ( this._gridSphere.distanceTo(s) < 0.0 )
 						{
-							grid.setValueAt(WELLMIXED, coords, 0.0);
+							grid.setValueAt(WELLMIXED, coords, 
+									WellMixedConstants.NOT_MIXED);
 							break;
 						}
 			coords = aShape.iteratorNext();
 		}
+	}
+
+	@Override
+	public void additionalPartnerUpdate()
+	{
+		ChemostatToBoundaryLayer p = (ChemostatToBoundaryLayer) this._partner;
+		for ( String soluteName : this._environment.getSoluteNames() )
+			this._concns.put(soluteName, p.getSoluteConcentration(soluteName));
 	}
 
 	/* ***********************************************************************
@@ -161,14 +192,10 @@ public class BiofilmBoundaryLayer extends WellMixedBoundary
 	 * **********************************************************************/
 
 	@Override
-	protected double getDetachability()
-	{
-		return 1.0;
-	}
-	
-	@Override
 	public void agentsArrive()
 	{
+		if ( this._arrivalsLounge.isEmpty() )
+			return;
 		/*
 		 * Give all (located) agents a random position along this boundary
 		 * surface. Unlocated agents can be simply added to the Compartment.

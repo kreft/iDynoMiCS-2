@@ -9,13 +9,11 @@ import java.util.TreeMap;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 import dataIO.Log.Tier;
 import instantiable.object.InstantiableMap;
 import dataIO.Log;
 import dataIO.XmlHandler;
-import referenceLibrary.ClassRef;
 import referenceLibrary.XmlRef;
 import settable.Attribute;
 import settable.Module;
@@ -79,6 +77,9 @@ public class Expression extends Component implements Settable
 			String[]{
 					"#e",	// euler
 					"#PI", 	// pi
+					"SIGN-", // signum function minus what follows
+					"SIGN", // signum function
+					"LOG", // natural logorithm
 					"EXP-", // ten power minus
 					"EXP", 	// ten power
 					"^-", 	// power minus
@@ -648,6 +649,12 @@ public class Expression extends Component implements Settable
 		case ("EXP-"): 
 			return new Multiplication(calc.get(prev), 
 				new Power(Arithmetic.ten(), flipSign(calc.get(next))));
+		case ("LOG"): 
+			return new Logarithm(calc.get(next),Arithmetic.ten());
+		case ("SIGN"): 
+			return 	new Sign(calc.get(next));
+		case ("SIGN-"): 
+			return new Sign(flipSign(calc.get(next)));
 		}
 		System.err.println("ERROR: could not construnct component!");
 		return new Constant("ERROR!",1.0);
@@ -686,6 +693,9 @@ public class Expression extends Component implements Settable
 			break;
 		case("SQRT"):
 		case("SQRT-"):
+		case ("LOG"):
+		case("SIGN"):
+		case("SIGN-"):
 			if ( calc.containsKey( next ) )
 				calc.remove( next );
 			break;

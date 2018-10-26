@@ -1,110 +1,168 @@
 package utility;
 
+import java.awt.Color;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Scanner;
 import java.util.Set;
 
 import dataIO.Log;
 import dataIO.Log.Tier;
 import gui.GuiConsole;
+import idynomics.Compartment;
 import idynomics.Idynomics;
+import linearAlgebra.Vector;
 
 /**
- * \brief TODO
+ * \brief Utilities class of helpful methods used across iDynoMiCS 2.
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
-public class Helper
+public final class Helper
 {
 	/**
-	 * 
+	 * Single scanner for user input.
 	 */
-	public static boolean gui = false;
+	private static Scanner USER_INPUT;
+	
+	/**
+	 * List of recognised words that signal confirmation by the user.
+	 */
+	public final static String[] confirmations = new String[] 
+			{ "yes", "y", "Y", "true", "TRUE" };
+	
+	/**
+	 * List of recognised words that signal rejection by the user.
+	 */
+	public final static String[] rejections = new String[]
+			{ "no", "n", "N", "false", "FALSE" };
+	
+	/**
+	 * Boolean denoting whether the simulation is running in Graphical User
+	 * Interface (GUI) mode.
+	 */
+	public static boolean isSystemRunningInGUI = false;
+	
+	public static final String[] DIFFERENTIATING_PALETE = new String[] { 
+			"cyan", "magenta", "yellow", "blue", "red", "green", "violet",
+			"orange", "springgreen", "azure", "pink", "chartreuse", "black" };
+	
+	public static String[] giveMeAGradient(int length)
+	{
+		String[] colors = new String[length];
+		int step = 256 / length;
+		for (int i = 0; i < length; i++)
+		{
+			int c = (255 - i * step);
+			colors[i] = "rgb(" + c + ", " + c + ", " + c + ")";
+		}
+		return colors;
+	}
+
 
 	/**
-	 * Obtain user input as string.
-	 * @param input
-	 * @param description
-	 * @param noLog
-	 * @return
+	 * \brief Obtain user input as string.
+	 * 
+	 * @param input What the system currently believes to be the input. This
+	 * method will only act if this is null or empty.
+	 * @param description Descriptive message to tell the user what input is
+	 * required.
+	 * @param shouldLogMessage Boolean stating whether this interaction should 
+	 * be added to the log (true) or printed to screen (false).
+	 * @return The requested input as a string.
 	 */
-	public static String obtainInput(String input, String description, boolean noLog)
+	public static String obtainInput(String input,
+			String description, boolean shouldLogMessage)
 	{
-		if ( input == null || input == "" || input == "null" )
+		if ( isNullOrEmpty(input) || input == "null" )
 		{
-			String msg = description;
-			
-			if ( gui )
-			{
-				input = GuiConsole.requestInput(msg);
-			} 
+			if ( isSystemRunningInGUI )
+				input = GuiConsole.requestInput(description);
 			else
 			{
 				@SuppressWarnings("resource")
 				Scanner user_input = new Scanner( System.in );
-
-				if ( noLog )
-					System.out.println(msg);
+				if ( shouldLogMessage )
+					Log.out(Tier.CRITICAL, description);
 				else
-					Log.out(Tier.CRITICAL, msg);
+					System.out.println(description);
 				input = user_input.next( );
 			}
-			msg = "Aquired input: " + input;
-			if ( noLog )
-				System.out.println(msg);
-			else
+			/* Confirm the input received. */
+			String msg = "Aquired input: " + input;
+			if ( shouldLogMessage )
 				Log.out(Tier.CRITICAL, msg);
+			else
+				System.out.println(msg);
 		}
 		return input;
 	}
 	
 	/**
-	 * obtain input with a limited set of options
-	 * @param options
-	 * @param description
-	 * @param noLog
-	 * @return
+	 * \brief Obtain user input as string from a limited set of options.
+	 * 
+	 * @param options List of options for the input that the user may choose
+	 * from.
+	 * @param description Descriptive message to tell the user what input is
+	 * required.
+	 * @param shouldLogMessage Boolean stating whether this interaction should 
+	 * be added to the log (true) or printed to screen (false).
+	 * @return The requested input as a string.
 	 */
-	public static String obtainInput(Collection<String> options, String description, boolean noLog)
+	public static String obtainInput(Collection<String> options,
+			String description, boolean shouldLogMessage)
 	{
 		String[] out = new String[options.size()];
 		int i = 0;
 		for (String s : options)
 			out[i++] = s;
-		return obtainInput(out, description, noLog);
+		return obtainInput(out, description, shouldLogMessage);
 	}
 	
 	/**
-	 * obtain input with a limited set of options
-	 * @param options
-	 * @param description
-	 * @param noLog
-	 * @return
+	 * \brief Obtain user input as string from a limited set of options.
+	 * 
+	 * @param options List of options for the input that the user may choose
+	 * from.
+	 * @param description Descriptive message to tell the user what input is
+	 * required.
+	 * @param shouldLogMessage Boolean stating whether this interaction should 
+	 * be added to the log (true) or printed to screen (false).
+	 * @return The requested input as a string.
 	 */
-	public static String obtainInput(String[] options, String description, boolean noLog)
+	public static String obtainInput(String[] options,
+			String description, boolean noLog)
 	{
 		String input;
-		String msg = description;
-		
-		if ( gui )
+		if ( isSystemRunningInGUI )
 		{
-			input = GuiConsole.requestInput(options, msg);
+			input = GuiConsole.requestInput(options, description);
 		} 
 		else
 		{
-			@SuppressWarnings("resource")
-			Scanner user_input = new Scanner( System.in );
-
+			/* Get a scanner if not already open. */
+			if ( USER_INPUT == null )
+				USER_INPUT = new Scanner( System.in );
+			/* Read in the user input. */
 			if ( noLog )
-				System.out.println(msg);
+			{
+				System.out.println(description);
+				for ( String option : options )
+					System.out.println("\t"+option);
+			}
 			else
-				Log.out(Tier.NORMAL, msg);
-			input = user_input.next( );
+			{
+				Log.out(Tier.CRITICAL, description);
+				for ( String option : options )
+					Log.out(Tier.CRITICAL, "\t"+option);
+			}
+			input = USER_INPUT.next();
 		}
-		msg = "Aquired input: " + input;
+		
+		String msg = "Aquired input: " + input;
 		if ( noLog )
 			System.out.println(msg);
 		else
@@ -115,13 +173,14 @@ public class Helper
 	
 	/**
 	 * obtain user input as string with logging on.
+	 * 
 	 * @param input
-	 * @param description
+	 * @param description Message describing the input needed.
 	 * @return
 	 */
 	public static String obtainInput(String input, String description)
 	{
-		return obtainInput(input, description, false);
+		return obtainInput(input, description, true);
 	}
 	
 	/**
@@ -144,41 +203,11 @@ public class Helper
 		{
 			Log.out(Tier.QUIET, "User input was not recognised, try:\n"
 					+ "[Confirming] \n" + 
-					Helper.stringAToString(confirmations()) + "\n"
+					Helper.stringAToString(confirmations) + "\n"
 					+ "[Rejections] \n" +
-					Helper.stringAToString(rejections()));
+					Helper.stringAToString(rejections));
 			return obtainInput(description, noLog);	
 		}
-	}
-	
-	/**
-	 * list of known confirmations.
-	 * @return
-	 */
-	public static String[] confirmations()
-	{
-		return new String[] {
-				"yes",
-				"y",
-				"Y",
-				"true",
-				"TRUE"				
-		};
-	}
-	
-	/**
-	 * List of known rejections
-	 * @return
-	 */
-	public static String[] rejections()
-	{
-		return new String[] {
-				"no",
-				"n",
-				"N",
-				"false",
-				"FALSE"
-		};
 	}
 	
 	/**
@@ -188,7 +217,7 @@ public class Helper
 	 */
 	public static boolean confirmation(String input)
 	{
-		for ( String s : confirmations() )
+		for ( String s : confirmations )
 			if ( s == input )
 				return true;
 		return false;
@@ -201,7 +230,7 @@ public class Helper
 	 */
 	public static boolean rejection(String input)
 	{
-		for ( String s : rejections() )
+		for ( String s : rejections )
 			if ( s == input )
 				return true;
 		return false;
@@ -230,19 +259,17 @@ public class Helper
 			return input;
 	}
 	
-	public static <T> boolean isNone( T input )
+	public static <T> boolean isNullOrEmpty( T input )
 	{
-		if (input == null || input == "")
-			return true;
-		else
-			return false;
+		return (input == null || input == "");
 	}
 	
 	
-	public static String obtainIfNone(String input, String description, boolean noLog, Collection<String> options)
+	public static String obtainIfNone(String input, String description,
+			boolean shouldLogMessage, Collection<String> options)
 	{
-		if( isNone(input) )
-			return obtainInput(options,description, noLog);
+		if( isNullOrEmpty(input) )
+			return obtainInput(options, description, shouldLogMessage);
 		else 
 			return input;
 	}
@@ -251,7 +278,8 @@ public class Helper
 	 * Delayed abort allows user to read abort statement before shutdown
 	 * @param delay
 	 */
-	public static void abort(int delay) {
+	public static void abort(int delay)
+	{
 		Log.out(Tier.CRITICAL, "Aborting..");
 		pause(delay);
 		System.exit(0);
@@ -264,9 +292,9 @@ public class Helper
 	public static void pause(int delay)
 	{
 		try {
-		    Thread.sleep(delay);
+			Thread.sleep(delay);
 		} catch(InterruptedException ex) {
-		    Thread.currentThread().interrupt();
+			Thread.currentThread().interrupt();
 		}
 	}
 	
@@ -425,4 +453,88 @@ public class Helper
 			out += lines[i] + "\n";
 		return out;
 	}
+	
+	public static Color obtainColor(String settingName, Properties properties, String defaultCol)
+	{
+		/* color vector, get color from config file, use default if not 
+		 * specified */
+		int[] color = Vector.intFromString( Helper.setIfNone( 
+				properties.getProperty( settingName ) , defaultCol) );
+		
+		/* return as color */
+		return new Color( color[0], color[1], color[2] );
+	}
+	
+	/**
+	 * \brief Select a spatial compartment from the simulator, asking for the
+	 * user's help if necessary.
+	 * 
+	 * @return A spatial compartment in the simulator.
+	 */
+	public static Compartment selectSpatialCompartment()
+	{
+		/* Identify the spatial compartments. */
+		List<String> names = Idynomics.simulator.getSpatialCompartmentNames();
+		Compartment c = null;
+		if ( names.isEmpty() )
+		{
+			/* Abort if no spatial compartment is available */
+			Log.printToScreen("No spatial compartments available.", false);
+		}
+		else if ( names.size() == 1 )
+		{
+			/* Return first compartment if only one is available. */
+			c = Idynomics.simulator.getCompartment(names.get(0));
+		}
+		else
+		{
+			/* Otherwise ask for user input. */
+			String s = Helper.obtainInput(names, "select compartment", false);
+			c = Idynomics.simulator.getCompartment(s);
+		}
+		return c;
+	}
+	
+	/**
+	 * \brief Select a compartment from the simulator, asking for the user's
+	 * help if necessary.
+	 * 
+	 * @return A compartment in the simulator.
+	 */
+	public static Compartment selectCompartment()
+	{
+		/* Identify all the compartments. */
+		List<String> names = Idynomics.simulator.getCompartmentNames();
+		if ( names.isEmpty() )
+		{
+			/* Return first compartment if only one is available. */
+			Log.printToScreen("No compartments available.", false);
+			return null;
+		}
+		else if ( names.size() == 1 )
+		{
+			/* render directly if only 1 compartment is available */
+			return Idynomics.simulator.getCompartment(names.get(0));
+		}
+		else
+		{
+			/* otherwise ask for user input */
+			String s = Helper.obtainInput(names, "select compartment", false);
+			return Idynomics.simulator.getCompartment(s);
+		}
+	}
+	
+	public static String removeWhitespace(String input)
+	{
+		return input.replaceAll("\\s+","");
+	}
+	
+	public static String[] copyStringA(String[] in)
+	{
+		String[] out = new String[in.length];
+		for ( int i = 0; i < in.length; i++ )
+			out[i] = in[i];
+		return out;
+	}
+
 }

@@ -1,13 +1,19 @@
 package grid;
 
+import static grid.ArrayType.DIFFUSIVITY;
+
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.w3c.dom.Element;
 
+import agent.Agent;
 import dataIO.Log;
 import dataIO.ObjectFactory;
 import dataIO.XmlHandler;
+import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
 import instantiable.Instantiable;
 import dataIO.Log.Tier;
@@ -21,6 +27,7 @@ import settable.Settable;
 import settable.Module.Requirements;
 import shape.Shape;
 import utility.ExtraMath;
+import utility.Helper;
 
 /**
  * \brief A SpatialGrid stores information about a variable over space.
@@ -98,6 +105,75 @@ public class SpatialGrid implements Settable, Instantiable
 	protected static final Tier GET_FLUX_WITH_NHB_LEVEL = Tier.BULK;
 	
 	/* ***********************************************************************
+	 * Diffusivity setting
+	 * **********************************************************************/
+
+	/**
+	 * Diffusivity for the suspension.
+	 */
+	protected double _defaultDiffusivity;
+	/**
+	 * Diffusivity for the biofilm.
+	 */
+	protected Double _biofilmDiffusivity;
+	/**
+	 * Indicates the minimum concentration of biomass in a grid cell before a
+	 * grid cell is considered part of a biofilm rather than suspension
+	 * (set to 0.0 for compatibility with iDynoMiCS 1).
+	 */
+	// TODO this is not currently used
+	protected double _threshold;
+	
+	protected DiffusivityType _diffusivity;
+	
+	public enum DiffusivityType
+	{
+		ALL_SAME,
+		
+		BIOMASS_SCALED
+	}
+
+	
+	public void updateDiffusivity(
+			EnvironmentContainer env, AgentContainer agents)
+	{
+		/*
+		 * Reset the diffusivity array.
+		 */
+		this.newArray(DIFFUSIVITY, this._defaultDiffusivity);
+		if (this._diffusivity == DiffusivityType.BIOMASS_SCALED)
+		{
+			/*
+			 * Iterate over the array, updating each voxel as it is visited.
+			 */
+			Shape shape = env.getShape();
+			int nDim = shape.getNumberOfDimensions();
+			double[] location = new double[nDim];
+			double[] dimension = new double[nDim];
+			int[] coord = shape.resetIterator();
+			while ( shape.isIteratorValid() )
+			{
+				/* Find all agents that overlap with this voxel. */
+				shape.voxelOriginTo(location, coord);
+				//FIXME this assumes Cartesian grids
+				//FIXME maybe easier to convert agents to polar coords and then sample?
+				shape.getVoxelSideLengthsTo(dimension, coord);
+				List<Agent> neighbors = agents.treeSearch(location, dimension);
+				/* If there are any agents in this voxel, update the diffusivity. */
+				if ( ! neighbors.isEmpty() )
+				{
+					// TODO Calculate the total biomass/concentration, see if above
+					// the threshold
+					this.setValueAt(
+								DIFFUSIVITY, coord, this._biofilmDiffusivity);
+				}
+				/* Move onto the next voxel. */
+				coord = shape.iteratorNext();
+			}
+		}
+	}
+	
+	/* ***********************************************************************
 	 * CONSTRUCTORS
 	 * **********************************************************************/
 
@@ -127,6 +203,8 @@ public class SpatialGrid implements Settable, Instantiable
 		this._name = name;
 		this._parentNode = parent;
 		this.newArray(ArrayType.CONCN, concentration);
+		this._defaultDiffusivity = 1.0;
+		this._diffusivity = DiffusivityType.ALL_SAME;
 	}
 	
 	public SpatialGrid(Element xmlElem, Settable parent)
@@ -135,7 +213,7 @@ public class SpatialGrid implements Settable, Instantiable
 	}
 	
 	public SpatialGrid() { 
-		//NOTE only used for ClassRef
+		
 	}
 
 	public void instantiate(Element xmlElem, Settable parent)
@@ -148,6 +226,28 @@ public class SpatialGrid implements Settable, Instantiable
 		String conc = XmlHandler.obtainAttribute((Element) xmlElem, 
 				XmlRef.concentration, this.defaultXmlTag());
 		this.setTo(ArrayType.CONCN, conc);
+		((EnvironmentContainer) parent).addSolute(this);
+		
+		String s;
+		
+		s = XmlHandler.obtainAttribute(xmlElem,
+				XmlRef.defaultDiffusivity, this.defaultXmlTag());
+		this._defaultDiffusivity = Double.valueOf(s);
+		
+		s = XmlHandler.gatherAttribute(xmlElem,
+				XmlRef.biofilmDiffusivity);
+		if ( Helper.isNullOrEmpty(s) || s.equals(this._defaultDiffusivity) )
+		{
+			this._diffusivity = DiffusivityType.ALL_SAME;
+			this._biofilmDiffusivity = this._defaultDiffusivity;
+		}
+		else
+		{
+			this._biofilmDiffusivity = Double.valueOf(s);
+			this._diffusivity = DiffusivityType.BIOMASS_SCALED;
+		}
+		
+		// TODO threshold
 	}
 
 	/* ***********************************************************************
@@ -168,6 +268,14 @@ public class SpatialGrid implements Settable, Instantiable
 	public Shape getShape()
 	{
 		return this._shape;
+	}
+	
+	/**
+	 * @return Types of all arrays present in this grid.
+	 */
+	public Set<ArrayType> getAllArrayTypes()
+	{
+		return this._array.keySet();
 	}
 	
 	/* ***********************************************************************
@@ -245,6 +353,16 @@ public class SpatialGrid implements Settable, Instantiable
 	public void setAllTo(ArrayType type, double value)
 	{
 		Array.setAll(this._array.get(type), value);
+	}
+	
+	/**
+	 * \brief Reset all values in the array specified to zero.
+	 * 
+	 * @param type Type of the array to reset.
+	 */
+	public void reset(ArrayType type)
+	{
+		this.setAllTo(type, 0.0);
 	}
 	
 	/**
@@ -369,6 +487,17 @@ public class SpatialGrid implements Settable, Instantiable
 	}
 	
 	/**
+	 * \brief Get the norm of the values in the array of given <b>type</b>.
+	 * 
+	 * @param type Type of the array to use.
+	 * @return Norm of all the elements of the array <b>type</b>.
+	 */
+	public double getNorm(ArrayType type)
+	{
+		return Array.norm(this._array.get(type));
+	}
+	
+	/**
 	 * \brief TODO
 	 * 
 	 * @param array
@@ -396,6 +525,20 @@ public class SpatialGrid implements Settable, Instantiable
 	public void addArrayToArray(ArrayType destination, ArrayType source)
 	{
 		Array.addEquals(this._array.get(destination), this._array.get(source));
+	}
+	
+	/**
+	 * \brief Subtract all elements of one array from those of another,
+	 * element-by-element.
+	 * 
+	 * @param destination Type of array to be overwritten with its own values
+	 * minus those of <b>source</b>.
+	 * @param source Type of array to use in decreasing <b>destination</b>.
+	 * The values of this array are preserved in this method.
+	 */
+	public void subtractArrayFromArray(ArrayType destination, ArrayType source)
+	{
+		Array.minusEquals(this._array.get(destination), this._array.get(source));
 	}
 
 	/* ***********************************************************************
@@ -527,7 +670,7 @@ public class SpatialGrid implements Settable, Instantiable
 		else
 		{
 			throw new IndexOutOfBoundsException(
-					"Tried to get grid value at neighbor"
+					"Tried to get grid value at neighbor "
 							+ Vector.toString(this._shape.nbhIteratorCurrent())
 							+ " of current coordinate "
 							+ Vector.toString(this._shape.iteratorCurrent())
@@ -540,9 +683,9 @@ public class SpatialGrid implements Settable, Instantiable
 	 * iterator voxel (may be negative).
 	 * 
 	 * <p>The flux from the neighboring voxel into the current one is given by
-	 * the formula <i>(c<sub>nhb</sub> - c<sub>itr</sub>) *
+	 * the formula <br><i>(c<sub>nhb</sub> - c<sub>itr</sub>) *
 	 * (D<sub>nhb</sub><sup>-1</sup> + D<sub>itr</sub><sup>-1</sup>)<sup>-1</sup>
-	 *  * d<sub>nhb,itr</sub><sup>-1</sup></i>
+	 *  * d<sub>nhb,itr</sub><sup>-1</sup></i><br>
 	 * where subscript <i>itr</i> denotes the current iterator voxel and
 	 * <i>nhb</i> the current neighbor voxel, and
 	 * <ul>
@@ -620,6 +763,62 @@ public class SpatialGrid implements Settable, Instantiable
 					Vector.toString(this._shape.iteratorCurrent())+
 					", neighbor "+
 					Vector.toString(this._shape.nbhIteratorCurrent()));
+			return Double.NaN;
+		}
+	}
+	
+	/**
+	 * \brief Calculate the time-scale of the diffusion from the neighbor voxel
+	 * into the current iterator voxel (always positive).
+	 * 
+	 * <p>The time-scale from the neighboring voxel into the current one is 
+	 * given by the formula <i>SA<sub>nhb,itr</sub> * V<sub>itr</sub> *
+	 * (D<sub>nhb</sub><sup>-1</sup> + D<sub>itr</sub><sup>-1</sup>)<sup>-1</sup>
+	 *  * d<sub>nhb,itr</sub><sup>-1</sup></i>
+	 * where subscript <i>itr</i> denotes the current iterator voxel and
+	 * <i>nhb</i> the current neighbor voxel, and
+	 * <ul>
+	 * <li><i>SA</i> is shared surface area of two voxels</li>
+	 * <li><i>V</i> is voxel volume</li>
+	 * <li><i>D</i> is voxel diffusivity</li>
+	 * <li><i>d</i> is distance between centres of two voxels</li>
+	 * </ul>
+	 * 
+	 * @return Time-scale of the diffusive flow from the neighbor voxel into
+	 * the current iterator voxel, in units of time.
+	 */
+	public double getDiffusiveTimeScaleWithNeighbor()
+	{
+		if ( this._shape.isNbhIteratorInside() )
+		{
+			/* Average diffusivity. */
+			double diffusivity = ExtraMath.harmonicMean(
+					this.getValueAtCurrent(ArrayType.DIFFUSIVITY),
+					this.getValueAtNhb(ArrayType.DIFFUSIVITY));
+			/* Surface are the two voxels share (in square microns). */
+			double sArea = this._shape.nhbCurrSharedArea();
+			/* Centre-centre distance. */
+			double dist = this._shape.nhbCurrDistance();
+			/* Current voxel volume. */
+			double volume = this._shape.getCurrVoxelVolume();
+			/* Calculate the the timescale from these values. */
+			return dist * volume * diffusivity / sArea;
+		}
+		else if ( this._shape.isIteratorValid() )
+		{
+			/* Average diffusivity. */
+			double diffusivity = this.getValueAtCurrent(ArrayType.DIFFUSIVITY);
+			/* Surface are the two voxels share (in square microns). */
+			double sArea = this._shape.nhbCurrSharedArea();
+			/* Centre-centre distance. */
+			double dist = this._shape.nhbCurrDistance();
+			/* Current voxel volume. */
+			double volume = this._shape.getCurrVoxelVolume();
+			/* Calculate the the timescale from these values. */
+			return dist * volume * diffusivity / sArea;
+		}
+		else
+		{
 			return Double.NaN;
 		}
 	}
@@ -761,6 +960,12 @@ public class SpatialGrid implements Settable, Instantiable
 				ObjectFactory.stringRepresentation(
 				this.getArray( ArrayType.CONCN )), null, true ));
 		
+		modelNode.add(new Attribute(XmlRef.defaultDiffusivity, 
+				String.valueOf(this._defaultDiffusivity), null, true ));
+		
+		modelNode.add(new Attribute(XmlRef.biofilmDiffusivity, 
+				String.valueOf(this._biofilmDiffusivity), null, true ));
+		
 		return modelNode;
 	}
 
@@ -770,6 +975,23 @@ public class SpatialGrid implements Settable, Instantiable
 		this._name = node.getAttribute( XmlRef.nameAttribute ).getValue();
 		this.setTo(ArrayType.CONCN, 
 				node.getAttribute(XmlRef.concentration).getValue());
+		
+		this._defaultDiffusivity = Double.valueOf( node.getAttribute( 
+				XmlRef.defaultDiffusivity ).getValue());
+		
+		Double biof = Double.valueOf( node.getAttribute( 
+				XmlRef.biofilmDiffusivity ).getValue());
+		if (Helper.isNullOrEmpty(biof) || biof.equals(this._defaultDiffusivity))
+		{
+			this._diffusivity = DiffusivityType.ALL_SAME;
+			this._biofilmDiffusivity = this._defaultDiffusivity;
+		}
+		else
+		{
+			this._diffusivity = DiffusivityType.BIOMASS_SCALED;
+			this._biofilmDiffusivity = biof;
+		}
+			
 	}
 
 	public void removeModule(String specifier) 

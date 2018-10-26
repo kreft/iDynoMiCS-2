@@ -1,10 +1,9 @@
 package shape.subvoxel;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import generalInterfaces.Copyable;
 
@@ -114,9 +113,9 @@ public class CoordinateMap implements Copyable
 	 * 
 	 * @return Set of all coordinate keys.
 	 */
-	public Set<int[]> keySet()
+	public Collection<int[]> keySet()
 	{
-		Set<int[]> out = new HashSet<int[]>();
+		Collection<int[]> out = new ArrayList<int[]>(this._map.size());
 		for ( List<Integer> key : this._map.keySet() )
 			out.add(getCoord(key));
 		return out;

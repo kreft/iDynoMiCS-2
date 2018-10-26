@@ -36,7 +36,7 @@ public class PovExport implements GraphicalExporter
 	 */
 	private String DigitFilenr(int filenr) {
 		String apzero = String.valueOf(filenr);
-		for(int i = 0; i < 4-String.valueOf(filenr).length(); i++)
+		for(int i = 0; i < 6-String.valueOf(filenr).length(); i++)
 			apzero = "0" + apzero;
 		return apzero;
 	}
@@ -66,7 +66,8 @@ public class PovExport implements GraphicalExporter
 	public void createFile(String prefix)
 	{
 		String fileString = Idynomics.global.outputLocation + prefix + "/" 
-				+ prefix + "_" + DigitFilenr(_filewriterfilenr) + ".pov";
+				+ prefix + "_" + Idynomics.simulator.timer.getCurrentIteration()
+				+ "_" + DigitFilenr(_filewriterfilenr) + ".pov";
 		_povFile.fnew(fileString);
 
 		Log.out(Tier.EXPRESSIVE, "Writing new file: " + fileString);

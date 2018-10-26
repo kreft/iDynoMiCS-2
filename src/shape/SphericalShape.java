@@ -12,7 +12,7 @@ import shape.Dimension.DimName;
 import shape.ShapeConventions.SingleVoxel;
 import shape.iterator.ShapeIterator;
 import shape.iterator.SphericalShapeIterator;
-import shape.resolution.ResolutionCalculator.ResCalc;
+import shape.resolution.ResolutionCalculator;
 import surface.Ball;
 import surface.Point;
 import utility.ExtraMath;
@@ -28,7 +28,7 @@ public abstract class SphericalShape extends Shape
 	/**
 	 * Collection of resolution calculators for each dimension.
 	 */
-	protected ResCalc[][][] _resCalc;
+	protected ResolutionCalculator[][][] _resCalc;
 	
 	/* ***********************************************************************
 	 * CONSTRUCTION
@@ -40,7 +40,7 @@ public abstract class SphericalShape extends Shape
 		/*
 		 * Set up the array of resolution calculators.
 		 */
-		this._resCalc = new ResCalc[3][][];
+		this._resCalc = new ResolutionCalculator[3][][];
 		/*
 		 * Set up the dimensions.
 		 */
@@ -50,27 +50,22 @@ public abstract class SphericalShape extends Shape
 		dim = new Dimension(true, R); 
 		dim.setBoundaryOptional(0);
 		this._dimensions.put(R, dim);
-		this._resCalc[getDimensionIndex(R)] = new ResCalc[1][1];
+		this._resCalc[getDimensionIndex(R)] = new ResolutionCalculator[1][1];
+		this._resCalc[getDimensionIndex(R)][0][0] = new SingleVoxel(dim);
 		/*
 		 * Phi must always be significant and non-cyclic.
 		 */
 		dim = new Dimension(true, PHI);
 		this._dimensions.put(PHI, dim);
-		this._resCalc[getDimensionIndex(PHI)] = new ResCalc[1][1];
-		
+		this._resCalc[getDimensionIndex(PHI)] = new ResolutionCalculator[1][1];
+		this._resCalc[getDimensionIndex(PHI)][0][0] = new SingleVoxel(dim);
 		/*
 		 * The phi-dimension is insignificant, unless told otherwise later.
 		 */
 		dim = new Dimension(false, THETA);
 		this._dimensions.put(THETA, dim);
-		this._resCalc[getDimensionIndex(THETA)] = new ResCalc[1][1];
-		
-		for ( int i = 0; i < 3; i++ )
-		{
-			SingleVoxel sV = new SingleVoxel();
-			sV.init(1.0, 0.0, 1.0);
-			this._resCalc[i][0][0] = sV;
-		}
+		this._resCalc[getDimensionIndex(THETA)] = new ResolutionCalculator[1][1];
+		this._resCalc[getDimensionIndex(THETA)][0][0] = new SingleVoxel(dim);
 		
 		this._it = this.getNewIterator();
 	}
@@ -155,6 +150,11 @@ public abstract class SphericalShape extends Shape
 		return volMax - volMin;
 	}
 	
+	public void setTotalVolume( double volume)
+	{
+		Log.out(Tier.CRITICAL, "Cannot adjust Spherical shape volume" );
+	}
+	
 	private static final double volConeCap(double r, double theta, double phi)
 	{
 		/* No point doing the calculation if we know it will be zero. */
@@ -198,12 +198,12 @@ public abstract class SphericalShape extends Shape
 	 * **********************************************************************/
 	
 	@Override
-	public void setDimensionResolution(DimName dName, ResCalc resC)
+	public void setDimensionResolution(DimName dName, ResolutionCalculator resC)
 	{
 		int index = this.getDimensionIndex(dName);
-		ResCalc radiusC = this._resCalc[0][0][0];
+		ResolutionCalculator radiusC = this._resCalc[0][0][0];
 		int nShell;
-		ResCalc focalResCalc;
+		ResolutionCalculator focalResCalc;
 		/*
 		 * How we initialise this resolution calculator depends on the
 		 * dimension it is used for.
@@ -228,12 +228,12 @@ public abstract class SphericalShape extends Shape
 			}
 			nShell = radiusC.getNVoxel();
 			int rMin = (int)this.getDimension(R).getExtreme(0);
-			this._resCalc[1][0] = new ResCalc[nShell];
+			this._resCalc[1][0] = new ResolutionCalculator[nShell];
 			for ( int i = 0; i < nShell; i++ )
 			{
-				focalResCalc = (ResCalc) resC.copy();
+				focalResCalc = (ResolutionCalculator) resC.copy();
 				double res = ShapeHelper.scaleResolutionForShell(
-						rMin+i, resC.getResolution(0));
+						rMin+i, resC.getResolution());
 				focalResCalc.setResolution(res);
 				this._resCalc[1][0][i] = focalResCalc;
 			}
@@ -243,7 +243,7 @@ public abstract class SphericalShape extends Shape
 		}
 		case THETA:
 		{
-			ResCalc[] phiC = this._resCalc[1][0];
+			ResolutionCalculator[] phiC = this._resCalc[1][0];
 			/* If R or PHI only store a single voxel, they are most 
 			 * probably not set already -> check again later */
 			if ( radiusC.getNVoxel() == 1 || phiC[phiC.length - 1].getNVoxel() == 1 )
@@ -259,8 +259,8 @@ public abstract class SphericalShape extends Shape
 			
 			/* NOTE For varying resolution this has to be adjusted */
 			int rMin = (int) (this.getDimension(R).getExtreme(0) 
-					/ radiusC.getResolution(0));
-			this._resCalc[2] = new ResCalc[nShell][];
+					/ radiusC.getResolution());
+			this._resCalc[2] = new ResolutionCalculator[nShell][];
 			/* Iterate over the shells. */
 			int nRing;
 			for ( int shell = 0; shell < nShell; shell++ )
@@ -269,16 +269,16 @@ public abstract class SphericalShape extends Shape
 				nRing = phiC[shell].getNVoxel();
 				/* NOTE For varying resolution this has to be adjusted */
 				int phiMin = (int)(this.getDimension(PHI).getExtreme(0) 
-						/ phiC[shell].getResolution(0));
-				this._resCalc[2][shell] = new ResCalc[nRing];
+						/ phiC[shell].getResolution());
+				this._resCalc[2][shell] = new ResolutionCalculator[nRing];
 				/* Iterate over the rings in this shell. */
 				for ( int ring = 0; ring < nRing; ring++ )
 				{
-					focalResCalc = (ResCalc) resC.copy();
+					focalResCalc = (ResolutionCalculator) resC.copy();
 					/* NOTE For varying resolution this will not work anymore */
 					double res = ShapeHelper.scaleResolutionForRing(rMin+shell,
-							phiMin+ring, phiC[shell].getResolution(0),
-							resC.getResolution(0));
+							phiMin+ring, phiC[shell].getResolution(),
+							resC.getResolution());
 					focalResCalc.setResolution(res);
 					this._resCalc[2][shell][ring] = focalResCalc;
 				}
@@ -292,7 +292,7 @@ public abstract class SphericalShape extends Shape
 	}
 	
 	@Override
-	public ResCalc getResolutionCalculator(int[] coord, int axis)
+	public ResolutionCalculator getResolutionCalculator(int[] coord, int axis)
 	{
 		switch ( axis )
 		{
@@ -444,6 +444,23 @@ public abstract class SphericalShape extends Shape
 	 * VOXELS
 	 * **********************************************************************/
 	
+	@Override
+	public int getTotalNumberOfVoxels()
+	{
+		int n = 1;
+		int dimTheta = this.getDimensionIndex(THETA);
+		int dimPhi = this.getDimensionIndex(PHI);
+		int nR = this._resCalc[this.getDimensionIndex(R)][0][0].getNVoxel();
+		for ( int i = 0; i < nR; i++ )
+		{
+			int nPhi = this._resCalc[dimPhi][i][0].getNVoxel();
+			for ( int j = 0; j < nPhi; j++ )
+				n += this._resCalc[dimTheta][i][j].getNVoxel();
+		}
+		return n;
+	}
+	
+	@Override
 	public double getVoxelVolume(double[] origin, double[] upper)
 	{
 		/* R */
@@ -514,5 +531,21 @@ public abstract class SphericalShape extends Shape
 		Log.out(level, "    r1 is "+r1+", phi1 is "+phi1+ ", theta1 is "+theta1
 				+ ", r2 is "+r2+", phi2 is "+phi2+ ", theta2 is "+theta2);
 		return area;
+	}
+	
+	/* ***********************************************************************
+	 * MULTIGRID CONSTRUCTION
+	 * **********************************************************************/
+	
+	@Override
+	public boolean canGenerateCoarserMultigridLayer()
+	{
+		return false;
+	}
+	
+	@Override
+	public Shape generateCoarserMultigridLayer()
+	{
+		return null;
 	}
 }

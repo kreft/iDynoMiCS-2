@@ -8,6 +8,8 @@ import dataIO.Log.Tier;
 /**
  * \brief Aspect name references.
  * 
+ * NOTE: If we want to allow overwriting the AspectRef's cannot be final.
+ * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
 public class AspectRef
@@ -91,6 +93,9 @@ public class AspectRef
 	/**
 	 * the solute name for the default BiomassGrid (the grid in which all 
 	 * biomass/biofilm is represented
+	 * 
+	 * FIXME: consider renaming to something less generic than "biomass" (also
+	 * update the test protocols if done so).
 	 */
 	public final static String defaultBiomassGrid = "biomass";
 	
@@ -98,7 +103,14 @@ public class AspectRef
 	 * List of names of events each agent should perform during a process
 	 * manager step.
 	 */
-	public static String agentEventNames = "eventNames";
+	public final static String agentEventNames = "eventNames";
+
+	/**
+	 * generic spine function { @Link aspect.calculated.ComponentExpression } 
+	 * for rods in compartment that do not have a individual spine function
+	 * defined
+	 */
+	public final static String genreicSpineFunction = "genreicSpineFunction";
 	
 	/**
 	 * list with reactions owned by the agent
@@ -110,6 +122,11 @@ public class AspectRef
 	 * TODO
 	 */
 	public final static String agentMass = "mass";
+	
+	/**
+	 * TODO
+	 */
+	public final static String agentMassMap = "massMap";
 	
 	/**
 	 * Agent mass that should trigger division.
@@ -349,5 +366,93 @@ public class AspectRef
 	 * Agent can't move
 	 */
 	public final static String staticAgent = "staticAgent";
+
+	/**
+	 * 
+	 */
+	public static final String tableSpecification = "tableSpecification";
+
+	/**
+	 * Threshold on which the system may be considered fully relaxed
+	 */
+	public static final String stressThreshold = "stressThreshold";
+
+	/**
+	 * Rod agent spine stiffness
+	 */
+	public static final String spineStiffness = "spineStiffness";
+
+	/**
+	 * testing some gravity buoyancy implementation
+	 */
+	public static final String gravity_testing = "gravity_testing";
+	
+	/**
+	 * List of plasmids for which the conjugation and segregation loss are
+	 * applicable.
+	 */
+	public static final String plasmidList= "plasmids";
+	
+	/**
+	 * Fitness cost to the growth rate of the agent with plasmids.
+	 */
+	public static final String agentFitnessCost = "fitness_cost";
+	
+	/**
+	 * Plasmid loss due to segregation event name.
+	 */
+	public static final String agentPlasmidLoss = "plasmidLoss";
+	
+	//Plasmid related aspects: These are defined as items in each plasmid aspect.	
+	/**
+	 * Transfer probability of the plasmid.
+	 */
+	public final static String transferProbability = "transfer_probability";
+	
+	/**
+	 * Loss probability due to segregation at cell division.
+	 */
+	public final static String lossProbability = "loss_probability";
+	
+	/**
+	 * Copy number of the plasmid.
+	 */
+	public final static String copyNumber = "copy";
+	
+	/**
+	 * Pilus length of the plasmid.
+	 */
+	public final static String pilusLength = "pili_length";
+	
+	/**
+	 * Transfer frequency of the plasmid in a well-mixed environment.
+	 */
+	public final static String transferFrequency = "transfer_frequency";
+	
+	/**
+	 * Which of the aspects from the donot agent will be transfered to
+	 * recipient with the plasmid
+	 */
+	public final static String aspectsToTransfer = "aspects_change";
+	
+	/**
+	 * Cool down period for the agent before it can undergo conjugation again.
+	 */
+	public final static String coolDownPeriod = "cool_down";
+
+	/**
+	 * Process manager output filename
+	 */
+	public static final String fileName = "fileName";
+
+	/**
+	 * Include header in csv out.
+	 */
+	public static final String includeHeader = "includeHeader";
+
+	/**
+	 * 
+	 */
+	public static final String WetDryRatio = "WetDryRatio";
 
 }
