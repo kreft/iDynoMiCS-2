@@ -2,6 +2,11 @@ package shape.resolution;
 
 import shape.Dimension;
 
+/**
+ * TODO description and author information
+ * @author
+ *
+ */
 public class UniformResolution extends ResolutionCalculator
 {
 	public UniformResolution()

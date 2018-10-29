@@ -164,7 +164,8 @@ public class Dimension implements CanPrelaunchCheck, Settable,
 			val = Math.toRadians(val);
 		this.setExtreme(val, 1);
 		
-		/* Set the real max from xml or equal to the compartment size. */
+		/* Set the real max from xml or equal to the compartment size. 
+		 * NOTE please add comments, what is the difference between real max and max? arent they both real?*/
 		str = XmlHandler.gatherAttribute(elem, XmlRef.realMax);
 		if ( !Helper.isNullOrEmpty(str) )
 		{
