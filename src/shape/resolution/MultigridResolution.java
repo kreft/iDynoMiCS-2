@@ -6,7 +6,7 @@ import utility.ExtraMath;
 
 /**
  * TODO description and author information
- * @author
+ * @author Stefan Lang @ Robert Clegg?
  *
  */
 public class MultigridResolution extends ResolutionCalculator
