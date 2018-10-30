@@ -339,7 +339,9 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 	
 	public void run()
 	{
+		/* start storing log on disk */
 		Log.out(Tier.NORMAL, "Launching simulation!");
+		Log.keep();
 		/*
 		 * Start timing just before simulation starts.
 		 */

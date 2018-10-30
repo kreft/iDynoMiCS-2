@@ -82,18 +82,21 @@ public final class GuiMenu
 		menu.add(menuItem);
 		/*
 		 * Output level.
-		 */
-		menu.addSeparator();
-		levelMenu = new JMenu("OutputLevel");
-		levelMenu.setMnemonic(KeyEvent.VK_L);
-		ButtonGroup group = new ButtonGroup();
-		for ( Log.Tier t : Log.Tier.values() )
-		{
-			rbMenuItem = new JRadioButtonMenuItem(new GuiMenu.LogTier(t));
-			group.add(rbMenuItem);
-			levelMenu.add(rbMenuItem);
-		}
-		menu.add(levelMenu);
+		 * NOTE this will not work through the menu bar, instead edit trough
+		 * simulation state.		 
+			menu.addSeparator();
+			levelMenu = new JMenu("OutputLevel");
+			levelMenu.setMnemonic(KeyEvent.VK_L);
+			ButtonGroup group = new ButtonGroup();
+			for ( Log.Tier t : Log.Tier.values() )
+			{
+				rbMenuItem = new JRadioButtonMenuItem(new GuiMenu.LogTier(t));
+				group.add(rbMenuItem);
+				levelMenu.add(rbMenuItem);
+			}
+			menu.add(levelMenu);
+		*/
+		
 		/*
 		 * Master protocol sampling
 		 */
