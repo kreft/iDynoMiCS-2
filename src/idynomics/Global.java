@@ -219,9 +219,6 @@ public class Global extends ParameterSet
 	 */
 	public static String[] supplementary_property_files;
 
-	public static double densityScale = 1.0;
-
-
 	/**************************************************************************
 	 * Appearance
 	 *************************************************************************/
@@ -246,6 +243,16 @@ public class Global extends ParameterSet
 	public static double relativeThresholdWellMixedness = 0.9;
 	
 	/**
+	 * TODO
+	 */
+	public static double densityScale = 1.0;
+	
+	/**
+	 * dynamic viscosity of the medium
+	 */
+	public static double dynamic_viscosity = 0.0;
+	
+	/**
 	 * 
 	 */
 	public static double collision_scalar = 0.0;
@@ -268,11 +275,6 @@ public class Global extends ParameterSet
 	public static double agent_stress_scaling = 100000;
 	
 	/**
-	 * dynamic viscosity of the medium
-	 */
-	public static double dynamic_viscosity = 0.0;
-	
-	/**
 	 * pass additional collision variables (required for more advanced collision
 	 * models but may cause slight slow down for models that do not use them).
 	 */
@@ -289,4 +291,26 @@ public class Global extends ParameterSet
 	 */
 	public static String attraction_model = 
 			surface.collision.model.DefaultPullFunction.class.getName();
+	
+	/**
+	 * Default base time step.
+	 */
+	public static double mechanical_base_step = 0.0003;
+	
+	/* 
+	 * Default maximum displacement per step, set default if none.
+	 */
+	public static double mechanical_max_movement = 0.01;
+	
+	/* 
+	 * Default maximum displacement per step, set default if none.
+	 */
+	public static double mechanical_max_iterations = 10000;
+	
+	/*
+	 * Default mechanical stress threshold at which a system may be considered
+	 * relaxed.
+	 */
+	public static double mechanical_low_stress_skip = 0.0;
+	
 }
