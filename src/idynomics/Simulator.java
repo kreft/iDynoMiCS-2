@@ -51,6 +51,8 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 	 */
 	public Timer timer;
 	
+	public boolean interupt = false;
+	
 	/**
 	 * Xml output writer
 	 */
@@ -287,7 +289,11 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 		 * Loop through all compartments, calling their internal steps.
 		 */
 		for ( Compartment c : this._compartments )
+		{
 			c.step();
+			if(this.interupt)
+				return;
+		}
 
 		/*
 		 * Once this is done loop through all again, this time exchanging
@@ -342,32 +348,54 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 		for ( Compartment c : this._compartments )
 			c.checkBoundaryConnections(this._compartments);
 		/* Run the simulation. */
-		while ( this.timer.isRunning() )
+		while ( this.timer.isRunning() && !this.interupt )
 			this.step();
-		/*
-		 * Print the simulation results.
-		 */
-		this.printAll();
-		/*
-		 * Run report file.
-		 */
-		Report report = new Report();
-		report.createCustomFile("report");
-		report.writeReport();
-		report.closeFile();
 		
-		/*
-		 * Report simulation time.
-		 */
-		tic = (System.currentTimeMillis() - tic) * 0.001;
-		Log.out(Tier.QUIET, "Simulation finished in " + tic + " seconds\n"+
-				"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-				+ "~~~~~~~~~~~~~~~~~~~~~~~~\n");
-		this.printProcessManagerRealTimeStats();
-		
-		/* execute exit command if any */
-		if( !Helper.isNullOrEmpty( Global.exitCommand ) )
-			Helper.executeCommand( Global.exitCommand );
+		if ( this.interupt )
+		{
+			tic = (System.currentTimeMillis() - tic) * 0.001;
+			Log.out(Tier.QUIET, "Simulation terminated in "+ tic +" seconds\n"+
+					"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+					+ "~~~~~~~~~~~~~~~~~~~~~~~~\n");
+		}
+		else
+		{
+			/*
+			 * Print the simulation results.
+			 */
+			this.printAll();
+			/*
+			 * Run report file.
+			 */
+			Report report = new Report();
+			report.createCustomFile("report");
+			report.writeReport();
+			report.closeFile();
+			
+			/*
+			 * Report simulation time.
+			 */
+			tic = (System.currentTimeMillis() - tic) * 0.001;
+			Log.out(Tier.QUIET, "Simulation finished in " + tic + " seconds\n"+
+					"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+					+ "~~~~~~~~~~~~~~~~~~~~~~~~\n");
+			this.printProcessManagerRealTimeStats();
+			
+			/* execute exit command if any */
+			if( !Helper.isNullOrEmpty( Global.exitCommand ) )
+				Helper.executeCommand( Global.exitCommand );
+		}
+	}
+	
+	public void interupt(String message)
+	{
+		this.interupt = true;
+	}
+	
+
+	public boolean active() 
+	{
+		return !this.interupt;
 	}
 	
 	/* ***********************************************************************

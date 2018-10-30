@@ -267,6 +267,8 @@ public abstract class ProcessManager implements Instantiable, AspectInterface,
 		 * this._timeStepSize may change if an adaptive timestep is used.
 		 */
 		this.internalStep();
+		if ( !Idynomics.simulator.active())
+			return;
 		/*
 		 * Move the time for next step forward by the step size.
 		 */

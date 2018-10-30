@@ -15,6 +15,7 @@ import expression.Expression;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
 import idynomics.Global;
+import idynomics.Idynomics;
 import linearAlgebra.Vector;
 import processManager.ProcessManager;
 import referenceLibrary.AspectRef;
@@ -250,7 +251,7 @@ public class AgentRelaxation extends ProcessManager
 			this.updateForces( this._agents );
 			
 			/* adjust step size unless static step size is forced */
-			if( !this._dtStatic && this._method != Method.SHOVE )
+			if( !this._dtStatic || this._method == Method.SHOVE )
 			{
 				/* obtain current highest particle velocity and highest force */
 				vs = 0.0;
@@ -276,6 +277,13 @@ public class AgentRelaxation extends ProcessManager
 					if ( Math.sqrt(st) * Global.agent_stress_scaling < 
 							_stressThreshold )
 						break;
+				} else if ( this._method == Method.SHOVE )
+				{
+					Log.out(Tier.CRITICAL, AspectRef.stressThreshold + " must "
+							+ "be set for relaxation method " + 
+							Method.SHOVE.toString() );
+					Idynomics.simulator.interupt(null);
+					return;
 				}
 	
 				/* When stochastic movement is enabled update vs to represent 

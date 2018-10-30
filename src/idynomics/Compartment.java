@@ -451,7 +451,8 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable
 			return;
 		ProcessManager currentProcess = this._processes.getFirst();
 		while ( (this._localTime = currentProcess.getTimeForNextStep() ) 
-					< Idynomics.simulator.timer.getEndOfCurrentIteration() )
+					< Idynomics.simulator.timer.getEndOfCurrentIteration() &&
+					Idynomics.simulator.active() )
 		{
 			Log.out(Tier.BULK, "Compartment "+this.name+
 								" running process "+currentProcess.getName()+
