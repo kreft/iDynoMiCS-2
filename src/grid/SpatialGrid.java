@@ -155,17 +155,18 @@ public class SpatialGrid implements Settable, Instantiable
 			{
 				/* Find all agents that overlap with this voxel. */
 				shape.voxelOriginTo(location, coord);
-				//FIXME this assumes Cartesian grids
-				//FIXME maybe easier to convert agents to polar coords and then sample?
+				
+				/* FIXME this assumes Cartesian grids  */
 				shape.getVoxelSideLengthsTo(dimension, coord);
 				List<Agent> neighbors = agents.treeSearch(location, dimension);
-				/* If there are any agents in this voxel, update the diffusivity. */
+				/* If there are any agents in this voxel, update the 
+				 * diffusivity. */
 				if ( ! neighbors.isEmpty() )
 				{
-					// TODO Calculate the total biomass/concentration, see if above
-					// the threshold
-					this.setValueAt(
-								DIFFUSIVITY, coord, this._biofilmDiffusivity);
+					/* TODO Calculate the total biomass/concentration, see if 
+					 * above the threshold */
+					this.setValueAt(DIFFUSIVITY, coord, 
+							this._biofilmDiffusivity);
 				}
 				/* Move onto the next voxel. */
 				coord = shape.iteratorNext();
@@ -218,24 +219,30 @@ public class SpatialGrid implements Settable, Instantiable
 
 	public void instantiate(Element xmlElem, Settable parent)
 	{
+		/* Set associated object, naming and initial values */
 		this._shape = ((EnvironmentContainer) parent).getShape();
 		this._parentNode = parent;
 		this._name = XmlHandler.obtainAttribute(xmlElem, 
 				XmlRef.nameAttribute, this.defaultXmlTag());
+		
+		/* TODO should every grid always be instantiated as CONCN grid? */
 		this.newArray(ArrayType.CONCN, 0.0);
 		String conc = XmlHandler.obtainAttribute((Element) xmlElem, 
 				XmlRef.concentration, this.defaultXmlTag());
 		this.setTo(ArrayType.CONCN, conc);
 		((EnvironmentContainer) parent).addSolute(this);
 		
+		/* Set default and biofilm diffusivity */
 		String s;
-		
 		s = XmlHandler.obtainAttribute(xmlElem,
 				XmlRef.defaultDiffusivity, this.defaultXmlTag());
 		this._defaultDiffusivity = Double.valueOf(s);
-		
 		s = XmlHandler.gatherAttribute(xmlElem,
 				XmlRef.biofilmDiffusivity);
+		
+		/* identify whether biofilm diffusivity should be considered identical
+		 * to default diffusivity (in this case there is no need to identify
+		 * the biofilm region */
 		if ( Helper.isNullOrEmpty(s) || s.equals(this._defaultDiffusivity) )
 		{
 			this._diffusivity = DiffusivityType.ALL_SAME;

@@ -256,6 +256,18 @@ public class Global extends ParameterSet
 	public static double pull_scalar = 0.0;
 	
 	/**
+	 * 
+	 */
+	public static double agent_move_safety = 0.001;
+	
+	/**
+	 * stress scaling introduced to prevent incompatibility with old protocol
+	 * files that use the old function, this should be 1 for all new protocol
+	 * files and should be removed as soon as all protocols have been updated.
+	 */
+	public static double agent_stress_scaling = 100000;
+	
+	/**
 	 * dynamic viscosity of the medium
 	 */
 	public static double dynamic_viscosity = 0.0;

@@ -386,6 +386,12 @@ public abstract class ProcessDiffusion extends ProcessManager
 				}
 				mapOfMaps = (Map<Shape, CoordinateMap>) a.getValue(VD_TAG);
 				distributionMap = mapOfMaps.get(shape);
+				/*
+				 * FIXME this should really only evaluate collisions with local
+				 * subgridpoints rather than all subgrid points in the domain.
+				 * With a rib length of 0.25 * radius_smallest_agent this can
+				 * result in 10^8 - 10^10 or more evaluations per agent!!
+				 */
 				sgLoop: for ( SubvoxelPoint p : svPoints )
 				{
 					/* Only give location in significant dimensions. */
