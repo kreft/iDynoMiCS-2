@@ -143,6 +143,7 @@ public class Log
 		if ( Idynomics.global.outputLocation != null && !_logFile.isReady() && 
 				!suspend )
 			setupFile();
+		Log.out(Tier.NORMAL, "Log output level was set to " + level.toString());
 	}
 	
 	/**
@@ -170,7 +171,8 @@ public class Log
 		{
 			 _outputLevel = Tier.NORMAL;
 			 set(Tier.NORMAL);
-			 out(Tier.NORMAL,"No output level set, using NORMAL be default");
+			 out(Tier.NORMAL,"Reporting at default log level " + _outputLevel +
+					 " as simulation level was not yet identified.");
 			 /* NOTE: This would only happen if a out call is made before the
 			  * log is properly set up (and thus set(Tier) has not yet been
 			  * called. Please use System.out.println() for any important
