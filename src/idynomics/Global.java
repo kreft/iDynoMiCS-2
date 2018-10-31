@@ -305,7 +305,7 @@ public class Global extends ParameterSet
 	/* 
 	 * Default maximum displacement per step, set default if none.
 	 */
-	public static double mechanical_max_iterations = 10000;
+	public static Integer mechanical_max_iterations = 10000;
 	
 	/*
 	 * Default mechanical stress threshold at which a system may be considered
