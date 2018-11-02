@@ -11,6 +11,7 @@ import aspect.AspectInterface;
 import aspect.Event;
 import dataIO.Log;
 import dataIO.Log.Tier;
+import idynomics.Idynomics;
 import processManager.library.PlasmidDynamics;
 import referenceLibrary.AspectRef;
 import utility.ExtraMath;
@@ -28,7 +29,6 @@ public class PlasmidLoss extends Event {
 	@SuppressWarnings("unchecked")
 	@Override
 	public void start(AspectInterface initiator, AspectInterface compliant, Double timeStep) {
-		// TODO Auto-generated method stub
 		Agent justBorn = (Agent) initiator;
 		Iterator<Object> plasmidItrtr = PlasmidDynamics.getAllPlasmids().iterator();
 		while(plasmidItrtr.hasNext()) {
@@ -47,6 +47,9 @@ public class PlasmidLoss extends Event {
 						String keyName = aspectName + "_on_loss";
 						justBorn.set(aspectName, plasmidParams.get(keyName));
 					}
+				}
+				else {
+					PlasmidDynamics.addToPreviousConjugated(justBorn, Idynomics.simulator.timer.getCurrentTime());
 				}
 			}
 		}

@@ -61,7 +61,7 @@
 				<dimension name="X" isCyclic="false" targetResolution="1.0" max="16.0"></dimension>
 				<dimension name="Y" isCyclic="false" targetResolution="1.0" max="16.0">
 					<boundary extreme="0" class="SolidBoundary" />
-					<boundary extreme="1" class="BiofilmBoundaryLayer" partnerCompartment="chemostat" layerThickness="12" />
+					<boundary extreme="1" class="BiofilmBoundaryLayer" partnerCompartment="chemostat" layerThickness="4" />
 				</dimension>
 			</shape>
 			<solutes>
@@ -82,7 +82,8 @@
 			<processManagers>
 				<!-- ms -->
 				<process name="SolveDiffusionSteadyState" class="SolveDiffusionSteadyState" priority="1" firstStep="0.0" timerStepSize="0.1">
-					<aspect name="tolerance" type="PRIMARY" class="Double" value="1.0e-4" />
+					<aspect name="absoluteTolerance" type="PRIMARY" class="Double" value="1.0e-6" />
+					<aspect name="relativeTolerance" type="PRIMARY" class="Double" value="1.0e-4" />
 					<aspect name="soluteNames" type="PRIMARY" class="String[]" value="hydrogen,solute2" /> 
 					<!-- µm^2 ms^-1-->
 				</process>

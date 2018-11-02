@@ -134,8 +134,9 @@ public abstract class ProcessDiffusion extends ProcessManager
 		Collection<Shape> shapes = 
 				this._solver.getShapesForAgentMassDistributionMaps(
 						this._environment.getCommonGrid());
-		for ( Shape shape : shapes )
-			this.setupAgentDistributionMaps(shape);
+		Shape shape = shapes.iterator().next();
+		this.setupAgentDistributionMaps(shape);
+		this.copyAgentDistributionMaps(shapes, shape);
 		/*
 		 * Get the environment to update its well-mixed array by querying all
 		 * spatial boundaries.
@@ -162,8 +163,8 @@ public abstract class ProcessDiffusion extends ProcessManager
 		 * tidy up 
 		 */
 	}
-	
-	 protected abstract PDEupdater standardUpdater();
+
+	protected abstract PDEupdater standardUpdater();
 	
 	 /*
 	 * perform final clean-up and update agents to represent updated situation.
@@ -409,6 +410,53 @@ public abstract class ProcessDiffusion extends ProcessManager
 			}
 		}
 		Log.out(level, "Finished setting up agent distribution maps");
+	}
+	
+	@SuppressWarnings("unchecked")
+	private void copyAgentDistributionMaps(Collection<Shape> shapes, Shape finest)
+	{
+		// Skip for transient solver
+		if (shapes.size() == 1)
+			return;
+		for (Shape shape : shapes)
+		{
+			// Already solved for finest so skip
+			if (shape.equals(finest))
+				continue;
+			Map<Shape, CoordinateMap> mapOfMaps;
+			CoordinateMap distributionMap, finestDistributionMap;
+			for ( Agent a : this._agents.getAllLocatedAgents() )
+			{
+				// For agents with no reactions or body, skip
+				if ( ! a.isAspect(AspectRef.agentReactions) )
+					continue;
+				if ( ! a.isAspect(AspectRef.surfaceList) )
+					continue;
+				// Should have this set, but doesn't hurt to check
+				if ( a.isAspect(VD_TAG) )
+					mapOfMaps = (Map<Shape, CoordinateMap>)a.get(VD_TAG);
+				else
+					continue;
+				mapOfMaps.put(shape, new CoordinateMap());
+				a.set(VD_TAG, mapOfMaps);
+				// distribution map for the current shape with nVoxels > finest
+				distributionMap = mapOfMaps.get(shape);
+				// distribution map of the finest grid. 
+				// Should have values, which we will use to update the coarser grids.
+				finestDistributionMap = mapOfMaps.get(finest);
+				Collection<int[]> coordsWithValues = finestDistributionMap.keySet();
+				for ( int[] coord : coordsWithValues )
+				{
+					// Calculate the global location of the coordinates in the distribution map of finest grid
+					double[] globalLocVoxel = finest.getGlobalLocation(finest.getVoxelOrigin(coord));
+					// Get the coordinates for the current grid
+					int[] coordInCurrentShape = shape.getCoords(shape.getLocalPosition(globalLocVoxel));
+					// Increase the volume of the current coordinates using the volume from the finest grid.
+					// This should ensure that each point on the finest grid inside the current voxel, gets added to the voxel origin.
+					distributionMap.increase(coordInCurrentShape, finestDistributionMap.get(coord));
+				}
+			}
+		}
 	}
 	
 	/**

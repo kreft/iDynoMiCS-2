@@ -72,7 +72,9 @@ public class PDEmultigrid extends PDEsolver
 	
 	private int _numPostSteps = 1500;
 	
-	private double _toleranceLevel;
+	private double _absToleranceLevel;
+	
+	private double _relToleranceLevel;
 	
 	private boolean _earlyStop = false;
 	
@@ -626,9 +628,11 @@ public class PDEmultigrid extends PDEsolver
 			 * TODO
 			 */
 			residual = (lop - rhs) / totalNhbWeight;
+			double relChange = residual / concn;
 			/* Prepare to update the local concentration. */
 			concn += residual;
-			if (Math.abs(residual) < this._toleranceLevel) {
+			if ((Math.abs(residual) < this._absToleranceLevel) ||
+					Math.abs(relChange) < this._relToleranceLevel) {
 				this._earlyStop = true;
 //				Log.out(Tier.DEBUG, "residual = "+residual);
 			}
@@ -754,8 +758,13 @@ public class PDEmultigrid extends PDEsolver
 	}
 	
 	@Override
-	public void setTolerance(double tol) {
-		this._toleranceLevel = tol;
+	public void setAbsoluteTolerance(double tol) {
+		this._absToleranceLevel = tol;
+	}
+	
+	@Override
+	public void setRelativeTolerance(double tol) {
+		this._relToleranceLevel = tol;
 	}
 
 	/* ***********************************************************************
