@@ -91,7 +91,7 @@ public class Log
 	 * Keep suspended output here for when we switch suspend of and can write
 	 * this to file.
 	 */
-	private static String suspendOut;
+	private static String suspendOut = "";
 	
 	/**
 	 * 
@@ -143,7 +143,9 @@ public class Log
 		if ( Idynomics.global.outputLocation != null && !_logFile.isReady() && 
 				!suspend )
 			setupFile();
-		Log.out(Tier.NORMAL, "Log output level was set to " + level.toString());
+		if (Log.shouldWrite(Tier.NORMAL))
+			Log.out(Tier.NORMAL, "Log output level was set to " + 
+					level.toString());
 	}
 	
 	/**
@@ -195,19 +197,22 @@ public class Log
 	 */
 	public static void out(Tier level, String message)
 	{
-		/* Set up the file if this hasn't been done yet (e.g. GUI launch). */
-		if ( !_logFile.isReady() && !suspend )
-			setupFile();
-		/* Try writing to screen and to the log file. */
-		if ( shouldWrite(level) )
+		if (message != null)
 		{
-			printToScreen(_st.format(new Date())+message, level==Tier.CRITICAL);
-			if ( suspend )
-				suspendOut += _ft.format(new Date()) + message + "\n";
-			else
-				_logFile.write(_ft.format(new Date()) + message + "\n");
-			if ( terminalOutput && Helper.isSystemRunningInGUI )
-				System.out.println( _st.format(new Date()) + message + "\n");
+			/* Set up the file if this hasn't been done yet (e.g. GUI launch). */
+			if ( !_logFile.isReady() && !suspend )
+				setupFile();
+			/* Try writing to screen and to the log file. */
+			if ( shouldWrite(level) )
+			{
+				printToScreen(_st.format(new Date())+message, level==Tier.CRITICAL);
+				if ( suspend )
+					suspendOut += _ft.format(new Date()) + message + "\n";
+				else
+					_logFile.write(_ft.format(new Date()) + message + "\n");
+				if ( terminalOutput && Helper.isSystemRunningInGUI )
+					System.out.println( _st.format(new Date()) + message + "\n");
+			}
 		}
 	}
 	

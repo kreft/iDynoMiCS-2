@@ -80,13 +80,15 @@ public class EnvironmentContainer implements CanPrelaunchCheck, Settable
 	{
 		if (this.getSoluteNames().contains(solute.getName()))
 		{
-			Log.out(Tier.CRITICAL, 
-					"Warning: Two or more solute grids with same name \""+
-							solute.getName()+"\"");
+			if( Log.shouldWrite(Tier.CRITICAL))
+				Log.out(Tier.CRITICAL, 
+						"Warning: Two or more solute grids with same name \""+
+								solute.getName()+"\"");
 		}
 		this._solutes.add(solute);
-		Log.out(Tier.NORMAL, 
-				"Added solute \""+ solute.getName() +"\" to environment");
+		if( Log.shouldWrite(Tier.NORMAL))
+			Log.out(Tier.NORMAL, 
+					"Added solute \""+ solute.getName() +"\" to environment");
 	}
 	
 	/**

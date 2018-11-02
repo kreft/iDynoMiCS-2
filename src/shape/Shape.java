@@ -1218,7 +1218,12 @@ public abstract class Shape implements
 		for ( int dim = 0; dim < 3; dim++ )
 		{
 			rC = this.getResolutionCalculator(coord, dim);
-			coord[dim] = rC.getVoxelIndex(loc[dim]);
+			/* if the location comes from a 1D or 2D system set the coordinate
+			 * index for additional dimensions to 0. */
+			if( loc.length < dim+1)
+				coord[dim] = 0;
+			else
+				coord[dim] = rC.getVoxelIndex(loc[dim]);
 			if ( inside != null )
 			{
 				inside[dim] = loc[dim] - 

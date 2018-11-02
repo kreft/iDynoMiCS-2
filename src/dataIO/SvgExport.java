@@ -81,7 +81,8 @@ public class SvgExport implements GraphicalExporter
 				+ prefix + "_" + DigitFilenr(_filewriterfilenr)  
 				+ "_" + Idynomics.simulator.timer.getCurrentIteration() + ".svg";
 		_svgFile.fnew(fileString);
-		Log.out(Tier.EXPRESSIVE, "Writing new file: " + fileString);
+		if( Log.shouldWrite(Tier.EXPRESSIVE) )
+			Log.out(Tier.EXPRESSIVE, "Writing new file: " + fileString);
 		_svgFile.write("<svg xmlns=\"http://www.w3.org/2000/svg\" "
 				+ "version=\"1.1\">\n");
 	}
@@ -91,7 +92,8 @@ public class SvgExport implements GraphicalExporter
 		String fileString = Idynomics.global.outputLocation + "/" 
 				+ fileName + ".svg";
 		_svgFile.fnew(fileString);
-		Log.out(Tier.EXPRESSIVE, "Writing new file: " + fileString);
+		if( Log.shouldWrite(Tier.EXPRESSIVE) )
+			Log.out(Tier.EXPRESSIVE, "Writing new file: " + fileString);
 		_svgFile.write("<svg xmlns=\"http://www.w3.org/2000/svg\" "
 				+ "version=\"1.1\">\n");
 	}

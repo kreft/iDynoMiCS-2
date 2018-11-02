@@ -143,8 +143,9 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable
 	 */
 	public void setShape(Shape aShape)
 	{
-		Log.out(Tier.EXPRESSIVE, "Compartment \""+this.name+
-				"\" taking shape \""+aShape.getName()+"\"");
+		if( Log.shouldWrite(Tier.EXPRESSIVE))
+			Log.out(Tier.EXPRESSIVE, "Compartment \""+this.name+
+					"\" taking shape \""+aShape.getName()+"\"");
 		this._shape = aShape;
 		this.environment = new EnvironmentContainer(this._shape);
 		this.agents = new AgentContainer(this._shape);
@@ -228,7 +229,8 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable
 		/*
 		 * Load solutes.
 		 */
-		Log.out(level, "Compartment reading in solutes");
+		if( Log.shouldWrite(level))
+			Log.out(level, "Compartment reading in solutes");
 		Element solutes = XmlHandler.findUniqueChild(xmlElem, XmlRef.solutes);
 		for ( Element e : XmlHandler.getElements(solutes, XmlRef.solute))
 		{
@@ -237,7 +239,8 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable
 		/*
 		 * Load extra-cellular reactions.
 		 */
-		Log.out(level, "Compartment reading in (environmental) reactions");
+		if( Log.shouldWrite(level))
+			Log.out(level, "Compartment reading in (environmental) reactions");
 		for ( Element e : XmlHandler.getElements( xmlElem, XmlRef.reaction) )
 			new RegularReaction(e, this.environment);	
 		/*
@@ -245,13 +248,15 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable
 		 */
 		for ( Element e : XmlHandler.getElements( xmlElem, XmlRef.agent) )
 			this.addAgent(new Agent( e, this ));
-		Log.out(level, "Compartment "+this.name+" initialised with "+ 
-				this.agents.getNumAllAgents()+" agents");
+		if( Log.shouldWrite(level))
+			Log.out(level, "Compartment "+this.name+" initialised with "+ 
+					this.agents.getNumAllAgents()+" agents");
 		/*
 		 * Read in process managers.
 		 */
-		Log.out(level,"Compartment "+this.name+ " loading "+XmlHandler.
-				getElements(xmlElem, XmlRef.process).size()+" processManagers");
+		if( Log.shouldWrite(level))
+			Log.out(level,"Compartment "+this.name+ " loading "+XmlHandler.
+					getElements(xmlElem, XmlRef.process).size()+" processManagers");
 		for ( Element e : XmlHandler.getElements( xmlElem, XmlRef.process) )
 		{
 			this.addProcessManager(
@@ -400,18 +405,20 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable
 			Compartment comp = findByName(compartments, name);
 			while ( comp == null )
 			{
-				Log.out(Tier.CRITICAL, 
-						"Cannot connect boundary " + b.getName() +
-						" in compartment " + this.getName());
+				if( Log.shouldWrite(Tier.CRITICAL) )
+					Log.out(Tier.CRITICAL, 
+							"Cannot connect boundary " + b.getName() +
+							" in compartment " + this.getName());
 				name = Helper.obtainInput(compartmentNames, 
 						"Please choose a compartment:", true);
 				comp = findByName(compartments, name);
 			}
-			Log.out(Tier.NORMAL, 
-					"Connecting boundary " + b.getName() +
-					" to a partner boundary of type " + 
-					b.getPartnerClass().toString() + " in compartment " +
-					comp.getName());
+			if( Log.shouldWrite(Tier.NORMAL) )
+				Log.out(Tier.NORMAL, 
+						"Connecting boundary " + b.getName() +
+						" to a partner boundary of type " + 
+						b.getPartnerClass().toString() + " in compartment " +
+						comp.getName());
 			Boundary partner = b.makePartnerBoundary();
 			comp.addBoundary(partner);
 		}
@@ -443,9 +450,12 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable
 	{
 		// TODO temporary fix, reassess
 		this._localTime = Idynomics.simulator.timer.getCurrentTime();
-		Log.out(Tier.NORMAL, "");
-		Log.out(Tier.NORMAL, "Compartment "+this.name+
-				" at local time "+this._localTime);
+		if( Log.shouldWrite(Tier.NORMAL) )
+		{
+			Log.out(Tier.NORMAL, "");
+			Log.out(Tier.NORMAL, "Compartment "+this.name+
+					" at local time "+this._localTime);
+		}
 		
 		if ( this._processes.isEmpty() )
 			return;
@@ -454,9 +464,11 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable
 					< Idynomics.simulator.timer.getEndOfCurrentIteration() &&
 					Idynomics.simulator.active() )
 		{
-			Log.out(Tier.BULK, "Compartment "+this.name+
-								" running process "+currentProcess.getName()+
-								" at local time "+this._localTime);
+			if( Log.shouldWrite(Tier.BULK) )
+				Log.out(Tier.BULK, "Compartment "+this.name+
+									" running process "+currentProcess.getName()+
+									" at local time "+this._localTime);
+			
 			/*
 			 * First process on the list does its thing. This should then
 			 * increase its next step time.
@@ -530,7 +542,12 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable
 	{
 		Map<String,Long> out = new HashMap<String,Long>();
 		for ( ProcessManager pm : this._processes )
-			out.put(pm.getName(), pm.getRealTimeTaken());
+		{
+			if (out.containsKey(pm.getName()))
+				out.put(pm.getName(), out.get(pm.getName()) + pm.getRealTimeTaken());
+			else
+				out.put(pm.getName(), pm.getRealTimeTaken());
+		}
 		return out;
 	}
 	

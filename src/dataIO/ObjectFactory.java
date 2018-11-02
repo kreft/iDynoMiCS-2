@@ -201,8 +201,9 @@ public class ObjectFactory
 		default:
 			if ( Idynomics.xmlPackageLibrary.has( objectClass ) )
 			{
-				Log.out(Tier.BULK, "Oject factory is used to load non primary"
-						+ " object of class:  " + objectClass);
+				if( Log.shouldWrite(Tier.BULK))
+					Log.out(Tier.BULK, "Oject factory is used to load non "
+							+ "primary object of class:  " + objectClass);
 				return Instance.getNew(elem, null, objectClass );
 			}
 			else

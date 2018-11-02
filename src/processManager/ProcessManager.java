@@ -8,6 +8,7 @@ import org.w3c.dom.Element;
 import aspect.AspectInterface;
 import aspect.AspectReg;
 import dataIO.Log.Tier;
+import debugTools.SegmentTimer;
 import dataIO.Log;
 import dataIO.XmlHandler;
 import generalInterfaces.Redirectable;
@@ -80,6 +81,11 @@ public abstract class ProcessManager implements Instantiable, AspectInterface,
 	 */
 	private long _realTimeTaken = 0;
 	
+	/**
+	 * Used to track time used per process manager
+	 */
+	private long _tick;
+	
 	/* ***********************************************************************
 	 * CONSTRUCTORS
 	 * **********************************************************************/
@@ -149,8 +155,8 @@ public abstract class ProcessManager implements Instantiable, AspectInterface,
 		this.setTimeStepSize(time);
 		
 		this.redirect(xmlElem);		
-		
-		Log.out(Tier.EXPRESSIVE, this._name + " loaded");
+		if( Log.shouldWrite(Tier.EXPRESSIVE))
+			Log.out(Tier.EXPRESSIVE, this._name + " loaded");
 	}
 	
 	/* ***********************************************************************
@@ -261,7 +267,7 @@ public abstract class ProcessManager implements Instantiable, AspectInterface,
 	 */
 	public void step()
 	{
-		long tick = System.currentTimeMillis();
+		this._tick = System.currentTimeMillis();
 		/*
 		 * This is where subclasses of ProcessManager do their step. Note that
 		 * this._timeStepSize may change if an adaptive timestep is used.
@@ -274,23 +280,18 @@ public abstract class ProcessManager implements Instantiable, AspectInterface,
 		 */
 		this._timeForNextStep = BigDecimal.valueOf( _timeForNextStep ).add(
 				BigDecimal.valueOf( _timeStepSize ) ).doubleValue();
-		/*
-		 * 
-		 */
-		long tock = System.currentTimeMillis();
-		
-		this._realTimeTaken += tock - tick;
 		
 		Tier level = Tier.EXPRESSIVE;
 		if ( Log.shouldWrite(level) )
 		{
 			/* logging time, using BigDecimal prevents weird last decimal 
 			 * round-off errors. */
-			Log.out( level, this._name + " next: " + 
-					this._timeForNextStep + ", duration: " + 
-					( ( ( BigDecimal.valueOf( tock - tick ) ) ).multiply(
+			Log.out( level, this._name + " next: " + this._timeForNextStep + 
+					", duration: " + ( BigDecimal.valueOf(
+					System.currentTimeMillis() - _tick ).multiply(
 					BigDecimal.valueOf( 0.001 ) ).doubleValue() ) + " s");
 		}
+		this._realTimeTaken += (System.currentTimeMillis() - _tick);
 	}
 	
 	/**

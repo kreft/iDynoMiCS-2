@@ -243,6 +243,11 @@ public class Global extends ParameterSet
 	public static double relativeThresholdWellMixedness = 0.9;
 	
 	/**
+	 * Only determine location of agent based on primary mass point
+	 */
+	public static boolean fastAgentDistribution = true;
+	
+	/**
 	 * TODO
 	 */
 	public static double densityScale = 1.0;

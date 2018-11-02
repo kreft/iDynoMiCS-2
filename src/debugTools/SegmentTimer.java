@@ -169,8 +169,7 @@ public class SegmentTimer {
 	 */
 	public long stop()
 	{
-		this.report();
-		return this.pause();
+		return this.reportNet();
 	}
 	
 	/**
@@ -196,6 +195,15 @@ public class SegmentTimer {
 	public long report()
 	{
 		long out = this._netTime + tock();
+		System.out.println(this._name + " timed: " + 
+				( ( ( BigDecimal.valueOf( out ) ) ).multiply(
+				BigDecimal.valueOf( 0.001 ) ).doubleValue() ) + " s");
+		return out;
+	}
+	
+	public long reportNet()
+	{
+		long out = this._netTime;
 		System.out.println(this._name + " timed: " + 
 				( ( ( BigDecimal.valueOf( out ) ) ).multiply(
 				BigDecimal.valueOf( 0.001 ) ).doubleValue() ) + " s");

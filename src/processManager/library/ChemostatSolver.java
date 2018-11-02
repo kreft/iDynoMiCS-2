@@ -139,7 +139,8 @@ public class ChemostatSolver extends ProcessManager
 		for ( int i = 0; i < this._n; i++ )
 			this._environment.setAllConcentration( this._solutes[i], yODE[i]);
 		this._environment.getShape().setTotalVolume( yODE[ _n ] );
-		Log.out(Tier.DEBUG, "new volume: " + yODE[ _n ] );
+		if( Log.shouldWrite(Tier.DEBUG) )
+			Log.out(Tier.DEBUG, "new volume: " + yODE[ _n ] );
 		
 		/* 
 		 * Update the agents 

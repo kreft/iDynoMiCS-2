@@ -252,7 +252,9 @@ public class Collision
 					Vector.times( force , intersect ) );
 			break;
 		case PLANE:
-			Log.out(Tier.BULK,"WARNING: Surface Plane does not accept force");
+			if( Log.shouldWrite(Tier.BULK) )
+				Log.out(Tier.BULK,"WARNING: Surface Plane does not accept "
+						+ "force");
 		default:
 			break;
 		}

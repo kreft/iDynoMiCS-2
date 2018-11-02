@@ -91,13 +91,19 @@ public class AspectReg
 	 */
 	public void add(String key, Object aspect)
 	{
-		if ( aspect == null || key == null)
-			Log.out(Tier.NORMAL, "Received null input, skipping aspect.");
+		if (aspect == null || key == null) 
+		{
+			if ( Log.shouldWrite(Tier.NORMAL) )
+				Log.out(Tier.NORMAL, "Received null input, skipping aspect.");
+		}
 		else
 		{
 			if ( this._aspects.containsKey(key) )
-				Log.out(Tier.DEBUG, "Attempt to add aspect " + key + 
-						" which already exists in this aspect registry");
+			{
+				if (Log.shouldWrite(Tier.DEBUG) )
+					Log.out(Tier.DEBUG, "Attempt to add aspect " + key + 
+							" which already exists in this aspect registry");
+			}
 			else
 			{
 				this._aspects.put(key, new Aspect(aspect, key, this) );
@@ -107,13 +113,19 @@ public class AspectReg
 	
 	public void addInstatiatedAspect(String key, Aspect aspect)
 	{
-		if ( aspect == null || key == null)
-			Log.out(Tier.NORMAL, "Received null input, skipping aspect.");
+		if (aspect == null || key == null)
+		{
+			if( Log.shouldWrite(Tier.NORMAL))
+				Log.out(Tier.NORMAL, "Received null input, skipping aspect.");
+		}
 		else
 		{
 			if ( this._aspects.containsKey(key) )
-				Log.out(Tier.DEBUG, "Attempt to add aspect " + key + 
-						" which already exists in this aspect registry");
+			{
+				if (Log.shouldWrite(Tier.DEBUG))
+					Log.out(Tier.DEBUG, "Attempt to add aspect " + key + 
+							" which already exists in this aspect registry");
+			}
 			else
 				this._aspects.put( key, aspect );
 		}
@@ -233,11 +245,10 @@ public class AspectReg
 	public void doEvent(AspectInterface initiator, 
 			AspectInterface compliant, double timeStep, String key)
 	{
-		Tier level = Tier.BULK;
 		Aspect a = getAspect(key);
 		if ( a == null )
 		{
-			if ( Log.shouldWrite(level) )
+			if ( Log.shouldWrite(Tier.BULK) )
 				Log.out(Tier.BULK, "Warning: aspect registry does not"
 						+ " contain event:" + key);
 		}

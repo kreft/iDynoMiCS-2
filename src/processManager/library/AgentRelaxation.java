@@ -381,11 +381,12 @@ public class AgentRelaxation extends ProcessManager
 		this._agents.refreshSpatialRegistry();
 		
 		/* Notify user */
-		if (nstep == this._maxIter)
+		if (nstep == this._maxIter && Log.shouldWrite(Tier.QUIET) )
 			Log.out( Tier.QUIET, this.getName() + " reached maximum number of "
 					+ "iterations: " + this._maxIter);
-		Log.out( Tier.DEBUG, "Relaxed " + this._agents.getNumAllAgents() + 
-				" agents after " + nstep + " iterations" );
+		if( Log.shouldWrite(Tier.DEBUG) )
+			Log.out( Tier.DEBUG, "Relaxed " + this._agents.getNumAllAgents() + 
+					" agents after " + nstep + " iterations" );
 	}
 	
 	

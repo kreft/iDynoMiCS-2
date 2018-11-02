@@ -170,8 +170,8 @@ public class Expression extends Component implements Settable
 	
 	public void init(String expression, Map<String, Double> constants)
 	{
-		Log.out(LOG_LEVEL, "Making an expression from \""+expression+"\"");
-		
+		if( Log.shouldWrite(LOG_LEVEL))
+			Log.out(LOG_LEVEL, "Making an expression from \""+expression+"\"");
 		/* check for units */
 		String[] split = expression.replace("[", "TEMPSPLITMARKER").split("TEMPSPLITMARKER");
 		if ( split.length > 1 )
@@ -184,9 +184,11 @@ public class Expression extends Component implements Settable
 		/* Create the constants map if it was not given. */
 		if ( constants == null )
 			constants = new HashMap<String, Double>();
-		Log.out(LOG_LEVEL, "  Constants defined:");
-		for ( String key : constants.keySet() )
-			Log.out(LOG_LEVEL, "  -> "+key+" = "+constants.get(key));
+		if( Log.shouldWrite(LOG_LEVEL))
+			Log.out(LOG_LEVEL, "  Constants defined:");
+		if( Log.shouldWrite(LOG_LEVEL))
+			for ( String key : constants.keySet() )
+				Log.out(LOG_LEVEL, "  -> "+key+" = "+constants.get(key));
 		this._constants.putAll(constants);
 		/* Build the component. */
 		this.build();
