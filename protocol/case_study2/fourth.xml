@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document>
-	<simulation log="NORMAL" outputfolder="../results" name="Fourth_case">
+	<simulation log="NORMAL" outputfolder="../results" name="Fourth_case" >
 	<timer stepSize="60.0" endOfSimulation="100000.0" /> <!-- 10 weeks -->
 		<speciesLib>
 			<!-- species/species library The species library contains all agent species 

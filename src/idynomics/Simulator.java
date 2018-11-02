@@ -13,6 +13,7 @@ import chemical.ChemicalLib;
 import dataIO.Log;
 import dataIO.XmlExport;
 import dataIO.XmlHandler;
+import debugTools.SegmentTimer;
 import dataIO.Log.Tier;
 import dataIO.Report;
 import generalInterfaces.CanPrelaunchCheck;
@@ -382,6 +383,8 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 					"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 					+ "~~~~~~~~~~~~~~~~~~~~~~~~\n");
 			this.printProcessManagerRealTimeStats();
+			/* Stop and report on all debugger timers (if any enabled). */
+			SegmentTimer.stopAll();
 			
 			/* execute exit command if any */
 			if( !Helper.isNullOrEmpty( Global.exitCommand ) )

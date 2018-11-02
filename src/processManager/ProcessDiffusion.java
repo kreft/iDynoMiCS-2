@@ -17,6 +17,7 @@ import agent.Agent;
 import boundary.Boundary;
 import dataIO.Log;
 import dataIO.Log.Tier;
+import debugTools.SegmentTimer;
 import grid.SpatialGrid;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
@@ -274,6 +275,7 @@ public abstract class ProcessDiffusion extends ProcessManager
 	@SuppressWarnings("unchecked")
 	public void setupAgentDistributionMaps(Shape shape)
 	{
+		SegmentTimer.start("setupAgentMaps");
 		Tier level = BULK;
 		if (Log.shouldWrite(level))
 			Log.out(level, "Setting up agent distribution maps");
@@ -410,6 +412,7 @@ public abstract class ProcessDiffusion extends ProcessManager
 			}
 		}
 		Log.out(level, "Finished setting up agent distribution maps");
+		SegmentTimer.pause("setupAgentMaps");
 	}
 	
 	@SuppressWarnings("unchecked")
