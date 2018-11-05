@@ -244,6 +244,18 @@ public class Body implements Copyable, Instantiable
 			boxes.add( ((HasBoundingBox) s).boundingBox(margin, shape) );
 		return boxes;
 	}
+	
+	public double[] getCenter()
+	{
+		if (this.getNumberOfPoints() == 1)
+			return this._points.get(0).getPosition();
+		double[] center = Vector.vector(this.nDim(),0.0);
+		for ( Point p : this.getPoints() )
+		{
+			Vector.addEquals(center, p.getPosition());
+		}
+		return Vector.divideEqualsA(center, (double) this.getNumberOfPoints());
+	}
 
 	/*************************************************************************
 	 * general methods

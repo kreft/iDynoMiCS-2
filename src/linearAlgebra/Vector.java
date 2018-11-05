@@ -1620,6 +1620,18 @@ public final class Vector
 	}
 	
 	/**
+	 * \brief divide destination vector elements by divisor.
+	 * @param destination
+	 * @param divisor
+	 */
+	public static double[] divideEqualsA(double[] destination, double divisor)
+	{
+		for ( int i = 0; i < destination.length; i++ ) 
+			destination[i] = destination[i] / divisor;
+		return destination;
+	}
+	
+	/**
 	 * \brief For each element of a vector <b>a</b>, divide by the
 	 * corresponding element of vector <b>b</b>, and write the result into
 	 * a new vector.
