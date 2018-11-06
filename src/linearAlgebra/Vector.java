@@ -1261,6 +1261,20 @@ public final class Vector
 		return out;
 	}
 	
+
+	/**
+	 * TODO
+	 * @param a
+	 * @param value
+	 * @return
+	 */
+	public static double[] minus(double[] a, double value) {
+		double[] out = new double[a.length];
+		for ( int i = 0; i < a.length; i++ ) 
+			out[i] = a[i] - value;
+		return out;
+	}
+	
 	/**
 	 * \brief Subtract one vector from another, writing the result into <b>a</b>.
 	 * 
