@@ -434,7 +434,7 @@ public abstract class ProcessDiffusion extends ProcessManager
 				int[] coord = shape.getCoords(((Body) a.get(AspectRef.agentBody)).getCenter());
 				mapOfMaps = (Map<Shape, CoordinateMap>) a.getValue(VD_TAG);
 				distributionMap = mapOfMaps.get(shape);
-				distributionMap.increase(coord, shape.getVoxelVolume(coord));
+				distributionMap.increase(coord, a.getDouble(AspectRef.agentVolume));
 			}
 		}
 		if( Log.shouldWrite(level) )
