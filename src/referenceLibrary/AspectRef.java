@@ -514,4 +514,9 @@ public class AspectRef
 	 */
 	public static final String staticAgentTimeStep = "staticAgentTimeStep";
 
+	/**
+	 * Maximum number of iterations per agent relaxation timestep.
+	 */
+	public static final String maxIterations = "maxIterations";
+
 }

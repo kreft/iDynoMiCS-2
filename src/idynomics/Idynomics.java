@@ -232,9 +232,12 @@ public strictfp class Idynomics
 		 */
 		setupGlobals( protocolPath );
 		
-		Log.out(NORMAL, Idynomics.global.simulationComment );
-		Log.out(NORMAL, "Storing results in " + Idynomics.global.outputLocation
-				+ "\n" );
+		if( Log.shouldWrite(Tier.NORMAL) )
+		{
+			Log.out(NORMAL, Idynomics.global.simulationComment );
+			Log.out(NORMAL, "Storing results in " + 
+					Idynomics.global.outputLocation	+ "\n" );
+		}
 		/*
 		 * Create a new Simulator object and intialise it.
 		 */

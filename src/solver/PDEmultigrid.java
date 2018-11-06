@@ -492,9 +492,9 @@ public class PDEmultigrid extends PDEsolver
 			if ( continueVCycle )
 				break;
 		}
-		if ( continueVCycle )
+		if ( continueVCycle && Log.shouldWrite(level))
 			Log.out(level, "Continuing V-cycle");
-		else
+		else if( Log.shouldWrite(level) )
 			Log.out(level, "Breaking V-cycle");
 		return continueVCycle;
 	}
@@ -513,7 +513,9 @@ public class PDEmultigrid extends PDEsolver
 			}
 			if (this._earlyStop) {
 				this._earlyStop = false;
-				Log.out(Tier.DEBUG, "Breaking early: "+ i +" of "+ numRepetitions);
+				if( Log.shouldWrite(Tier.DEBUG) )
+					Log.out(Tier.DEBUG, "Breaking early: "+ i +" of "
+							+ numRepetitions );
 				break relaxLoops;
 			}
 		}

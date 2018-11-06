@@ -128,8 +128,8 @@ public class SolveDiffusionTransient extends ProcessDiffusion
 		 * more to do.
 		 */
 		@SuppressWarnings("unchecked")
-		List<RegularReaction> reactions = 
-				(List<RegularReaction>) agent.getValue(XmlRef.reactions);
+		List<Reaction> reactions = 
+				(List<Reaction>) agent.getValue(XmlRef.reactions);
 		if ( reactions == null )
 			return;
 		/*

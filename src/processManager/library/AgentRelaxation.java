@@ -15,6 +15,7 @@ import expression.Expression;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
 import idynomics.Global;
+import idynomics.Idynomics;
 import linearAlgebra.Vector;
 import processManager.ProcessManager;
 import referenceLibrary.AspectRef;
@@ -32,6 +33,7 @@ import utility.Helper;
  */
 public class AgentRelaxation extends ProcessManager
 {
+	
 	public String SEARCH_DIST = AspectRef.collisionSearchDistance;
 	public String PULL_EVALUATION = AspectRef.collisionPullEvaluation;
 	public String CURRENT_PULL_DISTANCE = AspectRef.collisionCurrentPullDistance;
@@ -41,6 +43,7 @@ public class AgentRelaxation extends ProcessManager
 	
 	public String BASE_DT = AspectRef.collisionBaseDT;
 	public String MAX_MOVEMENT = AspectRef.collisionMaxMOvement;
+	public String  MAX_ITERATIONS = AspectRef.maxIterations;
 	
 	public String BODY = AspectRef.agentBody;
 	public String RADIUS = AspectRef.bodyRadius;
@@ -143,6 +146,11 @@ public class AgentRelaxation extends ProcessManager
 	private double _stressThreshold;
 	
 	/**
+	 * 
+	 */
+	private Integer _maxIter;
+	
+	/**
 	 * enable gravity/buoyancy forces
 	 */
 	private Boolean _gravity;
@@ -166,10 +174,16 @@ public class AgentRelaxation extends ProcessManager
 		
 		/* Obtaining relaxation parameters. 
 		 * Base time step */
-		this._dtBase = Helper.setIfNone( this.getDouble(BASE_DT), 0.0003 );
+		this._dtBase = Helper.setIfNone( this.getDouble(BASE_DT), 
+				Global.mechanical_base_step );
 		
 		/* Maximum displacement per step, set default if none */
-		this._maxMove = Helper.setIfNone( this.getDouble(MAX_MOVEMENT), 0.01 );
+		this._maxMove = Helper.setIfNone( this.getDouble(MAX_MOVEMENT), 
+				Global.mechanical_max_movement );
+		
+		/* Maximum displacement per step, set default if none */
+		this._maxIter = (Integer) Helper.setIfNone( this.getInt(MAX_ITERATIONS), 
+				Global.mechanical_max_iterations );
 		
 		/* Set relaxation method, set default if none */
 		this._method = Method.valueOf( Helper.setIfNone(
@@ -244,13 +258,13 @@ public class AgentRelaxation extends ProcessManager
 		}
 
 		/* Mechanical relaxation */
-		while( tMech < this.getTimeStepSize() ) 
+		while( tMech < this.getTimeStepSize() && nstep < this._maxIter) 
 		{	
 			this._agents.refreshSpatialRegistry();
 			this.updateForces( this._agents );
 			
 			/* adjust step size unless static step size is forced */
-			if( !this._dtStatic && this._method != Method.SHOVE )
+			if( !this._dtStatic || this._method == Method.SHOVE )
 			{
 				/* obtain current highest particle velocity and highest force */
 				vs = 0.0;
@@ -276,6 +290,13 @@ public class AgentRelaxation extends ProcessManager
 					if ( Math.sqrt(st) * Global.agent_stress_scaling < 
 							_stressThreshold )
 						break;
+				} else if ( this._method == Method.SHOVE )
+				{
+					Log.out(Tier.CRITICAL, AspectRef.stressThreshold + " must "
+							+ "be set for relaxation method " + 
+							Method.SHOVE.toString() );
+					Idynomics.simulator.interupt(null);
+					return;
 				}
 	
 				/* When stochastic movement is enabled update vs to represent 
@@ -291,7 +312,7 @@ public class AgentRelaxation extends ProcessManager
 				
 				/* fast relaxation: set the time step to match 'maxMovement'
 				 * with the the fastest object, for a 'fast' run. */
-				if ( this._fastRelaxation ) 
+				if ( this._fastRelaxation || this._method == Method.SHOVE) 
 					dtMech = this._maxMove / ( Math.sqrt(vs) + 
 							Global.agent_move_safety );
 				/* no fast relaxation: adjust the time step with the fastest
@@ -360,8 +381,12 @@ public class AgentRelaxation extends ProcessManager
 		this._agents.refreshSpatialRegistry();
 		
 		/* Notify user */
-		Log.out( Tier.DEBUG, "Relaxed " + this._agents.getNumAllAgents() + 
-				" agents after " + nstep + " iterations" );
+		if (nstep == this._maxIter && Log.shouldWrite(Tier.QUIET) )
+			Log.out( Tier.QUIET, this.getName() + " reached maximum number of "
+					+ "iterations: " + this._maxIter);
+		if( Log.shouldWrite(Tier.DEBUG) )
+			Log.out( Tier.DEBUG, "Relaxed " + this._agents.getNumAllAgents() + 
+					" agents after " + nstep + " iterations" );
 	}
 	
 	

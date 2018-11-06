@@ -82,7 +82,8 @@ public class Summary extends ProcessManager
 	protected void internalStep()
 	{
 		/* output table summary to log/console */
-		Log.out(Tier.NORMAL, table.summary() );
+		if( Log.shouldWrite(Tier.NORMAL) )
+			Log.out(Tier.NORMAL, table.summary() );
 		
 		if (! Helper.isNullOrEmpty( this.csvOut ))
 		{

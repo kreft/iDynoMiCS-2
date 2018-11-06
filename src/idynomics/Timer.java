@@ -53,7 +53,8 @@ public class Timer implements Instantiable, Settable
 		
 	public void instantiate(Element xmlNode, Settable parent)
 	{
-		Log.out(Tier.NORMAL, "Timer loading...");
+		if( Log.shouldWrite(Tier.NORMAL))
+			Log.out(Tier.NORMAL, "Timer loading...");
 
 		/* Get starting time step */
 		this.setCurrentTime( Double.valueOf( Helper.setIfNone( 
@@ -74,7 +75,8 @@ public class Timer implements Instantiable, Settable
 
 		
 		this.report(Tier.NORMAL);
-		Log.out(Tier.NORMAL, "Timer loaded!\n");
+		if( Log.shouldWrite(Tier.NORMAL))
+			Log.out(Tier.NORMAL, "Timer loaded!\n");
 	}
 	
 	/*************************************************************************
@@ -150,18 +152,22 @@ public class Timer implements Instantiable, Settable
 	
 	public boolean isRunning()
 	{
-		Log.out(Tier.DEBUG, "Timer.isRunning()? now = "+this._now+
-				", end = "+this.getEndOfSimulation()+
-				", so "+(this._now<getEndOfSimulation())); 
+		if( Log.shouldWrite(Tier.DEBUG) )
+			Log.out(Tier.DEBUG, "Timer.isRunning()? now = "+this._now+
+					", end = "+this.getEndOfSimulation()+
+					", so "+(this._now<getEndOfSimulation())); 
 		return this._now < this.getEndOfSimulation();
 	}
 	
 	public void report(Tier outputLevel)
 	{
-		Log.out(outputLevel, "Timer: time is   = "+_now);
-		Log.out(outputLevel, "       iteration = "+getCurrentIteration());
-		Log.out(outputLevel, "       step size = "+getTimeStepSize());
-		Log.out(outputLevel, "       end time  = "+getEndOfSimulation());
+		if( Log.shouldWrite(outputLevel))
+		{
+			Log.out(outputLevel, "Timer: time is   = "+_now);
+			Log.out(outputLevel, "       iteration = "+getCurrentIteration());
+			Log.out(outputLevel, "       step size = "+getTimeStepSize());
+			Log.out(outputLevel, "       end time  = "+getEndOfSimulation());
+		}
 	}
 	
 	/*************************************************************************

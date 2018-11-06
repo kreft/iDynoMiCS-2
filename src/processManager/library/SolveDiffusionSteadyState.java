@@ -19,6 +19,7 @@ import grid.SpatialGrid;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
 import linearAlgebra.Matrix;
+import linearAlgebra.Vector;
 import processManager.ProcessDiffusion;
 import processManager.ProcessMethods;
 import reaction.RegularReaction;
@@ -145,13 +146,14 @@ public class SolveDiffusionSteadyState extends ProcessDiffusion
 	private void applyAgentReactions(
 			Agent agent, Collection<SpatialGrid> variables)
 	{
+		
 		/*
 		 * Get the agent's reactions: if it has none, then there is nothing
 		 * more to do.
 		 */
 		@SuppressWarnings("unchecked")
-		List<RegularReaction> reactions = 
-				(List<RegularReaction>) agent.getValue(XmlRef.reactions);
+		List<Reaction> reactions = 
+				(List<Reaction>) agent.getValue(XmlRef.reactions);
 		if ( reactions == null )
 			return;
 		/*

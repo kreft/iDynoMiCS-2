@@ -3,6 +3,7 @@ package shape.iterator;
 import static shape.iterator.ShapeIterator.WhereAmI.UNDEFINED;
 
 import dataIO.Log;
+import dataIO.Log.Tier;
 import linearAlgebra.Vector;
 import shape.CartesianShape;
 import shape.Dimension.DimName;
@@ -39,8 +40,9 @@ public class CartesianShapeIterator extends ShapeIterator
 				this._nbhDirection = NhbDirection.BEHIND;
 				this._nbhDimName = dim;
 				this.transformNhbCyclic();
-				Log.out(NHB_ITER_LEVEL, "   returning transformed neighbor at "
-						+Vector.toString(this._currentNeighbor)+
+				if( Log.shouldWrite(NHB_ITER_LEVEL) )
+					Log.out(NHB_ITER_LEVEL, "   returning transformed neighbor "
+							+ "at "	+ Vector.toString(this._currentNeighbor) +
 						": status "+this._whereIsNhb);
 				return;
 			}

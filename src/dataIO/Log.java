@@ -82,6 +82,37 @@ public class Log
 	private static SimpleDateFormat _st = new SimpleDateFormat("[HH:mm] ");
 	
 	/**
+	 * Allows to suspend writing to file (for instance we do not need to create
+	 * a log for every time we open a file, just when we are actually run a sim
+	 */
+	private static boolean suspend = true;
+	
+	/**
+	 * Keep suspended output here for when we switch suspend of and can write
+	 * this to file.
+	 */
+	private static String suspendOut = "";
+	
+	/**
+	 * 
+	 */
+	private static boolean terminalOutput = false;
+	
+	/**
+	 * After this call the log is written to file. Keeping log files for any
+	 * Log.out call will result in a large amount of output files when simply
+	 * looking at simulation states. Instead it is more useful to log when
+	 * actual simulations are ran.
+	 */
+	public static void keep() 
+	{
+		suspend = false;
+		if ( !_logFile.isReady() )
+			setupFile();
+		_logFile.write(suspendOut);
+	}
+	
+	/**
 	 * \brief Check if this log file is ready to start writing.
 	 * 
 	 * @return true if it is ready, false if it is not ready.
@@ -109,8 +140,12 @@ public class Log
 	public static void set(Tier level)
 	{
 		_outputLevel = level;
-		if ( Idynomics.global.outputLocation != null &&  ! _logFile.isReady() )
+		if ( Idynomics.global.outputLocation != null && !_logFile.isReady() && 
+				!suspend )
 			setupFile();
+		if (Log.shouldWrite(Tier.NORMAL))
+			Log.out(Tier.NORMAL, "Log output level was set to " + 
+					level.toString());
 	}
 	
 	/**
@@ -137,10 +172,14 @@ public class Log
 		if ( _outputLevel == null )
 		{
 			 _outputLevel = Tier.NORMAL;
-			 printToScreen(
-					 "No output level set, so using NORMAL be default", true);
-			// FIXME this response contradicts the javadoc to set(Tier)
-			//printToScreen("Error: attempt to write log before it is set", true);
+			 set(Tier.NORMAL);
+			 out(Tier.NORMAL,"Reporting at default log level " + _outputLevel +
+					 " as simulation level was not yet identified.");
+			 /* NOTE: This would only happen if a out call is made before the
+			  * log is properly set up (and thus set(Tier) has not yet been
+			  * called. Please use System.out.println() for any important
+			  * messages before log setup, the log is the first thing to be set
+			  * up so this should almost never occur.  */
 		}
 		return ( level.compareTo(_outputLevel) < 1 );
 	}
@@ -158,14 +197,22 @@ public class Log
 	 */
 	public static void out(Tier level, String message)
 	{
-		/* Set up the file if this hasn't been done yet (e.g. GUI launch). */
-		if ( ! _logFile.isReady() )
-			setupFile();
-		/* Try writing to screen and to the log file. */
-		if ( shouldWrite(level) )
+		if (message != null)
 		{
-			printToScreen(_st.format(new Date())+message, level==Tier.CRITICAL);
-			_logFile.write(_ft.format(new Date()) + message + "\n");
+			/* Set up the file if this hasn't been done yet (e.g. GUI launch). */
+			if ( !_logFile.isReady() && !suspend )
+				setupFile();
+			/* Try writing to screen and to the log file. */
+			if ( shouldWrite(level) )
+			{
+				printToScreen(_st.format(new Date())+message, level==Tier.CRITICAL);
+				if ( suspend )
+					suspendOut += _ft.format(new Date()) + message + "\n";
+				else
+					_logFile.write(_ft.format(new Date()) + message + "\n");
+				if ( terminalOutput && Helper.isSystemRunningInGUI )
+					System.out.println( _st.format(new Date()) + message + "\n");
+			}
 		}
 	}
 	

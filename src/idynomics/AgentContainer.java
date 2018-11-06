@@ -774,7 +774,8 @@ public class AgentContainer implements Settable
 			}
 			if ( ! dim.isSignificant() )
 			{
-				Log.out(level, "   "+dimN+" is insignificant, skipping");
+				if( Log.shouldWrite(level) )
+					Log.out(level, "   "+dimN+" is insignificant, skipping");
 				continue;
 			}
 			for ( int extreme = 0; extreme < 2; extreme++ )

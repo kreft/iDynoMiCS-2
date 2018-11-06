@@ -54,14 +54,15 @@
 				</dimension> 
 			</shape>
 			<solutes>
-				<solute name="solute1" concentration="0.1" defaultDiffusivity="1.0" biofilmDiffusivity="0.5"/>
-				<solute name="solute2" concentration="2.0" defaultDiffusivity="1.0" biofilmDiffusivity="0.5"/>
+				<solute name="solute1" concentration="1.0" defaultDiffusivity="1.0" biofilmDiffusivity="0.5"/>
+				<solute name="solute2" concentration="0.0" defaultDiffusivity="1.0" biofilmDiffusivity="0.5"/>
 			</solutes>
 			<reactions>
-				<reaction name="testReact">
-					<expression value="solute1 * 0.1" />
-					<stoichiometric component="solute1" coefficient="-1.0" />
-					<stoichiometric component="solute2" coefficient="0.5" />
+				<reaction name="slowInflow">
+					<expression value="1.0 * inflow">
+						<constant name="inflow" value="0.004" />
+					</expression>
+					<stoichiometric component="solute1" coefficient="1.0" />
 				</reaction>
 			</reactions>
 			<agents>
@@ -110,6 +111,8 @@
 					firstStep="0.0" >
 					<aspect name="maxMovement" type="PRIMARY" class="Double" value="0.05" />
 					<aspect name="relaxationMethod" type="PRIMARY" class="String" value="SHOVE" />
+					<aspect name="stressThreshold" type="PRIMARY" class="Double" value="1000.0" />
+					<aspect name="maxIterations" type="PRIMARY" class="Integer" value="10000" />
 				</process>
 				<process name="solveDiffusionTransient" class="SolveDiffusionTransient"  priority="-0"
 					firstStep="0.0" >	

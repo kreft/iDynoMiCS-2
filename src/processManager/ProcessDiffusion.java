@@ -14,12 +14,15 @@ import java.util.function.Predicate;
 import org.w3c.dom.Element;
 
 import agent.Agent;
+import agent.Body;
 import boundary.Boundary;
 import dataIO.Log;
 import dataIO.Log.Tier;
+import debugTools.SegmentTimer;
 import grid.SpatialGrid;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
+import idynomics.Global;
 import linearAlgebra.Vector;
 import reaction.RegularReaction;
 import reaction.Reaction;
@@ -91,6 +94,11 @@ public abstract class ProcessDiffusion extends ProcessManager
 	 */
 	// NOTE the value of a quarter is chosen arbitrarily
 	private static double SUBGRID_FACTOR = 0.25; //TODO set from aspect?
+	
+	/**
+	 * enable fast agent distribution
+	 */
+	boolean _fastDistribution = Global.fastAgentDistribution;
 	
 	/* ***********************************************************************
 	 * CONSTRUCTORS
@@ -204,7 +212,8 @@ public abstract class ProcessDiffusion extends ProcessManager
 		Collection<RegularReaction> reactions = this._environment.getReactions();
 		if ( reactions.isEmpty() )
 		{
-			Log.out(level, "No reactions to apply, skipping");
+			if( Log.shouldWrite(level) )
+				Log.out(level, "No reactions to apply, skipping");
 			return;
 		}
 		/*
@@ -293,123 +302,143 @@ public abstract class ProcessDiffusion extends ProcessManager
 			mapOfMaps.put(shape, new CoordinateMap());
 			a.set(VD_TAG, mapOfMaps);
 		}
-		/*
-		 * Now fill these agent biomass distribution maps.
-		 */
-		double[] location;
-		double[] dimension = new double[3];
-		double[] sides;
-		Collection<SubvoxelPoint> svPoints;
-		List<Agent> nhbs;
-		List<Surface> surfaces;
-		double[] pLoc;
-		Collision collision = new Collision(null, null, shape);
-		CoordinateMap distributionMap;
 
-		for ( int[] coord = shape.resetIterator(); 
-				shape.isIteratorValid(); coord = shape.iteratorNext())
+		CoordinateMap distributionMap;
+		
+		if ( !this._fastDistribution )
 		{
-			double minRad;
-			
-			if( shape instanceof CartesianShape)
-			{
-				/* Find all agents that overlap with this voxel. */
-				// TODO a method for getting a voxel's bounding box directly?
-				location = Vector.subset(shape.getVoxelOrigin(coord), nDim);
-				shape.getVoxelSideLengthsTo(dimension, coord); //FIXME returns arc lengths with polar coords
-				// FIXME create a bounding box that always captures at least the complete voxel
-				sides = Vector.subset(dimension, nDim);
-				/* NOTE the agent tree is always the amount of actual dimension */
-				nhbs = this._agents.treeSearch(location, sides);
-				
-				/* used later to find subgridpoint scale */
-				minRad = Vector.min(sides);
-			}
-			else
-			{
-				/* TODO since the previous does not work at all for polar */
-				nhbs = this._agents.getAllLocatedAgents();
-				
-				/* FIXME total mess, trying to get towards something that at
-				 * least makes some sence
-				 */
-				shape.getVoxelSideLengthsTo(dimension, coord); //FIXME returns arc lengths with polar coords
-				// FIXME create a bounding box that always captures at least the complete voxel
-				sides = Vector.subset(dimension, nDim);
-				// FIXME because it does not make any sence to use the ark, try the biggest (probably the R dimension) and half that to be safe.
-				minRad = Vector.max(sides) / 2.0; 
-			}
-			/* Filter the agents for those with reactions, radius & surface. */
-			nhbs.removeIf(NO_REAC_FILTER);
-			nhbs.removeIf(NO_BODY_FILTER);
-			/* If there are none, move onto the next voxel. */
-			if ( nhbs.isEmpty() )
-				continue;
-			if ( Log.shouldWrite(level) )
-			{
-				Log.out(level, "  "+nhbs.size()+" agents overlap with coord "+
-					Vector.toString(coord));
-			}
-			
-			/* 
-			 * Find the sub-voxel resolution from the smallest agent, and
-			 * get the list of sub-voxel points.
+			/*
+			 * Now fill these agent biomass distribution maps.
 			 */
+			double[] location;
+			double[] dimension = new double[3];
+			double[] sides;
+			Collection<SubvoxelPoint> svPoints;
+			List<Agent> nhbs;
+			List<Surface> surfaces;
+			double[] pLoc;
+			Collision collision = new Collision(null, null, shape);
+
 			
-			double radius;
-			for ( Agent a : nhbs )
+			for ( int[] coord = shape.resetIterator(); 
+					shape.isIteratorValid(); coord = shape.iteratorNext())
 			{
-				radius = a.getDouble(AspectRef.bodyRadius);
-				Log.out(level, "   agent "+a.identity()+" has radius "+radius);
-				minRad = Math.min(radius, minRad);
-			}
-			minRad *= SUBGRID_FACTOR;
-			svPoints = shape.getCurrentSubvoxelPoints(minRad);
-			if ( Log.shouldWrite(level) )
-			{
-				Log.out(level, "  using a min radius of "+minRad);
-				Log.out(level, "  gives "+svPoints.size()+" sub-voxel points");
-			}
-			/* Get the sub-voxel points and query the agents. */
-			for ( Agent a : nhbs )
-			{
-				/* Should have been removed, but doesn't hurt to check. */
-				if ( ! a.isAspect(AspectRef.agentReactions) )
+				double minRad;
+				
+				if( shape instanceof CartesianShape)
+				{
+					/* Find all agents that overlap with this voxel. */
+					// TODO a method for getting a voxel's bounding box directly?
+					location = Vector.subset(shape.getVoxelOrigin(coord), nDim);
+					shape.getVoxelSideLengthsTo(dimension, coord); //FIXME returns arc lengths with polar coords
+					// FIXME create a bounding box that always captures at least the complete voxel
+					sides = Vector.subset(dimension, nDim);
+					/* NOTE the agent tree is always the amount of actual dimension */
+					nhbs = this._agents.treeSearch(location, sides);
+					
+					/* used later to find subgridpoint scale */
+					minRad = Vector.min(sides);
+				}
+				else
+				{
+					/* TODO since the previous does not work at all for polar */
+					nhbs = this._agents.getAllLocatedAgents();
+					
+					/* FIXME total mess, trying to get towards something that at
+					 * least makes some sence
+					 */
+					shape.getVoxelSideLengthsTo(dimension, coord); //FIXME returns arc lengths with polar coords
+					// FIXME create a bounding box that always captures at least the complete voxel
+					sides = Vector.subset(dimension, nDim);
+					// FIXME because it does not make any sence to use the ark, try the biggest (probably the R dimension) and half that to be safe.
+					minRad = Vector.max(sides) / 2.0; 
+				}
+				
+				/* Filter the agents for those with reactions, radius & surface. */
+				nhbs.removeIf(NO_REAC_FILTER);
+				nhbs.removeIf(NO_BODY_FILTER);
+				/* If there are none, move onto the next voxel. */
+				if ( nhbs.isEmpty() )
 					continue;
-				if ( ! a.isAspect(AspectRef.surfaceList) )
-					continue;
-				surfaces = (List<Surface>) a.get(AspectRef.surfaceList);
 				if ( Log.shouldWrite(level) )
 				{
-					Log.out(level, "  "+"   agent "+a.identity()+" has "+
-						surfaces.size()+" surfaces");
+					Log.out(level, "  "+nhbs.size()+" agents overlap with coord "+
+						Vector.toString(coord));
 				}
+				
+				/* 
+				 * Find the sub-voxel resolution from the smallest agent, and
+				 * get the list of sub-voxel points.
+				 */
+				
+				double radius;
+				for ( Agent a : nhbs )
+				{
+					radius = a.getDouble(AspectRef.bodyRadius);
+					Log.out(level, "   agent "+a.identity()+" has radius "+radius);
+					minRad = Math.min(radius, minRad);
+				}
+				minRad *= SUBGRID_FACTOR;
+				svPoints = shape.getCurrentSubvoxelPoints(minRad);
+				if ( Log.shouldWrite(level) )
+				{
+					Log.out(level, "  using a min radius of "+minRad);
+					Log.out(level, "  gives "+svPoints.size()+" sub-voxel points");
+				}
+				/* Get the sub-voxel points and query the agents. */
+				for ( Agent a : nhbs )
+				{
+					/* Should have been removed, but doesn't hurt to check. */
+					if ( ! a.isAspect(AspectRef.agentReactions) )
+						continue;
+					if ( ! a.isAspect(AspectRef.surfaceList) )
+						continue;
+					surfaces = (List<Surface>) a.get(AspectRef.surfaceList);
+					if ( Log.shouldWrite(level) )
+					{
+						Log.out(level, "  "+"   agent "+a.identity()+" has "+
+							surfaces.size()+" surfaces");
+					}
 				mapOfMaps = (Map<Shape, CoordinateMap>) a.getValue(VD_TAG);
 				distributionMap = mapOfMaps.get(shape);
-				/*
-				 * FIXME this should really only evaluate collisions with local
-				 * subgridpoints rather than all subgrid points in the domain.
-				 * With a rib length of 0.25 * radius_smallest_agent this can
-				 * result in 10^8 - 10^10 or more evaluations per agent!!
-				 */
-				sgLoop: for ( SubvoxelPoint p : svPoints )
-				{
-					/* Only give location in significant dimensions. */
-					pLoc = p.getRealLocation(nDim);
-					for ( Surface s : surfaces )
-						if ( collision.distance(s, pLoc) < 0.0 )
-						{
-							distributionMap.increase(coord, p.volume);
-							/*
-							 * We only want to count this point once, even
-							 * if other surfaces of the same agent hit it.
-							 */
-							continue sgLoop;
-						}
+
+			
+					/*
+					 * FIXME this should really only evaluate collisions with local
+					 * subgridpoints rather than all subgrid points in the domain.
+					 * With a rib length of 0.25 * radius_smallest_agent this can
+					 * result in 10^8 - 10^10 or more evaluations per agent!!
+					 */
+					sgLoop: for ( SubvoxelPoint p : svPoints )
+					{
+						/* Only give location in significant dimensions. */
+						pLoc = p.getRealLocation(nDim);
+						for ( Surface s : surfaces )
+							if ( collision.distance(s, pLoc) < 0.0 )
+							{
+								distributionMap.increase(coord, p.volume);
+								/*
+								 * We only want to count this point once, even
+								 * if other surfaces of the same agent hit it.
+								 */
+								continue sgLoop;
+							}
+					}
 				}
 			}
 		}
-		Log.out(level, "Finished setting up agent distribution maps");
+		else
+		{
+			for ( Agent a : this._agents.getAllLocatedAgents() )
+			{
+				int[] coord = shape.getCoords(((Body) a.get(AspectRef.agentBody)).getCenter());
+				mapOfMaps = (Map<Shape, CoordinateMap>) a.getValue(VD_TAG);
+				distributionMap = mapOfMaps.get(shape);
+				distributionMap.increase(coord, shape.getVoxelVolume(coord));
+			}
+		}
+		if( Log.shouldWrite(level) )
+			Log.out(level, "Finished setting up agent distribution maps");
 	}
 	
 	@SuppressWarnings("unchecked")

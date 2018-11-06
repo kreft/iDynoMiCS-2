@@ -44,7 +44,8 @@ public abstract interface AspectInterface
 				Element s = (Element) stateNodes.item(j);
 				key = s.getAttribute( XmlRef.nameAttribute );
 				aspectReg.add( key, ObjectFactory.loadObject( s ) );
-				Log.out(Tier.BULK, "Aspects loaded for \""+key+"\"");
+				if( Log.shouldWrite(Tier.BULK))
+					Log.out(Tier.BULK, "Aspects loaded for \""+key+"\"");
 			}
 		}
 	}

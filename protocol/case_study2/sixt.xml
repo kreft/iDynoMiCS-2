@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document>
-	<simulation log="NORMAL" outputfolder="../results" name="Fourth_case" >
-	<timer stepSize="60.0" endOfSimulation="100000.0" /> <!-- 10 weeks -->
+	<simulation log="NORMAL" outputfolder="../results" name="Fourth_case"  randomSeed="22432423">
+	<timer stepSize="60.0" endOfSimulation="500000.0" /> <!-- 10 weeks -->
 		<speciesLib>
 			<!-- species/species library The species library contains all agent species 
 				in the simulations. This may include microbial species, plasmid and vector 
@@ -126,12 +126,12 @@
 		</speciesLib>
 
 		<compartment name="chemostat">
-			<shape class="Dimensionless" volume="1e9">
+			<shape class="Dimensionless" volume="1e6">
 				<boundary  class="constantConcentrationToChemostat" volumeFlowRate="1.0E3">
-				<solute name="ammonium" concentration="1.00E-06"/>
+				<solute name="ammonium" concentration="2.00E-06"/>
 				<solute name="oxygen" 	concentration="8.74E-6"  />
 				<solute name="nitrite" 	concentration="5.00E-9"  />
-				<solute name="nitrate" 	concentration="1.00E-6"  />
+				<solute name="nitrate" 	concentration="2.00E-6"  />
 				</boundary>
 				<boundary  class="chemostatOut" volumeFlowRate="1.0E3" agentRemoval="false" >
 				</boundary> 
@@ -147,7 +147,7 @@
 				<process name="solveChemostat" class="ChemostatSolver" priority="0"
 					firstStep="0.0"  timerStepSize="60.0">
 					<aspect name="soluteNames" type="PRIMARY" class="String[]" value="ammonium,oxygen,nitrite,nitrate" />
-					<aspect name="hMax" type="PRIMARY" class="Double" value="0.01" />
+					<aspect name="hMax" type="PRIMARY" class="Double" value="60.0" />
 					<aspect name="solver" type="PRIMARY" class="String" value="heun" />
 					<aspect name="tolerance" class="Double" value="1.0E-6" />
 				</process>
@@ -165,10 +165,10 @@
 		<compartment name="biofilm" tree="SPLITTREE">
 			<shape class="Rectangle" resolutionCalculator="MultigridResolution">
 				<!-- µm -->
-				<dimension name="X" isCyclic="true" targetResolution="2.0" max="24.0"></dimension>
-				<dimension name="Y" isCyclic="false" targetResolution="2.0" max="24.0">
+				<dimension name="X" isCyclic="true" targetResolution="2.0" max="32.0"></dimension>
+				<dimension name="Y" isCyclic="false" targetResolution="2.0" max="64.0">
 					<boundary extreme="0" class="SolidBoundary" />
-					<boundary extreme="1" class="BiofilmBoundaryLayer" partnerCompartment="chemostat" layerThickness="5" />
+					<boundary extreme="1" class="BiofilmBoundaryLayer" partnerCompartment="chemostat" layerThickness="20" />
 				</dimension>
 			</shape>
 			<solutes>
@@ -186,67 +186,36 @@
 					<aspect name="#isLocated" type="PRIMARY" class="Boolean" value="true" />
 					<!-- pg -->
 					<aspect name="mass" type="PRIMARY" class="Double" value="0.15" />
-					<spawn number="5" domain="24.0,0.2" />
+					<spawn number="5" domain="32.0,0.2" />
 				</agent>
 				<agent>
 					<aspect name="species" type="PRIMARY" class="String" value="CanonicalNOB" />
 					<aspect name="#isLocated" type="PRIMARY" class="Boolean" value="true" />
 					<!-- pg -->
 					<aspect name="mass" type="PRIMARY" class="Double" value="0.15" />
-					<spawn number="5" domain="24.0,0.2" />
+					<spawn number="5" domain="32.0,0.2" />
 				</agent>
 				<agent>
 					<aspect name="species" type="PRIMARY" class="String" value="ComammoxAOB" />
 					<aspect name="#isLocated" type="PRIMARY" class="Boolean" value="true" />
 					<!-- pg -->
 					<aspect name="mass" type="PRIMARY" class="Double" value="0.15" />
-					<spawn number="5" domain="24.0,0.2" />
+					<spawn number="5" domain="32.0,0.2" />
 				</agent>
 			</agents>
 			<processManagers>				
 				<!-- ms -->
 				<process name="SolveDiffusionSteadyState" class="SolveDiffusionSteadyState" priority="1" firstStep="0.0" timerStepSize="60.0">
 					<aspect name="absoluteTolerance" type="PRIMARY" class="Double" value="1.0e-9" />
-					<aspect name="relativeTolerance" type="PRIMARY" class="Double" value="1.0e-3" />
+					<aspect name="relativeTolerance" type="PRIMARY" class="Double" value="1.0e-2" />
 					<aspect name="soluteNames" type="PRIMARY" class="String[]" value="ammonium,oxygen,nitrite,nitrate" /> 
 					<!-- µm^2 ms^-1-->
 				</process>
-				
-				<process name="svgWriter" class="GraphicalOutput"  priority="-3"
-					firstStep="0.0"  timerStepSize="60.0">
-					<aspect name="solute" type="PRIMARY" class="String" value="ammonium" />
-					<aspect name="maxConcentration" type="PRIMARY" class="Double" value="1.00E-06" />
-					<aspect name="outputWriter" type="PRIMARY" class="String" value="SvgExport" />
-				</process>
-				<process name="svgWriter" class="GraphicalOutput"  priority="-3"
-					firstStep="0.0"  timerStepSize="60.0">
-					<aspect name="solute" type="PRIMARY" class="String" value="nitrite" />
-					<aspect name="maxConcentration" type="PRIMARY" class="Double" value="1.00E-4" />
-					<aspect name="outputWriter" type="PRIMARY" class="String" value="SvgExport" />
-				</process>
-				<process name="svgWriter" class="GraphicalOutput"  priority="-3"
-					firstStep="0.0"  timerStepSize="60.0">
-					<aspect name="solute" type="PRIMARY" class="String" value="oxygen" />
-					<aspect name="maxConcentration" type="PRIMARY" class="Double" value="1.00E-5" />
-					<aspect name="outputWriter" type="PRIMARY" class="String" value="SvgExport" />
-				</process>
-				<process name="svgWriter" class="GraphicalOutput"  priority="-3"
-					firstStep="0.0"  timerStepSize="60.0">
-					<aspect name="solute" type="PRIMARY" class="String" value="nitrate" />
-					<aspect name="maxConcentration" type="PRIMARY" class="Double" value="1.00E-4" />
-					<aspect name="outputWriter" type="PRIMARY" class="String" value="SvgExport" />
-				</process>
-				<process name="svgWriter" class="GraphicalOutput"  priority="-3"
-					firstStep="0.0"  timerStepSize="1.0">
-					<aspect name="solute" type="PRIMARY" class="String" value="oxygen" />
-					<aspect name="maxConcentration" type="PRIMARY" class="Double" value="1.00E-4" />
-					<aspect name="outputWriter" type="PRIMARY" class="String" value="SvgExport" />
-					<aspect name="arrayType" type="PRIMARY" class="String" value="PRODUCTIONRATE" />
-				</process>
-				
-				<process name="agentRelax" class="AgentRelaxation" priority="-2" firstStep="0.0"  timerStepSize="30.0">
-					<aspect name="maxMovement" type="PRIMARY" class="Double" value="0.05" />
+				<process name="agentRelax" class="AgentRelaxation" priority="-2" firstStep="0.0"  timerStepSize="60.0">
+					<aspect name="maxMovement" type="PRIMARY" class="Double" value="0.10" />
 					<aspect name="relaxationMethod" type="PRIMARY" class="String" value="EULER" />
+					<aspect name="stressThreshold" type="PRIMARY" class="Double" value="10000.0" />
+					<aspect name="maxIterations" type="PRIMARY" class="Integer" value="10000" />
 				</process>
 				<process name="summary" class="Summary"  priority="2"
 					firstStep="0.0" timerStepSize="60.0">

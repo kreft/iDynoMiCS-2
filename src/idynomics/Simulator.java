@@ -13,6 +13,7 @@ import chemical.ChemicalLib;
 import dataIO.Log;
 import dataIO.XmlExport;
 import dataIO.XmlHandler;
+import debugTools.SegmentTimer;
 import dataIO.Log.Tier;
 import dataIO.Report;
 import generalInterfaces.CanPrelaunchCheck;
@@ -50,6 +51,8 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 	 * The timer
 	 */
 	public Timer timer;
+	
+	public boolean interupt = false;
 	
 	/**
 	 * Xml output writer
@@ -134,7 +137,8 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 		/*
 		 * Set up the compartments.
 		 */
-		Log.out(Tier.NORMAL, "Compartments loading...");
+		if( Log.shouldWrite(Tier.NORMAL))
+			Log.out(Tier.NORMAL, "Compartments loading...");
 		NodeList children;
 		children = XmlHandler.getAll( xmlElem, XmlRef.compartment );
 		if ( children.getLength() == 0 )
@@ -149,11 +153,15 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 			/* Compartments add themselves to the simulator. */
 			Instance.getNew( child, this, XmlRef.compartment );
 		}
-		Log.out(Tier.NORMAL, "Compartments loaded!\n");
-		Log.out(Tier.NORMAL, "Checking connective boundaries...");
+		if( Log.shouldWrite(Tier.NORMAL) )
+		{
+			Log.out(Tier.NORMAL, "Compartments loaded!\n");
+			Log.out(Tier.NORMAL, "Checking connective boundaries...");
+		}
 		for ( Compartment compartment : this._compartments )
 			compartment.checkBoundaryConnections(this._compartments);
-		Log.out(Tier.NORMAL, "Boundaries connected!\n");
+		if( Log.shouldWrite(Tier.EXPRESSIVE) )
+			Log.out(Tier.NORMAL, "Boundaries connected!\n");
 	}
 	
 	/* ***********************************************************************
@@ -287,7 +295,11 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 		 * Loop through all compartments, calling their internal steps.
 		 */
 		for ( Compartment c : this._compartments )
+		{
 			c.step();
+			if(this.interupt)
+				return;
+		}
 
 		/*
 		 * Once this is done loop through all again, this time exchanging
@@ -295,28 +307,24 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 		 */
 		for ( Compartment c : this._compartments )
 			c.postStep();
-
 		/*
 		 * 
 		 */
 		this.timer.step();
-		
 		/* 
 		 * We let the user know when an global step has finished.
 		 * TODO: iteration number
 		 */
-		Log.out(Tier.NORMAL, "Global time: " + this.timer.getCurrentTime());
+		if( Log.shouldWrite(Tier.NORMAL) )
+			Log.out(Tier.NORMAL, "Global time: " + this.timer.getCurrentTime());
 		/*
 		 * Write state to new XML file.
 		 */
-		
 		if( this._outputTicker < Idynomics.global.outputskip )
 			this._outputTicker++;
 		else
 		{
-			long tick = System.currentTimeMillis();
 			this._xmlOut.writeFile();
-			this._timeSpentOnXmlOutput = System.currentTimeMillis() - tick;
 			this._outputTicker = 0;
 		}
 
@@ -325,15 +333,21 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 		 */
 		for (Compartment c : this._compartments)
 		{
-			Log.out(Tier.QUIET,"COMPARTMENT: " + c.getName());
-			Log.out(Tier.QUIET,c.agents.getAllAgents().size() + " agents");
+			if( Log.shouldWrite(Tier.QUIET) )
+			{
+				Log.out(Tier.QUIET,"COMPARTMENT: " + c.getName());
+				Log.out(Tier.QUIET,c.agents.getAllAgents().size() + " agents");
+			}
 		};
 		
 	}
 	
 	public void run()
 	{
-		Log.out(Tier.NORMAL, "Launching simulation!");
+		/* start storing log on disk */
+		if( Log.shouldWrite(Tier.NORMAL) )
+			Log.out(Tier.NORMAL, "Launching simulation!");
+		Log.keep();
 		/*
 		 * Start timing just before simulation starts.
 		 */
@@ -342,32 +356,56 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 		for ( Compartment c : this._compartments )
 			c.checkBoundaryConnections(this._compartments);
 		/* Run the simulation. */
-		while ( this.timer.isRunning() )
+		while ( this.timer.isRunning() && !this.interupt )
 			this.step();
-		/*
-		 * Print the simulation results.
-		 */
-		this.printAll();
-		/*
-		 * Run report file.
-		 */
-		Report report = new Report();
-		report.createCustomFile("report");
-		report.writeReport();
-		report.closeFile();
 		
-		/*
-		 * Report simulation time.
-		 */
-		tic = (System.currentTimeMillis() - tic) * 0.001;
-		Log.out(Tier.QUIET, "Simulation finished in " + tic + " seconds\n"+
-				"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-				+ "~~~~~~~~~~~~~~~~~~~~~~~~\n");
-		this.printProcessManagerRealTimeStats();
-		
-		/* execute exit command if any */
-		if( !Helper.isNullOrEmpty( Global.exitCommand ) )
-			Helper.executeCommand( Global.exitCommand );
+		if ( this.interupt )
+		{
+			tic = (System.currentTimeMillis() - tic) * 0.001;
+			Log.out(Tier.QUIET, "Simulation terminated in "+ tic +" seconds\n"+
+					"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+					+ "~~~~~~~~~~~~~~~~~~~~~~~~\n");
+		}
+		else
+		{
+			/*
+			 * Print the simulation results.
+			 */
+			this.printAll();
+			/*
+			 * Run report file.
+			 */
+			Report report = new Report();
+			report.createCustomFile("report");
+			report.writeReport();
+			report.closeFile();
+			
+			/*
+			 * Report simulation time.
+			 */
+			tic = (System.currentTimeMillis() - tic) * 0.001;
+			Log.out(Tier.QUIET, "Simulation finished in " + tic + " seconds\n"+
+					"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+					+ "~~~~~~~~~~~~~~~~~~~~~~~~\n");
+			this.printProcessManagerRealTimeStats();
+			/* Stop and report on all debugger timers (if any enabled). */
+			SegmentTimer.stopAll();
+			
+			/* execute exit command if any */
+			if( !Helper.isNullOrEmpty( Global.exitCommand ) )
+				Helper.executeCommand( Global.exitCommand );
+		}
+	}
+	
+	public void interupt(String message)
+	{
+		this.interupt = true;
+	}
+	
+
+	public boolean active() 
+	{
+		return !this.interupt;
 	}
 	
 	/* ***********************************************************************
