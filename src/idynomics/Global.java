@@ -245,7 +245,7 @@ public class Global extends ParameterSet
 	/**
 	 * Only determine location of agent based on primary mass point
 	 */
-	public static boolean fastAgentDistribution = false;
+	public static boolean fastAgentDistribution = true;
 	
 	/**
 	 * TODO

@@ -33,7 +33,6 @@ import shape.subvoxel.CoordinateMap;
 import shape.subvoxel.SubvoxelPoint;
 import solver.PDEsolver;
 import solver.PDEupdater;
-import surface.Point;
 import surface.Surface;
 import surface.collision.Collision;
 import utility.Helper;
@@ -315,12 +314,10 @@ public abstract class ProcessDiffusion extends ProcessManager
 			double[] dimension = new double[3];
 			double[] sides;
 			Collection<SubvoxelPoint> svPoints;
-			List<Point> agentPoints;
 			List<Agent> nhbs;
 			List<Surface> surfaces;
 			double[] pLoc;
 			Collision collision = new Collision(null, null, shape);
-			int numPointsInside = 0;
 
 			
 			for ( int[] coord = shape.resetIterator(); 
@@ -396,56 +393,36 @@ public abstract class ProcessDiffusion extends ProcessManager
 						continue;
 					if ( ! a.isAspect(AspectRef.surfaceList) )
 						continue;
-					
+					surfaces = (List<Surface>) a.get(AspectRef.surfaceList);
+					if ( Log.shouldWrite(level) )
+					{
+						Log.out(level, "  "+"   agent "+a.identity()+" has "+
+							surfaces.size()+" surfaces");
+					}
 					mapOfMaps = (Map<Shape, CoordinateMap>) a.getValue(VD_TAG);
 					distributionMap = mapOfMaps.get(shape);
-					
-					// kept at 1000 for testing, could be increased or a better check used.
-					if (svPoints.size() > 1000)
+
+			
+					/*
+					 * FIXME this should really only evaluate collisions with local
+					 * subgridpoints rather than all subgrid points in the domain.
+					 * With a rib length of 0.25 * radius_smallest_agent this can
+					 * result in 10^8 - 10^10 or more evaluations per agent!!
+					 */
+					sgLoop: for ( SubvoxelPoint p : svPoints )
 					{
-						agentPoints = ((Body) a.get(AspectRef.agentBody)).getPoints();
-						for (Point p : agentPoints)
-						{
-							if (shape.isInside(p.getPosition()))
+						/* Only give location in significant dimensions. */
+						pLoc = p.getRealLocation(nDim);
+						for ( Surface s : surfaces )
+							if ( collision.distance(s, pLoc) < 0.0 )
 							{
-								numPointsInside++;
+								distributionMap.increase(coord, p.volume);
+								/*
+								 * We only want to count this point once, even
+								 * if other surfaces of the same agent hit it.
+								 */
+								continue sgLoop;
 							}
-						}
-						double agentVolume = a.getDouble(AspectRef.agentVolume);
-						int numPointsTotal = ((Body) a.get(AspectRef.agentBody)).getNumberOfPoints();
-						distributionMap.increase(coord, agentVolume*(numPointsInside/numPointsTotal));
-					}
-					// default process.
-					else
-					{
-						surfaces = (List<Surface>) a.get(AspectRef.surfaceList);
-						if ( Log.shouldWrite(level) )
-						{
-							Log.out(level, "  "+"   agent "+a.identity()+" has "+
-								surfaces.size()+" surfaces");
-						}
-						
-						/*
-						 * FIXME this should really only evaluate collisions with local
-						 * subgridpoints rather than all subgrid points in the domain.
-						 * With a rib length of 0.25 * radius_smallest_agent this can
-						 * result in 10^8 - 10^10 or more evaluations per agent!!
-						 */
-						sgLoop: for ( SubvoxelPoint p : svPoints )
-						{
-							/* Only give location in significant dimensions. */
-							pLoc = p.getRealLocation(nDim);
-							for ( Surface s : surfaces )
-								if ( collision.distance(s, pLoc) < 0.0 )
-								{
-									distributionMap.increase(coord, p.volume);
-									/*
-									 * We only want to count this point once, even
-									 * if other surfaces of the same agent hit it.
-									 */
-									continue sgLoop;
-								}
-						}
 					}
 				}
 			}
@@ -457,7 +434,7 @@ public abstract class ProcessDiffusion extends ProcessManager
 				int[] coord = shape.getCoords(((Body) a.get(AspectRef.agentBody)).getCenter());
 				mapOfMaps = (Map<Shape, CoordinateMap>) a.getValue(VD_TAG);
 				distributionMap = mapOfMaps.get(shape);
-				distributionMap.increase(coord, a.getDouble(AspectRef.agentVolume));
+				distributionMap.increase(coord, shape.getVoxelVolume(coord));
 			}
 		}
 		if( Log.shouldWrite(level) )
