@@ -429,6 +429,16 @@ public abstract class ProcessDiffusion extends ProcessManager
 								continue sgLoop;
 							}
 					}
+				
+				}
+			}
+			for ( Agent a : this._agents.getAllLocatedAgents() )
+			{
+				if ( a.isAspect(VD_TAG) )
+				{
+					mapOfMaps = (Map<Shape, HashMap<IntegerArray,Double>>) a.getValue(VD_TAG);
+					distributionMap = mapOfMaps.get(shape);
+					ProcessDiffusion.scale(distributionMap, 1.0);
 				}
 			}
 		}
@@ -440,10 +450,7 @@ public abstract class ProcessDiffusion extends ProcessManager
 						shape.getCoords(((Body) a.get(AspectRef.agentBody)).getCenter()));
 				mapOfMaps = (Map<Shape, HashMap<IntegerArray,Double>>) a.getValue(VD_TAG);
 				distributionMap = mapOfMaps.get(shape);
-				if( distributionMap.containsKey(coordArray))
-					distributionMap.put(coordArray, distributionMap.get(coordArray)+a.getDouble(AspectRef.agentVolume));
-				else
-					distributionMap.put(coordArray, a.getDouble(AspectRef.agentVolume));
+				distributionMap.put(coordArray, 1.0);
 			}
 		}
 		if( Log.shouldWrite(level) )
@@ -501,7 +508,7 @@ public abstract class ProcessDiffusion extends ProcessManager
 	}
 	
 	
-	public static void scale(HashMap<IntegerArray,Double> coordMap ,double newTotal)
+	public static void scale(HashMap<IntegerArray,Double> coordMap, double newTotal)
 	{
 		/* Find the multiplier, taking care not to divide by zero. */
 		double multiplier = 0.0;

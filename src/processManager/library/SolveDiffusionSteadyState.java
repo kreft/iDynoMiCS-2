@@ -147,7 +147,6 @@ public class SolveDiffusionSteadyState extends ProcessDiffusion
 	private void applyAgentReactions(
 			Agent agent, Collection<SpatialGrid> variables)
 	{
-		
 		/*
 		 * Get the agent's reactions: if it has none, then there is nothing
 		 * more to do.
@@ -166,7 +165,6 @@ public class SolveDiffusionSteadyState extends ProcessDiffusion
 		Map<Shape, HashMap<IntegerArray,Double>> mapOfMaps = (Map<Shape, HashMap<IntegerArray,Double>>)
 						agent.getValue(VOLUME_DISTRIBUTION_MAP);
 		HashMap<IntegerArray,Double> distributionMap = mapOfMaps.get(shape);
-		ProcessDiffusion.scale(distributionMap, 1.0);
 		/*
 		 * Get the agent biomass kinds as a map. Copy it now so that we can
 		 * use this copy to store the changes.
@@ -176,9 +174,8 @@ public class SolveDiffusionSteadyState extends ProcessDiffusion
 		 * Now look at all the voxels this agent covers.
 		 */
 		Map<String,Double> concns = new HashMap<String,Double>();
-		Map<String,Double> stoichiometry;
 		SpatialGrid solute;
-		double concn, rate, productRate, volume, perVolume;
+		double concn, productRate, volume, perVolume;
 		for ( IntegerArray coord : distributionMap.keySet() )
 		{
 			volume = shape.getVoxelVolume(coord.get());
@@ -268,7 +265,6 @@ public class SolveDiffusionSteadyState extends ProcessDiffusion
 						agent.getValue(VOLUME_DISTRIBUTION_MAP);
 		HashMap<IntegerArray,Double> distributionMap = 
 				mapOfMaps.get(agent.getCompartment().getShape());
-		ProcessDiffusion.scale(distributionMap, 1.0);
 		/*
 		 * Get the agent biomass kinds as a map. Copy it now so that we can
 		 * use this copy to store the changes.
@@ -281,13 +277,11 @@ public class SolveDiffusionSteadyState extends ProcessDiffusion
 		 * Now look at all the voxels this agent covers.
 		 */
 		Map<String,Double> concns = new HashMap<String,Double>();
-		Map<String,Double> stoichiometry;
 		SpatialGrid solute;
-		Shape shape = this._agents.getShape();
-		double concn, rate, productRate, volume, perVolume;
+		double concn, productRate, volume, perVolume;
 		for ( IntegerArray coord : distributionMap.keySet() )
 		{
-			volume = shape.getVoxelVolume(coord.get());
+			volume = this._agents.getShape().getVoxelVolume(coord.get());
 			perVolume = 1.0/volume;
 			for ( Reaction r : reactions )
 			{
@@ -333,7 +327,6 @@ public class SolveDiffusionSteadyState extends ProcessDiffusion
 				 * stoichiometry may not be the same as those in the reaction
 				 * variables (although there is likely to be a large overlap).
 				 */
-				double dt = this.getTimeStepSize();
 				for ( String productName : r.getReactantNames() )
 				{
 					productRate = r.getProductionRate(concns,productName);
@@ -345,7 +338,7 @@ public class SolveDiffusionSteadyState extends ProcessDiffusion
 					else if ( newBiomass.containsKey(productName) )
 					{
 						newBiomass.put(productName, newBiomass.get(productName)
-								+ (productRate * dt * volume));
+								+ (productRate * this.getTimeStepSize() * volume));
 					}
 					else if ( agent.isAspect(productName) )
 					{
@@ -354,12 +347,12 @@ public class SolveDiffusionSteadyState extends ProcessDiffusion
 						 * (e.g. EPS).
 						 */
 						newBiomass.put(productName, agent.getDouble(productName)
-								+ (productRate * dt * volume));
+								+ (productRate * this.getTimeStepSize() * volume));
 					}
 					else
 					{
 						//TODO quick fix If not defined elsewhere add it to the map
-						newBiomass.put(productName, (productRate * dt * volume));
+						newBiomass.put(productName, (productRate * this.getTimeStepSize() * volume));
 						System.out.println("agent reaction catched " + 
 								productName);
 						// TODO safety?
