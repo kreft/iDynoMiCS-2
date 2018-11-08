@@ -29,7 +29,7 @@ public class IntegerArray
 		if ( o instanceof IntegerArray)
 		{
 			IntegerArray other = (IntegerArray) o;
-			for( int i = 0; i<_array.length; i++)
+			for( int i = 0, d=_array.length; i<d; i++)
 			{
 				if(this._array[i] != other.get(i))
 					return false;
