@@ -1,5 +1,15 @@
 package shape.subvoxel;
 
+/**
+ * Integer Array is a simple in[] wrapper object which can be used as 
+ * identifying key in Map objects (for example to identify coordinates).
+ * 
+ * Note this object should remain as light and simple as possible, for any other
+ * use cases please simply extend this class.
+ * 
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
+ *
+ */
 public class IntegerArray 
 {
 	private int[] _array;
