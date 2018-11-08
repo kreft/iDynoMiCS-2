@@ -965,6 +965,9 @@ public class Collision
 	
 	/**
 	 * TODO \brief
+	 * 
+	 * FIXME this method does not seem to be adjusted to account for periodic
+	 * boundaries
 	 */
 	private CollisionVariables voxelSphere(Voxel voxel, Ball sphere, 
 			CollisionVariables var)
@@ -982,16 +985,11 @@ public class Collision
 	 * TODO real-time collsion detection pp 229
 	 * @param rod
 	 * @param voxel
-	 * @param t
+	 * @param t 
 	 * @return
 	 */
 	private int voxelRod(Rod rod, Voxel voxel, double t)
 	{
-		double[] eMin = Vector.minus(voxel.getLower(), rod.getRadius());
-		double[] eMax = Vector.add(
-				Vector.add( voxel.getLower(), voxel.getDimensions()), 
-				rod.getRadius());
-
 		return 0;
 	}
 

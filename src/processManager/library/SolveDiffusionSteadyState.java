@@ -28,6 +28,7 @@ import referenceLibrary.AspectRef;
 import referenceLibrary.XmlRef;
 import shape.Shape;
 import shape.subvoxel.CoordinateMap;
+import shape.subvoxel.IntegerArray;
 import solver.PDEmultigrid;
 import solver.PDEupdater;
 
@@ -162,10 +163,10 @@ public class SolveDiffusionSteadyState extends ProcessDiffusion
 		 */
 		Shape shape = variables.iterator().next().getShape();
 		@SuppressWarnings("unchecked")
-		Map<Shape, CoordinateMap> mapOfMaps = (Map<Shape, CoordinateMap>)
+		Map<Shape, HashMap<IntegerArray,Double>> mapOfMaps = (Map<Shape, HashMap<IntegerArray,Double>>)
 						agent.getValue(VOLUME_DISTRIBUTION_MAP);
-		CoordinateMap distributionMap = mapOfMaps.get(shape);
-		distributionMap.scale();
+		HashMap<IntegerArray,Double> distributionMap = mapOfMaps.get(shape);
+		ProcessDiffusion.scale(distributionMap, 1.0);
 		/*
 		 * Get the agent biomass kinds as a map. Copy it now so that we can
 		 * use this copy to store the changes.
@@ -178,9 +179,9 @@ public class SolveDiffusionSteadyState extends ProcessDiffusion
 		Map<String,Double> stoichiometry;
 		SpatialGrid solute;
 		double concn, rate, productRate, volume, perVolume;
-		for ( int[] coord : distributionMap.keySet() )
+		for ( IntegerArray coord : distributionMap.keySet() )
 		{
-			volume = shape.getVoxelVolume(coord);
+			volume = shape.getVoxelVolume(coord.get());
 			perVolume = 1.0/volume;
 			for ( Reaction r : reactions )
 			{
@@ -196,7 +197,7 @@ public class SolveDiffusionSteadyState extends ProcessDiffusion
 				{
 					solute = FindGrid(variables, varName);
 					if ( solute != null )
-						concn = solute.getValueAt(CONCN, coord);
+						concn = solute.getValueAt(CONCN, coord.get());
 					else if ( biomass.containsKey(varName) )
 					{
 						concn = biomass.get(varName) * 
@@ -229,7 +230,7 @@ public class SolveDiffusionSteadyState extends ProcessDiffusion
 					productRate = r.getProductionRate(concns, productName);
 					solute = FindGrid(variables, productName);
 					if ( solute != null )
-						solute.addValueAt(PRODUCTIONRATE, coord, productRate);
+						solute.addValueAt(PRODUCTIONRATE, coord.get(), productRate);
 					/* 
 					 * Unlike in a transient solver, we do not update the agent
 					 * mass here.
@@ -263,11 +264,11 @@ public class SolveDiffusionSteadyState extends ProcessDiffusion
 		 * one.
 		 */
 		@SuppressWarnings("unchecked")
-		Map<Shape, CoordinateMap> mapOfMaps = (Map<Shape, CoordinateMap>)
+		Map<Shape, HashMap<IntegerArray,Double>> mapOfMaps = (Map<Shape, HashMap<IntegerArray,Double>>)
 						agent.getValue(VOLUME_DISTRIBUTION_MAP);
-		CoordinateMap distributionMap = 
+		HashMap<IntegerArray,Double> distributionMap = 
 				mapOfMaps.get(agent.getCompartment().getShape());
-		distributionMap.scale();
+		ProcessDiffusion.scale(distributionMap, 1.0);
 		/*
 		 * Get the agent biomass kinds as a map. Copy it now so that we can
 		 * use this copy to store the changes.
@@ -284,9 +285,9 @@ public class SolveDiffusionSteadyState extends ProcessDiffusion
 		SpatialGrid solute;
 		Shape shape = this._agents.getShape();
 		double concn, rate, productRate, volume, perVolume;
-		for ( int[] coord : distributionMap.keySet() )
+		for ( IntegerArray coord : distributionMap.keySet() )
 		{
-			volume = shape.getVoxelVolume(coord);
+			volume = shape.getVoxelVolume(coord.get());
 			perVolume = 1.0/volume;
 			for ( Reaction r : reactions )
 			{
@@ -303,7 +304,7 @@ public class SolveDiffusionSteadyState extends ProcessDiffusion
 					if ( this._environment.isSoluteName(varName) )
 					{
 						solute = this._environment.getSoluteGrid(varName);
-						concn = solute.getValueAt(CONCN, coord);
+						concn = solute.getValueAt(CONCN, coord.get());
 					}
 					else if ( biomass.containsKey(varName) )
 					{
@@ -339,7 +340,7 @@ public class SolveDiffusionSteadyState extends ProcessDiffusion
 					if ( this._environment.isSoluteName(productName) )
 					{
 						solute = this._environment.getSoluteGrid(productName);
-						solute.addValueAt(PRODUCTIONRATE, coord, productRate);
+						solute.addValueAt(PRODUCTIONRATE, coord.get(), productRate);
 					}
 					else if ( newBiomass.containsKey(productName) )
 					{

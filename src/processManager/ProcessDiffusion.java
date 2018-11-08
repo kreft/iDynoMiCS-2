@@ -30,6 +30,7 @@ import referenceLibrary.AspectRef;
 import shape.CartesianShape;
 import shape.Shape;
 import shape.subvoxel.CoordinateMap;
+import shape.subvoxel.IntegerArray;
 import shape.subvoxel.SubvoxelPoint;
 import solver.PDEsolver;
 import solver.PDEupdater;
@@ -292,18 +293,18 @@ public abstract class ProcessDiffusion extends ProcessManager
 		/*
 		 * Reset the agent biomass distribution maps.
 		 */
-		Map<Shape, CoordinateMap> mapOfMaps;
+		Map<Shape, HashMap<IntegerArray,Double>> mapOfMaps;
 		for ( Agent a : this._agents.getAllLocatedAgents() )
 		{
 			if ( a.isAspect(VD_TAG) )
-				mapOfMaps = (Map<Shape, CoordinateMap>)a.get(VD_TAG);
+				mapOfMaps = (Map<Shape, HashMap<IntegerArray,Double>>)a.get(VD_TAG);
 			else
-				mapOfMaps = new HashMap<Shape, CoordinateMap>();
-			mapOfMaps.put(shape, new CoordinateMap());
+				mapOfMaps = new HashMap<Shape, HashMap<IntegerArray,Double>>();
+			mapOfMaps.put(shape, new HashMap<IntegerArray,Double>());
 			a.set(VD_TAG, mapOfMaps);
 		}
 
-		CoordinateMap distributionMap;
+		HashMap<IntegerArray,Double> distributionMap;
 		
 		if ( !this._fastDistribution )
 		{
@@ -324,6 +325,7 @@ public abstract class ProcessDiffusion extends ProcessManager
 					shape.isIteratorValid(); coord = shape.iteratorNext())
 			{
 				double minRad;
+				IntegerArray coordArray = new IntegerArray(coord);
 				
 				if( shape instanceof CartesianShape)
 				{
@@ -399,7 +401,7 @@ public abstract class ProcessDiffusion extends ProcessManager
 						Log.out(level, "  "+"   agent "+a.identity()+" has "+
 							surfaces.size()+" surfaces");
 					}
-				mapOfMaps = (Map<Shape, CoordinateMap>) a.getValue(VD_TAG);
+				mapOfMaps = (Map<Shape, HashMap<IntegerArray,Double>>) a.getValue(VD_TAG);
 				distributionMap = mapOfMaps.get(shape);
 
 			
@@ -416,7 +418,10 @@ public abstract class ProcessDiffusion extends ProcessManager
 						for ( Surface s : surfaces )
 							if ( collision.distance(s, pLoc) < 0.0 )
 							{
-								distributionMap.increase(coord, p.volume);
+								if( distributionMap.containsKey(coordArray))
+									distributionMap.put(coordArray, distributionMap.get(coordArray)+p.volume);
+								else
+									distributionMap.put(coordArray, p.volume);
 								/*
 								 * We only want to count this point once, even
 								 * if other surfaces of the same agent hit it.
@@ -431,10 +436,14 @@ public abstract class ProcessDiffusion extends ProcessManager
 		{
 			for ( Agent a : this._agents.getAllLocatedAgents() )
 			{
-				int[] coord = shape.getCoords(((Body) a.get(AspectRef.agentBody)).getCenter());
-				mapOfMaps = (Map<Shape, CoordinateMap>) a.getValue(VD_TAG);
+				IntegerArray coordArray = new IntegerArray( 
+						shape.getCoords(((Body) a.get(AspectRef.agentBody)).getCenter()));
+				mapOfMaps = (Map<Shape, HashMap<IntegerArray,Double>>) a.getValue(VD_TAG);
 				distributionMap = mapOfMaps.get(shape);
-				distributionMap.increase(coord, a.getDouble(AspectRef.agentVolume));
+				if( distributionMap.containsKey(coordArray))
+					distributionMap.put(coordArray, distributionMap.get(coordArray)+a.getDouble(AspectRef.agentVolume));
+				else
+					distributionMap.put(coordArray, a.getDouble(AspectRef.agentVolume));
 			}
 		}
 		if( Log.shouldWrite(level) )
@@ -452,8 +461,8 @@ public abstract class ProcessDiffusion extends ProcessManager
 			// Already solved for finest so skip
 			if (shape.equals(finest))
 				continue;
-			Map<Shape, CoordinateMap> mapOfMaps;
-			CoordinateMap distributionMap, finestDistributionMap;
+			Map<Shape, HashMap<IntegerArray,Double>> mapOfMaps;
+			HashMap<IntegerArray,Double> distributionMap, finestDistributionMap;
 			for ( Agent a : this._agents.getAllLocatedAgents() )
 			{
 				// For agents with no reactions or body, skip
@@ -463,29 +472,47 @@ public abstract class ProcessDiffusion extends ProcessManager
 					continue;
 				// Should have this set, but doesn't hurt to check
 				if ( a.isAspect(VD_TAG) )
-					mapOfMaps = (Map<Shape, CoordinateMap>)a.get(VD_TAG);
+					mapOfMaps = (Map<Shape, HashMap<IntegerArray,Double>>)a.get(VD_TAG);
 				else
 					continue;
-				mapOfMaps.put(shape, new CoordinateMap());
+				mapOfMaps.put(shape, new HashMap<IntegerArray,Double>());
 				a.set(VD_TAG, mapOfMaps);
 				// distribution map for the current shape with nVoxels > finest
 				distributionMap = mapOfMaps.get(shape);
 				// distribution map of the finest grid. 
 				// Should have values, which we will use to update the coarser grids.
 				finestDistributionMap = mapOfMaps.get(finest);
-				Collection<int[]> coordsWithValues = finestDistributionMap.keySet();
-				for ( int[] coord : coordsWithValues )
+				Collection<IntegerArray> coordsWithValues = finestDistributionMap.keySet();
+				for ( IntegerArray coord : coordsWithValues )
 				{
 					// Calculate the global location of the coordinates in the distribution map of finest grid
-					double[] globalLocVoxel = finest.getGlobalLocation(finest.getVoxelOrigin(coord));
+					double[] globalLocVoxel = finest.getGlobalLocation(finest.getVoxelOrigin(coord.get()));
 					// Get the coordinates for the current grid
-					int[] coordInCurrentShape = shape.getCoords(shape.getLocalPosition(globalLocVoxel));
+					IntegerArray coordInCurrentShape = new IntegerArray(shape.getCoords(shape.getLocalPosition(globalLocVoxel)));
 					// Increase the volume of the current coordinates using the volume from the finest grid.
 					// This should ensure that each point on the finest grid inside the current voxel, gets added to the voxel origin.
-					distributionMap.increase(coordInCurrentShape, finestDistributionMap.get(coord));
+					if( distributionMap.containsKey(coordInCurrentShape))
+						distributionMap.put(coordInCurrentShape, distributionMap.get(coordInCurrentShape)+finestDistributionMap.get(coord));
+					else
+						distributionMap.put(coordInCurrentShape, finestDistributionMap.get(coord));
 				}
 			}
 		}
+	}
+	
+	
+	public static void scale(HashMap<IntegerArray,Double> coordMap ,double newTotal)
+	{
+		/* Find the multiplier, taking care not to divide by zero. */
+		double multiplier = 0.0;
+		for ( Double value : coordMap.values() )
+			multiplier += value;
+		if ( multiplier == 0.0 )
+			return;
+		multiplier = newTotal / multiplier;
+		/* Now apply the multiplier. */
+		for ( IntegerArray key : coordMap.keySet() )
+			coordMap.put(key, coordMap.get(key) * multiplier);
 	}
 	
 	/**
