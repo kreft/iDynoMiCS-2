@@ -500,6 +500,16 @@ public class XmlRef
 	public static final String volumeFlowRate = "volumeFlowRate";
 	
 	/**
+	 * transferCoefficient
+	 */
+	public static final String transferCoefficient = "transferCoefficient";
+	
+	/**
+	 * define transfer coefficient to be volume specific
+	 */
+	public static final String volumeSpecific = "volumeSpecific";
+	
+	/**
 	 * chemostat volume flowrate for constant chemostat volume
 	 */
 	public static final String constantVolume = "constantVolume";

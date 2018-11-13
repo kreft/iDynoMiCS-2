@@ -400,6 +400,9 @@ public class ClassRef
 	public final static String gasToMembrane =
 			boundary.library.GasToMembrane.class.getName();
 	
+	public final static String membraneToChemostat =
+			boundary.library.MembraneToChemostat.class.getName();
+	
 	/* ************************************************************************
 	 * Boundaries (spatial)
 	 */
