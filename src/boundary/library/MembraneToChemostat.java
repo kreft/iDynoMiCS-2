@@ -92,7 +92,7 @@ public class MembraneToChemostat extends Boundary
 	public void updateMassFlowRates()
 	{
 		double vol = this._environment.getShape().getTotalRealVolume();
-		for ( String name : this._environment.getSoluteNames() )
+		for ( String name : this._concns.keySet() )
 		{
 			double deltaC = this.getConcentration(name) - 
 					this._environment.getAverageConcentration(name);
