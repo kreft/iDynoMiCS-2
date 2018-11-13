@@ -146,6 +146,7 @@ public abstract class ProcessDiffusion extends ProcessManager
 		Shape shape = shapes.iterator().next();
 		this.setupAgentDistributionMaps(shape);
 		this.copyAgentDistributionMaps(shapes, shape);
+		
 		/*
 		 * Get the environment to update its well-mixed array by querying all
 		 * spatial boundaries.
@@ -325,7 +326,7 @@ public abstract class ProcessDiffusion extends ProcessManager
 					shape.isIteratorValid(); coord = shape.iteratorNext())
 			{
 				double minRad;
-				IntegerArray coordArray = new IntegerArray(coord);
+				IntegerArray coordArray = new IntegerArray(new int[]{coord[0],coord[1],coord[2]});
 				
 				if( shape instanceof CartesianShape)
 				{
@@ -403,8 +404,7 @@ public abstract class ProcessDiffusion extends ProcessManager
 					}
 				mapOfMaps = (Map<Shape, HashMap<IntegerArray,Double>>) a.getValue(VD_TAG);
 				distributionMap = mapOfMaps.get(shape);
-
-			
+				
 					/*
 					 * FIXME this should really only evaluate collisions with local
 					 * subgridpoints rather than all subgrid points in the domain.
