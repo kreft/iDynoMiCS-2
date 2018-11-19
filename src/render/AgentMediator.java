@@ -54,6 +54,8 @@ public class AgentMediator implements CommandMediator {
 	
 	HashMap<String, String> soluteColors;
 	
+	GLUquadric qobj = null;
+	
 	/*
 	 * shape
 	 */
@@ -298,11 +300,12 @@ public class AgentMediator implements CommandMediator {
 		applyCurrentColor();
 		temp_loc = GLUtil.make3D(ball._point.getPosition());
 		_gl.glTranslated(temp_loc[0], temp_loc[1], temp_loc[2]);
-		GLUquadric qobj = _glu.gluNewQuadric();
+		if (qobj == null)
+			qobj = _glu.gluNewQuadric();
 		_glu.gluQuadricDrawStyle(qobj, GLU.GLU_FILL);
 		_glu.gluQuadricNormals(qobj, GLU.GLU_SMOOTH);
 		_glu.gluSphere(qobj, ball._radius, _slices, _stacks);
-		_glu.gluDeleteQuadric(qobj);
+//		_glu.gluDeleteQuadric(qobj);
 		_gl.glPopMatrix();
 	}
 	
