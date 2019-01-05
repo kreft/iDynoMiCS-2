@@ -77,6 +77,7 @@ public class Agent implements AspectInterface, Settable, Instantiable
 		NodeList temp = XmlHandler.getAll(xmlNode, XmlRef.spawnNode);
 		if(temp.getLength() > 0)
 		{
+			// Spawn random agents
 			for(int i = 0; i < temp.getLength(); i++)
 			{
 				/* TODO this is a cheat, make a standard method for this */
@@ -101,6 +102,7 @@ public class Agent implements AspectInterface, Settable, Instantiable
 		}
 		else
 		{
+			// Place located agents
 			loadAspects(xmlNode);
 		}
 		this.init();

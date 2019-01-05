@@ -106,7 +106,8 @@ public class Body implements Copyable, Instantiable
 	 */
 	public Body(List<Point> points, double length, double radius)
 	{
-
+		// This enables the program to distinguish
+		// rods and balls depending on number of points.
 		this._points.addAll(points);
 		if(this._points.size() == 1)
 			this._surfaces.add(new Ball(points.get(0), radius));

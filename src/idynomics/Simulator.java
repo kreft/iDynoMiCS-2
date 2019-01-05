@@ -23,6 +23,7 @@ import utility.*;
 import referenceLibrary.ClassRef;
 import referenceLibrary.XmlRef;
 import settable.*;
+import settable.Module;
 import settable.Module.Requirements;
 
 /**
