@@ -2,7 +2,7 @@ package test.junit;
 
 import org.junit.Test;
 
-import idynomics.Compartment;
+import compartment.Compartment;
 import processManager.ProcessManager;
 import settable.Settable;
 import test.AllTests;

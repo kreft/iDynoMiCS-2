@@ -11,13 +11,13 @@ import java.util.Map;
 import org.w3c.dom.Element;
 
 import agent.Agent;
+import compartment.AgentContainer;
+import compartment.EnvironmentContainer;
 import dataIO.Log;
 import dataIO.Log.Tier;
 import dataIO.ObjectFactory;
 import dataIO.XmlHandler;
 import grid.SpatialGrid;
-import idynomics.AgentContainer;
-import idynomics.EnvironmentContainer;
 import linearAlgebra.Matrix;
 import linearAlgebra.Vector;
 import processManager.ProcessDiffusion;

@@ -8,12 +8,11 @@ import org.w3c.dom.Element;
 
 import agent.Agent;
 import agent.Body;
+import compartment.AgentContainer;
+import compartment.EnvironmentContainer;
 import dataIO.Log;
 import dataIO.Log.Tier;
 import expression.Expression;
-
-import idynomics.AgentContainer;
-import idynomics.EnvironmentContainer;
 import idynomics.Global;
 import idynomics.Idynomics;
 import linearAlgebra.Vector;

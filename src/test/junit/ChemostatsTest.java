@@ -6,11 +6,11 @@ import static test.AllTests.TOLERANCE;
 import org.junit.Test;
 
 import boundary.library.ConstantConcentrationToChemostat;
+import compartment.Compartment;
 import dataIO.Log;
 import dataIO.Log.Tier;
 import grid.ArrayType;
 import grid.SpatialGrid;
-import idynomics.Compartment;
 import idynomics.Idynomics;
 import processManager.library.ChemostatSolver;
 import shape.ShapeLibrary.Dimensionless;

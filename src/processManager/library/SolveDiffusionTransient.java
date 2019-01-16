@@ -13,10 +13,10 @@ import java.util.Map;
 import org.w3c.dom.Element;
 
 import agent.Agent;
+import compartment.AgentContainer;
+import compartment.EnvironmentContainer;
 import dataIO.ObjectFactory;
 import grid.SpatialGrid;
-import idynomics.AgentContainer;
-import idynomics.EnvironmentContainer;
 import processManager.ProcessDiffusion;
 import processManager.ProcessMethods;
 import reaction.RegularReaction;

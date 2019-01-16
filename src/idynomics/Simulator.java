@@ -10,6 +10,7 @@ import org.w3c.dom.NodeList;
 
 import agent.SpeciesLib;
 import chemical.ChemicalLib;
+import compartment.Compartment;
 import dataIO.Log;
 import dataIO.XmlExport;
 import dataIO.XmlHandler;

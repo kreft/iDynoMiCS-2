@@ -2,9 +2,9 @@ package test.junit;
 
 import org.junit.Test;
 
+import compartment.Compartment;
 import grid.ArrayType;
 import grid.SpatialGrid;
-import idynomics.Compartment;
 import idynomics.Idynomics;
 import processManager.library.SolveDiffusionSteadyState;
 import shape.Shape;

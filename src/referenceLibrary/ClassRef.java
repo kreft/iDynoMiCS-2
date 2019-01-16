@@ -370,7 +370,7 @@ public class ClassRef
 	 * the compartment class
 	 */
 	public final static String compartment =
-			idynomics.Compartment.class.getName();
+			compartment.Compartment.class.getName();
 	
 	/**
 	 * TODO

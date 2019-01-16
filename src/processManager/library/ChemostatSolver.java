@@ -9,10 +9,10 @@ import org.w3c.dom.Element;
 
 import agent.Agent;
 import boundary.Boundary;
+import compartment.AgentContainer;
+import compartment.EnvironmentContainer;
 import dataIO.Log;
 import dataIO.Log.Tier;
-import idynomics.AgentContainer;
-import idynomics.EnvironmentContainer;
 import linearAlgebra.Vector;
 import processManager.ProcessManager;
 import processManager.ProcessMethods;

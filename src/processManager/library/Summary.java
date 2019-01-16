@@ -6,13 +6,13 @@ package processManager.library;
 import org.w3c.dom.Element;
 
 import analysis.FilteredTable;
+import compartment.AgentContainer;
+import compartment.EnvironmentContainer;
 import dataIO.CsvExport;
 import dataIO.Log;
 import dataIO.Log.Tier;
 import referenceLibrary.AspectRef;
 import utility.Helper;
-import idynomics.AgentContainer;
-import idynomics.EnvironmentContainer;
 import processManager.ProcessManager;
 
 /**

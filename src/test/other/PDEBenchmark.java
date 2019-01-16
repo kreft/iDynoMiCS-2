@@ -7,10 +7,10 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import boundary.spatialLibrary.FixedBoundary;
+import compartment.Compartment;
 import dataIO.Log;
 import dataIO.Log.Tier;
 import grid.SpatialGrid;
-import idynomics.Compartment;
 import idynomics.Idynomics;
 import idynomics.Global;
 import idynomics.Simulator;

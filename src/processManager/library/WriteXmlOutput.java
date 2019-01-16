@@ -2,9 +2,9 @@ package processManager.library;
 
 import org.w3c.dom.Element;
 
+import compartment.AgentContainer;
+import compartment.EnvironmentContainer;
 import dataIO.XmlExport;
-import idynomics.AgentContainer;
-import idynomics.EnvironmentContainer;
 import processManager.ProcessManager;
 import referenceLibrary.AspectRef;
 

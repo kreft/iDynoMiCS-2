@@ -1,4 +1,4 @@
-package idynomics;
+package compartment;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -15,6 +15,7 @@ import static grid.ArrayType.CONCN;
 import static grid.ArrayType.WELLMIXED;
 import grid.SpatialGrid;
 import grid.WellMixedConstants;
+import idynomics.Idynomics;
 import instantiable.object.InstantiableList;
 import reaction.RegularReaction;
 import reaction.Reaction;

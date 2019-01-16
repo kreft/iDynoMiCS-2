@@ -7,12 +7,12 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import aspect.Aspect.AspectClass;
+import compartment.Compartment;
 import aspect.AspectInterface;
 import aspect.AspectReg;
 import dataIO.XmlHandler;
 import dataIO.Log;
 import dataIO.Log.Tier;
-import idynomics.Compartment;
 import idynomics.Idynomics;
 import instantiable.Instantiable;
 import linearAlgebra.Vector;

@@ -10,11 +10,11 @@ import java.util.Set;
 import org.w3c.dom.Element;
 
 import agent.Agent;
+import compartment.AgentContainer;
+import compartment.EnvironmentContainer;
 import dataIO.Log;
 import dataIO.ObjectFactory;
 import dataIO.XmlHandler;
-import idynomics.AgentContainer;
-import idynomics.EnvironmentContainer;
 import instantiable.Instantiable;
 import dataIO.Log.Tier;
 import linearAlgebra.Array;

@@ -26,7 +26,7 @@ import java.util.LinkedList;
 
 import agent.Agent;
 import agent.Species;
-import idynomics.Compartment;
+import compartment.Compartment;
 ```
 
 ## Line lengths

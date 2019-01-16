@@ -14,12 +14,12 @@ import com.jogamp.opengl.math.Quaternion;
 import com.jogamp.opengl.util.gl2.GLUT;
 
 import agent.Agent;
+import compartment.AgentContainer;
+import compartment.Compartment;
 import dataIO.Log;
 import dataIO.Log.Tier;
 import grid.ArrayType;
 import grid.SpatialGrid;
-import idynomics.AgentContainer;
-import idynomics.Compartment;
 import linearAlgebra.Vector;
 import referenceLibrary.AspectRef;
 import shape.CartesianShape;

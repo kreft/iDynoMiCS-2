@@ -1,4 +1,4 @@
-package idynomics;
+package compartment;
 
 import java.util.ArrayList;
 import java.util.Collection;

@@ -10,13 +10,13 @@ import static grid.ArrayType.CONCN;
 
 import agent.Agent;
 import agent.Body;
+import compartment.AgentContainer;
+import compartment.EnvironmentContainer;
 import dataIO.GraphicalExporter;
 import dataIO.Log;
 import dataIO.Log.Tier;
 import grid.ArrayType;
 import grid.SpatialGrid;
-import idynomics.AgentContainer;
-import idynomics.EnvironmentContainer;
 import instantiable.Instance;
 import linearAlgebra.Vector;
 import processManager.ProcessManager;

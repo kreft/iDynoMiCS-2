@@ -1,4 +1,4 @@
-package idynomics;
+package compartment;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -15,6 +15,8 @@ import dataIO.XmlHandler;
 import dataIO.Log.Tier;
 import generalInterfaces.CanPrelaunchCheck;
 import grid.*;
+import idynomics.Global;
+import idynomics.Idynomics;
 import instantiable.Instance;
 import instantiable.Instantiable;
 import processManager.ProcessComparator;
