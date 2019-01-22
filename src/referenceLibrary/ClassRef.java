@@ -379,6 +379,13 @@ public class ClassRef
 			agent.SpeciesLib.class.getName();
 	
 	/* ************************************************************************
+	 * spawners
+	 */
+	
+	public final static String randomSpawner =
+			compartment.agentStaging.RandomSpawner.class.getName();
+	
+	/* ************************************************************************
 	 * Boundaries (non-spatial)
 	 */
 	

@@ -50,6 +50,11 @@ public class XmlRef
 	public final static String agent = "agent";
 	
 	/**
+	 * templateAgent node, used by spawner.
+	 */
+	public final static String templateAgent = "templateAgent";
+	
+	/**
 	 * Process manager node.
 	 */
 	public final static String process = "process";
@@ -331,6 +336,12 @@ public class XmlRef
 	 * Priority of a process manager.
 	 */
 	public final static String processPriority = "priority";
+	
+	/**
+	 * Priority of any given element.
+	 * TODO merge with former (processPriority)
+	 */
+	public final static String priority = "priority";
 
 	/**
 	 * Time for the first timestep of a process manager.
@@ -568,5 +579,7 @@ public class XmlRef
 	 * allows for setting exponential (exp) range scaling in sampler
 	 */
 	public static final String rangeScaleAttribute = "scaling";
+
+	public static final String morphology = "morphology";
 
 }

@@ -3,32 +3,39 @@ package compartment.agentStaging;
 import org.w3c.dom.Element;
 
 import agent.Agent;
+import agent.Body.Morphology;
 import compartment.AgentContainer;
 import compartment.Compartment;
-import compartment.EnvironmentContainer;
 import dataIO.Log;
 import dataIO.XmlHandler;
 import dataIO.Log.Tier;
 import idynomics.Idynomics;
+import instantiable.Instantiable;
 import referenceLibrary.ClassRef;
 import referenceLibrary.XmlRef;
 import settable.Attribute;
 import settable.Module;
 import settable.Settable;
 import settable.Module.Requirements;
-import utility.Helper;
 
-public abstract class Spawner implements Settable {
+/**
+ * 
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
+ *
+ */
+public abstract class Spawner implements Settable, Instantiable {
 	
 	private Agent _template;
 	
+	private int _numberOfAgents;
+	
 	private int _priority;
 	
-	private String _compartmentName;
+	private Compartment _compartment;
 
 	private Settable _parentNode;
 	
-	private AgentContainer _agents;
+	private Morphology morphology;
 	
 	public void instantiate(Element xmlElem, Settable parent)
 	{
@@ -39,16 +46,29 @@ public abstract class Spawner implements Settable {
 	public void init(Element xmlElem, AgentContainer agents, 
 			String compartmentName)
 	{
-		this._agents = agents;
-		this._compartmentName = compartmentName;
+		this.setCompartment(
+				Idynomics.simulator.getCompartment(compartmentName) );
 		
 		Element p = (Element) xmlElem;
 		
 		/* spawner priority - default is zero. */
 		int priority = 0;
-		if ( XmlHandler.hasAttribute(p, XmlRef.processPriority) )
-			priority = Integer.valueOf(p.getAttribute(XmlRef.processPriority) );
+		if ( XmlHandler.hasAttribute(p, XmlRef.priority) )
+			priority = Integer.valueOf(p.getAttribute(XmlRef.priority) );
 		this.setPriority(priority);
+		
+		if ( XmlHandler.hasAttribute(p, XmlRef.numberOfAgents) )
+			this.setNumberOfAgents( Integer.valueOf(
+					p.getAttribute(XmlRef.numberOfAgents) ) );
+		
+		if ( XmlHandler.hasAttribute(p, XmlRef.morphology) )
+			this.setMorphology( Morphology.valueOf(
+					p.getAttribute(XmlRef.morphology) ) );
+		
+		Element template = XmlHandler.findUniqueChild(xmlElem, 
+				XmlRef.templateAgent);
+		/* using template constructor */
+		this.setTemplate( new Agent( template, true ) );
 		
 		if( Log.shouldWrite(Tier.EXPRESSIVE))
 			Log.out(Tier.EXPRESSIVE, defaultXmlTag() + " loaded");
@@ -64,6 +84,16 @@ public abstract class Spawner implements Settable {
 		return _template;
 	}
 	
+	public int getNumberOfAgents() 
+	{
+		return _numberOfAgents;
+	}
+
+	public void setNumberOfAgents(int _numberOfAgents) 
+	{
+		this._numberOfAgents = _numberOfAgents;
+	}
+
 	public void setPriority(int priority)
 	{
 		this._priority = priority;
@@ -73,6 +103,8 @@ public abstract class Spawner implements Settable {
 	{
 		return this._priority;
 	}
+	
+	public abstract void spawn();
 	
 	/**
 	 * Obtain module for xml output and gui representation.
@@ -90,8 +122,14 @@ public abstract class Spawner implements Settable {
 			modelNode.add(new Attribute(XmlRef.classAttribute, 
 					this.getClass().getName(), null, false ));
 		
-		modelNode.add(new Attribute(XmlRef.processPriority, 
+		modelNode.add(new Attribute(XmlRef.priority, 
 				String.valueOf(this._priority), null, true ));
+		
+		modelNode.add(new Attribute(XmlRef.numberOfAgents, 
+				String.valueOf(this.getNumberOfAgents()), null, true ));
+		
+		modelNode.add(new Attribute(XmlRef.morphology, 
+				String.valueOf(this.getMorphology()), null, true ));
 		
 		modelNode.addChildSpec( ClassRef.aspect,
 				Module.Requirements.ZERO_TO_MANY);
@@ -120,7 +158,7 @@ public abstract class Spawner implements Settable {
 	 */
 	public void removeModule(String specifier)
 	{
-		Idynomics.simulator.deleteFromCompartment(this._compartmentName, this);
+		Idynomics.simulator.deleteFromCompartment(this.geCompartment().getName(), this);
 	}
 
 	/**
@@ -128,7 +166,7 @@ public abstract class Spawner implements Settable {
 	 */
 	public String defaultXmlTag() 
 	{
-		return XmlRef.process;
+		return XmlRef.spawnNode;
 	}
 
 	
@@ -141,5 +179,21 @@ public abstract class Spawner implements Settable {
 	public Settable getParent() 
 	{
 		return this._parentNode;
+	}
+
+	public Morphology getMorphology() {
+		return morphology;
+	}
+
+	public void setMorphology(Morphology morphology) {
+		this.morphology = morphology;
+	}
+
+	public Compartment geCompartment() {
+		return _compartment;
+	}
+
+	public void setCompartment(Compartment _compartment) {
+		this._compartment = _compartment;
 	}
 }

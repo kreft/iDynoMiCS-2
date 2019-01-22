@@ -5,11 +5,13 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import org.w3c.dom.Element;
 import agent.Agent;
 import boundary.Boundary;
 import boundary.SpatialBoundary;
+import compartment.agentStaging.Spawner;
 import dataIO.Log;
 import dataIO.XmlHandler;
 import dataIO.Log.Tier;
@@ -224,10 +226,43 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable
 		/*
 		 * setup tree
 		 */
-		
 		String type = XmlHandler.gatherAttribute(xmlElem, XmlRef.tree);
 		type = Helper.setIfNone(type, String.valueOf(TreeType.RTREE));
 		this.agents.setSpatialTreeType(TreeType.valueOf(type));
+		/*
+		 * Look for spawner elements
+		 */
+		Spawner spawner;
+		TreeMap<Integer,Spawner> spawners = new TreeMap<Integer,Spawner>();
+		for ( Element e : XmlHandler.getElements( xmlElem, XmlRef.spawnNode) )
+		{
+			spawner = (Spawner) Instance.getNew(e, this);
+			/* check for duplicate priority */
+			if (spawners.containsKey(spawner.getPriority()))
+			{
+				if( Log.shouldWrite(Tier.CRITICAL))
+					Log.out(level, "ERROR: Spawner with duplicate priority. "
+							+ "Simulation will not proceed.");
+				Idynomics.simulator.interupt("interupted due to duplicate "
+						+ "spawner priority.");
+			}
+			spawners.put(spawner.getPriority(), spawner);
+		}
+		/* verify whether this always returns in correct order (it should) */
+		for( Spawner s : spawners.values() )
+			s.spawn();
+		if( Log.shouldWrite(level))
+			Log.out(level, "Compartment "+this.name+" initialised with "+ 
+					this.agents.getNumAllAgents()+" agents");
+		
+		/*
+		 * Read in agents.
+		 */
+		for ( Element e : XmlHandler.getElements( xmlElem, XmlRef.agent) )
+			this.addAgent(new Agent( e, this ));
+		if( Log.shouldWrite(level))
+			Log.out(level, "Compartment "+this.name+" initialised with "+ 
+					this.agents.getNumAllAgents()+" agents");
 		/*
 		 * Load solutes.
 		 */
@@ -245,14 +280,6 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable
 			Log.out(level, "Compartment reading in (environmental) reactions");
 		for ( Element e : XmlHandler.getElements( xmlElem, XmlRef.reaction) )
 			new RegularReaction(e, this.environment);	
-		/*
-		 * Read in agents.
-		 */
-		for ( Element e : XmlHandler.getElements( xmlElem, XmlRef.agent) )
-			this.addAgent(new Agent( e, this ));
-		if( Log.shouldWrite(level))
-			Log.out(level, "Compartment "+this.name+" initialised with "+ 
-					this.agents.getNumAllAgents()+" agents");
 		/*
 		 * Read in process managers.
 		 */
