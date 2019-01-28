@@ -108,10 +108,16 @@ public class Body implements Copyable, Instantiable
 	{
 		// This enables the program to distinguish
 		// rods and balls depending on number of points.
+		
+		//TODO - use morphology aspect here?
 		this._points.addAll(points);
 		if(this._points.size() == 1)
 			this._surfaces.add(new Ball(points.get(0), radius));
 		else
+			
+			/**
+			 * Rod construction
+			 */
 		{
 			for(int i = 0; points.size()-1 > i; i++)
 			{

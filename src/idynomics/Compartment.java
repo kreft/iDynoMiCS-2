@@ -1,5 +1,6 @@
 package idynomics;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -12,6 +13,7 @@ import boundary.Boundary;
 import boundary.SpatialBoundary;
 import dataIO.Log;
 import dataIO.XmlHandler;
+import epithelialLayer.EpithelialLayer;
 import dataIO.Log.Tier;
 import generalInterfaces.CanPrelaunchCheck;
 import grid.*;
@@ -243,6 +245,17 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable
 			Log.out(level, "Compartment reading in (environmental) reactions");
 		for ( Element e : XmlHandler.getElements( xmlElem, XmlRef.reaction) )
 			new RegularReaction(e, this.environment);	
+		
+		/*
+		 * Spawner
+		 */
+		
+		for ( Element e : XmlHandler.getElements(xmlElem, XmlRef.spawner)) {
+			new EpithelialLayer(e, this);
+			if( Log.shouldWrite(level))
+				Log.out(level, "Compartment "+this.name+" building epithelial"
+						+ " layer "+ e.getAttribute(XmlRef.nameAttribute));
+			}
 		/*
 		 * Read in agents.
 		 */

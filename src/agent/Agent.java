@@ -50,6 +50,7 @@ public class Agent implements AspectInterface, Settable, Instantiable
 	 */
 	protected AspectReg _aspectRegistry = new AspectReg();
 	private Settable _parentNode;
+	
 		
 	/*************************************************************************
 	 * CONSTRUCTORS
@@ -68,6 +69,12 @@ public class Agent implements AspectInterface, Settable, Instantiable
 	public Agent(Node xmlNode, Compartment comp)
 	{
 		this.init(xmlNode, comp);
+	}
+	
+	public Agent (Node xmlNode, Body body, Compartment comp) {
+		Agent extra = new Agent(xmlNode, body);
+		extra._compartment = comp;
+		extra.registerBirth();
 	}
 	
 	public void init(Node xmlNode, Compartment comp)
@@ -107,6 +114,7 @@ public class Agent implements AspectInterface, Settable, Instantiable
 		}
 		this.init();
 	}
+	
 	
 	/**
 	 * Assign the correct species from the species library
