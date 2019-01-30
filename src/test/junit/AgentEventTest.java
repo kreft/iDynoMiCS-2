@@ -9,7 +9,7 @@ import static org.junit.Assert.assertEquals;
 
 import agent.Agent;
 import aspect.event.CoccoidDivision;
-import idynomics.Compartment;
+import compartment.Compartment;
 import idynomics.Idynomics;
 import referenceLibrary.AspectRef;
 import shape.Shape;

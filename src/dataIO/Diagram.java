@@ -7,8 +7,8 @@ import java.util.Map;
 
 import agent.Agent;
 import agent.SpeciesLib;
+import compartment.Compartment;
 import dataIO.Log.Tier;
-import idynomics.Compartment;
 import idynomics.Idynomics;
 import reaction.RegularReaction;
 import reaction.Reaction;

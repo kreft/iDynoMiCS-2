@@ -2,7 +2,7 @@ package boundary.library;
 
 import org.w3c.dom.Element;
 import boundary.Boundary;
-import idynomics.Compartment;
+import compartment.Compartment;
 import settable.Settable;
 
 /**

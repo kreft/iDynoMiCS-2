@@ -12,10 +12,10 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import compartment.Compartment;
 import dataIO.Log;
 import dataIO.Log.Tier;
 import gui.GuiConsole;
-import idynomics.Compartment;
 import idynomics.Idynomics;
 import linearAlgebra.Vector;
 

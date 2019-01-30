@@ -7,6 +7,8 @@ import java.util.List;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
+import dataIO.Log;
+import dataIO.Log.Tier;
 import generalInterfaces.Copyable;
 import generalInterfaces.HasBoundingBox;
 import instantiable.Instantiable;
@@ -29,6 +31,14 @@ import utility.Helper;
  */
 public class Body implements Copyable, Instantiable
 {
+	/*
+	 * morphology specifications
+	 */
+	public enum Morphology {
+		COCCOID,
+		BACILLUS,
+		CUBOID,
+	}
 	/**
 	 * Ordered list of the points that describe the body.
 	 */
@@ -43,6 +53,11 @@ public class Body implements Copyable, Instantiable
 	 * Rest angles of torsion springs for multi-segment agents
 	 */
 	protected double[] _angles;
+	
+	/**
+	 * morphology
+	 */
+	protected Morphology _morphology;
 
 	/**
 	 * NOTE: work in progress, subject to change
@@ -68,17 +83,20 @@ public class Body implements Copyable, Instantiable
 	{
 		this._points.add(point);
 		this._surfaces.add(new Ball(point, radius));
+		this._morphology = Morphology.COCCOID;
 	}
 
 	public Body(Ball sphere)
 	{
 		this._points.add(sphere._point);
 		this._surfaces.add(sphere);
+		this._morphology = Morphology.COCCOID;
 	}
 	
 	public Body(double[] position, double radius)
 	{
 		this(new Point(position), radius);
+		this._morphology = Morphology.COCCOID;
 	}
 
 	/**
@@ -90,6 +108,7 @@ public class Body implements Copyable, Instantiable
 		this._points.add(points[0]);
 		this._points.add(points[1]);
 		this._surfaces.add(new Rod(points, spineLength, radius));
+		this._morphology = Morphology.BACILLUS;
 	}
 
 	public Body(Rod rod)
@@ -97,8 +116,55 @@ public class Body implements Copyable, Instantiable
 		this._points.add(rod._points[0]);
 		this._points.add(rod._points[1]);
 		this._surfaces.add(rod);
+		this._morphology = Morphology.BACILLUS;
 	}
-
+		
+	/**
+	 * Minimal random body generation assuming length and radius = 0.0;
+	 * @param morphology
+	 * @param domain
+	 */
+	public Body(Morphology morphology, BoundingBox domain)
+	{
+		this(morphology, domain, 0.0, 0.0);
+	}
+	
+	/**
+	 * 
+	 * @param morphology
+	 * @param domain
+	 * @param radius
+	 * @param length
+	 */
+	public Body(Morphology morphology, BoundingBox domain, 
+			double radius, double length)
+	{
+		switch (morphology)
+		{
+			case COCCOID :
+				this._points.add( new Point(domain.getRandomInside() ) );
+				this._surfaces.add( new Ball(this._points.get(0), radius) );
+				this._morphology = Morphology.COCCOID;
+				break;
+			case BACILLUS :
+				Point p = new Point(domain.getRandomInside() );
+				this._points.add( p );
+				this._points.add( new Point( Vector.add( p.getPosition(), 
+						Vector.randomZeroOne( p.nDim() ) ) ) );
+				this._surfaces.add( new Rod( (Point[]) this._points.toArray(), 
+						length, radius) );
+				this._morphology = Morphology.BACILLUS;
+				break;
+			case CUBOID :
+				/* TODO */
+				if (Log.shouldWrite(Tier.CRITICAL))
+					Log.out(Tier.CRITICAL, Morphology.CUBOID.name() + " random "
+							+ "body generation not suported, skipping..");
+			default: 
+				break;
+		}
+	}
+	
 	/**
 	 * NOTE: work in progress
 	 * Hybrid: Coccoid, Rod, rods, TODO Chain
@@ -112,13 +178,17 @@ public class Body implements Copyable, Instantiable
 		//TODO - use morphology aspect here?
 		this._points.addAll(points);
 		if(this._points.size() == 1)
+		{
 			this._surfaces.add(new Ball(points.get(0), radius));
+			this._morphology = Morphology.COCCOID;
+		}
 		else
 			
 			/**
 			 * Rod construction
 			 */
 		{
+			this._morphology = Morphology.BACILLUS;
 			for(int i = 0; points.size()-1 > i; i++)
 			{
 				this._surfaces.add(new Rod(points.get(i), points.get(i+1), 

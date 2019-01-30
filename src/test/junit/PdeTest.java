@@ -9,11 +9,11 @@ import org.junit.Test;
 
 import boundary.spatialLibrary.FixedBoundary;
 import boundary.spatialLibrary.SolidBoundary;
+import compartment.Compartment;
 import dataIO.Log;
 import dataIO.Log.Tier;
 import grid.ArrayType;
 import grid.SpatialGrid;
-import idynomics.Compartment;
 import idynomics.Idynomics;
 import linearAlgebra.Vector;
 import processManager.library.SolveDiffusionTransient;

@@ -7,14 +7,14 @@ import org.w3c.dom.Element;
 
 import aspect.AspectInterface;
 import aspect.AspectReg;
+import compartment.AgentContainer;
+import compartment.Compartment;
+import compartment.EnvironmentContainer;
 import dataIO.Log.Tier;
 import debugTools.SegmentTimer;
 import dataIO.Log;
 import dataIO.XmlHandler;
 import generalInterfaces.Redirectable;
-import idynomics.AgentContainer;
-import idynomics.Compartment;
-import idynomics.EnvironmentContainer;
 import idynomics.Idynomics;
 import instantiable.Instantiable;
 import referenceLibrary.ClassRef;

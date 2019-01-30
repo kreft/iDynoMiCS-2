@@ -7,13 +7,13 @@ import java.util.Map;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
+import compartment.EnvironmentContainer;
 import dataIO.Log;
 import dataIO.ObjectFactory;
 import dataIO.XmlHandler;
 import expression.Component;
 import expression.Expression;
 import generalInterfaces.Copyable;
-import idynomics.EnvironmentContainer;
 import instantiable.Instantiable;
 import instantiable.object.InstantiableList;
 import instantiable.object.InstantiableMap;

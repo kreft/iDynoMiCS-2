@@ -370,13 +370,20 @@ public class ClassRef
 	 * the compartment class
 	 */
 	public final static String compartment =
-			idynomics.Compartment.class.getName();
+			compartment.Compartment.class.getName();
 	
 	/**
 	 * TODO
 	 */
 	public final static String speciesLibrary =
 			agent.SpeciesLib.class.getName();
+	
+	/* ************************************************************************
+	 * spawners
+	 */
+	
+	public final static String randomSpawner =
+			compartment.agentStaging.RandomSpawner.class.getName();
 	
 	/* ************************************************************************
 	 * Boundaries (non-spatial)
@@ -399,6 +406,9 @@ public class ClassRef
 	
 	public final static String gasToMembrane =
 			boundary.library.GasToMembrane.class.getName();
+	
+	public final static String membraneToChemostat =
+			boundary.library.MembraneToChemostat.class.getName();
 	
 	/* ************************************************************************
 	 * Boundaries (spatial)

@@ -7,12 +7,12 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import aspect.Aspect.AspectClass;
+import compartment.Compartment;
 import aspect.AspectInterface;
 import aspect.AspectReg;
 import dataIO.XmlHandler;
 import dataIO.Log;
 import dataIO.Log.Tier;
-import idynomics.Compartment;
 import idynomics.Idynomics;
 import instantiable.Instantiable;
 import linearAlgebra.Vector;
@@ -142,22 +142,9 @@ public class Agent implements AspectInterface, Settable, Instantiable
 		this.init();
 		this._parentNode = parent;
 	}
-	
-	/**
-	 * \brief Quick fix to get a coccoid body at a random location in the
-	 * region of physical space specified by domain.
-	 * 
-	 * @param domain
-	 * @return
-	 */
-	public Body randBody(double[] domain)
-	{
-		double[] v = Vector.randomZeroOne(domain);
-		Vector.timesEquals(v, domain);
-		return new Body(new Point(v), 0.0);
-	}
-	
+		
 	/* FIXME work in progress */
+	@Deprecated
 	public Body randBody(double[] domain, int p)
 	{
 		double[] v = Vector.randomZeroOne(domain);
@@ -173,6 +160,17 @@ public class Agent implements AspectInterface, Settable, Instantiable
 	{
 		this.loadAspects(xmlNode);
 		this.set(AspectRef.agentBody, body);
+		this.init();
+	}
+	
+	/**
+	 * template constructor
+	 * @param xmlNode
+	 * @param boo
+	 */
+	public Agent(Node xmlNode, boolean boo)
+	{
+		this.loadAspects(xmlNode);
 		this.init();
 	}
 

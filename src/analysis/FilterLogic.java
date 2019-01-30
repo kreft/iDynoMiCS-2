@@ -7,8 +7,8 @@ import analysis.filter.AndFilter;
 import analysis.filter.SpecificationFilter;
 import analysis.filter.TimerFilter;
 import analysis.filter.ValueFilter;
+import compartment.Compartment;
 import gereralPredicates.*;
-import idynomics.Compartment;
 
 /**
  * Identify and create Filters based on their operators.

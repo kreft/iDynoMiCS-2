@@ -4,12 +4,12 @@ import java.util.List;
 
 import agent.Agent;
 import agent.Body;
+import compartment.AgentContainer;
+import compartment.Compartment;
+import compartment.EnvironmentContainer;
 import dataIO.Log.Tier;
 import grid.ArrayType;
 import grid.SpatialGrid;
-import idynomics.AgentContainer;
-import idynomics.Compartment;
-import idynomics.EnvironmentContainer;
 import idynomics.Idynomics;
 import instantiable.Instance;
 import linearAlgebra.Vector;

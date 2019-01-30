@@ -13,16 +13,17 @@ import java.util.Map;
 import org.w3c.dom.Element;
 
 import agent.Agent;
+import compartment.AgentContainer;
+import compartment.EnvironmentContainer;
 import dataIO.ObjectFactory;
 import grid.SpatialGrid;
-import idynomics.AgentContainer;
-import idynomics.EnvironmentContainer;
 import processManager.ProcessDiffusion;
 import processManager.ProcessMethods;
 import reaction.RegularReaction;
 import reaction.Reaction;
 import referenceLibrary.XmlRef;
 import shape.subvoxel.CoordinateMap;
+import shape.subvoxel.IntegerArray;
 import shape.Shape;
 import solver.PDEexplicit;
 import solver.PDEupdater;
@@ -137,11 +138,11 @@ public class SolveDiffusionTransient extends ProcessDiffusion
 		 * one.
 		 */
 		@SuppressWarnings("unchecked")
-		Map<Shape, CoordinateMap> mapOfMaps = (Map<Shape, CoordinateMap>)
+		Map<Shape, HashMap<IntegerArray,Double>> mapOfMaps = (Map<Shape, HashMap<IntegerArray,Double>>)
 						agent.getValue(VOLUME_DISTRIBUTION_MAP);
-		CoordinateMap distributionMap = 
+		HashMap<IntegerArray,Double> distributionMap = 
 				mapOfMaps.get(agent.getCompartment().getShape());
-		distributionMap.scale();
+		ProcessDiffusion.scale(distributionMap, 1.0);
 		/*
 		 * Get the agent biomass kinds as a map. Copy it now so that we can
 		 * use this copy to store the changes.
@@ -158,9 +159,9 @@ public class SolveDiffusionTransient extends ProcessDiffusion
 		SpatialGrid solute;
 		Shape shape = this._agents.getShape();
 		double concn, productRate, volume, perVolume;
-		for ( int[] coord : distributionMap.keySet() )
+		for ( IntegerArray coord : distributionMap.keySet() )
 		{
-			volume = shape.getVoxelVolume(coord);
+			volume = shape.getVoxelVolume(coord.get());
 			perVolume = Math.pow(volume, -1.0);
 			for ( Reaction r : reactions )
 			{
@@ -177,7 +178,7 @@ public class SolveDiffusionTransient extends ProcessDiffusion
 					if ( this._environment.isSoluteName(varName) )
 					{
 						solute = this._environment.getSoluteGrid(varName);
-						concn = solute.getValueAt(CONCN, coord);
+						concn = solute.getValueAt(CONCN, coord.get());
 					}
 					else if ( biomass.containsKey(varName) )
 					{
@@ -212,7 +213,7 @@ public class SolveDiffusionTransient extends ProcessDiffusion
 					if ( this._environment.isSoluteName(productName) )
 					{
 						solute = this._environment.getSoluteGrid(productName);
-						solute.addValueAt(PRODUCTIONRATE, coord, productRate);
+						solute.addValueAt(PRODUCTIONRATE, coord.get(), productRate);
 					}
 					else if ( newBiomass.containsKey(productName) )
 					{

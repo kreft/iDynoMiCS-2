@@ -758,6 +758,9 @@ public class Collision
 	 * @param q0 First point of second rod.
 	 * @param q1 Second point of second rod.
 	 * @return distance between the two line segments.
+	 * 
+	 * FIXME [Bas Nov2018] there seems to be a periodic test
+	 * missing in this one. Check, not 100% sure
 	 */
 	public CollisionVariables linesegLineseg(double[] p0, double[] p1, 
 			double[] q0, double[] q1, CollisionVariables var) 
@@ -962,6 +965,9 @@ public class Collision
 	
 	/**
 	 * TODO \brief
+	 * 
+	 * FIXME this method does not seem to be adjusted to account for periodic
+	 * boundaries
 	 */
 	private CollisionVariables voxelSphere(Voxel voxel, Ball sphere, 
 			CollisionVariables var)
@@ -973,6 +979,43 @@ public class Collision
 			p[i] = Math.min( p[i], voxel.getLower()[i] + voxel.getDimensions()[i] );
 		}
 		return this.spherePoint(sphere, p, var);
+	}
+
+	/**
+	 * TODO real-time collsion detection pp 229
+	 * @param rod
+	 * @param voxel
+	 * @param t 
+	 * @return
+	 */
+	private int voxelRod(Rod rod, Voxel voxel, double t)
+	{
+		return 0;
+	}
+
+	/**
+	 * TODO Real-time collision detection pp 180
+	 * @param p
+	 * @param d
+	 * @param a
+	 * @param tmin
+	 * @param q
+	 * @return
+	 */
+	private int intersectRayAABB( double[] p, double[] d, Voxel a, double tmin, 
+			double[] q)
+	{
+		return 0;
+	}
+	
+	/**
+	 * TODO Real-time collision detection pp 197
+	 * slight adjust of IntersectSegmentCylinder
+	 * @return
+	 */
+	private int intersectSegmentCapsule ( )
+	{
+		return 0;
 	}
 	
 	/**
