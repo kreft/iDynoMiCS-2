@@ -142,6 +142,11 @@ public class BoundingBox
 	{
 		return this._lower;
 	}
+	
+	public double[] higherCorner()
+	{
+		return this._higher;
+	}
 
 	/*************************************************************************
 	 * RANDOM POSITION

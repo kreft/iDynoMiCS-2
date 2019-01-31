@@ -11,11 +11,11 @@ import org.w3c.dom.Element;
 import agent.Agent;
 import boundary.Boundary;
 import boundary.SpatialBoundary;
+import compartment.agentStaging.EpithelialLayerSpawner;
 import compartment.agentStaging.Spawner;
 import dataIO.Log;
 import dataIO.XmlHandler;
 import dataIO.Log.Tier;
-import epithelialLayer.EpithelialLayer;
 import generalInterfaces.CanPrelaunchCheck;
 import grid.*;
 import idynomics.Global;
@@ -252,19 +252,11 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable
 		/* verify whether this always returns in correct order (it should) */
 		for( Spawner s : spawners.values() )
 			s.spawn();
+		
 		if( Log.shouldWrite(level))
 			Log.out(level, "Compartment "+this.name+" initialised with "+ 
 					this.agents.getNumAllAgents()+" agents");
-		/*
-		 * Spawner
-		 */
-		
-		for ( Element e : XmlHandler.getElements(xmlElem, XmlRef.spawner)) {
-			new EpithelialLayer(e, this);
-			if( Log.shouldWrite(level))
-				Log.out(level, "Compartment "+this.name+" building epithelial"
-						+ " layer "+ e.getAttribute(XmlRef.nameAttribute));
-			}
+
 		/*
 		 * Read in agents.
 		 */

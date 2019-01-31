@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document>
-	<simulation name="rodTest3D" outputfolder="../results" log="DEBUG" randomSeed="22"
+	<simulation name="newSpawnTester" outputfolder="../results" log="DEBUG" randomSeed="22"
 						comment="this is a file for testing purposes only.">
 		
 		<timer stepSize="1.0" endOfSimulation="30.0" />
@@ -41,11 +41,11 @@
 
 		<compartment name="second">
 			<shape class="Cuboid">
-				<dimension name="X" isCyclic="true" targetResolution="1" max="30.0">
+				<dimension name="X" isCyclic="true" targetResolution="1" max="8.0">
 				</dimension> 
-				<dimension name="Y" isCyclic="true" targetResolution="1" max="3.0">
+				<dimension name="Y" isCyclic="true" targetResolution="1" max="8.0">
 				</dimension> 
-				<dimension name="Z" isCyclic="false" targetResolution="1" max="3.0">
+				<dimension name="Z" isCyclic="false" targetResolution="1" max="8.0">
 				</dimension> 
 			</shape>
 			<solutes>
@@ -60,28 +60,16 @@
 					<stoichiometric component="solute1" coefficient="1.0" />
 				</reaction>
 			</reactions>
-			<spawners>
-				<spawner name="epithelium" cellDistribution="flatLayer">
-					<layerShape>
-						<dimension name="X" min="15" max="15.5"/>
-						<dimension name="Y" min="0" max="3.0"/>
-						<dimension name="Z" min="0" max="3.0"/>
-					</layerShape>
-					<cellShape>
-						<dimension name="X" min="0" max="0.5"/>
-						<dimension name="Y" min="0" max="0.5"/>
-						<dimension name="Z" min="0" max="0.5"/>
-					</cellShape>
-					<agentTemplate>
+			<spawn class="epithelialLayerSpawner" domain="8.0, 8.0, 1.0" cellShape="0.5, 0.5, 1.0" priority="0" morphology = "BACILLUS">
+					<templateAgent>
 						<aspect name="volumeDistribution" type="PRIMARY" class="HashMap">
 						</aspect>
 						<aspect name="species" type="PRIMARY" class="String" value="rAOB" />
 						<aspect name="mass" type="PRIMARY" class="Double" value="0.2" />
 						<aspect name="density" type="PRIMARY" class="Double" value="1" />
 						<aspect name="pigment" type="PRIMARY" class="String" value="RED" />
-					</agentTemplate>
-				</spawner>
-			</spawners>
+					</templateAgent>
+			</spawn>
 			<processManagers>
 				<process name="svgWriter" class="GraphicalOutput"  priority="-3"
 					firstStep="0.0"  timerStepSize="1.0">

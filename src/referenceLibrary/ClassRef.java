@@ -385,6 +385,9 @@ public class ClassRef
 	public final static String randomSpawner =
 			compartment.agentStaging.RandomSpawner.class.getName();
 	
+	public final static String epithelialLayerSpawner = 
+			compartment.agentStaging.EpithelialLayerSpawner.class.getName();
+	
 	/* ************************************************************************
 	 * Boundaries (non-spatial)
 	 */

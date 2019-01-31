@@ -11,12 +11,15 @@ import dataIO.XmlHandler;
 import dataIO.Log.Tier;
 import idynomics.Idynomics;
 import instantiable.Instantiable;
+import linearAlgebra.Matrix;
+import linearAlgebra.Vector;
 import referenceLibrary.ClassRef;
 import referenceLibrary.XmlRef;
 import settable.Attribute;
 import settable.Module;
 import settable.Settable;
 import settable.Module.Requirements;
+import surface.BoundingBox;
 
 /**
  * 
@@ -36,6 +39,8 @@ public abstract class Spawner implements Settable, Instantiable {
 	private Settable _parentNode;
 	
 	private Morphology morphology;
+	
+	private BoundingBox _spawnDomain = new BoundingBox();
 	
 	public void instantiate(Element xmlElem, Settable parent)
 	{
@@ -72,6 +77,24 @@ public abstract class Spawner implements Settable, Instantiable {
 		
 		if( Log.shouldWrite(Tier.EXPRESSIVE))
 			Log.out(Tier.EXPRESSIVE, defaultXmlTag() + " loaded");
+		
+		
+		/*
+		 * Moved to Spawner class, and altered to use lower and upper corners,
+		 * rather than dimension measurements and lower corner (seems more
+		 * intuitive for user). - Tim
+		 */
+		
+		
+		if ( XmlHandler.hasAttribute(p, XmlRef.spawnDomain) )
+		{
+			double[][] input = 
+					Matrix.dblFromString(p.getAttribute(XmlRef.spawnDomain));
+			if( Matrix.rowDim(input) < 2)
+				_spawnDomain.get(Vector.zeros(input[0]), input[0], true);
+			else
+				_spawnDomain.get(input[0], input[1], true);
+		}
 	}
 
 	public void setTemplate(Agent agent)
@@ -84,7 +107,7 @@ public abstract class Spawner implements Settable, Instantiable {
 		return _template;
 	}
 	
-	public int getNumberOfAgents() 
+	public int calculateNumberOfAgents() 
 	{
 		return _numberOfAgents;
 	}
@@ -102,6 +125,16 @@ public abstract class Spawner implements Settable, Instantiable {
 	public int getPriority()
 	{
 		return this._priority;
+	}
+	
+	public void setSpawnDomain(BoundingBox spawnDomain)
+	{
+		this._spawnDomain = spawnDomain;
+	}
+	
+	public BoundingBox getSpawnDomain()
+	{
+		return this._spawnDomain;
 	}
 	
 	public abstract void spawn();
@@ -126,7 +159,7 @@ public abstract class Spawner implements Settable, Instantiable {
 				String.valueOf(this._priority), null, true ));
 		
 		modelNode.add(new Attribute(XmlRef.numberOfAgents, 
-				String.valueOf(this.getNumberOfAgents()), null, true ));
+				String.valueOf(this.calculateNumberOfAgents()), null, true ));
 		
 		modelNode.add(new Attribute(XmlRef.morphology, 
 				String.valueOf(this.getMorphology()), null, true ));
@@ -158,7 +191,8 @@ public abstract class Spawner implements Settable, Instantiable {
 	 */
 	public void removeModule(String specifier)
 	{
-		Idynomics.simulator.deleteFromCompartment(this.geCompartment().getName(), this);
+		Idynomics.simulator.deleteFromCompartment(
+				this.getCompartment().getName(), this);
 	}
 
 	/**
@@ -189,7 +223,7 @@ public abstract class Spawner implements Settable, Instantiable {
 		this.morphology = morphology;
 	}
 
-	public Compartment geCompartment() {
+	public Compartment getCompartment() {
 		return _compartment;
 	}
 

@@ -590,9 +590,6 @@ public class XmlRef
 	public static final String spawner = "spawner";
 	
 	
-	public static final String agentTemplate = "agentTemplate";
-	
-	
 	public static final String layerShape = "layerShape";
 	
 	
