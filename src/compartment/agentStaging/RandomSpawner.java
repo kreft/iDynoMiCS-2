@@ -29,7 +29,7 @@ public class RandomSpawner extends Spawner {
 	@Override
 	public void spawn() 
 	{
-		for(int j = 0; j < this.calculateNumberOfAgents(); j++)
+		for(int j = 0; j < this.getNumberOfAgents(); j++)
 		{
 			/* use copy constructor */
 			Agent newRandom = new Agent(this.getTemplate());

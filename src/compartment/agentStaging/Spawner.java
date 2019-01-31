@@ -107,7 +107,7 @@ public abstract class Spawner implements Settable, Instantiable {
 		return _template;
 	}
 	
-	public int calculateNumberOfAgents() 
+	public int getNumberOfAgents() 
 	{
 		return _numberOfAgents;
 	}
@@ -159,7 +159,7 @@ public abstract class Spawner implements Settable, Instantiable {
 				String.valueOf(this._priority), null, true ));
 		
 		modelNode.add(new Attribute(XmlRef.numberOfAgents, 
-				String.valueOf(this.calculateNumberOfAgents()), null, true ));
+				String.valueOf(this.getNumberOfAgents()), null, true ));
 		
 		modelNode.add(new Attribute(XmlRef.morphology, 
 				String.valueOf(this.getMorphology()), null, true ));
