@@ -118,6 +118,13 @@ public class Body implements Copyable, Instantiable
 		this._surfaces.add(rod);
 		this._morphology = Morphology.BACILLUS;
 	}
+	
+	public Body(Point[] points)
+	{
+		this._points.add(points[0]);
+		this._points.add(points[1]);
+		this._morphology = Morphology.CUBOID;
+	}
 		
 	/**
 	 * Minimal random body generation assuming length and radius = 0.0;
@@ -172,6 +179,8 @@ public class Body implements Copyable, Instantiable
 	 */
 	public Body(List<Point> points, double length, double radius)
 	{
+		// This enables the program to distinguish
+		// rods and balls depending on number of points.
 
 		this._points.addAll(points);
 		if(this._points.size() == 1)
@@ -180,6 +189,10 @@ public class Body implements Copyable, Instantiable
 			this._morphology = Morphology.COCCOID;
 		}
 		else
+			
+			/**
+			 * Rod construction
+			 */
 		{
 			this._morphology = Morphology.BACILLUS;
 			for(int i = 0; points.size()-1 > i; i++)

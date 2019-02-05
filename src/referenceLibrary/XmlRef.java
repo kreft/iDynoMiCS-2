@@ -580,6 +580,22 @@ public class XmlRef
 	 */
 	public static final String rangeScaleAttribute = "scaling";
 
+	
+	/**
+	 *  All spawners in the compartment
+	 */
+	public static final String spawners = "spawners";
+	
+	
+	public static final String spawner = "spawner";
+	
+	
+	public static final String layerShape = "layerShape";
+	
+	
+	public static final String cellShape = "cellShape";
+	
+
 	public static final String morphology = "morphology";
 
 }

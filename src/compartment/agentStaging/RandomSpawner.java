@@ -19,6 +19,14 @@ import surface.BoundingBox;
  */
 public class RandomSpawner extends Spawner {
 	
+	
+	public void init(Element xmlElem, AgentContainer agents, 
+			String compartmentName)
+	{
+		super.init(xmlElem, agents, compartmentName);
+		Element p = (Element) xmlElem;
+	}
+
 	@Override
 	public void spawn() 
 	{
@@ -27,18 +35,9 @@ public class RandomSpawner extends Spawner {
 			/* use copy constructor */
 			Agent newRandom = new Agent(this.getTemplate());
 			newRandom.set(AspectRef.agentBody, 
-					new Body( this.getMorphology(), spawnDomain ));
+					new Body( this.getMorphology(), this.getSpawnDomain() ));
 			newRandom.setCompartment( this.getCompartment() );
 			newRandom.registerBirth();
 		}
 	}
-
-	public void init(Element xmlElem, AgentContainer agents, 
-			String compartmentName)
-	{
-		super.init(xmlElem, agents, compartmentName);
-
-		Element p = (Element) xmlElem;
-	}
-	
 }

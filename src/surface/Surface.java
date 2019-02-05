@@ -23,6 +23,7 @@ public abstract class Surface
 		ROD,
 		PLANE,
 		VOXEL,
+		CUBOID,
 		// CYLINDER NOTE for cylindrical domains
 	}
 	

@@ -50,6 +50,7 @@ public class Agent implements AspectInterface, Settable, Instantiable
 	 */
 	protected AspectReg _aspectRegistry = new AspectReg();
 	private Settable _parentNode;
+	
 		
 	/*************************************************************************
 	 * CONSTRUCTORS
@@ -70,6 +71,12 @@ public class Agent implements AspectInterface, Settable, Instantiable
 		this.init(xmlNode, comp);
 	}
 	
+	public Agent (Node xmlNode, Body body, Compartment comp) {
+		Agent extra = new Agent(xmlNode, body);
+		extra._compartment = comp;
+		extra.registerBirth();
+	}
+	
 	public void init(Node xmlNode, Compartment comp)
 	{
 		this._compartment = comp;
@@ -77,6 +84,7 @@ public class Agent implements AspectInterface, Settable, Instantiable
 		NodeList temp = XmlHandler.getAll(xmlNode, XmlRef.spawnNode);
 		if(temp.getLength() > 0)
 		{
+			// Spawn random agents
 			for(int i = 0; i < temp.getLength(); i++)
 			{
 				/* TODO this is a cheat, make a standard method for this */
@@ -101,10 +109,12 @@ public class Agent implements AspectInterface, Settable, Instantiable
 		}
 		else
 		{
+			// Place located agents
 			loadAspects(xmlNode);
 		}
 		this.init();
 	}
+	
 	
 	/**
 	 * Assign the correct species from the species library

@@ -61,16 +61,6 @@ public abstract class Spawner implements Settable, Instantiable {
 		
 		Element p = (Element) xmlElem;
 		
-		if ( XmlHandler.hasAttribute(p, XmlRef.spawnDomain) )
-		{
-			double[][] input = 
-					Matrix.dblFromString(p.getAttribute(XmlRef.spawnDomain));
-			if( Matrix.rowDim(input) < 2)
-				spawnDomain.get(input[0], Vector.zeros(input[0]));
-			else
-				spawnDomain.get(input[0], input[1]);
-		}
-		
 		/* spawner priority - default is zero. */
 		int priority = 0;
 		if ( XmlHandler.hasAttribute(p, XmlRef.priority) )
@@ -92,6 +82,24 @@ public abstract class Spawner implements Settable, Instantiable {
 		
 		if( Log.shouldWrite(Tier.EXPRESSIVE))
 			Log.out(Tier.EXPRESSIVE, defaultXmlTag() + " loaded");
+		
+		
+		/*
+		 * Moved to Spawner class, and altered to use lower and upper corners,
+		 * rather than dimension measurements and lower corner (seems more
+		 * intuitive for user). - Tim
+		 */
+		
+		
+		if ( XmlHandler.hasAttribute(p, XmlRef.spawnDomain) )
+		{
+			double[][] input = 
+					Matrix.dblFromString(p.getAttribute(XmlRef.spawnDomain));
+			if( Matrix.rowDim(input) < 2)
+				_spawnDomain.get(Vector.zeros(input[0]), input[0], true);
+			else
+				_spawnDomain.get(input[0], input[1], true);
+		}
 	}
 
 	public void setTemplate(Agent agent)
@@ -122,6 +130,16 @@ public abstract class Spawner implements Settable, Instantiable {
 	public int getPriority()
 	{
 		return this._priority;
+	}
+	
+	public void setSpawnDomain(BoundingBox spawnDomain)
+	{
+		this._spawnDomain = spawnDomain;
+	}
+	
+	public BoundingBox getSpawnDomain()
+	{
+		return this._spawnDomain;
 	}
 	
 	public abstract void spawn();
@@ -178,7 +196,8 @@ public abstract class Spawner implements Settable, Instantiable {
 	 */
 	public void removeModule(String specifier)
 	{
-		Idynomics.simulator.deleteFromCompartment(this.getCompartment().getName(), this);
+		Idynomics.simulator.deleteFromCompartment(
+				this.getCompartment().getName(), this);
 	}
 
 	/**

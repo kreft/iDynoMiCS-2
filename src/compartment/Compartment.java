@@ -11,6 +11,7 @@ import org.w3c.dom.Element;
 import agent.Agent;
 import boundary.Boundary;
 import boundary.SpatialBoundary;
+import compartment.agentStaging.EpithelialLayerSpawner;
 import compartment.agentStaging.Spawner;
 import dataIO.Log;
 import dataIO.XmlHandler;
@@ -251,10 +252,11 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable
 		/* verify whether this always returns in correct order (it should) */
 		for( Spawner s : spawners.values() )
 			s.spawn();
+		
 		if( Log.shouldWrite(level))
 			Log.out(level, "Compartment "+this.name+" initialised with "+ 
 					this.agents.getNumAllAgents()+" agents");
-		
+
 		/*
 		 * Read in agents.
 		 */

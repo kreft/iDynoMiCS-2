@@ -404,7 +404,6 @@ public abstract class ProcessDiffusion extends ProcessManager
 					}
 				mapOfMaps = (Map<Shape, HashMap<IntegerArray,Double>>) a.getValue(VD_TAG);
 				distributionMap = mapOfMaps.get(shape);
-				
 					/*
 					 * FIXME this should really only evaluate collisions with local
 					 * subgridpoints rather than all subgrid points in the domain.
