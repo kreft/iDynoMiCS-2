@@ -19,32 +19,6 @@ import surface.BoundingBox;
  */
 public class RandomSpawner extends Spawner {
 	
-	/**
-	 * BoundingBox for spawn domain
-	 * TODO maybe this can be more generally applied and we should move this to
-	 * the Spawner super class.
-	 */
-	private BoundingBox spawnDomain = new BoundingBox();
-	
-	
-	public void init(Element xmlElem, AgentContainer agents, 
-			String compartmentName)
-	{
-		super.init(xmlElem, agents, compartmentName);
-		
-		Element p = (Element) xmlElem;
-		if ( XmlHandler.hasAttribute(p, XmlRef.spawnDomain) )
-		{
-			double[][] input = 
-					Matrix.dblFromString(p.getAttribute(XmlRef.spawnDomain));
-			if( Matrix.rowDim(input) < 2)
-				spawnDomain.get(input[0], Vector.zeros(input[0]));
-			else
-				spawnDomain.get(input[0], input[1]);
-		}
-			
-	}
-
 	@Override
 	public void spawn() 
 	{
@@ -59,6 +33,12 @@ public class RandomSpawner extends Spawner {
 		}
 	}
 
+	public void init(Element xmlElem, AgentContainer agents, 
+			String compartmentName)
+	{
+		super.init(xmlElem, agents, compartmentName);
 
+		Element p = (Element) xmlElem;
+	}
 	
 }

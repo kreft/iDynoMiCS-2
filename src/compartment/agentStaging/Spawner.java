@@ -11,12 +11,15 @@ import dataIO.XmlHandler;
 import dataIO.Log.Tier;
 import idynomics.Idynomics;
 import instantiable.Instantiable;
+import linearAlgebra.Matrix;
+import linearAlgebra.Vector;
 import referenceLibrary.ClassRef;
 import referenceLibrary.XmlRef;
 import settable.Attribute;
 import settable.Module;
 import settable.Settable;
 import settable.Module.Requirements;
+import surface.BoundingBox;
 
 /**
  * 
@@ -25,17 +28,24 @@ import settable.Module.Requirements;
  */
 public abstract class Spawner implements Settable, Instantiable {
 	
-	private Agent _template;
+	protected Agent _template;
 	
-	private int _numberOfAgents;
+	protected int _numberOfAgents;
 	
-	private int _priority;
+	protected int _priority;
 	
-	private Compartment _compartment;
+	protected Compartment _compartment;
 
-	private Settable _parentNode;
+	protected Settable _parentNode;
 	
-	private Morphology morphology;
+	protected Morphology morphology;
+	
+	/**
+	 * BoundingBox for spawn domain
+	 * TODO maybe this can be more generally applied and we should move this to
+	 * the Spawner super class.
+	 */
+	protected BoundingBox spawnDomain = new BoundingBox();
 	
 	public void instantiate(Element xmlElem, Settable parent)
 	{
@@ -50,6 +60,16 @@ public abstract class Spawner implements Settable, Instantiable {
 				Idynomics.simulator.getCompartment(compartmentName) );
 		
 		Element p = (Element) xmlElem;
+		
+		if ( XmlHandler.hasAttribute(p, XmlRef.spawnDomain) )
+		{
+			double[][] input = 
+					Matrix.dblFromString(p.getAttribute(XmlRef.spawnDomain));
+			if( Matrix.rowDim(input) < 2)
+				spawnDomain.get(input[0], Vector.zeros(input[0]));
+			else
+				spawnDomain.get(input[0], input[1]);
+		}
 		
 		/* spawner priority - default is zero. */
 		int priority = 0;
