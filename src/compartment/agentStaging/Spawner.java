@@ -158,7 +158,7 @@ public abstract class Spawner implements Settable, Instantiable {
 	 */
 	public void removeModule(String specifier)
 	{
-		Idynomics.simulator.deleteFromCompartment(this.geCompartment().getName(), this);
+		Idynomics.simulator.deleteFromCompartment(this.getCompartment().getName(), this);
 	}
 
 	/**
@@ -189,7 +189,7 @@ public abstract class Spawner implements Settable, Instantiable {
 		this.morphology = morphology;
 	}
 
-	public Compartment geCompartment() {
+	public Compartment getCompartment() {
 		return _compartment;
 	}
 

@@ -54,7 +54,7 @@ public class RandomSpawner extends Spawner {
 			Agent newRandom = new Agent(this.getTemplate());
 			newRandom.set(AspectRef.agentBody, 
 					new Body( this.getMorphology(), spawnDomain ));
-			newRandom.setCompartment( this.geCompartment() );
+			newRandom.setCompartment( this.getCompartment() );
 			newRandom.registerBirth();
 		}
 	}
