@@ -45,7 +45,7 @@ public abstract class Spawner implements Settable, Instantiable {
 	 * TODO maybe this can be more generally applied and we should move this to
 	 * the Spawner super class.
 	 */
-	protected BoundingBox spawnDomain = new BoundingBox();
+	protected BoundingBox _spawnDomain = new BoundingBox();
 	
 	public void instantiate(Element xmlElem, Settable parent)
 	{
