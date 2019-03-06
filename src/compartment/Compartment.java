@@ -237,17 +237,20 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable
 		TreeMap<Integer,Spawner> spawners = new TreeMap<Integer,Spawner>();
 		for ( Element e : XmlHandler.getElements( xmlElem, XmlRef.spawnNode) )
 		{
-			spawner = (Spawner) Instance.getNew(e, this);
-			/* check for duplicate priority */
-			if (spawners.containsKey(spawner.getPriority()))
+			if ( e.hasAttribute(XmlRef.classAttribute) )
 			{
-				if( Log.shouldWrite(Tier.CRITICAL))
-					Log.out(level, "ERROR: Spawner with duplicate priority. "
-							+ "Simulation will not proceed.");
-				Idynomics.simulator.interupt("interupted due to duplicate "
-						+ "spawner priority.");
+				spawner = (Spawner) Instance.getNew(e, this);
+				/* check for duplicate priority */
+				if (spawners.containsKey(spawner.getPriority()))
+				{
+					if( Log.shouldWrite(Tier.CRITICAL))
+						Log.out(level, "ERROR: Spawner with duplicate priority. "
+								+ "Simulation will not proceed.");
+					Idynomics.simulator.interupt("interupted due to duplicate "
+							+ "spawner priority.");
+				}
+				spawners.put(spawner.getPriority(), spawner);
 			}
-			spawners.put(spawner.getPriority(), spawner);
 		}
 		/* verify whether this always returns in correct order (it should) */
 		for( Spawner s : spawners.values() )
