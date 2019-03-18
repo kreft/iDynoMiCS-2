@@ -178,8 +178,9 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable
 		if ( str[0] == null )
 			str = Shape.getAllOptions();
 		this.setShape( (Shape) Instance.getNew(elem, this, str) );
-		if (this._shape.getNumberOfDimensions() < 3)
-			Global.densityScale = 0.82;
+		/* NOTE density scaling is done on individual basis {@Link 
+		 * DensityScaling} so agents can maintain constant radius for 2D and 3D 
+		 * cases. */
 		
 		double[] simulatedLengths = this.getShape().getDimensionLengths();
 		// Check for scale attribute, specifying explicitly provided scale.

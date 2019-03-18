@@ -171,6 +171,11 @@ public class AspectRef
 	 * TODO
 	 */
 	public final static String agentDensity = "density";
+	
+	/**
+	 * TODO
+	 */
+	public static final String agentRepresentedDensity = "representedDensity";
 
 	/**
 	 * TODO
@@ -518,5 +523,6 @@ public class AspectRef
 	 * Maximum number of iterations per agent relaxation timestep.
 	 */
 	public static final String maxIterations = "maxIterations";
+
 
 }

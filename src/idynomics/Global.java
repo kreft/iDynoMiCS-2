@@ -246,12 +246,7 @@ public class Global extends ParameterSet
 	 * Only determine location of agent based on primary mass point
 	 */
 	public static boolean fastAgentDistribution = true;
-	
-	/**
-	 * TODO
-	 */
-	public static double densityScale = 1.0;
-	
+		
 	/**
 	 * dynamic viscosity of the medium
 	 */

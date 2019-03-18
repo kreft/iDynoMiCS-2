@@ -340,6 +340,10 @@ public class Body implements Copyable, Instantiable
 		return Vector.divideEqualsA(center, (double) this.getNumberOfPoints());
 	}
 
+	public Morphology getMorphology() 
+	{
+		return this._morphology;
+	}
 	/*************************************************************************
 	 * general methods
 	 ************************************************************************/
