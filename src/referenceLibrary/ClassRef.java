@@ -113,6 +113,7 @@ public class ClassRef
 		{
 			return name.split("\\$")[0] + "$";
 		}
+		name = name.replaceAll("\\[\\]", "");
 		String[] parts = name.split("\\.");
 		String[] path = name.split(parts[parts.length-1]);
 		return path[0];
@@ -247,6 +248,19 @@ public class ClassRef
 	 */
 	public final static String updateBody =
 			aspect.event.UpdateBody.class.getName();
+	
+	/**
+	 * the update body event for surface scaled 2D simulations
+	 */
+	public final static String updateBodySurfaceScaled =
+			aspect.event.UpdateBodySurfaceScaled.class.getName();
+	
+	/**
+	 * the update species modules when passing threshold
+	 */
+	public final static String differentiate =
+			aspect.event.Differentiate.class.getName();
+	
 	
 	/**
 	 * the plasmid loss event
@@ -596,7 +610,7 @@ public class ClassRef
 	 */
 	public final static String string =
 			String.class.getName();
-			
+	
 	/**		
 	* String		
 	*/		

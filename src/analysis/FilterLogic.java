@@ -34,6 +34,7 @@ public class FilterLogic {
 
 	public static Filter filterFromString(String filter, Compartment comp)
 	{
+		filter = filter.replaceAll("\\s","");
 		if ( filter.contains( "%" ) )
 		{
 			return new SoluteFilter( filter, comp );
@@ -46,8 +47,10 @@ public class FilterLogic {
 		else
 			return filterFromString(filter);
 	}
+	
 	public static Filter filterFromString(String filter)
 	{
+		filter = filter.replaceAll("\\s","");
 		if ( filter.contains( "," ) )
 		{
 			return new CategoryFilter( filter );
@@ -79,15 +82,19 @@ public class FilterLogic {
 						new IsSame( String.valueOf( f[1] ) ) );
 			}
 		}
-		else if ( filter.contains( ">" ) )
+		else if ( filter.contains( ">" ) || filter.contains( "larger" )  )
 		{
 			String[] f = filter.split( ">" );
+			if( f.length == 1 )
+				f = filter.split( "larger" );
 			return new SpecificationFilter( f[0], 
 					new IsLarger( Double.valueOf( f[1] ) ) );
 		}
-		else if ( filter.contains( "<" ) )
+		else if ( filter.contains( "<" ) || filter.contains( "smaller" )  )
 		{
 			String[] f = filter.split( "<" );
+			if( f.length == 1 )
+				f = filter.split( "smaller" );
 			return new SpecificationFilter( f[0], 
 					new IsSmaller( Double.valueOf( f[1] ) ) );
 		}

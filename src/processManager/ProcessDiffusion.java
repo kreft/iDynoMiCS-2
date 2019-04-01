@@ -83,6 +83,8 @@ public abstract class ProcessDiffusion extends ProcessManager
 	
 	public String UPDATE_BODY = AspectRef.bodyUpdate;
 	public String EXCRETE_EPS = AspectRef.agentExcreteEps;
+	
+	public String DIFFERENTIATE = AspectRef.agentDifferentiation;
 	/**
 	 * Aspect name for the {@code coordinateMap} used for establishing which
 	 * voxels a located {@code Agent} covers.
@@ -193,6 +195,8 @@ public abstract class ProcessDiffusion extends ProcessManager
 			agent.event(DIVIDE);
 			agent.event(EXCRETE_EPS);
 			agent.event(UPDATE_BODY);
+			agent.event(DIFFERENTIATE);
+			
 		}
 	}
 	

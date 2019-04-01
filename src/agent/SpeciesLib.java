@@ -94,7 +94,7 @@ public class SpeciesLib implements Instantiable, Settable
 			name = s.getAttribute(XmlRef.nameAttribute);
 			if( Log.shouldWrite(Tier.DEBUG))
 				Log.out(Tier.DEBUG, "Loading SpeciesModule \""+name+"\"");
-			species._aspectRegistry.addSubModule(
+			species._aspectRegistry.addModule(
 					this.get(name), name );
 		}
 	}

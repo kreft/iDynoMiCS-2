@@ -127,7 +127,7 @@ public class Agent implements AspectInterface, Settable, Instantiable
 		if (Log.shouldWrite(Tier.BULK))
 			Log.out(Tier.BULK, "Agent belongs to species \""+species+"\"");
 
-		this._aspectRegistry.addSubModule( (Species) 
+		this._aspectRegistry.addModule( (Species) 
 				Idynomics.simulator.speciesLibrary.get(species), species);
 	}
 	

@@ -42,7 +42,7 @@ public class AgentRelaxation extends ProcessManager
 	
 	public String BASE_DT = AspectRef.collisionBaseDT;
 	public String MAX_MOVEMENT = AspectRef.collisionMaxMOvement;
-	public String  MAX_ITERATIONS = AspectRef.maxIterations;
+	public String MAX_ITERATIONS = AspectRef.maxIterations;
 	
 	public String BODY = AspectRef.agentBody;
 	public String RADIUS = AspectRef.bodyRadius;
@@ -60,6 +60,7 @@ public class AgentRelaxation extends ProcessManager
 	
 	public String LOW_STRESS_SKIP = AspectRef.stressThreshold;
 	public String GRAVITY = AspectRef.gravity_testing;
+	public String COMPRESSION_DURATION = AspectRef.LimitCompressionDuration;
 	public String STIFFNESS = AspectRef.spineStiffness;
 	
 	public String SPINE_FUNCTION = AspectRef.genreicSpineFunction;
@@ -155,6 +156,16 @@ public class AgentRelaxation extends ProcessManager
 	private Boolean _gravity;
 	
 	/**
+	 * Current tMech
+	 */
+	private double tMech = 0.0;
+	
+	/** 
+	 * limit duration of biofilm compression 
+	 */
+	private double compresionDuration = 0.0;
+	
+	/**
 	 * TODO check whether implementation is finished
 	 * Default spine function, fall back for if none is defined by the agent.
 	 */
@@ -214,6 +225,10 @@ public class AgentRelaxation extends ProcessManager
 		
 		/* Include gravity / buoyancy ( experimental ) */
 		this._gravity = Helper.setIfNone( this.getBoolean(GRAVITY), false);
+
+		/* Limit the duration of biofilm compression */
+		this._maxMove = Helper.setIfNone( this.getDouble(COMPRESSION_DURATION), 
+				Global.mechanical_max_movement );
 		
 		/* Set default spine function for rod type agents, this function is
 		 * used if it is not overwritten by the agent, obtain
@@ -233,7 +248,7 @@ public class AgentRelaxation extends ProcessManager
 		/* current step of mechanical relaxation */
 		int nstep = 0;
 		/* current time in mechanical relaxation. */
-		double tMech = 0.0;
+		tMech = 0.0;
 		/* start with initial base time step than adjust */
 		double dtMech = this._dtBase; 
 		/* agent radius */
@@ -529,11 +544,19 @@ public class AgentRelaxation extends ProcessManager
 	 */
 	private void gravityEvaluation(Agent agent, Body body)
 	{
-		/* note should be mass per point */
-		double fg = agent.getDouble("mass") * 1e-12 * 35.316e9;
-		double[] fgV = Vector.times(new double[]{ 0, 0, -1 }, fg );
-		
-		for ( Point p : body.getPoints() )
-			Vector.addEquals( p.getForce(), fgV ) ;
+		if ( tMech < compresionDuration || compresionDuration == 0.0 )
+		{
+			/* note should be mass per point */
+			double fg = agent.getDouble("mass") * 1e-12 * 35.316e9 * Global.density_difference;
+			double[] fgV;
+			if( this._shape.getNumberOfDimensions() == 3)
+				 fgV = Vector.times(new double[]{ 0, 0, -1 }, fg );
+			else
+				 fgV = Vector.times(new double[]{ 0, -1 }, fg );
+				
+			
+			for ( Point p : body.getPoints() )
+				Vector.addEquals( p.getForce(), fgV ) ;
+		}
 	}
 }

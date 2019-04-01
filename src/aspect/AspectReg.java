@@ -157,7 +157,7 @@ public class AspectReg
 	 * 
 	 * @param module
 	 */
-	public void addSubModule(  AspectInterface module, String name)
+	public void addModule(  AspectInterface module, String name)
 	{
 
 		if( module != null && !this._speciesModules.entrySet().contains(module) )
@@ -169,9 +169,25 @@ public class AspectReg
 	 * 
 	 * @param module
 	 */
-	public void removeSubmodule(String module) 
+	public void addModule(String module) 
+	{
+		this._speciesModules.put( module, 
+				Idynomics.simulator.speciesLibrary.get( module ) );
+	}
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param module
+	 */
+	public void removeModule(String module) 
 	{
         _speciesModules.remove( Idynomics.simulator.speciesLibrary.get( module ) );
+	}
+	
+	public void removeModules() 
+	{
+		_speciesModules.clear();
 	}
 	
 	/**
@@ -180,9 +196,9 @@ public class AspectReg
 	 * @param name
 	 * @param library
 	 */
-	public void addSubModule(String name, AspectInterface library)
+	public void addModule(String name, AspectInterface library)
 	{
-		addSubModule( (AspectInterface) library.getValue(name), name );
+		addModule( (AspectInterface) library.getValue(name), name );
 	}
 	
 	public LinkedList<AspectInterface> getSubModules()
@@ -290,7 +306,7 @@ public class AspectReg
 			add( key, (Object) ObjectFactory.copy(
 					donorReg.getAspect(key).aspect ) );
 		for (String s : donorReg.getSubModuleMap().keySet() )
-			addSubModule(donorReg.getSubModuleMap().get(s), s );
+			addModule(donorReg.getSubModuleMap().get(s), s );
 	}
 
 	/**

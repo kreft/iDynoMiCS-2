@@ -34,26 +34,8 @@ public class SimpleVolumeState extends Calculated {
 	public Object get(AspectInterface aspectOwner)
 	{
 		Object massObject = aspectOwner.getValue(this.MASS);
-		double totalMass = 0.0;
-		if ( massObject instanceof Double )
-			totalMass = (double) massObject;
-		else if ( massObject instanceof Double[] )
-		{
-			Double[] massArray = (Double[]) massObject;
-			for ( Double m : massArray )
-				totalMass += m;
-		}
-		else if ( massObject instanceof Map )
-		{
-			// TODO assume all mass types used unless specified otherwise
-			@SuppressWarnings("unchecked")
-			Map<String,Double> massMap = (Map<String,Double>) massObject;
-			totalMass = Helper.totalValue(massMap);
-		}
-		else
-		{
-			// TODO safety?
-		}
+		double totalMass = Helper.totalMass(massObject);
+		
 		if (aspectOwner.isAspect(REPRESENTED_DENSITY))
 		{
 			return totalMass / aspectOwner.getDouble(REPRESENTED_DENSITY);

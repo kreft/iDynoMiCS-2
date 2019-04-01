@@ -163,19 +163,9 @@ public class CoccoidDivision extends Event
 		/*
 		 * Find the agent-specific variable to test (mass, by default).
 		 */
-		double variable = 0.0;
+		
 		Object mumMass = anAgent.get(this.MASS);
-		if ( mumMass instanceof Double )
-			variable = (Double) mumMass;
-		else if ( mumMass instanceof Map )
-			// TODO assume all mass types used unless specified otherwise
-			variable = Helper.totalValue((Map<String,Double>) mumMass);
-		else
-		{
-			// TODO safety?
-		}
-		if ( Log.shouldWrite(level) )
-			Log.out(level, "Agent total mass is "+variable);
+		double variable = Helper.totalMass(mumMass);
 		/*
 		 * Find the threshold that triggers division.
 		 */
