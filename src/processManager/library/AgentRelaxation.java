@@ -227,8 +227,8 @@ public class AgentRelaxation extends ProcessManager
 		this._gravity = Helper.setIfNone( this.getBoolean(GRAVITY), false);
 
 		/* Limit the duration of biofilm compression */
-		this._maxMove = Helper.setIfNone( this.getDouble(COMPRESSION_DURATION), 
-				Global.mechanical_max_movement );
+		this.compresionDuration = Helper.setIfNone( this.getDouble(COMPRESSION_DURATION), 
+				0.0 );
 		
 		/* Set default spine function for rod type agents, this function is
 		 * used if it is not overwritten by the agent, obtain
@@ -299,7 +299,7 @@ public class AgentRelaxation extends ProcessManager
 				 * mechanical stress is low. Default value is 0.0 -> only skip 
 				 * if there is no mechanical stress in the system at all. 
 				 * */
-				if ( _stressThreshold != 0.0 )
+				if ( _stressThreshold != 0.0 && this.tMech > this.compresionDuration )
 				{
 					if ( Math.sqrt(st) * Global.agent_stress_scaling < 
 							_stressThreshold )
