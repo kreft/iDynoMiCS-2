@@ -598,4 +598,6 @@ public class XmlRef
 
 	public static final String morphology = "morphology";
 
+	
+	public final static String agentBody = "body";
 }

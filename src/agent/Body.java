@@ -1,5 +1,6 @@
 package agent;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -9,13 +10,17 @@ import org.w3c.dom.NodeList;
 
 import dataIO.Log;
 import dataIO.Log.Tier;
+import dataIO.XmlHandler;
 import generalInterfaces.Copyable;
 import generalInterfaces.HasBoundingBox;
 import instantiable.Instantiable;
 import linearAlgebra.Matrix;
 import linearAlgebra.Vector;
 import referenceLibrary.XmlRef;
+import settable.Attribute;
+import settable.Module;
 import settable.Settable;
+import settable.Module.Requirements;
 import shape.Shape;
 import surface.*;
 import utility.Helper;
@@ -29,7 +34,7 @@ import utility.Helper;
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
-public class Body implements Copyable, Instantiable
+public class Body implements Copyable, Instantiable, Settable 
 {
 	/*
 	 * morphology specifications
@@ -59,6 +64,7 @@ public class Body implements Copyable, Instantiable
 	 */
 	protected Morphology _morphology;
 
+	private Settable _parentNode;
 	/**
 	 * NOTE: work in progress, subject to change
 	 * Links with other agents/bodies owned by this body
@@ -183,24 +189,8 @@ public class Body implements Copyable, Instantiable
 		// rods and balls depending on number of points.
 
 		this._points.addAll(points);
-		if(this._points.size() == 1)
-		{
-			this._surfaces.add(new Ball(points.get(0), radius));
-			this._morphology = Morphology.COCCOID;
-		}
-		else
-			
-			/**
-			 * Rod construction
-			 */
-		{
-			this._morphology = Morphology.BACILLUS;
-			for(int i = 0; points.size()-1 > i; i++)
-			{
-				this._surfaces.add(new Rod(points.get(i), points.get(i+1), 
-						length, radius));
-			}
-		}
+		this.assignMorphology(null);
+		this.constructBody(length, radius);
 	}
 
 	/**
@@ -212,7 +202,46 @@ public class Body implements Copyable, Instantiable
 	{
 		this(points, 0.0, 0.0);
 	}
+	
+	public void assignMorphology(String morphology)
+	{
+		if (morphology != null)
+			this._morphology = Morphology.valueOf(morphology);
+		else if(this._points.size() == 1)
+			this._morphology = Morphology.COCCOID;
+		else
+			this._morphology = Morphology.BACILLUS;
+	}
+	
+	public void constructBody()
+	{
+		constructBody( 0.0, 0.0 );
+	}
+	
+	public void constructBody( double length, double radius )
+	{
+		switch (this._morphology)
+		{
+		case COCCOID :
+			this._surfaces.add(new Ball(_points.get(0), radius));
+			break;
+		case BACILLUS :
+			for(int i = 0; _points.size()-1 > i; i++)
+			{
+				this._surfaces.add(new Rod(_points.get(i), 
+						_points.get(i+1), length, radius)); 
+			}
+			break;
+		case CUBOID :
+			/* TODO */
+			if (Log.shouldWrite(Tier.CRITICAL))
+				Log.out(Tier.CRITICAL, Morphology.CUBOID.name()
+						+ "body generation not suported yet, skipping..");
+		default: 
+			break;
+		}
 
+	}
 	/**
 	 * quick solution to create body from string
 	 * @param input
@@ -227,7 +256,7 @@ public class Body implements Copyable, Instantiable
 		String[] points = input.split(Matrix.DELIMITER);
 		for (String s : points)
 			pointList.add(new Point(Vector.dblFromString(s)));
-
+		
 		return new Body(pointList);
 	}
 
@@ -235,27 +264,29 @@ public class Body implements Copyable, Instantiable
 	{
 		if( !Helper.isNullOrEmpty( xmlElem ))
 		{
-			//FIXME: not finished only accounts for simple coccoids
+			/* obtain all body points */
 			List<Point> pointList = new LinkedList<Point>();
-			NodeList pointNodes = xmlElem.getElementsByTagName(XmlRef.point);
-			for (int k = 0; k < pointNodes.getLength(); k++) 
+			Collection<Element> pointNodes =
+			XmlHandler.getAllSubChild(xmlElem, XmlRef.point);
+			for (Element e : pointNodes) 
 			{
-				Element point = (Element) pointNodes.item(k);
+				Element point = e;
 				pointList.add(new Point(Vector.dblFromString(
 						point.getAttribute(XmlRef.position))));
 			}
 			this._points.addAll(pointList);
-			if(this._points.size() == 1)
-				this._surfaces.add(new Ball(pointList.get(0), 0.0)); //FIXME
-			else
-			{
-				for(int i = 0; pointList.size()-1 > i; i++)
-				{
-					this._surfaces.add(new Rod(pointList.get(i), 
-							pointList.get(i+1), 0.0, 0.0)); //FIXME
-				}
-			}
+			
+			/* assign a body morphology */
+			String morphology = 
+					XmlHandler.gatherAttribute(xmlElem, XmlRef.morphology);
+			if (morphology == null )
+				morphology = XmlHandler.gatherAttributeFromUniqueNode(xmlElem, 
+						XmlRef.agentBody, XmlRef.morphology);
+			assignMorphology(morphology);
+			
+			constructBody();
 		}
+		
 	}
 
 	/*************************************************************************
@@ -397,4 +428,36 @@ public class Body implements Copyable, Instantiable
 			return null;
 		}
 	}
+	@Override
+	public Module getModule() {
+		Module modelNode = new Module(XmlRef.agentBody, this);
+		modelNode.setRequirements(Requirements.ZERO_OR_ONE);
+		
+		modelNode.add(new Attribute(XmlRef.morphology, 
+				this._morphology.toString(), null, false ));
+
+		for (Point p : this.getPoints() )
+			modelNode.add(p.getModule() );
+		
+		return modelNode;
+	}
+
+	@Override
+	public String defaultXmlTag()
+	{
+		return XmlRef.agentBody;
+	}
+
+	@Override
+	public void setParent(Settable parent) 
+	{
+		this._parentNode = parent;
+	}
+	
+	@Override
+	public Settable getParent() 
+	{
+		return this._parentNode;
+	}
+
 }

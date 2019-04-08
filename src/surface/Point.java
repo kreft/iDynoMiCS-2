@@ -304,16 +304,9 @@ public class Point implements Copyable, Settable
 	}
 
 	@Override
-	public void setModule(Module node)
-	{
-		// TODO Auto-generated method stub
-	}
-
-	@Override
 	public String defaultXmlTag()
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return XmlRef.point;
 	}
 
 	@Override

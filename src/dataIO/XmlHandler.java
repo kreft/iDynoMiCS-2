@@ -344,6 +344,20 @@ public class XmlHandler
 		return out;
 	}
 	
+	public static Collection<Element> getAllSubChild(Element parent, String tag)
+	{
+		if (parent == null)
+			return null;
+		LinkedList<Element> out = new LinkedList<Element>();
+		NodeList list = getAll(parent, tag);
+		if ( list != null )
+		{
+			for ( int i = 0; i < list.getLength(); i++)
+				out.add((Element) list.item(i));
+		}
+		return out;
+	}
+	
 	/**
 	 * \brief TODO
 	 * 
@@ -440,6 +454,24 @@ public class XmlHandler
 		}
 		else
 			return obtainAttribute(e, attribute, tagName);
+	}
+	
+	/**
+	 * \brief Loads attribute from a unique node
+	 * 
+	 * @param xmlElement Element of an XML document.
+	 * @param tagName
+	 * @param attribute
+	 * @return
+	 */
+	public static String gatherAttributeFromUniqueNode(Element xmlElement, 
+			String tagName, String attribute)
+	{
+		Element e = findUniqueChild(xmlElement, tagName);
+		if(e == null)
+			return null;
+		else
+			return gatherAttribute(e, attribute);
 	}
 	
 	/**

@@ -170,7 +170,8 @@ public class Aspect implements Instantiable, Settable
 			modelNode.add(new Attribute(XmlRef.classAttribute, 
 					simpleName, null, false ) );
 			
-			/* handle special cases */
+			/* handle special cases TODO: do we want to maintain support for 
+			 * these special cases? */
 			if ( simpleName.equals(ClassRef.simplify(ClassRef.hashMap)))
 			{
 				HashMap<Object,Object> h = (HashMap<Object,Object>) aspect;
@@ -184,14 +185,6 @@ public class Aspect implements Instantiable, Settable
 				for (Object o : linkedList)
 					modelNode.add(new LinkedListSetter<Object>(
 							o, linkedList ).getModule() );
-			}
-			else if ( simpleName.equals(ClassRef.simplify(ClassRef.body)))
-			{
-				/* Note special case can be avoided here if body is given a list
-				 * of points in xml rather then just points  */
-				Body myBody = (Body) aspect;
-				for (Point p : myBody.getPoints() )
-					modelNode.add(p.getModule() );
 			}
 			else
 			{
