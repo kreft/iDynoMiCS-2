@@ -31,6 +31,9 @@ import utility.Helper;
  * in a single sphere for coccoid-type agents or a tube for agents described
  * by multiple points.
  * 
+ * TODO amount of constructors gets quite big, consider to reduce and simplify
+ * if possible.
+ * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
@@ -143,6 +146,7 @@ public class Body implements Copyable, Instantiable, Settable
 	}
 	
 	/**
+	 * Full random body
 	 * 
 	 * @param morphology
 	 * @param domain
@@ -152,20 +156,48 @@ public class Body implements Copyable, Instantiable, Settable
 	public Body(Morphology morphology, BoundingBox domain, 
 			double radius, double length)
 	{
+		this(morphology, domain.getRandomInside(),  radius, length);
+	}
+	
+	/**
+	 * Body with random second point
+	 * 
+	 * @param morphology
+	 * @param domain
+	 * @param radius
+	 * @param length
+	 */
+	public Body(Morphology morphology, double[] position,  
+			double radius, double length)
+	{
+		this(morphology, position, Vector.add( position, 
+				Vector.randomZeroOne( position.length ) ),  radius, length);
+	}
+
+	/**
+	 * body at position
+	 * 
+	 * @param morphology
+	 * @param domain
+	 * @param radius
+	 * @param length
+	 */
+	public Body(Morphology morphology, double[] positionA, double[] positionB, 
+			double radius, double length)
+	{
 		switch (morphology)
 		{
 			case COCCOID :
-				this._points.add( new Point(domain.getRandomInside() ) );
+				this._points.add( new Point( positionA ) );
 				this._surfaces.add( new Ball(this._points.get(0), radius) );
 				this._morphology = Morphology.COCCOID;
 				break;
 			case BACILLUS :
-				Point p = new Point(domain.getRandomInside() );
+				Point p = new Point( positionA );
 				this._points.add( p );
-				this._points.add( new Point( Vector.add( p.getPosition(), 
-						Vector.randomZeroOne( p.nDim() ) ) ) );
-				this._surfaces.add( new Rod( (Point[]) this._points.toArray(), 
-						length, radius) );
+				this._points.add( new Point( positionB ) );
+				this._surfaces.add(new Rod(_points.get(0), _points.get(1), 
+						radius, length));
 				this._morphology = Morphology.BACILLUS;
 				break;
 			case CUBOID :

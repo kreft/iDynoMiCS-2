@@ -242,15 +242,16 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable
 			{
 				spawner = (Spawner) Instance.getNew(e, this);
 				/* check for duplicate priority */
-				if (spawners.containsKey(spawner.getPriority()))
+				int priority = Helper.nextAvailableKey(
+						spawner.getPriority(),spawners.keySet() );
+				if (spawners.containsKey( spawner.getPriority() ))
 				{
-					if( Log.shouldWrite(Tier.CRITICAL))
-						Log.out(level, "ERROR: Spawner with duplicate priority. "
-								+ "Simulation will not proceed.");
-					Idynomics.simulator.interupt("interupted due to duplicate "
-							+ "spawner priority.");
+					if( Log.shouldWrite(Tier.NORMAL))
+						Log.out(level, "WARNING: Spawner with duplicate "
+								+ "priority next priority is picked by "
+								+ "simulator.");
 				}
-				spawners.put(spawner.getPriority(), spawner);
+				spawners.put(priority, spawner);
 			}
 		}
 		/* verify whether this always returns in correct order (it should) */

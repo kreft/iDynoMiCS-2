@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+	<simulation log="NORMAL" outputfolder="../results" name="nine"  randomSeed="22432423">
+	<timer stepSize="60.0" endOfSimulation="1800000.0" /> <!-- 10 weeks -->
+		<speciesLib>
+			<!-- species/species library The species library contains all agent species 
+				in the simulations. This may include microbial species, plasmid and vector 
+				species, particle species etc. Species states are states that are in principal 
+				identical for all agents of that species. However note that iDynoMiCS 2.0 
+				does allow you to overwrite states on agent level. Thus if a state is defined 
+				both on species level and on agent level, the agent state will be used in 
+				the simulation. small test 
+				-->
+			<species name="coccoid">
+				<aspect name="density" type="PRIMARY" class="Double" value="0.15" />
+				<aspect name="surfaces" type="CALCULATED" class="AgentSurfaces" />
+				<aspect name="divisionMass" type="PRIMARY" class="Double" value="1.0" />
+				<aspect name="divide" type="EVENT" class="CoccoidDivision"	/>
+				<aspect name="updateBody" type="EVENT" class="UpdateBodySurfaceScaled" />
+				<aspect name="volume" type="CALCULATED" class="SimpleVolumeState" 	/>
+				<aspect name="radius" type="CALCULATED" class="CoccoidRadius" 		/>
+				
+			</species>
+			
+			<species name="bacterium">
+				<aspect name="differentiate" type="EVENT" class="Differentiate" />
+				<aspect name="differentiationMap" class="InstantiableMap">
+					<map entryClass="String" keyType="String">
+						<item key="mass smaller 0.02" value="inert"  />
+					</map>
+				</aspect>
+			</species>
+			
+			<species name="inert">
+			<speciesModule name="coccoid" />
+				<aspect name="pigment" type="PRIMARY" class="String" value="GRAY" />
+			</species>
+			
+			<species name="EColi">
+			<speciesModule name="coccoid" />
+			<speciesModule name="bacterium" />
+				<aspect name="pigment" type="PRIMARY" class="String" value="PURPLE" />
+				<aspect name="reactions" type="PRIMARY"  class="InstantiableList"> 
+					<list class="RegularReaction" nodeLabel="reaction" 
+					entryClass="RegularReaction" keyClass="String" keyLabel="name">
+						<reaction name="growth">
+							<expression value="mass * mumax * 
+									( glucose / ( glucose + Ks ) ) * 
+									( oxygen / ( oxygen + Kox ) )">
+								<!-- pg/µm3 --> 
+								<constant name="Ks" 	value="35.00E-06" /> 
+								<constant name="Kox" 	value="3.00E-07" />
+								<!-- per minute -->
+								<constant name="mumax" 	value="5.5E-03" />  
+							</expression>
+							<stoichiometric component="mass" 		coefficient="1.0" />
+							<stoichiometric component="glucose" 	coefficient="-2.63" />
+							<stoichiometric component="oxygen" 		coefficient="-1.40" />
+						</reaction> 
+						<reaction name="decay">
+							<expression value="mass * ( b )">
+								<!-- pg/µm3 --> 
+								<!-- per minute -->
+								<constant name="b" 	value="1.0E-5" /> 
+							</expression>
+							<stoichiometric component="mass" 		coefficient="-1.0" />
+						</reaction> 
+					</list>
+				</aspect>
+			</species>
+						
+		</speciesLib>
+
+		<compartment name="chemostat">
+			<shape class="Dimensionless" volume="1e9">
+				<boundary  class="constantConcentrationToChemostat" volumeFlowRate="1.0E6">
+				<solute name="glucose" concentration="2.00E-06" defaultDiffusivity="3000"  />
+				<solute name="oxygen" 	concentration="8.74E-6" defaultDiffusivity="3000"  />
+				</boundary>
+				<boundary  class="chemostatOut" volumeFlowRate="1.0E6" agentRemoval="false" >
+				</boundary> 
+			</shape>
+			<solutes>
+				<!-- pg / µm3 -->
+				<solute name="glucose" concentration="2.00E-06" defaultDiffusivity="3000"  />
+				<solute name="oxygen" 	concentration="8.74E-6" defaultDiffusivity="3000"  />
+			</solutes>
+			<processManagers>
+				<process name="solveChemostat" class="ChemostatSolver" priority="0"
+					firstStep="0.0"  timerStepSize="60.0">
+					<aspect name="hMax" type="PRIMARY" class="Double" value="15.0" />
+					<aspect name="solver" type="PRIMARY" class="String" value="heun" />
+					<aspect name="tolerance" class="Double" value="1.0E-6" />
+				</process>
+				<process name="summary" class="Summary"  priority="2"
+					firstStep="0.0" timerStepSize="60.0">
+					<aspect name="includeHeader" type="PRIMARY" class="Boolean" value="TRUE" />
+					<aspect name="fileName" type="PRIMARY" class="String" value="chemostat" />
+					<aspect name="tableSpecification" type="PRIMARY" class="String"
+					value="mass ? species == EColi | %oxygen | %glucose" />
+					<aspect name="fileName" type="PRIMARY" class="String" value="data" />
+				</process>
+			</processManagers>
+		</compartment>
+		
+		<compartment name="biofilm" tree="SPLITTREE">
+			<shape class="Cuboid" resolutionCalculator="MultigridResolution">
+				<!-- µm -->
+				<dimension name="X" isCyclic="true" targetResolution="2.0" max="32.0"></dimension>
+				<dimension name="Y" isCyclic="false" targetResolution="2.0" max="64.0">
+					<boundary extreme="0" class="SolidBoundary" />
+					<boundary extreme="1" class="BiofilmBoundaryLayer" partnerCompartment="chemostat" layerThickness="20" />
+				</dimension>
+				<dimension name="Z" isCyclic="true" targetResolution="2.0" max="8.0"></dimension>
+			</shape>
+			<solutes>
+				<!-- pg / µm3 -->
+				<solute name="glucose" concentration="2.00E-06" defaultDiffusivity="3000"  />
+				<solute name="oxygen" 	concentration="8.74E-6" defaultDiffusivity="3000"  />
+			</solutes>
+			<reactions>
+			</reactions>
+			<spawn class="randomSpawner" domain="32.0, 0.2, 8.0" priority="1" number="5" morphology="COCCOID">
+				<templateAgent>
+					<aspect name="species" type="PRIMARY" class="String" value="EColi" />
+					<aspect name="#isLocated" type="PRIMARY" class="Boolean" value="true" />
+					<!-- pg -->
+					<aspect name="mass" type="PRIMARY" class="Double" value="0.4" />
+				</templateAgent>
+			</spawn>
+			<agents>
+			</agents>
+			<processManagers>				
+				<!-- ms -->
+				<process name="SolveDiffusionSteadyState" class="SolveDiffusionSteadyState" priority="1" firstStep="0.0" timerStepSize="60.0">
+					<aspect name="absoluteTolerance" type="PRIMARY" class="Double" value="1.0e-15" />
+					<aspect name="relativeTolerance" type="PRIMARY" class="Double" value="1.0e-8" />
+					<!-- µm^2 ms^-1-->
+				</process>
+				<process name="agentRelax" class="AgentRelaxation" priority="-2" firstStep="0.0"  timerStepSize="60.0">
+					<aspect name="maxMovement" type="PRIMARY" class="Double" value="0.10" />
+					<aspect name="relaxationMethod" type="PRIMARY" class="String" value="EULER" />
+					<aspect name="stressThreshold" type="PRIMARY" class="Double" value="10000.0" />
+					<aspect name="LimitCompressionDuration" type="PRIMARY" class="Double" value="1.0" />
+					<aspect name="maxIterations" type="PRIMARY" class="Integer" value="10000" />
+					<aspect name="gravity_testing" type="PRIMARY" class="Boolean" value="FALSE" />
+				</process>
+				<process name="summary" class="Summary"  priority="2"
+					firstStep="0.0" timerStepSize="60.0">
+					<aspect name="includeHeader" type="PRIMARY" class="Boolean" value="TRUE" />
+					<aspect name="fileName" type="PRIMARY" class="String" value="bioflm" />
+					<aspect name="tableSpecification" type="PRIMARY" class="String"
+					value="mass ? species == EColi | %oxygen | %glucose" />
+					<aspect name="fileName" type="PRIMARY" class="String" value="data" />
+				</process>
+				<process name="svgWriter" class="GraphicalOutput"  priority="-3"
+					firstStep="0.0"  timerStepSize="600.0">
+					<aspect name="solute" type="PRIMARY" class="String" value="oxygen" />
+					<aspect name="maxConcentration" type="PRIMARY" class="Double" value="1.00E-3" />
+					<aspect name="outputWriter" type="PRIMARY" class="String" value="SvgExport" />
+					<aspect name="arrayType" type="PRIMARY" class="String" value="PRODUCTIONRATE" />
+				</process>
+				<process name="svgWriter" class="GraphicalOutput"  priority="-3"
+					firstStep="0.0"  timerStepSize="600.0">
+					<aspect name="solute" type="PRIMARY" class="String" value="oxygen" />
+					<aspect name="maxConcentration" type="PRIMARY" class="Double" value="8.74E-6" />
+					<aspect name="outputWriter" type="PRIMARY" class="String" value="SvgExport" />
+				</process>
+			</processManagers>
+		</compartment>
+	</simulation>
+</document>

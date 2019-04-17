@@ -4,6 +4,9 @@ import org.w3c.dom.Element;
 
 import agent.Agent;
 import agent.Body.Morphology;
+import aspect.AspectReg;
+import aspect.Aspect.AspectClass;
+import aspect.AspectInterface;
 import compartment.AgentContainer;
 import compartment.Compartment;
 import dataIO.Log;
@@ -26,7 +29,7 @@ import surface.BoundingBox;
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
  *
  */
-public abstract class Spawner implements Settable, Instantiable {
+public abstract class Spawner implements Settable, Instantiable, AspectInterface {
 	
 	protected Agent _template;
 	
@@ -39,6 +42,11 @@ public abstract class Spawner implements Settable, Instantiable {
 	protected Settable _parentNode;
 	
 	protected Morphology morphology;
+	
+	/**
+	 * The aspect registry
+	 */
+	protected AspectReg _aspectRegistry = new AspectReg();
 	
 	/**
 	 * BoundingBox for spawn domain
@@ -56,6 +64,8 @@ public abstract class Spawner implements Settable, Instantiable {
 	public void init(Element xmlElem, AgentContainer agents, 
 			String compartmentName)
 	{
+		this.loadAspects(xmlElem);
+		
 		this.setCompartment(
 				Idynomics.simulator.getCompartment(compartmentName) );
 		
@@ -145,6 +155,29 @@ public abstract class Spawner implements Settable, Instantiable {
 	public abstract void spawn();
 	
 	/**
+	 * Allows for direct access to the aspect registry
+	 */
+	public AspectReg reg()
+	{
+		return this._aspectRegistry;
+	}
+
+	/*
+	 * returns object stored in Agent state with name "name". If the state is
+	 * not found it will look for the Species state with "name". If this state
+	 * is also not found this method will return null.
+	 */
+	public Object get(String key)
+	{
+		return _aspectRegistry.getValue(this, key);
+	}
+	
+	public AspectClass getAspectType(String key)
+	{
+		return reg().getType(this, key);
+	}
+	
+	/**
 	 * Obtain module for xml output and gui representation.
 	 */
 	public Module getModule()
@@ -169,6 +202,14 @@ public abstract class Spawner implements Settable, Instantiable {
 		modelNode.add(new Attribute(XmlRef.morphology, 
 				String.valueOf(this.getMorphology()), null, true ));
 		
+		modelNode.addChildSpec( ClassRef.aspect,
+				Module.Requirements.ZERO_TO_MANY);
+		
+		/* add the aspects as childNodes */
+		for ( String key : this.reg().getLocalAspectNames() )
+			modelNode.add(reg().getAspectNode(key));
+		
+		/* allow adding of new aspects */
 		modelNode.addChildSpec( ClassRef.aspect,
 				Module.Requirements.ZERO_TO_MANY);
 		

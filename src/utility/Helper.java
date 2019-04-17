@@ -710,6 +710,21 @@ public final class Helper
 	}
 	
 	/**
+	 * return next available key that is not already present in integer 
+	 * key set
+	 * 
+	 * @param target
+	 * @param keySet
+	 * @return
+	 */
+	public static int nextAvailableKey(int target, Collection<Integer> keySet)
+	{
+		if (keySet.contains(target))
+			return nextAvailableKey( target+1 , keySet );
+		return target;
+	}
+	
+	/**
 	 * Checks if the passed string can be parsed to double or not.
 	 * @param strParse String to be checked
 	 * @return true or false
