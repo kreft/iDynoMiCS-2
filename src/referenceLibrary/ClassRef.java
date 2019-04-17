@@ -636,4 +636,7 @@ public class ClassRef
 	public static final String chemical = 
 			chemical.Chemical.class.getName();
 
+	public static final String orientation = 
+			linearAlgebra.Orientation.class.getName();
+
 }

@@ -22,6 +22,8 @@ import idynomics.Global;
 import idynomics.Idynomics;
 import instantiable.Instance;
 import instantiable.Instantiable;
+import linearAlgebra.Orientation;
+import linearAlgebra.Vector;
 import processManager.ProcessComparator;
 import processManager.ProcessManager;
 import reaction.RegularReaction;
@@ -114,6 +116,11 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable
 	 * the compartment parent node constructor (simulator)
 	 */
 	private Settable _parentNode;
+	
+	/**
+	 * Specifies the compartment orientation.
+	 */
+	private Orientation _orientation;
 	
 	/* ***********************************************************************
 	 * CONSTRUCTORS
@@ -299,6 +306,17 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable
 					(ProcessManager) Instance.getNew(e, this, (String[])null));
 		}
 		/* NOTE: we fetch the class from the xml node */
+		
+		if (XmlHandler.hasChild( xmlElem, XmlRef.orientation) )
+		{
+			this._orientation = (Orientation) Instance.getNew( 
+					XmlHandler.findUniqueChild(xmlElem, XmlRef.orientation), 
+					this, Orientation.class.getName() );
+		} else {
+			this._orientation = new Orientation( Vector.zerosDbl(
+					this._shape.getNumberOfDimensions() ), this );
+		}
+
 	}
 	
 		
@@ -330,6 +348,11 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable
 	public void setSideLengths(double[] sideLengths)
 	{
 		this._shape.setDimensionLengths(sideLengths);
+	}
+	
+	public Orientation orientation()
+	{
+		return this._orientation;
 	}
 	
 	/**
@@ -600,6 +623,9 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable
 		/* Set title for GUI. */
 		if ( this.getName() != null )
 			modelNode.setTitle(this.getName());
+		/* orientation node */
+		if( !this._orientation.isNullVector() )
+			modelNode.add( this._orientation.getModule() );
 		/* Add the name attribute. */
 		modelNode.add( new Attribute(XmlRef.nameAttribute, 
 				this.getName(), null, true ) );
@@ -614,6 +640,7 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable
 		modelNode.add( this.agents.getModule() );
 		/* Add the process managers node. */
 		modelNode.add( this.getProcessNode() );
+		
 				
 		/* spatial registry NOTE we are handling this here since the agent
 		 * container does not have the proper init infrastructure */

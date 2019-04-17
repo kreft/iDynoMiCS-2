@@ -600,4 +600,9 @@ public class XmlRef
 
 	
 	public final static String agentBody = "body";
+
+	/**
+	 * refers to linAlg orientation object (unit Vector)
+	 */
+	public static final String orientation = "orientation";
 }

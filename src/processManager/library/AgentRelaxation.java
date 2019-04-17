@@ -549,6 +549,7 @@ public class AgentRelaxation extends ProcessManager
 			/* note should be mass per point */
 			double fg = agent.getDouble("mass") * 1e-12 * 35.316e9 * Global.density_difference;
 			double[] fgV;
+			
 			if( this._shape.getNumberOfDimensions() == 3)
 				 fgV = Vector.times(new double[]{ 0, -1, 0 }, fg );
 			else
