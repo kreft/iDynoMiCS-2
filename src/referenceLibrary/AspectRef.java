@@ -539,5 +539,15 @@ public class AspectRef
 	 */
 	public static final String agentDifferentiation = "differentiate";
 
+	/**
+	 * Initial point for distributed spawner class
+	 */
+	public static final String spawnerOrient = "orient";
+
+	/**
+	 * Agent spacing for distributed spawner class 
+	 */
+	public static final String spawnerSpacing = "spacing";
+
 
 }

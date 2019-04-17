@@ -11,6 +11,7 @@ import dataIO.Log;
 import dataIO.Log.Tier;
 import linearAlgebra.Vector;
 import referenceLibrary.AspectRef;
+import utility.Helper;
 
 
 /**
@@ -25,25 +26,37 @@ import referenceLibrary.AspectRef;
  */
 public class DistributedSpawner extends Spawner {
 	
-	private double[] _spacing = null;
-	private double[] _orient = null;
+	public String ORIENT = AspectRef.spawnerOrient;
+	public String SPACING = AspectRef.spawnerSpacing;
+	
+	private double[] _spacing;
+	private double[] _orient;
 	private double[] _max;
 	
+	/**
+	 * default class initiation
+	 */
 	public void init(Element xmlElem, AgentContainer agents, 
 			String compartmentName)
 	{
 		super.init(xmlElem, agents, compartmentName);
-		
 		this._max = this.getCompartment().getShape().getDimensionLengths();
-		
-		this._spacing = (double[]) this.getValue("spacing");
-		this._orient = (double[]) this.getValue("orient");
+		this._spacing = (double[]) this.getValue(SPACING);
+		this._orient = (double[]) this.getValue(ORIENT);
 	}
 
+	/**
+	 * Spawn agents on user defined grid
+	 */
 	@SuppressWarnings("unchecked")
 	@Override
 	public void spawn() 
 	{
+		if ( Helper.isNullOrEmpty(_spacing) || Helper.isNullOrEmpty(_orient) )
+		{
+			Log.out(Tier.CRITICAL, this.getClass().getSimpleName() + " required"
+					+ "parameters missing: " + ORIENT + " and/or " + SPACING );
+		}
 		LinkedList<double[]> locations = new LinkedList<double[]>();
 		for( double d : positions(_orient[0],_spacing[0], _max[0]))
 			locations.add( new double[] {d} );
