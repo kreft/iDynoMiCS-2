@@ -176,7 +176,7 @@ public class Agent implements AspectInterface, Settable, Instantiable
 
 	public Agent(String species, Compartment comp)
 	{
-		this.set(XmlRef.species,species);
+		this.set(XmlRef.species, species);
 		this._compartment = comp;
 		this.init();
 	}
