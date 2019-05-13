@@ -20,7 +20,7 @@ import utility.ExtraMath;
  * NOTE: input "body", scale
  */
 // TODO documentation, explanation
-public class StochasticMove extends Event
+public class intermittentRandomMovement extends Event
 {
 	public String BODY = AspectRef.agentBody;
 	public String STOCHASTIC_STEP = AspectRef.agentStochasticStep;
