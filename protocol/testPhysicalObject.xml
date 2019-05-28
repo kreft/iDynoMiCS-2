@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+	<simulation name="test" outputfolder="../results" log="DEBUG" randomSeed="22432423"
+						comment="this is a file for testing purposes only.">
+		
+		<timer stepSize="1.0" endOfSimulation="15.0" />
+		
+		<speciesLib>
+			<!-- species/species library The species library contains all agent species 
+				in the simulations. This may include microbial species, plasmid and vector 
+				species, particle species etc. Species states are states that are in principal 
+				identical for all agents of that species. However note that iDynoMiCS 2.0 
+				does allow you to overwrite states on agent level. Thus if a state is defined 
+				both on species level and on agent level, the agent state will be used in 
+				the simulation. small test -->
+			<species name="AOB">
+				<aspect name="reactions" type="PRIMARY" class="InstantiableList">
+					<list class="RegularReaction" nodeLabel="reaction" entryClass="RegularReaction" keyClass="String" keyLabel="name">
+						<reaction name="testReact">
+							<expression value="bioMass * solute1 * k">
+								<constant name="k" value="0.25" />
+							</expression>
+							<stoichiometric component="bioMass" coefficient="1.0" />
+							<stoichiometric component="solute1" coefficient="-5.0" />
+							<stoichiometric component="solute2" coefficient="0.5" />
+						</reaction>
+					</list>
+				</aspect>
+				<aspect name="pigment" type="PRIMARY" class="String" value="GREEN" />
+				<aspect name="mass" type="CALCULATED" class="WetWeight"  />
+				<aspect name="WetDryRatio" class="Double"  value="4.0" />
+				<speciesModule name="coccoid" />
+			</species>
+			<species name="coccoid">
+				<aspect name="surfaces"		type="CALCULATED"	class="AgentSurfaces" />
+				<aspect name="morphology" 	type="PRIMARY" 		class="String" 		value="coccoid" />
+				<!-- NOTE for testing purposes as stateExpression -->
+				<aspect name="volume" 		type="CALCULATED" 	class="StateExpression" 	input="mass/density" />
+				<aspect name="radius"		type="CALCULATED"	class="CoccoidRadius" 	/>
+				<aspect name="divide" 		type="EVENT" 		class="CoccoidDivision"			 />
+				<aspect name="#isLocated" 	type="PRIMARY" 		class="Boolean" value="true" />
+				<aspect name="updateBody" 	type="EVENT" 		class="UpdateBody" 		 />
+			</species>
+			<species name="stochasticMover">
+				<aspect name="stochasticStep" type="PRIMARY"	class="Double" value="1.0" />
+				<aspect name="stochasticMove" type="EVENT"		class="StochasticMove" />
+			</species>
+		</speciesLib>
+
+		<compartment name="second" tree="SPLITTREE">
+			<shape class="Rectangle">
+				<dimension name="X" isCyclic="false" targetResolution="1.0" max="16.0">
+				</dimension> 
+				<dimension name="Y" isCyclic="false" targetResolution="1.0" max="16.0">
+				</dimension> 
+			</shape>
+			<solutes>
+				<solute name="solute1" concentration="1.0" defaultDiffusivity="1.0" biofilmDiffusivity="0.5"/>
+				<solute name="solute2" concentration="0.0" defaultDiffusivity="1.0" biofilmDiffusivity="0.5" />
+			</solutes>
+			<reactions>
+				<reaction name="slowInflow">
+					<expression value="1.0 * inflow">
+						<constant name="inflow" value="0.004" />
+					</expression>
+					<stoichiometric component="solute1" coefficient="1.0" />
+				</reaction>
+			</reactions>
+			<agents>
+				<agent>
+					<aspect name="mapTest" type="PRIMARY" class="HashMap">
+						<item type="PRIMARY" class="Double" value="2.0" key="1.0" keyType="Double" />
+					</aspect>				
+					<aspect name="species" type="PRIMARY" class="String" value="AOB" />
+					<aspect name="h_map_test" type="PRIMARY" class="HashMap">
+						<item type="PRIMARY" class="String[]" value="test" key="test_key" keyType="String" />
+					</aspect>
+					<aspect name="massMap" class="InstantiableMap">
+						<map entryClass="Double" keyType="String">
+							<item key="bioMass" value="0.2"  />
+						</map>
+					</aspect>
+					<aspect name="density" type="PRIMARY" class="Double" value="1" />
+					<aspect name="pigment" type="PRIMARY" class="String" value="RED" />
+					<aspect name="body" type="PRIMARY" class="Body">
+						<point position="12.2, 12.2" />
+					</aspect>
+				</agent>
+				<agent>
+					<aspect name="species" type="PRIMARY" class="String" value="AOB" />
+					<aspect  name="massMap" class="InstantiableMap">
+						<map entryClass="Double" keyType="String">
+							<item key="bioMass" value="0.2"  />
+						</map>
+					</aspect>
+					<aspect name="density" type="PRIMARY" class="Double" value="1" />
+					<aspect name="pigment" type="PRIMARY" class="String" value="BLUE" />
+					<aspect name="body" type="PRIMARY" class="Body">
+						<point position="12.0, 5.3" />
+					</aspect>
+				</agent>
+				<agent>
+					<aspect name="species" type="PRIMARY" class="String" value="AOB" />
+					<aspect name="massMap" class="InstantiableMap">
+						<map entryClass="Double" keyType="String">
+							<item key="bioMass" value="0.2"  />
+						</map>
+					</aspect>
+					<aspect name="density" type="PRIMARY" class="Double" value="1" />
+					<aspect name="pigment" type="PRIMARY" class="String" value="GREEN" />
+					<aspect name="body" type="PRIMARY" class="Body">
+						<point position="5.3, 12.2" />
+					</aspect>
+				</agent> 
+			</agents>
+			<processManagers>
+				<process name="svgWriter" class="GraphicalOutput"  priority="-3"
+					firstStep="0.0"  timerStepSize="1.0">
+					<aspect name="outputWriter" type="PRIMARY" class="String" value="SvgExport" />
+				</process>
+				<process name="povWriter" class="GraphicalOutput"  priority="-3"
+					firstStep="0.0"  timerStepSize="1.0">
+					<aspect name="outputWriter" type="PRIMARY" class="String" value="PovExport" />
+				</process>
+				<process name="svgWriter" class="GraphicalOutput"  priority="-3"
+					firstStep="0.0"  timerStepSize="1.0">
+					<aspect name="solute" type="PRIMARY" class="String" value="solute1" />
+					<aspect name="maxConcentration" type="PRIMARY" class="Double" value="2.0" />
+					<aspect name="outputWriter" type="PRIMARY" class="String" value="SvgExport" />
+				</process>
+				<process name="svgWriter" class="GraphicalOutput"  priority="-3"
+					firstStep="0.0"  timerStepSize="1.0">
+					<aspect name="maxConcentration" type="PRIMARY" class="Double" value="2.0" />
+					<aspect name="solute" type="PRIMARY" class="String" value="solute2" />
+					<aspect name="outputWriter" type="PRIMARY" class="String" value="SvgExport" />
+				</process>
+				<process name="svgWriter" class="GraphicalOutput"  priority="-3"
+					firstStep="0.0"  timerStepSize="1.0">
+					<aspect name="maxConcentration" type="PRIMARY" class="Double" value="2.0" />
+					<aspect name="solute" type="PRIMARY" class="String" value="solute2" />
+					<aspect name="arrayType" type="PRIMARY" class="String" value="PRODUCTIONRATE" />
+					<aspect name="outputWriter" type="PRIMARY" class="String" value="SvgExport" />
+				</process>
+				<process name="svgWriter" class="GraphicalOutput"  priority="-3"
+					firstStep="0.0"  timerStepSize="1.0">
+					<aspect name="maxConcentration" type="PRIMARY" class="Double" value="1.0" />
+					<aspect name="solute" type="PRIMARY" class="String" value="solute1" />
+					<aspect name="arrayType" type="PRIMARY" class="String" value="DIFFUSIVITY" />
+					<aspect name="outputWriter" type="PRIMARY" class="String" value="SvgExport" />
+				</process>
+				<process name="agentRelax" class="AgentRelaxation"  priority="-2"
+					firstStep="0.0"  timerStepSize="0.5">
+					<aspect name="maxMovement" type="PRIMARY" class="Double" value="0.05" />
+					<aspect name="stressThreshold" type="PRIMARY" class="Double" value="0.0" />
+					<aspect name="relaxationMethod" type="PRIMARY" class="String" value="EULER" />
+				</process>
+				<process name="solveDiffusionTransient" class="SolveDiffusionTransient"  priority="-1"
+					firstStep="0.0" timerStepSize="0.5">
+				</process>
+				<process name="summary" class="processManager.library.Summary"  priority="2"
+					firstStep="0.0" timerStepSize="0.5">
+					<aspect name="tableSpecification" type="PRIMARY" class="String" 
+					value="0 ~ mass | mass > 0.2, mass > 0.15, mass > 0.1, mass > 0.0 | species = AOB | pigment = RED, pigment = BLUE, pigment = GREEN" />
+				</process>
+			</processManagers>
+			<physicalObject type="SPHERE" radius="5.0">
+				<point position="14.3, 14.2" />
+			</physicalObject>
+		</compartment>
+	</simulation>
+</document>

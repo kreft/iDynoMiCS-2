@@ -18,6 +18,7 @@ import gereralPredicates.IsSame;
 
 import static dataIO.Log.Tier.*;
 import linearAlgebra.Vector;
+import physicalObject.PhysicalObject;
 import referenceLibrary.AspectRef;
 import referenceLibrary.ClassRef;
 import referenceLibrary.XmlRef;
@@ -70,7 +71,11 @@ public class AgentContainer implements Settable
 	 * they can be removed from memory.
 	 */
 	protected List<Agent> _agentsToRegisterRemoved = new LinkedList<Agent>();
-
+	/**
+	 * Physical Objects
+	 */
+	protected LinkedList<PhysicalObject> _physicalObjects = 
+											new LinkedList<PhysicalObject>();
 	/**
 	 * Parent node (required for settable interface)
 	 */
@@ -240,6 +245,13 @@ public class AgentContainer implements Settable
 		LinkedList<Agent> out = new LinkedList<Agent>();
 		out.addAll(this._agentList);
 		out.addAll(this._locatedAgentList);
+		return out;
+	}
+	
+	public LinkedList<PhysicalObject> getAllPhysicalObjects()
+	{
+		LinkedList<PhysicalObject> out = new LinkedList<PhysicalObject>();
+		out.addAll(this._physicalObjects);
 		return out;
 	}
 

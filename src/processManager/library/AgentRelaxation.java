@@ -16,6 +16,7 @@ import expression.Expression;
 import idynomics.Global;
 import idynomics.Idynomics;
 import linearAlgebra.Vector;
+import physicalObject.PhysicalObject;
 import processManager.ProcessManager;
 import referenceLibrary.AspectRef;
 import shape.Shape;
@@ -427,8 +428,14 @@ public class AgentRelaxation extends ProcessManager
 			neighboorhoodEvaluation(agent, agentSurfs, agents);
 			
 			/*
+			 * Collisions with other physical objects and
 			 * Boundary collisions
-			 * 
+			 */
+			for( PhysicalObject p : this._agents.getAllPhysicalObjects() )
+			{
+				this._iterator.collision(p.getSurface(), agentSurfs, 0.0);
+			}
+			/*
 			 * TODO friction
 			 * FIXME here we need to selectively apply surface collision methods
 			 */

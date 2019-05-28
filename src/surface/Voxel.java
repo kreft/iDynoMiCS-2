@@ -2,11 +2,16 @@ package surface;
 
 import java.util.LinkedList;
 
+import org.w3c.dom.Element;
+
 import dataIO.Log;
 import dataIO.Log.Tier;
 import generalInterfaces.HasBoundingBox;
+import settable.Module;
 import shape.Shape;
 import surface.BoundingBox;
+import utility.Helper;
+import utility.StandardizedImportMethods;
 
 /**
  * \brief TODO
@@ -16,15 +21,10 @@ import surface.BoundingBox;
 public class Voxel extends Surface implements HasBoundingBox {
 	
 	/**
-	 * TODO
+	 * Lower corner at position 0, voxel dimensions at position 1
 	 */
-	private double[] _dimensions;
+	private Point[] _points = new Point[2];
 
-	/**
-	 * TODO
-	 */
-	private double[] _lower;
-    
     public Voxel(double[] lower, double[] dimensions)
     {
     	this.setLower(lower);
@@ -35,6 +35,22 @@ public class Voxel extends Surface implements HasBoundingBox {
 	{
 		//TODO
 	}
+	
+	public Voxel(Element xmlElem)
+	{
+		if( !Helper.isNullOrEmpty( xmlElem ))
+		{
+			this._points = StandardizedImportMethods.
+					pointImport(xmlElem, this, 2);
+		}
+	}
+	
+	public Module appendToModule(Module modelNode) 
+	{
+		for (Point p : _points )
+			modelNode.add(p.getModule() );
+		return modelNode;
+	}
 
 	public Type type() {
 		return Surface.Type.VOXEL;
@@ -43,7 +59,7 @@ public class Voxel extends Surface implements HasBoundingBox {
 	@Override
 	public int dimensions() 
 	{
-		return this.getDimensions().length;
+		return this._points[0].nDim();
 	}
 	
 	protected BoundingBox boundingBox = new BoundingBox();
@@ -68,21 +84,21 @@ public class Voxel extends Surface implements HasBoundingBox {
 
 	public double[] getLower() 
 	{
-		return _lower;
+		return _points[0].getPosition();
 	}
 
 	public void setLower(double[] _lower) 
 	{
-		this._lower = _lower;
+		this._points[0] = new Point(_lower);
 	}
 
 	public double[] getDimensions() 
 	{
-		return _dimensions;
+		return _points[1].getPosition();
 	}
 
 	public void setDimensions(double[] _dimensions) 
 	{
-		this._dimensions = _dimensions;
+		this._points[0] = new Point(_dimensions);
 	}
 }
