@@ -614,4 +614,6 @@ public class XmlRef
 	public static final String radius = "radius";
 
 	public static final String length = "length";
+
+	public static final String objects = "objects";
 }

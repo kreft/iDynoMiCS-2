@@ -2,7 +2,6 @@ package physicalObject;
 
 import org.w3c.dom.Element;
 
-import compartment.Compartment;
 import instantiable.Instantiable;
 import referenceLibrary.XmlRef;
 import settable.Attribute;
@@ -68,6 +67,11 @@ public class PhysicalObject implements Settable, Instantiable
 	public Surface getSurface()
 	{
 		return this._surface;
+	}
+	
+	public boolean isMobile()
+	{
+		return this._mobile;
 	}
 
 	@Override
