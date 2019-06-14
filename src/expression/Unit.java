@@ -1,17 +1,14 @@
 package expression;
 
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 
 import dataIO.Log;
 import dataIO.Log.Tier;
-import expression.Unit.SI;
 import utility.GenericPair;
 import utility.GenericTrio;
 /**
- * 
+ * TODO fix rounding errors by switching to BigDecimal format..
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
  *
  */
@@ -210,7 +207,7 @@ public class Unit {
 			///FIXME or should we throw something
 			return 0;
 		}
-		return 1.0/formatter.modifier;
+		return this.modifier() / formatter.modifier() ;
 	}
 	
 	public double format( Map<SI,GenericTrio<SI, String, Double>> unitSystem )
@@ -245,7 +242,8 @@ public class Unit {
 		/* remove tailing · */
 		out = out.substring(0, out.length()-1);
 		
-		return new GenericPair<Double,String>(1.0/unitOut.modifier(), out);
+		return new GenericPair<Double,String>(
+				this.modifier() / unitOut.modifier(), out );
 	}
 	
 	/**

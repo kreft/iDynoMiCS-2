@@ -73,6 +73,9 @@ public class TestingUnits {
 		System.out.println( myUnit + " to: " + myUnit.toString(unitSystem) );
 		System.out.println( unitA + " to: " + unitA.toString(unitSystem) );
 		System.out.println( unitC + " to: " + unitC.toString(unitSystem) );
+		
+		System.out.println( unitC + " to: " + unitC.format(unitSystem) );
+		System.out.println( myUnit + " to: " + myUnit.format("pg·µm-1") );
 	}
 
 
