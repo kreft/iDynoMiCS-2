@@ -47,7 +47,7 @@ public class Unit {
 	
 	/**
 	 * modifier keeps track of the multiplication factor as a result of unit
-	 * conversion ( for example 1 day = 86400 h, where 86400 would be the
+	 * conversion ( for example 1 day = 86400 s, where 86400 would be the
 	 * modifier ).
 	 */
 	private double modifier;

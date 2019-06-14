@@ -19,7 +19,7 @@ public class UnitUnitTest {
 
 		myUnit.fromString("g+1·m-1");
 		System.out.println(myUnit.toString());
-		assertTrue("correct unit conversion", myUnit.toString().contains("kg·m-1") );
+		assertTrue("correct unit conversion", myUnit.toString().contains("kg·m-1") || myUnit.toString().contains("m-1·kg"));
 		
 		System.out.println("\n");
 		
