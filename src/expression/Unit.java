@@ -1,9 +1,15 @@
 package expression;
 
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 import dataIO.Log;
 import dataIO.Log.Tier;
+import expression.Unit.SI;
+import utility.GenericPair;
+import utility.GenericTrio;
 /**
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
@@ -88,7 +94,7 @@ public class Unit {
 	{
 		for (SI si : SI.values())
 			this.unitMap.put(si, 0);
-		this.modifier = 1;
+		this.modifier = 1.0;
 	}
 	
 	/**
@@ -104,6 +110,38 @@ public class Unit {
 				return false;
 		}
 		return true;
+	}
+	
+	/**
+	 * 
+	 * @return true if Unit depends on exactly 1 SI base unit.
+	 */
+	public boolean isBasic()
+	{
+		int count = 0;
+		for (SI si : SI.values())
+		{
+			if( this.unitMap.get(si) == 1 )
+				count++;
+			else if( this.unitMap.get(si) != 0 )
+				return false;
+			if( count > 1)
+				return false;
+		}
+		if( count == 0 )
+			return false;
+		return true;
+	}
+	
+	public GenericPair<SI,Double> unitFactor()
+	{
+		if( this.isBasic() )
+		{
+			for (SI si : SI.values())
+				if( this.unitMap.get(si) == 1 )
+					return new GenericPair<SI, Double>(si,this.modifier());
+		}
+		return null;
 	}
 	
 	/**
@@ -144,6 +182,21 @@ public class Unit {
 		return this.modifier + " [" + this.unit() + "]";
 	}
 	
+	public String toString(String format)
+	{
+		double out = format(format);
+		if( out == 0)
+			return "format missmatch";
+		else
+			return format(format) + " [" + format + "]";
+	}
+	
+	public String toString( Map<SI,GenericTrio<SI, String, Double>> unitSystem )
+	{
+		GenericPair<Double,String> out = formatter( unitSystem );
+		return out.getFirst() + " [" + out.getSecond() + "]";
+	}
+	
 	/**
 	 * get the unit formatter for the requested output format
 	 */
@@ -158,6 +211,41 @@ public class Unit {
 			return 0;
 		}
 		return 1.0/formatter.modifier;
+	}
+	
+	public double format( Map<SI,GenericTrio<SI, String, Double>> unitSystem )
+	{
+		return formatter(unitSystem).getFirst();
+	}
+	
+	private GenericPair<Double,String> 
+		formatter( Map<SI,GenericTrio<SI, String, Double>> unitSystem )
+	{
+		Unit unitOut = new Unit();
+		String out = "";
+		Integer power;
+
+		for (SI si : this.unitMap.keySet())
+		{
+			if( unitMap.get(si) != 0 )
+			{
+				/* update modifier */
+				GenericTrio<SI, String, Double> u = unitSystem.get(si);
+				power = unitMap.get(si);
+				unitOut.update(u.getSecond(), power);
+				
+				/* text representation */
+				if ( power == 1 )
+					out += u.getSecond() + "·";
+				else if ( power != 0 )
+					out += u.getSecond() + (power > 0 ? "+" : "") + power + "·";
+			}
+		}
+		
+		/* remove tailing · */
+		out = out.substring(0, out.length()-1);
+		
+		return new GenericPair<Double,String>(1.0/unitOut.modifier(), out);
 	}
 	
 	/**
@@ -178,6 +266,26 @@ public class Unit {
 		}
 		/* remove tailing · */
 		out = out.substring(0, out.length()-1);
+		return out;
+	}
+	
+	public static HashMap<SI,GenericTrio<SI, String, Double>> 
+		formatMap(String... unit)
+	{
+		HashMap<SI,GenericTrio<SI, String, Double>> out = 
+				new HashMap<SI,GenericTrio<SI, String, Double>>();
+		for (String u : unit)
+		{
+			Unit t = new Unit(u);
+			if( t.isBasic() )
+			{
+				out.put(t.unitFactor().getFirst(), 
+						new GenericTrio<SI, String, Double>( 
+						t.unitFactor().getFirst(), 
+						u, 
+						t.unitFactor().getSecond() ));
+			}
+		}
 		return out;
 	}
 	

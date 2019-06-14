@@ -1,7 +1,11 @@
 package test.other;
 
+import java.util.Map;
+
 import expression.Expression;
 import expression.Unit;
+import expression.Unit.SI;
+import utility.GenericTrio;
 
 /**
  * 
@@ -62,6 +66,13 @@ public class TestingUnits {
 		System.out.println("C (formatted to mN) = " + unitC.toString(format));
 		System.out.println("C (formatted to kg) = " + unitC.toString("kg"));	
 		
+		/* micro_units */
+		Map<SI,GenericTrio<SI, String, Double>> unitSystem =
+				Unit.formatMap("pg","µm","min");
+		
+		System.out.println( myUnit + " to: " + myUnit.toString(unitSystem) );
+		System.out.println( unitA + " to: " + unitA.toString(unitSystem) );
+		System.out.println( unitC + " to: " + unitC.toString(unitSystem) );
 	}
 
 
