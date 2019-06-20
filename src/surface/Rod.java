@@ -1,9 +1,16 @@
 package surface;
 
+import org.w3c.dom.Element;
+
 import dataIO.ObjectFactory;
 import generalInterfaces.HasBoundingBox;
+import referenceLibrary.XmlRef;
+import settable.Attribute;
+import settable.Module;
 import shape.Shape;
 import surface.BoundingBox;
+import utility.Helper;
+import utility.StandardizedImportMethods;
 
 /**
  * \brief TODO
@@ -58,6 +65,25 @@ public class Rod extends Surface implements HasBoundingBox {
 		this._radius = (double) ObjectFactory.copy(rod._radius);
 	}
 
+	public Rod(Element xmlElem)
+	{
+		if( !Helper.isNullOrEmpty( xmlElem ))
+		{
+			this._points = StandardizedImportMethods.
+					pointImport(xmlElem, this, 2);
+			this._length = Double.valueOf( xmlElem.getAttribute(XmlRef.length));
+		}
+	}
+	
+	public Module appendToModule(Module modelNode) 
+	{
+		modelNode.add(new Attribute(XmlRef.length, 
+				String.valueOf(this._length), null, false ));
+
+		for (Point p : _points )
+			modelNode.add(p.getModule() );
+		return modelNode;
+	}
 
 	public Type type() {
 		return Surface.Type.ROD;

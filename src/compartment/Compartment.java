@@ -1,5 +1,6 @@
 package compartment;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -24,6 +25,7 @@ import instantiable.Instance;
 import instantiable.Instantiable;
 import linearAlgebra.Orientation;
 import linearAlgebra.Vector;
+import physicalObject.PhysicalObject;
 import processManager.ProcessComparator;
 import processManager.ProcessManager;
 import reaction.RegularReaction;
@@ -35,6 +37,7 @@ import settable.Settable;
 import settable.Module.Requirements;
 import shape.Shape;
 import spatialRegistry.TreeType;
+import surface.Point;
 import utility.Helper;
 import shape.Dimension.DimName;
 
@@ -107,7 +110,7 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable
 	/**
 	 * Local time should always be between {@code Timer.getCurrentTime()} and
 	 * {@code Timer.getEndOfCurrentTime()}.
-	 */
+	 */	
 	// TODO temporary fix, reassess
 	//protected double _localTime = Idynomics.simulator.timer.getCurrentTime();
 	protected double _localTime;
@@ -305,18 +308,24 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable
 			this.addProcessManager(
 					(ProcessManager) Instance.getNew(e, this, (String[])null));
 		}
-		/* NOTE: we fetch the class from the xml node */
 		
-		if (XmlHandler.hasChild( xmlElem, XmlRef.orientation) )
+		for ( Element e : XmlHandler.getElements(xmlElem,XmlRef.physicalObject))
 		{
-			this._orientation = (Orientation) Instance.getNew( 
-					XmlHandler.findUniqueChild(xmlElem, XmlRef.orientation), 
-					this, Orientation.class.getName() );
-		} else {
+			this.addPhysicalObject( (PhysicalObject) Instance.getNew(e, this, 
+							PhysicalObject.class.getName()));
+		}
+		
+		/* NOTE: we fetch the class from the xml node */
+		elem = XmlHandler.findUniqueChild(xmlElem, XmlRef.orientation);
+		str = new String[] { XmlHandler.gatherAttribute(elem, XmlRef.variable) };
+		if ( str[0] == null )
+		{
 			this._orientation = new Orientation( Vector.zerosDbl(
 					this._shape.getNumberOfDimensions() ), this );
+		} else {
+			this._orientation = (Orientation) Instance.getNew( elem, 
+					this, Orientation.class.getName() );
 		}
-
 	}
 	
 		
@@ -401,11 +410,15 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable
 		agent.setCompartment(this);
 	}
 	
+	public void addPhysicalObject(PhysicalObject p)
+	{
+		this.agents._physicalObjects.add(p);
+	}
+	
 	public void addReaction(RegularReaction reaction)
 	{
 		this.environment.addReaction(reaction);
 	}
-	
 	
 	public void addSolute(SpatialGrid solute)
 	{
@@ -641,7 +654,8 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable
 		/* Add the process managers node. */
 		modelNode.add( this.getProcessNode() );
 		
-				
+		modelNode.add( getObjectNode() );
+		
 		/* spatial registry NOTE we are handling this here since the agent
 		 * container does not have the proper init infrastructure */
 		modelNode.add( new Attribute(XmlRef.tree, 
@@ -671,6 +685,26 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable
 		
 		/* Add existing process managers as child nodes. */
 		for ( ProcessManager p : this._processes )
+			modelNode.add( p.getModule() );
+		return modelNode;
+	}
+	
+	/**
+	 * \brief Helper method for {@link #getModule()}.
+	 * 
+	 * @return Model node for the <b>process managers</b>.
+	 */
+	private Module getObjectNode()
+	{
+		/* The process managers node. */
+		Module modelNode = new Module( XmlRef.objects, this );
+		modelNode.setRequirements( Requirements.EXACTLY_ONE );
+		/* 
+		 * TODO add Object child spec
+		 */
+		
+		/* Add existing process managers as child nodes. */
+		for (PhysicalObject p : this.agents._physicalObjects )
 			modelNode.add( p.getModule() );
 		return modelNode;
 	}

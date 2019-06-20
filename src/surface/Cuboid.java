@@ -1,9 +1,16 @@
 package surface;
 
+import org.w3c.dom.Element;
+
 import dataIO.ObjectFactory;
 import generalInterfaces.HasBoundingBox;
+import referenceLibrary.XmlRef;
+import settable.Attribute;
+import settable.Module;
 import shape.Shape;
 import surface.BoundingBox;
+import utility.Helper;
+import utility.StandardizedImportMethods;
 
 /**
  * \brief TODO
@@ -40,6 +47,15 @@ public class Cuboid extends Surface implements HasBoundingBox {
 		this._points = new Point[] {(Point) cuboid._points[0].copy(), 
 				(Point) cuboid._points[1].copy()};
 	}
+	
+	public Cuboid(Element xmlElem)
+	{
+		if( !Helper.isNullOrEmpty( xmlElem ))
+		{
+			this._points = StandardizedImportMethods.
+					pointImport(xmlElem, this, 2);
+		}
+	}
 
 
 	public Type type() {
@@ -73,6 +89,14 @@ public class Cuboid extends Surface implements HasBoundingBox {
 	public int dimensions() 
 	{
 		return this._points[0].nDim();
+	}
+	
+	public Module appendToModule(Module modelNode) 
+	{
+		for (Point p : _points )
+			modelNode.add(p.getModule() );
+		
+		return modelNode;
 	}
 	
 

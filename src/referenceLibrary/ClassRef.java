@@ -239,6 +239,8 @@ public class ClassRef
 	
 	/**
 	 * the stochastic move event
+	 * TODO review use of StochasticMove in protocol files and update to new
+	 * naming convention.
 	 */
 	public final static String stochasticMove =
 			aspect.event.intermittentRandomMovement.class.getName();

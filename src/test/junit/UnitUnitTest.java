@@ -19,7 +19,7 @@ public class UnitUnitTest {
 
 		myUnit.fromString("g+1·m-1");
 		System.out.println(myUnit.toString());
-		assertTrue("correct unit conversion", myUnit.toString().contains("kg·m-1") );
+		assertTrue("correct unit conversion", myUnit.toString().contains("kg·m-1") || myUnit.toString().contains("m-1·kg"));
 		
 		System.out.println("\n");
 		
@@ -35,10 +35,10 @@ public class UnitUnitTest {
 		
 		
 		Unit unitAB = Unit.product(unitA, unitB);
-		System.out.println("product = " + unitAB.toString());
+		System.out.println("product = " + unitAB );
 		
 		unitAB = Unit.quotient(unitA, unitB);
-		System.out.println("quotient = " + unitAB.toString() + "\n");
+		System.out.println("quotient = " + unitAB + "\n");
 		
 		Expression expressiona = new Expression("35.0 *-2.0 ");
 		double a = expressiona.getValue();
@@ -47,16 +47,15 @@ public class UnitUnitTest {
 		double b = expressionb.getValue();
 
 		System.out.println("no units no conversion " + a+ 
-				" \nUnits, conversion to SI " + b 
-				+ " [" + expressionb.getUnit().unit() + "]");
+				" \nUnits, conversion to SI " + b );
 		
 		Unit unitC = new Unit();
 		unitC.fromString("N");
-		System.out.println("C (newton) = " + unitC.toString());
+		System.out.println("C (newton) = " + unitC);
 		
 		String format = " [mN]";
-		System.out.println("C (formatted to mN) = " + unitC.format(format) + format);
-		System.out.println("C (formatted to kg) = " + unitC.format("kg") + format);
+		System.out.println("C (formatted to mN) = " + unitC.toString(format));
+		System.out.println("C (formatted to kg) = " + unitC.toString("kg"));
 
 	}
 	

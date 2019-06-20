@@ -231,6 +231,16 @@ public class Collision
 		}
 	}
 	
+	public void collision(Surface A, Collection<Surface> allB, 
+			double pullDistance)
+	{
+		_variables.setPullRange(pullDistance);
+		for ( Surface b : allB )
+		{ 
+			this.collision( A, b, this._variables );
+		}
+	}
+	
 	/**
 	 * \brief Apply a force vector to a surface.
 	 * 
@@ -623,7 +633,7 @@ public class Collision
 		/*
 		 * First find the distance between the plane and the axis of the rod. 
 		 */
-		this.planeLineSeg( plane.normal, plane.d, 
+		this.planeLineSeg( plane.getNormal(), plane.getD(), 
 				rod._points[0].getPosition(), 
 				rod._points[1].getPosition(), 
 				var);
@@ -878,8 +888,8 @@ public class Collision
 	public CollisionVariables planePoint(Plane plane, double[] point, 
 			CollisionVariables var)
 	{
-		Vector.reverseTo(var.interactionVector, plane.normal);
-		var.distance = Vector.dotProduct(plane.normal, point) - plane.d;
+		Vector.reverseTo(var.interactionVector, plane.getNormal());
+		var.distance = Vector.dotProduct(plane.getNormal(), point)-plane.getD();
 		return var;
 	}
 	
@@ -924,7 +934,7 @@ public class Collision
 		 * First find the distance between the plane and the centre of the
 		 * sphere. 
 		 */
-		this.planePoint(plane.normal, plane.d, sphere.getCenter(), var);
+		this.planePoint(plane.getNormal(),plane.getD(),sphere.getCenter(), var);
 		/*
 		 * Subtract the rod's radius to find the distance between the plane and
 		 * the rod's surface.

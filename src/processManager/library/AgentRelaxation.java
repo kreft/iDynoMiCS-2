@@ -16,6 +16,7 @@ import expression.Expression;
 import idynomics.Global;
 import idynomics.Idynomics;
 import linearAlgebra.Vector;
+import physicalObject.PhysicalObject;
 import processManager.ProcessManager;
 import referenceLibrary.AspectRef;
 import shape.Shape;
@@ -227,8 +228,8 @@ public class AgentRelaxation extends ProcessManager
 		this._gravity = Helper.setIfNone( this.getBoolean(GRAVITY), false);
 
 		/* Limit the duration of biofilm compression */
-		this.compresionDuration = Helper.setIfNone( this.getDouble(COMPRESSION_DURATION), 
-				0.0 );
+		this.compresionDuration = Helper.setIfNone( 
+				this.getDouble(COMPRESSION_DURATION), 0.0 );
 		
 		/* Set default spine function for rod type agents, this function is
 		 * used if it is not overwritten by the agent, obtain
@@ -427,8 +428,14 @@ public class AgentRelaxation extends ProcessManager
 			neighboorhoodEvaluation(agent, agentSurfs, agents);
 			
 			/*
+			 * Collisions with other physical objects and
 			 * Boundary collisions
-			 * 
+			 */
+			for( PhysicalObject p : this._agents.getAllPhysicalObjects() )
+			{
+				this._iterator.collision(p.getSurface(), agentSurfs, 0.0);
+			}
+			/*
 			 * TODO friction
 			 * FIXME here we need to selectively apply surface collision methods
 			 */

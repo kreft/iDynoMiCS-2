@@ -605,4 +605,15 @@ public class XmlRef
 	 * refers to linAlg orientation object (unit Vector)
 	 */
 	public static final String orientation = "orientation";
+
+	/**
+	 * 
+	 */
+	public static final String physicalObject = "physicalObject";
+
+	public static final String radius = "radius";
+
+	public static final String length = "length";
+
+	public static final String objects = "objects";
 }

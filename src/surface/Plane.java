@@ -1,8 +1,15 @@
 package surface;
 
+import org.w3c.dom.Element;
+
 import generalInterfaces.HasBoundingBox;
 import linearAlgebra.Vector;
+import referenceLibrary.XmlRef;
+import settable.Attribute;
+import settable.Module;
 import shape.Shape;
+import utility.Helper;
+import utility.StandardizedImportMethods;
 
 /**
  * The constant-normal form of the (infinite) plane
@@ -15,12 +22,12 @@ public class Plane extends Surface implements HasBoundingBox
 	/**
 	 * The normal vector of the plane.
 	 */
-	public double[] normal;
+	private Point _normal;
 	
 	/**
 	 * The dot product of the plane's normal vector with a point on the plane.
 	 */
-	public double d;
+	private double _d;
 
 	/**
 	 * \brief Construct plane from its normal and the dot product of the
@@ -31,8 +38,8 @@ public class Plane extends Surface implements HasBoundingBox
 	 */
 	public Plane(double[] normal, double d)
 	{
-		this.normal = normal;
-		this.d = d;
+		this._normal = new Point(normal);
+		this._d = d;
 	}
 	
 	/**
@@ -43,8 +50,8 @@ public class Plane extends Surface implements HasBoundingBox
 	 */
 	public Plane(double[] normal, double[] point)
 	{
-		this.normal = normal;
-		this.d = Vector.dotProduct(normal, point);
+		this._normal = new Point(normal);
+		this._d = Vector.dotProduct(normal, point);
 	}
 	
 	/**
@@ -56,9 +63,28 @@ public class Plane extends Surface implements HasBoundingBox
 	 */
 	public Plane(double[] pointA, double[] pointB, double[] pointC)
 	{
-		this.normal = Vector.normaliseEuclid(Vector.crossProduct(
-				Vector.minus(pointB, pointA), Vector.minus(pointC, pointA)));
-		this.d = Vector.dotProduct(this.normal, pointA);
+		this._normal = new Point( Vector.normaliseEuclid(Vector.crossProduct(
+				Vector.minus(pointB, pointA), Vector.minus( pointC, pointA ))));
+		this._d = Vector.dotProduct(this._normal.getPosition(), pointA);
+	}
+	
+	public Plane(Element xmlElem)
+	{
+		if( !Helper.isNullOrEmpty( xmlElem ))
+		{
+			this._normal = StandardizedImportMethods.
+					pointImport(xmlElem, this, 1)[0];
+			this._d = Double.valueOf( xmlElem.getAttribute(XmlRef.valueAttribute));
+		}
+	}
+	
+	public Module appendToModule(Module modelNode) 
+	{
+		modelNode.add(new Attribute(XmlRef.valueAttribute, 
+				String.valueOf(this._d), null, false ));
+
+		modelNode.add(_normal.getModule() );
+		return modelNode;
 	}
 	
 		@Override
@@ -70,7 +96,7 @@ public class Plane extends Surface implements HasBoundingBox
 	@Override
 	public int dimensions() 
 	{
-		return this.normal.length;
+		return this._normal.nDim();
 	}
 	
 	protected BoundingBox boundingBox = new BoundingBox();
@@ -83,16 +109,16 @@ public class Plane extends Surface implements HasBoundingBox
 
 	@Override
 	public BoundingBox boundingBox(double margin, Shape shape) {
-		double[] lower = new double[normal.length];
-		double[] upper = new double[normal.length];
+		double[] lower = new double[_normal.nDim()];
+		double[] upper = new double[_normal.nDim()];
 		int n = 0;
-		for ( int i = 0; i < normal.length; i++ )
+		for ( int i = 0; i < _normal.nDim(); i++ )
 		{
 			/* 
 			 * a dimension an infinite plane goes into the box will go into 
 			 * infinitely as well
 			 */
-			if (normal[i] == 0.0 )
+			if (_normal.getPosition()[i] == 0.0 )
 			{
 				lower[i] = -Math.sqrt(Double.MAX_VALUE);
 				upper[i] = Math.sqrt(Double.MAX_VALUE);
@@ -116,10 +142,20 @@ public class Plane extends Surface implements HasBoundingBox
 			else
 			{
 				n++;
-				lower[i] = normal[i] * d - margin;
-				upper[i] = normal[i] * d + margin;
+				lower[i] = _normal.getPosition()[i] * _d - margin;
+				upper[i] = _normal.getPosition()[i] * _d + margin;
 			}
 		}
 		return boundingBox.get(lower,upper, true);
+	}
+
+	public double[] getNormal() 
+	{
+		return this._normal.getPosition();
+	}
+
+	public double getD() 
+	{
+		return this._d;
 	}
 }

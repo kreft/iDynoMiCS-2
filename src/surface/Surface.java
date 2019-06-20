@@ -2,6 +2,7 @@ package surface;
 
 import java.util.HashMap;
 import generalInterfaces.HasBoundingBox;
+import settable.Module;
 import shape.Shape;
 import surface.collision.Collision;
 
@@ -62,6 +63,9 @@ public abstract class Surface
 	{
 		this._collisionDomain = collisionDomain;
 	}
+	
+
+	public abstract Module appendToModule(Module modelNode);
 	
 	public abstract int dimensions();
 

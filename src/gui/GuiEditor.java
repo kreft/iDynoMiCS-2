@@ -112,7 +112,7 @@ public class GuiEditor
 					component.setVisible(false);
 					if (tabs.getParent() != null)
 						tabs.getParent().remove(tabs);
-					
+					GuiActions.loadCurrentState();
 				}
 			}
 			));
@@ -138,6 +138,7 @@ public class GuiEditor
 					public void actionPerformed(ActionEvent event)
 					{
 						addComponent(node.constructChild(c), component);
+						GuiActions.loadCurrentState();
 					}
 				}
 				));
