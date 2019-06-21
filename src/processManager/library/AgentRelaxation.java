@@ -34,6 +34,9 @@ import utility.Helper;
 public class AgentRelaxation extends ProcessManager
 {
 	
+	public String COLLISION_FUNCTION = AspectRef.collisionFunction;
+	public String ATTRACTION_FUNCTION = AspectRef.attractionFunction;
+	
 	public String SEARCH_DIST = AspectRef.collisionSearchDistance;
 	public String PULL_EVALUATION = AspectRef.collisionPullEvaluation;
 	public String CURRENT_PULL_DISTANCE = AspectRef.collisionCurrentPullDistance;
@@ -218,7 +221,8 @@ public class AgentRelaxation extends ProcessManager
 		this._shapeSurfs  = this._shape.getSurfaces();
 		
 		/* Collision iterator */
-		this._iterator = this._shape.getCollision();
+		this._iterator = new Collision( this.getString(COLLISION_FUNCTION),
+				this.getString(ATTRACTION_FUNCTION), this._shape);
 		
 		/* Stress threshold, used to skip remaining steps on very low stress,
 		 * 0.0 by default */
@@ -301,7 +305,7 @@ public class AgentRelaxation extends ProcessManager
 				 * mechanical stress is low. Default value is 0.0 -> only skip 
 				 * if there is no mechanical stress in the system at all. 
 				 * */
-				if ( _stressThreshold != 0.0 && this.tMech > this.compresionDuration )
+				if ( _stressThreshold != 0.0 && ( this.tMech > this.compresionDuration || compresionDuration == 0.0 ) )
 				{
 					if ( Math.sqrt(st) * Global.agent_stress_scaling < 
 							_stressThreshold )
@@ -434,13 +438,13 @@ public class AgentRelaxation extends ProcessManager
 			 */
 			for( PhysicalObject p : this._agents.getAllPhysicalObjects() )
 			{
-				this._iterator.collision(p.getSurface(), agentSurfs, 0.0);
+				this._iterator.collision(p.getSurface(), p, agentSurfs, agent, 0.0);
 			}
 			/*
 			 * TODO friction
 			 * FIXME here we need to selectively apply surface collision methods
 			 */
-			this._iterator.collision(this._shapeSurfs, agentSurfs, 0.0);
+			this._iterator.collision(this._shapeSurfs, null, agentSurfs, agent, 0.0);
 			
 			/* NOTE: testing purposes only */
 			if (this._gravity)
@@ -483,7 +487,7 @@ public class AgentRelaxation extends ProcessManager
 				
 				/* pass this agents and neighbor surfaces as well as the pull
 				 * region to the collision iterator to update the net forces. */
-				this._iterator.collision(surfaces, t, pull);
+				this._iterator.collision(surfaces, agent, t, neighbour, pull);
 			}
 	}
 

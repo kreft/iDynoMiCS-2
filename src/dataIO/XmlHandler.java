@@ -406,16 +406,15 @@ public class XmlHandler
 			return null;
 		
 		NodeList nodes = xmlElement.getElementsByTagName(tagName);
-		if (nodes.getLength() > 1)
+		if (nodes.getLength() > 1 && Log.shouldWrite(Tier.NORMAL) )
 		{
 			Log.out(Tier.NORMAL,"Warning: document contains more than 1"
 					+ tagName + " nodes, loading first simulation node...");
 		}
-		else if (nodes.getLength() == 0)
+		else if ( nodes.getLength() == 0 && Log.shouldWrite(Tier.EXPRESSIVE) )
 		{
-			Log.out(Tier.NORMAL,"Warning: could not identify " + tagName + 
-					" node, make sure your file contains all required elements."
-					+ " Attempt to continue with 'null' node.");
+			Log.out( Tier.EXPRESSIVE,"Warning: could not identify " + tagName + 
+					" node, continueing with 'null' node.");
 			return null;
 		}
 		return (Element) nodes.item(0);

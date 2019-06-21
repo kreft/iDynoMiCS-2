@@ -549,5 +549,9 @@ public class AspectRef
 	 */
 	public static final String spawnerSpacing = "spacing";
 
+	public static final String collisionFunction = "collisionFunction";
+
+	public static final String attractionFunction = "attractionFunction";
+
 
 }

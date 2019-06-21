@@ -2,6 +2,7 @@ package surface.collision.model;
 
 import org.w3c.dom.Element;
 
+import aspect.AspectInterface;
 import dataIO.Log;
 import dataIO.XmlHandler;
 import dataIO.Log.Tier;
@@ -55,7 +56,8 @@ public class DefaultPushFunction implements CollisionFunction
 	 * between methods
 	 * @return force vector
 	 */
-	public CollisionVariables interactionForce(CollisionVariables var)
+	public CollisionVariables interactionForce(CollisionVariables var,
+			AspectInterface first, AspectInterface second)
 	{
 		/*
 		 * If distance is negative, apply the repulsive force.

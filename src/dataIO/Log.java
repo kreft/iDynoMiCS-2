@@ -217,6 +217,15 @@ public class Log
 	}
 	
 	/**
+	 * \Default out can be on Normal Tier.
+	 * @param message
+	 */
+	public static void out(String message)
+	{
+		out(Tier.NORMAL, message);
+	}
+	
+	/**
 	 * \brief Create the log file and get it ready to write.
 	 */
 	public static void setupFile()
@@ -255,7 +264,9 @@ public class Log
 		else
 		{
 			if ( isError )
+			{
 				System.err.println(message);
+			}
 			else
 				System.out.println(message);
 		}

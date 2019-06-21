@@ -2,11 +2,13 @@ package surface.collision;
 
 import java.util.Collection;
 
+import aspect.AspectInterface;
 import dataIO.Log;
 import dataIO.Log.Tier;
 import idynomics.Global;
 import instantiable.Instance;
 import linearAlgebra.Vector;
+import referenceLibrary.AspectRef;
 import shape.Shape;
 import surface.Ball;
 import surface.Plane;
@@ -40,12 +42,12 @@ public class Collision
 	 * The function used to evaluate repulsive forces between surfaces that
 	 * overlap.
 	 */
-	private final CollisionFunction _collisionFun;
+	private CollisionFunction _collisionFun;
 	/**
 	 * The function used to evaluate attractive forces between surfaces that
 	 * are close.
 	 */
-	private final CollisionFunction _pullFun;
+	private CollisionFunction _pullFun;
 	/**
 	 * The shape of the computational domain this collision is happening
 	 * inside. Useful for its knowledge of cyclic dimensions and boundary
@@ -75,56 +77,21 @@ public class Collision
 	 * @param collisionFunction
 	 * @param compartmentShape
 	 */
-	public Collision(CollisionFunction collisionFunction, 
-			CollisionFunction pullFunction, Shape compartmentShape)
+	public Collision(String collisionFunction, 
+			String pullFunction, Shape compartmentShape)
 	{
 		this._shape = compartmentShape;
 		this._variables = new CollisionVariables(
 				this._shape.getNumberOfDimensions(), 0.0);
 		
-		if ( collisionFunction == null )
-		{
-			/* if no collision function is passed, initiate collision function
-			 * as defined in config file, on failure initiate the default 
-			 * collision function and print message.  */
-			CollisionFunction temp;
-			try {
-				temp = (CollisionFunction) 
-						Instance.getNewThrows(Global.collision_model, null);
-			} catch (InstantiationException | IllegalAccessException | 
-					ClassNotFoundException e) {
-				temp = new DefaultPushFunction();
-				Log.out(Tier.CRITICAL, "Catched erroneous collision function"
-						+ "input, using default instead.\n" + e.getMessage());
-			}
-			this._collisionFun = temp;
-		}
-		else
-			this._collisionFun = collisionFunction;
+		setCollisionFunction(collisionFunction);
 		
-		if ( pullFunction == null )
-		{
-			/* if no attraction function is passed, initiate attraction function
-			 * as defined in config file, on failure initiate the default 
-			 * attraction function and print message.  */
-			CollisionFunction temp;
-			try {
-				temp = (CollisionFunction) 
-						Instance.getNewThrows(Global.attraction_model, null);
-			} catch (InstantiationException | IllegalAccessException | 
-					ClassNotFoundException e) {
-				temp = new DefaultPullFunction();
-				Log.out(Tier.CRITICAL, "Catched erroneous attraction function"
-						+ "input, using default instead.\n" + e.getMessage());
-			}
-			this._pullFun = temp;
-		}
-		else
-			this._pullFun = pullFunction;
+		setAttractionFunction(pullFunction);
 		
 		this._pullFun.instantiate(null, null);
 		this._collisionFun.instantiate(null, null);
 	}
+	
 
 	/**
 	 * \brief Construct a collision iterator with default push and pull 
@@ -135,6 +102,59 @@ public class Collision
 	public Collision(Shape aShape)
 	{
 		this(null, null, aShape);
+	}
+	
+	public void setCollisionFunction(String functionClass)
+	{
+		try {
+			this._collisionFun = (CollisionFunction) 
+					Instance.getNewThrows(functionClass, null);
+		} catch (InstantiationException | IllegalAccessException | 
+				ClassNotFoundException | NullPointerException e) {
+			if (functionClass == null || functionClass != Global.collision_model)
+			{
+				setCollisionFunction(Global.collision_model);
+				if (Log.shouldWrite(Tier.CRITICAL) && functionClass != null )
+					Log.out(Tier.CRITICAL, "Catched erroneous collision "
+							+ "function: " + functionClass + " attempting to "
+							+ "set " + Global.collision_model + " instead.\n" + 
+							e.getMessage());
+			}
+			else
+			{
+			this._collisionFun = new DefaultPushFunction();
+			Log.out(Tier.CRITICAL, "Catched corrupt collision configuration, "
+					+ DefaultPushFunction.class.getSimpleName() +" will be used"
+					+ " instead .\n" + e.getMessage());
+			}
+		}
+	}
+	
+	public void setAttractionFunction(String functionClass)
+	{
+		try {
+			this._pullFun = (CollisionFunction) 
+					Instance.getNewThrows(functionClass, null);
+		} catch (InstantiationException | IllegalAccessException | 
+				ClassNotFoundException | NullPointerException e) {
+			if (functionClass != Global.attraction_model)
+			{
+				setAttractionFunction(Global.attraction_model);
+				if (Log.shouldWrite(Tier.CRITICAL) && functionClass != null )
+					Log.out(Tier.CRITICAL, "Catched erroneous collision "
+							+ "function: " + functionClass + " attempting to "
+							+ "set " + Global.attraction_model + " instead.\n" + 
+							e.getMessage());
+			}
+			else
+			{
+			this._pullFun = new DefaultPullFunction();
+			Log.out(Tier.CRITICAL, "Catched corrupt collision configuration, "
+					+ DefaultPullFunction.class.getSimpleName() +" will be used"
+					+ " instead .\n" + e.getMessage());
+			}
+		}
+		
 	}
 	
 	/* ***********************************************************************
@@ -163,7 +183,8 @@ public class Collision
 	 * @param pullDistance The maximum distance between surfaces before they
 	 * become attractive.
 	 */
-	public void collision(Surface a, Surface b, CollisionVariables var)
+	public void collision(Surface a, AspectInterface first, 
+			Surface b, AspectInterface second, CollisionVariables var)
 	{
 		this.distance(a, b, var);
 		
@@ -172,7 +193,7 @@ public class Collision
 		 */
 		if ( var.distance < 0.0 )
 		{
-			this._collisionFun.interactionForce( var );
+			this._collisionFun.interactionForce( var, first, second );
 	
 			if( var.flip )
 			{
@@ -196,7 +217,7 @@ public class Collision
 			if ( var.flip )
 				 Vector.reverseEquals(var.interactionVector);
 			
-			this._pullFun.interactionForce( var );
+			this._pullFun.interactionForce( var, first, second );
 
 			if( var.flip )
 			{
@@ -218,26 +239,26 @@ public class Collision
 	 * @param allB
 	 * @param pullDistance
 	 */
-	public void collision(Collection<Surface> allA, Collection<Surface> allB, 
-			double pullDistance)
+	public void collision(Collection<Surface> allA, AspectInterface first, 
+			Collection<Surface> allB, AspectInterface second, double pullDistance)
 	{
 		_variables.setPullRange(pullDistance);
 		for ( Surface a : allA )
 		{
 			for ( Surface b : allB )
 			{ 
-				this.collision( a, b, this._variables );
+				this.collision( a, first, b, second, this._variables );
 			}
 		}
 	}
 	
-	public void collision(Surface A, Collection<Surface> allB, 
-			double pullDistance)
+	public void collision(Surface a, AspectInterface first, 
+			Collection<Surface> allB, AspectInterface second, double pullDistance)
 	{
 		_variables.setPullRange(pullDistance);
 		for ( Surface b : allB )
 		{ 
-			this.collision( A, b, this._variables );
+			this.collision( a, first, b, second, this._variables );
 		}
 	}
 	
