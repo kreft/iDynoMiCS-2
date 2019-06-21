@@ -49,6 +49,7 @@ public class AgentRelaxation extends ProcessManager
 	public String RADIUS = AspectRef.bodyRadius;
 	public String VOLUME = AspectRef.agentVolume;
 	public String DIVIDE = AspectRef.agentDivision;
+	public String MASS = AspectRef.agentMass;
 	
 	public String UPDATE_BODY = AspectRef.bodyUpdate;
 	public String EXCRETE_EPS = AspectRef.agentExcreteEps;
@@ -554,14 +555,18 @@ public class AgentRelaxation extends ProcessManager
 		if ( tMech < compresionDuration || compresionDuration == 0.0 )
 		{
 			/* note should be mass per point */
-			double fg = agent.getDouble("mass") * 1e-12 * 35.316e9 * Global.density_difference;
+			double fg = agent.getDouble(MASS) * 1e-12 * 35.316e9 * 1E16 * Global.density_difference;
 			double[] fgV;
 			
-			if( this._shape.getNumberOfDimensions() == 3)
-				 fgV = Vector.times(new double[]{ 0, -1, 0 }, fg );
-			else
-				 fgV = Vector.times(new double[]{ 0, -1 }, fg );
-				
+			if( this._shape.isOriented() )
+			{
+				fgV = Vector.times(this._shape.getOrientation().inverse(), fg );
+			} else {
+				if( this._shape.getNumberOfDimensions() == 3)
+					 fgV = Vector.times(new double[]{ 0, -1, 0 }, fg );
+				else
+					 fgV = Vector.times(new double[]{ 0, -1 }, fg );
+			}
 			
 			for ( Point p : body.getPoints() )
 				Vector.addEquals( p.getForce(), fgV ) ;

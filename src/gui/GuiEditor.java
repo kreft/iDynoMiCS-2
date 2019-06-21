@@ -219,7 +219,7 @@ public class GuiEditor
 		else if ( node.isTagIn(new String[] 
 				/* compartment container nodes */
 				{XmlRef.agents, XmlRef.solutes, XmlRef.processManagers, 
-				XmlRef.reactions, XmlRef.environment}) )
+				XmlRef.reactions, XmlRef.environment, XmlRef.objects}) )
 		{
 			hostPane = (JTabbedPane) 
 					parent.getParent().getParent().getParent();

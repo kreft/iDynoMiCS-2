@@ -119,12 +119,7 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable
 	 * the compartment parent node constructor (simulator)
 	 */
 	private Settable _parentNode;
-	
-	/**
-	 * Specifies the compartment orientation.
-	 */
-	private Orientation _orientation;
-	
+		
 	/* ***********************************************************************
 	 * CONSTRUCTORS
 	 * **********************************************************************/
@@ -320,11 +315,11 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable
 		str = new String[] { XmlHandler.gatherAttribute(elem, XmlRef.variable) };
 		if ( str[0] == null )
 		{
-			this._orientation = new Orientation( Vector.zerosDbl(
-					this._shape.getNumberOfDimensions() ), this );
+			this.getShape().setOrientation( new Orientation( Vector.zerosDbl(
+					this._shape.getNumberOfDimensions() ), this ) );
 		} else {
-			this._orientation = (Orientation) Instance.getNew( elem, 
-					this, Orientation.class.getName() );
+			this.getShape().setOrientation(  (Orientation) Instance.getNew( elem, 
+					this, Orientation.class.getName() ) );
 		}
 	}
 	
@@ -357,11 +352,6 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable
 	public void setSideLengths(double[] sideLengths)
 	{
 		this._shape.setDimensionLengths(sideLengths);
-	}
-	
-	public Orientation orientation()
-	{
-		return this._orientation;
 	}
 	
 	/**
@@ -636,9 +626,7 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable
 		/* Set title for GUI. */
 		if ( this.getName() != null )
 			modelNode.setTitle(this.getName());
-		/* orientation node */
-		if( !this._orientation.isNullVector() )
-			modelNode.add( this._orientation.getModule() );
+
 		/* Add the name attribute. */
 		modelNode.add( new Attribute(XmlRef.nameAttribute, 
 				this.getName(), null, true ) );
