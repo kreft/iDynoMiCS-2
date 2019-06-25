@@ -34,6 +34,9 @@ import utility.Helper;
 public class AgentRelaxation extends ProcessManager
 {
 	
+	public String COLLISION_FUNCTION = AspectRef.collisionFunction;
+	public String ATTRACTION_FUNCTION = AspectRef.attractionFunction;
+	
 	public String SEARCH_DIST = AspectRef.collisionSearchDistance;
 	public String PULL_EVALUATION = AspectRef.collisionPullEvaluation;
 	public String CURRENT_PULL_DISTANCE = AspectRef.collisionCurrentPullDistance;
@@ -49,6 +52,7 @@ public class AgentRelaxation extends ProcessManager
 	public String RADIUS = AspectRef.bodyRadius;
 	public String VOLUME = AspectRef.agentVolume;
 	public String DIVIDE = AspectRef.agentDivision;
+	public String MASS = AspectRef.agentMass;
 	
 	public String UPDATE_BODY = AspectRef.bodyUpdate;
 	public String EXCRETE_EPS = AspectRef.agentExcreteEps;
@@ -217,7 +221,8 @@ public class AgentRelaxation extends ProcessManager
 		this._shapeSurfs  = this._shape.getSurfaces();
 		
 		/* Collision iterator */
-		this._iterator = this._shape.getCollision();
+		this._iterator = new Collision( this.getString(COLLISION_FUNCTION),
+				this.getString(ATTRACTION_FUNCTION), this._shape);
 		
 		/* Stress threshold, used to skip remaining steps on very low stress,
 		 * 0.0 by default */
@@ -300,7 +305,7 @@ public class AgentRelaxation extends ProcessManager
 				 * mechanical stress is low. Default value is 0.0 -> only skip 
 				 * if there is no mechanical stress in the system at all. 
 				 * */
-				if ( _stressThreshold != 0.0 && this.tMech > this.compresionDuration )
+				if ( _stressThreshold != 0.0 && ( this.tMech > this.compresionDuration || compresionDuration == 0.0 ) )
 				{
 					if ( Math.sqrt(st) * Global.agent_stress_scaling < 
 							_stressThreshold )
@@ -433,13 +438,13 @@ public class AgentRelaxation extends ProcessManager
 			 */
 			for( PhysicalObject p : this._agents.getAllPhysicalObjects() )
 			{
-				this._iterator.collision(p.getSurface(), agentSurfs, 0.0);
+				this._iterator.collision(p.getSurface(), p, agentSurfs, agent, 0.0);
 			}
 			/*
 			 * TODO friction
 			 * FIXME here we need to selectively apply surface collision methods
 			 */
-			this._iterator.collision(this._shapeSurfs, agentSurfs, 0.0);
+			this._iterator.collision(this._shapeSurfs, null, agentSurfs, agent, 0.0);
 			
 			/* NOTE: testing purposes only */
 			if (this._gravity)
@@ -482,7 +487,7 @@ public class AgentRelaxation extends ProcessManager
 				
 				/* pass this agents and neighbor surfaces as well as the pull
 				 * region to the collision iterator to update the net forces. */
-				this._iterator.collision(surfaces, t, pull);
+				this._iterator.collision(surfaces, agent, t, neighbour, pull);
 			}
 	}
 
@@ -554,14 +559,18 @@ public class AgentRelaxation extends ProcessManager
 		if ( tMech < compresionDuration || compresionDuration == 0.0 )
 		{
 			/* note should be mass per point */
-			double fg = agent.getDouble("mass") * 1e-12 * 35.316e9 * Global.density_difference;
+			double fg = agent.getDouble(MASS) * 1e-12 * 35.316e9 * 1E16 * Global.density_difference;
 			double[] fgV;
 			
-			if( this._shape.getNumberOfDimensions() == 3)
-				 fgV = Vector.times(new double[]{ 0, -1, 0 }, fg );
-			else
-				 fgV = Vector.times(new double[]{ 0, -1 }, fg );
-				
+			if( this._shape.isOriented() )
+			{
+				fgV = Vector.times(this._shape.getOrientation().inverse(), fg );
+			} else {
+				if( this._shape.getNumberOfDimensions() == 3)
+					 fgV = Vector.times(new double[]{ 0, -1, 0 }, fg );
+				else
+					 fgV = Vector.times(new double[]{ 0, -1 }, fg );
+			}
 			
 			for ( Point p : body.getPoints() )
 				Vector.addEquals( p.getForce(), fgV ) ;

@@ -23,6 +23,7 @@ import dataIO.XmlHandler;
 import generalInterfaces.CanPrelaunchCheck;
 import instantiable.Instance;
 import instantiable.Instantiable;
+import linearAlgebra.Orientation;
 import linearAlgebra.Vector;
 import referenceLibrary.XmlRef;
 import settable.Attribute;
@@ -125,7 +126,10 @@ public abstract class Shape implements
 	 * A helper vector for finding the 'upper most' location of a voxel.
 	 */
 	protected final static double[] VOXEL_All_ONE_HELPER = Vector.vector(3,1.0);
-	
+	/**
+	 * Specifies the shape orientation.
+	 */
+	private Orientation _orientation;
 	protected Settable _parentNode;
 	private Element _currElement;
 	
@@ -147,6 +151,10 @@ public abstract class Shape implements
 		/** Add resolution calculator specification  */
 		modelNode.add( new Attribute(XmlRef.resolutionCalculator, 
 				this.resCal, null, false ) );
+		
+		/* orientation node */
+		if( !this._orientation.isNullVector() )
+			modelNode.add( this._orientation.getModule() );
 		
 		/* Add the child modules */
 		for ( Dimension dim : this._dimensions.values() )
@@ -289,6 +297,25 @@ public abstract class Shape implements
 	 * 
 	 */
 	public abstract void setTotalVolume( double volume );
+	
+	/**
+	 * 
+	 */
+	public void setOrientation( Orientation orientation )
+	{
+		this._orientation = orientation;
+	}
+	
+	
+	public Orientation getOrientation()
+	{
+		return this._orientation;
+	}
+	
+	public boolean isOriented()
+	{
+		return !this._orientation.isNullVector();
+	}
 	
 	/* ***********************************************************************
 	 * GRID & ARRAY CONSTRUCTION

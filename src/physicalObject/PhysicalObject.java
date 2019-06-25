@@ -2,13 +2,18 @@ package physicalObject;
 
 import org.w3c.dom.Element;
 
+import aspect.AspectInterface;
+import aspect.AspectReg;
 import instantiable.Instantiable;
+import referenceLibrary.ClassRef;
 import referenceLibrary.XmlRef;
 import settable.Attribute;
 import settable.Module;
 import settable.Settable;
 import settable.Module.Requirements;
+import spatialRegistry.TreeType;
 import surface.*;
+import utility.Helper;
 
 /**
  * \brief wrapper object for physical entities within the domain such as
@@ -17,12 +22,14 @@ import surface.*;
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
  *
  */
-public class PhysicalObject implements Settable, Instantiable
+public class PhysicalObject implements AspectInterface, Settable, Instantiable
 {
 	private Settable _parentNode;
 	
 	private Surface _surface;
 	private boolean _mobile = false;
+
+	protected AspectReg _aspectRegistry = new AspectReg();
 	
 	public PhysicalObject()
 	{
@@ -85,8 +92,25 @@ public class PhysicalObject implements Settable, Instantiable
 				String.valueOf(this._surface.type()), null, false ));
 		
 		this._surface.appendToModule(modelNode);
+		
+		/* add the aspects as childNodes */
+		for ( String key : this.reg().getLocalAspectNames() )
+			modelNode.add(reg().getAspectNode(key));
+		
+		/* allow adding of new aspects */
+		modelNode.addChildSpec( ClassRef.aspect,
+				Module.Requirements.ZERO_TO_MANY);
 
 		return modelNode;
+	}
+	
+	/**
+	 * Update this module and all child modules with updated information from
+	 * the gui.
+	 */
+	public void setModule(Module node)
+	{
+		Settable.super.setModule(node);
 	}
 
 	public String defaultXmlTag() 
@@ -104,6 +128,12 @@ public class PhysicalObject implements Settable, Instantiable
 	public Settable getParent() 
 	{
 		return this._parentNode;
+	}
+	
+	@Override
+	public AspectReg reg() 
+	{
+		return this._aspectRegistry;
 	}
 
 }

@@ -48,6 +48,7 @@
 		</speciesLib>
 
 		<compartment name="second" tree="SPLITTREE">
+			<orientation variable="0,-1"/>
 			<shape class="Rectangle">
 				<dimension name="X" isCyclic="false" targetResolution="1.0" max="16.0">
 				</dimension> 
@@ -66,6 +67,11 @@
 					<stoichiometric component="solute1" coefficient="1.0" />
 				</reaction>
 			</reactions>
+			<objects>
+				<physicalObject type="SPHERE" radius="5.0">
+					<point position="14.3, 14.2" />
+				</physicalObject>
+			</objects>
 			<agents>
 				<agent>
 					<aspect name="mapTest" type="PRIMARY" class="HashMap">
@@ -83,7 +89,7 @@
 					<aspect name="density" type="PRIMARY" class="Double" value="1" />
 					<aspect name="pigment" type="PRIMARY" class="String" value="RED" />
 					<aspect name="body" type="PRIMARY" class="Body">
-						<point position="12.2, 12.2" />
+						<point position="5.2, 5.2" />
 					</aspect>
 				</agent>
 				<agent>
@@ -150,9 +156,11 @@
 				</process>
 				<process name="agentRelax" class="AgentRelaxation"  priority="-2"
 					firstStep="0.0"  timerStepSize="0.5">
-					<aspect name="maxMovement" type="PRIMARY" class="Double" value="0.05" />
+					<aspect name="maxMovement" type="PRIMARY" class="Double" value="0.01" />
 					<aspect name="stressThreshold" type="PRIMARY" class="Double" value="0.0" />
 					<aspect name="relaxationMethod" type="PRIMARY" class="String" value="EULER" />
+					<aspect name="gravity_testing" type="PRIMARY" class="Boolean" value="TRUE" />
+					<aspect name="staticAgentTimeStep" class="Boolean" value="FALSE" />
 				</process>
 				<process name="solveDiffusionTransient" class="SolveDiffusionTransient"  priority="-1"
 					firstStep="0.0" timerStepSize="0.5">
@@ -163,9 +171,6 @@
 					value="0 ~ mass | mass > 0.2, mass > 0.15, mass > 0.1, mass > 0.0 | species = AOB | pigment = RED, pigment = BLUE, pigment = GREEN" />
 				</process>
 			</processManagers>
-			<physicalObject type="SPHERE" radius="5.0">
-				<point position="14.3, 14.2" />
-			</physicalObject>
 		</compartment>
 	</simulation>
 </document>

@@ -1,16 +1,9 @@
 package surface.collision;
 
-import org.w3c.dom.Element;
 
-import dataIO.Log;
-import dataIO.XmlHandler;
-import idynomics.Global;
-import dataIO.Log.Tier;
+import aspect.AspectInterface;
 import instantiable.Instantiable;
-import linearAlgebra.Vector;
-import referenceLibrary.XmlRef;
-import settable.Settable;
-import utility.Helper;
+
 
 /**
  * \brief CollisionFunctions are used to shape and scale the physical
@@ -33,7 +26,8 @@ public interface CollisionFunction extends Instantiable
 	 * variables between methods
 	 * @return force vector
 	 */
-	public CollisionVariables interactionForce(CollisionVariables var);
+	public CollisionVariables interactionForce(CollisionVariables var,
+			AspectInterface first, AspectInterface second);
 
 //	/**
 //	 * default pull CollisionFunction
