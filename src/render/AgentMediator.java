@@ -54,6 +54,13 @@ public class AgentMediator implements CommandMediator {
 	
 	HashMap<String, String> soluteColors;
 	
+	/**
+	 * toggle grid view or domain view
+	 */
+	public boolean grid = false;
+	
+	public int activeCol = 0;
+	
 	GLUquadric qobj = null;
 	
 	/*
@@ -85,11 +92,6 @@ public class AgentMediator implements CommandMediator {
 	 * OpenGL Utility Toolkit
 	 */
 	private GLUT _glut;
-	
-	/**
-	 * toggle grid view or domain view
-	 */
-	public boolean grid = false;
 	
 	/**
 	 * OpenGL Utility Library
@@ -134,7 +136,7 @@ public class AgentMediator implements CommandMediator {
 
 	private double[] length;
 
-	private float max;
+	private float[] max;
 
 	private float conc;
 
@@ -154,6 +156,14 @@ public class AgentMediator implements CommandMediator {
 			return Vector.times( this._domainMaxima, 0.5);
 		else
 			return new double[] { 0.0, 0.0 };
+	}
+	
+	public void colStep()
+	{
+		if (activeCol > soluteColors.size())
+			activeCol = 0;
+		else
+			activeCol += 1;
 	}
 	
 	/**
@@ -389,20 +399,20 @@ public class AgentMediator implements CommandMediator {
 //		_gl.glBlendFunc(GL2.GL_SRC_ALPHA, GL2.GL_ONE);
 		_gl.glColor4f(0.9f,0.9f,1.0f,0.1f);
 		
-		if (this.grid)
+		if (this.activeCol != 0)
 		{
 			/* In grid view, solutes are assigned a random color and
 			 *  concentrations are indicated using a mixture of those colors
 			 *  scaled to the next highest decimal of the current maximum conc. 
 			 */
 			ShapeIterator it = _shape.getNewIterator();
-			max = 0f;
-			
+			max = new float[soluteColors.values().size()];
+			int i = 0;
 			if (soluteColors.values().size() > 0){
 				/* get the current maximum concentration */
 				for (String s : soluteColors.keySet()){
 					SpatialGrid grid = _compartment.getSolute(soluteColors.get(s));
-					max = Math.max((float) grid.getMax(ArrayType.CONCN), max);
+					max[i++] = (float) grid.getMax(ArrayType.CONCN);
 				}
 			}
 			
@@ -414,11 +424,28 @@ public class AgentMediator implements CommandMediator {
 
 					float[] col = new float[] { 0f, 0f, 0f };
 					j = 0;
-					for (String s : soluteColors.keySet()){
-						SpatialGrid grid = _compartment.getSolute(soluteColors.get(s));
-						conc = (float)grid.getValueAt(ArrayType.CONCN, 
-								it.iteratorCurrent()) / max;
-						col[j++] = conc;
+					if (this.activeCol == 1)
+					{
+						for (String s : soluteColors.keySet()){
+							SpatialGrid grid = _compartment.getSolute(soluteColors.get(s));
+							conc = (float)grid.getValueAt(ArrayType.CONCN, 
+									it.iteratorCurrent()) / max[j];
+							col[j++] = conc;
+						}
+					}
+					else
+					{
+						for (String s : soluteColors.keySet())
+						{
+							if(j == this.activeCol-2)
+							{
+								SpatialGrid grid = _compartment.getSolute(soluteColors.get(s));
+								conc = (float)grid.getValueAt(ArrayType.CONCN, 
+										it.iteratorCurrent()) / max[j];
+								col[j] = conc;
+							}
+							j++;
+						}
 					}
 					
 					_rgba=col;

@@ -64,7 +64,7 @@ public class PDEmultigrid extends PDEsolver
 	 */
 	private int _numLayers;
 	
-	private int _numVCycles = 5;
+	private int _numVCycles = 3;
 	
 	private int _numPreSteps = 150;
 	
@@ -77,6 +77,18 @@ public class PDEmultigrid extends PDEsolver
 	private double _relToleranceLevel;
 	
 	private boolean _earlyStop = false;
+	
+
+	
+	private boolean _checkVCycleDiscrepancy = true;
+	
+	private double tempRes[];
+	
+	private int tempLay = 0;
+	
+	private int num = 0;
+	
+	private double _discrepancyThreshold = 0.01;
 	
 	/* ***********************************************************************
 	 * SOLVER METHODS
@@ -474,8 +486,12 @@ public class PDEmultigrid extends PDEsolver
 		 * dominates, then we can break the V-cycle.
 		 * See p. 884 of Numerical Recipes in C for more details.
 		 */
-		boolean continueVCycle = false;
+		boolean continueVCycle = true;
 		currentCommon = this._commonMultigrid.getGrid();
+		if( tempRes == null)
+			tempRes = new double[variables.size()];
+		int i = 0;
+
 		for ( SpatialGrid variable : variables )
 		{
 			currentLayer = this.getMultigrid(variable).getGrid();
@@ -486,12 +502,38 @@ public class PDEmultigrid extends PDEsolver
 			if ( Log.shouldWrite(level) )
 			{
 				Log.out(level, variable.getName()+": residual = "+residual+
-						", truncation error = "+truncationError);
+						", truncation = "+truncationError);
 			}
-			continueVCycle = residual > truncationError;
-			if ( continueVCycle )
-				break;
+
+			if ( this._checkVCycleDiscrepancy && 
+					tempLay == numLayers && 
+					tempRes[i] != 0.0 && 
+					numLayers == this._numLayers-1 )
+			{
+				if( this.num > 1 )
+				{
+					double disc = Math.abs(this.tempRes[i]-residual) / Math.min(
+							Math.abs(this.tempRes[i]), Math.abs(residual));
+					if( disc > this._discrepancyThreshold )
+						Log.out(Tier.CRITICAL, "Large V-Cycle discrepancy: " + 
+								disc);
+				}
+				this.num++;
+			}
+			else
+			{
+				this.num = 0;
+			}
+			
+			this.tempRes[i] = residual;
+			i++;
+			
+			continueVCycle = (continueVCycle || residual > truncationError);
+			if ( continueVCycle && Log.shouldWrite(Tier.DEBUG) )
+				Log.out(Tier.DEBUG, "residual " + residual+ " > truncation"
+						+ truncationError);
 		}
+		this.tempLay = numLayers;
 		if ( continueVCycle && Log.shouldWrite(level))
 			Log.out(level, "Continuing V-cycle");
 		else if( Log.shouldWrite(level) )
@@ -512,7 +554,6 @@ public class PDEmultigrid extends PDEsolver
 				this.relax(grid, currentCommon);
 			}
 			if (this._earlyStop) {
-				this._earlyStop = false;
 				if( Log.shouldWrite(Tier.DEBUG) )
 					Log.out(Tier.DEBUG, "Breaking early: "+ i +" of "
 							+ numRepetitions );
@@ -547,6 +588,8 @@ public class PDEmultigrid extends PDEsolver
 		double lop, totalNhbWeight, residual;
 		@SuppressWarnings("unused")
 		int[] current, nhb;
+		this._earlyStop = true;
+		
 		for ( current = shape.resetIterator(); shape.isIteratorValid();
 				current = shape.iteratorNext() )
 		{
@@ -633,10 +676,14 @@ public class PDEmultigrid extends PDEsolver
 			double relChange = residual / concn;
 			/* Prepare to update the local concentration. */
 			concn += residual;
-			if ((Math.abs(residual) < this._absToleranceLevel) ||
-					Math.abs(relChange) < this._relToleranceLevel) {
-				this._earlyStop = true;
-//				Log.out(Tier.DEBUG, "residual = "+residual);
+			if (Math.abs(residual) > this._absToleranceLevel ||
+					Math.abs(relChange) > this._relToleranceLevel) 
+			{
+				this._earlyStop = false;
+			} else {
+				if( Log.shouldWrite(Tier.DEBUG) )
+					Log.out(Tier.DEBUG, "residual = "+residual+" relChange = "+
+							relChange );
 			}
 			/* Check if we need to remain non-negative. */
 			if ( (!this._allowNegatives) && (concn < 0.0) )

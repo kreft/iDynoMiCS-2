@@ -519,7 +519,7 @@ public class AgentContainer implements Settable
 	 */
 	public void addAgent(Agent agent)
 	{
-		if ( IsLocated.isLocated(agent) )
+		if ( IsLocated.isLocated(agent) && this.getShape().getNumberOfDimensions() > 0 )
 			this.addLocatedAgent(agent);
 		else
 			this._agentList.add(agent);
