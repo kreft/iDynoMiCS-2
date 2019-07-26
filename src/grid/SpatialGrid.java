@@ -610,6 +610,7 @@ public class SpatialGrid implements Settable, Instantiable
 	 */
 	public void addValueAt(ArrayType type, int[] coord, double value)
 	{
+
 		if ( Log.shouldWrite(SET_VALUE_LEVEL) )
 		{
 			Log.out(SET_VALUE_LEVEL, "Trying to add "+value+" at coordinate "
@@ -661,6 +662,8 @@ public class SpatialGrid implements Settable, Instantiable
 	public void setValueAtCurrent(ArrayType type, double value)
 	{
 		this.setValueAt(type, this._shape.iteratorCurrent(), value);
+//		if(this._name.equals("oxygen") && value > 8.74E-6)
+//			System.out.println("catch");
 	}
 
 	/**

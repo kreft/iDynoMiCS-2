@@ -732,7 +732,7 @@ public class Render implements GLEventListener, Runnable {
 			@Override
 			public void actionPerformed(ActionEvent g) {
 				System.out.println("grid");
-				((AgentMediator) r._commandMediator).grid ^= true;
+				((AgentMediator) r._commandMediator).colStep();
 			}
 		});	
 		

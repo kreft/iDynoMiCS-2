@@ -12,7 +12,7 @@ import shape.Dimension.DimName;
 import utility.ExtraMath;
 
 /**
- * \brief TODO
+ * \brief Scale body in 2D compart, use normal scaling in others
  * 
  * Update Agent body with radius/length scaled to representative 3D equivilant
  * of 2D shape: 
@@ -27,6 +27,8 @@ import utility.ExtraMath;
  */
 public class UpdateBodySurfaceScaled extends Event {
 	
+	private boolean warned = false;
+	
 	public String MASS = AspectRef.agentMass;
 	public String REPRESENTED_DENSITY = AspectRef.agentRepresentedDensity;
 	public String RADIUS = AspectRef.bodyRadius;
@@ -40,21 +42,45 @@ public class UpdateBodySurfaceScaled extends Event {
 		Body body = (Body) initiator.getValue(this.BODY);
 		double volume = initiator.getDouble(this.VOLUME);
 		Compartment comp = anAgent.getCompartment();
-		double zLength = comp.getShape().getDimension(DimName.Z).getLength();
 		
-		switch(body.getMorphology()) {
-		  case COCCOID:
-			  body.update( ExtraMath.radiusOfACylinder(volume, zLength), 0.0 );
-			  break;
-		  case BACILLUS:
-			  double r = initiator.getDouble(RADIUS);
-			  body.update( r, (volume - ExtraMath.volumeOfACylinder(r, zLength)) 
-					  /	(zLength * r ) );
-			  break;
-		  default:
-			  Log.out(Tier.CRITICAL, this.getClass().getSimpleName()
-			  		+ " attempting to scale " + body.getMorphology() + " agent"
-			  		+ " with undifined scaling procedure, returning input value");
+		if ( comp.getNumDims() != 2)
+		{
+			if(!warned && Log.shouldWrite(Tier.CRITICAL))
+				Log.out( Tier.CRITICAL, "Warning! standard scaling method for "
+						+ "non 2D compartment: " + comp.getNumDims() + 
+						" dimensional domain in " +	
+						this.getClass().getSimpleName() );
+			
+			/* standard agent body */
+			double l = 0.0;
+			if ( body.getNumberOfPoints() > 1 )
+			{
+				double r = initiator.getDouble(RADIUS);
+				double v = initiator.getDouble(VOLUME) - 
+						ExtraMath.volumeOfASphere( r );
+				l = ExtraMath.lengthOfACylinder( v, r );
+			}
+			body.update( initiator.getDouble(RADIUS), l);
+			this.warned = true;
+		}
+		else
+		{
+			double zLen = comp.getShape().getDimension(DimName.Z).getLength();
+			switch(body.getMorphology()) {
+			  case COCCOID:
+				  body.update( ExtraMath.radiusOfACylinder(volume, zLen), 0.0 );
+				  break;
+			  case BACILLUS:
+				  double r = initiator.getDouble(RADIUS);
+				  body.update(r, (volume - ExtraMath.volumeOfACylinder(r, zLen)) 
+						  /	(zLen * r ) );
+				  break;
+			  default:
+				  Log.out(Tier.CRITICAL, this.getClass().getSimpleName()
+				  		+ " attempting to scale " + body.getMorphology() + 
+				  		" agent with undifined scaling procedure, returning "
+				  		+ "input value");
+			}
 		}
 	}
 }
