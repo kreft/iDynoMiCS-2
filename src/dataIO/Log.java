@@ -30,8 +30,7 @@ public class Log
 		 * Should generate no messages: no message should have this output
 		 * level.
 		 */
-		// TODO Rob: Do we really want this? CRITICAL seems extreme enough. 
-		SILENT,
+
 		/**
 		 * Only for critical (error) messages.
 		 */
@@ -52,11 +51,6 @@ public class Log
 		 * Debug messages.
 		 */
 		DEBUG,
-		/**
-		 * Bulk messages that are probably not needed, the messages that would
-		 * create too much bulk for normal debug mode.
-		 */
-		BULK
 	}
 	
 	/**

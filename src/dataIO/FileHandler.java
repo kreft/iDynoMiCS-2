@@ -55,17 +55,12 @@ public class FileHandler
 			try
 			{
 				base.mkdir();
-				// NOTE Do not write log before output dir is created
-				Log.printToScreen("New directory created "+
-						base.getAbsolutePath(), false);
+				Log.out("New directory created " + base.getAbsolutePath());
 				return true;
 			} 
 			catch(SecurityException se)
 			{
-				// NOTE Do not write log before output dir is created.
-				// NOTE do not print this as an error, as this would cause
-				// problems in the GUI
-				Log.printToScreen("Unable to create dir: "+dir+"\n"+se, false);
+				Log.out(Tier.CRITICAL, "Unable to create dir: "+dir+" "+se);
 				return false;
 			}
 		}
@@ -155,11 +150,11 @@ public class FileHandler
 				this.dir(file, 1);
 			try
 			{
-				if( Log.shouldWrite(Tier.EXPRESSIVE) )
-					Log.out(Tier.EXPRESSIVE, "Writing new file: " + file);
 				File f = new File(file);
 				FileWriter fstream = new FileWriter(f, true);
 				this._output = new BufferedWriter(fstream);
+				if( Log.shouldWrite(Tier.EXPRESSIVE) )
+					Log.out(Tier.EXPRESSIVE, "New file: " + file);
 			}
 			catch (IOException e)
 			{

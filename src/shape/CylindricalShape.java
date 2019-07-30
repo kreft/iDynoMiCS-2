@@ -430,22 +430,9 @@ public abstract class CylindricalShape extends Shape
 	@Override
 	public double nhbCurrSharedArea()
 	{
-		Tier level = Tier.BULK;
-		if ( Log.shouldWrite(level) )
-		{
-			Log.out(level, "  current coord is "+
-					Vector.toString(this._it.iteratorCurrent())
-					+", current nhb is "+
-					Vector.toString(this._it.nbhIteratorCurrent()));
-		}
 		DimName nhbDimName = this._it.currentNhbDimName();
 		/* moving towards positive in the current dim? */
 		boolean isNhbAhead = this._it.isCurrentNhbAhead();
-		if ( Log.shouldWrite(level) )
-		{
-			Log.out(level, "    Dimension name is "+nhbDimName
-					+", direction is "+(isNhbAhead ? "ahead" : "behind"));
-		}
 		/* Integration minima and maxima, these are the lower and upper 
 		 * locations of the intersections between the current voxel and the 
 		 * neighbor voxel for each dimension. */
@@ -481,11 +468,6 @@ public abstract class CylindricalShape extends Shape
 			break;
 		default: throw new IllegalArgumentException("unknown dimension " 
 											+ nhbDimName + " for cylinder");
-		}
-		if ( Log.shouldWrite(level) )
-		{
-			Log.out(level, "    r1 is "+r1+", theta1 is "+theta1+ ", z1 is "+z1
-					+ ", r2 is "+r2+", theta2 is "+theta2+ ", z2 is "+z2);
 		}
 		return area;
 	}

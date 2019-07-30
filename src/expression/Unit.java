@@ -298,9 +298,6 @@ public class Unit {
 	 */
 	public void fromString(String units)
 	{
-		Tier level = Tier.BULK;
-		if ( Log.shouldWrite(level) )
-			Log.out(level, "Interpretting unit string: " + units);
 		/* replace all unit braces and all white space */
 		units = units.replaceAll("\\[", "");
 		units = units.replaceAll("\\]", "");
@@ -335,8 +332,6 @@ public class Unit {
 			/* update the unit map and modifier */
 			this.update(unitPower[0], power);
 		}
-		if ( Log.shouldWrite(level) )
-			Log.out(level, "SI interpretation: " + toString());
 	}
 	
 	/** 
@@ -582,7 +577,8 @@ public class Unit {
 			case "cal" :
 				this.update("J", update);
 				this.modifier *= 4.184;
-				Log.out(Tier.BULK, "Note: using Thermochemical calorie");
+				if (Log.shouldWrite(Tier.DEBUG))
+					Log.out(Tier.DEBUG, "Note: using Thermochemical calorie");
 				break;
 			case "mcal" :
 				this.update("cal", update);

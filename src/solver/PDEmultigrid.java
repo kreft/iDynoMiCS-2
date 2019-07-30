@@ -277,7 +277,6 @@ public class PDEmultigrid extends PDEsolver
 	
 	private boolean doVCycle(Collection<SpatialGrid> variables, int numLayers)
 	{
-		Tier level = Tier.BULK;
 		MultigridLayer variableMultigrid;
 		SpatialGrid currentLayer, currentCommon;
 		double truncationError, residual;
@@ -286,39 +285,39 @@ public class PDEmultigrid extends PDEsolver
 		while ( this._commonMultigrid.hasCoarser() && layerCounter < numLayers )
 		{
 			layerCounter++;
-			if ( Log.shouldWrite(level) )
-			{
-				Log.out(level, "Downward stroke: "+layerCounter+"/"+numLayers);
-			}
+
 			/* 
 			 * Smooth the current layer for a set number of iterations.
 			 */
-			/* Relaxation */
-			if ( Log.shouldWrite(level) )
+			/* Disabled Debug message 
+			if ( Log.shouldWrite(Tier.DEBUG) )
 			{
-				Log.out(level, "Before pre-relaxing layer, concns in range:");
+				Log.out(Tier.DEBUG, "Before pre-relaxing layer, concns in range:");
 				double min, max;
 				for ( SpatialGrid variable : variables )
 				{
 					currentLayer = this.getMultigrid(variable).getGrid();
 					min = currentLayer.getMin(CONCN);
 					max = currentLayer.getMax(CONCN);
-					Log.out(level, "\t"+variable.getName()+": ["+min+", "+max+"]");
+					Log.out(Tier.DEBUG, "\t"+variable.getName()+": ["+min+", "+max+"]");
 				}
 			}
+			*/
 			this.relaxAll(this._numPreSteps);
-			if ( Log.shouldWrite(level) )
+			/* Disabled Debug message 
+			if ( Log.shouldWrite(Tier.DEBUG) )
 			{
-				Log.out(level, "After pre-relaxing layer, concns in range:");
+				Log.out(Tier.DEBUG, "After pre-relaxing layer, concns in range:");
 				double min, max;
 				for ( SpatialGrid variable : variables )
 				{
 					currentLayer = this.getMultigrid(variable).getGrid();
 					min = currentLayer.getMin(CONCN);
 					max = currentLayer.getMax(CONCN);
-					Log.out(level, "\t"+variable.getName()+": ["+min+", "+max+"]");
+					Log.out(Tier.DEBUG, "\t"+variable.getName()+": ["+min+", "+max+"]");
 				}
 			}
+			*/
 			/*
 			 * Update the local truncation error using current CONCN values.
 			 * In Numerical Recipes in C, this is is τ (tau) as defined in
@@ -376,34 +375,8 @@ public class PDEmultigrid extends PDEsolver
 				this._truncationErrors.put(variable.getName(), truncationError);
 			}
 		}
-		/* 
-		 * At the bottom of the V: solve the coarsest layer.
-		 */
-		if ( Log.shouldWrite(level) )
-		{
-			Log.out(level, "Before relaxing coarsest layer, concns in range:");
-			double min, max;
-			for ( SpatialGrid variable : variables )
-			{
-				currentLayer = this.getMultigrid(variable).getGrid();
-				min = currentLayer.getMin(CONCN);
-				max = currentLayer.getMax(CONCN);
-				Log.out(level, "\t"+variable.getName()+": ["+min+", "+max+"]");
-			}
-		}
+		/* At the bottom of the V: solve the coarsest layer. */
 		this.relaxAll(this._numCoarseStep);
-		if ( Log.shouldWrite(level) )
-		{
-			Log.out(level, "After relaxing coarsest layer, concns in range:");
-			double min, max;
-			for ( SpatialGrid variable : variables )
-			{
-				currentLayer = this.getMultigrid(variable).getGrid();
-				min = currentLayer.getMin(CONCN);
-				max = currentLayer.getMax(CONCN);
-				Log.out(level, "\t"+variable.getName()+": ["+min+", "+max+"]");
-			}
-		}
 		/* 
 		 * Upward stroke of V. The overall effect of this is:
 		 * 
@@ -424,10 +397,6 @@ public class PDEmultigrid extends PDEsolver
 		
 		while ( this._commonMultigrid.hasFiner() && layerCounter > 0 )
 		{
-			if ( Log.shouldWrite(level) )
-			{
-				Log.out(level, "Upward stroke: "+layerCounter+"/"+numLayers);
-			}
 			currentCommon = this._commonMultigrid.getGrid();
 			for ( SpatialGrid variable : variables )
 			{
@@ -453,31 +422,7 @@ public class PDEmultigrid extends PDEsolver
 					currentLayer.makeNonnegative(CONCN);
 			}
 			/* Relaxation */
-			if ( Log.shouldWrite(level) )
-			{
-				Log.out(level, "Before post-relaxing layer, concns in range:");
-				double min, max;
-				for ( SpatialGrid variable : variables )
-				{
-					currentLayer = this.getMultigrid(variable).getGrid();
-					min = currentLayer.getMin(CONCN);
-					max = currentLayer.getMax(CONCN);
-					Log.out(level, "\t"+variable.getName()+": ["+min+", "+max+"]");
-				}
-			}
 			this.relaxAll(this._numPostSteps);
-			if ( Log.shouldWrite(level) )
-			{
-				Log.out(level, "After post-relaxing layer, concns in range:");
-				double min, max;
-				for ( SpatialGrid variable : variables )
-				{
-					currentLayer = this.getMultigrid(variable).getGrid();
-					min = currentLayer.getMin(CONCN);
-					max = currentLayer.getMax(CONCN);
-					Log.out(level, "\t"+variable.getName()+": ["+min+", "+max+"]");
-				}
-			}
 		}
 		/*
 		 * Finally, we calculate the residual of the local truncation error and
@@ -499,12 +444,6 @@ public class PDEmultigrid extends PDEsolver
 			currentLayer.subtractArrayFromArray(LOCALERROR, NONLINEARITY);
 			residual = currentLayer.getNorm(LOCALERROR);
 			truncationError = this._truncationErrors.get(variable.getName());
-			if ( Log.shouldWrite(level) )
-			{
-				Log.out(level, variable.getName()+": residual = "+residual+
-						", truncation = "+truncationError);
-			}
-
 			if ( this._checkVCycleDiscrepancy && 
 					tempLay == numLayers && 
 					tempRes[i] != 0.0 && 
@@ -514,7 +453,8 @@ public class PDEmultigrid extends PDEsolver
 				{
 					double disc = Math.abs(this.tempRes[i]-residual) / Math.min(
 							Math.abs(this.tempRes[i]), Math.abs(residual));
-					if( disc > this._discrepancyThreshold )
+					if( disc > this._discrepancyThreshold && 
+							Log.shouldWrite(Tier.CRITICAL))
 						Log.out(Tier.CRITICAL, "Large V-Cycle discrepancy: " + 
 								disc);
 				}
@@ -534,10 +474,10 @@ public class PDEmultigrid extends PDEsolver
 						+ truncationError);
 		}
 		this.tempLay = numLayers;
-		if ( continueVCycle && Log.shouldWrite(level))
-			Log.out(level, "Continuing V-cycle");
-		else if( Log.shouldWrite(level) )
-			Log.out(level, "Breaking V-cycle");
+		if ( continueVCycle && Log.shouldWrite(Tier.DEBUG))
+			Log.out(Tier.DEBUG, "Continuing V-cycle");
+		else if( Log.shouldWrite(Tier.DEBUG) )
+			Log.out(Tier.DEBUG, "Breaking V-cycle");
 		return continueVCycle;
 	}
 	

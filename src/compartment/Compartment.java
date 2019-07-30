@@ -514,7 +514,6 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable
 		this._localTime = Idynomics.simulator.timer.getCurrentTime();
 		if( Log.shouldWrite(Tier.NORMAL) )
 		{
-			Log.out(Tier.NORMAL, "");
 			Log.out(Tier.NORMAL, "Compartment "+this.name+
 					" at local time "+this._localTime);
 		}
@@ -526,8 +525,8 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable
 					< Idynomics.simulator.timer.getEndOfCurrentIteration() &&
 					Idynomics.simulator.active() )
 		{
-			if( Log.shouldWrite(Tier.BULK) )
-				Log.out(Tier.BULK, "Compartment "+this.name+
+			if( Log.shouldWrite(Tier.DEBUG) )
+				Log.out(Tier.DEBUG, "Compartment "+this.name+
 									" running process "+currentProcess.getName()+
 									" at local time "+this._localTime);
 			

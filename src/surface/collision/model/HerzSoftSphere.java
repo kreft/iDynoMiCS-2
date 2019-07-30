@@ -39,9 +39,6 @@ public class HerzSoftSphere implements CollisionFunction
 				XmlRef.forceScalar);
 		if( !Helper.isNullOrEmpty( forceScalar ) )
 				this._forceScalar = Double.valueOf( forceScalar );
-		if(Log.shouldWrite(Tier.BULK))
-			Log.out(Tier.BULK, "initiating " + 
-					this.getClass().getSimpleName());
 	}
 	
 	/**

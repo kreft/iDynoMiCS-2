@@ -171,19 +171,11 @@ public class GraphicalOutput extends ProcessManager
 		else if (_shape instanceof CylindricalShape)
 			this._graphics.circle(Vector.zeros(size), 
 					this._shape.getDimension(DimName.R).getLength(), "lightblue");
-		else
-			Log.out(Tier.BULK,
-					"Computational domain neither rectangular nor circular, "
-					+ this._name + " will not draw a computational domain.");
 		
 		/* Draw solute grid for specified solute, if any. */
 		if ( ! _environment.isSoluteName(this._solute) )
 		{
-			//NOTE Bas [08/06/16] this should not be a critical warning since
-			// this is a sensible option if the user does not want to plot a 
-			// solute (null solute).
-			Log.out(Tier.BULK, this._name+" can't find solute " + this._solute +
-					" in the environment, no solute will be draw");
+			//skip
 		}
 		else
 		{

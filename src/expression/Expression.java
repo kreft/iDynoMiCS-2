@@ -116,10 +116,6 @@ public class Expression extends Component implements Settable
 	protected Component _a;
 
 	private Settable _parentNode;
-	/**
-	 * 
-	 */
-	private static Tier LOG_LEVEL = Tier.BULK;
 	
 	/*************************************************************************
 	 * CONSTRUCTORS
@@ -170,8 +166,6 @@ public class Expression extends Component implements Settable
 	
 	public void init(String expression, Map<String, Double> constants)
 	{
-		if( Log.shouldWrite(LOG_LEVEL))
-			Log.out(LOG_LEVEL, "Making an expression from \""+expression+"\"");
 		/* check for units */
 		String[] split = expression.replace("[", "TEMPSPLITMARKER").split("TEMPSPLITMARKER");
 		if ( split.length > 1 )
@@ -184,11 +178,6 @@ public class Expression extends Component implements Settable
 		/* Create the constants map if it was not given. */
 		if ( constants == null )
 			constants = new HashMap<String, Double>();
-		if( Log.shouldWrite(LOG_LEVEL))
-			Log.out(LOG_LEVEL, "  Constants defined:");
-		if( Log.shouldWrite(LOG_LEVEL))
-			for ( String key : constants.keySet() )
-				Log.out(LOG_LEVEL, "  -> "+key+" = "+constants.get(key));
 		this._constants.putAll(constants);
 		/* Build the component. */
 		this.build();
@@ -276,10 +265,10 @@ public class Expression extends Component implements Settable
 			c = index;
 		}
 		brackets.put(this._expression.length(), Bracket.END_OF_EXPRESSION);
-		/* Debugging message. */
-		if ( Log.shouldWrite(LOG_LEVEL) )
+		/* Disabled Debugging message. 
+		if ( Log.shouldWrite(DEBUG) )
 		{
-			Log.out(LOG_LEVEL, this._expression);
+			Log.out(DEBUG, this._expression);
 			String msg = "";
 			for ( int i = 0; i <= this._expression.length(); i++ )
 			{
@@ -288,15 +277,13 @@ public class Expression extends Component implements Settable
 				else
 					msg += " ";
 			}
-			Log.out(LOG_LEVEL, msg);
+			Log.out(DEBUG, msg);
 		}
-		/* */
+		*/
 		int depth = 0;
 		int start = 0;
 		for ( Integer key : brackets.keySet() )
 		{
-			if ( Log.shouldWrite(LOG_LEVEL) )
-				Log.out(LOG_LEVEL, "   "+key+" : "+brackets.get(key));
 			/*
 			 * What is handled at this level.
 			 */
@@ -314,8 +301,6 @@ public class Expression extends Component implements Settable
 				start = key;
 			if ( depth == 0 )
 			{
-				if ( Log.shouldWrite(LOG_LEVEL) )
-					Log.out(LOG_LEVEL, "    setting sub "+start+", "+(key+1));
 				this.setSub(start, key + 1, eval, subs);
 				start = key + 1;
 			}
@@ -351,11 +336,7 @@ public class Expression extends Component implements Settable
 			// NOTE This means that any constants defined as integers (e.g. 0,
 			// 1, 2, 10, etc) will not be recognised.
 			else if ( term.contains(".") )
-			{
-				if ( Log.shouldWrite(LOG_LEVEL) )
-					Log.out(LOG_LEVEL, "      Found a new constant: "+term);
 				calc.put(i, new Constant(term, Double.parseDouble(term)));
-			}
 			/*
 			 * Variables, hashmap-defined constants.
 			 */
@@ -406,11 +387,6 @@ public class Expression extends Component implements Settable
 	{
 		if ( equation.isEmpty() )
 			return;
-		if ( Log.shouldWrite(LOG_LEVEL) )
-		{
-			Log.out(LOG_LEVEL,
-					"   Setting equation \""+equation+"\", start at "+start);
-		}
 		/* 
 		 * Locate operators.
 		 */
@@ -422,15 +398,9 @@ public class Expression extends Component implements Settable
 			locations = identifyStrLoc( equation, oper, start );
 			if ( locations.isEmpty() )
 				absents += oper + ", ";
-			else if ( Log.shouldWrite(LOG_LEVEL) )
-				Log.out(LOG_LEVEL, "    found "+locations.size()+" of "+oper);
 			operLoc.putAll( locations );
 			for (int l : locations.keySet())
 				equation = cutString(equation, l-start, oper.length());
-		}
-		if ( (! absents.isEmpty()) && Log.shouldWrite(LOG_LEVEL) )
-		{
-			Log.out(LOG_LEVEL, "    found 0 of "+absents);
 		}
 		/*
 		 * If there are no operators in this expression, then it is a single
@@ -447,8 +417,6 @@ public class Expression extends Component implements Settable
 		int o = 0;
 		for ( Integer key : operLoc.keySet() )
 		{
-			if ( Log.shouldWrite(LOG_LEVEL) )
-				Log.out(LOG_LEVEL, "    o "+0+", key "+key+", start "+start);
 			if ( key != start )
 				this.addVar( o+start, equation.substring(o, key-start), eval);
 			o = key - start + operLoc.get(key).length();
@@ -460,8 +428,6 @@ public class Expression extends Component implements Settable
 		if ( o != 0 )
 			this.addVar(o+start, equation.substring(o,equation.length()), eval);
 		eval.putAll(operLoc);
-		if ( Log.shouldWrite(LOG_LEVEL) )
-			Log.out(LOG_LEVEL, "    eq set, eval now has size "+eval.size());
 	}
 	
 	private String cutString(String string, int start , int numberOfCharacters )
@@ -606,11 +572,6 @@ public class Expression extends Component implements Settable
 				-1 : calc.floorKey( here-1 ) );
 		int next = (calc.ceilingKey( here+1 ) == null ? 
 				-1 : calc.ceilingKey( here+1 ) );
-		if ( Log.shouldWrite(LOG_LEVEL) )
-		{
-			Log.out(LOG_LEVEL,
-					"operator "+operator+", prev "+prev+", next "+next);
-		}
 		switch (operator)
 		{
 		case ("+"): 

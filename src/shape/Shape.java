@@ -1,6 +1,5 @@
 package shape;
 
-import static dataIO.Log.Tier.BULK;
 import static shape.Dimension.DimName.R;
 
 import java.util.ArrayList;
@@ -1025,9 +1024,6 @@ public abstract class Shape implements
 	 */
 	protected void setPlanarSurface(DimName aDimName)
 	{
-		Tier level = Tier.BULK;
-		if ( Log.shouldWrite(level) )
-			Log.out(level, "Setting planar surfaces for min, max of "+aDimName);
 		Dimension dim = this.getDimension(aDimName);
 		/* Safety. */
 		if ( dim == null )
@@ -1092,16 +1088,10 @@ public abstract class Shape implements
 	 */
 	public Surface getSurface(SpatialBoundary boundary)
 	{
-		Tier level = Tier.BULK;
 		DimName dimName = boundary.getDimName();
 		int extreme = boundary.getExtreme();
 		Dimension dim = this.getDimension(dimName);
 		Surface out = dim.getSurface(extreme);
-		if ( Log.shouldWrite(level) )
-		{
-			Log.out(level, "Surface for boundary on "+dimName+" "+
-					Dimension.extremeToString(extreme)+" is a "+out.toString());
-		}
 		return out;
 	}
 	
@@ -1421,9 +1411,6 @@ public abstract class Shape implements
 	 */
 	private void calcMaxFluxPotential()
 	{
-		Tier level = BULK;
-		Log.out(level, "Calculating maximum flux potential");
-		
 		/*
 		 * Store the current iterator and use a temporary one for this method.
 		 */
@@ -1441,23 +1428,15 @@ public abstract class Shape implements
 				this._it.isIteratorValid(); this._it.iteratorNext() )
 		{
 			volume = this.getVoxelVolume(this._it.iteratorCurrent());
-			Log.out(level, "Coord "+Vector.toString(this._it.iteratorCurrent())+
-					" has volume "+volume);
 			max = 0.0;
 			for ( this._it.resetNbhIterator(); this._it.isNbhIteratorValid(); 
 					this._it.nbhIteratorNext() )
 			{
 				temp = this.nhbCurrSharedArea() / this.nhbCurrDistance();
-				Log.out(level, "   nbh "+
-						Vector.toString(this._it.nbhIteratorCurrent())+
-						" has shared area "+this.nhbCurrSharedArea()+
-						" and distance "+this.nhbCurrDistance());
 				max = Math.max(max, temp);
 			}
 			this._maxFluxPotentl = Math.max(this._maxFluxPotentl, max/volume);
 		}
-		Log.out(level, " Maximum flux potential is "+this._maxFluxPotentl);
-		
 		/*
 		 * Replace the temporary iterator with the stored one.
 		 */
@@ -1534,17 +1513,9 @@ public abstract class Shape implements
 	 */
 	public double nhbCurrDistance()
 	{
-		Tier level = Tier.BULK;
 		int[] currentCoord = this._it.iteratorCurrent();
 		int[] currentNeighbor = this._it.nbhIteratorCurrent();
 		DimName nhbDimName = this._it.currentNhbDimName();
-		if ( Log.shouldWrite(level) )
-		{
-			Log.out(level, "  calculating distance between voxels "+
-				Vector.toString(currentCoord)+" and "+
-				Vector.toString(currentNeighbor)+
-				" along dimension "+nhbDimName);
-		}
 		int i = this.getDimensionIndex(nhbDimName);
 		ResolutionCalculator rC = this.getResolutionCalculator(currentCoord, i);
 		double out = rC.getResolution();
@@ -1569,17 +1540,14 @@ public abstract class Shape implements
 				rC = this.getResolutionCalculator(currentCoord, i);
 				double radius = rC.getPosition(currentCoord[i],0.5);
 				out *= radius;
-				if ( Log.shouldWrite(level) )
-					Log.out(level, "   radius is "+radius);
 			}
-			if ( Log.shouldWrite(level) )
-				Log.out(level, "    distance is "+out);
 			return out;
 		}
 		/* If the neighbor is on an undefined boundary, return infinite
 			distance (this should never happen!) */
-		if ( Log.shouldWrite(level) )
-			Log.out(level, "    undefined distance!");
+		if ( Log.shouldWrite(Tier.CRITICAL) )
+			Log.out(Tier.CRITICAL, this.getClass().getSimpleName() + 
+					"encountered undefined distance!");
 		return Double.POSITIVE_INFINITY;
 	}
 	

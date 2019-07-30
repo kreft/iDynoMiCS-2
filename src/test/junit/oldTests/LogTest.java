@@ -18,7 +18,7 @@ public class LogTest
 {
 	private static final int N_LOOP = 100000000;
 	
-	private static final Tier LOG_LEVEL = Tier.BULK;
+	private static final Tier LOG_LEVEL = Tier.DEBUG;
 	
 	@Test
 	public void checkWithLogShouldWork()
