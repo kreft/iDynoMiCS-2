@@ -27,18 +27,9 @@ public class Log
 	public enum Tier
 	{
 		/**
-		 * Should generate no messages: no message should have this output
-		 * level.
-		 */
-
-		/**
 		 * Only for critical (error) messages.
 		 */
 		CRITICAL,
-		/**
-		 * Minimal simulation information.
-		 */
-		QUIET,
 		/**
 		 * Messages for a normal simulation.
 		 */
@@ -141,8 +132,8 @@ public class Log
 		if ( Idynomics.global.outputLocation != null && !_logFile.isReady() && 
 				!suspend )
 			setupFile();
-		if (Log.shouldWrite(Tier.NORMAL))
-			Log.out(Tier.NORMAL, "Log output level was set to " + 
+		if (Log.shouldWrite(Tier.DEBUG))
+			Log.out(Tier.DEBUG, "Log output level was set to " + 
 					level.toString());
 	}
 	
@@ -230,12 +221,12 @@ public class Log
 	{
 		_logFile.fnew(Idynomics.global.outputLocation + "/log.txt");
 		_logFile.flushAll();
-		if( shouldWrite(Tier.QUIET))
-			out(Tier.QUIET, Idynomics.fullDescription() + 
+		if( shouldWrite(Tier.NORMAL))
+			out(Tier.NORMAL, Idynomics.fullDescription() + 
 					"\nOutput level is " + _outputLevel +
 					", starting at " + _ft.format(new Date()) + 
 					"\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-					+ "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+					+ "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
 	}
 	
 	/**

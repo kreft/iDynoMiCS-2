@@ -52,8 +52,6 @@ public class SpeciesLib implements Instantiable, Settable
 	 */
 	public void instantiate(Element xmlElem, Settable parent)
 	{
-		if( Log.shouldWrite(Tier.NORMAL))
-			Log.out(Tier.NORMAL, "Species Library loading...");
 		/* 
 		 * Cycle through all species and add them to the library.
 		 */ 
@@ -80,8 +78,6 @@ public class SpeciesLib implements Instantiable, Settable
 						"Species \""+name+"\" loaded into Species Library");
 			this.loadSpeciesModules(speciesElem, s);
 		}
-		if( Log.shouldWrite(Tier.NORMAL))
-			Log.out(Tier.NORMAL, "Species Library loaded!\n");
 	}
 	
 	public void loadSpeciesModules(Node xmlElem, Species species)

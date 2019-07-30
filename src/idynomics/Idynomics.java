@@ -216,7 +216,7 @@ public strictfp class Idynomics
 		/* prevent writing logFile before tier and location is set */
 			Log.printToScreen("Initiating from: " + protocolPath + 
 				"\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-				+ "~~~~~~~~~~~~~~~~~~~~~~~~\n", false);
+				+ "~~~~~~~~~~~~~~~~~~~~~~~~", false);
 			
 
 		/* 
@@ -232,18 +232,20 @@ public strictfp class Idynomics
 		 */
 		setupGlobals( protocolPath );
 		
-		if( Log.shouldWrite(Tier.NORMAL) )
-		{
-			Log.out(NORMAL, Idynomics.global.simulationComment );
-		}	
+		if( Log.shouldWrite(Tier.NORMAL) && 
+				!Helper.isNullOrEmpty( Idynomics.global.simulationComment ) )
+			Log.out(NORMAL, "Protocol comments:\n" + 
+					Idynomics.global.simulationComment );
+
 		
 		if( Global.write_to_disc )
 		{
-			Log.out(QUIET, "Storing results in " + 
-					Idynomics.global.outputLocation	+ "\n" );
+			if( Log.shouldWrite(Tier.NORMAL) )
+				Log.out(NORMAL, "Storing results in " + 
+						Idynomics.global.outputLocation	);
 		} else {
-			Log.printToScreen( "Warning: Writing to disc is disabled in Global"
-					+ " parameters.", true);
+			Log.out(CRITICAL, "Warning: Writing to disc is disabled in Global"
+					+ " parameters.");
 		}
 
 		/*

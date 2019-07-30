@@ -131,9 +131,6 @@ public class GraphicalOutput extends ProcessManager
 				"output writer", true, this.options() );
 		this._graphics = (GraphicalExporter) Instance.getNew(null, null, str);
 		
-		/* write scene files (used by pov ray) */
-		this._graphics.init( this._prefix, this._shape );
-		
 		/* set max concentration for solute grid color gradient */
 		this._maxConcn = (double) this.getOr( MAX_VALUE, 2.0 );
 

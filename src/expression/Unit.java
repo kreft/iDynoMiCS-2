@@ -202,7 +202,7 @@ public class Unit {
 		Unit formatter = new Unit(format);
 		if ( ! compatible(formatter) )
 		{
-			Log.out(Tier.QUIET, formatter.unit() + " incompatible with: " 
+			Log.out(Tier.CRITICAL, formatter.unit() + " incompatible with: " 
 					+ this.unit());
 			///FIXME or should we throw something
 			return 0;

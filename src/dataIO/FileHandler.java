@@ -55,7 +55,6 @@ public class FileHandler
 			try
 			{
 				base.mkdir();
-				Log.out("New directory created " + base.getAbsolutePath());
 				return true;
 			} 
 			catch(SecurityException se)

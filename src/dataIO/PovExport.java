@@ -1,10 +1,7 @@
 package dataIO;
-import java.util.List;
 
 import org.w3c.dom.Element;
 
-import agent.Agent;
-import dataIO.Log.Tier;
 import idynomics.Idynomics;
 import settable.Settable;
 import shape.Shape;

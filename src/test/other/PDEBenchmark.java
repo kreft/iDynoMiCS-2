@@ -41,7 +41,7 @@ public class PDEBenchmark {
 		Idynomics.global.outputRoot = "./Benchmarks";
 		Idynomics.global.simulationName = "BenchmarkCartesianShape";
 		Idynomics.global.updateSettings();
-		Log.set(Tier.QUIET);
+		Log.set(Tier.NORMAL);
 		Log.setupFile();
 		BufferedWriter bw = null;
 		bw = new BufferedWriter(
@@ -100,7 +100,7 @@ public class PDEBenchmark {
 			pm.setPriority(1);
 			comp.addProcessManager(pm);
 			
-			Log.out(Tier.QUIET, "took "+ (System.currentTimeMillis() - start)
+			Log.out(Tier.NORMAL, "took "+ (System.currentTimeMillis() - start)
 					+ " milliseconds to setup the simulator");
 			
 			/*
@@ -117,7 +117,7 @@ public class PDEBenchmark {
 				}
 			}
 			
-			Log.out(Tier.QUIET, "took "+ (System.currentTimeMillis() - start)
+			Log.out(Tier.NORMAL, "took "+ (System.currentTimeMillis() - start)
 					+ " milliseconds to solve a "+voxel_counter+" voxel "
 							+ "cuboid grid for "+tMax+" timesteps");
 			/* maximal time step estimation copied from PDEExplicit.solve() */
@@ -141,7 +141,7 @@ public class PDEBenchmark {
 		Idynomics.global.outputRoot = "./Benchmarks";
 		Idynomics.global.simulationName = "BenchmarkCylindricalShape";
 		Idynomics.global.updateSettings();
-		Log.set(Tier.QUIET);
+		Log.set(Tier.NORMAL);
 		Log.setupFile();
 		BufferedWriter bw = null;
 		bw = new BufferedWriter(
@@ -202,7 +202,7 @@ public class PDEBenchmark {
 			pm.setPriority(1);
 			comp.addProcessManager(pm);
 			
-			Log.out(Tier.QUIET, "took "+ (System.currentTimeMillis() - start)
+			Log.out(Tier.NORMAL, "took "+ (System.currentTimeMillis() - start)
 					+ " milliseconds to setup the simulator");
 			
 			/*
@@ -219,7 +219,7 @@ public class PDEBenchmark {
 				}
 			}
 			
-			Log.out(Tier.QUIET, "took "+ (System.currentTimeMillis() - start)
+			Log.out(Tier.NORMAL, "took "+ (System.currentTimeMillis() - start)
 					+ " milliseconds to solve a "+voxel_counter+" voxel "
 							+ "cylindrical grid for "+tMax+" timesteps");
 			/* maximal time step estimation copied from PDEExplicit.solve() */
@@ -242,7 +242,7 @@ public class PDEBenchmark {
 		Idynomics.global.outputRoot = "./Benchmarks";
 		Idynomics.global.simulationName = "BenchmarkSphericalShape";
 		Idynomics.global.updateSettings();
-		Log.set(Tier.QUIET);
+		Log.set(Tier.NORMAL);
 		Log.setupFile();
 		BufferedWriter bw = null;
 		bw = new BufferedWriter(
@@ -303,7 +303,7 @@ public class PDEBenchmark {
 			pm.setPriority(1);
 			comp.addProcessManager(pm);
 			
-			Log.out(Tier.QUIET, "took "+ (System.currentTimeMillis() - start)
+			Log.out(Tier.NORMAL, "took "+ (System.currentTimeMillis() - start)
 					+ " milliseconds to setup the simulator");
 			
 			/*
@@ -320,7 +320,7 @@ public class PDEBenchmark {
 				}
 			}
 			
-			Log.out(Tier.QUIET, "took "+ (System.currentTimeMillis() - start)
+			Log.out(Tier.NORMAL, "took "+ (System.currentTimeMillis() - start)
 					+ " milliseconds to solve a "+voxel_counter+" voxel "
 							+ "spherical grid for "+tMax+" timesteps");
 			/* maximal time step estimation copied from PDEExplicit.solve() */

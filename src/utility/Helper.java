@@ -271,11 +271,11 @@ public final class Helper
 			return false;
 		else
 		{
-			Log.out(Tier.QUIET, "User input was not recognised, try:\n"
+			Log.printToScreen( "User input was not recognised, try:\n"
 					+ "[Confirming] \n" + 
 					Helper.stringAToString(confirmations) + "\n"
 					+ "[Rejections] \n" +
-					Helper.stringAToString(rejections));
+					Helper.stringAToString(rejections), false);
 			return obtainInput(description, noLog);	
 		}
 	}
