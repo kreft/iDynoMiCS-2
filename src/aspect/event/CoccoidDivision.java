@@ -227,7 +227,7 @@ public class CoccoidDivision extends Event
 		{
 			@SuppressWarnings("unchecked")
 			Map<String,Double> mumProducts = 
-					(Map<String,Double>) mumMass;
+					(Map<String,Double>) mother.get(ref);
 			@SuppressWarnings("unchecked")
 			Map<String,Double> daughterProducts = 
 					(Map<String,Double>) daughter.get(ref);

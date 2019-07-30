@@ -145,7 +145,15 @@ public class Global extends ParameterSet
 	/**
 	 * default output location
 	 */
-	public String default_out = "default_out";
+	public static String default_out = "default_out";
+	
+	/**
+	 * Allows to disable writing anything to disc
+	 * 
+	 * useful in scenario's where output do not need to be stored such as with 
+	 * unit tests
+	 */
+	public static boolean write_to_disc = true;
 	
 	/**
 	 * console font

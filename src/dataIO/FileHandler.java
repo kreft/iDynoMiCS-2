@@ -8,6 +8,9 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import dataIO.Log.Tier;
+import idynomics.Global;
+
 /**
  * \brief Handles file operations, create folders and files, write output.
  * 
@@ -146,17 +149,22 @@ public class FileHandler
 	// make a new file with unique name.
 	public void fnew(String file)
 	{
-		if ( file.split("/").length > 1 )
-			this.dir(file, 1);
-		try
+		if ( Global.write_to_disc ) 
 		{
-			File f = new File(file);
-			FileWriter fstream = new FileWriter(f, true);
-			this._output = new BufferedWriter(fstream);
-		}
-		catch (IOException e)
-		{
-			Log.printToScreen(e.toString(), false);
+			if ( file.split("/").length > 1 )
+				this.dir(file, 1);
+			try
+			{
+				if( Log.shouldWrite(Tier.EXPRESSIVE) )
+					Log.out(Tier.EXPRESSIVE, "Writing new file: " + file);
+				File f = new File(file);
+				FileWriter fstream = new FileWriter(f, true);
+				this._output = new BufferedWriter(fstream);
+			}
+			catch (IOException e)
+			{
+				Log.printToScreen(e.toString(), false);
+			}
 		}
 	}
 
@@ -191,16 +199,19 @@ public class FileHandler
 	 */
 	public void write(String text)
 	{
-		try
+		if ( Global.write_to_disc ) 
 		{
-			this._output.write(text);
-			if ( this._flushAll )
-				this._output.flush();
-		}
-		catch (IOException e)
-		{
-			Log.printToScreen(e.toString(), false);
-			Log.printToScreen("skipped line: " + text, false);
+			try
+			{
+				this._output.write(text);
+				if ( this._flushAll )
+					this._output.flush();
+			}
+			catch (IOException e)
+			{
+				Log.printToScreen(e.toString(), false);
+				Log.printToScreen("skipped line: " + text, false);
+			}
 		}
 	}
 
@@ -209,14 +220,17 @@ public class FileHandler
 	 */
 	public void fclose()
 	{
-		try
+		if( this._output != null )
 		{
-			this._output.flush();
-			this._output.close();
-		}
-		catch (IOException e)
-		{
-			Log.printToScreen(e.toString(), false);
+			try
+			{
+				this._output.flush();
+				this._output.close();
+			}
+			catch (IOException e)
+			{
+				Log.printToScreen(e.toString(), false);
+			}
 		}
 	}
 

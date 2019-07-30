@@ -4,6 +4,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import gui.GuiConsole;
+import idynomics.Global;
 import idynomics.Idynomics;
 import utility.Helper;
 
@@ -106,10 +107,13 @@ public class Log
 	 */
 	public static void keep() 
 	{
-		suspend = false;
-		if ( !_logFile.isReady() )
-			setupFile();
-		_logFile.write(suspendOut);
+		if (Global.write_to_disc)
+		{
+			suspend = false;
+			if ( !_logFile.isReady() )
+				setupFile();
+			_logFile.write(suspendOut);
+		}
 	}
 	
 	/**

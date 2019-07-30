@@ -235,9 +235,17 @@ public strictfp class Idynomics
 		if( Log.shouldWrite(Tier.NORMAL) )
 		{
 			Log.out(NORMAL, Idynomics.global.simulationComment );
-			Log.out(NORMAL, "Storing results in " + 
+		}	
+		
+		if( Global.write_to_disc )
+		{
+			Log.out(QUIET, "Storing results in " + 
 					Idynomics.global.outputLocation	+ "\n" );
+		} else {
+			Log.printToScreen( "Warning: Writing to disc is disabled in Global"
+					+ " parameters.", true);
 		}
+
 		/*
 		 * Create a new Simulator object and intialise it.
 		 */
