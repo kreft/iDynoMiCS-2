@@ -464,7 +464,7 @@ public abstract class Boundary implements Settable, Instantiable
 				int numAgentsDepart = this._departureLounge.size();
 				String partnerCompName = this.getPartnerCompartmentName();
 				Compartment partnerComp = Idynomics.simulator.getCompartment(partnerCompName);
-				Compartment thisComp = (Compartment) this._environment.getParent();
+				Compartment thisComp = Idynomics.simulator.getCompartment("oneDim");
 				double scFac = thisComp.getScalingFactor() / partnerComp.getScalingFactor();
 				int numAgentsToAccept = (int) Math.ceil(numAgentsDepart * scFac);
 				if (numAgentsToAccept < numAgentsDepart)

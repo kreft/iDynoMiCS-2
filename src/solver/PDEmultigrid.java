@@ -676,7 +676,7 @@ public class PDEmultigrid extends PDEsolver
 			double relChange = residual / concn;
 			/* Prepare to update the local concentration. */
 			concn += residual;
-			if (Math.abs(residual) > this._absToleranceLevel ||
+			if (Math.abs(residual) > this._absToleranceLevel &&
 					Math.abs(relChange) > this._relToleranceLevel) 
 			{
 				this._earlyStop = false;

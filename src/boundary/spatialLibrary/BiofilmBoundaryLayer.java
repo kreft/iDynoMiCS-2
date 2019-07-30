@@ -7,6 +7,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import agent.Agent;
+import agent.Body;
 import boundary.SpatialBoundary;
 import boundary.WellMixedBoundary;
 import boundary.library.ChemostatToBoundaryLayer;
@@ -168,7 +169,7 @@ public class BiofilmBoundaryLayer extends WellMixedBoundary
 			box = this._gridSphere.boundingBox(this._agents.getShape());
 			neighbors = this._agents.treeSearch(box);
 			for ( Agent a : neighbors )
-				for (Surface s : (List<Surface>) a.get(AspectRef.surfaceList))
+				for (Surface s : (List<Surface>) ((Body) a.get(AspectRef.agentBody)).getSurfaces())
 					if ( this._gridSphere.distanceTo(s) < 0.0 )
 						{
 							grid.setValueAt(WELLMIXED, coords, 

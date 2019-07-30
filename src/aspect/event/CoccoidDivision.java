@@ -217,25 +217,28 @@ public class CoccoidDivision extends Event
 			mother.set(MASS, motherMass * mumMassFrac);
 			daughter.set(MASS, motherMass * (1.0 - mumMassFrac));
 		}
-		
 		Object massMap = mother.get(MASS_MAP);
-		
-		if ( massMap != null && massMap instanceof Map )
+		String ref = null;
+		if (massMap != null && massMap instanceof Map )
+			ref = MASS_MAP;
+		else if ( mumMass != null && mumMass instanceof Map )
+			ref = MASS;
+		if ( ref != null )
 		{
 			@SuppressWarnings("unchecked")
 			Map<String,Double> mumProducts = 
-					(Map<String,Double>) massMap;
+					(Map<String,Double>) mumMass;
 			@SuppressWarnings("unchecked")
 			Map<String,Double> daughterProducts = 
-					(Map<String,Double>) daughter.get(MASS_MAP);
+					(Map<String,Double>) daughter.get(ref);
 			for ( String key : mumProducts.keySet() )
 			{
 				product = mumProducts.get(key);
 				daughterProducts.put(key, product * (1.0-mumMassFrac) );
 				mumProducts.put(key, product * mumMassFrac);
 			}
-			mother.set(MASS_MAP, mumProducts);
-			daughter.set(MASS_MAP, daughterProducts);
+			mother.set(ref, mumProducts);
+			daughter.set(ref, daughterProducts);
 		}
 		if ( motherMass == null && product == null )
 		{

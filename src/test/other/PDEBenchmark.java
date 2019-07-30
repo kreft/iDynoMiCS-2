@@ -19,7 +19,7 @@ import shape.Dimension.DimName;
 import shape.Dimension;
 import shape.Shape;
 import shape.resolution.UniformResolution;
-import test.AllTests;
+import test.OldTests;
 
 public class PDEBenchmark {
 
@@ -64,12 +64,12 @@ public class PDEBenchmark {
 			 * solid rmin and z and fixed rmax boundary, theta cyclic.
 			 */
 			Compartment comp = Idynomics.simulator.addCompartment("cuboid");
-			Shape shape = AllTests.GetShape("Cuboid");
+			Shape shape = OldTests.GetShape("Cuboid");
 			comp.setShape(shape);
 			Dimension x = shape.getDimension(DimName.X);
 			x.setLength(nVoxelX);
 			FixedBoundary xMax = new FixedBoundary();
-			xMax.instantiate(AllTests.getSpatialBoundaryElement(1), x);
+			xMax.instantiate(OldTests.getSpatialBoundaryElement(1), x);
 			xMax.setConcentration("solute", 2.0);
 			comp.addBoundary(xMax);
 			UniformResolution resCalc = new UniformResolution(x);
@@ -165,11 +165,11 @@ public class PDEBenchmark {
 			 * solid rmin and z and fixed rmax boundary, theta cyclic.
 			 */
 			Compartment comp = Idynomics.simulator.addCompartment("cylinder");
-			Shape shape = AllTests.GetShape("Cylinder");
+			Shape shape = OldTests.GetShape("Cylinder");
 			comp.setShape(shape);
 			Dimension r = shape.getDimension(DimName.R);
 			FixedBoundary rMax = new FixedBoundary();
-			rMax.instantiate(AllTests.getSpatialBoundaryElement(1), r);
+			rMax.instantiate(OldTests.getSpatialBoundaryElement(1), r);
 			rMax.setConcentration("solute", 2.0);
 			comp.addBoundary(rMax);
 			Dimension radial = shape.getDimension(DimName.R);
@@ -266,11 +266,11 @@ public class PDEBenchmark {
 			 * solid rmin and z and fixed rmax boundary, theta cyclic.
 			 */
 			Compartment comp = Idynomics.simulator.addCompartment("sphere");
-			Shape shape = AllTests.GetShape("Sphere");
+			Shape shape = OldTests.GetShape("Sphere");
 			comp.setShape(shape);
 			Dimension r = shape.getDimension(DimName.R);
 			FixedBoundary rMax = new FixedBoundary();
-			rMax.instantiate(AllTests.getSpatialBoundaryElement(1), r);
+			rMax.instantiate(OldTests.getSpatialBoundaryElement(1), r);
 			rMax.setConcentration("solute", 2.0);
 			comp.addBoundary(rMax);
 			Dimension radial = shape.getDimension(DimName.R);
