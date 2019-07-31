@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document>
-	<simulation name="rodTest" outputfolder="../../mewe" log="DEBUG" randomSeed="22"
-						comment="this is a file for testing purposes only.">
+	<simulation name="rodMewe" outputfolder="../../mewe" log="DEBUG" 
+		randomSeed="22"	comment="this is a file for testing purposes only."
+		configuration="config/models/arbitrary_testing_01.cfg">
 		
 		<timer stepSize="1.0" endOfSimulation="300.0" />
 		

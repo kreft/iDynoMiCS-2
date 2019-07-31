@@ -541,6 +541,8 @@ public class AgentRelaxation extends ProcessManager
 	}
 
 	/**
+	 * FIXME this all needs to be properly set from the protocol file if we
+	 * we start using this
 	 * \brief gravityEvaluation,
 	 * 
 	 * NOTE: testing purposes only
@@ -559,7 +561,7 @@ public class AgentRelaxation extends ProcessManager
 		if ( tMech < compresionDuration || compresionDuration == 0.0 )
 		{
 			/* note should be mass per point */
-			double fg = agent.getDouble(MASS) * 1e-12 * 35.316e9 * 1E16 * Global.density_difference;
+			double fg = agent.getDouble(MASS) * 1e-12 * 35.316e9 /* 1E16 */ * Global.density_difference;
 			double[] fgV;
 			
 			if( this._shape.isOriented() )
@@ -567,7 +569,7 @@ public class AgentRelaxation extends ProcessManager
 				fgV = Vector.times(this._shape.getOrientation().inverse(), fg );
 			} else {
 				if( this._shape.getNumberOfDimensions() == 3)
-					 fgV = Vector.times(new double[]{ 0, -1, 0 }, fg );
+					 fgV = Vector.times(new double[]{ 0, 0, -1 }, fg );
 				else
 					 fgV = Vector.times(new double[]{ 0, -1 }, fg );
 			}
