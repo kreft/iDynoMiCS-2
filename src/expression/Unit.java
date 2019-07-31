@@ -246,6 +246,7 @@ public class Unit {
 				this.modifier() / unitOut.modifier(), out );
 	}
 	
+	
 	/**
 	 * Output just the units
 	 * @return
@@ -258,13 +259,15 @@ public class Unit {
 		{
 			power = unitMap.get(si);
 			if ( power == 1 )
-				out += si.toString() + "·";
+				out += si.toString() + "Â·";
 			else if ( power != 0 )
-				out += si.toString() + (power > 0 ? "+" : "") + power + "·";
+				out += si.toString() + (power > 0 ? "+" : "") + power + "Â·";
 		}
-		/* remove tailing · */
-		out = out.substring(0, out.length()-1);
-		return out;
+		if ( out.length() == 0 )
+			return out;
+		else
+		/* remove tailing Â· */
+			return out.substring(0, out.length()-1);
 	}
 	
 	public static HashMap<SI,GenericTrio<SI, String, Double>> 
@@ -286,6 +289,7 @@ public class Unit {
 		}
 		return out;
 	}
+
 	
 	public double modifier()
 	{
@@ -298,14 +302,17 @@ public class Unit {
 	 */
 	public void fromString(String units)
 	{
+		
 		/* replace all unit braces and all white space */
 		units = units.replaceAll("\\[", "");
 		units = units.replaceAll("\\]", "");
 		units = units.replaceAll("\\s+", "");
+		units = units.replaceAll("\\/", "Â·1/");
 		
-		/* split by dot · ALT 250 */
+		/* split by dot Â· ALT 250 */
 		String[] unitsArray; 
-		unitsArray = units.split("·");
+		units.replace("*", "Â·");
+		unitsArray = units.split("Â·");
 		String[] unitPower;
 		Integer power;
 		/* analyse the powers */
@@ -330,7 +337,10 @@ public class Unit {
 				power = Integer.valueOf(unitPower[1]);
 			
 			/* update the unit map and modifier */
-			this.update(unitPower[0], power);
+			if (unitPower[0].contains("1/"))
+				this.update(unitPower[0].replaceAll("1/", ""), power*-1);
+			else
+				this.update(unitPower[0], power);
 		}
 	}
 	
