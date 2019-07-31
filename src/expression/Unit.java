@@ -259,14 +259,14 @@ public class Unit {
 		{
 			power = unitMap.get(si);
 			if ( power == 1 )
-				out += si.toString() + "Â·";
+				out += si.toString() + "·";
 			else if ( power != 0 )
-				out += si.toString() + (power > 0 ? "+" : "") + power + "Â·";
+				out += si.toString() + (power > 0 ? "+" : "") + power + "·";
 		}
 		if ( out.length() == 0 )
 			return out;
 		else
-		/* remove tailing Â· */
+		/* remove tailing · */
 			return out.substring(0, out.length()-1);
 	}
 	
@@ -307,12 +307,12 @@ public class Unit {
 		units = units.replaceAll("\\[", "");
 		units = units.replaceAll("\\]", "");
 		units = units.replaceAll("\\s+", "");
-		units = units.replaceAll("\\/", "Â·1/");
+		units = units.replaceAll("\\/", "·1/");
 		
-		/* split by dot Â· ALT 250 */
+		/* split by dot · ALT 250 */
 		String[] unitsArray; 
-		units.replace("*", "Â·");
-		unitsArray = units.split("Â·");
+		units.replace("*", "·");
+		unitsArray = units.split("·");
 		String[] unitPower;
 		Integer power;
 		/* analyse the powers */
