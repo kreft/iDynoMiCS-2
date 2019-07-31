@@ -119,8 +119,6 @@ public class AgentMediator implements CommandMediator {
 
 	private float _soluteTranparancy = 0.5f;
 
-	private Tier outputLevel;
-
 	/*
 	 * temporary variables (reused)
 	 */
@@ -333,11 +331,6 @@ public class AgentMediator implements CommandMediator {
 
 		applyCurrentColor();
 
-		if ( Log.shouldWrite(outputLevel) )
-		{
-			Log.out(outputLevel, "Constructing Rod with radius " + rod._radius + " and " 
-					+ _slices + " slices, " + _stacks + " stacks" );
-		}
 		GLUquadric qobj = _glu.gluNewQuadric();
 
 		/* draw first sphere */
