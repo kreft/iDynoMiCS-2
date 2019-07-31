@@ -2,10 +2,8 @@ package aspect.calculated;
 
 
 import aspect.AspectInterface;
-import java.util.HashMap;
 import java.util.Map;
 
-import aspect.Aspect;
 import aspect.Calculated;
 import expression.Expression;
 import expression.Unit;
@@ -20,7 +18,6 @@ public class NumberWithUnit extends Calculated {
 	private Expression expression;
 	private Unit _userUnit;
 	private Double _userNumber;
-	private HashMap<String, Double> variables = new HashMap<String, Double>();
 	private Map<SI,GenericTrio<SI, String, Double>> _unitSystem = 
 			Unit.formatMap("pg","µm","min");
 	
@@ -45,7 +42,6 @@ public class NumberWithUnit extends Calculated {
 		else
 		{
 			value = _userNumber * _userUnit.format(_unitSystem);
-			value = expression.getValue(variables);
 			calculated = true;
 			return value;
 		}
