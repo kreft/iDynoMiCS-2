@@ -102,7 +102,7 @@
 				</agent>
 				<agent>
 					<aspect name="species" type="PRIMARY" class="String" value="species2" />
-					<aspect name="mass" type="PRIMARY" class="Double" value="0.15" />
+					<aspect name="mass" type="CALCULATED" class="NumberWithUnit" input="0.15[um]"/>
 					<aspect name="density" type="PRIMARY" class="Double" value="1" />
 					<spawn number="6" domain="40.0,0.2" />
 				</agent>
