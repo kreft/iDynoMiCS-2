@@ -49,8 +49,6 @@ public class ExcreteEPSCumulative extends Event
 	public void start(AspectInterface initiator, 
 			AspectInterface compliant, Double timeStep)
 	{
-		Tier level = Tier.BULK;
-		
 		Agent agent = (Agent) initiator;
 		/*
 		 * Find out how much EPS the agent has right now. If it has none, there
@@ -59,8 +57,6 @@ public class ExcreteEPSCumulative extends Event
 		double currentEPS = this.getCurrentEPS(agent);
 		if ( currentEPS == 0.0 )
 		{
-			if ( Log.shouldWrite(level) )
-				Log.out(level, "Agent "+agent.identity()+" has no EPS");
 			return;
 		}
 		/*
@@ -69,8 +65,6 @@ public class ExcreteEPSCumulative extends Event
 		double maxEPS = initiator.getDouble(this.MAX_INTERNAL_EPS);
 		if ( maxEPS > currentEPS )
 		{
-			if ( Log.shouldWrite(level) )
-				Log.out(level, "Agent "+agent.identity()+" has too little EPS");
 			return;
 		}
 		/*
@@ -86,26 +80,18 @@ public class ExcreteEPSCumulative extends Event
 		Compartment comp = agent.getCompartment();
 		
 		Collision iterator = new Collision(comp.getShape());
-		
-		if ( Log.shouldWrite(level) )
-		{
-			Log.out(level, "  Agent (ID "+agent.identity()+") has "+
-					bodySurfs.size()+" surfaces,"+
-					" search dist "+SEARCH_DIST);
-		}
+
 		/*
 		 * Perform neighborhood search and perform collision detection and
 		 * response. 
 		 */
 		Collection<Agent> nhbs = comp.agents.treeSearch(agent, agent.getDouble(SEARCH_DIST) );
-		if ( Log.shouldWrite(level) )
-			Log.out(level, "  "+nhbs.size()+" neighbors found");
+
 		/*
 		 * Remove all non-EPS neighboring agents.
 		 */
 		nhbs.removeIf(new IsNotSpecies(epsSpecies, this.SPECIES));
-		if ( Log.shouldWrite(level) )
-			Log.out(level, "  "+nhbs.size()+" of these are EPS");
+
 		/*
 		 * Remove any outside the search distance.
 		 */
@@ -120,11 +106,7 @@ public class ExcreteEPSCumulative extends Event
 			if ( filter.test(nhbSurfs) )
 				epsParticles.add(neighbour);
 		}
-		if ( Log.shouldWrite(level) )
-		{
-			Log.out(level, "  "+nhbs.size()+
-					" of these are within the search distance");
-		}
+
 		/*
 		 * Now work out where the transferred EPS will go. If there is not a
 		 * suitable particle to take it, then create a new one.
@@ -143,8 +125,7 @@ public class ExcreteEPSCumulative extends Event
 			// NOTE register birth will update the body so do not leave it null
 			compliant.set(this.MASS, particleMass);
 			((Agent) compliant).registerBirth();
-			if ( Log.shouldWrite(level) )
-				Log.out(level, "EPS particle created");
+
 		}
 		else
 		{

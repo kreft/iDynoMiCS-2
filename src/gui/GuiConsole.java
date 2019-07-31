@@ -91,7 +91,7 @@ public final class GuiConsole
 		                evt.getTransferable().getTransferData(
 		                		DataFlavor.javaFileListFlavor);
 		            if ( droppedFiles.size() > 1 )
-		            	Log.out(Tier.QUIET, "Unable to open multiple files at "
+		            	Log.out(Tier.CRITICAL, "Unable to open multiple files at "
 		            			+ "once");
 		            else if ( Idynomics.simulator != null )
 		            {

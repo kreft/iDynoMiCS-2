@@ -40,6 +40,9 @@ import com.jogamp.opengl.glu.GLU;
 import com.jogamp.opengl.util.FPSAnimator;
 import com.jogamp.opengl.util.awt.TextRenderer;
 
+import dataIO.Log;
+import dataIO.Log.Tier;
+import idynomics.Global;
 import idynomics.Idynomics;
 import linearAlgebra.Vector;
 
@@ -241,15 +244,27 @@ public class Render implements GLEventListener, Runnable {
 				);	
 		gl.glMatrixMode(GL2.GL_MODELVIEW);
 		
-	     if ( this.screenDump )
-	     { 	 		
-	 		try {
-	             BufferedImage screenshot = makeScreenshot(drawable);
-	             ImageIO.write(screenshot, "png", new File(Idynomics.global.outputLocation +"/screen_" + System.currentTimeMillis() + ".png"));
-	         } catch (IOException ex) {
-	         }
-	 		this.screenDump = false;
-	     }
+		if ( this.screenDump )
+	     { 	 
+	    	 if ( Global.write_to_disc )
+	    	 {
+	    		 try 
+	    		 {
+		             BufferedImage screenshot = makeScreenshot(drawable);
+		             ImageIO.write(screenshot, "png", 
+		            		new File(Idynomics.global.outputLocation 
+		            		+"/screen_" + System.currentTimeMillis() + ".png"));
+		         } catch (IOException ex) {
+		        	 
+		         }
+	    	 } else
+	    	 {
+	    		 if (Log.shouldWrite(Tier.NORMAL))
+	    			 Log.out("Screenshot is not saved as writing to disc is"
+	    			 		+ "disabled in Global settings");
+	    	 }
+		 		this.screenDump = false;
+		     }
 		
 		gl.glFlush();
 		

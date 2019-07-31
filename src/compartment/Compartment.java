@@ -1,6 +1,5 @@
 package compartment;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -12,14 +11,12 @@ import org.w3c.dom.Element;
 import agent.Agent;
 import boundary.Boundary;
 import boundary.SpatialBoundary;
-import compartment.agentStaging.EpithelialLayerSpawner;
 import compartment.agentStaging.Spawner;
 import dataIO.Log;
 import dataIO.XmlHandler;
 import dataIO.Log.Tier;
 import generalInterfaces.CanPrelaunchCheck;
 import grid.*;
-import idynomics.Global;
 import idynomics.Idynomics;
 import instantiable.Instance;
 import instantiable.Instantiable;
@@ -37,7 +34,6 @@ import settable.Settable;
 import settable.Module.Requirements;
 import shape.Shape;
 import spatialRegistry.TreeType;
-import surface.Point;
 import utility.Helper;
 import shape.Dimension.DimName;
 
@@ -168,7 +164,6 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable
 	 */
 	public void instantiate(Element xmlElem, Settable parent)
 	{
-		Tier level = Tier.EXPRESSIVE;
 		/*
 		 * Compartment initiation
 		 */
@@ -251,10 +246,10 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable
 						spawner.getPriority(),spawners.keySet() );
 				if (spawners.containsKey( spawner.getPriority() ))
 				{
-					if( Log.shouldWrite(Tier.NORMAL))
-						Log.out(level, "WARNING: Spawner with duplicate "
-								+ "priority next priority is picked by "
-								+ "simulator.");
+					if( Log.shouldWrite(Tier.EXPRESSIVE))
+						Log.out(Tier.EXPRESSIVE, "WARNING: Spawner with "
+								+ "duplicate priority next priority is picked "
+								+ "by simulator.");
 				}
 				spawners.put(priority, spawner);
 			}
@@ -263,23 +258,24 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable
 		for( Spawner s : spawners.values() )
 			s.spawn();
 		
-		if( Log.shouldWrite(level))
-			Log.out(level, "Compartment "+this.name+" initialised with "+ 
-					this.agents.getNumAllAgents()+" agents");
+		if( Log.shouldWrite(Tier.EXPRESSIVE))
+			Log.out(Tier.EXPRESSIVE, "Compartment " + this.name + 
+					" initialised with " + this.agents.getNumAllAgents() +
+					" agents.");
 
 		/*
 		 * Read in agents.
 		 */
 		for ( Element e : XmlHandler.getElements( xmlElem, XmlRef.agent) )
 			this.addAgent(new Agent( e, this ));
-		if( Log.shouldWrite(level))
-			Log.out(level, "Compartment "+this.name+" initialised with "+ 
+		if( Log.shouldWrite(Tier.EXPRESSIVE))
+			Log.out(Tier.EXPRESSIVE, "Compartment "+this.name+" initialised with "+ 
 					this.agents.getNumAllAgents()+" agents");
 		/*
 		 * Load solutes.
 		 */
-		if( Log.shouldWrite(level))
-			Log.out(level, "Compartment reading in solutes");
+		if( Log.shouldWrite(Tier.EXPRESSIVE))
+			Log.out(Tier.EXPRESSIVE, "Compartment reading in solutes");
 		Element solutes = XmlHandler.findUniqueChild(xmlElem, XmlRef.solutes);
 		for ( Element e : XmlHandler.getElements(solutes, XmlRef.solute))
 		{
@@ -288,15 +284,15 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable
 		/*
 		 * Load extra-cellular reactions.
 		 */
-		if( Log.shouldWrite(level))
-			Log.out(level, "Compartment reading in (environmental) reactions");
+		if( Log.shouldWrite(Tier.EXPRESSIVE))
+			Log.out(Tier.EXPRESSIVE, "Compartment reading in (environmental) reactions");
 		for ( Element e : XmlHandler.getElements( xmlElem, XmlRef.reaction) )
 			new RegularReaction(e, this.environment);	
 		/*
 		 * Read in process managers.
 		 */
-		if( Log.shouldWrite(level))
-			Log.out(level,"Compartment "+this.name+ " loading "+XmlHandler.
+		if( Log.shouldWrite(Tier.EXPRESSIVE))
+			Log.out(Tier.EXPRESSIVE,"Compartment "+this.name+ " loading "+XmlHandler.
 					getElements(xmlElem, XmlRef.process).size()+" processManagers");
 		for ( Element e : XmlHandler.getElements( xmlElem, XmlRef.process) )
 		{
@@ -475,8 +471,8 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable
 						"Please choose a compartment:", true);
 				comp = findByName(compartments, name);
 			}
-			if( Log.shouldWrite(Tier.NORMAL) )
-				Log.out(Tier.NORMAL, 
+			if( Log.shouldWrite(Tier.EXPRESSIVE) )
+				Log.out(Tier.EXPRESSIVE, 
 						"Connecting boundary " + b.getName() +
 						" to a partner boundary of type " + 
 						b.getPartnerClass().toString() + " in compartment " +
@@ -510,12 +506,10 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable
 	 */
 	public void step()
 	{
-		// TODO temporary fix, reassess
 		this._localTime = Idynomics.simulator.timer.getCurrentTime();
-		if( Log.shouldWrite(Tier.NORMAL) )
+		if( Log.shouldWrite(Tier.DEBUG) )
 		{
-			Log.out(Tier.NORMAL, "");
-			Log.out(Tier.NORMAL, "Compartment "+this.name+
+			Log.out(Tier.DEBUG, "Compartment "+this.name+
 					" at local time "+this._localTime);
 		}
 		
@@ -526,8 +520,8 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable
 					< Idynomics.simulator.timer.getEndOfCurrentIteration() &&
 					Idynomics.simulator.active() )
 		{
-			if( Log.shouldWrite(Tier.BULK) )
-				Log.out(Tier.BULK, "Compartment "+this.name+
+			if( Log.shouldWrite(Tier.DEBUG) )
+				Log.out(Tier.DEBUG, "Compartment "+this.name+
 									" running process "+currentProcess.getName()+
 									" at local time "+this._localTime);
 			

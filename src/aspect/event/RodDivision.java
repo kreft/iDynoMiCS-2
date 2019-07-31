@@ -14,12 +14,10 @@ import agent.Agent;
 import agent.Body;
 import aspect.AspectInterface;
 import aspect.Event;
-import aspect.Aspect.AspectClass;
-import dataIO.Log;
-import dataIO.Log.Tier;
 
 /**
- * 
+ * FIXME MAP handling for this class needs updating, see CoccoidDivision as
+ * example
  * rod division, taking into account periodic boundaries
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
@@ -51,7 +49,6 @@ public class RodDivision extends Event {
 	public void start(AspectInterface initiator, AspectInterface compliant, 
 			Double timeStep)
 	{
-		Tier level = Tier.BULK;
 		Agent mother = (Agent) initiator;
 
 		Shape shape = mother.getCompartment().getShape();
@@ -91,12 +88,7 @@ public class RodDivision extends Event {
 
 
 		//TODO work in progress, currently testing fillial links
-		if ( ! mother.isAspect(LINKER_DIST))
-		{
-			if ( Log.shouldWrite(level) )
-				Log.out(level, "Agent does not create fillial links");
-		}
-		else
+		if ( mother.isAspect(LINKER_DIST))
 		{
 			LinkedList<Integer> linkers = 
 					(mother.isAspect(LINKED) ? (LinkedList
@@ -116,8 +108,6 @@ public class RodDivision extends Event {
 			daughter.event(PLASMID_LOSS);
 		mother.event(DIVIDE);
 		daughter.event(DIVIDE);
-		if ( Log.shouldWrite(level) )
-			Log.out(level, "RodDivision added daughter cell");
 	}
 	
 	
@@ -133,7 +123,6 @@ public class RodDivision extends Event {
 	@SuppressWarnings("unchecked")
 	private boolean shouldDivide(Agent anAgent)
 	{
-		Tier level = Tier.BULK;
 		/*
 		 * Find the agent-specific variable to test (mass, by default).
 		 */
@@ -149,8 +138,6 @@ public class RodDivision extends Event {
 		{
 			// TODO safety?
 		}
-		if ( Log.shouldWrite(level) )
-			Log.out(level, "Agent total mass is "+variable);
 		/*
 		 * Find the threshold that triggers division.
 		 */

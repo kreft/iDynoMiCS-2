@@ -1,6 +1,7 @@
 package dataIO;
 
 import dataIO.Log.Tier;
+import idynomics.Global;
 import idynomics.Idynomics;
 
 /**
@@ -52,8 +53,6 @@ public class CsvExport
 				+ prefix + "_" + DigitFilenr(_filewriterfilenr)  
 				+ "_" + Idynomics.simulator.timer.getCurrentIteration() + ".csv";
 		_csvFile.fnew(fileString);
-		if( Log.shouldWrite(Tier.EXPRESSIVE) )
-			Log.out(Tier.EXPRESSIVE, "Writing new file: " + fileString);
 	}
 	
 
@@ -62,8 +61,6 @@ public class CsvExport
 		String fileString = Idynomics.global.outputLocation + "/" 
 				+ fileName + ".csv";
 		_csvFile.fnew(fileString);
-		if( Log.shouldWrite(Tier.EXPRESSIVE) )
-			Log.out(Tier.EXPRESSIVE, "Writing new file: " + fileString);
 	}
 	
 	public void createCustomFile(String fileName, String outputfolder) 
@@ -71,8 +68,6 @@ public class CsvExport
 		String fileString = outputfolder + "/" 
 				+ fileName + ".csv";
 		_csvFile.fnew(fileString);
-		if( Log.shouldWrite(Tier.EXPRESSIVE) )
-			Log.out(Tier.EXPRESSIVE, "Writing new file: " + fileString);
 	}
 	
 	/**

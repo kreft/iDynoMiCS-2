@@ -124,9 +124,6 @@ public class Agent implements AspectInterface, Settable, Instantiable
 		String species;
 		
 		species = this.getString(XmlRef.species);
-		if (Log.shouldWrite(Tier.BULK))
-			Log.out(Tier.BULK, "Agent belongs to species \""+species+"\"");
-
 		this._aspectRegistry.addModule( (Species) 
 				Idynomics.simulator.speciesLibrary.get(species), species);
 	}
@@ -288,9 +285,6 @@ public class Agent implements AspectInterface, Settable, Instantiable
 	 */
 	public void registerBirth()
 	{
-		if (Log.shouldWrite(Tier.BULK))
-			Log.out(Tier.BULK, "Compartment \""+this._compartment.name+
-					"\" registering agent birth");
 		this._compartment.addAgent(this);
 		this.set(AspectRef.birthday, Idynomics.simulator.timer.getCurrentTime());
 	}

@@ -321,7 +321,6 @@ public class AgentMediator implements CommandMediator {
 	
 	private void draw(Rod rod) 
 	{
-		outputLevel = Tier.BULK;
 		 /* first sphere */
 		temp_posA = GLUtil.make3D(rod._points[0].getPosition());
 		 /* second sphere*/

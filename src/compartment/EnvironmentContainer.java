@@ -87,8 +87,8 @@ public class EnvironmentContainer implements CanPrelaunchCheck, Settable
 								solute.getName()+"\"");
 		}
 		this._solutes.add(solute);
-		if( Log.shouldWrite(Tier.NORMAL))
-			Log.out(Tier.NORMAL, 
+		if( Log.shouldWrite(Tier.EXPRESSIVE))
+			Log.out(Tier.EXPRESSIVE, 
 					"Added solute \""+ solute.getName() +"\" to environment");
 	}
 	

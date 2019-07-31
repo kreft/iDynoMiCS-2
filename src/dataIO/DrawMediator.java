@@ -132,9 +132,10 @@ public class DrawMediator {
 			_graphics.circle(Vector.zeros(size), 
 					_shape.getDimension(DimName.R).getLength(), "lightblue");
 		else
-			Log.out(Tier.BULK,
-					"Computational domain neither rectangular nor circular, "
-					+ " will not draw a computational domain.");
+			if (Log.shouldWrite(Tier.DEBUG))
+				Log.out(Tier.DEBUG,
+						"Computational domain neither rectangular nor circular,"
+						+ " will not draw a computational domain.");
 		
 		/* Draw solute grid for specified solute, if any. */
 		if ( ! _environment.isSoluteName(_solute) )
@@ -142,14 +143,14 @@ public class DrawMediator {
 			//NOTE Bas [08/06/16] this should not be a critical warning since
 			// this is a sensible option if the user does not want to plot a 
 			// solute (null solute).
-			Log.out(Tier.BULK, " can't find solute " + _solute +
-					" in the environment, no solute will be draw");
+
+			if (Log.shouldWrite(Tier.DEBUG))
+				Log.out(Tier.DEBUG, " can't find solute " + _solute +
+						" in the environment, no solute will be draw");
 		}
 		else
 		{
-				
 			SpatialGrid solute = _environment.getSoluteGrid(_solute);
-			
 			int nDim = _agents.getNumDims();
 			double[] origin;
 			double[] dimension = new double[3];

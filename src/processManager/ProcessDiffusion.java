@@ -1,6 +1,5 @@
 package processManager;
 
-import static dataIO.Log.Tier.BULK;
 import static grid.ArrayType.CONCN;
 import static grid.ArrayType.PRODUCTIONRATE;
 
@@ -212,14 +211,9 @@ public abstract class ProcessDiffusion extends ProcessManager
 	 */
 	protected void applyEnvReactions(Collection<SpatialGrid> solutes)
 	{
-		Tier level = BULK;
-		if ( Log.shouldWrite(level) )
-			Log.out(level, "Applying environmental reactions");
 		Collection<RegularReaction> reactions = this._environment.getReactions();
 		if ( reactions.isEmpty() )
 		{
-			if( Log.shouldWrite(level) )
-				Log.out(level, "No reactions to apply, skipping");
 			return;
 		}
 		/*
@@ -267,12 +261,6 @@ public abstract class ProcessDiffusion extends ProcessManager
 						}
 			}
 		}
-		if ( Log.shouldWrite(level) )
-		{
-			for ( String name : soluteNames )
-				Log.out(level, "  total "+name+" produced: "+totals.get(name));
-			Log.out(level, "Finished applying environmental reactions");
-		}
 	}
 	
 
@@ -289,10 +277,6 @@ public abstract class ProcessDiffusion extends ProcessManager
 	@SuppressWarnings("unchecked")
 	public void setupAgentDistributionMaps(Shape shape)
 	{
-		Tier level = BULK;
-		if (Log.shouldWrite(level))
-			Log.out(level, "Setting up agent distribution maps");
-
 		int nDim = this._agents.getNumDims();
 		
 		/*
@@ -367,12 +351,6 @@ public abstract class ProcessDiffusion extends ProcessManager
 				/* If there are none, move onto the next voxel. */
 				if ( nhbs.isEmpty() )
 					continue;
-				if ( Log.shouldWrite(level) )
-				{
-					Log.out(level, "  "+nhbs.size()+" agents overlap with coord "+
-						Vector.toString(coord));
-				}
-				
 				/* 
 				 * Find the sub-voxel resolution from the smallest agent, and
 				 * get the list of sub-voxel points.
@@ -382,15 +360,14 @@ public abstract class ProcessDiffusion extends ProcessManager
 				for ( Agent a : nhbs )
 				{
 					radius = a.getDouble(AspectRef.bodyRadius);
-					Log.out(level, "   agent "+a.identity()+" has radius "+radius);
 					minRad = Math.min(radius, minRad);
 				}
 				minRad *= SUBGRID_FACTOR;
 				svPoints = shape.getCurrentSubvoxelPoints(minRad);
-				if ( Log.shouldWrite(level) )
+				if ( Log.shouldWrite(Tier.DEBUG) )
 				{
-					Log.out(level, "  using a min radius of "+minRad);
-					Log.out(level, "  gives "+svPoints.size()+" sub-voxel points");
+					Log.out(Tier.DEBUG, "using a min radius of "+minRad);
+					Log.out(Tier.DEBUG, "gives "+svPoints.size()+" sub-voxel points");
 				}
 				/* Get the sub-voxel points and query the agents. */
 				for ( Agent a : nhbs )
@@ -401,11 +378,6 @@ public abstract class ProcessDiffusion extends ProcessManager
 					if ( ! a.isAspect(AspectRef.surfaceList) )
 						continue;
 					surfaces = (List<Surface>) a.get(AspectRef.surfaceList);
-					if ( Log.shouldWrite(level) )
-					{
-						Log.out(level, "  "+"   agent "+a.identity()+" has "+
-							surfaces.size()+" surfaces");
-					}
 				mapOfMaps = (Map<Shape, HashMap<IntegerArray,Double>>) a.getValue(VD_TAG);
 				distributionMap = mapOfMaps.get(shape);
 					/*
@@ -456,8 +428,6 @@ public abstract class ProcessDiffusion extends ProcessManager
 				distributionMap.put(coordArray, 1.0);
 			}
 		}
-		if( Log.shouldWrite(level) )
-			Log.out(level, "Finished setting up agent distribution maps");
 	}
 	
 	@SuppressWarnings("unchecked")

@@ -79,31 +79,6 @@ public class SpatialGrid implements Settable, Instantiable
 	 */
 	protected Settable _parentNode;
 	
-	/**
-	 * \brief Log file verbosity level used for debugging the getting of
-	 * values.
-	 * 
-	 * <ul><li>Set to {@code BULK} for normal simulations</li>
-	 * <li>Set to {@code DEBUG} when trying to debug an issue</li></ul>
-	 */
-	protected static final Tier GET_VALUE_LEVEL = Tier.BULK;
-	/**
-	 * \brief Log file verbosity level used for debugging the setting of
-	 * values.
-	 * 
-	 * <ul><li>Set to {@code BULK} for normal simulations</li>
-	 * <li>Set to {@code DEBUG} when trying to debug an issue</li></ul>
-	 */
-	protected static final Tier SET_VALUE_LEVEL = Tier.BULK;
-	/**
-	 * \brief Log file verbosity level used for debugging the flux from the
-	 * neighbor iterator voxel into the current iterator voxel.
-	 * 
-	 * <ul><li>Set to {@code BULK} for normal simulations</li>
-	 * <li>Set to {@code DEBUG} when trying to debug an issue</li></ul>
-	 */
-	protected static final Tier GET_FLUX_WITH_NHB_LEVEL = Tier.BULK;
-	
 	/* ***********************************************************************
 	 * Diffusivity setting
 	 * **********************************************************************/
@@ -561,25 +536,13 @@ public class SpatialGrid implements Settable, Instantiable
 	 */
 	public double getValueAt(ArrayType type, int[] coord)
 	{
-		if ( Log.shouldWrite(GET_VALUE_LEVEL) )
-		{
-			Log.out(GET_VALUE_LEVEL, "Trying to get value at coordinate "
-					+ Vector.toString(coord) + " in "+ type);
-		}
 		if ( this._array.containsKey(type) )
-		{
-			if ( Log.shouldWrite(GET_VALUE_LEVEL) )
-			{
-				Log.out(GET_VALUE_LEVEL, "   returning " 
-						+ this._array.get(type)[coord[0]][coord[1]][coord[2]]);
-			}
 			return this._array.get(type)[coord[0]][coord[1]][coord[2]];
-		}
 		else
 		{
-			//TODO: safety?
-			if ( Log.shouldWrite(GET_VALUE_LEVEL) )
-				Log.out(GET_VALUE_LEVEL, "   returning " + Double.NaN);
+			if ( Log.shouldWrite(Tier.CRITICAL) )
+				Log.out(Tier.CRITICAL, this.getClass().getSimpleName() + 
+						" returning " + Double.NaN);
 			return Double.NaN;
 		}
 	}
@@ -593,11 +556,6 @@ public class SpatialGrid implements Settable, Instantiable
 	 */
 	public void setValueAt(ArrayType type, int[] coord, double value)
 	{
-		if ( Log.shouldWrite(SET_VALUE_LEVEL) )
-		{
-			Log.out(SET_VALUE_LEVEL, "Trying to set value at coordinate "
-					+ Vector.toString(coord) + " in "+ type + " to "+value);
-		}
 		this._array.get(type)[coord[0]][coord[1]][coord[2]] = value;
 	}
 	
@@ -610,12 +568,6 @@ public class SpatialGrid implements Settable, Instantiable
 	 */
 	public void addValueAt(ArrayType type, int[] coord, double value)
 	{
-
-		if ( Log.shouldWrite(SET_VALUE_LEVEL) )
-		{
-			Log.out(SET_VALUE_LEVEL, "Trying to add "+value+" at coordinate "
-					+Vector.toString(coord)+" in "+type);
-		}
 		this._array.get(type)[coord[0]][coord[1]][coord[2]] += value;
 	}
 	
@@ -628,11 +580,6 @@ public class SpatialGrid implements Settable, Instantiable
 	 */
 	public void timesValueAt(ArrayType type, int[] coord, double value)
 	{
-		if ( Log.shouldWrite(SET_VALUE_LEVEL) )
-		{
-			Log.out(SET_VALUE_LEVEL, "Trying to multiply with " + value 
-					+ " at coordinate "+ Vector.toString(coord) + " in "+ type);
-		}
 		this._array.get(type)[coord[0]][coord[1]][coord[2]] *= value;
 	}
 	
@@ -724,13 +671,6 @@ public class SpatialGrid implements Settable, Instantiable
 	// TODO safety if neighbor iterator or arrays are not initialised.
 	public double getDiffusionFromNeighbor()
 	{
-		Tier level = Tier.BULK;
-		if ( Log.shouldWrite(level) )
-		{
-			Log.out(level, " finding flow from nhb "+
-					Vector.toString(this._shape.nbhIteratorCurrent())+
-					" to curr "+Vector.toString(this._shape.iteratorCurrent()));
-		}
 		if ( this._shape.isNbhIteratorInside() )
 		{
 			/* Difference in concentration. */
@@ -747,23 +687,23 @@ public class SpatialGrid implements Settable, Instantiable
 			/* Calculate the the flux from these values. */
 			double flux = concnDiff * diffusivity / dist ;
 			double flow = flux * sArea;
-			if ( Log.shouldWrite(level) )
+			/* Disabled Debug message
+			if ( Log.shouldWrite(Tier.DEBUG) )
 			{
-				Log.out(level, "    concnDiff is "+concnDiff);
-				Log.out(level, "    diffusivity is "+diffusivity);
-				Log.out(level, "    distance is "+dist);
-				Log.out(level, "  => flux is "+flux);
-				Log.out(level, "    surface area is "+sArea);
-				Log.out(level, "  => flow is "+flow);
+				Log.out(Tier.DEBUG, "    concnDiff is "+concnDiff);
+				Log.out(Tier.DEBUG, "    diffusivity is "+diffusivity);
+				Log.out(Tier.DEBUG, "    distance is "+dist);
+				Log.out(Tier.DEBUG, "  => flux is "+flux);
+				Log.out(Tier.DEBUG, "    surface area is "+sArea);
+				Log.out(Tier.DEBUG, "  => flow is "+flow);
 			}
+			*/
 			return flow;
 		}
 		else if ( this._shape.isIteratorValid() )
 		{
 			double flow = 
 					this._shape.nbhIteratorOutside().getDiffusiveFlow(this);
-			if ( Log.shouldWrite(level) )
-				Log.out(level, "  got flow from boundary: "+flow);
 			return flow;
 		}
 		else

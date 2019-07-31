@@ -106,7 +106,6 @@ public abstract class PDEsolver extends Solver
 	 */
 	protected void applyDiffusion(SpatialGrid grid, SpatialGrid commonGrid)
 	{
-		Tier level = BULK;
 		Shape shape = grid.getShape();
 		/* Coordinates of the current position. */
 		int[] current, nhb;
@@ -121,13 +120,6 @@ public abstract class PDEsolver extends Solver
 			if ( WellMixedConstants.isWellMixed(commonGrid, current) )
 				continue;
 			totalFlow = 0.0;
-			if ( Log.shouldWrite(level) )
-			{
-				Log.out(level, 
-						"Coord "+Vector.toString(shape.iteratorCurrent())+
-						" (curent value "+grid.getValueAtCurrent(CONCN)+
-						"): calculating flux...");
-			}
 			for ( nhb = shape.resetNbhIterator(); shape.isNbhIteratorValid();
 					nhb = shape.nbhIteratorNext() )
 			{
@@ -158,22 +150,6 @@ public abstract class PDEsolver extends Solver
 				 * To get the value we must be inside, the flux can be obtained
 				 * from boundary.
 				 */
-				if ( Log.shouldWrite(level) )
-				{
-					if ( shape.isNbhIteratorInside() )
-					{
-						Log.out(level, 
-								"   nhb "+Vector.toString(nhb)+
-								" ("+grid.getValueAtNhb(CONCN)+") "+
-								" contributes flow of "+nhbFlow);
-					}
-					else
-					{
-						Log.out(level, 
-								" boundary nhb "+Vector.toString(nhb)
-								+ " contributes flow of "+nhbFlow);
-					}
-				}
 			}
 			/*
 			 * Flow is in units of mass/mole per unit time. Divide by the voxel
@@ -184,12 +160,14 @@ public abstract class PDEsolver extends Solver
 			/*
 			 * Finally, apply this to the relevant array.
 			 */
-			if ( Log.shouldWrite(level) )
+			/* Disabled DEBUG message
+			if ( Log.shouldWrite(Tier.DEBUG) )
 			{
-				Log.out(level, " Total flux = "+totalFlow);
-				Log.out(level, " Voxel volume = "+volume);
-				Log.out(level, " Total rate of change from flux = "+changeRate);
+				Log.out(Tier.DEBUG, " Total flux = "+totalFlow);
+				Log.out(Tier.DEBUG, " Voxel volume = "+volume);
+				Log.out(Tier.DEBUG, " Total rate of change from flux = "+changeRate);
 			}
+			*/
 			grid.addValueAt(CHANGERATE, current, changeRate);
 		}
 	}
