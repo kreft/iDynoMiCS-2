@@ -738,14 +738,18 @@ public class Expression extends Component implements Settable
 				this.format( Idynomics.unitSystem ))).reportEvaluation(variables);
 	}
 
+	/**
+	 * NOTE: calculating expression but not correcting for unit system
+	 */
 	@Override
 	protected double calculateValue(Map<String, Double> variables) 
 	{
-		return this.format( Idynomics.unitSystem );
+		return this._a.getValue(variables);
 	}
 	
 	/**
-	 * get Value for expressions where no variables are used
+	 * get Value for expressions where no variables are used, applying iDynoMiCS
+	 * base units
 	 * @return double
 	 */
 	public double getValue()
@@ -754,13 +758,23 @@ public class Expression extends Component implements Settable
 	}
 	
 	/**
+	 * get Value for expressions where variables are used, applying iDynoMiCS
+	 * base units
+	 * @return double
+	 */
+	public double format( Map<String,Double> variables, 
+			Map<SI,GenericTrio<SI, String, Double>> unitSystem )
+	{
+		return this.getValue( variables ) * this.modifier( unitSystem );
+	}
+	
+	/**
 	 * get Value for expressions where no variables are used
 	 * @return double
 	 */
 	public double format( Map<SI,GenericTrio<SI, String, Double>> unitSystem )
 	{
-		return this.getValue(new HashMap<String,Double>()) * 
-				this.modifier( unitSystem );
+		return this.format(new HashMap<String,Double>(), unitSystem );
 	}
 
 	@Override
