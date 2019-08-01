@@ -70,6 +70,13 @@ public class TestingUnits {
 		Map<SI,GenericTrio<SI, String, Double>> unitSystem =
 				Unit.formatMap("pg","µm","min");
 		
+		Unit testUnit = new Unit("g+1·m-3");
+		System.out.println( testUnit + " to: " + testUnit.toString(unitSystem));
+		
+		double inputValue = 1.0;
+		String inputUnit = "g+1·m-3";
+		double output = inputValue * new Unit( inputUnit ).format(unitSystem);
+		
 		System.out.println( myUnit + " to: " + myUnit.toString(unitSystem) );
 		System.out.println( unitA + " to: " + unitA.toString(unitSystem) );
 		System.out.println( unitC + " to: " + unitC.toString(unitSystem) );

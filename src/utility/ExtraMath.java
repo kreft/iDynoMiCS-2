@@ -19,6 +19,7 @@ import java.text.DecimalFormat;
 import java.util.Calendar;
 import java.util.Random;
 
+import dataIO.Log;
 import utility.MTRandom;
 
 /**

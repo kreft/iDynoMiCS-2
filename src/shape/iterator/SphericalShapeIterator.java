@@ -8,9 +8,6 @@ import static shape.iterator.ShapeIterator.WhereAmI.UNDEFINED;
 import static shape.iterator.ShapeIterator.NhbDirection.AHEAD;
 import static shape.iterator.ShapeIterator.NhbDirection.BEHIND;
 
-import java.util.Arrays;
-
-import dataIO.Log;
 import shape.SphericalShape;
 import shape.resolution.ResolutionCalculator;
 
@@ -216,10 +213,6 @@ public class SphericalShapeIterator extends PolarShapeIterator
 				}
 		}
 		this.transformNhbCyclic();
-		Log.out(NHB_ITER_LEVEL, "Current coord is " 
-				+ Arrays.toString(this._currentCoord) 
-				+ " ,dimension name is "+this._nbhDimName
-				+", direction is "+this._nbhDirection);
 		return this._currentNeighbor;
 	}
 	
@@ -233,11 +226,6 @@ public class SphericalShapeIterator extends PolarShapeIterator
 	protected boolean setNbhFirstInNewRing(int ringIndex)
 	{
 		//TODO this will currently not set onto min boundary?
-		if ( Log.shouldWrite(NHB_ITER_LEVEL) )
-		{
-			Log.out(NHB_ITER_LEVEL, "  trying to set neighbor in new ring "+
-				ringIndex);
-		}
 		this._currentNeighbor[1] = ringIndex;
 		/*
 		 * We must be on a shell inside the array or on a defined R boundary.
@@ -246,12 +234,7 @@ public class SphericalShapeIterator extends PolarShapeIterator
 		if ( whereIsR != INSIDE )
 		{
 			if (whereIsR != UNDEFINED)
-			{
-				Log.out(NHB_ITER_LEVEL, "  success on "+ whereIsR +" boundary");
 				return true;
-			}
-			if ( Log.shouldWrite(NHB_ITER_LEVEL) )
-				Log.out(NHB_ITER_LEVEL, "  failure, R on undefined boundary");
 			return false;
 		}
 		/*
@@ -260,16 +243,7 @@ public class SphericalShapeIterator extends PolarShapeIterator
 		 */
 		if ( (this._whereIsNhb = this.whereIsNhb(PHI)) != INSIDE ){
 			if (this._whereIsNhb != UNDEFINED)
-			{
-				if ( Log.shouldWrite(NHB_ITER_LEVEL) )
-				{
-					Log.out(NHB_ITER_LEVEL, "  success on "+ this._whereIsNhb 
-						+" boundary");
-				}
 				return true;
-			}
-			if ( Log.shouldWrite(NHB_ITER_LEVEL) )
-				Log.out(NHB_ITER_LEVEL, "  failure, PHI on undefined boundary");
 			return false;
 		}
 
@@ -279,14 +253,10 @@ public class SphericalShapeIterator extends PolarShapeIterator
 		 * current coordinate's minimum theta angle inside it.
 		 */
 		double theta = rC.getCumulativeResolution(this._currentCoord[2] - 1);
-		
 		rC = this._shape.getResolutionCalculator(this._currentNeighbor, 2);
-		
 		int new_index = rC.getVoxelIndex(theta);
-
 		this._currentNeighbor[2] = new_index;
 		
-		Log.out(NHB_ITER_LEVEL, "  success with theta idx "+new_index);
 		return true;
 	}
 }

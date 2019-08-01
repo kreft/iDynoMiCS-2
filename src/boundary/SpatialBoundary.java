@@ -170,7 +170,7 @@ public abstract class SpatialBoundary extends Boundary
 	 */
 	protected double calcDiffusiveFlowFixed(SpatialGrid grid, double bndrConcn)
 	{
-		Tier level = Tier.BULK;
+		Tier level = Tier.DEBUG;
 		double valueDiff = bndrConcn - grid.getValueAtCurrent(ArrayType.CONCN);
 		/* The diffusivity comes only from the current voxel. */
 		double diffusivity = grid.getValueAtCurrent(ArrayType.DIFFUSIVITY);

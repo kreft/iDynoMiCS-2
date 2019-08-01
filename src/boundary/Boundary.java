@@ -93,14 +93,6 @@ public abstract class Boundary implements Settable, Instantiable
 	 * TODO
 	 */
 	private Settable _parentNode;
-	/**
-	 * Log verbosity level for debugging purposes (set to BULK when not using).
-	 */
-	protected static final Tier SOLUTE_LEVEL = Tier.BULK;
-	/**
-	 * Log verbosity level for debugging purposes (set to BULK when not using).
-	 */
-	protected static final Tier AGENT_LEVEL = Tier.BULK;
 	
 	/* ***********************************************************************
 	 * CONSTRUCTORS
@@ -395,11 +387,6 @@ public abstract class Boundary implements Settable, Instantiable
 	 */
 	public void addOutboundAgent(Agent anAgent)
 	{
-		if ( Log.shouldWrite(AGENT_LEVEL) )
-		{
-			Log.out(AGENT_LEVEL, " - Accepting agent (ID: "+
-					anAgent.identity()+") to departure lounge");
-		}
 		this._departureLounge.add(anAgent);
 	}
 
@@ -410,11 +397,6 @@ public abstract class Boundary implements Settable, Instantiable
 	 */
 	public void acceptInboundAgent(Agent anAgent)
 	{
-		if ( Log.shouldWrite(AGENT_LEVEL) )
-		{
-			Log.out(AGENT_LEVEL, " - Accepting agent (ID: "+
-					anAgent.identity()+") to arrivals lounge");
-		}
 		this._arrivalsLounge.add(anAgent);
 	}
 
@@ -425,17 +407,8 @@ public abstract class Boundary implements Settable, Instantiable
 	 */
 	public void acceptInboundAgents(Collection<Agent> agents)
 	{
-		if ( Log.shouldWrite(AGENT_LEVEL) )
-		{
-			Log.out(AGENT_LEVEL, "Boundary "+this.getName()+" accepting "+
-					agents.size()+" agents to arrivals lounge");
-		}
 		for ( Agent anAgent : agents )
-		{
 			this.acceptInboundAgent(anAgent);
-		}
-		if ( Log.shouldWrite(AGENT_LEVEL) )
-			Log.out(AGENT_LEVEL, " Done!");
 	}
 
 	/**
@@ -448,7 +421,7 @@ public abstract class Boundary implements Settable, Instantiable
 		{
 			if ( this._partner == null )
 			{
-				Log.out(Tier.EXPRESSIVE, "Boundary "+this.getName()+" removing "+
+				Log.out(Tier.DEBUG, "Boundary "+this.getName()+" removing "+
 							this._departureLounge.size()+" agents");
 				for( Agent a : this._departureLounge )
 					this._agents.registerRemoveAgent(a);
@@ -456,7 +429,7 @@ public abstract class Boundary implements Settable, Instantiable
 			}
 			else
 			{
-				Log.out(Tier.EXPRESSIVE, "Boundary "+this.getName()+" pushing "+
+				Log.out(Tier.DEBUG, "Boundary "+this.getName()+" pushing "+
 							this._departureLounge.size()+" agents to partner");
 				Random randomSelector = new Random();
 				Collection<Agent> acceptanceLounge = new LinkedList<Agent>();
@@ -464,7 +437,7 @@ public abstract class Boundary implements Settable, Instantiable
 				int numAgentsDepart = this._departureLounge.size();
 				String partnerCompName = this.getPartnerCompartmentName();
 				Compartment partnerComp = Idynomics.simulator.getCompartment(partnerCompName);
-				Compartment thisComp = (Compartment) this._environment.getParent();
+				Compartment thisComp = Idynomics.simulator.getCompartment("oneDim");
 				double scFac = thisComp.getScalingFactor() / partnerComp.getScalingFactor();
 				int numAgentsToAccept = (int) Math.ceil(numAgentsDepart * scFac);
 				if (numAgentsToAccept < numAgentsDepart)

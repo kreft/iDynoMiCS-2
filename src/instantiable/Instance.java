@@ -92,10 +92,12 @@ public class Instance
 				out = getNew( className[0], 
 						Idynomics.xmlPackageLibrary.get( className[0] ) );
 			}
-			if ( parent == null && Log.shouldWrite(Tier.BULK) )
-				Log.out(Tier.BULK, "Warning initiating without parent");
-			else if ( xmlElem == null && Log.shouldWrite(Tier.BULK) )
-				Log.out(Tier.BULK, "Warning initiating without xml element");
+			/* Disabled Debug message 
+			if ( parent == null && Log.shouldWrite(Tier.DEBUG) )
+				Log.out(Tier.DEBUG, "Warning initiating without parent");
+			else if ( xmlElem == null && Log.shouldWrite(Tier.DEBUG) )
+				Log.out(Tier.DEBUG, "Warning initiating without xml element");
+			*/
 			((Instantiable) out).instantiate( xmlElem, parent );
 			return out;
 		} 

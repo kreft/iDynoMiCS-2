@@ -1,6 +1,6 @@
 package test.other;
 
-import test.junit.BoxTest;
+import test.junit.oldTests.BoxTest;
 
 public class BoxDebug {
 

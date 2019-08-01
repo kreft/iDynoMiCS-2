@@ -616,22 +616,10 @@ public abstract class SphericalShape extends Shape
 	@Override
 	public double nhbCurrSharedArea()
 	{
-		Tier level = Tier.BULK;
-		if ( Log.shouldWrite(level) )
-		{
-			Log.out(level, "  current coord is "+
-					Vector.toString(this._it.iteratorCurrent())
-					+", current nhb is "+
-					Vector.toString(this._it.nbhIteratorCurrent()));
-		}
 		DimName nhbDimName = this._it.currentNhbDimName();
 		/* moving towards positive in the current dim? */
 		boolean isNhbAhead = this._it.isCurrentNhbAhead();
-		if ( Log.shouldWrite(level) )
-		{
-			Log.out(level, "    Dimension name is "+nhbDimName
-					+", direction is "+(isNhbAhead ? "ahead" : "behind"));
-		}
+
 		/* Integration minima and maxima, these are the lower and upper 
 		 * locations of the intersections between the current voxel and the 
 		 * neighbor voxel for each dimension. */
@@ -669,8 +657,6 @@ public abstract class SphericalShape extends Shape
 		default: throw new IllegalArgumentException("unknown dimension " 
 											+ nhbDimName + " for sphere");
 		}
-		Log.out(level, "    r1 is "+r1+", phi1 is "+phi1+ ", theta1 is "+theta1
-				+ ", r2 is "+r2+", phi2 is "+phi2+ ", theta2 is "+theta2);
 		return area;
 	}
 	

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document>
-	<simulation name="test" outputfolder="../results" log="DEBUG" randomSeed="22432423"
-						comment="this is a file for testing purposes only.">
+	<simulation name="test" outputfolder="../results" log="NORMAL" randomSeed="22432423"
+						comment="This is a file for testing purposes only.">
 		
 		<timer stepSize="1.0" endOfSimulation="15.0" />
 		

@@ -283,9 +283,7 @@ public class Collision
 					Vector.times( force , intersect ) );
 			break;
 		case PLANE:
-			if( Log.shouldWrite(Tier.BULK) )
-				Log.out(Tier.BULK,"WARNING: Surface Plane does not accept "
-						+ "force");
+			//Skip applying force to domain planes
 		default:
 			break;
 		}

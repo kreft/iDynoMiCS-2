@@ -610,16 +610,10 @@ public class AgentContainer implements Settable
 	 */
 	public Agent extractRandomAgent()
 	{
-		Tier level = Tier.BULK;
 		int nAgents = this.getNumAllAgents();
 		/* Safety if there are no agents. */
 		if ( nAgents == 0 )
 		{
-			if ( Log.shouldWrite(level) )
-			{
-				Log.out(level, "No agents in this container, so cannot "+
-					"extract one: returning null");
-			}
 			return null;
 		}/* Now find an agent. */
 		int i = ExtraMath.getUniRandInt(nAgents);
@@ -634,11 +628,6 @@ public class AgentContainer implements Settable
 		{
 			/* Unlocated agent. */
 			out = this._agentList.remove(i);
-		}
-		if ( Log.shouldWrite(level) )
-		{
-			Log.out(level, "Out of "+nAgents+" agents, agent with UID "+
-					out.identity()+" was extracted randomly");
 		}
 		return out; 
 	}
@@ -668,54 +657,31 @@ public class AgentContainer implements Settable
 
 	public void agentsArrive()
 	{
-		Tier level = BULK;
-		if ( Log.shouldWrite(level) )
-			Log.out(level, "Agents arriving into compartment...");
 		Dimension dim;
 		for ( DimName dimN : this._shape.getDimensionNames() )
 		{
 			dim = this._shape.getDimension(dimN);
 			if ( dim.isCyclic() )
 			{
-				if ( Log.shouldWrite(level) )
-					Log.out(level, "   "+dimN+" is cyclic, skipping");
 				continue;
 			}
 			if ( ! dim.isSignificant() )
 			{
-				if ( Log.shouldWrite(level) )
-					Log.out(level, "   "+dimN+" is insignificant, skipping");
 				continue;
 			}
 			for ( int extreme = 0; extreme < 2; extreme++ )
 			{
-				if ( Log.shouldWrite(level) )
-				{
-					Log.out(level,
-							"Looking at "+dimN+" "+((extreme==0)?"min":"max"));
-				}
 				if ( ! dim.isBoundaryDefined(extreme) )
 				{
-					if ( Log.shouldWrite(level) )
-						Log.out(level, "   boundary not defined");
 					continue;
 				}
 				dim.getBoundary(extreme).agentsArrive();
-				if ( Log.shouldWrite(level) )
-					Log.out(level, "   boundary defined, agents ariving");
 			}
 		}
 		for ( Boundary bndry : this._shape.getNonSpatialBoundaries() )
 		{
-			if ( Log.shouldWrite(level) )
-			{
-				Log.out(level,"   other boundary "+bndry.getName()+
-						", calling agent method");
-			}
 			bndry.agentsArrive();
 		}
-		if ( Log.shouldWrite(level) )
-			Log.out(level, " All agents have now arrived");
 	}
 
 	/**
@@ -771,54 +737,23 @@ public class AgentContainer implements Settable
 	 */
 	public void agentsDepart()
 	{
-		Tier level = BULK;
-		if ( Log.shouldWrite(level) )
-			Log.out(level, "Pushing all outbound agents...");
 		Dimension dim;
 		for ( DimName dimN : this._shape.getDimensionNames() )
 		{
 			dim = this._shape.getDimension(dimN);
 			if ( dim.isCyclic() )
-			{
-				if ( Log.shouldWrite(level) )
-					Log.out(level, "   "+dimN+" is cyclic, skipping");
 				continue;
-			}
 			if ( ! dim.isSignificant() )
-			{
-				if( Log.shouldWrite(level) )
-					Log.out(level, "   "+dimN+" is insignificant, skipping");
 				continue;
-			}
 			for ( int extreme = 0; extreme < 2; extreme++ )
 			{
-				if ( Log.shouldWrite(level) )
-				{
-					Log.out(level, 
-						"Looking at "+dimN+" "+((extreme==0)?"min":"max"));
-				}
 				if ( ! dim.isBoundaryDefined(extreme) )
-				{
-					if ( Log.shouldWrite(level) )
-						Log.out(level, "   boundary not defined");
 					continue;
-				}
-				if ( Log.shouldWrite(level) )
-					Log.out(level, "   boundary defined, pushing agents");
 				dim.getBoundary(extreme).pushAllOutboundAgents();
 			}
 		}
 		for ( Boundary bndry : this._shape.getNonSpatialBoundaries() )
-		{
-			if ( Log.shouldWrite(level) )
-			{
-				Log.out(level,"   other boundary "+bndry.getName()+
-						", pushing agents");
-			}
 			bndry.pushAllOutboundAgents();
-		}
-		if ( Log.shouldWrite(level) )
-			Log.out(level, " All agents have now departed");
 	}
 
 	/**

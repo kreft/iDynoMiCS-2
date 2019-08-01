@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document>
-	<simulation log="NORMAL" outputfolder="../results" name="nine"  randomSeed="22432423">
-	<timer stepSize="60.0" endOfSimulation="1800000.0" /> <!-- 10 weeks -->
+	<simulation log="NORMAL" outputfolder="../results" name="ecoli3D"  randomSeed="22432423">
+	<timer stepSize="5.0" endOfSimulation="1800000.0" /> <!-- 10 weeks -->
 		<speciesLib>
 			<!-- species/species library The species library contains all agent species 
 				in the simulations. This may include microbial species, plasmid and vector 
@@ -16,7 +16,7 @@
 				<aspect name="surfaces" type="CALCULATED" class="AgentSurfaces" />
 				<aspect name="divisionMass" type="PRIMARY" class="Double" value="1.0" />
 				<aspect name="divide" type="EVENT" class="CoccoidDivision"	/>
-				<aspect name="updateBody" type="EVENT" class="UpdateBodySurfaceScaled" />
+				<aspect name="updateBody" type="EVENT" class="UpdateBody" />
 				<aspect name="volume" type="CALCULATED" class="SimpleVolumeState" 	/>
 				<aspect name="radius" type="CALCULATED" class="CoccoidRadius" 		/>
 				
@@ -74,26 +74,26 @@
 		<compartment name="chemostat">
 			<shape class="Dimensionless" volume="1e9">
 				<boundary  class="constantConcentrationToChemostat" volumeFlowRate="1.0E6">
-				<solute name="glucose" concentration="2.00E-06" defaultDiffusivity="3000"  />
-				<solute name="oxygen" 	concentration="8.74E-6" defaultDiffusivity="3000"  />
+				<solute name="glucose" concentration="2.00E-06" defaultDiffusivity="36000"  />
+				<solute name="oxygen" 	concentration="8.74E-6" defaultDiffusivity="132000"  />
 				</boundary>
 				<boundary  class="chemostatOut" volumeFlowRate="1.0E6" agentRemoval="false" >
 				</boundary> 
 			</shape>
 			<solutes>
 				<!-- pg / µm3 -->
-				<solute name="glucose" concentration="2.00E-06" defaultDiffusivity="3000"  />
-				<solute name="oxygen" 	concentration="8.74E-6" defaultDiffusivity="3000"  />
+				<solute name="glucose" concentration="2.00E-06" defaultDiffusivity="36000"  />
+				<solute name="oxygen" 	concentration="8.74E-6" defaultDiffusivity="132000"  />
 			</solutes>
 			<processManagers>
 				<process name="solveChemostat" class="ChemostatSolver" priority="0"
-					firstStep="0.0"  timerStepSize="60.0">
+					firstStep="0.0"  timerStepSize="5.0">
 					<aspect name="hMax" type="PRIMARY" class="Double" value="15.0" />
 					<aspect name="solver" type="PRIMARY" class="String" value="heun" />
 					<aspect name="tolerance" class="Double" value="1.0E-6" />
 				</process>
 				<process name="summary" class="Summary"  priority="2"
-					firstStep="0.0" timerStepSize="60.0">
+					firstStep="0.0" timerStepSize="5.0">
 					<aspect name="includeHeader" type="PRIMARY" class="Boolean" value="TRUE" />
 					<aspect name="fileName" type="PRIMARY" class="String" value="chemostat" />
 					<aspect name="tableSpecification" type="PRIMARY" class="String"
@@ -115,8 +115,8 @@
 			</shape>
 			<solutes>
 				<!-- pg / µm3 -->
-				<solute name="glucose" concentration="2.00E-06" defaultDiffusivity="3000"  />
-				<solute name="oxygen" 	concentration="8.74E-6" defaultDiffusivity="3000"  />
+				<solute name="glucose" concentration="2.00E-06" defaultDiffusivity="36000"  />
+				<solute name="oxygen" 	concentration="8.74E-6" defaultDiffusivity="132000"  />
 			</solutes>
 			<reactions>
 			</reactions>
@@ -132,12 +132,12 @@
 			</agents>
 			<processManagers>				
 				<!-- ms -->
-				<process name="SolveDiffusionSteadyState" class="SolveDiffusionSteadyState" priority="1" firstStep="0.0" timerStepSize="60.0">
-					<aspect name="absoluteTolerance" type="PRIMARY" class="Double" value="1.0e-15" />
-					<aspect name="relativeTolerance" type="PRIMARY" class="Double" value="1.0e-8" />
+				<process name="SolveDiffusionSteadyState" class="SolveDiffusionSteadyState" priority="1" firstStep="0.0" timerStepSize="5.0">
+					<aspect name="absoluteTolerance" type="PRIMARY" class="Double" value="1.0e-10" />
+					<aspect name="relativeTolerance" type="PRIMARY" class="Double" value="1.0e-5" />
 					<!-- µm^2 ms^-1-->
 				</process>
-				<process name="agentRelax" class="AgentRelaxation" priority="-2" firstStep="0.0"  timerStepSize="60.0">
+				<process name="agentRelax" class="AgentRelaxation" priority="-2" firstStep="0.0"  timerStepSize="5.0">
 					<aspect name="maxMovement" type="PRIMARY" class="Double" value="0.10" />
 					<aspect name="relaxationMethod" type="PRIMARY" class="String" value="EULER" />
 					<aspect name="stressThreshold" type="PRIMARY" class="Double" value="10000.0" />
@@ -146,7 +146,7 @@
 					<aspect name="gravity_testing" type="PRIMARY" class="Boolean" value="FALSE" />
 				</process>
 				<process name="summary" class="Summary"  priority="2"
-					firstStep="0.0" timerStepSize="60.0">
+					firstStep="0.0" timerStepSize="5.0">
 					<aspect name="includeHeader" type="PRIMARY" class="Boolean" value="TRUE" />
 					<aspect name="fileName" type="PRIMARY" class="String" value="bioflm" />
 					<aspect name="tableSpecification" type="PRIMARY" class="String"

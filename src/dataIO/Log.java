@@ -4,6 +4,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import gui.GuiConsole;
+import idynomics.Global;
 import idynomics.Idynomics;
 import utility.Helper;
 
@@ -26,19 +27,9 @@ public class Log
 	public enum Tier
 	{
 		/**
-		 * Should generate no messages: no message should have this output
-		 * level.
-		 */
-		// TODO Rob: Do we really want this? CRITICAL seems extreme enough. 
-		SILENT,
-		/**
 		 * Only for critical (error) messages.
 		 */
 		CRITICAL,
-		/**
-		 * Minimal simulation information.
-		 */
-		QUIET,
 		/**
 		 * Messages for a normal simulation.
 		 */
@@ -51,11 +42,6 @@ public class Log
 		 * Debug messages.
 		 */
 		DEBUG,
-		/**
-		 * Bulk messages that are probably not needed, the messages that would
-		 * create too much bulk for normal debug mode.
-		 */
-		BULK
 	}
 	
 	/**
@@ -106,10 +92,13 @@ public class Log
 	 */
 	public static void keep() 
 	{
-		suspend = false;
-		if ( !_logFile.isReady() )
-			setupFile();
-		_logFile.write(suspendOut);
+		if (Global.write_to_disc)
+		{
+			suspend = false;
+			if ( !_logFile.isReady() )
+				setupFile();
+			_logFile.write(suspendOut);
+		}
 	}
 	
 	/**
@@ -143,8 +132,8 @@ public class Log
 		if ( Idynomics.global.outputLocation != null && !_logFile.isReady() && 
 				!suspend )
 			setupFile();
-		if (Log.shouldWrite(Tier.NORMAL))
-			Log.out(Tier.NORMAL, "Log output level was set to " + 
+		if (Log.shouldWrite(Tier.DEBUG))
+			Log.out(Tier.DEBUG, "Log output level was set to " + 
 					level.toString());
 	}
 	
@@ -232,12 +221,12 @@ public class Log
 	{
 		_logFile.fnew(Idynomics.global.outputLocation + "/log.txt");
 		_logFile.flushAll();
-		if( shouldWrite(Tier.QUIET))
-			out(Tier.QUIET, Idynomics.fullDescription() + 
+		if( shouldWrite(Tier.NORMAL))
+			out(Tier.NORMAL, Idynomics.fullDescription() + 
 					"\nOutput level is " + _outputLevel +
 					", starting at " + _ft.format(new Date()) + 
 					"\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-					+ "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+					+ "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
 	}
 	
 	/**

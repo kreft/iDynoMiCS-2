@@ -264,9 +264,7 @@ public class AspectReg
 		Aspect a = getAspect(key);
 		if ( a == null )
 		{
-			if ( Log.shouldWrite(Tier.BULK) )
-				Log.out(Tier.BULK, "Warning: aspect registry does not"
-						+ " contain event:" + key);
+			//skip
 		}
 		else if ( a.type != Aspect.AspectClass.EVENT )
 		{

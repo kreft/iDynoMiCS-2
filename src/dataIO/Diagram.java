@@ -8,9 +8,7 @@ import java.util.Map;
 import agent.Agent;
 import agent.SpeciesLib;
 import compartment.Compartment;
-import dataIO.Log.Tier;
 import idynomics.Idynomics;
-import reaction.RegularReaction;
 import reaction.Reaction;
 import referenceLibrary.AspectRef;
 import referenceLibrary.XmlRef;
@@ -27,7 +25,6 @@ public class Diagram
 		String fileString = Idynomics.global.outputLocation + "/" 
 				+ fileName + ".dot";
 		this._diagramFile.fnew(fileString);
-		Log.out(Tier.EXPRESSIVE, "Writing new file: " + fileString);
 		this._diagramFile.write("digraph " + fileName + " {\n");
 	}
 

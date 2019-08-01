@@ -202,7 +202,7 @@ public class Unit {
 		Unit formatter = new Unit(format);
 		if ( ! compatible(formatter) )
 		{
-			Log.out(Tier.QUIET, formatter.unit() + " incompatible with: " 
+			Log.out(Tier.CRITICAL, formatter.unit() + " incompatible with: " 
 					+ this.unit());
 			///FIXME or should we throw something
 			return 0;
@@ -246,6 +246,7 @@ public class Unit {
 				this.modifier() / unitOut.modifier(), out );
 	}
 	
+	
 	/**
 	 * Output just the units
 	 * @return
@@ -262,9 +263,11 @@ public class Unit {
 			else if ( power != 0 )
 				out += si.toString() + (power > 0 ? "+" : "") + power + "·";
 		}
+		if ( out.length() == 0 )
+			return out;
+		else
 		/* remove tailing · */
-		out = out.substring(0, out.length()-1);
-		return out;
+			return out.substring(0, out.length()-1);
 	}
 	
 	public static HashMap<SI,GenericTrio<SI, String, Double>> 
@@ -286,6 +289,7 @@ public class Unit {
 		}
 		return out;
 	}
+
 	
 	public double modifier()
 	{
@@ -302,9 +306,11 @@ public class Unit {
 		units = units.replaceAll("\\[", "");
 		units = units.replaceAll("\\]", "");
 		units = units.replaceAll("\\s+", "");
+		units = units.replaceAll("\\/", "·1/");
 		
 		/* split by dot · ALT 250 */
 		String[] unitsArray; 
+		units.replace("*", "·");
 		unitsArray = units.split("·");
 		String[] unitPower;
 		Integer power;
@@ -330,7 +336,10 @@ public class Unit {
 				power = Integer.valueOf(unitPower[1]);
 			
 			/* update the unit map and modifier */
-			this.update(unitPower[0], power);
+			if (unitPower[0].contains("1/"))
+				this.update(unitPower[0].replaceAll("1/", ""), power*-1);
+			else
+				this.update(unitPower[0], power);
 		}
 	}
 	
@@ -601,7 +610,8 @@ public class Unit {
 			case "cal" :
 				this.update("J", update);
 				this.modifier *= 4.184;
-				Log.out(Tier.BULK, "Note: using Thermochemical calorie");
+				if (Log.shouldWrite(Tier.DEBUG))
+					Log.out(Tier.DEBUG, "Note: using Thermochemical calorie");
 				break;
 			case "mcal" :
 				this.update("cal", update);

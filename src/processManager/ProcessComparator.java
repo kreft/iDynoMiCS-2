@@ -2,8 +2,6 @@ package processManager;
 
 import java.util.Comparator;
 
-import dataIO.Log;
-import dataIO.Log.Tier;
 import utility.ExtraMath;
 
 /**
@@ -19,8 +17,6 @@ import utility.ExtraMath;
  */
 public class ProcessComparator implements Comparator<ProcessManager>
 {
-	private final static Tier LEVEL = Tier.BULK;
-	
 	@Override
 	public int compare(ProcessManager pm1, ProcessManager pm2) 
 	{
@@ -30,11 +26,13 @@ public class ProcessComparator implements Comparator<ProcessManager>
 			out = pm2.getPriority() - pm1.getPriority();
 		else
 			out = (int) Math.signum(temp);
-		if ( Log.shouldWrite(LEVEL) )
+		/* Disabled Debug message
+		if ( Log.shouldWrite(Tier.DEBUG) )
 		{
-			Log.out(LEVEL, "ProcessComparator: "+pm1._name+" vs "+pm2._name+
+			Log.out(Tier.DEBUG, "ProcessComparator: "+pm1._name+" vs "+pm2._name+
 					" has tDiff "+temp+", so out = "+out);
 		}
+		*/
 		return out;
 	}
 }
