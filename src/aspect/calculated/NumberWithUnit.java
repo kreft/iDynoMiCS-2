@@ -16,8 +16,6 @@ public class NumberWithUnit extends Calculated {
 	private double value;
 	private boolean calculated = false;
 	private Expression expression;
-	private Unit _userUnit;
-	private Double _userNumber;
 	private Map<SI,GenericTrio<SI, String, Double>> _unitSystem = 
 			Unit.formatMap("pg","µm","min");
 	
@@ -26,11 +24,7 @@ public class NumberWithUnit extends Calculated {
 	public void setInput(String input)
 	{
 		this._input = input;
-		this.expression = new Expression( input.replaceAll("\\s+","") );
-		this._userUnit = this.expression.getUnit();
-		this._userNumber = 
-				Double.parseDouble(this.expression.getNumberComponent());
-		
+		this.expression = new Expression( input );
 	}
 	
 	@Override
@@ -41,7 +35,8 @@ public class NumberWithUnit extends Calculated {
 		}
 		else
 		{
-			value = _userNumber * _userUnit.format(_unitSystem);
+			value = Double.parseDouble(expression.getExpression()) * 
+					expression.getUnit().format(_unitSystem);
 			calculated = true;
 			return value;
 		}

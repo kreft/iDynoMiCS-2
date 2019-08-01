@@ -62,11 +62,6 @@ public class Expression extends Component implements Settable
 	protected String _expression;
 	
 	/**
-	 * The number of the number-unit pair after splitting
-	 */
-	protected String _numberComponent;
-	
-	/**
 	 * Unit
 	 */
 	protected Unit _unit;
@@ -183,7 +178,6 @@ public class Expression extends Component implements Settable
 		{
 			this._unit = new Unit(split[1]);
 			expression = split[0];
-			this._numberComponent = split[0];
 		}
 		/* Remove all whitespace. */
 		this._expression = expression.replaceAll("\\s+","");
@@ -213,9 +207,9 @@ public class Expression extends Component implements Settable
 		return this._unit;
 	}
 	
-	public String getNumberComponent()
+	public String getExpression()
 	{
-		return this._numberComponent;
+		return this._expression;
 	}
 	
 	
