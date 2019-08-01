@@ -13,10 +13,10 @@ import utility.GenericTrio;
 public class NumberWithUnit extends Calculated {
 
 	
-	private double value;
-	private boolean calculated = false;
-	private Expression expression;
-	private Map<SI,GenericTrio<SI, String, Double>> _unitSystem = 
+	private double _value;
+	private boolean _calculated = false;
+	private Expression _expression;
+	final static private Map<SI,GenericTrio<SI, String, Double>> _unitSystem = 
 			Unit.formatMap("pg","µm","min");
 	
 	
@@ -24,21 +24,21 @@ public class NumberWithUnit extends Calculated {
 	public void setInput(String input)
 	{
 		this._input = input;
-		this.expression = new Expression( input );
+		this._expression = new Expression( input );
 	}
 	
 	@Override
 	public Object get(AspectInterface aspectOwner) {
-		if (calculated)
+		if (_calculated)
 		{
-			return value;
+			return _value;
 		}
 		else
 		{
-			value = Double.parseDouble(expression.getExpression()) * 
-					expression.getUnit().format(_unitSystem);
-			calculated = true;
-			return value;
+			_value = Double.parseDouble(_expression.getExpression()) * 
+					_expression.getUnit().format(_unitSystem);
+			_calculated = true;
+			return _value;
 		}
 	}
 
