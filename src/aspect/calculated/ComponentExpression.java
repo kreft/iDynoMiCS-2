@@ -22,8 +22,7 @@ public class ComponentExpression extends Calculated {
 	@Override
 	public void setInput(String input)
 	{
-		this._input = input;
-		this.expression = new Expression( input.replaceAll("\\s+","") );
+		this.expression = new Expression( input );
 	}
 	
 	@Override

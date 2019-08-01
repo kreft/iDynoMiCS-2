@@ -14,11 +14,14 @@ import dataIO.Log.Tier;
 import instantiable.object.InstantiableMap;
 import dataIO.Log;
 import dataIO.XmlHandler;
+import expression.Unit.SI;
+import idynomics.Idynomics;
 import referenceLibrary.XmlRef;
 import settable.Attribute;
 import settable.Module;
 import settable.Settable;
 import settable.Module.Requirements;
+import utility.GenericTrio;
 import utility.Helper;
 
 /**
@@ -182,13 +185,16 @@ public class Expression extends Component implements Settable
 		/* Build the component. */
 		this.build();
 
-		
+	}
+	
+	private double modifier( Map<SI,GenericTrio<SI,String,Double>> unitSystem )
+	{
 		if (this._unit != null)
-		{
-			this._a = new Multiplication(
-					new Constant( "unit modifier", this._unit.modifier() ), 
-					_a);
-		}
+			if ( unitSystem != null)
+				return this._unit.format(unitSystem);
+			else
+				return this._unit.modifier();
+		return 1.0;
 	}
 	
 	public Unit getUnit()
@@ -689,9 +695,13 @@ public class Expression extends Component implements Settable
 
 	@Override
 	public String reportEvaluation(Map<String, Double> variables) {
-		return this._a.reportEvaluation(variables);
+		return new Multiplication(_a, new Constant("unit Conversion", 
+				this.format( Idynomics.unitSystem ))).reportEvaluation(variables);
 	}
 
+	/**
+	 * NOTE: calculating expression but not correcting for unit system
+	 */
 	@Override
 	protected double calculateValue(Map<String, Double> variables) 
 	{
@@ -699,12 +709,33 @@ public class Expression extends Component implements Settable
 	}
 	
 	/**
-	 * get Value for expressions where no variables are used
+	 * get Value for expressions where no variables are used, applying iDynoMiCS
+	 * base units
 	 * @return double
 	 */
 	public double getValue()
 	{
-		return this.getValue(new HashMap<String,Double>());
+		return this.format( Idynomics.unitSystem );
+	}
+	
+	/**
+	 * get Value for expressions where variables are used, applying iDynoMiCS
+	 * base units
+	 * @return double
+	 */
+	public double format( Map<String,Double> variables, 
+			Map<SI,GenericTrio<SI, String, Double>> unitSystem )
+	{
+		return this.getValue( variables ) * this.modifier( unitSystem );
+	}
+	
+	/**
+	 * get Value for expressions where no variables are used
+	 * @return double
+	 */
+	public double format( Map<SI,GenericTrio<SI, String, Double>> unitSystem )
+	{
+		return this.format(new HashMap<String,Double>(), unitSystem );
 	}
 
 	@Override

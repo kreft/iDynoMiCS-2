@@ -302,7 +302,6 @@ public class Unit {
 	 */
 	public void fromString(String units)
 	{
-		
 		/* replace all unit braces and all white space */
 		units = units.replaceAll("\\[", "");
 		units = units.replaceAll("\\]", "");
@@ -423,6 +422,10 @@ public class Unit {
 				this.mutation( SI.m, update );
 				this.modifier *= Math.pow( 1.0e-6, power );
 				break;
+			case "um" :
+				this.mutation( SI.m, update );
+				this.modifier *= Math.pow( 1.0e-6, power );
+				break;
 			case "nm" :
 				this.mutation( SI.m, update );
 				this.modifier *= Math.pow( 1.0e-9, power );
@@ -447,6 +450,10 @@ public class Unit {
 				this.modifier *= Math.pow( 1.0e-6, power );
 				break;
 			case "µg" :
+				this.mutation( SI.kg, update );
+				this.modifier *= Math.pow( 1.0e-9, power );
+				break;
+			case "ug" :
 				this.mutation( SI.kg, update );
 				this.modifier *= Math.pow( 1.0e-9, power );
 				break;
@@ -483,6 +490,10 @@ public class Unit {
 				this.mutation( SI.mol, update );
 				this.modifier *= Math.pow( 1.0e-6, power );
 				break;
+			case "umol" :
+				this.mutation( SI.mol, update );
+				this.modifier *= Math.pow( 1.0e-6, power );
+				break;
 			case "nmol" :
 				this.mutation( SI.mol, update );
 				this.modifier *= Math.pow( 1.0e-9, power );
@@ -515,6 +526,10 @@ public class Unit {
 				this.update("l", update);
 				this.modifier *= Math.pow( 1.0e-6, power );
 				break;
+			case "ul" :
+				this.update("l", update);
+				this.modifier *= Math.pow( 1.0e-6, power );
+				break;
 			case "nl" :
 				this.update("l", update);
 				this.modifier *= Math.pow( 1.0e-9, power );
@@ -541,6 +556,10 @@ public class Unit {
 				this.modifier *= Math.pow( 0.001, power );
 				break;
 			case "µN" :
+				this.update("N", update);
+				this.modifier *= Math.pow( 1.0e-6, power );
+				break;
+			case "uN" :
 				this.update("N", update);
 				this.modifier *= Math.pow( 1.0e-6, power );
 				break;
@@ -572,6 +591,10 @@ public class Unit {
 				this.update("J", update);
 				this.modifier *= Math.pow( 1.0e-6, power );
 				break;
+			case "uJ" :
+				this.update("J", update);
+				this.modifier *= Math.pow( 1.0e-6, power );
+				break;
 			case "nJ" :
 				this.update("J", update);
 				this.modifier *= Math.pow( 1.0e-9, power );
@@ -595,6 +618,10 @@ public class Unit {
 				this.modifier *= Math.pow( 0.001, power );
 				break;
 			case "µcal" :
+				this.update("cal", update);
+				this.modifier *= Math.pow( 1.0e-6, power );
+				break;
+			case "ucal" :
 				this.update("cal", update);
 				this.modifier *= Math.pow( 1.0e-6, power );
 				break;
@@ -627,6 +654,10 @@ public class Unit {
 				this.modifier *= Math.pow( 0.001, power );
 				break;
 			case "µW" :
+				this.update("W", update);
+				this.modifier *= Math.pow( 1.0e-6, power );
+				break;
+			case "uW" :
 				this.update("W", update);
 				this.modifier *= Math.pow( 1.0e-6, power );
 				break;
