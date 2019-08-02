@@ -268,7 +268,9 @@ public abstract class SphericalShape extends Shape
 		}
 		case PHI:
 		{
-			if ( radiusC == null )
+			/* If R only stores a single voxel, it is most 
+			 * probably not set already -> check again later */
+			if ( radiusC.getNVoxel() == 1 )
 			{
 				this._rcStorage.put(dName, resC);
 				return;
@@ -291,7 +293,9 @@ public abstract class SphericalShape extends Shape
 		case THETA:
 		{
 			ResolutionCalculator[] phiC = this._resCalc[1][0];
-			if ( radiusC == null || phiC == null )
+			/* If R or PHI only store a single voxel, they are most 
+			 * probably not set already -> check again later */
+			if ( radiusC.getNVoxel() == 1 || phiC[phiC.length - 1].getNVoxel() == 1 )
 			{
 				this._rcStorage.put(dName, resC);
 				return;
