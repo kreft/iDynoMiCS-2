@@ -91,7 +91,7 @@ public final class GuiConsole
 		                evt.getTransferable().getTransferData(
 		                		DataFlavor.javaFileListFlavor);
 		            if ( droppedFiles.size() > 1 )
-		            	Log.out(Tier.QUIET, "Unable to open multiple files at "
+		            	Log.out(Tier.CRITICAL, "Unable to open multiple files at "
 		            			+ "once");
 		            else if ( Idynomics.simulator != null )
 		            {
@@ -217,6 +217,16 @@ public final class GuiConsole
   	private static void write(String message, AttributeSet a)
   	{
   		Document doc =	_console.getDocument();
+  		/* Too many characters in the gui will make it slow */
+  		if (doc.getLength() > 100000 )
+  		{
+			try {
+				/* keep the top bit with storage location and start time */
+				doc.remove(2000, 12000);
+			} catch (BadLocationException e1) {
+				e1.printStackTrace();
+			}
+  		}
   		try
   		{
   			doc.insertString(doc.getLength(), message, a);

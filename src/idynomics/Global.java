@@ -145,7 +145,15 @@ public class Global extends ParameterSet
 	/**
 	 * default output location
 	 */
-	public String default_out = "default_out";
+	public static String default_out = "default_out";
+	
+	/**
+	 * Allows to disable writing anything to disc
+	 * 
+	 * useful in scenario's where output do not need to be stored such as with 
+	 * unit tests
+	 */
+	public static boolean write_to_disc = true;
 	
 	/**
 	 * console font
@@ -219,9 +227,6 @@ public class Global extends ParameterSet
 	 */
 	public static String[] supplementary_property_files;
 
-	public static double densityScale = 1.0;
-
-
 	/**************************************************************************
 	 * Appearance
 	 *************************************************************************/
@@ -246,6 +251,16 @@ public class Global extends ParameterSet
 	public static double relativeThresholdWellMixedness = 0.9;
 	
 	/**
+	 * Only determine location of agent based on primary mass point
+	 */
+	public static boolean fastAgentDistribution = true;
+		
+	/**
+	 * dynamic viscosity of the medium
+	 */
+	public static double dynamic_viscosity = 0.0;
+	
+	/**
 	 * 
 	 */
 	public static double collision_scalar = 0.0;
@@ -256,8 +271,59 @@ public class Global extends ParameterSet
 	public static double pull_scalar = 0.0;
 	
 	/**
-	 * dynamic viscosity of the medium
+	 * 
 	 */
-	public static double dynamic_viscosity = 0.0;
+	public static double agent_move_safety = 0.001;
+	
+	/**
+	 * default density difference of microbial cells with medium
+	 */
+	public static double density_difference = 0.1;
+	
+	/**
+	 * stress scaling introduced to prevent incompatibility with old protocol
+	 * files that use the old function, this should be 1 for all new protocol
+	 * files and should be removed as soon as all protocols have been updated.
+	 */
+	public static double agent_stress_scaling = 100000;
+	
+	/**
+	 * pass additional collision variables (required for more advanced collision
+	 * models but may cause slight slow down for models that do not use them).
+	 */
+	public static boolean additional_collision_variables = true;
+	
+	/**
+	 * Collision model
+	 */
+	public static String collision_model = 
+			surface.collision.model.DefaultPushFunction.class.getName();
+	
+	/**
+	 * Attraction model
+	 */
+	public static String attraction_model = 
+			surface.collision.model.DefaultPullFunction.class.getName();
+	
+	/**
+	 * Default base time step.
+	 */
+	public static double mechanical_base_step = 0.0003;
+	
+	/* 
+	 * Default maximum displacement per step, set default if none.
+	 */
+	public static double mechanical_max_movement = 0.01;
+	
+	/* 
+	 * Default maximum displacement per step, set default if none.
+	 */
+	public static Integer mechanical_max_iterations = 10000;
+	
+	/*
+	 * Default mechanical stress threshold at which a system may be considered
+	 * relaxed.
+	 */
+	public static double mechanical_low_stress_skip = 0.0;
 	
 }

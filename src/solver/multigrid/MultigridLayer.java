@@ -37,10 +37,6 @@ public class MultigridLayer
 	 * in extreme cases, both) of these may be null.
 	 */
 	private MultigridLayer _coarser, _finer;
-	/**
-	 * Private internal logging level.
-	 */
-	private final static Tier LEVEL = Tier.DEBUG;
 	
 	/* ***********************************************************************
 	 * CONSTRUCTION
@@ -243,12 +239,6 @@ public class MultigridLayer
 			}
 			this._grid.setValueAtCurrent(finerType, newValue/totalVolume);
 		}
-		/* Logging */
-		if ( Log.shouldWrite(LEVEL) )
-		{
-			tock = System.currentTimeMillis();
-			Log.out(LEVEL, "fillArrayFromCoarser took "+(tock - tick)+" mS");
-		}
 	}
 	
 	/**
@@ -335,6 +325,8 @@ public class MultigridLayer
 			 */
 			newValue = (fracOfNewValueUsed * newValue) +
 					(fracOfOldValueKept * this._grid.getValueAtCurrent(coarserType));
+			if ( grid.ArrayType.CONCN.equals(coarserType) && newValue < 0.0 )
+				newValue = 0.0;
 			this._grid.setValueAt(coarserType, current, newValue);
 		}
 	}

@@ -67,8 +67,6 @@ public class XmlExport
 		String fileString = Idynomics.global.outputLocation + prefix + "/" 
 				+ prefix + "_" + this.fileNumberAsPaddedString() + ".xml";
 		this._xmlFile.fnew(fileString);
-		Log.out(Tier.EXPRESSIVE, "Writing new file: " + fileString);
-
 		this._xmlFile.write(XML_HEADER);
 	}
 	

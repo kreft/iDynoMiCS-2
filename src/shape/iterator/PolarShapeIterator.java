@@ -10,6 +10,7 @@ import static shape.iterator.ShapeIterator.WhereAmI.UNDEFINED;
 import java.util.Arrays;
 
 import dataIO.Log;
+import dataIO.Log.Tier;
 import linearAlgebra.Vector;
 import shape.Dimension;
 import shape.Shape;
@@ -46,11 +47,6 @@ public abstract class PolarShapeIterator extends ShapeIterator
 	 */
 	protected boolean setNbhFirstInNewShell(int shellIndex)
 	{
-		if ( Log.shouldWrite(NHB_ITER_LEVEL) )
-		{
-			Log.out(NHB_ITER_LEVEL, "trying to set neighbor in new shell "+
-				shellIndex);
-		}
 		Vector.copyTo(this._currentNeighbor, this._currentCoord);
 		this._currentNeighbor[0] = shellIndex;
 		/*
@@ -61,16 +57,14 @@ public abstract class PolarShapeIterator extends ShapeIterator
 		WhereAmI where = this.whereIsNhb(R);
 		if ( where == UNDEFINED )
 		{
-			if ( Log.shouldWrite(NHB_ITER_LEVEL) )
-				Log.out(NHB_ITER_LEVEL, "  failure, R on undefined boundary");
+			if ( Log.shouldWrite(Tier.DEBUG) )
+				Log.out(Tier.DEBUG, "  failure, R on undefined boundary");
 			this._whereIsNhb = where;
 			return false;
 		}
 		if ( where == DEFINED || where == CYCLIC)
 		{
 			this._whereIsNhb = where;
-			if ( Log.shouldWrite(NHB_ITER_LEVEL) )
-				Log.out(NHB_ITER_LEVEL, "  success on "+ where +" boundary");
 			return true;
 		}
 		/*
@@ -86,8 +80,6 @@ public abstract class PolarShapeIterator extends ShapeIterator
 		this._currentNeighbor[1] = new_index;
 
 		this._whereIsNhb = WhereAmI.INSIDE;
-		if ( Log.shouldWrite(NHB_ITER_LEVEL) )
-			Log.out(NHB_ITER_LEVEL, "  success with index "+new_index);
 		return true;
 	}
 	
@@ -100,16 +92,12 @@ public abstract class PolarShapeIterator extends ShapeIterator
 	 */
 	protected boolean increaseNbhByOnePolar(DimName dim)
 	{
-		Log.out(NHB_ITER_LEVEL, "  trying to increase neighbor "
-			  + Arrays.toString(this._currentNeighbor)+" by one polar in "+dim);
 		/* avoid increasing on any boundaries */
 		int index = this._shape.getDimensionIndex(dim);
 		if ((dim == THETA || this._nbhDimName == R)  && this._whereIsNhb != INSIDE) {
-			if ( Log.shouldWrite(NHB_ITER_LEVEL) )
-			{
-				Log.out(NHB_ITER_LEVEL, "  failure: already on "+
+			if ( Log.shouldWrite(Tier.DEBUG) )
+				Log.out(Tier.DEBUG, "  failure: already on "+
 						this._nbhDimName+ " boundary, no point increasing");
-			}
 			return false;
 		}
 		Dimension dimension = this._shape.getDimension(dim);
@@ -117,11 +105,6 @@ public abstract class PolarShapeIterator extends ShapeIterator
 		/* If we are already on the maximum boundary, we cannot go further. */
 		if ( this._currentNeighbor[index] > rC.getNVoxel() - 1 )
 		{
-			if ( Log.shouldWrite(NHB_ITER_LEVEL) )
-			{
-				Log.out(NHB_ITER_LEVEL,
-						"  failure: already on maximum boundary");
-			}
 			return false;
 		}
 		/* Do not allow the neighbor to be on an undefined maximum boundary. */
@@ -133,20 +116,10 @@ public abstract class PolarShapeIterator extends ShapeIterator
 					return false;
 				this._currentNeighbor[index]++;
 				this._whereIsNhb = this.whereIsNhb(dim);
-				if ( Log.shouldWrite(NHB_ITER_LEVEL) )
-				{
-					Log.out(NHB_ITER_LEVEL, "  success on "+this._whereIsNhb 
-							+ " boundary");
-				}
 				return true;
 			}	
 			else
 			{
-				if ( Log.shouldWrite(NHB_ITER_LEVEL) )
-				{
-					Log.out(NHB_ITER_LEVEL, "  failure on "+this._whereIsNhb 
-							+ " boundary");
-				}
 				return false;
 			}
 		}
@@ -156,11 +129,6 @@ public abstract class PolarShapeIterator extends ShapeIterator
 		 * All checks have passed, so increase and report success.
 		 */
 		this._currentNeighbor[index]++;
-		if ( Log.shouldWrite(NHB_ITER_LEVEL) )
-		{
-			Log.out(NHB_ITER_LEVEL, "  success, new nbh coord is "
-					+ this._currentNeighbor[index]);
-		}
 		return true;
 	}
 	
@@ -184,9 +152,9 @@ public abstract class PolarShapeIterator extends ShapeIterator
 		if ( nbhMin >= curMax || 
 				ExtraMath.areEqual(nbhMin, curMax, POLAR_ANGLE_EQ_TOL) )
 		{
-			if ( Log.shouldWrite(NHB_ITER_LEVEL) )
+			if ( Log.shouldWrite(Tier.DEBUG) )
 			{
-				Log.out(NHB_ITER_LEVEL, "  failure: nhb min greater or "
+				Log.out(Tier.DEBUG, "  failure: nhb min greater or "
 						+ "approximately equal to current max");
 			}
 			return true;

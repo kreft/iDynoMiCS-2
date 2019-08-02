@@ -11,17 +11,24 @@ import java.util.Map;
 import org.w3c.dom.Element;
 
 import agent.Agent;
+import compartment.AgentContainer;
+import compartment.EnvironmentContainer;
+import dataIO.Log;
+import dataIO.Log.Tier;
 import dataIO.ObjectFactory;
+import dataIO.XmlHandler;
 import grid.SpatialGrid;
-import idynomics.AgentContainer;
-import idynomics.EnvironmentContainer;
+import linearAlgebra.Matrix;
+import linearAlgebra.Vector;
 import processManager.ProcessDiffusion;
 import processManager.ProcessMethods;
 import reaction.RegularReaction;
 import reaction.Reaction;
+import referenceLibrary.AspectRef;
 import referenceLibrary.XmlRef;
 import shape.Shape;
 import shape.subvoxel.CoordinateMap;
+import shape.subvoxel.IntegerArray;
 import solver.PDEmultigrid;
 import solver.PDEupdater;
 
@@ -34,6 +41,10 @@ import solver.PDEupdater;
  */
 public class SolveDiffusionSteadyState extends ProcessDiffusion
 {
+	public static String ABS_TOLERANCE = AspectRef.solverAbsTolerance;
+	
+	public static String REL_TOLERANCE = AspectRef.solverRelTolerance;
+	
 	/* ***********************************************************************
 	 * CONSTRUCTORS
 	 * **********************************************************************/
@@ -48,9 +59,17 @@ public class SolveDiffusionSteadyState extends ProcessDiffusion
 			AgentContainer agents, String compartmentName)
 	{
 		super.init(xmlElem, environment, agents, compartmentName);
+		
+		double absTol = (double) this.getOr(ABS_TOLERANCE, 1.0e-18);
+		
+		double relTol = (double) this.getOr(REL_TOLERANCE, 1.0e-18);
 
 		// TODO Let the user choose which ODEsolver to use.
 		this._solver = new PDEmultigrid();
+		
+		this._solver.setAbsoluteTolerance(absTol);
+		
+		this._solver.setRelativeTolerance(relTol);
 
 	}
 	
@@ -133,8 +152,8 @@ public class SolveDiffusionSteadyState extends ProcessDiffusion
 		 * more to do.
 		 */
 		@SuppressWarnings("unchecked")
-		List<RegularReaction> reactions = 
-				(List<RegularReaction>) agent.getValue(XmlRef.reactions);
+		List<Reaction> reactions = 
+				(List<Reaction>) agent.getValue(XmlRef.reactions);
 		if ( reactions == null )
 			return;
 		/*
@@ -143,10 +162,9 @@ public class SolveDiffusionSteadyState extends ProcessDiffusion
 		 */
 		Shape shape = variables.iterator().next().getShape();
 		@SuppressWarnings("unchecked")
-		Map<Shape, CoordinateMap> mapOfMaps = (Map<Shape, CoordinateMap>)
+		Map<Shape, HashMap<IntegerArray,Double>> mapOfMaps = (Map<Shape, HashMap<IntegerArray,Double>>)
 						agent.getValue(VOLUME_DISTRIBUTION_MAP);
-		CoordinateMap distributionMap = mapOfMaps.get(shape);
-		distributionMap.scale();
+		HashMap<IntegerArray,Double> distributionMap = mapOfMaps.get(shape);
 		/*
 		 * Get the agent biomass kinds as a map. Copy it now so that we can
 		 * use this copy to store the changes.
@@ -156,12 +174,11 @@ public class SolveDiffusionSteadyState extends ProcessDiffusion
 		 * Now look at all the voxels this agent covers.
 		 */
 		Map<String,Double> concns = new HashMap<String,Double>();
-		Map<String,Double> stoichiometry;
 		SpatialGrid solute;
-		double concn, rate, productRate, volume, perVolume;
-		for ( int[] coord : distributionMap.keySet() )
+		double concn, productRate, volume, perVolume;
+		for ( IntegerArray coord : distributionMap.keySet() )
 		{
-			volume = shape.getVoxelVolume(coord);
+			volume = shape.getVoxelVolume(coord.get());
 			perVolume = 1.0/volume;
 			for ( Reaction r : reactions )
 			{
@@ -177,7 +194,7 @@ public class SolveDiffusionSteadyState extends ProcessDiffusion
 				{
 					solute = FindGrid(variables, varName);
 					if ( solute != null )
-						concn = solute.getValueAt(CONCN, coord);
+						concn = solute.getValueAt(CONCN, coord.get());
 					else if ( biomass.containsKey(varName) )
 					{
 						concn = biomass.get(varName) * 
@@ -210,7 +227,7 @@ public class SolveDiffusionSteadyState extends ProcessDiffusion
 					productRate = r.getProductionRate(concns, productName);
 					solute = FindGrid(variables, productName);
 					if ( solute != null )
-						solute.addValueAt(PRODUCTIONRATE, coord, productRate);
+						solute.addValueAt(PRODUCTIONRATE, coord.get(), productRate);
 					/* 
 					 * Unlike in a transient solver, we do not update the agent
 					 * mass here.
@@ -244,11 +261,10 @@ public class SolveDiffusionSteadyState extends ProcessDiffusion
 		 * one.
 		 */
 		@SuppressWarnings("unchecked")
-		Map<Shape, CoordinateMap> mapOfMaps = (Map<Shape, CoordinateMap>)
+		Map<Shape, HashMap<IntegerArray,Double>> mapOfMaps = (Map<Shape, HashMap<IntegerArray,Double>>)
 						agent.getValue(VOLUME_DISTRIBUTION_MAP);
-		CoordinateMap distributionMap = 
+		HashMap<IntegerArray,Double> distributionMap = 
 				mapOfMaps.get(agent.getCompartment().getShape());
-		distributionMap.scale();
 		/*
 		 * Get the agent biomass kinds as a map. Copy it now so that we can
 		 * use this copy to store the changes.
@@ -261,13 +277,11 @@ public class SolveDiffusionSteadyState extends ProcessDiffusion
 		 * Now look at all the voxels this agent covers.
 		 */
 		Map<String,Double> concns = new HashMap<String,Double>();
-		Map<String,Double> stoichiometry;
 		SpatialGrid solute;
-		Shape shape = this._agents.getShape();
-		double concn, rate, productRate, volume, perVolume;
-		for ( int[] coord : distributionMap.keySet() )
+		double concn, productRate, volume, perVolume;
+		for ( IntegerArray coord : distributionMap.keySet() )
 		{
-			volume = shape.getVoxelVolume(coord);
+			volume = this._agents.getShape().getVoxelVolume(coord.get());
 			perVolume = 1.0/volume;
 			for ( Reaction r : reactions )
 			{
@@ -284,7 +298,7 @@ public class SolveDiffusionSteadyState extends ProcessDiffusion
 					if ( this._environment.isSoluteName(varName) )
 					{
 						solute = this._environment.getSoluteGrid(varName);
-						concn = solute.getValueAt(CONCN, coord);
+						concn = solute.getValueAt(CONCN, coord.get());
 					}
 					else if ( biomass.containsKey(varName) )
 					{
@@ -313,19 +327,18 @@ public class SolveDiffusionSteadyState extends ProcessDiffusion
 				 * stoichiometry may not be the same as those in the reaction
 				 * variables (although there is likely to be a large overlap).
 				 */
-				double dt = this.getTimeStepSize();
 				for ( String productName : r.getReactantNames() )
 				{
 					productRate = r.getProductionRate(concns,productName);
 					if ( this._environment.isSoluteName(productName) )
 					{
 						solute = this._environment.getSoluteGrid(productName);
-						solute.addValueAt(PRODUCTIONRATE, coord, productRate);
+						solute.addValueAt(PRODUCTIONRATE, coord.get(), productRate);
 					}
 					else if ( newBiomass.containsKey(productName) )
 					{
 						newBiomass.put(productName, newBiomass.get(productName)
-								+ (productRate * dt * volume));
+								+ (productRate * this.getTimeStepSize() * volume));
 					}
 					else if ( agent.isAspect(productName) )
 					{
@@ -334,12 +347,12 @@ public class SolveDiffusionSteadyState extends ProcessDiffusion
 						 * (e.g. EPS).
 						 */
 						newBiomass.put(productName, agent.getDouble(productName)
-								+ (productRate * dt * volume));
+								+ (productRate * this.getTimeStepSize() * volume));
 					}
 					else
 					{
 						//TODO quick fix If not defined elsewhere add it to the map
-						newBiomass.put(productName, (productRate * dt * volume));
+						newBiomass.put(productName, (productRate * this.getTimeStepSize() * volume));
 						System.out.println("agent reaction catched " + 
 								productName);
 						// TODO safety?

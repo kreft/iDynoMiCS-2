@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document>
-	<simulation name="Smith3D_big" outputfolder="../results" log="DEBUG" randomSeed="22"
-						comment="this is a file for testing purposes only.">
+	<simulation name="Smith3D_big" outputfolder="../results" log="DEBUG" 
+		randomSeed="22"	comment="this is a file for testing purposes only."
+		configuration="config/models/arbitrary_testing_01.cfg">
 		
 		<timer stepSize="1.0" endOfSimulation="30.0" />
 		
@@ -41,6 +42,7 @@
 		</speciesLib>
 
 		<compartment name="second">
+			<orientation variable="0.0,0.0,1.0" />
 			<shape class="Cuboid">
 				<dimension name="X" isCyclic="true" targetResolution="1" max="32.0">
 				</dimension> 

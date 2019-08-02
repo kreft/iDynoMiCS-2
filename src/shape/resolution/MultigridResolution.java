@@ -4,6 +4,11 @@ import shape.Dimension;
 import shape.ShapeConventions.SingleVoxel;
 import utility.ExtraMath;
 
+/**
+ * TODO description and author information
+ * @author Stefan Lang @ Robert Clegg?
+ *
+ */
 public class MultigridResolution extends ResolutionCalculator
 {
 	public MultigridResolution()

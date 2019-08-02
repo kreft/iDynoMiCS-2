@@ -112,7 +112,7 @@ public class GuiEditor
 					component.setVisible(false);
 					if (tabs.getParent() != null)
 						tabs.getParent().remove(tabs);
-					
+					GuiActions.loadCurrentState();
 				}
 			}
 			));
@@ -138,6 +138,7 @@ public class GuiEditor
 					public void actionPerformed(ActionEvent event)
 					{
 						addComponent(node.constructChild(c), component);
+						GuiActions.loadCurrentState();
 					}
 				}
 				));
@@ -218,7 +219,7 @@ public class GuiEditor
 		else if ( node.isTagIn(new String[] 
 				/* compartment container nodes */
 				{XmlRef.agents, XmlRef.solutes, XmlRef.processManagers, 
-				XmlRef.reactions, XmlRef.environment}) )
+				XmlRef.reactions, XmlRef.environment, XmlRef.objects}) )
 		{
 			hostPane = (JTabbedPane) 
 					parent.getParent().getParent().getParent();

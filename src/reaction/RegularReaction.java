@@ -7,13 +7,13 @@ import java.util.Map;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
+import compartment.EnvironmentContainer;
 import dataIO.Log;
 import dataIO.ObjectFactory;
 import dataIO.XmlHandler;
 import expression.Component;
 import expression.Expression;
 import generalInterfaces.Copyable;
-import idynomics.EnvironmentContainer;
 import instantiable.Instantiable;
 import instantiable.object.InstantiableList;
 import instantiable.object.InstantiableMap;
@@ -297,11 +297,21 @@ public class RegularReaction
 	public double getProductionRate(Map<String, Double> concentrations, 
 														String reactantName)
 	{
-		reaction_tally++;
-		if( reaction_tally/1000.0 == Math.round(reaction_tally/1000.0) && Log.shouldWrite(Log.Tier.DEBUG))
-			Log.out(Log.Tier.DEBUG, reaction_tally + " reactions");
+		checkNegatives(concentrations);
+//		reaction_tally++;
+//		if( reaction_tally/1000.0 == Math.round(reaction_tally/1000.0) && Log.shouldWrite(Log.Tier.DEBUG))
+//			Log.out(Log.Tier.DEBUG, reaction_tally + " reactions");
 		return this.getStoichiometry(reactantName) * 
 											this.getRate(concentrations);
+	}
+	
+	private void checkNegatives( Map<String, Double> concentrations )
+	{
+		for ( String s : concentrations.keySet() )
+		{
+			if( concentrations.get(s) < 0.0 )
+				System.out.println( s + " "  + concentrations.get(s) );
+		}
 	}
 	
 	/**

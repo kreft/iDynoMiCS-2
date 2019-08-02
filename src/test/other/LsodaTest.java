@@ -1,6 +1,6 @@
 package test.other;
 
-import test.junit.Lsoda;
+import test.junit.oldTests.Lsoda;
 
 public class LsodaTest {
 	

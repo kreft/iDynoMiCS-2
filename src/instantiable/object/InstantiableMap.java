@@ -8,6 +8,7 @@ import dataIO.ObjectFactory;
 import dataIO.XmlHandler;
 import generalInterfaces.Copyable;
 import idynomics.Idynomics;
+import instantiable.Instance;
 import instantiable.Instantiable;
 import referenceLibrary.XmlRef;
 import settable.Attribute;

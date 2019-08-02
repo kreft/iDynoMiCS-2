@@ -113,6 +113,7 @@ public class ClassRef
 		{
 			return name.split("\\$")[0] + "$";
 		}
+		name = name.replaceAll("\\[\\]", "");
 		String[] parts = name.split("\\.");
 		String[] path = name.split(parts[parts.length-1]);
 		return path[0];
@@ -170,6 +171,19 @@ public class ClassRef
 	 */
 	public final static String wetWeight = 
 			aspect.calculated.WetWeight.class.getName();
+	
+	/**
+	 * 
+	 */
+	public final static String densityScaled = 
+			aspect.calculated.DensityScaled.class.getName();
+	
+	/**
+	 * 
+	 */
+	public final static String numberWithUnit = 
+			aspect.calculated.NumberWithUnit.class.getName();
+	
 	
 	/* ************************************************************************
 	 * Class reference library : Aspects - Event
@@ -231,15 +245,30 @@ public class ClassRef
 	
 	/**
 	 * the stochastic move event
+	 * TODO review use of StochasticMove in protocol files and update to new
+	 * naming convention.
 	 */
 	public final static String stochasticMove =
-			aspect.event.StochasticMove.class.getName();
+			aspect.event.intermittentRandomMovement.class.getName();
 	
 	/**
 	 * the update body event
 	 */
 	public final static String updateBody =
 			aspect.event.UpdateBody.class.getName();
+	
+	/**
+	 * the update body event for surface scaled 2D simulations
+	 */
+	public final static String updateBodySurfaceScaled =
+			aspect.event.UpdateBodySurfaceScaled.class.getName();
+	
+	/**
+	 * the update species modules when passing threshold
+	 */
+	public final static String differentiate =
+			aspect.event.Differentiate.class.getName();
+	
 	
 	/**
 	 * the plasmid loss event
@@ -370,13 +399,26 @@ public class ClassRef
 	 * the compartment class
 	 */
 	public final static String compartment =
-			idynomics.Compartment.class.getName();
+			compartment.Compartment.class.getName();
 	
 	/**
 	 * TODO
 	 */
 	public final static String speciesLibrary =
 			agent.SpeciesLib.class.getName();
+	
+	/* ************************************************************************
+	 * spawners
+	 */
+	
+	public final static String randomSpawner =
+			compartment.agentStaging.RandomSpawner.class.getName();
+	
+	public final static String distributedSpawner =
+			compartment.agentStaging.DistributedSpawner.class.getName();
+	
+	public final static String epithelialLayerSpawner = 
+			compartment.agentStaging.EpithelialLayerSpawner.class.getName();
 	
 	/* ************************************************************************
 	 * Boundaries (non-spatial)
@@ -399,6 +441,9 @@ public class ClassRef
 	
 	public final static String gasToMembrane =
 			boundary.library.GasToMembrane.class.getName();
+	
+	public final static String membraneToChemostat =
+			boundary.library.MembraneToChemostat.class.getName();
 	
 	/* ************************************************************************
 	 * Boundaries (spatial)
@@ -466,6 +511,26 @@ public class ClassRef
 			shape.ShapeLibrary.Sphere.class.getName();
 	
 	/* ************************************************************************
+	 * collision and attraction functions
+	 */	
+	
+	/**
+	 * TODO
+	 */
+	public final static String defaultPushFunction =
+			surface.collision.model.DefaultPushFunction.class.getName();
+	/**
+	 * TODO
+	 */
+	public final static String HerzSoftSphere =
+			surface.collision.model.HerzSoftSphere.class.getName();
+	/**
+	 * TODO
+	 */
+	public final static String defaultPullFunction =
+			surface.collision.model.DefaultPullFunction.class.getName();
+	
+	/* ************************************************************************
 	 * Shapes - resolution calculators
 	 */
 	
@@ -517,8 +582,6 @@ public class ClassRef
 	public static final String reaction =
 			reaction.RegularReaction.class.getName();
 	
-	
-	
 	/**
 	 * TODO
 	 */
@@ -558,7 +621,7 @@ public class ClassRef
 	 */
 	public final static String string =
 			String.class.getName();
-			
+	
 	/**		
 	* String		
 	*/		
@@ -580,5 +643,8 @@ public class ClassRef
 	 */
 	public static final String chemical = 
 			chemical.Chemical.class.getName();
+
+	public static final String orientation = 
+			linearAlgebra.Orientation.class.getName();
 
 }

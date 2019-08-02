@@ -3,8 +3,6 @@ package analysis.quantitative;
 import java.util.LinkedList;
 import java.util.List;
 
-import idynomics.AgentContainer;
-import idynomics.Compartment;
 import instantiable.Instance;
 import linearAlgebra.Array;
 import linearAlgebra.Vector;
@@ -23,6 +21,8 @@ import analysis.FilterLogic;
 import analysis.filter.Filter;
 import analysis.toolset.LinearRegression;
 import aspect.AspectInterface;
+import compartment.AgentContainer;
+import compartment.Compartment;
 import dataIO.CsvExport;
 import dataIO.GraphicalExporter;
 import dataIO.Log;

@@ -1,6 +1,6 @@
 package test.other;
 
-import test.junit.RateExpressionTest;
+import test.junit.oldTests.RateExpressionTest;
 
 public class ExpressionTesting {
 

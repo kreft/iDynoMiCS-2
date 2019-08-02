@@ -2,11 +2,16 @@ package surface;
 
 import java.util.LinkedList;
 
+import org.w3c.dom.Element;
+
 import dataIO.Log;
 import dataIO.Log.Tier;
 import generalInterfaces.HasBoundingBox;
+import settable.Module;
 import shape.Shape;
 import surface.BoundingBox;
+import utility.Helper;
+import utility.StandardizedImportMethods;
 
 /**
  * \brief TODO
@@ -16,24 +21,35 @@ import surface.BoundingBox;
 public class Voxel extends Surface implements HasBoundingBox {
 	
 	/**
-	 * TODO
+	 * Lower corner at position 0, voxel dimensions at position 1
 	 */
-	protected double[] _dimensions;
+	private Point[] _points = new Point[2];
 
-	/**
-	 * TODO
-	 */
-	protected double[] _lower;
-    
     public Voxel(double[] lower, double[] dimensions)
     {
-    	this._lower = lower;
-    	this._dimensions = dimensions;
+    	this.setLower(lower);
+    	this.setDimensions(dimensions);
     }
 	
 	public Voxel(LinkedList<double[]> points)
 	{
 		//TODO
+	}
+	
+	public Voxel(Element xmlElem)
+	{
+		if( !Helper.isNullOrEmpty( xmlElem ))
+		{
+			this._points = StandardizedImportMethods.
+					pointImport(xmlElem, this, 2);
+		}
+	}
+	
+	public Module appendToModule(Module modelNode) 
+	{
+		for (Point p : _points )
+			modelNode.add(p.getModule() );
+		return modelNode;
 	}
 
 	public Type type() {
@@ -43,7 +59,7 @@ public class Voxel extends Surface implements HasBoundingBox {
 	@Override
 	public int dimensions() 
 	{
-		return this._dimensions.length;
+		return this._points[0].nDim();
 	}
 	
 	protected BoundingBox boundingBox = new BoundingBox();
@@ -63,6 +79,26 @@ public class Voxel extends Surface implements HasBoundingBox {
 
 	public BoundingBox boundingBox(Shape shape)
 	{
-		return boundingBox.get(_dimensions,_lower);
+		return boundingBox.get(getDimensions(),getLower());
+	}
+
+	public double[] getLower() 
+	{
+		return _points[0].getPosition();
+	}
+
+	public void setLower(double[] _lower) 
+	{
+		this._points[0] = new Point(_lower);
+	}
+
+	public double[] getDimensions() 
+	{
+		return _points[1].getPosition();
+	}
+
+	public void setDimensions(double[] _dimensions) 
+	{
+		this._points[0] = new Point(_dimensions);
 	}
 }

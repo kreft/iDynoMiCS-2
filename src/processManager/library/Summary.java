@@ -6,13 +6,13 @@ package processManager.library;
 import org.w3c.dom.Element;
 
 import analysis.FilteredTable;
+import compartment.AgentContainer;
+import compartment.EnvironmentContainer;
 import dataIO.CsvExport;
 import dataIO.Log;
 import dataIO.Log.Tier;
 import referenceLibrary.AspectRef;
 import utility.Helper;
-import idynomics.AgentContainer;
-import idynomics.EnvironmentContainer;
 import processManager.ProcessManager;
 
 /**
@@ -54,7 +54,7 @@ public class Summary extends ProcessManager
 	{
 		super.init(xmlElem, environment, agents, compartmentName);
 		/* Create new filtered table from table logic expression */
-		this.table = new FilteredTable( this.getString(TABLE_SPEC) );
+		this.table = new FilteredTable( this.getString(TABLE_SPEC), compartmentName );
 		
 		this.csvOut = this.getString(FILE_NAME);
 		
@@ -82,7 +82,8 @@ public class Summary extends ProcessManager
 	protected void internalStep()
 	{
 		/* output table summary to log/console */
-		Log.out(Tier.NORMAL, table.summary() );
+		if( Log.shouldWrite(Tier.EXPRESSIVE) )
+			Log.out(Tier.EXPRESSIVE, table.summary() );
 		
 		if (! Helper.isNullOrEmpty( this.csvOut ))
 		{

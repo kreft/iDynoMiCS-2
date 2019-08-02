@@ -12,10 +12,10 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import compartment.Compartment;
 import dataIO.Log;
 import dataIO.Log.Tier;
 import gui.GuiConsole;
-import idynomics.Compartment;
 import idynomics.Idynomics;
 import linearAlgebra.Vector;
 
@@ -182,6 +182,16 @@ public final class Helper
 		return obtainInput(out, description, shouldLogMessage);
 	}
 	
+	public static String obtainInput(Object[] options,
+			String description, boolean shouldLogMessage)
+	{
+		String[] out = new String[options.length];
+		int i = 0;
+		for (Object s : options)
+			out[i++] = String.valueOf(s);
+		return obtainInput(out, description, shouldLogMessage);
+	}
+	
 	/**
 	 * \brief Obtain user input as string from a limited set of options.
 	 * 
@@ -261,11 +271,11 @@ public final class Helper
 			return false;
 		else
 		{
-			Log.out(Tier.QUIET, "User input was not recognised, try:\n"
+			Log.printToScreen( "User input was not recognised, try:\n"
 					+ "[Confirming] \n" + 
 					Helper.stringAToString(confirmations) + "\n"
 					+ "[Rejections] \n" +
-					Helper.stringAToString(rejections));
+					Helper.stringAToString(rejections), false);
 			return obtainInput(description, noLog);	
 		}
 	}
@@ -517,6 +527,31 @@ public final class Helper
 		return out;
 	}
 	
+	public static double totalMass(Object massObject)
+	{
+		double totalMass = 0.0;
+		if ( massObject instanceof Double )
+			totalMass = (double) massObject;
+		else if ( massObject instanceof Double[] )
+		{
+			Double[] massArray = (Double[]) massObject;
+			for ( Double m : massArray )
+				totalMass += m;
+		}
+		else if ( massObject instanceof Map )
+		{
+			// TODO assume all mass types used unless specified otherwise
+			@SuppressWarnings("unchecked")
+			Map<String,Double> massMap = (Map<String,Double>) massObject;
+			totalMass = Helper.totalValue(massMap);
+		}
+		else
+		{
+			// TODO safety?
+		}
+		return totalMass;
+	}
+	
 	public static boolean compartmentAvailable()
 	{
 		if (Idynomics.simulator == null || 
@@ -672,6 +707,21 @@ public final class Helper
 		for ( int i = start; i < stop; i++ )
 			out[i-start] = in[i];
 		return out;
+	}
+	
+	/**
+	 * return next available key that is not already present in integer 
+	 * key set
+	 * 
+	 * @param target
+	 * @param keySet
+	 * @return
+	 */
+	public static int nextAvailableKey(int target, Collection<Integer> keySet)
+	{
+		if (keySet.contains(target))
+			return nextAvailableKey( target+1 , keySet );
+		return target;
 	}
 	
 	/**

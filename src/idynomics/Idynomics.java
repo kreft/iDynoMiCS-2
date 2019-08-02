@@ -17,8 +17,12 @@ import dataIO.Log;
 
 import static dataIO.Log.Tier.*;
 
+import java.util.Map;
+
 import dataIO.XmlHandler;
 import dataIO.Log.Tier;
+import expression.Unit;
+import expression.Unit.SI;
 import idynomics.launchable.ConsoleLaunch;
 import idynomics.launchable.ExitCommand;
 import idynomics.launchable.GeneticAlgorithmLaunch;
@@ -28,6 +32,7 @@ import idynomics.launchable.Launchable;
 import idynomics.launchable.ProtocolLaunch;
 import idynomics.launchable.SamplerLaunch;
 import referenceLibrary.XmlRef;
+import utility.GenericTrio;
 import utility.Helper;
 
 /**
@@ -42,6 +47,12 @@ public strictfp class Idynomics
 	 * {@code Simulator} object: there can only be one. 
 	 */
 	public static Simulator simulator;
+	
+	/**
+	 * iDynoMiCS internal unit system.
+	 */
+	final static public Map<SI,GenericTrio<SI, String, Double>> unitSystem = 
+			Unit.formatMap("pg","µm","min");
 	
 	/**
 	 * global parameters
@@ -216,7 +227,7 @@ public strictfp class Idynomics
 		/* prevent writing logFile before tier and location is set */
 			Log.printToScreen("Initiating from: " + protocolPath + 
 				"\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-				+ "~~~~~~~~~~~~~~~~~~~~~~~~\n", false);
+				+ "~~~~~~~~~~~~~~~~~~~~~~~~", false);
 			
 
 		/* 
@@ -232,9 +243,22 @@ public strictfp class Idynomics
 		 */
 		setupGlobals( protocolPath );
 		
-		Log.out(NORMAL, Idynomics.global.simulationComment );
-		Log.out(NORMAL, "Storing results in " + Idynomics.global.outputLocation
-				+ "\n" );
+		if( Log.shouldWrite(Tier.NORMAL) && 
+				!Helper.isNullOrEmpty( Idynomics.global.simulationComment ) )
+			Log.out(NORMAL, "Protocol comments:\n" + 
+					Idynomics.global.simulationComment );
+
+		
+		if( Global.write_to_disc )
+		{
+			if( Log.shouldWrite(Tier.NORMAL) )
+				Log.out(NORMAL, "Storing results in " + 
+						Idynomics.global.outputLocation	);
+		} else {
+			Log.out(CRITICAL, "Warning: Writing to disc is disabled in Global"
+					+ " parameters.");
+		}
+
 		/*
 		 * Create a new Simulator object and intialise it.
 		 */

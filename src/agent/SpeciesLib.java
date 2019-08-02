@@ -52,7 +52,6 @@ public class SpeciesLib implements Instantiable, Settable
 	 */
 	public void instantiate(Element xmlElem, Settable parent)
 	{
-		Log.out(Tier.NORMAL, "Species Library loading...");
 		/* 
 		 * Cycle through all species and add them to the library.
 		 */ 
@@ -74,11 +73,11 @@ public class SpeciesLib implements Instantiable, Settable
 			speciesElem = (Element) nodes.item(i);
 			name = speciesElem.getAttribute(XmlRef.nameAttribute);
 			Species s = (Species) this._species.get(name);
-			Log.out(Tier.EXPRESSIVE,
-					"Species \""+name+"\" loaded into Species Library");
+			if( Log.shouldWrite(Tier.EXPRESSIVE))
+				Log.out(Tier.EXPRESSIVE,
+						"Species \""+name+"\" loaded into Species Library");
 			this.loadSpeciesModules(speciesElem, s);
 		}
-		Log.out(Tier.NORMAL, "Species Library loaded!\n");
 	}
 	
 	public void loadSpeciesModules(Node xmlElem, Species species)
@@ -89,8 +88,9 @@ public class SpeciesLib implements Instantiable, Settable
 		{
 			Element s = (Element) nodes.item(i);
 			name = s.getAttribute(XmlRef.nameAttribute);
-			Log.out(Tier.DEBUG, "Loading SpeciesModule \""+name+"\"");
-			species._aspectRegistry.addSubModule(
+			if( Log.shouldWrite(Tier.DEBUG))
+				Log.out(Tier.DEBUG, "Loading SpeciesModule \""+name+"\"");
+			species._aspectRegistry.addModule(
 					this.get(name), name );
 		}
 	}
@@ -104,7 +104,7 @@ public class SpeciesLib implements Instantiable, Settable
 	 */
 	public void set(String name, AspectInterface species)
 	{
-		if ( this._species.containsKey(name) )
+		if ( this._species.containsKey(name) && Log.shouldWrite(Tier.EXPRESSIVE))
 			Log.out(Tier.EXPRESSIVE, "Warning: overwriting species "+name);
 		species.reg().setIdentity(name);
 		this._species.put(name, species);
@@ -137,9 +137,6 @@ public class SpeciesLib implements Instantiable, Settable
 		Tier level;
 		if ( this._species.containsKey(name) )
 		{
-			level = Tier.BULK;
-			if ( Log.shouldWrite(level) )
-				Log.out(level, "Species Library found \""+name+"\"");
 			return this._species.get(name);
 		}
 		else

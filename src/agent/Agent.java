@@ -7,12 +7,12 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import aspect.Aspect.AspectClass;
+import compartment.Compartment;
 import aspect.AspectInterface;
 import aspect.AspectReg;
 import dataIO.XmlHandler;
 import dataIO.Log;
 import dataIO.Log.Tier;
-import idynomics.Compartment;
 import idynomics.Idynomics;
 import instantiable.Instantiable;
 import linearAlgebra.Vector;
@@ -50,6 +50,7 @@ public class Agent implements AspectInterface, Settable, Instantiable
 	 */
 	protected AspectReg _aspectRegistry = new AspectReg();
 	private Settable _parentNode;
+	
 		
 	/*************************************************************************
 	 * CONSTRUCTORS
@@ -70,6 +71,12 @@ public class Agent implements AspectInterface, Settable, Instantiable
 		this.init(xmlNode, comp);
 	}
 	
+	public Agent (Node xmlNode, Body body, Compartment comp) {
+		Agent extra = new Agent(xmlNode, body);
+		extra._compartment = comp;
+		extra.registerBirth();
+	}
+	
 	public void init(Node xmlNode, Compartment comp)
 	{
 		this._compartment = comp;
@@ -77,6 +84,7 @@ public class Agent implements AspectInterface, Settable, Instantiable
 		NodeList temp = XmlHandler.getAll(xmlNode, XmlRef.spawnNode);
 		if(temp.getLength() > 0)
 		{
+			// Spawn random agents
 			for(int i = 0; i < temp.getLength(); i++)
 			{
 				/* TODO this is a cheat, make a standard method for this */
@@ -101,10 +109,12 @@ public class Agent implements AspectInterface, Settable, Instantiable
 		}
 		else
 		{
+			// Place located agents
 			loadAspects(xmlNode);
 		}
 		this.init();
 	}
+	
 	
 	/**
 	 * Assign the correct species from the species library
@@ -114,10 +124,7 @@ public class Agent implements AspectInterface, Settable, Instantiable
 		String species;
 		
 		species = this.getString(XmlRef.species);
-		if (Log.shouldWrite(Tier.BULK))
-			Log.out(Tier.BULK, "Agent belongs to species \""+species+"\"");
-
-		this._aspectRegistry.addSubModule( (Species) 
+		this._aspectRegistry.addModule( (Species) 
 				Idynomics.simulator.speciesLibrary.get(species), species);
 	}
 	
@@ -132,22 +139,9 @@ public class Agent implements AspectInterface, Settable, Instantiable
 		this.init();
 		this._parentNode = parent;
 	}
-	
-	/**
-	 * \brief Quick fix to get a coccoid body at a random location in the
-	 * region of physical space specified by domain.
-	 * 
-	 * @param domain
-	 * @return
-	 */
-	public Body randBody(double[] domain)
-	{
-		double[] v = Vector.randomZeroOne(domain);
-		Vector.timesEquals(v, domain);
-		return new Body(new Point(v), 0.0);
-	}
-	
+		
 	/* FIXME work in progress */
+	@Deprecated
 	public Body randBody(double[] domain, int p)
 	{
 		double[] v = Vector.randomZeroOne(domain);
@@ -165,10 +159,21 @@ public class Agent implements AspectInterface, Settable, Instantiable
 		this.set(AspectRef.agentBody, body);
 		this.init();
 	}
+	
+	/**
+	 * template constructor
+	 * @param xmlNode
+	 * @param boo
+	 */
+	public Agent(Node xmlNode, boolean boo)
+	{
+		this.loadAspects(xmlNode);
+		this.init();
+	}
 
 	public Agent(String species, Compartment comp)
 	{
-		this.set(XmlRef.species,species);
+		this.set(XmlRef.species, species);
 		this._compartment = comp;
 		this.init();
 	}
@@ -280,9 +285,6 @@ public class Agent implements AspectInterface, Settable, Instantiable
 	 */
 	public void registerBirth()
 	{
-		if (Log.shouldWrite(Tier.BULK))
-			Log.out(Tier.BULK, "Compartment \""+this._compartment.name+
-					"\" registering agent birth");
 		this._compartment.addAgent(this);
 		this.set(AspectRef.birthday, Idynomics.simulator.timer.getCurrentTime());
 	}

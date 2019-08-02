@@ -40,6 +40,9 @@ import com.jogamp.opengl.glu.GLU;
 import com.jogamp.opengl.util.FPSAnimator;
 import com.jogamp.opengl.util.awt.TextRenderer;
 
+import dataIO.Log;
+import dataIO.Log.Tier;
+import idynomics.Global;
 import idynomics.Idynomics;
 import linearAlgebra.Vector;
 
@@ -127,10 +130,17 @@ public class Render implements GLEventListener, Runnable {
     private int nbFrames = 0;
     private int _fps = 0;
     private boolean _dispFps = false;
+    
+    private Font font = new Font("consolas", Font.PLAIN, 10);
+    private TextRenderer textRenderer = new TextRenderer(font);
     /*
      * screendump
      */
     public boolean screenDump = false;
+
+	private float dist;
+
+	private double hDist;
     /*
      * this is what refreshes what is rendered on the screen
      */
@@ -154,11 +164,8 @@ public class Render implements GLEventListener, Runnable {
 	     }
 	     if ( this._dispFps )
 	     {
-	         Font font = new Font("consolas", Font.PLAIN, 10);
-	         TextRenderer textRenderer = new TextRenderer(font);
-	         textRenderer.setColor(Color.YELLOW);
-	         textRenderer.setSmoothing(true);
-	
+	    	 textRenderer.setColor(Color.YELLOW);
+	    	 textRenderer.setSmoothing(true);
 	         gl.glLoadIdentity();
 	         gl.glTranslatef(0f, 0f, -5.0f);
 	         int y = 10;
@@ -212,8 +219,8 @@ public class Render implements GLEventListener, Runnable {
 		 * adjust the camera settings to the size of the drawable and the user
 		 * defined camera setting adjustments (zoom, tilt, x, y)
 		 */
-		double dist = _commandMediator.kickback() - _zoom;
-		double hDist = Math.sin(_tilt+0.0001) * dist;
+		dist = _commandMediator.kickback() - _zoom;
+		hDist = Math.sin(_tilt+0.0001) * dist;
 		gl.glMatrixMode(GL2.GL_PROJECTION);
 		gl.glLoadIdentity();
 		
@@ -237,15 +244,27 @@ public class Render implements GLEventListener, Runnable {
 				);	
 		gl.glMatrixMode(GL2.GL_MODELVIEW);
 		
-	     if ( this.screenDump )
-	     { 	 		
-	 		try {
-	             BufferedImage screenshot = makeScreenshot(drawable);
-	             ImageIO.write(screenshot, "png", new File(Idynomics.global.outputLocation +"/screen_" + System.currentTimeMillis() + ".png"));
-	         } catch (IOException ex) {
-	         }
-	 		this.screenDump = false;
-	     }
+		if ( this.screenDump )
+	     { 	 
+	    	 if ( Global.write_to_disc )
+	    	 {
+	    		 try 
+	    		 {
+		             BufferedImage screenshot = makeScreenshot(drawable);
+		             ImageIO.write(screenshot, "png", 
+		            		new File(Idynomics.global.outputLocation 
+		            		+"/screen_" + System.currentTimeMillis() + ".png"));
+		         } catch (IOException ex) {
+		        	 
+		         }
+	    	 } else
+	    	 {
+	    		 if (Log.shouldWrite(Tier.NORMAL))
+	    			 Log.out("Screenshot is not saved as writing to disc is"
+	    			 		+ "disabled in Global settings");
+	    	 }
+		 		this.screenDump = false;
+		     }
 		
 		gl.glFlush();
 		
@@ -728,7 +747,7 @@ public class Render implements GLEventListener, Runnable {
 			@Override
 			public void actionPerformed(ActionEvent g) {
 				System.out.println("grid");
-				((AgentMediator) r._commandMediator).grid ^= true;
+				((AgentMediator) r._commandMediator).colStep();
 			}
 		});	
 		

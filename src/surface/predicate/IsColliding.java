@@ -4,8 +4,8 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.function.Predicate;
 
-import surface.Collision;
 import surface.Surface;
+import surface.collision.Collision;
 
 /**
  * \brief 

@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+	<simulation log="NORMAL" outputfolder="../results" name="Fourth_case"  randomSeed="22432423">
+	<timer stepSize="60.0" endOfSimulation="300000.0" /> <!-- 10 weeks -->
+		<speciesLib>
+			<!-- species/species library The species library contains all agent species 
+				in the simulations. This may include microbial species, plasmid and vector 
+				species, particle species etc. Species states are states that are in principal 
+				identical for all agents of that species. However note that iDynoMiCS 2.0 
+				does allow you to overwrite states on agent level. Thus if a state is defined 
+				both on species level and on agent level, the agent state will be used in 
+				the simulation. small test 
+				-->
+			<species name="coccoid">
+				<aspect name="density" type="PRIMARY" class="Double" value="1.0" />
+				<aspect name="surfaces" type="CALCULATED" class="AgentSurfaces" />
+				<aspect name="morphology" type="PRIMARY" class="String" value="coccoid" />
+				<aspect name="divide" type="EVENT" class="CoccoidDivision"	/>
+				<aspect name="updateBody" type="EVENT" class="UpdateBody" />
+				<aspect name="volume" type="CALCULATED" class="SimpleVolumeState" 	/>
+				<aspect name="radius" type="CALCULATED" class="CoccoidRadius" 		/>
+			</species>
+			
+			<species name="CanonicalAOB">
+			<speciesModule name="coccoid" />
+				<aspect name="pigment" type="PRIMARY" class="String" value="PURPLE" />
+				<aspect name="reactions" type="PRIMARY"  class="InstantiableList"> 
+					<list class="RegularReaction" nodeLabel="reaction" 
+					entryClass="RegularReaction" keyClass="String" keyLabel="name">
+						<reaction name="growth">
+							<expression value="mass * mumax * 
+									( ammonium / ( ammonium + Kam ) ) * 
+									( oxygen / ( oxygen + Kox ) )">
+								<!-- pg/µm3 --> 
+								<constant name="Kam" 	value="9.00E-07" /> 
+								<constant name="Kox" 	value="3.00E-07" />
+								<!-- per minute -->
+								<constant name="mumax" 	value="3.33E-04" />  
+							</expression>
+							<stoichiometric component="mass" 		coefficient="1.0" />
+							<stoichiometric component="ammonium" 	coefficient="-7.951966182" />
+							<stoichiometric component="nitrite" 	coefficient="7.828426182" />
+							<stoichiometric component="oxygen" 		coefficient="-25.41235268" />
+						</reaction> 
+						<reaction name="decay">
+							<expression value="mass * ( b )">
+								<!-- pg/µm3 --> 
+								<!-- per minute -->
+								<constant name="b" 	value="1.0E-5" /> 
+							</expression>
+							<stoichiometric component="mass" 		coefficient="-1.0" />
+						</reaction> 
+					</list>
+				</aspect>
+			</species>
+			
+			<species name="CanonicalNOB">
+			<speciesModule name="coccoid" />
+				<aspect name="pigment" type="PRIMARY" class="String" value="BLUE" />
+				<aspect name="reactions" type="PRIMARY"  class="InstantiableList"> 
+					<list class="RegularReaction" nodeLabel="reaction" 
+					entryClass="RegularReaction" keyClass="String" keyLabel="name">
+						<reaction name="growth">
+							<expression value="mass * mumax * 
+									( nitrite / ( nitrite + Kni ) ) * 
+									( oxygen / ( oxygen + Kox ) ) * 
+									( ammonium / ( ammonium +Kam ) )">
+								<!-- pg/µm3 --> 
+								<constant name="Kni" 	value="2.70E-7" /> 
+								<constant name="Kox" 	value="3.00E-7" />
+								<constant name="Kam" 	value="1.00E-20" />
+								<!-- per minute -->
+								<constant name="mumax" 	value="2.01E-4" />  
+							</expression>
+							<stoichiometric component="mass" 		coefficient="1.0" />
+							<stoichiometric component="ammonium" 	coefficient="-0.12" />
+							<stoichiometric component="nitrite" 	coefficient="-31.70487973" />
+							<stoichiometric component="nitrate" 	coefficient="31.70487973" />
+							<stoichiometric component="oxygen" 		coefficient="-34.80" />
+						</reaction> 
+						<reaction name="decay">
+							<expression value="mass * ( b )">
+								<!-- pg/µm3 --> 
+								<!-- per minute -->
+								<constant name="b" 	value="1.0E-5" />  
+							</expression>
+							<stoichiometric component="mass" 		coefficient="-1.0" />
+						</reaction> 
+					</list>
+				</aspect>
+			</species>
+			
+			<species name="ComammoxAOB">
+			<speciesModule name="coccoid" />
+				<aspect name="pigment" type="PRIMARY" class="String" value="GREEN" />
+				<aspect name="reactions" type="PRIMARY"  class="InstantiableList"> 
+					<list class="RegularReaction" nodeLabel="reaction" 
+					entryClass="RegularReaction" keyClass="String" keyLabel="name">
+						<reaction name="growth">
+							<expression value="mass * mumax * 
+									( ammonium / ( ammonium + Kam ) ) * 
+									( oxygen / ( oxygen + Kox ) )">
+								<!-- pg/µm3 --> 
+								<constant name="Kam" 	value="9.10E-09" /> 
+								<constant name="Kox" 	value="3.00E-7" />
+								<!-- per minute -->
+								<constant name="mumax" 	value="2.57E-05" />  
+							</expression>
+							<stoichiometric component="mass" 		coefficient="1.0" />
+							<stoichiometric component="ammonium" 	coefficient="-6.40" />
+							<stoichiometric component="nitrate" 	coefficient="6.27357762" />
+							<stoichiometric component="oxygen" 		coefficient="-27.25032733" />
+						</reaction>
+						<reaction name="decay">
+							<expression value="mass * ( b )">
+								<!-- pg/µm3 --> 
+								<!-- per minute -->
+								<constant name="b" 	value="1.0E-5" />  
+							</expression>
+							<stoichiometric component="mass" 		coefficient="-1.0" />
+						</reaction> 
+					</list>
+				</aspect>
+			</species>
+			
+		</speciesLib>
+
+		<compartment name="chemostat">
+			<shape class="Dimensionless" volume="1e6">
+				<boundary  class="constantConcentrationToChemostat" volumeFlowRate="1.0E3">
+				<solute name="ammonium" concentration="1.00E-06"/>
+				<solute name="oxygen" 	concentration="8.74E-6"  />
+				<solute name="nitrite" 	concentration="5.00E-9"  />
+				<solute name="nitrate" 	concentration="1.00E-6"  />
+				</boundary>
+				<boundary  class="chemostatOut" volumeFlowRate="1.0E3" agentRemoval="false" >
+				</boundary> 
+				<boundary  class="membraneToChemostat"  transferCoefficient="0.001" volumeSpecific="true">
+				<solute name="oxygen" concentration="8.74E-6"/>
+				</boundary>
+			</shape>
+			<solutes>
+				<!-- pg / µm3 -->
+				<solute name="ammonium" concentration="1.00E-06" defaultDiffusivity="3000"  />
+				<solute name="oxygen" 	concentration="8.74E-6" defaultDiffusivity="3000"  />
+				<solute name="nitrite" 	concentration="5.00E-9" defaultDiffusivity="3000"  />
+				<solute name="nitrate" 	concentration="1.00E-6"  defaultDiffusivity="3000"  />
+			</solutes>
+			<processManagers>
+				<process name="solveChemostat" class="ChemostatSolver" priority="0"
+					firstStep="0.0"  timerStepSize="60.0">
+					<aspect name="soluteNames" type="PRIMARY" class="String[]" value="ammonium,oxygen,nitrite,nitrate" />
+					<aspect name="hMax" type="PRIMARY" class="Double" value="60.0" />
+					<aspect name="solver" type="PRIMARY" class="String" value="heun" />
+					<aspect name="tolerance" class="Double" value="1.0E-6" />
+				</process>
+				<process name="summary" class="Summary"  priority="2"
+					firstStep="0.0" timerStepSize="60.0">
+					<aspect name="includeHeader" type="PRIMARY" class="Boolean" value="TRUE" />
+					<aspect name="fileName" type="PRIMARY" class="String" value="chemostat" />
+					<aspect name="tableSpecification" type="PRIMARY" class="String"
+					value="mass ? species == ComammoxAOB | mass  ? species == CanonicalAOB | mass ?  species == CanonicalNOB | %oxygen | %ammonium | %nitrite | %nitrate" />
+					<aspect name="fileName" type="PRIMARY" class="String" value="data" />
+				</process>
+			</processManagers>
+		</compartment>
+		
+		<compartment name="biofilm" tree="SPLITTREE">
+			<shape class="Rectangle" resolutionCalculator="MultigridResolution">
+				<!-- µm -->
+				<dimension name="X" isCyclic="true" targetResolution="2.0" max="32.0"></dimension>
+				<dimension name="Y" isCyclic="false" targetResolution="2.0" max="64.0">
+					<boundary extreme="0" class="SolidBoundary" />
+					<boundary extreme="1" class="BiofilmBoundaryLayer" partnerCompartment="chemostat" layerThickness="20" />
+				</dimension>
+			</shape>
+			<solutes>
+				<!-- pg / µm3 -->
+				<solute name="ammonium" concentration="1.00E-06" defaultDiffusivity="3000"  />
+				<solute name="oxygen" 	concentration="8.74E-6" defaultDiffusivity="3000"  />
+				<solute name="nitrite" 	concentration="5.00E-9" defaultDiffusivity="3000"  />
+				<solute name="nitrate" 	concentration="1.00E-6"  defaultDiffusivity="3000"  />
+			</solutes>
+			<reactions>
+			</reactions>
+			<agents>
+				<agent>
+					<aspect name="species" type="PRIMARY" class="String" value="CanonicalAOB" />
+					<aspect name="#isLocated" type="PRIMARY" class="Boolean" value="true" />
+					<!-- pg -->
+					<aspect name="mass" type="PRIMARY" class="Double" value="0.15" />
+					<spawn number="5" domain="32.0,0.2" />
+				</agent>
+				<agent>
+					<aspect name="species" type="PRIMARY" class="String" value="CanonicalNOB" />
+					<aspect name="#isLocated" type="PRIMARY" class="Boolean" value="true" />
+					<!-- pg -->
+					<aspect name="mass" type="PRIMARY" class="Double" value="0.15" />
+					<spawn number="5" domain="32.0,0.2" />
+				</agent>
+				<agent>
+					<aspect name="species" type="PRIMARY" class="String" value="ComammoxAOB" />
+					<aspect name="#isLocated" type="PRIMARY" class="Boolean" value="true" />
+					<!-- pg -->
+					<aspect name="mass" type="PRIMARY" class="Double" value="0.15" />
+					<spawn number="5" domain="32.0,0.2" />
+				</agent>
+			</agents>
+			<processManagers>				
+				<!-- ms -->
+				<process name="SolveDiffusionSteadyState" class="SolveDiffusionSteadyState" priority="1" firstStep="0.0" timerStepSize="60.0">
+					<aspect name="absoluteTolerance" type="PRIMARY" class="Double" value="1.0e-9" />
+					<aspect name="relativeTolerance" type="PRIMARY" class="Double" value="1.0e-2" />
+					<aspect name="soluteNames" type="PRIMARY" class="String[]" value="ammonium,oxygen,nitrite,nitrate" /> 
+					<!-- µm^2 ms^-1-->
+				</process>
+				<process name="agentRelax" class="AgentRelaxation" priority="-2" firstStep="0.0"  timerStepSize="60.0">
+					<aspect name="maxMovement" type="PRIMARY" class="Double" value="0.10" />
+					<aspect name="relaxationMethod" type="PRIMARY" class="String" value="EULER" />
+					<aspect name="stressThreshold" type="PRIMARY" class="Double" value="10000.0" />
+					<aspect name="maxIterations" type="PRIMARY" class="Integer" value="10000" />
+				</process>
+				<process name="summary" class="Summary"  priority="2"
+					firstStep="0.0" timerStepSize="60.0">
+					<aspect name="includeHeader" type="PRIMARY" class="Boolean" value="TRUE" />
+					<aspect name="fileName" type="PRIMARY" class="String" value="bioflm" />
+					<aspect name="tableSpecification" type="PRIMARY" class="String"
+					value="mass ? species == ComammoxAOB | mass  ? species == CanonicalAOB | mass ?  species == CanonicalNOB | %oxygen | %ammonium | %nitrite | %nitrate" />
+					<aspect name="fileName" type="PRIMARY" class="String" value="data" />
+				</process>
+				<process name="svgWriter" class="GraphicalOutput"  priority="-3"
+					firstStep="0.0"  timerStepSize="600.0">
+					<aspect name="solute" type="PRIMARY" class="String" value="oxygen" />
+					<aspect name="maxConcentration" type="PRIMARY" class="Double" value="1.00E-3" />
+					<aspect name="outputWriter" type="PRIMARY" class="String" value="SvgExport" />
+					<aspect name="arrayType" type="PRIMARY" class="String" value="PRODUCTIONRATE" />
+				</process>
+				<process name="svgWriter" class="GraphicalOutput"  priority="-3"
+					firstStep="0.0"  timerStepSize="600.0">
+					<aspect name="solute" type="PRIMARY" class="String" value="oxygen" />
+					<aspect name="maxConcentration" type="PRIMARY" class="Double" value="8.74E-6" />
+					<aspect name="outputWriter" type="PRIMARY" class="String" value="SvgExport" />
+				</process>
+			</processManagers>
+		</compartment>
+	</simulation>
+</document>

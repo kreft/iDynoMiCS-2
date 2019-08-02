@@ -7,10 +7,10 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import boundary.spatialLibrary.FixedBoundary;
+import compartment.Compartment;
 import dataIO.Log;
 import dataIO.Log.Tier;
 import grid.SpatialGrid;
-import idynomics.Compartment;
 import idynomics.Idynomics;
 import idynomics.Global;
 import idynomics.Simulator;
@@ -19,7 +19,7 @@ import shape.Dimension.DimName;
 import shape.Dimension;
 import shape.Shape;
 import shape.resolution.UniformResolution;
-import test.AllTests;
+import test.OldTests;
 
 public class PDEBenchmark {
 
@@ -41,7 +41,7 @@ public class PDEBenchmark {
 		Idynomics.global.outputRoot = "./Benchmarks";
 		Idynomics.global.simulationName = "BenchmarkCartesianShape";
 		Idynomics.global.updateSettings();
-		Log.set(Tier.QUIET);
+		Log.set(Tier.NORMAL);
 		Log.setupFile();
 		BufferedWriter bw = null;
 		bw = new BufferedWriter(
@@ -64,12 +64,12 @@ public class PDEBenchmark {
 			 * solid rmin and z and fixed rmax boundary, theta cyclic.
 			 */
 			Compartment comp = Idynomics.simulator.addCompartment("cuboid");
-			Shape shape = AllTests.GetShape("Cuboid");
+			Shape shape = OldTests.GetShape("Cuboid");
 			comp.setShape(shape);
 			Dimension x = shape.getDimension(DimName.X);
 			x.setLength(nVoxelX);
 			FixedBoundary xMax = new FixedBoundary();
-			xMax.instantiate(AllTests.getSpatialBoundaryElement(1), x);
+			xMax.instantiate(OldTests.getSpatialBoundaryElement(1), x);
 			xMax.setConcentration("solute", 2.0);
 			comp.addBoundary(xMax);
 			UniformResolution resCalc = new UniformResolution(x);
@@ -100,7 +100,7 @@ public class PDEBenchmark {
 			pm.setPriority(1);
 			comp.addProcessManager(pm);
 			
-			Log.out(Tier.QUIET, "took "+ (System.currentTimeMillis() - start)
+			Log.out(Tier.NORMAL, "took "+ (System.currentTimeMillis() - start)
 					+ " milliseconds to setup the simulator");
 			
 			/*
@@ -117,7 +117,7 @@ public class PDEBenchmark {
 				}
 			}
 			
-			Log.out(Tier.QUIET, "took "+ (System.currentTimeMillis() - start)
+			Log.out(Tier.NORMAL, "took "+ (System.currentTimeMillis() - start)
 					+ " milliseconds to solve a "+voxel_counter+" voxel "
 							+ "cuboid grid for "+tMax+" timesteps");
 			/* maximal time step estimation copied from PDEExplicit.solve() */
@@ -141,7 +141,7 @@ public class PDEBenchmark {
 		Idynomics.global.outputRoot = "./Benchmarks";
 		Idynomics.global.simulationName = "BenchmarkCylindricalShape";
 		Idynomics.global.updateSettings();
-		Log.set(Tier.QUIET);
+		Log.set(Tier.NORMAL);
 		Log.setupFile();
 		BufferedWriter bw = null;
 		bw = new BufferedWriter(
@@ -165,11 +165,11 @@ public class PDEBenchmark {
 			 * solid rmin and z and fixed rmax boundary, theta cyclic.
 			 */
 			Compartment comp = Idynomics.simulator.addCompartment("cylinder");
-			Shape shape = AllTests.GetShape("Cylinder");
+			Shape shape = OldTests.GetShape("Cylinder");
 			comp.setShape(shape);
 			Dimension r = shape.getDimension(DimName.R);
 			FixedBoundary rMax = new FixedBoundary();
-			rMax.instantiate(AllTests.getSpatialBoundaryElement(1), r);
+			rMax.instantiate(OldTests.getSpatialBoundaryElement(1), r);
 			rMax.setConcentration("solute", 2.0);
 			comp.addBoundary(rMax);
 			Dimension radial = shape.getDimension(DimName.R);
@@ -202,7 +202,7 @@ public class PDEBenchmark {
 			pm.setPriority(1);
 			comp.addProcessManager(pm);
 			
-			Log.out(Tier.QUIET, "took "+ (System.currentTimeMillis() - start)
+			Log.out(Tier.NORMAL, "took "+ (System.currentTimeMillis() - start)
 					+ " milliseconds to setup the simulator");
 			
 			/*
@@ -219,7 +219,7 @@ public class PDEBenchmark {
 				}
 			}
 			
-			Log.out(Tier.QUIET, "took "+ (System.currentTimeMillis() - start)
+			Log.out(Tier.NORMAL, "took "+ (System.currentTimeMillis() - start)
 					+ " milliseconds to solve a "+voxel_counter+" voxel "
 							+ "cylindrical grid for "+tMax+" timesteps");
 			/* maximal time step estimation copied from PDEExplicit.solve() */
@@ -242,7 +242,7 @@ public class PDEBenchmark {
 		Idynomics.global.outputRoot = "./Benchmarks";
 		Idynomics.global.simulationName = "BenchmarkSphericalShape";
 		Idynomics.global.updateSettings();
-		Log.set(Tier.QUIET);
+		Log.set(Tier.NORMAL);
 		Log.setupFile();
 		BufferedWriter bw = null;
 		bw = new BufferedWriter(
@@ -266,11 +266,11 @@ public class PDEBenchmark {
 			 * solid rmin and z and fixed rmax boundary, theta cyclic.
 			 */
 			Compartment comp = Idynomics.simulator.addCompartment("sphere");
-			Shape shape = AllTests.GetShape("Sphere");
+			Shape shape = OldTests.GetShape("Sphere");
 			comp.setShape(shape);
 			Dimension r = shape.getDimension(DimName.R);
 			FixedBoundary rMax = new FixedBoundary();
-			rMax.instantiate(AllTests.getSpatialBoundaryElement(1), r);
+			rMax.instantiate(OldTests.getSpatialBoundaryElement(1), r);
 			rMax.setConcentration("solute", 2.0);
 			comp.addBoundary(rMax);
 			Dimension radial = shape.getDimension(DimName.R);
@@ -303,7 +303,7 @@ public class PDEBenchmark {
 			pm.setPriority(1);
 			comp.addProcessManager(pm);
 			
-			Log.out(Tier.QUIET, "took "+ (System.currentTimeMillis() - start)
+			Log.out(Tier.NORMAL, "took "+ (System.currentTimeMillis() - start)
 					+ " milliseconds to setup the simulator");
 			
 			/*
@@ -320,7 +320,7 @@ public class PDEBenchmark {
 				}
 			}
 			
-			Log.out(Tier.QUIET, "took "+ (System.currentTimeMillis() - start)
+			Log.out(Tier.NORMAL, "took "+ (System.currentTimeMillis() - start)
 					+ " milliseconds to solve a "+voxel_counter+" voxel "
 							+ "spherical grid for "+tMax+" timesteps");
 			/* maximal time step estimation copied from PDEExplicit.solve() */

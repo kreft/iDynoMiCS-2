@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document>
-	<simulation name="test" outputfolder="../results" log="DEBUG" randomSeed="22432423"
-						comment="this is a file for testing purposes only.">
+	<simulation name="test" outputfolder="../results" log="NORMAL" randomSeed="22432423"
+						comment="This is a file for testing purposes only.">
 		
 		<timer stepSize="1.0" endOfSimulation="15.0" />
 		
@@ -55,7 +55,7 @@
 				</dimension> 
 			</shape>
 			<solutes>
-				<solute name="solute1" concentration="2.0" defaultDiffusivity="1.0" biofilmDiffusivity="0.5"/>
+				<solute name="solute1" concentration="1.0" defaultDiffusivity="1.0" biofilmDiffusivity="0.5"/>
 				<solute name="solute2" concentration="0.0" defaultDiffusivity="1.0" biofilmDiffusivity="0.5" />
 			</solutes>
 			<reactions>
@@ -151,7 +151,7 @@
 				<process name="agentRelax" class="AgentRelaxation"  priority="-2"
 					firstStep="0.0"  timerStepSize="0.5">
 					<aspect name="maxMovement" type="PRIMARY" class="Double" value="0.05" />
-					<aspect name="stressThreshold" type="PRIMARY" class="Double" value="1000" />
+					<aspect name="stressThreshold" type="PRIMARY" class="Double" value="0.0" />
 					<aspect name="relaxationMethod" type="PRIMARY" class="String" value="EULER" />
 				</process>
 				<process name="solveDiffusionTransient" class="SolveDiffusionTransient"  priority="-1"
