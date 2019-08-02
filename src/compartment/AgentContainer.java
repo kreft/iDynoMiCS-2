@@ -87,7 +87,7 @@ public class AgentContainer implements Settable
 	 * the type of spatial registry ( setting default value but can be 
 	 * overwritten).
 	 */
-	private TreeType _spatialTreeType = TreeType.RTREE;
+	private TreeType _spatialTreeType = TreeType.SPLITTREE;
 	
 	/* ***********************************************************************
 	 * CONSTRUCTORS

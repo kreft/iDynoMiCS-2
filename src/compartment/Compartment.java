@@ -229,7 +229,7 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable
 		 * setup tree
 		 */
 		String type = XmlHandler.gatherAttribute(xmlElem, XmlRef.tree);
-		type = Helper.setIfNone(type, String.valueOf(TreeType.RTREE));
+		type = Helper.setIfNone(type, String.valueOf( agents.getSpatialTreeType() ));
 		this.agents.setSpatialTreeType(TreeType.valueOf(type));
 		/*
 		 * Look for spawner elements
