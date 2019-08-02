@@ -9,8 +9,8 @@
 				<aspect name="pigment" type="PRIMARY" class="String" value="RED" />
 				<speciesModule name="coccoid" />
 				<aspect name="reactions" type="PRIMARY"  class="InstantiableList"> 
-					<list class="Reaction" nodeLabel="reaction" 
-					entryClass="Reaction" keyClass="String" keyLabel="name">
+					<list class="RegularReaction" nodeLabel="reaction" 
+					entryClass="RegularReaction" keyClass="String" keyLabel="name">
 						<reaction name="production">
 							<expression value="mass * qMaxA * 
 									( hMax - hydrogen ) / ( kA + hMax + hydrogen )">
@@ -30,8 +30,8 @@
 				<aspect name="pigment" type="PRIMARY" class="String" value="BLUE" />
 				<speciesModule name="coccoid" />
 				<aspect name="reactions" type="PRIMARY"  class="InstantiableList"> 
-					<list class="Reaction" nodeLabel="reaction" 
-					entryClass="Reaction" keyClass="String" keyLabel="name">
+					<list class="RegularReaction" nodeLabel="reaction" 
+					entryClass="RegularReaction" keyClass="String" keyLabel="name">
 						<reaction name="consumption">
 							<expression value="mass * qMaxB * 
 									( hydrogen - hMin ) / ( kB + hydrogen + hMin )">

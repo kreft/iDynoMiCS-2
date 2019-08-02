@@ -48,7 +48,7 @@ public final class ShapeLibrary
 		public Dimensionless(double volume)
 		{
 			super();
-			this.setVolume(volume);
+			this.setTotalVolume(volume);
 		}
 
 		@Override
@@ -87,7 +87,7 @@ public final class ShapeLibrary
 		 * 
 		 * @param volume New volume to use.
 		 */
-		public void setVolume(double volume)
+		public void setTotalVolume(double volume)
 		{
 			this._volume = volume;
 		}
@@ -97,11 +97,11 @@ public final class ShapeLibrary
 			return this._volume;
 		}
 		
-		public void setTotalVolume( double volume)
-		{
-			this._volume = volume;
+		@Override
+		public double getTotalRealVolume() {
+			return this._volume;
 		}
-		
+				
 		@Override
 		public void getLocalPositionTo(double[] destination, double[] location)
 		{
@@ -185,6 +185,12 @@ public final class ShapeLibrary
 		{
 			return 0.0;
 		}
+		
+		@Override
+		public double getRealSurfaceArea(DimName dimN, int extreme) {
+			// TODO Auto-generated method stub
+			return 0.0;
+		}
 
 		@Override
 		public ShapeIterator getNewIterator(int strideLength)
@@ -203,6 +209,7 @@ public final class ShapeLibrary
 		{
 			return null;
 		}
+
 	}
 	
 	/*************************************************************************

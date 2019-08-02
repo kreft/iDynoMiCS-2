@@ -12,6 +12,7 @@ import java.util.Map;
 import agent.Agent;
 import agent.Body;
 import aspect.Aspect.AspectClass;
+import aspect.Aspect;
 import aspect.AspectInterface;
 import aspect.Event;
 import dataIO.Log;
@@ -89,7 +90,6 @@ public class CoccoidDivision extends Event
 	public void start(AspectInterface initiator,
 			AspectInterface compliant, Double timeStep)
 	{
-		Tier level = Tier.BULK;
 		Agent mother = (Agent) initiator;
 		
 		if ( ! this.shouldDivide(mother) )
@@ -102,39 +102,25 @@ public class CoccoidDivision extends Event
 		/* Make one new agent, copied from the mother.*/
 		Agent daughter = new Agent(mother);
 		/* Transfer an appropriate amount of mass from mother to daughter. */
-		this.transferMass(mother, daughter);
+		CoccoidDivision.transferMass(mother, daughter);
 		/* Update their bodies, if they have them. */
 		if ( mother.isAspect(this.BODY) && mother.isAspect(this.RADIUS) )
 			this.shiftBodies(mother, daughter);
-		else
-		{
-			if ( Log.shouldWrite(level) )
-			{
-				Log.out(level, "Agent "+mother.identity()+
-					" does not have a body to shift after CoccoidDivision");
-			}
-		}
+		
 		/* Update filial links, if appropriate. */
 		if ( mother.isAspect(LINKER_DIST) )
 			this.updateLinkers(mother, daughter);
-		else
-		{
-			if ( Log.shouldWrite(level) )
-			{
-				Log.out(level, "Agent "+mother.identity()+
-					" does not create fillial links");
-			}
-		}
+
 		/* Register the daughter's birth in the compartment they belong to. */
 		daughter.registerBirth();
-		if ( Log.shouldWrite(level) )
-		{
-			Log.out(level, "CoccoidDivision added daughter cell");
-		}
+
 		/* The bodies of both cells may now need updating. */
 
-		mother.event(UPDATE_BODY);
-		daughter.event(UPDATE_BODY);
+		if ( mother.isAspect(UPDATE_BODY) && mother.isAspect(BODY) )
+		{
+			mother.event(UPDATE_BODY);
+			daughter.event(UPDATE_BODY);
+		}
 		/* Call the plasmid loss event */
 		if (daughter.isAspect(PLASMID_LOSS))
 			daughter.event(PLASMID_LOSS);
@@ -155,23 +141,12 @@ public class CoccoidDivision extends Event
 	@SuppressWarnings("unchecked")
 	private boolean shouldDivide(Agent anAgent)
 	{
-		Tier level = Tier.BULK;
 		/*
 		 * Find the agent-specific variable to test (mass, by default).
 		 */
-		double variable = 0.0;
+		
 		Object mumMass = anAgent.get(this.MASS);
-		if ( mumMass instanceof Double )
-			variable = (Double) mumMass;
-		else if ( mumMass instanceof Map )
-			// TODO assume all mass types used unless specified otherwise
-			variable = Helper.totalValue((Map<String,Double>) mumMass);
-		else
-		{
-			// TODO safety?
-		}
-		if ( Log.shouldWrite(level) )
-			Log.out(level, "Agent total mass is "+variable);
+		double variable = Helper.totalMass(mumMass);
 		/*
 		 * Find the threshold that triggers division.
 		 */
@@ -213,34 +188,40 @@ public class CoccoidDivision extends Event
 		/*
 		 * Transfer the mass from mother to daughter, using mumMassFrac.
 		 */
+		Double motherMass = null, product = null;
+		
 		Object mumMass = mother.get(MASS);
 		if ( mumMass instanceof Double && mother.getAspectType( MASS ) ==
 				AspectClass.PRIMARY )
 		{
-			double motherMass = (Double) mumMass;
+			motherMass = (Double) mumMass;
 			mother.set(MASS, motherMass * mumMassFrac);
 			daughter.set(MASS, motherMass * (1.0 - mumMassFrac));
 		}
-		
 		Object massMap = mother.get(MASS_MAP);
-		
-		if ( massMap != null && massMap instanceof Map )
+		String ref = null;
+		if (massMap != null && massMap instanceof Map )
+			ref = MASS_MAP;
+		else if ( mumMass != null && mumMass instanceof Map )
+			ref = MASS;
+		if ( ref != null )
 		{
 			@SuppressWarnings("unchecked")
-			Map<String,Double> mumProducts = (Map<String,Double>) massMap;
+			Map<String,Double> mumProducts = 
+					(Map<String,Double>) mother.get(ref);
 			@SuppressWarnings("unchecked")
-			Map<String,Double> daughterProducts = (Map<String,Double>) daughter.get(MASS_MAP);
-			double product;
+			Map<String,Double> daughterProducts = 
+					(Map<String,Double>) daughter.get(ref);
 			for ( String key : mumProducts.keySet() )
 			{
 				product = mumProducts.get(key);
 				daughterProducts.put(key, product * (1.0-mumMassFrac) );
 				mumProducts.put(key, product * mumMassFrac);
 			}
-			mother.set(MASS_MAP, mumProducts);
-			daughter.set(MASS_MAP, daughterProducts);
+			mother.set(ref, mumProducts);
+			daughter.set(ref, daughterProducts);
 		}
-		else
+		if ( motherMass == null && product == null )
 		{
 			Log.out(Tier.CRITICAL, "Agent "+mother.identity()+
 					" has an unrecognised mass type: "+

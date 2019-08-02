@@ -13,15 +13,17 @@ import java.util.Map;
 import org.w3c.dom.Element;
 
 import agent.Agent;
+import compartment.AgentContainer;
+import compartment.EnvironmentContainer;
 import dataIO.ObjectFactory;
 import grid.SpatialGrid;
-import idynomics.AgentContainer;
-import idynomics.EnvironmentContainer;
 import processManager.ProcessDiffusion;
 import processManager.ProcessMethods;
+import reaction.RegularReaction;
 import reaction.Reaction;
 import referenceLibrary.XmlRef;
 import shape.subvoxel.CoordinateMap;
+import shape.subvoxel.IntegerArray;
 import shape.Shape;
 import solver.PDEexplicit;
 import solver.PDEupdater;
@@ -136,11 +138,11 @@ public class SolveDiffusionTransient extends ProcessDiffusion
 		 * one.
 		 */
 		@SuppressWarnings("unchecked")
-		Map<Shape, CoordinateMap> mapOfMaps = (Map<Shape, CoordinateMap>)
+		Map<Shape, HashMap<IntegerArray,Double>> mapOfMaps = (Map<Shape, HashMap<IntegerArray,Double>>)
 						agent.getValue(VOLUME_DISTRIBUTION_MAP);
-		CoordinateMap distributionMap = 
+		HashMap<IntegerArray,Double> distributionMap = 
 				mapOfMaps.get(agent.getCompartment().getShape());
-		distributionMap.scale();
+		ProcessDiffusion.scale(distributionMap, 1.0);
 		/*
 		 * Get the agent biomass kinds as a map. Copy it now so that we can
 		 * use this copy to store the changes.
@@ -153,13 +155,13 @@ public class SolveDiffusionTransient extends ProcessDiffusion
 		 * Now look at all the voxels this agent covers.
 		 */
 		Map<String,Double> concns = new HashMap<String,Double>();
-		Map<String,Double> stoichiometry;
+
 		SpatialGrid solute;
 		Shape shape = this._agents.getShape();
-		double concn, rate, productRate, volume, perVolume;
-		for ( int[] coord : distributionMap.keySet() )
+		double concn, productRate, volume, perVolume;
+		for ( IntegerArray coord : distributionMap.keySet() )
 		{
-			volume = shape.getVoxelVolume(coord);
+			volume = shape.getVoxelVolume(coord.get());
 			perVolume = Math.pow(volume, -1.0);
 			for ( Reaction r : reactions )
 			{
@@ -176,7 +178,7 @@ public class SolveDiffusionTransient extends ProcessDiffusion
 					if ( this._environment.isSoluteName(varName) )
 					{
 						solute = this._environment.getSoluteGrid(varName);
-						concn = solute.getValueAt(CONCN, coord);
+						concn = solute.getValueAt(CONCN, coord.get());
 					}
 					else if ( biomass.containsKey(varName) )
 					{
@@ -199,25 +201,19 @@ public class SolveDiffusionTransient extends ProcessDiffusion
 					}
 					concns.put(varName, concn);
 				}
-				/*
-				 * Calculate the reaction rate based on the variables just 
-				 * retrieved.
-				 */
-				rate = r.getRate(concns);
 				/* 
 				 * Now that we have the reaction rate, we can distribute the 
 				 * effects of the reaction. Note again that the names in the 
 				 * stoichiometry may not be the same as those in the reaction
 				 * variables (although there is likely to be a large overlap).
 				 */
-				stoichiometry = r.getStoichiometry();
-				for ( String productName : stoichiometry.keySet() )
+				for ( String productName : r.getReactantNames() )
 				{
-					productRate = rate * stoichiometry.get(productName);
+					productRate = r.getProductionRate(concns,productName);
 					if ( this._environment.isSoluteName(productName) )
 					{
 						solute = this._environment.getSoluteGrid(productName);
-						solute.addValueAt(PRODUCTIONRATE, coord, productRate);
+						solute.addValueAt(PRODUCTIONRATE, coord.get(), productRate);
 					}
 					else if ( newBiomass.containsKey(productName) )
 					{

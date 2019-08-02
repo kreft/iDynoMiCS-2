@@ -16,7 +16,7 @@ import referenceLibrary.AspectRef;
 public class WetWeight extends Calculated {
 	
 	public String MASS_MAP = AspectRef.agentMassMap;
-	public String WET_DRY = AspectRef.WetDryRatio;
+	public String WET_DRY = AspectRef.wetDryRatio;
 	
 	public WetWeight()
 	{

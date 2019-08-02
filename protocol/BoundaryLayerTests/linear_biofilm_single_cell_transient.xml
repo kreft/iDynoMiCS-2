@@ -9,8 +9,8 @@
 				<aspect name="pigment" type="PRIMARY" class="String" value="BLUE" />
 				<speciesModule name="coccoid" />
 				<aspect name="reactions" type="PRIMARY"  class="InstantiableList"> 
-					<list class="Reaction" nodeLabel="reaction" 
-					entryClass="Reaction" keyClass="String" keyLabel="name">
+					<list class="RegularReaction" nodeLabel="reaction" 
+					entryClass="RegularReaction" keyClass="String" keyLabel="name">
 						<reaction name="consumption">
 							<expression value="mass * qMaxB * 
 									( hydrogen - hMin ) / ( kB + hydrogen + hMin )">
@@ -49,7 +49,7 @@
 				</reaction>
 			</reactions>
 			<processManagers>
-				<process name="solveChemostat" class="SolveChemostat" priority="0"
+				<process name="solveChemostat" class="ChemostatSolver" priority="0"
 					firstStep="0.0" >
 					<aspect name="soluteNames" type="PRIMARY" class="String[]" value="hydrogen" />
 					<aspect name="tolerance" type="PRIMARY" class="Double" value="1.0e-3" />

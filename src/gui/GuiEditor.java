@@ -112,7 +112,7 @@ public class GuiEditor
 					component.setVisible(false);
 					if (tabs.getParent() != null)
 						tabs.getParent().remove(tabs);
-					
+					GuiActions.loadCurrentState();
 				}
 			}
 			));
@@ -138,6 +138,7 @@ public class GuiEditor
 					public void actionPerformed(ActionEvent event)
 					{
 						addComponent(node.constructChild(c), component);
+						GuiActions.loadCurrentState();
 					}
 				}
 				));
@@ -193,7 +194,8 @@ public class GuiEditor
 		JTabbedPane hostPane = getFirstTabParent(parent);
 		node.getTag();
 		/* placement of this ModelNode in the gui */
-		if ( XmlRef.speciesLibrary.equals(node.getTag()) )
+		if ( XmlRef.speciesLibrary.equals(node.getTag()) || 
+				XmlRef.chemicalLibrary.equals(node.getTag()) )
 		{
 			hostPane = (JTabbedPane) 
 					parent.getParent().getParent().getParent().getParent();
@@ -217,7 +219,7 @@ public class GuiEditor
 		else if ( node.isTagIn(new String[] 
 				/* compartment container nodes */
 				{XmlRef.agents, XmlRef.solutes, XmlRef.processManagers, 
-				XmlRef.reactions, XmlRef.environment}) )
+				XmlRef.reactions, XmlRef.environment, XmlRef.objects}) )
 		{
 			hostPane = (JTabbedPane) 
 					parent.getParent().getParent().getParent();
@@ -225,7 +227,7 @@ public class GuiEditor
 			GuiComponent.addTab( hostPane, 
 					node.getTag(), tabs, "");
 		}
-		else if ( node.isTagIn(new String[] {XmlRef.reaction}) )
+		else if ( node.isTagIn(new String[] {XmlRef.reaction, XmlRef.shapeDimension}) )
 		{
 			GuiComponent.addTab( getFirstTabParent(parent), 
 					node.getTag() + " " + node.getTitle(), tabs, ""); 
@@ -238,8 +240,8 @@ public class GuiEditor
 			parent.revalidate();
 		}
 		else if ( node.isTagIn(new String[] 
-				{XmlRef.shapeDimension, XmlRef.point, XmlRef.stoichiometric,
-						XmlRef.constant, XmlRef.speciesModule}) )
+				{XmlRef.point, XmlRef.stoichiometric,
+						XmlRef.constant, XmlRef.speciesModule, XmlRef.dimensionBoundary}) )
 		{
 			
 			parent.add(component, null);

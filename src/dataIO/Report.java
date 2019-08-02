@@ -21,7 +21,6 @@ public class Report {
 		String fileString = Idynomics.global.outputLocation + "/" 
 				+ fileName + ".rmd";
 		_reportFile.fnew(fileString);
-		Log.out(Tier.EXPRESSIVE, "Writing new file: " + fileString);
 		_reportFile.write(
 				"---\n" +
 				"title: \"" + Idynomics.global.simulationName + " simulation report\"\n" +
@@ -52,7 +51,13 @@ public class Report {
 		
 		_reportFile.write(
 				"```{r, echo=FALSE}\n" +
-				"library(DiagrammeR)\n" +
+					"packageList <- c(\"DiagrammeR\")\n" +
+					"packagesToInstall <- packageList[!(packageList %in% " +
+					"installed.packages()[,\"Package\"])]\n" +
+					"if(length(packagesToInstall))\n" +
+					"\t install.packages(packagesToInstall)\n" +
+					"if (!any(search() == \"package:DiagrammeR\"))\n" +
+					"\t library(DiagrammeR)\n" +
 				"grViz(\"" + fileName + ".dot\")\n" +
 				"```\n\n");
 		

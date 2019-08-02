@@ -54,13 +54,11 @@ public class PDEexplicit extends PDEsolver
 	public void solve(Collection<SpatialGrid> variables,
 			SpatialGrid commonGrid, double tFinal)
 	{
-		Tier level = DEBUG;
 		/*
 		 * Find the largest time step that suits all variables.
 		 */
 		double dt = tFinal;
-		if ( Log.shouldWrite(level) )
-			Log.out(level, "PDEexplicit starting with ministep size "+dt);
+
 		int nIter = 1;
 		for ( SpatialGrid var : variables )
 		{
@@ -71,64 +69,28 @@ public class PDEexplicit extends PDEsolver
 			// FIXME decreasing time step  a bit further seems to fix exploding solute concentrations
 			/* divide by 3 since all simulations are pseudo 3D */
 			dt =  Math.min(dt, 1.0 / inverseMaxT);
-			if ( Log.shouldWrite(level) )
-			{
-				Log.out(level, "PDEexplicit: variable \""+var.getName()+ "\" has"
-					+ " max flux potential "+var.getShape().getMaxFluxPotential() +
-					" and diffusivity "+var.getMin(DIFFUSIVITY));
-			}
+
 		}
-		if ( Log.shouldWrite(level) )
-			Log.out(level, "PDEexplicit adjusted ministep size to "+dt);
 		/* If the mini-timestep is less than tFinal, split it up evenly. */
 		if ( dt < tFinal )
 		{
 			nIter = (int) Math.ceil(tFinal/dt);
 			dt = tFinal/nIter;
 		}
-		level = BULK;
-		if ( Log.shouldWrite(level) )
-			Log.out(level, "PDEexplicit using ministep size "+dt);
 		/*
 		 * Iterate over all mini-timesteps.
 		 */
 		for ( int iter = 0; iter < nIter; iter++ )
 		{
-			if ( Log.shouldWrite(level) )
-				Log.out(level, "Ministep "+iter+": "+(iter+1)*dt);
 			/* Update reaction rates, etc. */
 			this._updater.prestep(variables, dt);
 			for ( SpatialGrid var : variables )
 			{
-				if ( Log.shouldWrite(level) )
-					Log.out(level, " Variable: "+var.getName());
 				var.newArray(CHANGERATE);
 				this.applyDiffusion(var, commonGrid);
-				if ( Log.shouldWrite(level) )
-				{
-					Log.out(level, "  Total value of fluxes: "+
-							var.getTotal(CHANGERATE));
-					Log.out(level, "  Total value of production rate array: "+
-							var.getTotal(PRODUCTIONRATE));
-				}
 				var.addArrayToArray(CHANGERATE, PRODUCTIONRATE);
-				if ( Log.shouldWrite(level) )
-				{
-					Log.out(level, "  Change rates: \n"+
-						var.arrayAsText(CHANGERATE));
-				}
 				var.timesAll(CHANGERATE, dt);
-				if ( Log.shouldWrite(level) )
-				{
-					Log.out(level, "  Changes: \n"+
-						var.arrayAsText(CHANGERATE));
-				}
 				var.addArrayToArray(CONCN, CHANGERATE);
-				if ( Log.shouldWrite(level) )
-				{
-					Log.out(level, "  Concn: \n"+
-						var.arrayAsText(CHANGERATE));
-				}
 				if ( ! this._allowNegatives )
 					var.makeNonnegative(CONCN);
 			}
@@ -174,5 +136,17 @@ public class PDEexplicit extends PDEsolver
 	protected void resetWellMixedFlow(String name)
 	{
 		this._wellMixedChanges.put(name, 0.0);
+	}
+
+	@Override
+	public void setAbsoluteTolerance(double tol) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setRelativeTolerance(double tol) {
+		// TODO Auto-generated method stub
+		
 	}
 }

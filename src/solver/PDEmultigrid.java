@@ -43,6 +43,7 @@ import utility.ExtraMath;
  * </ul></p>
  * 
  * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ * @author Sankalp Arya (sankalp.arya@nottingham.ac.uk) University of Nottingham, U.K.
  */
 public class PDEmultigrid extends PDEsolver
 {
@@ -63,13 +64,31 @@ public class PDEmultigrid extends PDEsolver
 	 */
 	private int _numLayers;
 	
-	private int _numVCycles = 5;
+	private int _numVCycles = 3;
 	
 	private int _numPreSteps = 150;
 	
 	private int _numCoarseStep = 150;
 	
 	private int _numPostSteps = 1500;
+	
+	private double _absToleranceLevel;
+	
+	private double _relToleranceLevel;
+	
+	private boolean _earlyStop = false;
+	
+
+	
+	private boolean _checkVCycleDiscrepancy = true;
+	
+	private double tempRes[];
+	
+	private int tempLay = 0;
+	
+	private int num = 0;
+	
+	private double _discrepancyThreshold = 0.01;
 	
 	/* ***********************************************************************
 	 * SOLVER METHODS
@@ -115,6 +134,9 @@ public class PDEmultigrid extends PDEsolver
 				continueVCycle = this.doVCycle(variables, outer);
 		}
 		
+		//Calculate mass movement
+		double massMove = 0.0;
+		
 		/* Apply all computations. */
 		// TODO Rob [15Jan2017]: Not sure this is necessary, try removing once
 		// everything is working.
@@ -124,6 +146,8 @@ public class PDEmultigrid extends PDEsolver
 			currentLayer = this.getMultigrid(var);
 			while ( currentLayer.hasFiner() )
 				currentLayer = currentLayer.getFiner();
+			massMove = var.getTotal(PRODUCTIONRATE);
+			var.increaseWellMixedMassFlow(massMove);
 			var.setTo(CONCN, currentLayer.getGrid().getArray(CONCN));
 		}
 	}
@@ -253,7 +277,6 @@ public class PDEmultigrid extends PDEsolver
 	
 	private boolean doVCycle(Collection<SpatialGrid> variables, int numLayers)
 	{
-		Tier level = Tier.BULK;
 		MultigridLayer variableMultigrid;
 		SpatialGrid currentLayer, currentCommon;
 		double truncationError, residual;
@@ -262,39 +285,39 @@ public class PDEmultigrid extends PDEsolver
 		while ( this._commonMultigrid.hasCoarser() && layerCounter < numLayers )
 		{
 			layerCounter++;
-			if ( Log.shouldWrite(level) )
-			{
-				Log.out(level, "Downward stroke: "+layerCounter+"/"+numLayers);
-			}
+
 			/* 
 			 * Smooth the current layer for a set number of iterations.
 			 */
-			/* Relaxation */
-			if ( Log.shouldWrite(level) )
+			/* Disabled Debug message 
+			if ( Log.shouldWrite(Tier.DEBUG) )
 			{
-				Log.out(level, "Before pre-relaxing layer, concns in range:");
+				Log.out(Tier.DEBUG, "Before pre-relaxing layer, concns in range:");
 				double min, max;
 				for ( SpatialGrid variable : variables )
 				{
 					currentLayer = this.getMultigrid(variable).getGrid();
 					min = currentLayer.getMin(CONCN);
 					max = currentLayer.getMax(CONCN);
-					Log.out(level, "\t"+variable.getName()+": ["+min+", "+max+"]");
+					Log.out(Tier.DEBUG, "\t"+variable.getName()+": ["+min+", "+max+"]");
 				}
 			}
+			*/
 			this.relaxAll(this._numPreSteps);
-			if ( Log.shouldWrite(level) )
+			/* Disabled Debug message 
+			if ( Log.shouldWrite(Tier.DEBUG) )
 			{
-				Log.out(level, "After pre-relaxing layer, concns in range:");
+				Log.out(Tier.DEBUG, "After pre-relaxing layer, concns in range:");
 				double min, max;
 				for ( SpatialGrid variable : variables )
 				{
 					currentLayer = this.getMultigrid(variable).getGrid();
 					min = currentLayer.getMin(CONCN);
 					max = currentLayer.getMax(CONCN);
-					Log.out(level, "\t"+variable.getName()+": ["+min+", "+max+"]");
+					Log.out(Tier.DEBUG, "\t"+variable.getName()+": ["+min+", "+max+"]");
 				}
 			}
+			*/
 			/*
 			 * Update the local truncation error using current CONCN values.
 			 * In Numerical Recipes in C, this is is τ (tau) as defined in
@@ -352,34 +375,8 @@ public class PDEmultigrid extends PDEsolver
 				this._truncationErrors.put(variable.getName(), truncationError);
 			}
 		}
-		/* 
-		 * At the bottom of the V: solve the coarsest layer.
-		 */
-		if ( Log.shouldWrite(level) )
-		{
-			Log.out(level, "Before relaxing coarsest layer, concns in range:");
-			double min, max;
-			for ( SpatialGrid variable : variables )
-			{
-				currentLayer = this.getMultigrid(variable).getGrid();
-				min = currentLayer.getMin(CONCN);
-				max = currentLayer.getMax(CONCN);
-				Log.out(level, "\t"+variable.getName()+": ["+min+", "+max+"]");
-			}
-		}
+		/* At the bottom of the V: solve the coarsest layer. */
 		this.relaxAll(this._numCoarseStep);
-		if ( Log.shouldWrite(level) )
-		{
-			Log.out(level, "After relaxing coarsest layer, concns in range:");
-			double min, max;
-			for ( SpatialGrid variable : variables )
-			{
-				currentLayer = this.getMultigrid(variable).getGrid();
-				min = currentLayer.getMin(CONCN);
-				max = currentLayer.getMax(CONCN);
-				Log.out(level, "\t"+variable.getName()+": ["+min+", "+max+"]");
-			}
-		}
 		/* 
 		 * Upward stroke of V. The overall effect of this is:
 		 * 
@@ -400,10 +397,6 @@ public class PDEmultigrid extends PDEsolver
 		
 		while ( this._commonMultigrid.hasFiner() && layerCounter > 0 )
 		{
-			if ( Log.shouldWrite(level) )
-			{
-				Log.out(level, "Upward stroke: "+layerCounter+"/"+numLayers);
-			}
 			currentCommon = this._commonMultigrid.getGrid();
 			for ( SpatialGrid variable : variables )
 			{
@@ -429,31 +422,7 @@ public class PDEmultigrid extends PDEsolver
 					currentLayer.makeNonnegative(CONCN);
 			}
 			/* Relaxation */
-			if ( Log.shouldWrite(level) )
-			{
-				Log.out(level, "Before post-relaxing layer, concns in range:");
-				double min, max;
-				for ( SpatialGrid variable : variables )
-				{
-					currentLayer = this.getMultigrid(variable).getGrid();
-					min = currentLayer.getMin(CONCN);
-					max = currentLayer.getMax(CONCN);
-					Log.out(level, "\t"+variable.getName()+": ["+min+", "+max+"]");
-				}
-			}
 			this.relaxAll(this._numPostSteps);
-			if ( Log.shouldWrite(level) )
-			{
-				Log.out(level, "After post-relaxing layer, concns in range:");
-				double min, max;
-				for ( SpatialGrid variable : variables )
-				{
-					currentLayer = this.getMultigrid(variable).getGrid();
-					min = currentLayer.getMin(CONCN);
-					max = currentLayer.getMax(CONCN);
-					Log.out(level, "\t"+variable.getName()+": ["+min+", "+max+"]");
-				}
-			}
 		}
 		/*
 		 * Finally, we calculate the residual of the local truncation error and
@@ -462,8 +431,12 @@ public class PDEmultigrid extends PDEsolver
 		 * dominates, then we can break the V-cycle.
 		 * See p. 884 of Numerical Recipes in C for more details.
 		 */
-		boolean continueVCycle = false;
+		boolean continueVCycle = true;
 		currentCommon = this._commonMultigrid.getGrid();
+		if( tempRes == null)
+			tempRes = new double[variables.size()];
+		int i = 0;
+
 		for ( SpatialGrid variable : variables )
 		{
 			currentLayer = this.getMultigrid(variable).getGrid();
@@ -471,19 +444,40 @@ public class PDEmultigrid extends PDEsolver
 			currentLayer.subtractArrayFromArray(LOCALERROR, NONLINEARITY);
 			residual = currentLayer.getNorm(LOCALERROR);
 			truncationError = this._truncationErrors.get(variable.getName());
-			if ( Log.shouldWrite(level) )
+			if ( this._checkVCycleDiscrepancy && 
+					tempLay == numLayers && 
+					tempRes[i] != 0.0 && 
+					numLayers == this._numLayers-1 )
 			{
-				Log.out(level, variable.getName()+": residual = "+residual+
-						", truncation error = "+truncationError);
+				if( this.num > 1 )
+				{
+					double disc = Math.abs(this.tempRes[i]-residual) / Math.min(
+							Math.abs(this.tempRes[i]), Math.abs(residual));
+					if( disc > this._discrepancyThreshold && 
+							Log.shouldWrite(Tier.CRITICAL))
+						Log.out(Tier.CRITICAL, "Large V-Cycle discrepancy: " + 
+								disc);
+				}
+				this.num++;
 			}
-			continueVCycle = residual > truncationError;
-			if ( continueVCycle )
-				break;
+			else
+			{
+				this.num = 0;
+			}
+			
+			this.tempRes[i] = residual;
+			i++;
+			
+			continueVCycle = (continueVCycle || residual > truncationError);
+			if ( continueVCycle && Log.shouldWrite(Tier.DEBUG) )
+				Log.out(Tier.DEBUG, "residual " + residual+ " > truncation"
+						+ truncationError);
 		}
-		if ( continueVCycle )
-			Log.out(level, "Continuing V-cycle");
-		else
-			Log.out(level, "Breaking V-cycle");
+		this.tempLay = numLayers;
+		if ( continueVCycle && Log.shouldWrite(Tier.DEBUG))
+			Log.out(Tier.DEBUG, "Continuing V-cycle");
+		else if( Log.shouldWrite(Tier.DEBUG) )
+			Log.out(Tier.DEBUG, "Breaking V-cycle");
 		return continueVCycle;
 	}
 	
@@ -493,11 +487,18 @@ public class PDEmultigrid extends PDEsolver
 		for ( MultigridLayer layer : this._multigrids.values() )
 			currentGrids.add(layer.getGrid());
 		SpatialGrid currentCommon = this._commonMultigrid.getGrid();
-		for ( int i = 0; i < numRepetitions; i++ )
+		relaxLoops: for ( int i = 0; i < numRepetitions; i++ )
 		{
 			this._updater.prestep(currentGrids, 0.0);
-			for ( SpatialGrid grid : currentGrids )
+			for ( SpatialGrid grid : currentGrids ) {
 				this.relax(grid, currentCommon);
+			}
+			if (this._earlyStop) {
+				if( Log.shouldWrite(Tier.DEBUG) )
+					Log.out(Tier.DEBUG, "Breaking early: "+ i +" of "
+							+ numRepetitions );
+				break relaxLoops;
+			}
 		}
 	}
 	
@@ -518,6 +519,8 @@ public class PDEmultigrid extends PDEsolver
 	 */
 	private void relax(SpatialGrid variable, SpatialGrid commonGrid)
 	{
+		if ( ! this._allowNegatives )
+			variable.makeNonnegative(CONCN);
 		Shape shape = variable.getShape();
 		/* Temporary storage. */
 		double prod, concn, diffusivity, vol, rhs;
@@ -525,6 +528,8 @@ public class PDEmultigrid extends PDEsolver
 		double lop, totalNhbWeight, residual;
 		@SuppressWarnings("unused")
 		int[] current, nhb;
+		this._earlyStop = true;
+		
 		for ( current = shape.resetIterator(); shape.isIteratorValid();
 				current = shape.iteratorNext() )
 		{
@@ -599,14 +604,27 @@ public class PDEmultigrid extends PDEsolver
 			/*
 			 * For the FAS, the source term is implicit in the L-operator
 			 * (see Equations 19.6.21-22).
+			 * 
+			 * NOTE: lop has units of concentration per time whereas prod would
+			 * have units of mass per time
 			 */
-			lop += prod;
+			lop += prod / vol;
 			/* 
 			 * TODO
 			 */
 			residual = (lop - rhs) / totalNhbWeight;
+			double relChange = residual / concn;
 			/* Prepare to update the local concentration. */
 			concn += residual;
+			if (Math.abs(residual) > this._absToleranceLevel &&
+					Math.abs(relChange) > this._relToleranceLevel) 
+			{
+				this._earlyStop = false;
+			} else {
+				if( Log.shouldWrite(Tier.DEBUG) )
+					Log.out(Tier.DEBUG, "residual = "+residual+" relChange = "+
+							relChange );
+			}
 			/* Check if we need to remain non-negative. */
 			if ( (!this._allowNegatives) && (concn < 0.0) )
 				concn = 0.0;
@@ -726,6 +744,16 @@ public class PDEmultigrid extends PDEsolver
 					shape.getCurrVoxelVolume();
 			variable.setValueAt(destinationType, current, residual);
 		}
+	}
+	
+	@Override
+	public void setAbsoluteTolerance(double tol) {
+		this._absToleranceLevel = tol;
+	}
+	
+	@Override
+	public void setRelativeTolerance(double tol) {
+		this._relToleranceLevel = tol;
 	}
 
 	/* ***********************************************************************

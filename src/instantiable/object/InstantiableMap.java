@@ -8,6 +8,7 @@ import dataIO.ObjectFactory;
 import dataIO.XmlHandler;
 import generalInterfaces.Copyable;
 import idynomics.Idynomics;
+import instantiable.Instance;
 import instantiable.Instantiable;
 import referenceLibrary.XmlRef;
 import settable.Attribute;
@@ -225,7 +226,7 @@ public class InstantiableMap<K,T> extends HashMap<K,T> implements Settable,
 						XmlRef.keyAttribute);
 				if (this.keyLabel == null)
 				{
-					this.muteSpecification = true;
+					this.muteSpecification = false;
 					this.keyLabel = XmlRef.keyAttribute;
 				}
 			}
@@ -236,7 +237,7 @@ public class InstantiableMap<K,T> extends HashMap<K,T> implements Settable,
 						XmlRef.valueAttribute );
 				if (this.valueLabel == null)
 				{
-					this.muteSpecification = true;
+					this.muteSpecification = false;
 					this.valueLabel = XmlRef.valueAttribute;
 				}
 			}
@@ -283,11 +284,11 @@ public class InstantiableMap<K,T> extends HashMap<K,T> implements Settable,
 				for ( int i = 0; i < nodes.getLength(); i++ )
 				{
 					T object = (T) ObjectFactory.loadObject( (Element) nodes.item(i), 
-							this.valueLabel, this.entryClass.getSimpleName() ); 
+							this.valueLabel, this.entryClass.getSimpleName(), null, null ); 
 					if( object instanceof Settable )
 						((Settable) object).setParent(this);
 					this.put((K) ObjectFactory.loadObject( (Element) nodes.item(i), 
-							this.keyLabel, this.keyClass.getSimpleName() ),
+							this.keyLabel, this.keyClass.getSimpleName(), null, null ),
 							object );
 				}
 			}

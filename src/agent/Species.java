@@ -141,7 +141,7 @@ public class Species implements AspectInterface, Settable, Instantiable
 		if ( specifier == this.reg().getIdentity() )
 			Idynomics.simulator.speciesLibrary._species.remove(this.reg().getIdentity());
 		else
-			this.reg().removeSubmodule(specifier);
+			this.reg().removeModule(specifier);
 	}
 
 	/**

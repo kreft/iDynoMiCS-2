@@ -18,6 +18,7 @@ import surface.BoundingBox;
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
  *
  */
+@SuppressWarnings( {"rawtypes", "unchecked"} )
 public class SplitTree<T> implements SpatialRegistry<T>
 {	
 	protected boolean _root = false;

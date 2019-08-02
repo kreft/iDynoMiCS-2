@@ -9,13 +9,14 @@ import org.w3c.dom.Element;
 
 import agent.Agent;
 import boundary.Boundary;
+import compartment.AgentContainer;
+import compartment.EnvironmentContainer;
 import dataIO.Log;
 import dataIO.Log.Tier;
-import idynomics.AgentContainer;
-import idynomics.EnvironmentContainer;
 import linearAlgebra.Vector;
 import processManager.ProcessManager;
 import processManager.ProcessMethods;
+import reaction.RegularReaction;
 import reaction.Reaction;
 import referenceLibrary.AspectRef;
 import solver.ODEderivatives;
@@ -25,6 +26,13 @@ import solver.ODEsolver;
 import utility.Helper;
 
 /**
+ * 
+ * Used in combination with ODE solver, passing an ordered double array of 
+ * variable moieties, passed as initial values to the ODE solver (y). The
+ * ODEderivatives function returned by {@link #standardUpdater(
+ * EnvironmentContainer, AgentContainer) standardUpdater} is used to calculated 
+ * and return the derivative (dy/dt) in the same order. After the {@link 
+ * ODEsolver#solve(double[], double) ODE step} updated values are stored.
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
  * @author Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.
@@ -38,7 +46,7 @@ public class ChemostatSolver extends ProcessManager
 	public static String REACTIONS = AspectRef.agentReactions;
 	public static String SOLUTES = AspectRef.soluteNames;
 	public static String AGENT_VOLUME = AspectRef.agentVolume;
-	
+	public String DIVIDE = AspectRef.agentDivision;
 	/**
 	 * The ODE solver to use when updating solute concentrations. 
 	 */
@@ -79,17 +87,17 @@ public class ChemostatSolver extends ProcessManager
 		 * initial values
 		 */
 		LinkedList<Double> y = new LinkedList<Double>();
-		Map<String,Double> solutes = new HashMap<String, Double>(); 
+		
+		double vol = this._environment.getShape().getTotalVolume();
 		
 		/* solutes */
 		for( int i = 0; i < this._n; i++ )
 		{
-			y.add(i, this._environment.getAverageConcentration( _solutes[i] ) );
-			solutes.put( this._solutes[i], y.get(i) );
+			y.add(i, this._environment.getAverageConcentration( _solutes[i] ) * vol );
 		}
 		
 		/* volume: Store in y vector allows for changing volume */
-		y.add( _n , this._environment.getShape().getTotalVolume() );	
+		y.add( _n , vol );	
 		
 		/* Agents: obtain mass map and add to the y vector */
 		int yAgent = 0;
@@ -117,7 +125,13 @@ public class ChemostatSolver extends ProcessManager
 			yODE = this._solver.solve( yODE , this._timeStepSize);
 		} catch (Exception e) {
 			Log.out(Tier.CRITICAL, "Error in ODE solver: " + e);
+			e.printStackTrace();
 		}
+		
+		/* convert solute mass rate to concentration rate to 
+		 * concentration rates */
+		for ( int i = 0; i < _n; i++ )
+			yODE[i] /= yODE[ _n ];
 
 		/*
 		 * Update the environment
@@ -125,6 +139,8 @@ public class ChemostatSolver extends ProcessManager
 		for ( int i = 0; i < this._n; i++ )
 			this._environment.setAllConcentration( this._solutes[i], yODE[i]);
 		this._environment.getShape().setTotalVolume( yODE[ _n ] );
+		if( Log.shouldWrite(Tier.DEBUG) )
+			Log.out(Tier.DEBUG, "new volume: " + yODE[ _n ] );
 		
 		/* 
 		 * Update the agents 
@@ -143,6 +159,10 @@ public class ChemostatSolver extends ProcessManager
 			yAgent += agentMap.size();
 			ProcessMethods.updateAgentMass(a, agentMap );
 		}
+		
+		/* perform final clean-up and update agents to represent updated 
+		 * situation. */
+		this.postStep();
 	}
 	
 	/* ***********************************************************************
@@ -195,17 +215,16 @@ public class ChemostatSolver extends ProcessManager
 				/*
 				 * Setup and re-used objects
 				 */
-				double rate, stoichio;
 				Vector.setAll(dydt, 0.0);
 				HashMap<String, Double> soluteMap = 
 						new HashMap<String, Double>();
 				for( int i = 0; i < _n; i++ )
-					soluteMap.put( _solutes[i], y[i] );
+					soluteMap.put( _solutes[i], y[i]/y[_n] );
 				
 				/*
 				 * In and out flows
 				 */
-				for ( Boundary aBoundary : environment.getOtherBoundaries() )
+				for ( Boundary aBoundary : environment.getNonSpatialBoundaries() )
 				{
 					double volFlowRate = aBoundary.getVolumeFlowRate();
 					if ( volFlowRate < 0.0 )
@@ -222,17 +241,22 @@ public class ChemostatSolver extends ProcessManager
 						for ( int i = 0; i < _n; i++ )
 							dydt[i] += aBoundary.getMassFlowRate( _solutes[i] );
 					}
+					if ( volFlowRate != 0.0 )
+					{
+						if( Log.shouldWrite(Tier.DEBUG))
+							Log.out(Tier.DEBUG, "volume change: " + volFlowRate 
+									+ "temp net change: " + dydt [_n]);
+					}
 				}
 				/*
 				 * Environment reactions
 				 */
 				for ( Reaction aReac : environment.getReactions() )
 				{
-					rate = aReac.getRate( soluteMap );
 					for ( int i = 0; i < _n; i++ )
 					{
-						stoichio = aReac.getStoichiometry( _solutes[i] );
-						dydt[i] += rate * stoichio;
+						dydt[i] += aReac.getProductionRate( soluteMap, 
+								_solutes[i]);
 					}
 				}
 				/*
@@ -242,8 +266,8 @@ public class ChemostatSolver extends ProcessManager
 				for ( Agent a : agents.getAllAgents() )
 				{
 					@SuppressWarnings("unchecked")
-					List<Reaction> reactions = 
-							(List<Reaction>) a.get(REACTIONS);
+					List<RegularReaction> reactions = 
+							(List<RegularReaction>) a.get(REACTIONS);
 					if ( reactions == null )
 						return;
 
@@ -277,18 +301,15 @@ public class ChemostatSolver extends ProcessManager
 									reactionMap.put(var , 0.0);
 							}
 						
-						reactionMap.putAll( agentMap );
-						rate = aReac.getRate( reactionMap );
-						
+						reactionMap.putAll( agentMap );						
 						/*
 						 * Apply the effect of this reaction on the relevant 
 						 * solutes and agent constituents.
 						 */
 						for ( int i = 0; i < _n; i++ )
 						{
-							/* solutes */
-							stoichio = aReac.getStoichiometry( _solutes[i]);
-							dydt[i] += rate * stoichio;
+							dydt[i] += aReac.getProductionRate( reactionMap, 
+									_solutes[i] );
 						}
 						/*
 						 * Apply the effect of this reaction to the agent and
@@ -301,18 +322,26 @@ public class ChemostatSolver extends ProcessManager
 							{
 								i++;
 								/* mass and internal products */
-								stoichio = aReac.getStoichiometry( s );
-								dydt[ _n + yAgent + i ] += rate * stoichio;
+								dydt[ _n + yAgent + i ] += 
+										aReac.getProductionRate(reactionMap, s);
 							}
 						}
 					}
 					yAgent += agentMap.size();
 				}
-				/* convert solute mass rate to concentration rate to 
-				 * concentration rates */
-				for ( int i = 0; i < _n; i++ )
-					dydt[i] /= y[ _n ];
 			}
 		};
+	}
+	
+	protected void postStep()
+	{
+
+		/**
+		 * act upon new agent situations
+		 */
+		for(Agent agent: this._agents.getAllAgents()) 
+		{
+			agent.event(DIVIDE);
+		}
 	}
 }

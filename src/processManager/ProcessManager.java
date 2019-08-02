@@ -1,18 +1,20 @@
 package processManager;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import org.w3c.dom.Element;
 
 import aspect.AspectInterface;
 import aspect.AspectReg;
+import compartment.AgentContainer;
+import compartment.Compartment;
+import compartment.EnvironmentContainer;
 import dataIO.Log.Tier;
+import debugTools.SegmentTimer;
 import dataIO.Log;
 import dataIO.XmlHandler;
 import generalInterfaces.Redirectable;
-import idynomics.AgentContainer;
-import idynomics.Compartment;
-import idynomics.EnvironmentContainer;
 import idynomics.Idynomics;
 import instantiable.Instantiable;
 import referenceLibrary.ClassRef;
@@ -27,6 +29,7 @@ import utility.Helper;
  * \brief Abstract class for managing a process within a {@code Compartment}.
  * 
  * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
  */
 public abstract class ProcessManager implements Instantiable, AspectInterface,
 		Settable, Redirectable
@@ -68,8 +71,20 @@ public abstract class ProcessManager implements Instantiable, AspectInterface,
 	 */
 	protected String _compartmentName;
 	
+	/**
+	 * Parent (owner) node, used for proper object removal via gui.
+	 */
 	protected Settable _parentNode;
+	
+	/**
+	 * Used to track time used per process manager
+	 */
 	private long _realTimeTaken = 0;
+	
+	/**
+	 * Used to track time used per process manager
+	 */
+	private long _tick;
 	
 	/* ***********************************************************************
 	 * CONSTRUCTORS
@@ -92,7 +107,7 @@ public abstract class ProcessManager implements Instantiable, AspectInterface,
 	public void instantiate(Element xmlElem, Settable parent)
 	{
 		this.init(xmlElem, ((Compartment) parent).environment, 
-				((Compartment) parent).agents, ((Compartment) parent).getName());
+				((Compartment) parent).agents,((Compartment) parent).getName());
 	}
 	
 	/**
@@ -121,16 +136,17 @@ public abstract class ProcessManager implements Instantiable, AspectInterface,
 		 */
 		Element p = (Element) xmlElem;
 		if (Helper.isNullOrEmpty(this._name))
-			this.setName( XmlHandler.obtainAttribute(p, XmlRef.nameAttribute, this.defaultXmlTag()));
+			this.setName( XmlHandler.obtainAttribute(p, XmlRef.nameAttribute, 
+					this.defaultXmlTag()));
 		/* Process priority - default is zero. */
 		int priority = 0;
 		if ( XmlHandler.hasAttribute(p, XmlRef.processPriority) )
-			priority = Integer.valueOf(p.getAttribute(XmlRef.processPriority));
+			priority = Integer.valueOf(p.getAttribute(XmlRef.processPriority) );
 		this.setPriority(priority);
 		/* Initial time to step. */
 		double time = Idynomics.simulator.timer.getCurrentTime();
 		if ( XmlHandler.hasAttribute(p, XmlRef.processFirstStep) )
-			time = Double.valueOf( p.getAttribute(XmlRef.processFirstStep) );
+			time = Double.valueOf(p.getAttribute(XmlRef.processFirstStep) );
 		this.setTimeForNextStep(time);
 		/* Time step size. */
 		time = Idynomics.simulator.timer.getTimeStepSize();
@@ -139,8 +155,8 @@ public abstract class ProcessManager implements Instantiable, AspectInterface,
 		this.setTimeStepSize(time);
 		
 		this.redirect(xmlElem);		
-		
-		Log.out(Tier.EXPRESSIVE, this._name + " loaded");
+		if( Log.shouldWrite(Tier.EXPRESSIVE))
+			Log.out(Tier.EXPRESSIVE, this._name + " loaded");
 	}
 	
 	/* ***********************************************************************
@@ -251,29 +267,31 @@ public abstract class ProcessManager implements Instantiable, AspectInterface,
 	 */
 	public void step()
 	{
-		long tick = System.currentTimeMillis();
+		this._tick = System.currentTimeMillis();
 		/*
 		 * This is where subclasses of ProcessManager do their step. Note that
 		 * this._timeStepSize may change if an adaptive timestep is used.
 		 */
 		this.internalStep();
+		if ( !Idynomics.simulator.active())
+			return;
 		/*
 		 * Move the time for next step forward by the step size.
 		 */
-		this._timeForNextStep += this._timeStepSize;
-		/*
-		 * 
-		 */
-		long tock = System.currentTimeMillis();
-		this._realTimeTaken += tock  - tick;
+		this._timeForNextStep = BigDecimal.valueOf( _timeForNextStep ).add(
+				BigDecimal.valueOf( _timeStepSize ) ).doubleValue();
+		
 		Tier level = Tier.EXPRESSIVE;
 		if ( Log.shouldWrite(level) )
 		{
-			Log.out( level, this._name + " next: " + 
-					this._timeForNextStep + ", duration: " + 
-					( (tock - tick ) * 0.001 ) + " s");
+			/* logging time, using BigDecimal prevents weird last decimal 
+			 * round-off errors. */
+			Log.out( level, this._name + " next: " + this._timeForNextStep + 
+					", duration: " + ( BigDecimal.valueOf(
+					System.currentTimeMillis() - _tick ).multiply(
+					BigDecimal.valueOf( 0.001 ) ).doubleValue() ) + " s");
 		}
-		
+		this._realTimeTaken += (System.currentTimeMillis() - _tick);
 	}
 	
 	/**
@@ -295,14 +313,17 @@ public abstract class ProcessManager implements Instantiable, AspectInterface,
 	 * NODE CONSTRUCTION
 	 * **********************************************************************/
 	
+	/**
+	 * \brief returns all known (ClassRef) process managers
+	 * @return all known (ClassRef) process managers
+	 */
 	public static List<String> getAllOptions()
 	{
-		return Idynomics.xmlPackageLibrary.getAll("processManager.library.");
+		return ClassRef.getAllOptions("processManager.library");
 	}
 	
-	
 	/**
-	 * 
+	 * Obtain module for xml output and gui representation.
 	 */
 	public Module getModule()
 	{
@@ -312,9 +333,13 @@ public abstract class ProcessManager implements Instantiable, AspectInterface,
 		
 		modelNode.add(new Attribute(XmlRef.nameAttribute, 
 						this._name, null, true ));
-		
-		modelNode.add(new Attribute(XmlRef.classAttribute, 
-				this.getClass().getSimpleName(), null, false ));
+
+		if ( Idynomics.xmlPackageLibrary.has( this.getClass().getSimpleName() ))
+			modelNode.add(new Attribute(XmlRef.classAttribute, 
+					this.getClass().getSimpleName(), null, false ));
+		else
+			modelNode.add(new Attribute(XmlRef.classAttribute, 
+					this.getClass().getName(), null, false ));
 		
 		modelNode.add(new Attribute(XmlRef.processPriority, 
 				String.valueOf(this._priority), null, true ));
@@ -336,7 +361,7 @@ public abstract class ProcessManager implements Instantiable, AspectInterface,
 	
 	
 	/**
-	 * 
+	 * Set value's that (may) have been changed trough the gui.
 	 */
 	public void setModule(Module node) 
 	{

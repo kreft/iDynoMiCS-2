@@ -1,15 +1,22 @@
 package dataIO;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
+
+import dataIO.Log.Tier;
+import idynomics.Global;
 
 /**
  * \brief Handles file operations, create folders and files, write output.
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
+ * @author Sankalp Arya (sankalp.arya@nottingham.ac.uk) University of Nottingham, U.K.
  */
 public class FileHandler
 {
@@ -48,17 +55,11 @@ public class FileHandler
 			try
 			{
 				base.mkdir();
-				// NOTE Do not write log before output dir is created
-				Log.printToScreen("New directory created "+
-						base.getAbsolutePath(), false);
 				return true;
 			} 
 			catch(SecurityException se)
 			{
-				// NOTE Do not write log before output dir is created.
-				// NOTE do not print this as an error, as this would cause
-				// problems in the GUI
-				Log.printToScreen("Unable to create dir: "+dir+"\n"+se, false);
+				Log.out(Tier.CRITICAL, "Unable to create dir: "+dir+" "+se);
 				return false;
 			}
 		}
@@ -109,9 +110,26 @@ public class FileHandler
 	/**
 	 * opens file
 	 */
-	public void fopen(String file)
+	public ArrayList<String> fopen(String file)
 	{
-		//TODO
+		ArrayList<String> lines = new ArrayList<String>();
+		try
+		  {
+		    BufferedReader reader = new BufferedReader(new FileReader(file));
+		    String line;
+		    while ( (line = reader.readLine()) != null )
+		    {
+		      lines.add(line);
+		    }
+		    reader.close();
+		    return lines;
+		  }
+		  catch (Exception e)
+		  {
+		    System.err.format("Exception occurred trying to read '%s'.", file);
+		    e.printStackTrace();
+		    return null;
+		  }
 	}
 
 	/**
@@ -125,17 +143,22 @@ public class FileHandler
 	// make a new file with unique name.
 	public void fnew(String file)
 	{
-		if ( file.split("/").length > 1 )
-			this.dir(file, 1);
-		try
+		if ( Global.write_to_disc ) 
 		{
-			File f = new File(file);
-			FileWriter fstream = new FileWriter(f, true);
-			this._output = new BufferedWriter(fstream);
-		}
-		catch (IOException e)
-		{
-			Log.printToScreen(e.toString(), false);
+			if ( file.split("/").length > 1 )
+				this.dir(file, 1);
+			try
+			{
+				File f = new File(file);
+				FileWriter fstream = new FileWriter(f, true);
+				this._output = new BufferedWriter(fstream);
+				if( Log.shouldWrite(Tier.EXPRESSIVE) )
+					Log.out(Tier.EXPRESSIVE, "New file: " + file);
+			}
+			catch (IOException e)
+			{
+				Log.printToScreen(e.toString(), false);
+			}
 		}
 	}
 
@@ -170,16 +193,19 @@ public class FileHandler
 	 */
 	public void write(String text)
 	{
-		try
+		if ( Global.write_to_disc ) 
 		{
-			this._output.write(text);
-			if ( this._flushAll )
-				this._output.flush();
-		}
-		catch (IOException e)
-		{
-			Log.printToScreen(e.toString(), false);
-			Log.printToScreen("skipped line: " + text, false);
+			try
+			{
+				this._output.write(text);
+				if ( this._flushAll )
+					this._output.flush();
+			}
+			catch (IOException e)
+			{
+				Log.printToScreen(e.toString(), false);
+				Log.printToScreen("skipped line: " + text, false);
+			}
 		}
 	}
 
@@ -188,14 +214,17 @@ public class FileHandler
 	 */
 	public void fclose()
 	{
-		try
+		if( this._output != null )
 		{
-			this._output.flush();
-			this._output.close();
-		}
-		catch (IOException e)
-		{
-			Log.printToScreen(e.toString(), false);
+			try
+			{
+				this._output.flush();
+				this._output.close();
+			}
+			catch (IOException e)
+			{
+				Log.printToScreen(e.toString(), false);
+			}
 		}
 	}
 

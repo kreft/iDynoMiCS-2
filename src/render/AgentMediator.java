@@ -14,16 +14,17 @@ import com.jogamp.opengl.math.Quaternion;
 import com.jogamp.opengl.util.gl2.GLUT;
 
 import agent.Agent;
+import compartment.AgentContainer;
+import compartment.Compartment;
 import dataIO.Log;
 import dataIO.Log.Tier;
 import grid.ArrayType;
 import grid.SpatialGrid;
-import idynomics.AgentContainer;
-import idynomics.Compartment;
 import linearAlgebra.Vector;
 import referenceLibrary.AspectRef;
 import shape.CartesianShape;
 import shape.CylindricalShape;
+import shape.Dimension;
 import shape.Dimension.DimName;
 import shape.iterator.ShapeIterator;
 import shape.Shape;
@@ -51,7 +52,16 @@ public class AgentMediator implements CommandMediator {
 	
 	protected Compartment _compartment;
 	
-	HashMap<String, Color> soluteColors;
+	HashMap<String, String> soluteColors;
+	
+	/**
+	 * toggle grid view or domain view
+	 */
+	public boolean grid = false;
+	
+	public int activeCol = 0;
+	
+	GLUquadric qobj = null;
 	
 	/*
 	 * shape
@@ -84,11 +94,6 @@ public class AgentMediator implements CommandMediator {
 	private GLUT _glut;
 	
 	/**
-	 * toggle grid view or domain view
-	 */
-	public boolean grid = false;
-	
-	/**
 	 * OpenGL Utility Library
 	 */
 	private GLU _glu;
@@ -112,6 +117,29 @@ public class AgentMediator implements CommandMediator {
 	private float[] _orthoX = new float[]{1,0,0}, _orthoY = new float[]{0,1,0},
 					_orthoZ = new float[]{0,0,1}, _rotTemp = new float[16];
 
+	private float _soluteTranparancy = 0.5f;
+
+	/*
+	 * temporary variables (reused)
+	 */
+	private double[] temp_loc;
+
+	private double[] temp_posA;
+
+	private double[] temp_posB;
+
+	private double[] dp;
+
+	private double height;
+
+	private double[] length;
+
+	private float[] max;
+
+	private float conc;
+
+	private int j;
+
 	/**
 	 * used to set up the open gl camera
 	 */
@@ -128,6 +156,14 @@ public class AgentMediator implements CommandMediator {
 			return new double[] { 0.0, 0.0 };
 	}
 	
+	public void colStep()
+	{
+		if (activeCol > soluteColors.size())
+			activeCol = 0;
+		else
+			activeCol += 1;
+	}
+	
 	/**
 	 * assign agent container via the constructor
 	 * @param agents
@@ -138,18 +174,23 @@ public class AgentMediator implements CommandMediator {
 		this._shape = c.agents.getShape();
 		Collection<String> solutes = c.environment.getSoluteNames();
 		soluteColors = new HashMap<>();
-		for (String s : solutes){
-			soluteColors.put(s, new Color(
-					ExtraMath.random.nextFloat(),
-					ExtraMath.random.nextFloat(),
-					ExtraMath.random.nextFloat()));
-		}
+		if( solutes.size() > 0 )
+			soluteColors.put("Red", (String)solutes.toArray()[0]);
+		if( solutes.size() > 1 )
+			soluteColors.put("Green", (String)solutes.toArray()[1]);
+		if( solutes.size() > 2 )
+			soluteColors.put("Blue", (String)solutes.toArray()[2]);
+		
 		this._compartment = c;
-		this._domainMaxima = new double[3];
+		
+		/* keep dimensions that are not significant at 0 */
+		this._domainMaxima = new double[] { 0.0, 0.0, 0.0 };
 		/* determine kickback for camera positioning */
 		_kickback = 0.0f;
-		for (DimName dn : _shape.getDimensionNames()){
-			float max = (float)_shape.getDimension(dn).getExtreme(1);
+		
+		for (Dimension dn : _shape.getSignificantDimensions())
+		{
+			float max = (float) dn.getExtreme(1);
 			_kickback  = (float) Math.max(_kickback, max);
 			_domainMaxima[_shape.getDimensionIndex(dn)] = max;
 		}
@@ -265,47 +306,42 @@ public class AgentMediator implements CommandMediator {
 	private void draw(Ball ball){
 		_gl.glPushMatrix();
 		applyCurrentColor();
-		double[] loc = GLUtil.make3D(ball._point.getPosition());
-		_gl.glTranslated(loc[0], loc[1], loc[2]);
-		GLUquadric qobj = _glu.gluNewQuadric();
+		temp_loc = GLUtil.make3D(ball._point.getPosition());
+		_gl.glTranslated(temp_loc[0], temp_loc[1], temp_loc[2]);
+		if (qobj == null)
+			qobj = _glu.gluNewQuadric();
 		_glu.gluQuadricDrawStyle(qobj, GLU.GLU_FILL);
 		_glu.gluQuadricNormals(qobj, GLU.GLU_SMOOTH);
 		_glu.gluSphere(qobj, ball._radius, _slices, _stacks);
-		_glu.gluDeleteQuadric(qobj);
+//		_glu.gluDeleteQuadric(qobj);
 		_gl.glPopMatrix();
 	}
 	
 	private void draw(Rod rod) 
 	{
-		Tier level = Tier.BULK;
 		 /* first sphere */
-		double[] posA = GLUtil.make3D(rod._points[0].getPosition());
+		temp_posA = GLUtil.make3D(rod._points[0].getPosition());
 		 /* second sphere*/
-		double[] posB = GLUtil.make3D(rod._points[1].getPosition());
+		temp_posB = GLUtil.make3D(rod._points[1].getPosition());
 		
-		posA = GLUtil.searchClosestCyclicShadowPoint(_shape, posA, posB);
+		temp_posA = GLUtil.searchClosestCyclicShadowPoint(_shape, temp_posA, temp_posB);
 		
 		/* save the transformation matrix, so we do not disturb other drawings */
 		_gl.glPushMatrix();
 
 		applyCurrentColor();
 
-		if ( Log.shouldWrite(level) )
-		{
-			Log.out(level, "Constructing Rod with radius " + rod._radius + " and " 
-					+ _slices + " slices, " + _stacks + " stacks" );
-		}
 		GLUquadric qobj = _glu.gluNewQuadric();
 
 		/* draw first sphere */
-		_gl.glTranslated(posA[0], posA[1], posA[2]);
+		_gl.glTranslated(temp_posA[0], temp_posA[1], temp_posA[2]);
 		_glu.gluQuadricDrawStyle(qobj, GLU.GLU_FILL);
 		_glu.gluQuadricNormals(qobj, GLU.GLU_SMOOTH);
 		_glu.gluSphere(qobj, rod._radius, _slices, _stacks);
 		
 		/* direction from posB to posA */
-		double[] dp = Vector.minus(posB, posA);
-		double height = Vector.normEuclid(dp);
+		dp = Vector.minus(temp_posB, temp_posA);
+		height = Vector.normEuclid(dp);
 		
 		/* draw a cylinder in between */
 		/* save the matrix to rotate only the cylinder */
@@ -339,7 +375,7 @@ public class AgentMediator implements CommandMediator {
 	private void draw(Shape shape){
 		/* save the current modelview matrix */
 		_gl.glPushMatrix();
-		double[] length = GLUtil.make3D(shape.getDimensionLengths());
+		length = GLUtil.make3D(shape.getDimensionLengths());
 		/**
 		 * NOTE moved this here since it seems to resolve black lines in domain 
 		 * square, as long as the domain is drawn first this should not cause
@@ -355,22 +391,21 @@ public class AgentMediator implements CommandMediator {
 //		_gl.glBlendFunc(GL2.GL_SRC_ALPHA, GL2.GL_ONE);
 		_gl.glColor4f(0.9f,0.9f,1.0f,0.1f);
 		
-		if (this.grid)
+		if (this.activeCol != 0)
 		{
 			/* In grid view, solutes are assigned a random color and
 			 *  concentrations are indicated using a mixture of those colors
 			 *  scaled to the next highest decimal of the current maximum conc. 
 			 */
 			ShapeIterator it = _shape.getNewIterator();
-			float max = -1;
+			max = new float[soluteColors.values().size()];
+			int i = 0;
 			if (soluteColors.values().size() > 0){
 				/* get the current maximum concentration */
 				for (String s : soluteColors.keySet()){
-					SpatialGrid grid = _compartment.getSolute(s);
-					max += (float)grid.getMax(ArrayType.CONCN);
+					SpatialGrid grid = _compartment.getSolute(soluteColors.get(s));
+					max[i++] = (float) grid.getMax(ArrayType.CONCN);
 				}
-				/* Scale the maximum to the next highest decimal */
-				max = (int)(max / 10) * 10f + 10f;
 			}
 			
 			for (int[] cur = it.resetIterator(); it.isIteratorValid(); cur = it.iteratorNext())
@@ -378,27 +413,41 @@ public class AgentMediator implements CommandMediator {
 				_gl.glPushMatrix();
 				/* print solutes */ 
 				if (soluteColors.values().size() > 0){
-					/* Transparent white as base color*/
-					Color c0 = new Color(1f,1f,1f,0f);
-					/* blend concentrations w.r.t. their conc. ratio */
-					float sumConc = 0f;
-					for (String s : soluteColors.keySet()){
-						SpatialGrid grid = _compartment.getSolute(s);
-						Color c = soluteColors.get(s);
-						float conc = (float)grid.getValueAt(ArrayType.CONCN, it.iteratorCurrent());
-						c0 = blend(c0, c, sumConc / (sumConc + conc));
-						sumConc += conc;
-						c0 = new Color(
-								c0.getRed() / 255f,
-								c0.getGreen() / 255f,
-								c0.getBlue() / 255f,
-								Math.min(1f, Math.max(0f, sumConc / max)));
+
+					float[] col = new float[] { 0f, 0f, 0f };
+					j = 0;
+					if (this.activeCol == 1)
+					{
+						for (String s : soluteColors.keySet()){
+							SpatialGrid grid = _compartment.getSolute(soluteColors.get(s));
+							conc = (float)grid.getValueAt(ArrayType.CONCN, 
+									it.iteratorCurrent()) / max[j];
+							col[j++] = conc;
+						}
 					}
-					_rgba = c0.getColorComponents(_rgba);
-					/* apply current color with transparency of max. 0.5 */
-					applyCurrentColor(c0.getAlpha() / 255f * 0.5f);
+					else
+					{
+						for (String s : soluteColors.keySet())
+						{
+							if(j == this.activeCol-2)
+							{
+								SpatialGrid grid = _compartment.getSolute(soluteColors.get(s));
+								conc = (float)grid.getValueAt(ArrayType.CONCN, 
+										it.iteratorCurrent()) / max[j];
+								col[j] = conc;
+							}
+							j++;
+						}
+					}
+					
+					_rgba=col;
+					applyCurrentColor(_soluteTranparancy);
 				}
-				drawVoxel(_shape, cur);
+				
+				if (shape.getNumberOfDimensions() > 2)
+					drawVoxel(_shape, cur);
+				else
+					drawsquare(_shape, cur);
 				_gl.glPopMatrix();
 			}
 		}
@@ -417,7 +466,7 @@ public class AgentMediator implements CommandMediator {
 				/* scale y and z relative to x (which we will choose as cube-size)*/
 				_gl.glScaled(1, length[1] / length[0], length[2] / length[0]);
 	
-				/* draw the scaled cube (rectangle).
+				/* draw the scaled cuboid (rectangle).
 				 * Note that a cube with length 0 in one dimension is a plane 
 				 */
 				_glut.glutSolidCube((float)length[0]);
@@ -542,6 +591,26 @@ public class AgentMediator implements CommandMediator {
 		_gl.glEnd();
 	}
 	
+	private void drawsquare(Shape shape, int[] coord)
+	{
+//		Vector3f norm = new Vector3f(0f,0f,1f);
+		double[] in = new double[]{0,0,0};
+		
+		double[] p1 = shape.getGlobalLocation(shape.getLocation(coord, in)); in[1]++;			 // [0 0 0]
+		double[] p2 = shape.getGlobalLocation(shape.getLocation(coord, in)); in[0]++;			 // [0 1 0]
+		double[] p7 = shape.getGlobalLocation(shape.getLocation(coord, in)); in[1]--;			 // [1 1 0]
+		double[] p8 = shape.getGlobalLocation(shape.getLocation(coord, in)); 					 // [1 0 0]
+		
+		_gl.glBegin(GL2.GL_QUADS);
+		// p==0
+		_gl.glVertex3fv(Vector.toFloat(p1), 0);
+		_gl.glVertex3fv(Vector.toFloat(p2), 0);
+		_gl.glVertex3fv(Vector.toFloat(p7), 0);
+		_gl.glVertex3fv(Vector.toFloat(p8), 0);
+		
+		_gl.glEnd();
+	}
+	
 	Color blend( Color c1, Color c2, float ratio ) {
 	    if ( ratio > 1f ) ratio = 1f;
 	    else if ( ratio < 0f ) ratio = 0f;
@@ -566,5 +635,23 @@ public class AgentMediator implements CommandMediator {
 	    int b = (int)((b1 * iRatio) + (b2 * ratio));
 
 	    return new Color( a << 24 | r << 16 | g << 8 | b );
+	}
+	
+	Color addBlend( Color c1, Color c2, float ratio ) {
+
+	    int a = ( c1.getAlpha() * c2.getAlpha()) / 255;
+	    int r = ( c1.getRed() * c2.getRed()) / 255;
+	    int g = ( c1.getGreen() * c2.getGreen()) / 255;
+	    int b = ( c1.getGreen() * c2.getBlue()) / 255;
+
+	    return new Color( r, g, b, a );
+	}
+
+	public void solutTranparancy() {
+		if(_soluteTranparancy >= 0.49f)
+			_soluteTranparancy = 0.05f;
+		else
+			_soluteTranparancy += 0.05f;
+		
 	}
 }

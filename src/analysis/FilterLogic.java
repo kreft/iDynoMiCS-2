@@ -5,15 +5,18 @@ import analysis.filter.Filter;
 import analysis.filter.SoluteFilter;
 import analysis.filter.AndFilter;
 import analysis.filter.SpecificationFilter;
+import analysis.filter.TimerFilter;
 import analysis.filter.ValueFilter;
+import compartment.Compartment;
 import gereralPredicates.*;
-import idynomics.Compartment;
 
 /**
  * Identify and create Filters based on their operators.
  * 
  * , splits the individual filters captured in a CategoryFilter
  * + splits the individual filters captured in a AndFilter
+ * 
+ * # calls the timer filter for current time
  * 
  * specification filters:
  * == isSame (always)
@@ -24,21 +27,30 @@ import idynomics.Compartment;
  * NO operator results in a ValueFilter.
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
+ * @author Sankalp Arya (stxsa33@nottingham.ac.uk), UoN, Nottingham.
  *
  */
 public class FilterLogic {
 
 	public static Filter filterFromString(String filter, Compartment comp)
 	{
+		filter = filter.replaceAll("\\s","");
 		if ( filter.contains( "%" ) )
 		{
 			return new SoluteFilter( filter, comp );
 		}
+		else if ( filter.contains( "#" ))
+		{
+			String f = filter.split( "#" )[1];
+			return new TimerFilter( f );
+		}
 		else
 			return filterFromString(filter);
 	}
+	
 	public static Filter filterFromString(String filter)
 	{
+		filter = filter.replaceAll("\\s","");
 		if ( filter.contains( "," ) )
 		{
 			return new CategoryFilter( filter );
@@ -70,15 +82,19 @@ public class FilterLogic {
 						new IsSame( String.valueOf( f[1] ) ) );
 			}
 		}
-		else if ( filter.contains( ">" ) )
+		else if ( filter.contains( ">" ) || filter.contains( "larger" )  )
 		{
 			String[] f = filter.split( ">" );
+			if( f.length == 1 )
+				f = filter.split( "larger" );
 			return new SpecificationFilter( f[0], 
 					new IsLarger( Double.valueOf( f[1] ) ) );
 		}
-		else if ( filter.contains( "<" ) )
+		else if ( filter.contains( "<" ) || filter.contains( "smaller" )  )
 		{
 			String[] f = filter.split( "<" );
+			if( f.length == 1 )
+				f = filter.split( "smaller" );
 			return new SpecificationFilter( f[0], 
 					new IsSmaller( Double.valueOf( f[1] ) ) );
 		}

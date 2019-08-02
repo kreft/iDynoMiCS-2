@@ -91,13 +91,19 @@ public class AspectReg
 	 */
 	public void add(String key, Object aspect)
 	{
-		if ( aspect == null || key == null)
-			Log.out(Tier.NORMAL, "Received null input, skipping aspect.");
+		if (aspect == null || key == null) 
+		{
+			if ( Log.shouldWrite(Tier.NORMAL) )
+				Log.out(Tier.NORMAL, "Received null input, skipping aspect.");
+		}
 		else
 		{
 			if ( this._aspects.containsKey(key) )
-				Log.out(Tier.DEBUG, "Attempt to add aspect " + key + 
-						" which already exists in this aspect registry");
+			{
+				if (Log.shouldWrite(Tier.DEBUG) )
+					Log.out(Tier.DEBUG, "Attempt to add aspect " + key + 
+							" which already exists in this aspect registry");
+			}
 			else
 			{
 				this._aspects.put(key, new Aspect(aspect, key, this) );
@@ -107,13 +113,19 @@ public class AspectReg
 	
 	public void addInstatiatedAspect(String key, Aspect aspect)
 	{
-		if ( aspect == null || key == null)
-			Log.out(Tier.NORMAL, "Received null input, skipping aspect.");
+		if (aspect == null || key == null)
+		{
+			if( Log.shouldWrite(Tier.NORMAL))
+				Log.out(Tier.NORMAL, "Received null input, skipping aspect.");
+		}
 		else
 		{
 			if ( this._aspects.containsKey(key) )
-				Log.out(Tier.DEBUG, "Attempt to add aspect " + key + 
-						" which already exists in this aspect registry");
+			{
+				if (Log.shouldWrite(Tier.DEBUG))
+					Log.out(Tier.DEBUG, "Attempt to add aspect " + key + 
+							" which already exists in this aspect registry");
+			}
 			else
 				this._aspects.put( key, aspect );
 		}
@@ -145,7 +157,7 @@ public class AspectReg
 	 * 
 	 * @param module
 	 */
-	public void addSubModule(  AspectInterface module, String name)
+	public void addModule(  AspectInterface module, String name)
 	{
 
 		if( module != null && !this._speciesModules.entrySet().contains(module) )
@@ -157,9 +169,25 @@ public class AspectReg
 	 * 
 	 * @param module
 	 */
-	public void removeSubmodule(String module) 
+	public void addModule(String module) 
+	{
+		this._speciesModules.put( module, 
+				Idynomics.simulator.speciesLibrary.get( module ) );
+	}
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param module
+	 */
+	public void removeModule(String module) 
 	{
         _speciesModules.remove( Idynomics.simulator.speciesLibrary.get( module ) );
+	}
+	
+	public void removeModules() 
+	{
+		_speciesModules.clear();
 	}
 	
 	/**
@@ -168,9 +196,9 @@ public class AspectReg
 	 * @param name
 	 * @param library
 	 */
-	public void addSubModule(String name, AspectInterface library)
+	public void addModule(String name, AspectInterface library)
 	{
-		addSubModule( (AspectInterface) library.getValue(name), name );
+		addModule( (AspectInterface) library.getValue(name), name );
 	}
 	
 	public LinkedList<AspectInterface> getSubModules()
@@ -233,13 +261,10 @@ public class AspectReg
 	public void doEvent(AspectInterface initiator, 
 			AspectInterface compliant, double timeStep, String key)
 	{
-		Tier level = Tier.BULK;
 		Aspect a = getAspect(key);
 		if ( a == null )
 		{
-			if ( Log.shouldWrite(level) )
-				Log.out(Tier.BULK, "Warning: aspect registry does not"
-						+ " contain event:" + key);
+			//skip
 		}
 		else if ( a.type != Aspect.AspectClass.EVENT )
 		{
@@ -279,7 +304,7 @@ public class AspectReg
 			add( key, (Object) ObjectFactory.copy(
 					donorReg.getAspect(key).aspect ) );
 		for (String s : donorReg.getSubModuleMap().keySet() )
-			addSubModule(donorReg.getSubModuleMap().get(s), s );
+			addModule(donorReg.getSubModuleMap().get(s), s );
 	}
 
 	/**

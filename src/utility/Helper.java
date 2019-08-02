@@ -1,17 +1,21 @@
 package utility;
 
 import java.awt.Color;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Scanner;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import compartment.Compartment;
 import dataIO.Log;
 import dataIO.Log.Tier;
 import gui.GuiConsole;
-import idynomics.Compartment;
 import idynomics.Idynomics;
 import linearAlgebra.Vector;
 
@@ -20,6 +24,7 @@ import linearAlgebra.Vector;
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
+ * @author Sankalp Arya (sankalp.arya@nottingham.ac.uk) University of Nottingham, U.K.
  */
 public final class Helper
 {
@@ -46,12 +51,56 @@ public final class Helper
 	 */
 	public static boolean isSystemRunningInGUI = false;
 	
-	public static final String[] DIFFERENTIATING_PALETE = new String[] { 
+	public static final String[] DIFFERENTIATING_PALETTE = new String[] { 
 			"cyan", "magenta", "yellow", "blue", "red", "green", "violet",
 			"orange", "springgreen", "azure", "pink", "chartreuse", "black" };
 	
+	/**
+	 * https://docs.oracle.com/javase/6/docs/api/java/lang/Double.html#valueOf%28java.lang.String%29
+	 * regex expressions for checking for double.
+	 */
+	private static final String Digits     = "(\\p{Digit}+)";
+	private static final String HexDigits  = "(\\p{XDigit}+)";
+	// an exponent is 'e' or 'E' followed by an optionally 
+	// signed decimal integer.
+	private static final String Exp        = "[eE][+-]?"+Digits;
+	private static final String fpRegex    =
+	    ("[\\x00-\\x20]*"+ // Optional leading "whitespace"
+	    "[+-]?(" +         // Optional sign character
+	    "NaN|" +           // "NaN" string
+	    "Infinity|" +      // "Infinity" string
+
+	    // A decimal floating-point string representing a finite positive
+	    // number without a leading sign has at most five basic pieces:
+	    // Digits . Digits ExponentPart FloatTypeSuffix
+	    // 
+	    // Since this method allows integer-only strings as input
+	    // in addition to strings of floating-point literals, the
+	    // two sub-patterns below are simplifications of the grammar
+	    // productions from the Java Language Specification, 2nd 
+	    // edition, section 3.10.2.
+
+	    // Digits ._opt Digits_opt ExponentPart_opt FloatTypeSuffix_opt
+	    "((("+Digits+"(\\.)?("+Digits+"?)("+Exp+")?)|"+
+
+	    // . Digits ExponentPart_opt FloatTypeSuffix_opt
+	    "(\\.("+Digits+")("+Exp+")?)|"+
+
+	    // Hexadecimal strings
+	    "((" +
+	    // 0[xX] HexDigits ._opt BinaryExponent FloatTypeSuffix_opt
+	    "(0[xX]" + HexDigits + "(\\.)?)|" +
+
+	    // 0[xX] HexDigits_opt . HexDigits BinaryExponent FloatTypeSuffix_opt
+	    "(0[xX]" + HexDigits + "?(\\.)" + HexDigits + ")" +
+
+	    ")[pP][+-]?" + Digits + "))" +
+	    "[fFdD]?))" +
+	    "[\\x00-\\x20]*");// Optional trailing "whitespace"
+	
 	public static String[] giveMeAGradient(int length)
 	{
+		length = Helper.restrict(length, 256, 2);
 		String[] colors = new String[length];
 		int step = 256 / length;
 		for (int i = 0; i < length; i++)
@@ -61,7 +110,18 @@ public final class Helper
 		}
 		return colors;
 	}
-
+	
+	/**
+	 * \brief restrict int to bounds min and max
+	 * @param a
+	 * @param max
+	 * @param min
+	 * @return
+	 */
+	public static int restrict(int a, int max, int min) 
+	{
+		return Math.max( Math.min(a, max), min );
+	}
 
 	/**
 	 * \brief Obtain user input as string.
@@ -119,6 +179,16 @@ public final class Helper
 		int i = 0;
 		for (String s : options)
 			out[i++] = s;
+		return obtainInput(out, description, shouldLogMessage);
+	}
+	
+	public static String obtainInput(Object[] options,
+			String description, boolean shouldLogMessage)
+	{
+		String[] out = new String[options.length];
+		int i = 0;
+		for (Object s : options)
+			out[i++] = String.valueOf(s);
 		return obtainInput(out, description, shouldLogMessage);
 	}
 	
@@ -201,11 +271,11 @@ public final class Helper
 			return false;
 		else
 		{
-			Log.out(Tier.QUIET, "User input was not recognised, try:\n"
+			Log.printToScreen( "User input was not recognised, try:\n"
 					+ "[Confirming] \n" + 
 					Helper.stringAToString(confirmations) + "\n"
 					+ "[Rejections] \n" +
-					Helper.stringAToString(rejections));
+					Helper.stringAToString(rejections), false);
 			return obtainInput(description, noLog);	
 		}
 	}
@@ -341,6 +411,30 @@ public final class Helper
 		
 	}
 	
+	public static String stringAToString(String[] array, String delim)
+	{
+		String out = "";
+		if (array != null)
+		{
+			for ( String o : array )
+				out += o+delim;
+			return out.substring(0, out.length()-1);
+		}
+		else
+			 return out;
+		
+	}
+	
+	public static String[] concatinate(String[] in, String... extra)
+	{
+		String[] out = new String[ in.length + extra.length ];
+		for ( int i = 0; i < in.length; i++)
+			out[i] = in[i];
+		for ( int i = 0; i < extra.length; i++)
+			out[i+in.length] = extra[i];
+		return out;
+	}
+	
 	/**
 	 * convert first character of String to uppercase.
 	 * @param string
@@ -433,6 +527,31 @@ public final class Helper
 		return out;
 	}
 	
+	public static double totalMass(Object massObject)
+	{
+		double totalMass = 0.0;
+		if ( massObject instanceof Double )
+			totalMass = (double) massObject;
+		else if ( massObject instanceof Double[] )
+		{
+			Double[] massArray = (Double[]) massObject;
+			for ( Double m : massArray )
+				totalMass += m;
+		}
+		else if ( massObject instanceof Map )
+		{
+			// TODO assume all mass types used unless specified otherwise
+			@SuppressWarnings("unchecked")
+			Map<String,Double> massMap = (Map<String,Double>) massObject;
+			totalMass = Helper.totalValue(massMap);
+		}
+		else
+		{
+			// TODO safety?
+		}
+		return totalMass;
+	}
+	
 	public static boolean compartmentAvailable()
 	{
 		if (Idynomics.simulator == null || 
@@ -454,12 +573,18 @@ public final class Helper
 		return out;
 	}
 	
-	public static Color obtainColor(String settingName, Properties properties, String defaultCol)
+	public static Color obtainColor(String settingName, Properties properties, 
+			String defaultCol)
+	{
+		return obtainColor( Helper.setIfNone( 
+				properties.getProperty( settingName ), defaultCol ) );
+	}
+	
+	public static Color obtainColor(String colorString )
 	{
 		/* color vector, get color from config file, use default if not 
 		 * specified */
-		int[] color = Vector.intFromString( Helper.setIfNone( 
-				properties.getProperty( settingName ) , defaultCol) );
+		int[] color = Vector.intFromString( colorString );
 		
 		/* return as color */
 		return new Color( color[0], color[1], color[2] );
@@ -529,6 +654,34 @@ public final class Helper
 		return input.replaceAll("\\s+","");
 	}
 	
+	/**
+	 * Submit command to kernel
+	 * @param command
+	 * @return
+	 */
+	public static String executeCommand(String command) {
+
+		StringBuffer output = new StringBuffer();
+		Process p;
+		
+		try {
+			p = Runtime.getRuntime().exec( command );
+			p.waitFor();
+			BufferedReader reader = new BufferedReader( 
+					new InputStreamReader( p.getInputStream() ) );
+
+            String line = "";
+			while ( (line = reader.readLine() ) != null ) 
+			{
+				if (Log.shouldWrite(Tier.NORMAL) )
+						Log.out(Tier.NORMAL, line + "\n");
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return output.toString();
+	}
+	
 	public static String[] copyStringA(String[] in)
 	{
 		String[] out = new String[in.length];
@@ -536,5 +689,62 @@ public final class Helper
 			out[i] = in[i];
 		return out;
 	}
+	
+	public static String limitLineLength(String in, int length, String linePre)
+	{
+		String out = "";
+		Pattern p = Pattern.compile( "\\G\\s*(.{1," +length+ "})(?=\\s|$)", 
+				Pattern.DOTALL);
+		Matcher m = p.matcher( in );
+		while (m.find())
+		    out += linePre + m.group(1) + "\n";
+		return out.substring(0, out.length()-1);
+	}
 
+	public static String[] subset( String[] in, int start, int stop)
+	{
+		String[] out = new String[stop-start];
+		for ( int i = start; i < stop; i++ )
+			out[i-start] = in[i];
+		return out;
+	}
+	
+	/**
+	 * return next available key that is not already present in integer 
+	 * key set
+	 * 
+	 * @param target
+	 * @param keySet
+	 * @return
+	 */
+	public static int nextAvailableKey(int target, Collection<Integer> keySet)
+	{
+		if (keySet.contains(target))
+			return nextAvailableKey( target+1 , keySet );
+		return target;
+	}
+	
+	/**
+	 * Checks if the passed string can be parsed to double or not.
+	 * @param strParse String to be checked
+	 * @return true or false
+	 */
+	public static boolean dblParseable(String strParse)
+	{
+		if (Pattern.matches(fpRegex, strParse)){
+		    return true;
+		}
+		return false;
+	}
+	
+	public static boolean boolParseable(String strParse)
+	{
+		for( String s : Helper.rejections)
+			if (s.equals(strParse))
+				return true;
+		for( String s : Helper.confirmations)
+			if (s.equals(strParse))
+				return true;
+		return false;
+	}
 }

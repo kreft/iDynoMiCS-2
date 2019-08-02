@@ -4,7 +4,6 @@
 package instantiable;
 
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 
 import dataIO.Log;
 import dataIO.Log.Tier;
@@ -58,6 +57,7 @@ public class Instance
 			String... className)
 	{
 		Object out = null;
+		
 		/* If no class name is provided continue try to obtain from xml.  */
 		if (className == null || className.length == 0)
 		{
@@ -92,10 +92,12 @@ public class Instance
 				out = getNew( className[0], 
 						Idynomics.xmlPackageLibrary.get( className[0] ) );
 			}
+			/* Disabled Debug message 
 			if ( parent == null && Log.shouldWrite(Tier.DEBUG) )
 				Log.out(Tier.DEBUG, "Warning initiating without parent");
 			else if ( xmlElem == null && Log.shouldWrite(Tier.DEBUG) )
 				Log.out(Tier.DEBUG, "Warning initiating without xml element");
+			*/
 			((Instantiable) out).instantiate( xmlElem, parent );
 			return out;
 		} 
@@ -110,6 +112,9 @@ public class Instance
 	}
 	
 	/**
+	 * FIXME @Deprecated only used in unit test, use getNew(className, null) 
+	 * instead
+	 * 
 	 * \brief general method for creating a new instance for an object from the
 	 * classRef library.
 	 * 
@@ -125,6 +130,7 @@ public class Instance
 	 * "packageName.ClassLibrary$".
 	 * @return A new instance of the class required.
 	 */
+	@Deprecated 
 	public static Object getNew(String className)
 	{
 		return getNew(className, Idynomics.xmlPackageLibrary.get(className));
@@ -147,16 +153,7 @@ public class Instance
 	 */
 	public static Object getNew(String className, String prefix)
 	{
-		/*
-		 * Check the first letter is upper case if a separate prefix is provided.
-		 */
-		if ( prefix != null )
-			className = Helper.firstToUpper(className);
-		/*
-		 * Add the prefix, if necessary.
-		 */
-		if ( prefix != null )
-			className = prefix + className;
+		className = contstructClassName(className, prefix);
 		/*
 		 * Finally, try to create a new instance.
 		 */
@@ -174,29 +171,40 @@ public class Instance
 		return out;
 	}
 	
-	/**
-	 * \brief General constructor from xmlNodes, returns a new instance
-	 * directly from an XML node.
-	 * 
-	 * <p><b>IMPORTANT:</b> Static methods cannot be overwritten.</p>
-	 * 
-	 * @param xmlNode Input from protocol file.
-	 */
-	public static Object getNew(Node xmlNode)
+	public static Object getNewThrows(String className, String prefix) throws 
+		InstantiationException, IllegalAccessException, ClassNotFoundException
 	{
-		return getNew((Element) xmlNode, null, (String[]) null);
+		className = contstructClassName(className, prefix);
+		return Class.forName(className).newInstance();
 	}
 	
 	/**
-	 * \brief General constructor from xmlNodes, attempts to resolve package
-	 * from <b>className</b>.
+	 * constructs full class name including prefix using provided prefix or
+	 * from the xmlPackageLibrary if the prefix is missing.
 	 * 
-	 * @param xmlNode Input from protocol file.
-	 * @param className 
+	 * @param className
+	 * @param prefix
+	 * @return
 	 */
-	public static Object getNew(Node xmlNode, String className)
+	private static String contstructClassName(String className, String prefix)
 	{
-		return getNew(className, Idynomics.xmlPackageLibrary.get(className));
+		/*
+		 * Check the first letter is upper case if a separate prefix is provided.
+		 */
+		if ( prefix != null )
+			className = Helper.firstToUpper(className);
+		/*
+		 * Add the prefix, if necessary.
+		 */
+		if ( prefix != null )
+			className = prefix + className;
+		
+		/*
+		 * if path is missing
+		 */
+		if ( prefix == null &! className.contains("."))
+			className = Idynomics.xmlPackageLibrary.getFull( className );
+		return className;
 	}
 	
 	@SuppressWarnings("unused")

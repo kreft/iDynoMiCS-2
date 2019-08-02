@@ -53,8 +53,6 @@ public class Timer implements Instantiable, Settable
 		
 	public void instantiate(Element xmlNode, Settable parent)
 	{
-		Log.out(Tier.NORMAL, "Timer loading...");
-
 		/* Get starting time step */
 		this.setCurrentTime( Double.valueOf( Helper.setIfNone( 
 				XmlHandler.gatherAttribute(
@@ -71,10 +69,6 @@ public class Timer implements Instantiable, Settable
 		/* Get the total time span. */
 		this.setEndOfSimulation( Double.valueOf( XmlHandler.obtainAttribute(
 				xmlNode, XmlRef.endOfSimulation, this.defaultXmlTag() ) ) );
-
-		
-		this.report(Tier.NORMAL);
-		Log.out(Tier.NORMAL, "Timer loaded!\n");
 	}
 	
 	/*************************************************************************
@@ -150,18 +144,18 @@ public class Timer implements Instantiable, Settable
 	
 	public boolean isRunning()
 	{
-		Log.out(Tier.DEBUG, "Timer.isRunning()? now = "+this._now+
-				", end = "+this.getEndOfSimulation()+
-				", so "+(this._now<getEndOfSimulation())); 
+		if( Log.shouldWrite(Tier.DEBUG) )
+			Log.out(Tier.DEBUG, "Timer.isRunning()? now = "+ this._now+
+					", end = "+ this.getEndOfSimulation()+
+					", so "+ (this._now<getEndOfSimulation())); 
 		return this._now < this.getEndOfSimulation();
 	}
 	
 	public void report(Tier outputLevel)
 	{
-		Log.out(outputLevel, "Timer: time is   = "+_now);
-		Log.out(outputLevel, "       iteration = "+getCurrentIteration());
-		Log.out(outputLevel, "       step size = "+getTimeStepSize());
-		Log.out(outputLevel, "       end time  = "+getEndOfSimulation());
+		if( Log.shouldWrite(outputLevel))
+			Log.out(outputLevel, "#"+ getCurrentIteration()+ " time: "+ _now+ 
+					" step: "+ getTimeStepSize()+ " end: "+ getEndOfSimulation());
 	}
 	
 	/*************************************************************************
@@ -210,15 +204,6 @@ public class Timer implements Instantiable, Settable
 		/* end of simulation */
 		this.setEndOfSimulation( Double.valueOf( 
 				node.getAttribute( XmlRef.endOfSimulation ).getValue() ));
-	}
-	
-	/**
-	 * Create a new minimal object of this class and return it
-	 * @return NodeConstructor
-	 */
-	public Settable newBlank()
-	{
-		return new Timer();
 	}
 
 	/**

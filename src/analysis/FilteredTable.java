@@ -6,10 +6,11 @@ import java.util.List;
 import agent.Agent;
 import analysis.filter.Filter;
 import analysis.filter.SoluteFilter;
+import analysis.filter.TimerFilter;
 import aspect.AspectInterface;
+import compartment.Compartment;
 import dataIO.CsvExport;
 import dataIO.Log;
-import idynomics.Compartment;
 import idynomics.Idynomics;
 import linearAlgebra.Vector;
 import utility.Helper;
@@ -79,9 +80,32 @@ public class FilteredTable {
 
 	public FilteredTable(String logic)
 	{
+		this(logic, null);
+	}
+	
+	public FilteredTable(String logic, String com)
+	{
 		this._logic = logic.replaceAll("\\s+","");
-		String t = this._logic.split("~")[0];
-		String c = this._logic.split("~")[1];
+
+		String t;
+		String c;
+		
+		/* what compartment */
+		if ( this._logic.contains("~") )
+		{
+			t = this._logic.split("~")[0];
+			c = this._logic.split("~")[1];
+		} 
+		else if ( com != null ) 
+		{
+			t = com;
+			c = this._logic;
+		}
+		else
+		{
+			t = "0";
+			c = this._logic;
+		}
 		
 		/* work out whether agents need to be excluded from the table */
 		if ( t.contains("?"))
@@ -92,7 +116,7 @@ public class FilteredTable {
 		else
 			this.filter = null;
 		
-		/* work out the compartment */
+		/* associate the compartment */
 		if (Idynomics.simulator.hasCompartment(t))
 			compartment = Idynomics.simulator.getCompartment(t);
 		else
@@ -146,27 +170,19 @@ public class FilteredTable {
 		String out = "Table: " + compartment.getName() + (this.filter == null ? 
 				"" : " ? " + this.filter.header() ) + " \n";
 		LinkedList<AspectInterface> subjects = new LinkedList<AspectInterface>();
-		
-		
-		for (int i = 0; i < columns.size(); i++)
-		{
-			out += columns.get(i).header() + ( this.qualification.get(i) == null 
-					? "" : " ? " + this.qualification.get(i).header() )
-					+ (i < columns.size()-1 ? "\t| " : "\n" );
-		}
-		
-		for (int i = 0; i < columns.size(); i++)
-		{
-			out += "---" + (i < columns.size()-1 ? "\t | " : "\n" );
-		}
-		
+		LinkedList<String> values = new LinkedList<String>();
 		
 		for (int i = 0; i < columns.size(); i++)
 		{
 			if ( columns.get(i) instanceof SoluteFilter )
 			{
-				out += columns.get(i).stringValue(null)
-						+ (i < columns.size()-1 ? "\t| " : "\n" );
+				values.add( columns.get(i).stringValue(null)
+						+ ( "\n" ) );
+			}
+			else if ( columns.get(i) instanceof TimerFilter )
+			{
+				values.add( columns.get(i).stringValue(null)
+						+ ( "\n" ) );
 			}
 			else
 			{
@@ -176,10 +192,17 @@ public class FilteredTable {
 								this.qualification.get(i).match( ( a ) ) )
 							subjects.add(a);
 				
-				out += Vector.toString( Counter.count( columns.get(i), subjects ) )
-						+ (i < columns.size()-1 ? "\t| " : "\n" );
+				values.add(  Vector.toString( Counter.count( columns.get(i), subjects ) )
+						+ ( "\n" ) );
 				subjects.clear();
 			}
+		}
+		
+		for (int i = 0; i < columns.size(); i++)
+		{
+			out += columns.get(i).header() + ( this.qualification.get(i) == null 
+					? "" : " ? " + this.qualification.get(i).header() )
+					+ ( " \t| " ) + values.get( i );
 		}
 		
 		return out;
@@ -194,6 +217,11 @@ public class FilteredTable {
 		for (int i = 0; i < columns.size(); i++)
 		{
 			if ( columns.get(i) instanceof SoluteFilter )
+			{
+				out += columns.get(i).stringValue(null)
+						+ (i < columns.size()-1 ? delimiter : "" );
+			}
+			else if ( columns.get(i) instanceof TimerFilter )
 			{
 				out += columns.get(i).stringValue(null)
 						+ (i < columns.size()-1 ? delimiter : "" );
@@ -237,6 +265,11 @@ public class FilteredTable {
 			{
 				out += columns.get(i).header()
 						+ (i < columns.size()-1 ? delimiter : "" );
+			}
+			else if ( columns.get(i) instanceof TimerFilter)
+			{
+				out += columns.get(i).header()
+						+ (i < columns.size()-1 ? delimiter : "");
 			}
 			else
 			{				

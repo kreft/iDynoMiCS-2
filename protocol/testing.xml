@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+	<simulation log="NORMAL" outputfolder="../results" name="testing">
+	<timer stepSize="60.0" endOfSimulation="10000.0" />
+		<general>
+			<param name="timeStepSize" value="1.0"/>
+			<param name="endOfSimulation" value="60.0"/>
+		</general>
+		<speciesLib>
+			<!-- species/species library The species library contains all agent species 
+				in the simulations. This may include microbial species, plasmid and vector 
+				species, particle species etc. Species states are states that are in principal 
+				identical for all agents of that species. However note that iDynoMiCS 2.0 
+				does allow you to overwrite states on agent level. Thus if a state is defined 
+				both on species level and on agent level, the agent state will be used in 
+				the simulation. small test 
+
+				-->
+			<species name="myOrganism">
+				<aspect name="pigment" type="PRIMARY" class="String" value="RED" />
+				<aspect name="reactions" type="PRIMARY"  class="InstantiableList"> 
+					<list class="RegularReaction" nodeLabel="reaction" 
+					entryClass="RegularReaction" keyClass="String" keyLabel="name">
+						<reaction name="growth">
+							<expression value="mass * mumax * 
+									( ammonium / ( ammonium + Kam ) ) * 
+									( ( oxygen / ( oxygen + Kox ) )">
+								<!-- pg/µm3 --> 
+								<constant name="Kam" 	value="2.40E-06" /> 
+								<constant name="Kox" 	value="6.00E-07" />
+								<!-- per minute -->
+								<constant name="mumax" 	value="1.42E-03" />  
+							</expression>
+							<stoichiometric component="mass" 		coefficient="1.0" />
+							<stoichiometric component="ammonium" 	coefficient="-7.951966182" />
+							<stoichiometric component="nitrite" 	coefficient="7.828426182" />
+							<stoichiometric component="oxygen" 		coefficient="-25.41235268" />
+							<stoichiometric component="local_product" coefficient="1" />
+						</reaction> 
+					</list>
+				</aspect>
+			</species>
+			
+		</speciesLib>
+		<compartment name="chemostat">
+			<shape class="Dimensionless" volume="1e18" />
+			<solutes>
+				<!-- pg / µm3 -->
+				<solute name="ammonium" concentration="1.00E-03" defaultDiffusivity="1.0" />
+				<solute name="oxygen" 	concentration="8.74E-03" defaultDiffusivity="1.0" />
+				<solute name="nitrite" 	concentration="5.00E-06" defaultDiffusivity="1.0"/>
+				<solute name="nitrate" 	concentration="1.00E-03" defaultDiffusivity="1.0"/>
+			</solutes>
+			<reactions>
+			</reactions>
+			<agents>
+				<agent>
+					<aspect name="species" type="PRIMARY" class="String" value="myOrganism" />
+					<!-- pg -->
+					<aspect name="mass" type="PRIMARY" class="Double" value="1e12" />
+				</agent>
+			</agents>
+			<processManagers>
+				<process name="solveChemostat" class="ChemostatSolver" priority="0"
+					firstStep="0.0"  timerStepSize="60.0">
+					<aspect name="soluteNames" type="PRIMARY" class="String[]" value="ammonium,oxygen,nitrite,nitrate" />
+					<aspect name="hMax" type="PRIMARY" class="Double" value="0.1" />
+					<aspect name="solver" type="PRIMARY" class="String" value="heun" />
+				</process>
+			</processManagers>
+		</compartment>
+	</simulation>
+</document>

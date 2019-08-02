@@ -1,8 +1,8 @@
 package analysis.filter;
 
 import aspect.AspectInterface;
+import compartment.Compartment;
 import grid.ArrayType;
-import idynomics.Compartment;
 import referenceLibrary.XmlRef;
 
 public class SoluteFilter implements Filter

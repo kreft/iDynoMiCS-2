@@ -19,6 +19,7 @@ import java.text.DecimalFormat;
 import java.util.Calendar;
 import java.util.Random;
 
+import dataIO.Log;
 import utility.MTRandom;
 
 /**
@@ -35,7 +36,9 @@ import utility.MTRandom;
  * Center (NY, USA)
  * @author Brian Merkey (brim@env.dtu.dk, bvm@northwestern.edu)
  * @author Robert Clegg (rjc096@bham.ac.uk), University of Birmingham, UK
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
  */
+
 public final class ExtraMath
 {
 	/**
@@ -59,6 +62,16 @@ public final class ExtraMath
 	 */
 	public static Random random;
 	
+	/**
+	 * 
+	 */
+	public static long seed;
+	
+	/**
+	 * 
+	 */
+	private static boolean spoiled = true;
+
 	/* ----------------------- Initialising random ------------------------ */
 	
 	/**
@@ -70,6 +83,8 @@ public final class ExtraMath
 		long seed = (long) ( Calendar.getInstance().getTimeInMillis() *
 															Math.random() );
 		initialiseRandomNumberGenerator(seed);
+		ExtraMath.seed = seed;
+		ExtraMath.spoiled = false;
 	}
 	
 	/**
@@ -80,6 +95,8 @@ public final class ExtraMath
 	public static void initialiseRandomNumberGenerator(long seed)
 	{
 		random = new MTRandom(seed);
+		ExtraMath.seed = seed;
+		ExtraMath.spoiled = false;
 	}
 	
 	/**
@@ -102,6 +119,29 @@ public final class ExtraMath
 		{
 			// TODO
 		}
+	}
+	
+	/**
+	 * get the current seed, used to create intermediate restartable save points
+	 * @return
+	 */
+	public static long seed()
+	{
+		if (spoiled)
+		{
+			seed = ExtraMath.random.nextLong();
+			ExtraMath.initialiseRandomNumberGenerator(seed);
+		}
+		return seed;
+	}
+	
+	/**
+	 * Initiate random number generator with given seed
+	 * @param seed
+	 */
+	public static void seed(long seed)
+	{
+		ExtraMath.initialiseRandomNumberGenerator(seed);
 	}
 	
 	/**
@@ -719,6 +759,7 @@ public final class ExtraMath
 	 */
 	public static boolean getRandBool()
 	{
+		ExtraMath.spoiled = true;
 		return random.nextBoolean();
 	}
 	
@@ -732,7 +773,21 @@ public final class ExtraMath
 	// TODO rename getUniRand()? Should be unambiguous
 	public static double getUniRandDbl()
 	{
+		ExtraMath.spoiled = true;
 		return random.nextDouble();
+	}
+	
+	/**
+	 * \brief Return a uniformly distributed random number between 0 and 1.
+	 * 
+	 * <p>Lower bound (0) is inclusive, upper bound (1) is exclusive.</p>
+	 * 
+	 * @return A uniformly distributed random number in [0,1).
+	 */
+	public static float getUniRandFlt()
+	{
+		ExtraMath.spoiled = true;
+		return random.nextFloat();
 	}
 	
 	/**
@@ -781,6 +836,7 @@ public final class ExtraMath
 	 */
 	public static int getUniRandInt(int uBound)
 	{
+		ExtraMath.spoiled = true;
 		return random.nextInt(uBound);
 	}
 	
@@ -818,6 +874,7 @@ public final class ExtraMath
 	 */
 	public static double getNormRand()
 	{
+		ExtraMath.spoiled = true;
 		double phi;
 		do {
 			phi = random.nextGaussian();

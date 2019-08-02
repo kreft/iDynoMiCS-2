@@ -10,11 +10,11 @@ import java.util.Set;
 import org.w3c.dom.Element;
 
 import agent.Agent;
+import compartment.AgentContainer;
+import compartment.EnvironmentContainer;
 import dataIO.Log;
 import dataIO.ObjectFactory;
 import dataIO.XmlHandler;
-import idynomics.AgentContainer;
-import idynomics.EnvironmentContainer;
 import instantiable.Instantiable;
 import dataIO.Log.Tier;
 import linearAlgebra.Array;
@@ -79,31 +79,6 @@ public class SpatialGrid implements Settable, Instantiable
 	 */
 	protected Settable _parentNode;
 	
-	/**
-	 * \brief Log file verbosity level used for debugging the getting of
-	 * values.
-	 * 
-	 * <ul><li>Set to {@code BULK} for normal simulations</li>
-	 * <li>Set to {@code DEBUG} when trying to debug an issue</li></ul>
-	 */
-	protected static final Tier GET_VALUE_LEVEL = Tier.BULK;
-	/**
-	 * \brief Log file verbosity level used for debugging the setting of
-	 * values.
-	 * 
-	 * <ul><li>Set to {@code BULK} for normal simulations</li>
-	 * <li>Set to {@code DEBUG} when trying to debug an issue</li></ul>
-	 */
-	protected static final Tier SET_VALUE_LEVEL = Tier.BULK;
-	/**
-	 * \brief Log file verbosity level used for debugging the flux from the
-	 * neighbor iterator voxel into the current iterator voxel.
-	 * 
-	 * <ul><li>Set to {@code BULK} for normal simulations</li>
-	 * <li>Set to {@code DEBUG} when trying to debug an issue</li></ul>
-	 */
-	protected static final Tier GET_FLUX_WITH_NHB_LEVEL = Tier.BULK;
-	
 	/* ***********************************************************************
 	 * Diffusivity setting
 	 * **********************************************************************/
@@ -155,17 +130,18 @@ public class SpatialGrid implements Settable, Instantiable
 			{
 				/* Find all agents that overlap with this voxel. */
 				shape.voxelOriginTo(location, coord);
-				//FIXME this assumes Cartesian grids
-				//FIXME maybe easier to convert agents to polar coords and then sample?
+				
+				/* FIXME this assumes Cartesian grids  */
 				shape.getVoxelSideLengthsTo(dimension, coord);
 				List<Agent> neighbors = agents.treeSearch(location, dimension);
-				/* If there are any agents in this voxel, update the diffusivity. */
+				/* If there are any agents in this voxel, update the 
+				 * diffusivity. */
 				if ( ! neighbors.isEmpty() )
 				{
-					// TODO Calculate the total biomass/concentration, see if above
-					// the threshold
-					this.setValueAt(
-								DIFFUSIVITY, coord, this._biofilmDiffusivity);
+					/* TODO Calculate the total biomass/concentration, see if 
+					 * above the threshold */
+					this.setValueAt(DIFFUSIVITY, coord, 
+							this._biofilmDiffusivity);
 				}
 				/* Move onto the next voxel. */
 				coord = shape.iteratorNext();
@@ -218,24 +194,30 @@ public class SpatialGrid implements Settable, Instantiable
 
 	public void instantiate(Element xmlElem, Settable parent)
 	{
+		/* Set associated object, naming and initial values */
 		this._shape = ((EnvironmentContainer) parent).getShape();
 		this._parentNode = parent;
 		this._name = XmlHandler.obtainAttribute(xmlElem, 
 				XmlRef.nameAttribute, this.defaultXmlTag());
+		
+		/* TODO should every grid always be instantiated as CONCN grid? */
 		this.newArray(ArrayType.CONCN, 0.0);
 		String conc = XmlHandler.obtainAttribute((Element) xmlElem, 
 				XmlRef.concentration, this.defaultXmlTag());
 		this.setTo(ArrayType.CONCN, conc);
 		((EnvironmentContainer) parent).addSolute(this);
 		
+		/* Set default and biofilm diffusivity */
 		String s;
-		
 		s = XmlHandler.obtainAttribute(xmlElem,
 				XmlRef.defaultDiffusivity, this.defaultXmlTag());
 		this._defaultDiffusivity = Double.valueOf(s);
-		
 		s = XmlHandler.gatherAttribute(xmlElem,
 				XmlRef.biofilmDiffusivity);
+		
+		/* identify whether biofilm diffusivity should be considered identical
+		 * to default diffusivity (in this case there is no need to identify
+		 * the biofilm region */
 		if ( Helper.isNullOrEmpty(s) || s.equals(this._defaultDiffusivity) )
 		{
 			this._diffusivity = DiffusivityType.ALL_SAME;
@@ -554,25 +536,13 @@ public class SpatialGrid implements Settable, Instantiable
 	 */
 	public double getValueAt(ArrayType type, int[] coord)
 	{
-		if ( Log.shouldWrite(GET_VALUE_LEVEL) )
-		{
-			Log.out(GET_VALUE_LEVEL, "Trying to get value at coordinate "
-					+ Vector.toString(coord) + " in "+ type);
-		}
 		if ( this._array.containsKey(type) )
-		{
-			if ( Log.shouldWrite(GET_VALUE_LEVEL) )
-			{
-				Log.out(GET_VALUE_LEVEL, "   returning " 
-						+ this._array.get(type)[coord[0]][coord[1]][coord[2]]);
-			}
 			return this._array.get(type)[coord[0]][coord[1]][coord[2]];
-		}
 		else
 		{
-			//TODO: safety?
-			if ( Log.shouldWrite(GET_VALUE_LEVEL) )
-				Log.out(GET_VALUE_LEVEL, "   returning " + Double.NaN);
+			if ( Log.shouldWrite(Tier.CRITICAL) )
+				Log.out(Tier.CRITICAL, this.getClass().getSimpleName() + 
+						" returning " + Double.NaN);
 			return Double.NaN;
 		}
 	}
@@ -586,11 +556,6 @@ public class SpatialGrid implements Settable, Instantiable
 	 */
 	public void setValueAt(ArrayType type, int[] coord, double value)
 	{
-		if ( Log.shouldWrite(SET_VALUE_LEVEL) )
-		{
-			Log.out(SET_VALUE_LEVEL, "Trying to set value at coordinate "
-					+ Vector.toString(coord) + " in "+ type + " to "+value);
-		}
 		this._array.get(type)[coord[0]][coord[1]][coord[2]] = value;
 	}
 	
@@ -603,11 +568,6 @@ public class SpatialGrid implements Settable, Instantiable
 	 */
 	public void addValueAt(ArrayType type, int[] coord, double value)
 	{
-		if ( Log.shouldWrite(SET_VALUE_LEVEL) )
-		{
-			Log.out(SET_VALUE_LEVEL, "Trying to add "+value+" at coordinate "
-					+Vector.toString(coord)+" in "+type);
-		}
 		this._array.get(type)[coord[0]][coord[1]][coord[2]] += value;
 	}
 	
@@ -620,11 +580,6 @@ public class SpatialGrid implements Settable, Instantiable
 	 */
 	public void timesValueAt(ArrayType type, int[] coord, double value)
 	{
-		if ( Log.shouldWrite(SET_VALUE_LEVEL) )
-		{
-			Log.out(SET_VALUE_LEVEL, "Trying to multiply with " + value 
-					+ " at coordinate "+ Vector.toString(coord) + " in "+ type);
-		}
 		this._array.get(type)[coord[0]][coord[1]][coord[2]] *= value;
 	}
 	
@@ -654,6 +609,8 @@ public class SpatialGrid implements Settable, Instantiable
 	public void setValueAtCurrent(ArrayType type, double value)
 	{
 		this.setValueAt(type, this._shape.iteratorCurrent(), value);
+//		if(this._name.equals("oxygen") && value > 8.74E-6)
+//			System.out.println("catch");
 	}
 
 	/**
@@ -714,13 +671,6 @@ public class SpatialGrid implements Settable, Instantiable
 	// TODO safety if neighbor iterator or arrays are not initialised.
 	public double getDiffusionFromNeighbor()
 	{
-		Tier level = Tier.BULK;
-		if ( Log.shouldWrite(level) )
-		{
-			Log.out(level, " finding flow from nhb "+
-					Vector.toString(this._shape.nbhIteratorCurrent())+
-					" to curr "+Vector.toString(this._shape.iteratorCurrent()));
-		}
 		if ( this._shape.isNbhIteratorInside() )
 		{
 			/* Difference in concentration. */
@@ -737,23 +687,23 @@ public class SpatialGrid implements Settable, Instantiable
 			/* Calculate the the flux from these values. */
 			double flux = concnDiff * diffusivity / dist ;
 			double flow = flux * sArea;
-			if ( Log.shouldWrite(level) )
+			/* Disabled Debug message
+			if ( Log.shouldWrite(Tier.DEBUG) )
 			{
-				Log.out(level, "    concnDiff is "+concnDiff);
-				Log.out(level, "    diffusivity is "+diffusivity);
-				Log.out(level, "    distance is "+dist);
-				Log.out(level, "  => flux is "+flux);
-				Log.out(level, "    surface area is "+sArea);
-				Log.out(level, "  => flow is "+flow);
+				Log.out(Tier.DEBUG, "    concnDiff is "+concnDiff);
+				Log.out(Tier.DEBUG, "    diffusivity is "+diffusivity);
+				Log.out(Tier.DEBUG, "    distance is "+dist);
+				Log.out(Tier.DEBUG, "  => flux is "+flux);
+				Log.out(Tier.DEBUG, "    surface area is "+sArea);
+				Log.out(Tier.DEBUG, "  => flow is "+flow);
 			}
+			*/
 			return flow;
 		}
 		else if ( this._shape.isIteratorValid() )
 		{
 			double flow = 
 					this._shape.nbhIteratorOutside().getDiffusiveFlow(this);
-			if ( Log.shouldWrite(level) )
-				Log.out(level, "  got flow from boundary: "+flow);
 			return flow;
 		}
 		else

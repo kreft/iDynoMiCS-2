@@ -6,9 +6,9 @@ import agent.Agent;
 import agent.Body;
 import aspect.AspectInterface;
 import aspect.Event;
+import compartment.Compartment;
 import dataIO.Log;
 import dataIO.Log.Tier;
-import idynomics.Compartment;
 import linearAlgebra.Vector;
 import referenceLibrary.AspectRef;
 import surface.Point;
@@ -33,7 +33,6 @@ public class ExcreteEPS extends Event
 	public void start(AspectInterface initiator, 
 			AspectInterface compliant, Double timeStep)
 	{
-		Tier level = Tier.BULK;
 		/*
 		 * Find out how much EPS the agent has right now. If it has none, there
 		 * is nothing  more to do.
@@ -74,8 +73,7 @@ public class ExcreteEPS extends Event
 			compliant.reg().doEvent(compliant, null, 0.0, UPDATE_BODY);
 			currentEPS -= epsBlob;
 			((Agent) compliant).registerBirth();
-			if ( Log.shouldWrite(level) )
-				Log.out(level, "EPS particle created");
+
 			epsBlob = ExtraMath.deviateFromCV(maxEPS, 0.1);
 		}
 		this.updateEPS(initiator, currentEPS);

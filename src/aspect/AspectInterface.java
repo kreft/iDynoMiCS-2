@@ -4,13 +4,10 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import aspect.Aspect.AspectClass;
 import dataIO.Log;
 import dataIO.ObjectFactory;
 import dataIO.Log.Tier;
-import instantiable.Instance;
 import referenceLibrary.XmlRef;
-import utility.Helper;
 
 /**
  * The aspect interface is implemented by classes with an aspect registry,
@@ -46,21 +43,7 @@ public abstract interface AspectInterface
 			{
 				Element s = (Element) stateNodes.item(j);
 				key = s.getAttribute( XmlRef.nameAttribute );
-				switch (AspectClass.valueOf( Helper.setIfNone(
-						s.getAttribute( XmlRef.typeAttribute ), 
-						String.valueOf( AspectClass.PRIMARY ) ) ) )
-				{
-				case CALCULATED:
-					aspectReg.add( key , Instance.getNew( s ) );
-					break;
-				case EVENT: 
-					aspectReg.add( key , Instance.getNew( s ) );
-					break;
-				case PRIMARY:
-				default:
-					aspectReg.add( key, ObjectFactory.loadObject( s ) );
-				}
-				Log.out(Tier.BULK, "Aspects loaded for \""+key+"\"");
+				aspectReg.add( key, ObjectFactory.loadObject( s ) );
 			}
 		}
 	}

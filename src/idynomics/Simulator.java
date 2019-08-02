@@ -9,9 +9,12 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 import agent.SpeciesLib;
+import chemical.ChemicalLib;
+import compartment.Compartment;
 import dataIO.Log;
 import dataIO.XmlExport;
 import dataIO.XmlHandler;
+import debugTools.SegmentTimer;
 import dataIO.Log.Tier;
 import dataIO.Report;
 import generalInterfaces.CanPrelaunchCheck;
@@ -21,6 +24,7 @@ import utility.*;
 import referenceLibrary.ClassRef;
 import referenceLibrary.XmlRef;
 import settable.*;
+import settable.Module;
 import settable.Module.Requirements;
 
 /**
@@ -44,10 +48,13 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 	 */
 	public SpeciesLib speciesLibrary = new SpeciesLib();
 
+	public ChemicalLib chemicalLibrary = new ChemicalLib();
 	/**
 	 * The timer
 	 */
 	public Timer timer;
+	
+	public boolean interupt = false;
 	
 	/**
 	 * Xml output writer
@@ -55,6 +62,8 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 	private XmlExport _xmlOut;
 	
 	private long _timeSpentOnXmlOutput = 0;
+	
+	private int _outputTicker = 0;
 	
 	/**
 	 * Simulator is the top node in iDynoMiCS and stores its own modelNode and 
@@ -69,8 +78,9 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 		
 	public Simulator()
 	{
-		//TODO fully implement MTRandom (reading in random seed)
-		ExtraMath.initialiseRandomNumberGenerator();
+		/* Just for unit tests initialize random number generator here */
+		if( ExtraMath.random == null )
+    		ExtraMath.initialiseRandomNumberGenerator();
 		this.timer = new Timer();
 		this._xmlOut = new XmlExport();
 	}
@@ -92,26 +102,6 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 					XmlRef.simulation : Idynomics.global.simulationName;
 	}
 	
-	/**
-	 * get the current seed, used to create intermediate restartable save points
-	 * @return
-	 */
-	public long seed()
-	{
-		long currentSeed = ExtraMath.random.nextLong();
-		ExtraMath.initialiseRandomNumberGenerator(currentSeed);
-		return currentSeed;
-	}
-	
-	/**
-	 * Initiate random number generator with given seed
-	 * @param seed
-	 */
-	public void seed(long seed)
-	{
-		ExtraMath.initialiseRandomNumberGenerator(seed);
-	}
-	
 	public void instantiate(Element xmlElem, Settable parent)
 	{
 		/* 
@@ -119,27 +109,38 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 		 * that seed.
 		 */
 		String seed = XmlHandler.gatherAttribute(xmlElem, XmlRef.seed);
+
 		if ( ! Helper.isNullOrEmpty(seed) )
 			ExtraMath.initialiseRandomNumberGenerator(Long.valueOf(seed));
-		
+		else
+			seed = String.valueOf( ExtraMath.seed );
+		Log.out("Random seed: " + seed);
 		/*
 		 * Set up the Timer.
 		 */
-		Element element = XmlHandler.findUniqueChild( xmlElem, XmlRef.timer );
-		this.timer.instantiate( element, this);
+		this.timer.instantiate( XmlHandler.findUniqueChild( xmlElem, 
+				XmlRef.timer ), this);
 		/*
 		 * Set up the species library.
 		 */
 		if (XmlHandler.hasChild(Idynomics.global.xmlDoc, XmlRef.speciesLibrary))
 		{
-			element = XmlHandler.findUniqueChild(xmlElem, XmlRef.speciesLibrary);
-			this.speciesLibrary = (SpeciesLib) 
-					Instance.getNew( element, this, ClassRef.speciesLibrary );
+			this.speciesLibrary = (SpeciesLib) Instance.getNew(
+					XmlHandler.findUniqueChild( xmlElem, XmlRef.speciesLibrary), 
+					this, ClassRef.speciesLibrary );
+		}
+		/*
+		 * Set up the chemical library.
+		 */
+		if (XmlHandler.hasChild(Idynomics.global.xmlDoc, XmlRef.chemicalLibrary))
+		{
+			this.chemicalLibrary = (ChemicalLib) Instance.getNew(
+					XmlHandler.findUniqueChild( xmlElem, XmlRef.chemicalLibrary), 
+					this, ClassRef.chemicalLibrary );
 		}
 		/*
 		 * Set up the compartments.
 		 */
-		Log.out(Tier.NORMAL, "Compartments loading...");
 		NodeList children;
 		children = XmlHandler.getAll( xmlElem, XmlRef.compartment );
 		if ( children.getLength() == 0 )
@@ -154,11 +155,14 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 			/* Compartments add themselves to the simulator. */
 			Instance.getNew( child, this, XmlRef.compartment );
 		}
-		Log.out(Tier.NORMAL, "Compartments loaded!\n");
-		Log.out(Tier.NORMAL, "Checking connective boundaries...");
 		for ( Compartment compartment : this._compartments )
+		{
+			if (Log.shouldWrite(Tier.EXPRESSIVE))
+				Log.out(Tier.EXPRESSIVE, compartment.getName() + 
+						" validating boundaries.");
 			compartment.checkBoundaryConnections(this._compartments);
-		Log.out(Tier.NORMAL, "Boundaries connected!\n");
+		}
+
 	}
 	
 	/* ***********************************************************************
@@ -281,6 +285,9 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 	
 	public void step()
 	{
+
+		if( Log.shouldWrite(Tier.NORMAL) )
+			this.timer.report(Tier.NORMAL);
 		/*
 		 * Loop through all compartments, updating solute boundaries and asking
 		 * inbound agents to arrive.
@@ -292,7 +299,11 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 		 * Loop through all compartments, calling their internal steps.
 		 */
 		for ( Compartment c : this._compartments )
+		{
 			c.step();
+			if(this.interupt)
+				return;
+		}
 
 		/*
 		 * Once this is done loop through all again, this time exchanging
@@ -300,38 +311,42 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 		 */
 		for ( Compartment c : this._compartments )
 			c.postStep();
-
 		/*
 		 * 
 		 */
 		this.timer.step();
-		
-		/* 
-		 * We let the user know when an global step has finished.
-		 * TODO: iteration number
-		 */
-		Log.out(Tier.NORMAL, "Global time: " + this.timer.getCurrentTime());
+
 		/*
 		 * Write state to new XML file.
 		 */
-		long tick = System.currentTimeMillis();
-		this._xmlOut.writeFile();
-		this._timeSpentOnXmlOutput = System.currentTimeMillis() - tick;
+		if( this._outputTicker < Idynomics.global.outputskip )
+			this._outputTicker++;
+		else
+		{
+			this._xmlOut.writeFile();
+			this._outputTicker = 0;
+		}
 
 		/*
 		 * Reporting agents.
 		 */
 		for (Compartment c : this._compartments)
 		{
-			Log.out(Tier.QUIET,"COMPARTMENT: " + c.getName());
-			Log.out(Tier.QUIET,c.agents.getAllAgents().size() + " agents");
+			if( Log.shouldWrite(Tier.NORMAL) )
+			{
+				Log.out(Tier.NORMAL, c.getName() + " contains " + 
+						c.agents.getAllAgents().size() + " agents");
+			}
 		};
 		
 	}
 	
 	public void run()
 	{
-		Log.out(Tier.NORMAL, "Launching simulation!");
+		/* start storing log on disk */
+		if( Log.shouldWrite(Tier.EXPRESSIVE) )
+			Log.out(Tier.EXPRESSIVE, "Launching simulation!");
+		Log.keep();
 		/*
 		 * Start timing just before simulation starts.
 		 */
@@ -340,28 +355,56 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 		for ( Compartment c : this._compartments )
 			c.checkBoundaryConnections(this._compartments);
 		/* Run the simulation. */
-		while ( this.timer.isRunning() )
+		while ( this.timer.isRunning() && !this.interupt )
 			this.step();
-		/*
-		 * Print the simulation results.
-		 */
-		this.printAll();
-		/*
-		 * Run report file.
-		 */
-		Report report = new Report();
-		report.createCustomFile("report");
-		report.writeReport();
-		report.closeFile();
 		
-		/*
-		 * Report simulation time.
-		 */
-		tic = (System.currentTimeMillis() - tic) * 0.001;
-		Log.out(Tier.QUIET, "Simulation finished in " + tic + " seconds\n"+
-				"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-				+ "~~~~~~~~~~~~~~~~~~~~~~~~\n");
-		this.printProcessManagerRealTimeStats();
+		if ( this.interupt )
+		{
+			tic = (System.currentTimeMillis() - tic) * 0.001;
+			Log.out(Tier.NORMAL, "Simulation terminated in "+ tic +" seconds\n"+
+					"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+					+ "~~~~~~~~~~~~~~~~~~~~~~~~\n");
+		}
+		else
+		{
+			/*
+			 * Print the simulation results.
+			 */
+			this.printAll();
+			/*
+			 * Run report file.
+			 */
+			Report report = new Report();
+			report.createCustomFile("report");
+			report.writeReport();
+			report.closeFile();
+			
+			/*
+			 * Report simulation time.
+			 */
+			tic = (System.currentTimeMillis() - tic) * 0.001;
+			Log.out(Tier.NORMAL, "Simulation finished in " + tic + " seconds\n"+
+					"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+					+ "~~~~~~~~~~~~~~~~~~~~~~~~\n");
+			this.printProcessManagerRealTimeStats();
+			/* Stop and report on all debugger timers (if any enabled). */
+			SegmentTimer.stopAll();
+			
+			/* execute exit command if any */
+			if( !Helper.isNullOrEmpty( Global.exitCommand ) )
+				Helper.executeCommand( Global.exitCommand );
+		}
+	}
+	
+	public void interupt(String message)
+	{
+		this.interupt = true;
+	}
+	
+
+	public boolean active() 
+	{
+		return !this.interupt;
 	}
 	
 	/* ***********************************************************************
@@ -372,9 +415,9 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 	{
 		for ( Compartment c : this._compartments ) 
 		{
-			Log.out(Tier.QUIET, "COMPARTMENT: " + c.name);
+			Log.out(Tier.NORMAL, "COMPARTMENT: " + c.name);
 			c.printAllSoluteGrids();
-			Log.out(Tier.QUIET, c.agents.getNumAllAgents() + " agents");
+			Log.out(Tier.NORMAL, c.agents.getNumAllAgents() + " agents");
 		}
 	}
 
@@ -447,14 +490,14 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 		modelNode.setRequirements(Requirements.EXACTLY_ONE);
 		
 		/* required if we start without a protocol file */
-		Settings.updateSettings();
+		Idynomics.global.updateSettings();
 		if(! Log.isSet())
 			Log.set(Tier.NORMAL);
 		
 		/* add attributes */
 		/* the current random seed */
 		modelNode.add( new Attribute(XmlRef.seed,
-				String.valueOf(seed()), null, true));
+				String.valueOf( ExtraMath.seed() ), null, true));
 		
 		/* the simulation name */
 		modelNode.add( new Attribute(XmlRef.nameAttribute, 
@@ -463,6 +506,11 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 		/* the output folder */
 		modelNode.add(new Attribute(XmlRef.outputFolder, 
 				Idynomics.global.outputRoot, null, false ));
+		
+		/* the subfolder structure */
+		if ( !Helper.isNullOrEmpty( Idynomics.global.subFolderStruct ))
+			modelNode.add(new Attribute(XmlRef.subFolder,
+					Idynomics.global.subFolderStruct, null, false ));
 		
 		/* the log level */
 		modelNode.add(new Attribute(XmlRef.logLevel, Log.level(), 
@@ -477,6 +525,10 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 		
 		/* add species lib */
 		modelNode.add(speciesLibrary.getModule());
+		
+		/* add chemical lib */
+		modelNode.add(chemicalLibrary.getModule());
+		
 		/* add compartment nodes */
 		for ( Compartment c : this._compartments )
 			modelNode.add(c.getModule());
@@ -521,11 +573,17 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 			Idynomics.global.outputRoot = 
 					node.getAttribute(XmlRef.outputFolder).getValue();
 			
+			/* the subfolder structure */
+			if ( !Helper.isNullOrEmpty( Idynomics.global.subFolderStruct ))
+				Idynomics.global.subFolderStruct =
+						node.getAttribute(XmlRef.subFolder).getValue();
+			
 			/* set output level */
 			Log.set(node.getAttribute(XmlRef.logLevel).getValue());
 			
 			/* set random seed */
-			this.seed(Long.valueOf(node.getAttribute(XmlRef.seed).getValue()));
+			ExtraMath.seed( Long.valueOf( 
+					node.getAttribute( XmlRef.seed ).getValue()));
 			
 			/* Set values for all child nodes. */
 			Settable.super.setModule(node);

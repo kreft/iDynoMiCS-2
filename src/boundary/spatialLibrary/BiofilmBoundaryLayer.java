@@ -7,22 +7,23 @@ import java.util.LinkedList;
 import java.util.List;
 
 import agent.Agent;
+import agent.Body;
 import boundary.SpatialBoundary;
 import boundary.WellMixedBoundary;
 import boundary.library.ChemostatToBoundaryLayer;
+import compartment.AgentContainer;
+import compartment.EnvironmentContainer;
 import dataIO.Log;
 import dataIO.Log.Tier;
 import grid.SpatialGrid;
 import grid.WellMixedConstants;
-import idynomics.AgentContainer;
-import idynomics.EnvironmentContainer;
 import linearAlgebra.Vector;
 import referenceLibrary.AspectRef;
 import shape.Shape;
 import surface.Ball;
 import surface.BoundingBox;
-import surface.Collision;
 import surface.Surface;
+import surface.collision.Collision;
 
 /**
  * \brief TODO
@@ -92,7 +93,7 @@ public class BiofilmBoundaryLayer extends WellMixedBoundary
 			return;
 		
 		Shape shape = this._agents.getShape();
-		Collision collision = new Collision(null, shape);
+		Collision collision = new Collision(null, null, shape);
 		double[] zeros = Vector.zerosDbl(shape.getNumberOfDimensions());
 		this._gridSphere = new Ball(zeros, 0.5 * this._layerThickness);
 		this._gridSphere.init(collision);
@@ -168,7 +169,7 @@ public class BiofilmBoundaryLayer extends WellMixedBoundary
 			box = this._gridSphere.boundingBox(this._agents.getShape());
 			neighbors = this._agents.treeSearch(box);
 			for ( Agent a : neighbors )
-				for (Surface s : (List<Surface>) a.get(AspectRef.surfaceList))
+				for (Surface s : (List<Surface>) ((Body) a.get(AspectRef.agentBody)).getSurfaces())
 					if ( this._gridSphere.distanceTo(s) < 0.0 )
 						{
 							grid.setValueAt(WELLMIXED, coords, 
@@ -250,6 +251,11 @@ public class BiofilmBoundaryLayer extends WellMixedBoundary
 			 * Now that the agent is at the top of the boundary layer, perform
 			 * a random walk until it hits a boundary or another agent.
 			 */
+			// FIXME Bas[17.10.17] pull distance is an arbitrary distance which
+			// is used by the agent relaxation to have a search box in which any
+			// agent agent interaction may take place. This distance would
+			// always be larger then any actual interaction and thus I do not
+			// think it is right to use here.
 			double pull = anAgent.getDouble(CURRENT_PULL_DISTANCE);
 			if ( Log.shouldWrite(AGENT_ARRIVE_LEVEL) )
 			{
@@ -327,8 +333,6 @@ public class BiofilmBoundaryLayer extends WellMixedBoundary
 		/*
 		 * Find all agents who are less than layerThickness away.
 		 */
-		Log.out(AGENT_LEVEL, "Grabbing all agents within layer thickness "+
-				this._layerThickness);
 		out.addAll(this._agents.treeSearch(this, this._layerThickness));
 		/*
 		 * Find all agents who are unattached to others or to a boundary,

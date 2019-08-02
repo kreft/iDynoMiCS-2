@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document>
-	<simulation name="rodTest3D" outputfolder="../results" log="DEBUG" randomSeed="22"
-						comment="this is a file for testing purposes only.">
+	<simulation name="rodTest3D" outputfolder="../results" log="DEBUG" 
+		randomSeed="22"	comment="this is a file for testing purposes only."
+		configuration="config/models/arbitrary_testing_01.cfg">
 		
 		<timer stepSize="1.0" endOfSimulation="30.0" />
 		
@@ -15,7 +16,7 @@
 				the simulation. small test -->
 			<species name="rAOB">
 				<aspect name="reactions" type="PRIMARY"  class="InstantiableList"> 
- 					<list class="Reaction" nodeLabel="reaction" entryClass="Reaction" keyClass="String" keyLabel="name">
+ 					<list class="RegularReaction" nodeLabel="reaction" entryClass="RegularReaction" keyClass="String" keyLabel="name">
 						<reaction name="testReact">
 							<expression value="mass * solute1 * k">
 								<constant name="k" value="0.1" />

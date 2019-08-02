@@ -7,8 +7,7 @@ import java.util.Map;
 
 import agent.Agent;
 import agent.SpeciesLib;
-import dataIO.Log.Tier;
-import idynomics.Compartment;
+import compartment.Compartment;
 import idynomics.Idynomics;
 import reaction.Reaction;
 import referenceLibrary.AspectRef;
@@ -26,7 +25,6 @@ public class Diagram
 		String fileString = Idynomics.global.outputLocation + "/" 
 				+ fileName + ".dot";
 		this._diagramFile.fnew(fileString);
-		Log.out(Tier.EXPRESSIVE, "Writing new file: " + fileString);
 		this._diagramFile.write("digraph " + fileName + " {\n");
 	}
 
@@ -88,9 +86,9 @@ public class Diagram
 		{
 			String reacDesc = r.getName()+ "_" + reactions.get(r);
 			this._diagramFile.write(reacDesc + "\n");
-			Map<String,Double> sto = r.getStoichiometry();
+			Map<String,Double> sto = r.getStoichiometryAtStdConcentration();
 			String product;
-			for ( String s : sto.keySet() )
+			for ( String s : r.getReactantNames() )
 			{
 				product = s.equals(AspectRef.agentMass) || s.equalsIgnoreCase(
 						AspectRef.biomass) ? reactions.get(r) : s;

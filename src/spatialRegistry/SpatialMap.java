@@ -1,7 +1,7 @@
 package spatialRegistry;
 
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import dataIO.Log;
@@ -115,7 +115,7 @@ public class SpatialMap<V> extends HashMap<String, V>
 	 */
 	public Set<int[]> keySetNumeric()
 	{
-		Set<int[]> out = new HashSet<int[]>();
+		Set<int[]> out = new LinkedHashSet<int[]>();
 		for ( String key : this.keySet() )
 			out.add(Vector.intFromString(key));
 		return out;

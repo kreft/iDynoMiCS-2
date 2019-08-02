@@ -14,8 +14,8 @@
 			<species name="CanonicalAOB">
 				<aspect name="pigment" type="PRIMARY" class="String" value="RED" />
 				<aspect name="reactions" type="PRIMARY"  class="InstantiableList"> 
-					<list class="Reaction" nodeLabel="reaction" 
-					entryClass="Reaction" keyClass="String" keyLabel="name">
+					<list class="RegularReaction" nodeLabel="reaction" 
+					entryClass="RegularReaction" keyClass="String" keyLabel="name">
 						<reaction name="growth">
 							<expression value="mass * mumax * 
 									( ammonium / ( ammonium + Kam ) ) * 
@@ -47,8 +47,8 @@
 			<species name="CanonicalNOB">
 				<aspect name="pigment" type="PRIMARY" class="String" value="BLUE" />
 				<aspect name="reactions" type="PRIMARY"  class="InstantiableList"> 
-					<list class="Reaction" nodeLabel="reaction" 
-					entryClass="Reaction" keyClass="String" keyLabel="name">
+					<list class="RegularReaction" nodeLabel="reaction" 
+					entryClass="RegularReaction" keyClass="String" keyLabel="name">
 						<reaction name="growth">
 							<expression value="mass * mumax * 
 									( nitrite / ( nitrite + Kni ) ) * 
@@ -83,8 +83,8 @@
 			<species name="ComammoxAOB">
 				<aspect name="pigment" type="PRIMARY" class="String" value="GREEN" />
 				<aspect name="reactions" type="PRIMARY"  class="InstantiableList"> 
-					<list class="Reaction" nodeLabel="reaction" 
-					entryClass="Reaction" keyClass="String" keyLabel="name">
+					<list class="RegularReaction" nodeLabel="reaction" 
+					entryClass="RegularReaction" keyClass="String" keyLabel="name">
 						<reaction name="growth">
 							<expression value="mass * mumax * 
 									( ammonium / ( ammonium + Kam ) ) * 
@@ -151,7 +151,7 @@
 				</agent>
 			</agents>
 			<processManagers>
-				<process name="solveChemostat" class="SolveChemostat" priority="0"
+				<process name="solveChemostat" class="ChemostatSolver" priority="0"
 					firstStep="0.0"  timerStepSize="60.0">
 					<aspect name="soluteNames" type="PRIMARY" class="String[]" value="ammonium,oxygen,nitrite,nitrate" />
 					<aspect name="hMax" type="PRIMARY" class="Double" value="1.0" />

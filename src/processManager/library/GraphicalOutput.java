@@ -10,13 +10,13 @@ import static grid.ArrayType.CONCN;
 
 import agent.Agent;
 import agent.Body;
+import compartment.AgentContainer;
+import compartment.EnvironmentContainer;
 import dataIO.GraphicalExporter;
 import dataIO.Log;
 import dataIO.Log.Tier;
 import grid.ArrayType;
 import grid.SpatialGrid;
-import idynomics.AgentContainer;
-import idynomics.EnvironmentContainer;
 import instantiable.Instance;
 import linearAlgebra.Vector;
 import processManager.ProcessManager;
@@ -131,9 +131,6 @@ public class GraphicalOutput extends ProcessManager
 				"output writer", true, this.options() );
 		this._graphics = (GraphicalExporter) Instance.getNew(null, null, str);
 		
-		/* write scene files (used by pov ray) */
-		this._graphics.init( this._prefix, this._shape );
-		
 		/* set max concentration for solute grid color gradient */
 		this._maxConcn = (double) this.getOr( MAX_VALUE, 2.0 );
 
@@ -171,19 +168,11 @@ public class GraphicalOutput extends ProcessManager
 		else if (_shape instanceof CylindricalShape)
 			this._graphics.circle(Vector.zeros(size), 
 					this._shape.getDimension(DimName.R).getLength(), "lightblue");
-		else
-			Log.out(Tier.BULK,
-					"Computational domain neither rectangular nor circular, "
-					+ this._name + " will not draw a computational domain.");
 		
 		/* Draw solute grid for specified solute, if any. */
 		if ( ! _environment.isSoluteName(this._solute) )
 		{
-			//NOTE Bas [08/06/16] this should not be a critical warning since
-			// this is a sensible option if the user does not want to plot a 
-			// solute (null solute).
-			Log.out(Tier.BULK, this._name+" can't find solute " + this._solute +
-					" in the environment, no solute will be draw");
+			//skip
 		}
 		else
 		{

@@ -11,6 +11,7 @@ import dataIO.Log.Tier;
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
+ * @author Sankalp Arya (sankalp.arya@nottingham.ac.uk) University of Nottingham, U.K.
  */
 public class XmlRef
 {
@@ -47,6 +48,11 @@ public class XmlRef
 	 * Agent node.
 	 */
 	public final static String agent = "agent";
+	
+	/**
+	 * templateAgent node, used by spawner.
+	 */
+	public final static String templateAgent = "templateAgent";
 	
 	/**
 	 * Process manager node.
@@ -330,6 +336,12 @@ public class XmlRef
 	 * Priority of a process manager.
 	 */
 	public final static String processPriority = "priority";
+	
+	/**
+	 * Priority of any given element.
+	 * TODO merge with former (processPriority)
+	 */
+	public final static String priority = "priority";
 
 	/**
 	 * Time for the first timestep of a process manager.
@@ -497,5 +509,111 @@ public class XmlRef
 	 * chemostat volume flowrate
 	 */
 	public static final String volumeFlowRate = "volumeFlowRate";
+	
+	/**
+	 * transferCoefficient
+	 */
+	public static final String transferCoefficient = "transferCoefficient";
+	
+	/**
+	 * define transfer coefficient to be volume specific
+	 */
+	public static final String volumeSpecific = "volumeSpecific";
+	
+	/**
+	 * chemostat volume flowrate for constant chemostat volume
+	 */
+	public static final String constantVolume = "constantVolume";
 
+	/**
+	 * Toggle boundary agent removal on or of
+	 */
+	public static final String agentRemoval = "agentRemoval";
+	
+	/**
+	 * Indicates sub folder (set for SA or GA).
+	 */
+	public final static String subFolder = "subfolder";
+
+	/**
+	 * Number of global time steps to skip for next xml out
+	 */
+	public static final String outputskip = "outputskip";
+	
+	/**
+	 * Scaling factor determined by the real to modelled ratio
+	 */
+	public final static String compartmentScale = "scale";
+	
+	/**
+	 * Actual size of the dimension
+	 */
+	public final static String realMax = "realMax";
+	
+	/**
+	 * Actual size of the dimension
+	 */
+	public final static String realMin = "realMin";
+
+	/**
+	 * Additional required configuration files to be loaded.
+	 */
+	public static final String configuration = "configuration";
+
+	public static final String chemicalLibrary = "chemicalLib";
+
+	public static final String chemical = "chemical";
+
+	public static final String formationGibbs = "formationGibbs";
+
+	public static final String composition = "composition";
+
+	public static final String oxidationState = "oxidationState";
+
+	public static final String halfReaction = "halfReaction";
+
+	public static final String metabolicReaction = "metabolicReaction";
+
+
+	/**
+	 * allows for setting exponential (exp) range scaling in sampler
+	 */
+	public static final String rangeScaleAttribute = "scaling";
+
+	
+	/**
+	 *  All spawners in the compartment
+	 */
+	public static final String spawners = "spawners";
+	
+	
+	public static final String spawner = "spawner";
+	
+	
+	public static final String layerShape = "layerShape";
+	
+	
+	public static final String cellShape = "cellShape";
+	
+
+	public static final String morphology = "morphology";
+
+	
+	public final static String agentBody = "body";
+
+	/**
+	 * refers to linAlg orientation object (unit Vector)
+	 */
+	public static final String orientation = "orientation";
+
+	/**
+	 * 
+	 */
+	public static final String physicalObject = "physicalObject";
+
+	public static final String radius = "radius";
+
+	public static final String length = "length";
+
+	public static final String objects = "objects";
 }

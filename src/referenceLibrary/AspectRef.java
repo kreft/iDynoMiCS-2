@@ -14,6 +14,7 @@ import dataIO.Log.Tier;
  */
 public class AspectRef
 {
+
 	public static String[] getAllOptions()
 	{
 		Field[] fields = AspectRef.class.getFields();
@@ -170,6 +171,11 @@ public class AspectRef
 	 * TODO
 	 */
 	public final static String agentDensity = "density";
+	
+	/**
+	 * TODO
+	 */
+	public static final String agentRepresentedDensity = "representedDensity";
 
 	/**
 	 * TODO
@@ -335,6 +341,16 @@ public class AspectRef
 	/**
 	 * TODO
 	 */
+	public final static String solverAbsTolerance = "absoluteTolerance";
+	
+	/**
+	 * TODO
+	 */
+	public final static String solverRelTolerance = "relativeTolerance";
+	
+	/**
+	 * TODO
+	 */
 	public final static String agentPigment = "pigment";
 
 	/**
@@ -388,6 +404,11 @@ public class AspectRef
 	public static final String gravity_testing = "gravity_testing";
 	
 	/**
+	 * option to limit duration of biofilm compression due to grav
+	 */
+	public static final String LimitCompressionDuration = "LimitCompressionDuration";
+	
+	/**
 	 * List of plasmids for which the conjugation and segregation loss are
 	 * applicable.
 	 */
@@ -439,6 +460,16 @@ public class AspectRef
 	 * Cool down period for the agent before it can undergo conjugation again.
 	 */
 	public final static String coolDownPeriod = "cool_down";
+	
+	/**
+	 * Pilus extension speed.
+	 */
+	public final static String extensionSpeed = "extension_speed";
+	
+	/**
+	 * Pilus retraction speed.
+	 */
+	public final static String retractionSpeed = "retraction_speed";
 
 	/**
 	 * Process manager output filename
@@ -453,6 +484,74 @@ public class AspectRef
 	/**
 	 * 
 	 */
-	public static final String WetDryRatio = "WetDryRatio";
+	public static final String wetDryRatio = "WetDryRatio";
+	/**
+	 * 
+	 */
+	public static final String detachmentRate = "detachmentRate" ;
+	/**
+	 * 
+	 */
+	public static final String attachmentRate = "attachmentRate";
+	
+	/**
+	 * 
+	 */
+	public static final String rasterScale = "rasterScale";
+
+	/**
+	 * Toggle running processManager in verbose mode generating additional plots
+	 * and console output for debugging and understanding of the process 
+	 */
+	public static final String verbose = "verbose";
+
+	/**
+	 * Depth of detachment region eucledian distanceMap.
+	 * 
+	 */
+	public static final String regionDepth = "regionDepth";
+
+	/**
+	 * Increase speed of agent relaxation by scaling to object with highest
+	 * velocity
+	 */
+	public static final String fastAgentRelaxation = "fastRelaxation";
+
+	/**
+	 * force static dt in agent relaxation thereby ignoring max movement,
+	 * time leaping and stress threshold (and thus also does not quantify
+	 * related variables).
+	 */
+	public static final String staticAgentTimeStep = "staticAgentTimeStep";
+
+	/**
+	 * Maximum number of iterations per agent relaxation timestep.
+	 */
+	public static final String maxIterations = "maxIterations";
+
+	/**
+	 * Map with available agent transitions
+	 */
+	public static final String differentiationMap = "differentiationMap";
+
+	/**
+	 * agent differentiations
+	 */
+	public static final String agentDifferentiation = "differentiate";
+
+	/**
+	 * Initial point for distributed spawner class
+	 */
+	public static final String spawnerOrient = "orient";
+
+	/**
+	 * Agent spacing for distributed spawner class 
+	 */
+	public static final String spawnerSpacing = "spacing";
+
+	public static final String collisionFunction = "collisionFunction";
+
+	public static final String attractionFunction = "attractionFunction";
+
 
 }

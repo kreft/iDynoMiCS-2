@@ -21,6 +21,7 @@ import dataIO.Log;
 import dataIO.Log.Tier;
 import idynomics.Idynomics;
 import idynomics.Simulator;
+import idynomics.launchable.SamplerLaunch;
 import utility.Helper;
 
 /**
@@ -81,18 +82,30 @@ public final class GuiMenu
 		menu.add(menuItem);
 		/*
 		 * Output level.
+		 * NOTE this will not work through the menu bar, instead edit trough
+		 * simulation state.		 
+			menu.addSeparator();
+			levelMenu = new JMenu("OutputLevel");
+			levelMenu.setMnemonic(KeyEvent.VK_L);
+			ButtonGroup group = new ButtonGroup();
+			for ( Log.Tier t : Log.Tier.values() )
+			{
+				rbMenuItem = new JRadioButtonMenuItem(new GuiMenu.LogTier(t));
+				group.add(rbMenuItem);
+				levelMenu.add(rbMenuItem);
+			}
+			menu.add(levelMenu);
+		*/
+		
+		/*
+		 * Master protocol sampling
 		 */
 		menu.addSeparator();
-		levelMenu = new JMenu("OutputLevel");
-		levelMenu.setMnemonic(KeyEvent.VK_L);
-		ButtonGroup group = new ButtonGroup();
-		for ( Log.Tier t : Log.Tier.values() )
-		{
-			rbMenuItem = new JRadioButtonMenuItem(new GuiMenu.LogTier(t));
-			group.add(rbMenuItem);
-			levelMenu.add(rbMenuItem);
-		}
-		menu.add(levelMenu);
+		menuItem = new JMenuItem(new GuiMenu.Sampling());
+		menuItem.getAccessibleContext().setAccessibleDescription(
+				"Sample master protocol file");
+		menu.add(menuItem);
+		
 		/*
 		 * Finally, return the File menu.
 		 */
@@ -368,7 +381,7 @@ public final class GuiMenu
 							false );
 				{
 					Raster raster = new Raster( 
-							Helper.selectSpatialCompartment() );
+							Helper.selectSpatialCompartment(), true );
 					raster.rasterize( Double.valueOf( 
 							Helper.obtainInput( null, "Raster scale" ) ) );
 					raster.plot( raster.agentMap(), 1.0, 
@@ -442,6 +455,22 @@ public final class GuiMenu
 		public void actionPerformed(ActionEvent e)
 		{
 			Log.set(this._tier);
+		}
+	}
+	
+	public static class Sampling extends AbstractAction
+	{
+		
+		private SamplerLaunch smp = new SamplerLaunch();
+		
+		public Sampling()
+		{
+	        super("Sample master");
+		}
+	
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			smp.initialize(null);
 		}
 	}
 	

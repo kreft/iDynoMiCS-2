@@ -1,5 +1,6 @@
 package linearAlgebra;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
@@ -114,6 +115,24 @@ public final class Vector
 			vector[i] = object.get(i);
 		return vector;
 	}
+	
+	/**
+	 * \brief Create a double vector from an existing Collection<Double> (capital D)
+	 * @param object
+	 * @return double[] array obtained from list<Double> object
+	 */
+	public static double[] vector(Collection<Double> object)
+	{
+		double[] vector = new double[object.size()];
+		int i = 0;
+		for(Double d : object)
+		{
+			vector[i] = d;
+			i++;
+		}
+		return vector;
+	}
+	
 	
 	/**
 	 * \brief A new integer vector of length <b>n</b>, and all elements set to
@@ -1242,6 +1261,20 @@ public final class Vector
 		return out;
 	}
 	
+
+	/**
+	 * TODO
+	 * @param a
+	 * @param value
+	 * @return
+	 */
+	public static double[] minus(double[] a, double value) {
+		double[] out = new double[a.length];
+		for ( int i = 0; i < a.length; i++ ) 
+			out[i] = a[i] - value;
+		return out;
+	}
+	
 	/**
 	 * \brief Subtract one vector from another, writing the result into <b>a</b>.
 	 * 
@@ -1598,6 +1631,18 @@ public final class Vector
 		checkLengths(destination, a, b);
 		for ( int i = 0; i < a.length; i++ ) 
 			destination[i] = a[i] / b[i];
+	}
+	
+	/**
+	 * \brief divide destination vector elements by divisor.
+	 * @param destination
+	 * @param divisor
+	 */
+	public static double[] divideEqualsA(double[] destination, double divisor)
+	{
+		for ( int i = 0; i < destination.length; i++ ) 
+			destination[i] = destination[i] / divisor;
+		return destination;
 	}
 	
 	/**

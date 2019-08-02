@@ -344,6 +344,20 @@ public class XmlHandler
 		return out;
 	}
 	
+	public static Collection<Element> getAllSubChild(Element parent, String tag)
+	{
+		if (parent == null)
+			return null;
+		LinkedList<Element> out = new LinkedList<Element>();
+		NodeList list = getAll(parent, tag);
+		if ( list != null )
+		{
+			for ( int i = 0; i < list.getLength(); i++)
+				out.add((Element) list.item(i));
+		}
+		return out;
+	}
+	
 	/**
 	 * \brief TODO
 	 * 
@@ -392,16 +406,15 @@ public class XmlHandler
 			return null;
 		
 		NodeList nodes = xmlElement.getElementsByTagName(tagName);
-		if (nodes.getLength() > 1)
+		if (nodes.getLength() > 1 && Log.shouldWrite(Tier.NORMAL) )
 		{
 			Log.out(Tier.NORMAL,"Warning: document contains more than 1"
 					+ tagName + " nodes, loading first simulation node...");
 		}
-		else if (nodes.getLength() == 0)
+		else if ( nodes.getLength() == 0 && Log.shouldWrite(Tier.EXPRESSIVE) )
 		{
-			Log.out(Tier.NORMAL,"Warning: could not identify " + tagName + 
-					" node, make sure your file contains all required elements."
-					+ " Attempt to continue with 'null' node.");
+			Log.out( Tier.EXPRESSIVE,"Warning: could not identify " + tagName + 
+					" node, continueing with 'null' node.");
 			return null;
 		}
 		return (Element) nodes.item(0);
@@ -440,6 +453,24 @@ public class XmlHandler
 		}
 		else
 			return obtainAttribute(e, attribute, tagName);
+	}
+	
+	/**
+	 * \brief Loads attribute from a unique node
+	 * 
+	 * @param xmlElement Element of an XML document.
+	 * @param tagName
+	 * @param attribute
+	 * @return
+	 */
+	public static String gatherAttributeFromUniqueNode(Element xmlElement, 
+			String tagName, String attribute)
+	{
+		Element e = findUniqueChild(xmlElement, tagName);
+		if(e == null)
+			return null;
+		else
+			return gatherAttribute(e, attribute);
 	}
 	
 	/**

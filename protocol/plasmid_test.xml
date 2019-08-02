@@ -18,7 +18,7 @@
 				<speciesModule name="producer" />
 				<aspect name="fitness_cost" type="PRIMARY" class="Double" value="0.0" />
 				<aspect name="reactions" type="PRIMARY"  class="InstantiableList"> 
-					<list class="Reaction" nodeLabel="reaction" entryClass="Reaction" keyClass="String" keyLabel="name">
+					<list class="RegularReaction" nodeLabel="reaction" entryClass="RegularReaction" keyClass="String" keyLabel="name">
 						<reaction name="testReact" comment="biomass specific growth rate">
 							<expression value="mass * (1.0-fitness_cost) * mumax *(solute1 / (solute1 + k) )">
 								<constant name="k" value="0.001" />

@@ -21,18 +21,19 @@ import agent.Agent;
 import agent.Body;
 import agent.predicate.HasAspect;
 import agent.predicate.IsLocated;
+import compartment.AgentContainer;
+import compartment.Compartment;
+import compartment.EnvironmentContainer;
 import dataIO.Log;
 import dataIO.Log.Tier;
-import idynomics.AgentContainer;
-import idynomics.Compartment;
-import idynomics.EnvironmentContainer;
 import processManager.ProcessManager;
 import referenceLibrary.AspectRef;
 import shape.Shape;
-import surface.Collision;
 import surface.Surface;
+import surface.collision.Collision;
 import surface.predicate.AreColliding;
 import utility.ExtraMath;
+import utility.Helper;
 
 /**
  * \brief Plasmid Operations - Conjugation, Segregation Loss and affect on growth
@@ -61,6 +62,8 @@ public class PlasmidDynamics extends ProcessManager {
 	public String TRANS_FREQ = AspectRef.transferFrequency;
 	public String ASPECTS_TRANS = AspectRef.aspectsToTransfer;
 	public String COOL_DOWN_PERIOD = AspectRef.coolDownPeriod;
+	public String EXTENSION_SPEED = AspectRef.extensionSpeed;
+	public String RETRACTION_SPEED = AspectRef.retractionSpeed;
 	
 	/**
 	 * List of plasmids for which conjugation and segregation functions are called.
@@ -76,7 +79,7 @@ public class PlasmidDynamics extends ProcessManager {
 	/**
 	 * Hashmap of agents and the time at which they last underwent conjugation
 	 */
-	private HashMap<Agent, Double> _previousConjugated = new HashMap<Agent, Double>();
+	private static HashMap<Agent, Double> _previousConjugated = new HashMap<Agent, Double>();
 	
 	/**
 	 * List of aspects to be copied from donor to recipient during conjugative transfer.
@@ -89,10 +92,21 @@ public class PlasmidDynamics extends ProcessManager {
 	private Double _currentTime = this.getTimeForNextStep();
 	
 	/**
-	 * Speed of pilus extension, taken to be 40 nm/sec = 144 um/hr
+	 * Speed of F-pilus extension, taken to be 40 nm/sec = 144 um/hr
 	 * See: https://doi.org/10.1073/pnas.0806786105
 	 */
 	private Double _piliExtensionSpeed = 144.0;
+	
+	/**
+	 * Speed of F-pilus retraction, taken to be 16 nm/sec = 57.6 um/hr
+	 * See: https://doi.org/10.1073/pnas.0806786105
+	 */
+	private Double _piliRetractionSpeed = 57.6;
+	
+	/**
+	 * Plasmid length at collision
+	 */
+	private double plasmidLength = 0.0;
 	
 	@SuppressWarnings("unchecked")
 	@Override
@@ -100,8 +114,8 @@ public class PlasmidDynamics extends ProcessManager {
 			AgentContainer agents, String compartmentName)
 	{
 		super.init(xmlElem, environment, agents, compartmentName);
-		PlasmidDynamics._plasmidList = (LinkedList<Object>) this.getOr(PLASMID, null);
-		Iterator<Object> itr = PlasmidDynamics._plasmidList.iterator();
+		_plasmidList = (LinkedList<Object>) this.getOr(PLASMID, null);
+		Iterator<Object> itr = _plasmidList.iterator();
 		while (itr.hasNext()) {
 			String plsmd = itr.next().toString();
 			for (Agent agent: this._agents.getAllAgents())
@@ -131,11 +145,21 @@ public class PlasmidDynamics extends ProcessManager {
 	 * and determine the number of transfer that can happen.
 	 * 
 	 * @param agent a: Donor agent
-	 * @param Collection<Agent>: neighbours of the donor
+	 * @param AgentContainer agents: All agents present in the comparment
 	 * @param plasmid: plasmid undergoing conjugation
+	 * @param tPlasmid: 
 	 */
 	@SuppressWarnings("unchecked")
-	protected boolean conjugate(Agent a, List<Agent> neighbours, String plasmid, Double tPlasmid) {
+	protected boolean conjugate(Agent a, AgentContainer agents, String plasmid, Double tPlasmid) {
+		/*
+		 * Retrieve the plasmid hashmap from the donor agent. 
+		 */
+		HashMap<Object, Object> newPlasmid = (HashMap<Object, Object>) a.get(plasmid);
+		
+		double maxPiliLength = (Double) newPlasmid.get(PILUS_LENGTH);
+		
+		List<Agent> neighbours = agents.treeSearch(a, maxPiliLength);
+		
 		/*
 		 * No need to proceed if there are no neighbours to receive the plasmid.
 		 */
@@ -143,9 +167,16 @@ public class PlasmidDynamics extends ProcessManager {
 			return false;
 		
 		/*
-		 * Retrieve the plasmid hashmap from the donor agent. 
+		 * Extension speed overwrite if given
 		 */
-		HashMap<Object, Object> newPlasmid = (HashMap<Object, Object>) a.get(plasmid);
+		if (!Helper.isNullOrEmpty(newPlasmid.get(EXTENSION_SPEED)))
+			this._piliExtensionSpeed = (Double) newPlasmid.get(EXTENSION_SPEED);
+		
+		/*
+		 * Retraction speed overwrite if given
+		 */
+		if (!Helper.isNullOrEmpty(newPlasmid.get(RETRACTION_SPEED)))
+			this._piliRetractionSpeed = (Double) newPlasmid.get(RETRACTION_SPEED);
 		
 		/*
 		 * Cool down period for the plasmid after conjugation.
@@ -156,19 +187,20 @@ public class PlasmidDynamics extends ProcessManager {
 		 * Number of times the donor can attempt conjugation between two timesteps.
 		 */
 		int numTransfers = (int) Math.floor(this.getTimeStepSize()/cool_down);
+		/* One more transfer if current simulation time is multiple of cool down time. */
 		if ((this._currentTime - _timeStepSize) % cool_down == 0)
 			numTransfers++;
 		
 		/*
 		 * check if the donor has conjugated before. 
 		 */
-		if (!this._previousConjugated.isEmpty() && this._previousConjugated.containsKey(a)) {
+		if (!_previousConjugated.isEmpty() && _previousConjugated.containsKey(a)) {
 			/*
 			 * check if enough time has passed for the donor to be able to conjugate again
 			 */
-			if((this._currentTime + _timeStepSize) >= (this._previousConjugated.get(a) + cool_down)) {
-				tPlasmid = this._previousConjugated.get(a) + cool_down;
-				this._previousConjugated.remove(a);
+			if((this._currentTime + _timeStepSize) >= (_previousConjugated.get(a) + cool_down)) {
+				tPlasmid = _previousConjugated.get(a) + cool_down;
+				_previousConjugated.remove(a);
 			}
 			/*
 			 * If it has undergone conjugation within cool down time, then return. 
@@ -177,10 +209,16 @@ public class PlasmidDynamics extends ProcessManager {
 				return false;
 			}
 		}
-		
-		double transfer_probability = (Double) newPlasmid.get(TRANS_PROB);
-		double maxPiliLength = (Double) newPlasmid.get(PILUS_LENGTH);
-		double transfer_frequency = (Double) newPlasmid.get(TRANS_FREQ);
+		double transfer_frequency;
+		double transfer_probability;
+		if (Helper.isNullOrEmpty(newPlasmid.get(TRANS_PROB))) {
+			transfer_frequency = (Double) newPlasmid.get(TRANS_FREQ);
+			transfer_probability = transfer_frequency * neighbours.size();
+		}
+		else {
+			transfer_probability = (Double) newPlasmid.get(TRANS_PROB);
+			transfer_frequency = transfer_probability;
+		}
 		String[] aspects_transfer = (String[]) newPlasmid.get(ASPECTS_TRANS);
 		this._aspectsToCopy.addAll(Arrays.asList(aspects_transfer));
 		
@@ -225,16 +263,36 @@ public class PlasmidDynamics extends ProcessManager {
 				for (Agent nbr: neighbours) {
 					Body nbrBody = (Body) nbr.getValue(this.BODY);
 					List<Surface> bBodSurfaces = nbrBody.getSurfaces();
-					
+					if (this._plasmidAgents.containsKey(nbr) && 
+							(this._plasmidAgents.get(nbr).containsKey(plasmid)))
+						continue;
 					if (collisionCheck.test(bBodSurfaces)) {
 						pilusAttached = true;
+						plasmidLength = minDist;
 						transferTry++;
+						n = 0;
+						/* Calculate time for complete retraction and add to cool down time. */
+						double addTime = 0.0;
+						if (this._piliRetractionSpeed != 0.0) {
+							addTime = minDist/this._piliRetractionSpeed;
+							cool_down += addTime;
+							/* 
+							 * Use the new cool down time to calculate the number of transfers that
+							 * can happen in this time step.
+							 */
+							numTransfers = (int) Math.floor(this.getTimeStepSize()/cool_down);
+							if ((this._currentTime - _timeStepSize) % cool_down == 0)
+								numTransfers++;
+							if (transferTry >= numTransfers)
+								return false;
+						}
 						double probCheck = ExtraMath.getUniRandDbl();
 						if (probCheck < transfer_probability) {
-							double sendTime = (minDist/this._piliExtensionSpeed) + 
-									this._currentTime - this.getTimeStepSize();
+							double sendTime = this._currentTime - this.getTimeStepSize();
+							if (this._piliExtensionSpeed != 0.0)
+								sendTime += minDist/this._piliExtensionSpeed + addTime;
 							sendPlasmid(a, nbr, plasmid, sendTime);
-							this._previousConjugated.put(a, sendTime);
+							_previousConjugated.put(a, sendTime);
 							if (transferTry >= numTransfers)
 								return true;
 						}
@@ -305,7 +363,7 @@ public class PlasmidDynamics extends ProcessManager {
 			temp.put(plasmid, localTime);
 			this._plasmidAgents.put(nbr, temp);
 		}
-		this._previousConjugated.put(dnr, localTime);
+		_previousConjugated.put(dnr, localTime);
 	}
 	
 	/**
@@ -322,7 +380,7 @@ public class PlasmidDynamics extends ProcessManager {
 		 * The internal step for plasmid dynamics, which will search for all agents with plasmids.
 		 * The plasmids need to listed under the process manager as an item of the linked list "plasmids"
 		 * Retrieves all agents with those plasmids and searches for their neighbours within distance of pilus length
-		 * which is determined by the time of simulation and speed of plasmid - currently fixed at 144 micrometer/hr
+		 * which is determined by the time of simulation and speed of plasmid extension.
 		 */
 		
 		Log.out(Tier.DEBUG, "Plasmid Dynamics internal step starting");
@@ -347,11 +405,16 @@ public class PlasmidDynamics extends ProcessManager {
 				Predicate<Agent> hasPlasmid = new HasAspect(plsmd);
 				neighbours.removeIf(hasPlasmid);
 				boolean conjugation = false;
-				conjugation = this.conjugate(donor, neighbours, plsmd, plasmidsInDonor.get(plsmd));
+				if (!neighbours.isEmpty())
+					conjugation = this.conjugate(donor, c.agents, plsmd, plasmidsInDonor.get(plsmd));
 				if (conjugation) {
 					Log.out(Tier.DEBUG, "Plasmid sent!");
 				}
 			}
 		}
+	}
+	
+	public static void addToPreviousConjugated(Agent a, double time) {
+		_previousConjugated.put(a, time);
 	}
 }

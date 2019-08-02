@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document>
-	<simulation log="DEBUG" outputfolder="../results" name="Comammox_case">
+	<simulation log="DEBUG" outputfolder="../results" name="Comammox_case" subfolder="test">
 	<timer stepSize="60.0" endOfSimulation="10000.0" />
 		<general>
 			<param name="timeStepSize" value="1.0"/>
@@ -18,7 +18,7 @@
 			<species name="CanonicalAOB">
 				<aspect name="pigment" type="PRIMARY" class="String" value="RED" />
 				<aspect name="reactions" type="PRIMARY"  class="InstantiableList"> 
-					<list class="Reaction" nodeLabel="reaction" entryClass="Reaction" keyClass="String" keyLabel="name">
+					<list class="RegularReaction" nodeLabel="reaction" entryClass="RegularReaction" keyClass="String" keyLabel="name">
 						<reaction name="growth">
 							<expression value="mass * mumax * ( ammonium / ( ammonium + Kam ) ) * ( ( oxygen / ( oxygen + Kox ) )">
 								<!-- pg/µm3 --> 
@@ -39,7 +39,7 @@
 			<species name="CanonicalNOB">
 				<aspect name="pigment" type="PRIMARY" class="String" value="BLUE" />
 				<aspect name="reactions" type="PRIMARY"  class="InstantiableList"> 
-					<list class="Reaction" nodeLabel="reaction" entryClass="Reaction" keyClass="String" keyLabel="name">
+					<list class="RegularReaction" nodeLabel="reaction" entryClass="RegularReaction" keyClass="String" keyLabel="name">
 						<reaction name="growth">
 							<expression value="mass * mumax * 
 									( nitrite / ( nitrite + Kni ) ) * ( ( oxygen / ( oxygen + Kox ) ) * ( ammonium / ( ammonium + 0.000000000001 ) )">
@@ -62,7 +62,7 @@
 			<species name="Comammox">
 				<aspect name="pigment" type="PRIMARY" class="String" value="GREEN" />
 				<aspect name="reactions" type="PRIMARY"  class="InstantiableList"> 
-					<list class="Reaction" nodeLabel="reaction" entryClass="Reaction" keyClass="String" keyLabel="name">
+					<list class="RegularReaction" nodeLabel="reaction" entryClass="RegularReaction" keyClass="String" keyLabel="name">
 						<reaction name="growth">
 							<expression value="mass * mumax * ( ammonium / ( ammonium + Kam ) ) * ( ( oxygen / ( oxygen + Kox ) )">
 								<!-- pg/µm3 --> 
@@ -109,7 +109,7 @@
 				</agent>
 			</agents>
 			<processManagers>
-				<process name="solveChemostat" class="SolveChemostat" priority="0" firstStep="0.0"  timerStepSize="60.0">
+				<process name="solveChemostat" class="ChemostatSolver" priority="0" firstStep="0.0"  timerStepSize="60.0">
 					<aspect name="soluteNames" type="PRIMARY" class="String[]" value="ammonium,oxygen,nitrite,nitrate" />
 					<aspect name="hMax" type="PRIMARY" class="Double" value="0.1" />
 					<aspect name="solver" type="PRIMARY" class="String" value="heun" />
