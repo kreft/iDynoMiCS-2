@@ -23,6 +23,7 @@ import org.xml.sax.SAXException;
 import idynomics.Idynomics;
 import referenceLibrary.XmlRef;
 import dataIO.Log.Tier;
+import expression.Expression;
 import utility.Helper;
 
 /**
@@ -206,6 +207,120 @@ public class XmlHandler
 		}
 		return jarFile.getParentFile().getAbsolutePath();
 	}
+	
+	
+	/**
+	 * Gathers non-critical numerical attributes and converts those with units
+	 * to the iDynoMiCS unit system. Returns the attribute as a String. Warning:
+	 * using this method may return a null Double, which could lead to Null
+	 * Pointer Exceptions further down the line. If this return type cannot be
+	 * handled, you should deal with it in the code where this method is called,
+	 * or switch to the obtainDouble method.
+	 */
+	public static Double gatherDouble (Element xmlElement, String attribute)
+	{
+		String string;
+		if ( xmlElement != null && xmlElement.hasAttribute(attribute) )
+			string = xmlElement.getAttribute(attribute);
+		
+		else
+			return (Double) null;
+		
+		try
+		{
+			return Double.parseDouble(string);
+		}
+		
+		catch(NumberFormatException e)
+		{
+			try
+			{
+				return new Expression( string ).format( Idynomics.unitSystem );
+			}
+			catch (NumberFormatException | StringIndexOutOfBoundsException
+					| NullPointerException f)
+			{
+				if( Log.shouldWrite(Tier.NORMAL))
+					Log.out(Tier.NORMAL, "WARNING: Number provided for "
+					+ "attribute '" + attribute + "' is not in the correct "
+					+ "format. Provide a number with a decimal point, and "
+					+ "optionally a unit in square brackets. Returning null.");
+				return null;
+			}
+		}
+	}
+	
+	/**
+	 * Redirects to gatherDouble (Element xmlElement, String attribute)
+	 */
+	public static Double gatherDouble(Node xmlElement, String attribute)
+	{
+		return gatherDouble((Element) xmlElement, attribute);
+	}
+	
+	/**
+	 * Gets a critical numerical attribute from an element. Asks the user if
+	 * the attribute is not present.
+	 */
+	public static Double obtainDouble (Element xmlElement, String attribute, 
+			String tag)
+	{
+		String value;
+		if ( xmlElement != null && xmlElement.hasAttribute(attribute) )
+			value = xmlElement.getAttribute(attribute);
+		
+		else
+		{
+			value = Helper.obtainInput(null,
+					"Required " + attribute +" for node: " + tag + 
+					" (Double value required.)" );
+		}
+		
+		return validateInput(value, attribute, tag);
+	}
+	
+	/**
+	 * This is a method used by obtainDouble to return the double's value, and
+	 * request input if the string provided is not correctly formatted.
+	 */
+	public static Double validateInput (String value, String attribute, 
+			String tag)
+	{
+		try
+		{
+			return Double.parseDouble(value);
+		}
+		
+		catch(NumberFormatException e)
+		{
+			try
+			{
+				return new Expression( value ).format( Idynomics.unitSystem );
+			}
+			catch (NumberFormatException | StringIndexOutOfBoundsException
+					| NullPointerException f)
+			{
+				value = Helper.obtainInput(null,
+						"Required " + attribute +" for node: " + tag + 
+						" Please enter a number with a decimal point and "
+						+ "optional valid unit in square brackets." );
+				
+				return validateInput (value, attribute, tag);
+			}
+		}	
+	}
+
+	
+	/**
+	 * Redirects to obtainDouble (Element xmlElement, String attribute, String
+	 *  tag)
+	 */
+	public static Double obtainDouble (
+			Node xmlNode, String attribute, String tag)
+	{
+		return obtainDouble((Element) xmlNode, attribute, tag);
+	}
+
 
 	/**
 	 * \brief Gathers non critical attributes, returns "" if the attribute is not

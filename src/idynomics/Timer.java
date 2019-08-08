@@ -54,21 +54,20 @@ public class Timer implements Instantiable, Settable
 	public void instantiate(Element xmlNode, Settable parent)
 	{
 		/* Get starting time step */
-		this.setCurrentTime( Double.valueOf( Helper.setIfNone( 
-				XmlHandler.gatherAttribute(
-				xmlNode, XmlRef.currentTime ), "0.0" ) ) );
+		this.setCurrentTime( Helper.setIfNone( XmlHandler.gatherDouble(
+				xmlNode, XmlRef.currentTime ), 0.0 ) );
 		
 		this.setCurrentIteration( Integer.valueOf( Helper.setIfNone( 
 				XmlHandler.gatherAttribute(
 				xmlNode, XmlRef.currentIter ), "0" ) ) );
 		
 		/* Get the time step. */
-		this.setTimeStepSize( Double.valueOf( XmlHandler.obtainAttribute(
-				xmlNode, XmlRef.timerStepSize, this.defaultXmlTag() ) ) );
+		this.setTimeStepSize( XmlHandler.obtainDouble (
+				xmlNode, XmlRef.timerStepSize, this.defaultXmlTag() ) );
 
 		/* Get the total time span. */
-		this.setEndOfSimulation( Double.valueOf( XmlHandler.obtainAttribute(
-				xmlNode, XmlRef.endOfSimulation, this.defaultXmlTag() ) ) );
+		this.setEndOfSimulation( XmlHandler.obtainDouble (
+				xmlNode, XmlRef.endOfSimulation, this.defaultXmlTag() ) );
 	}
 	
 	/*************************************************************************

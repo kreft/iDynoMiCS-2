@@ -310,7 +310,7 @@ public class Unit {
 		
 		/* split by dot · ALT 250 */
 		String[] unitsArray; 
-		units.replace("*", "·");
+		units = units.replace("*", "·");
 		unitsArray = units.split("·");
 		String[] unitPower;
 		Integer power;

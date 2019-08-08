@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
+import expression.Expression;
+import idynomics.Idynomics;
 import utility.ExtraMath;
 import utility.Helper;
 
@@ -269,8 +271,18 @@ public final class Vector
 		vectorString = Helper.removeWhitespace(vectorString);
 		String[] fields = vectorString.split(DELIMITER);
 		double[] vector = new double[fields.length];
-		for ( int i = 0; i < fields.length; i++ )		
-			vector[i] = Double.valueOf(fields[i]);
+		for ( int i = 0; i < fields.length; i++ )	
+		{
+			try
+			{
+				vector[i] = Double.parseDouble(fields[i]);
+			}
+			catch (NumberFormatException e)
+			{
+				vector[i] = 
+					new Expression( fields[i] ).format( Idynomics.unitSystem );
+			}
+		}
 		return vector;
 	}
 	

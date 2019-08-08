@@ -178,13 +178,12 @@ public class ClassRef
 	public final static String densityScaled = 
 			aspect.calculated.DensityScaled.class.getName();
 	
-	/**
-	 * 
+	 /**
+	 *
 	 */
-	public final static String numberWithUnit = 
+	public final static String numberWithUnit =
 			aspect.calculated.NumberWithUnit.class.getName();
-	
-	
+
 	/* ************************************************************************
 	 * Class reference library : Aspects - Event
 	 */

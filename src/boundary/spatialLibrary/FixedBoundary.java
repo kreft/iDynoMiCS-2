@@ -48,9 +48,8 @@ public class FixedBoundary extends SpatialBoundary implements Instantiable
 		{
 			name = XmlHandler.obtainAttribute(e,
 					XmlRef.nameAttribute, XmlRef.concentration);
-			concn = XmlHandler.obtainAttribute(e, 
-					XmlRef.concentration, XmlRef.concentration);
-			this.setConcentration(name, Double.valueOf(concn));
+			this.setConcentration(name, XmlHandler.obtainDouble(e, 
+					XmlRef.concentration, XmlRef.concentration));
 		}
 	}
 	

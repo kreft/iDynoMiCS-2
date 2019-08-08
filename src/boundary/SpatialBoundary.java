@@ -64,9 +64,8 @@ public abstract class SpatialBoundary extends Boundary
 		
 		if ( this.needsLayerThickness() )
 		{
-			s = XmlHandler.obtainAttribute(xmlElement,
-					XmlRef.layerThickness, XmlRef.dimensionBoundary);
-			this.setLayerThickness(Double.valueOf(s));
+			this.setLayerThickness(XmlHandler.obtainDouble(xmlElement,
+					XmlRef.layerThickness, XmlRef.dimensionBoundary));
 		}
 	}
 	

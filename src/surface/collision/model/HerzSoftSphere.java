@@ -35,10 +35,10 @@ public class HerzSoftSphere implements CollisionFunction
 		 * In case of hugely different Young's moduli we may want to extend
 		 * on this and calculate the effective modulus on the fly
 		 */
-		String forceScalar = XmlHandler.gatherAttribute( xmlElement, 
+		Double forceScalar = XmlHandler.gatherDouble( xmlElement, 
 				XmlRef.forceScalar);
-		if( !Helper.isNullOrEmpty( forceScalar ) )
-				this._forceScalar = Double.valueOf( forceScalar );
+		if( forceScalar != null )
+				this._forceScalar = forceScalar;
 	}
 	
 	/**
