@@ -202,30 +202,45 @@ public class SpatialGrid implements Settable, Instantiable
 		
 		/* TODO should every grid always be instantiated as CONCN grid? */
 		this.newArray(ArrayType.CONCN, 0.0);
-		String conc = XmlHandler.obtainAttribute((Element) xmlElem, 
+		
+		//Try to get concentration as one double, attempting Expression conversion
+		Double concentrationDbl = XmlHandler.gatherDouble((Element) xmlElem, 
+				XmlRef.concentration);
+		
+		// If the attribute is an array, obtain as a String, and set the grid
+		//values via Array.dblFromString
+		if (concentrationDbl == null)
+		{
+			String conc = XmlHandler.obtainAttribute((Element) xmlElem, 
 				XmlRef.concentration, this.defaultXmlTag());
-		this.setTo(ArrayType.CONCN, conc);
+			this.setTo(ArrayType.CONCN, conc);
+		}
+		
+		else
+		{
+			this.setAllTo(ArrayType.CONCN, concentrationDbl);
+		}
+		
 		((EnvironmentContainer) parent).addSolute(this);
 		
 		/* Set default and biofilm diffusivity */
-		String s;
-		s = XmlHandler.obtainAttribute(xmlElem,
+		Double diffusivity = XmlHandler.obtainDouble(xmlElem,
 				XmlRef.defaultDiffusivity, this.defaultXmlTag());
-		this._defaultDiffusivity = Double.valueOf(s);
-		s = XmlHandler.gatherAttribute(xmlElem,
+		this._defaultDiffusivity = Double.valueOf(diffusivity);
+		diffusivity = XmlHandler.gatherDouble(xmlElem,
 				XmlRef.biofilmDiffusivity);
 		
 		/* identify whether biofilm diffusivity should be considered identical
 		 * to default diffusivity (in this case there is no need to identify
 		 * the biofilm region */
-		if ( Helper.isNullOrEmpty(s) || s.equals(this._defaultDiffusivity) )
+		if ( diffusivity == null || diffusivity == this._defaultDiffusivity )
 		{
 			this._diffusivity = DiffusivityType.ALL_SAME;
 			this._biofilmDiffusivity = this._defaultDiffusivity;
 		}
 		else
 		{
-			this._biofilmDiffusivity = Double.valueOf(s);
+			this._biofilmDiffusivity = diffusivity;
 			this._diffusivity = DiffusivityType.BIOMASS_SCALED;
 		}
 		

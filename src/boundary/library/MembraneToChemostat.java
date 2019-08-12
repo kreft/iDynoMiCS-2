@@ -38,8 +38,8 @@ public class MembraneToChemostat extends Boundary
 	@Override
 	public void instantiate(Element xmlElement, Settable parent) {
 
-		this._transferCoefficient = Double.valueOf( XmlHandler.obtainAttribute( 
-				xmlElement, XmlRef.transferCoefficient, this.defaultXmlTag() ) );
+		this._transferCoefficient =  XmlHandler.obtainDouble( 
+				xmlElement, XmlRef.transferCoefficient, this.defaultXmlTag() );
 		
 		this._volumeSpecific = Boolean.valueOf( XmlHandler.obtainAttribute( 
 				xmlElement, XmlRef.volumeSpecific, this.defaultXmlTag() ) );

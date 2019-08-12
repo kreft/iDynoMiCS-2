@@ -27,10 +27,10 @@ public class  DefaultPullFunction implements CollisionFunction
 	 */
 	public void instantiate(Element xmlElement, Settable parent)
 	{
-		String forceScalar = XmlHandler.gatherAttribute(xmlElement, 
+		Double forceScalar = XmlHandler.gatherDouble(xmlElement, 
 				XmlRef.forceScalar);
-		if( !Helper.isNullOrEmpty( forceScalar ) )
-				this._forceScalar = Double.valueOf( forceScalar );
+		if( forceScalar != null )
+				this._forceScalar = forceScalar;
 	}
 	
 	/**

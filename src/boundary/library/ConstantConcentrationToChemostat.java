@@ -35,8 +35,8 @@ public class ConstantConcentrationToChemostat extends Boundary
 	@Override
 	public void instantiate(Element xmlElement, Settable parent) {
 
-		this.setVolumeFlowRate( Double.valueOf( XmlHandler.obtainAttribute( 
-				xmlElement, XmlRef.volumeFlowRate, this.defaultXmlTag() ) ) );
+		this.setVolumeFlowRate( XmlHandler.obtainDouble ( 
+				xmlElement, XmlRef.volumeFlowRate, this.defaultXmlTag() ) );
 		
 		NodeList childNodes = XmlHandler.getAll(xmlElement, XmlRef.solute);
 		Element childElem;

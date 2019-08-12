@@ -10,6 +10,7 @@ import org.w3c.dom.Element;
 
 import agent.Body;
 import dataIO.Log.Tier;
+import expression.Expression;
 import generalInterfaces.Copyable;
 import idynomics.Idynomics;
 import instantiable.Instance;
@@ -146,8 +147,17 @@ public class ObjectFactory
 			}
 			catch(NumberFormatException e)
 			{
-				printReadError( input(input, elem), ObjectRef.DBL);
-				return null;
+				try
+				{
+					return (Double) new Expression( input(input, elem) ).format(
+							Idynomics.unitSystem );
+				}
+				catch (NumberFormatException | StringIndexOutOfBoundsException
+						| NullPointerException f)
+				{
+					printReadError( input(input, elem), ObjectRef.DBL);
+					return null;
+				}
 			}
 			
 		case ObjectRef.DBL_VECT : 

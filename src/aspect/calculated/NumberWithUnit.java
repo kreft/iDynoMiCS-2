@@ -2,14 +2,10 @@ package aspect.calculated;
 
 
 import aspect.AspectInterface;
-import java.util.Map;
-
 import aspect.Calculated;
 import expression.Expression;
-import expression.Unit;
-import expression.Unit.SI;
 import idynomics.Idynomics;
-import utility.GenericTrio;
+import utility.Helper;
 
 public class NumberWithUnit extends Calculated {
 
@@ -18,7 +14,21 @@ public class NumberWithUnit extends Calculated {
 	@Override
 	public void setInput(String input)
 	{
-		this._value = new Expression( input ).format( Idynomics.unitSystem );
+		try
+		{
+			this._value = 
+				new Expression( input ).format( Idynomics.unitSystem );
+		}
+		catch (NumberFormatException | StringIndexOutOfBoundsException
+				| NullPointerException f)
+		{
+			input = Helper.obtainInput(null,
+					"The value " + input + "is not in the correct format for "
+					+ "the class NumberWithUnit. Please provide a double with "
+					+ "decimal point and optional valid unit in square "
+					+ "brackets.");
+			setInput(input);
+		}
 	}
 	
 	@Override

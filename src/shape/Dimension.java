@@ -136,6 +136,7 @@ public class Dimension implements CanPrelaunchCheck, Settable,
 	{
 		Element elem = (Element) xmlElement;
 		String str;
+		Double dbl;
 		double val;
 		NodeList bndNodes;
 		Element bndElem;
@@ -157,8 +158,7 @@ public class Dimension implements CanPrelaunchCheck, Settable,
 		
 		/* The maximum has to be set. */
 		str = this.defaultXmlTag() + " " + this._dimName.name();
-		str = XmlHandler.obtainAttribute(elem, XmlRef.max, str);
-		val = Double.valueOf(str);
+		val = XmlHandler.obtainDouble(elem, XmlRef.max, str);
 		/* Convert from degrees to radians for angular dimensions */
 		if ( this.isAngular() )
 			val = Math.toRadians(val);
@@ -166,28 +166,32 @@ public class Dimension implements CanPrelaunchCheck, Settable,
 		
 		/* Set the real max from xml or equal to the compartment size. 
 		 * NOTE please add comments, what is the difference between real max and max? arent they both real?*/
-		str = XmlHandler.gatherAttribute(elem, XmlRef.realMax);
-		if ( !Helper.isNullOrEmpty(str) )
+		dbl = XmlHandler.gatherDouble(elem, XmlRef.realMax);
+		if ( dbl != null )
 		{
-			val = Double.valueOf(str);
+			val = dbl;
 			if ( this.isAngular() )
 				val = Math.toRadians(val);
 		}
 		this.setRealExtreme(val, 1);
 		
 		/* By default the minimum is 0.0 */
-		str = XmlHandler.gatherAttribute(elem, XmlRef.min);
-		val = Helper.isNullOrEmpty(str) ? 0.0 : Double.valueOf(str);
+		val = 0.0;
+		dbl = XmlHandler.gatherDouble(elem, XmlRef.min);
+		if (dbl != null)
+		{
+			val = dbl;
 		/* Convert from degrees to radians for angular dimensions */
-		if ( this.isAngular() )
-			val = Math.toRadians(val);
+			if ( this.isAngular() )
+				val = Math.toRadians(val);
+		}
 		this.setExtreme(val, 0);
 		
 		/* Set the real min from xml or equal to the compartment size. */
-		str = XmlHandler.gatherAttribute(elem, XmlRef.realMin);
-		if ( !Helper.isNullOrEmpty(str) )
+		dbl = XmlHandler.gatherDouble(elem, XmlRef.realMin);
+		if ( dbl != null )
 		{
-			val = Double.valueOf(str);
+			val = dbl;
 			if ( this.isAngular() )
 				val = Math.toRadians(val);
 		}
@@ -197,11 +201,11 @@ public class Dimension implements CanPrelaunchCheck, Settable,
 		double length = this.getLength();
 		
 		/* Fetch target resolution (or use length as default). */
-		str = XmlHandler.obtainAttribute(elem, XmlRef.targetResolutionAttribute,
+		dbl = XmlHandler.obtainDouble(elem, XmlRef.targetResolutionAttribute,
 				this.defaultXmlTag() + " " + this._dimName.name());
 		this._targetRes = length; 
-		if ( str != "" )
-			this._targetRes = Double.valueOf(str);
+		if ( dbl != null )
+			this._targetRes = dbl;
 		
 		/* Set theta dimension cyclic for a full circle, no matter what 
 		 * the user specified */
