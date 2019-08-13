@@ -6,6 +6,8 @@ import java.util.List;
 import dataIO.Log;
 import dataIO.Log.Tier;
 import linearAlgebra.Vector;
+import spatialRegistry.Area;
+import spatialRegistry.Entry;
 
 @SuppressWarnings( {"rawtypes", "unchecked"} )
 public class Node<T> extends Area
@@ -244,9 +246,9 @@ public class Node<T> extends Area
 	 */
 	double[] splits()
 	{
-		double[] split = new double[this.low.length];
-		for (int i = 0; i < this.low.length; i++)
-			split[i] = this.low[i] + ( (this.high[i] - this.low[i]) / 2.0 );
+		double[] split = new double[this.getLow().length];
+		for (int i = 0; i < this.getLow().length; i++)
+			split[i] = this.getLow()[i] + ( (this.getHigh()[i] - this.getLow()[i]) / 2.0 );
 		return split;
 	}
 	
@@ -260,7 +262,7 @@ public class Node<T> extends Area
 	
 	List<boolean[]> combinations()
 	{
-		return this.combinations(low.length);
+		return this.combinations(getLow().length);
 	}
 	
 	private List<boolean[]> combinations(int length)

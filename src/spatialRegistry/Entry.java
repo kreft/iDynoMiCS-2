@@ -1,21 +1,29 @@
-package spatialRegistry.splitTree;
+package spatialRegistry;
 
 import java.util.List;
 
 public class Entry<T> extends Area
 {
 	
-	T entry;
+	private T entry;
 	
 	public Entry(double[] low, double[] high, T entry)
 	{
 		super(low, high);
-		this.entry = entry;
+		this.setEntry(entry);
 	}
 
 	@Override
 	public void add(List<Area> entries) {
 		// Do nothing
+	}
+
+	public T getEntry() {
+		return entry;
+	}
+
+	public void setEntry(T entry) {
+		this.entry = entry;
 	}
 
 }

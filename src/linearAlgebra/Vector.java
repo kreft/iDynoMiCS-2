@@ -430,6 +430,19 @@ public final class Vector
 		return out;
 	}
 	
+	public static double[] replace(int field, double value, double[] source)
+	{
+		double[] out = new double[source.length];
+		for ( int i = 0; i < source.length; i++ )
+		{
+			if ( i == field)
+				out[i] = value;
+			else		
+				out[i] = source[i];
+		}
+		return out;
+	}
+	
 	/**
 	 * \brief Copy the <b>vector</b> given to a new boolean[] array.
 	 * 

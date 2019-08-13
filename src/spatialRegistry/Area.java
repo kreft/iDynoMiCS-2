@@ -1,13 +1,13 @@
-package spatialRegistry.splitTree;
+package spatialRegistry;
 
 import java.util.List;
 import java.util.function.Predicate;
 
 public class Area implements Predicate<Area> {
 	
-	final double[] low;
+	private final double[] low;
 	
-	final double[] high;
+	private final double[] high;
 	
 	boolean periodic = true;
 	
@@ -27,7 +27,7 @@ public class Area implements Predicate<Area> {
 	public boolean test(Area area) 
 	{
 		/* periodic set use the more expensive periodic check */
-		for (int i = 0; i < low.length; i++)
+		for (int i = 0; i < getLow().length; i++)
 			if ( ( periodic || area.periodic) ? periodic(area, i) : normal(area, i) )
 				return true;
 		return false;		
@@ -36,7 +36,7 @@ public class Area implements Predicate<Area> {
 	public boolean sectorTest(Area area) 
 	{
 		/* periodic set use the more expensive periodic check */
-		for (int i = 0; i < low.length; i++)
+		for (int i = 0; i < getLow().length; i++)
 			if ( sector(area, i) )
 				return true;
 		return false;		
@@ -44,24 +44,24 @@ public class Area implements Predicate<Area> {
 	
 	private boolean normal(Area area, int dim)
 	{
-		return ( low[dim] > area.high[dim] || 
-				high[dim] < area.low[dim] );
+		return ( getLow()[dim] > area.getHigh()[dim] || 
+				getHigh()[dim] < area.getLow()[dim] );
 	}
 	
 	private boolean sector(Area area, int dim)
 	{
-		return ( low[dim] > area.low[dim] || 
-				high[dim] < area.low[dim] );
+		return ( getLow()[dim] > area.getLow()[dim] || 
+				getHigh()[dim] < area.getLow()[dim] );
 	}
 	
 	private boolean periodic(Area area, int dim)
 	{
 		/* if this is not passing a periodic boundary in this dimension */
-		if ( low[dim] < high[dim] ) 
+		if ( getLow()[dim] < getHigh()[dim] ) 
 		{
 			/* if the partner area is also not passing a periodic boundary in
 			 * this dimension  */
-			if ( area.low[dim] < area.high[dim] )
+			if ( area.getLow()[dim] < area.getHigh()[dim] )
 			{
 				this.periodic = false;
 				return normal(area, dim);
@@ -70,8 +70,8 @@ public class Area implements Predicate<Area> {
 			{
 				/* if the partner area is passing a periodic boundary in
 				 * this dimension  */
-				return ( low[dim] > area.high[dim] && 
-						high[dim] < area.low[dim] );	
+				return ( getLow()[dim] > area.getHigh()[dim] && 
+						getHigh()[dim] < area.getLow()[dim] );	
 			}
 		}
 		/* if this is passing a periodic boundary in this dimension */
@@ -79,19 +79,27 @@ public class Area implements Predicate<Area> {
 		{
 			/* if the partner area is not passing a periodic boundary in
 			 * this dimension  */
-			if ( area.low[dim] < area.high[dim] )
+			if ( area.getLow()[dim] < area.getHigh()[dim] )
 			{
-				return ( area.low[dim] > high[dim] && 
-						area.high[dim] < low[dim] );	
+				return ( area.getLow()[dim] > getHigh()[dim] && 
+						area.getHigh()[dim] < getLow()[dim] );	
 			}
 			else
 			{
 			/* if the partner area is also passing a periodic boundary in
 			 * this dimension  */
-				return ( low[dim] < area.high[dim] &&
-						high[dim] > area.low[dim] );
+				return ( getLow()[dim] < area.getHigh()[dim] &&
+						getHigh()[dim] > area.getLow()[dim] );
 			}
 		}
+	}
+
+	public double[] getLow() {
+		return low;
+	}
+
+	public double[] getHigh() {
+		return high;
 	}
 
 }

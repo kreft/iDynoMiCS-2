@@ -6,6 +6,8 @@ import java.util.List;
 import dataIO.Log.Tier;
 import dataIO.Log;
 import linearAlgebra.Vector;
+import spatialRegistry.Area;
+import spatialRegistry.Entry;
 import spatialRegistry.SpatialRegistry;
 import surface.BoundingBox;
 
@@ -100,8 +102,8 @@ public class SplitTree<T> implements SpatialRegistry<T>
 		
 		for ( boolean[] b : leaf.combinations())
 		{
-			newNode = new Node<T>( this, leaf.corner(leaf.low, leaf.splits(), b), 
-					leaf.corner(leaf.splits(), leaf.high, b), true, this, this._periodic);
+			newNode = new Node<T>( this, leaf.corner(leaf.getLow(), leaf.splits(), b), 
+					leaf.corner(leaf.splits(), leaf.getHigh(), b), true, this, this._periodic);
 			newNode.add(leaf.allLocal());
 			childNodes.add(newNode);
 		}
@@ -120,7 +122,7 @@ public class SplitTree<T> implements SpatialRegistry<T>
 		LinkedList<Entry> entries = new LinkedList<Entry>();
 		LinkedList<T> out = new LinkedList<T>();
 			for (Entry<T> e : allEntries(entries))
-				out.add(e.entry);
+				out.add(e.getEntry());
 		return out;
 	}
 	
@@ -149,14 +151,14 @@ public class SplitTree<T> implements SpatialRegistry<T>
 		double[] low = coords;
 		for (int i = 0; i < high.length; i++ )
 		{
-			if ( this._periodic[i] && high[i] > this.node.high[i] )
+			if ( this._periodic[i] && high[i] > this.node.getHigh()[i] )
 				high[i] -= this._lengths[i];
-			if ( this._periodic[i] && low[i] < this.node.low[i] )
+			if ( this._periodic[i] && low[i] < this.node.getLow()[i] )
 				low[i] += this._lengths[i];
 		}
 		for ( Entry<T> e : node.find(new Entry<T>(low, high, null)))
 		{
-			out.add(e.entry);
+			out.add(e.getEntry());
 		}
 		return out;
 	}
@@ -189,9 +191,9 @@ public class SplitTree<T> implements SpatialRegistry<T>
 		double[] low = coords;
 		for (int i = 0; i < high.length; i++ )
 		{
-			if ( this._periodic[i] && high[i] > this.node.high[i] )
+			if ( this._periodic[i] && high[i] > this.node.getHigh()[i] )
 				high[i] -= this._lengths[i];
-			if ( this._periodic[i] && low[i] < this.node.low[i] )
+			if ( this._periodic[i] && low[i] < this.node.getLow()[i] )
 				low[i] += this._lengths[i];
 		}
 		this.add(new Entry<T>(low, high, entry));

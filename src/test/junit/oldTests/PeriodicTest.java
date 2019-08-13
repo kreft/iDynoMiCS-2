@@ -4,8 +4,8 @@ import java.util.function.Predicate;
 
 import org.junit.Test;
 
-import spatialRegistry.splitTree.Area;
-import spatialRegistry.splitTree.Entry;
+import spatialRegistry.Area;
+import spatialRegistry.Entry;
 import spatialRegistry.splitTree.SplitTree;
 
 public class PeriodicTest {
