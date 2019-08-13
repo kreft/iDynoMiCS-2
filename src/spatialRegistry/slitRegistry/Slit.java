@@ -15,8 +15,10 @@ public class Slit<T> extends Area implements SpatialRegistry<T> {
 	
 	private boolean[] _periodic; 
 	
-	private double[] _lengths;
+	private double[] _domainHigh;
 	
+	private double[] _domainLow;
+		
 	private double _minWidth;
 	
 	private double _slitWidth;
@@ -29,7 +31,7 @@ public class Slit<T> extends Area implements SpatialRegistry<T> {
 
 	private LinkedList<Slit<T>> _slits = null;
 
-	private LinkedList<Area> _entries = new LinkedList<Area>();
+	private LinkedList<Entry<T>> _entries = new LinkedList<Entry<T>>();
 
 	
 	/**
@@ -49,8 +51,9 @@ public class Slit<T> extends Area implements SpatialRegistry<T> {
 		_root = this;
 		_minWidth = min;
 		_periodic = periodic;
-		_lengths = Vector.minus(high, low);
-		_slitWidth = _lengths[0] / numberOfSlits(0);
+		_domainHigh = high;
+		_domainLow = low;
+		_slitWidth = lengths(low,high)[0] / numberOfSlits(0);
 		_slits = buildSlits(0);
 
 	}
@@ -67,12 +70,14 @@ public class Slit<T> extends Area implements SpatialRegistry<T> {
 		super(low, high);
 		_minWidth = min;
 		_root = root;
-		this._dim = dim;
-		_lengths = Vector.minus(high, low);
+		_periodic = root._periodic;
+		_domainHigh = root.getHigh();
+		_domainLow = root.getLow();
+		this._dim = dim+1;
 		if ( dim < levels)
 		{
-			_slitWidth = _lengths[dim+1] / numberOfSlits(dim+1);
-			_slits = buildSlits( dim+1 );
+			_slitWidth = lengths(low,high)[_dim] / numberOfSlits(_dim);
+			_slits = buildSlits( _dim );
 		}
 	}
 	
@@ -88,9 +93,10 @@ public class Slit<T> extends Area implements SpatialRegistry<T> {
 		Slit<T> previous = null;
 		for( int i = 0; i < numberOfSlits(dim); i++)
 		{
-			Slit<T> slit = new Slit<T>( _minWidth, Vector.replace(dim, cur, getLow()), 
+			Slit<T> slit = new Slit<T>( _minWidth, 
+					Vector.replace(dim, cur, getLow() ), 
 					Vector.replace( dim, cur+_slitWidth, getHigh() ), 
-					dim, _lengths.length-1, this._root );
+					dim, _domainLow.length-1, _root );
 			_slits.add( slit );
 			cur += _slitWidth;
 			if (_slits.size() != 1) 
@@ -98,7 +104,7 @@ public class Slit<T> extends Area implements SpatialRegistry<T> {
 				slit.setPrev( previous );
 				previous.setNext( slit );
 			}
-			if ( _slits.size() == numberOfSlits(dim) && this._root._periodic[dim])
+			if ( _slits.size() == numberOfSlits(dim) && _periodic[dim])
 			{
 				slit.setNext( _slits.getFirst() );
 				_slits.getFirst().setPrev( slit );
@@ -116,7 +122,8 @@ public class Slit<T> extends Area implements SpatialRegistry<T> {
 	 */
 	public int numberOfSlits(int dim)
 	{
-		int n = (int) (_lengths[dim]/_minWidth - (_lengths[dim]/_minWidth % 3));
+		int n = (int) ( lengths()[dim] / _minWidth - 
+				( lengths()[dim] / _minWidth % 3 ) );
 		if ( n > 1 )
 			return n;
 		else
@@ -125,9 +132,9 @@ public class Slit<T> extends Area implements SpatialRegistry<T> {
 	
 	private int destination(double coord)
 	{
-		if ( this._root._periodic[this._dim] && coord < this._root.getLow()[_dim] )
-			coord += this._root._lengths[_dim];
-		return (int) Math.floor((coord-this._root.getLow()[_dim])/_slitWidth);
+		if ( _periodic[_dim] && coord < _domainLow[_dim] )
+			coord += lengths()[_dim];
+		return (int) Math.floor( (coord-_domainLow[_dim]) / _slitWidth );
 	}
 	
 	public void setPrev(Slit<T> slit)
@@ -139,35 +146,135 @@ public class Slit<T> extends Area implements SpatialRegistry<T> {
 	{
 		this._next = slit;
 	}
-
-	@Override
-	public List<T> localSearch(double[] coords, double[] dimension) {
-		// TODO Auto-generated method stub
-		return null;
+	
+	public double[] lengths(double[] low, double[] high)
+	{
+		return Vector.minus(high, low);
+	}
+	
+	public double[] lengths()
+	{
+		return lengths( _domainLow, _domainHigh );
 	}
 
 	@Override
 	public List<T> search(double[] coords, double[] dimension) {
-		// TODO Auto-generated method stub
-		return null;
+		LinkedList<T> out = new LinkedList<T>();
+		/* also does periodic search */
+		double[] high = Vector.add(coords, dimension);
+		double[] low = coords;
+		for (int i = 0; i < high.length; i++ )
+		{
+			if ( _periodic[i] && high[i] > _domainHigh[i] )
+				high[i] -= lengths()[i];
+			if ( _periodic[i] && low[i] < _domainLow[i] )
+				low[i] += lengths()[i];
+		}
+		if ( _root == this )
+			return _slits.get( destination(low[_dim]) ).search(low, dimension);
+		else
+		{
+			out.addAll( this.localSearch(low, dimension) );
+			if( _previous != null )
+				out.addAll( _previous.localSearch(low, dimension) );
+			if( _next != null )
+				out.addAll( _next.localSearch(low, dimension) );
+		}
+		return out;
+	}
+	
+
+	@Override
+	public List<T> localSearch(double[] coords, double[] dimension) 
+	{
+		double[] high = Vector.add(coords, dimension);
+		double[] low = coords;
+		for (int i = 0; i < high.length; i++ )
+		{
+			if ( _periodic[i] && high[i] > _domainHigh[i] )
+				high[i] -= lengths()[i];
+			if ( _periodic[i] && low[i] < _domainLow[i] )
+				low[i] += lengths()[i];
+		}
+		LinkedList<T> out = new LinkedList<T>();
+		if (_slits != null )
+			return _slits.get( destination(coords[_dim]) ).search(coords, dimension);
+		else
+		{
+			System.out.println(Vector.toString(getLow()));
+			for (Entry<T> e : find(new Entry<T>(low, 
+					high, null)))
+				out.add(e.getEntry());
+		}
+		return out;
+	}
+	
+	public List<Entry<T>> allConc(LinkedList<Entry<T>> out, Area test)
+	{
+		if (out.isEmpty())
+		{
+			for (Entry<T> a : this._entries)
+			{
+				for (int dim = 0; dim < this._domainLow.length; dim++)
+				{
+					if ( ! a.test(test) )
+					{
+						out.add( (Entry<T>) a);
+						break;
+					}
+				}
+			}
+			return out;
+		}
+		else
+		{
+			for (Entry<T> a : this._entries)
+			{
+				for (int dim = 0; dim < this._domainLow.length; dim++)
+				{
+					if ( ! a.test(test) )
+					{
+						if ( ! out.contains(a) )
+							out.add( (Entry<T>) a);
+						break;
+					}
+				}
+			}
+			return out;
+		}
+	}
+	
+	private List<Entry<T>> find(Entry<T> area)
+	{
+		LinkedList<Entry<T>> out = new LinkedList<Entry<T>>();
+		return allConc(out, area);
 	}
 
 	@Override
-	public List<T> search(BoundingBox boundingBox) {
-		// TODO Auto-generated method stub
-		return null;
+	public List<T> search(BoundingBox boundingBox) 
+	{
+		return this.search(boundingBox.lowerCorner(), boundingBox.ribLengths());
+	}
+	
+	@Override
+	public List<T> search(List<BoundingBox> boundingBoxes) 
+	{
+		LinkedList<T> out = new LinkedList<T>();
+		for (BoundingBox b : boundingBoxes )
+			out.addAll(search(b) );
+		return out;
 	}
 
 	@Override
-	public List<T> search(List<BoundingBox> boundingBoxes) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public List<T> all() {
-		// TODO Auto-generated method stub
-		return null;
+	public List<T> all() 
+	{
+		LinkedList<T> out = new LinkedList<T>();
+		if (_slits != null)
+			for ( Slit<T> s : _slits)
+				out.addAll(s.all());
+		for (Entry<T> e : _entries)
+			out.add(e.getEntry());
+		return out;
 	}
 
 	@Override
@@ -180,10 +287,10 @@ public class Slit<T> extends Area implements SpatialRegistry<T> {
 			double[] low = coords;
 			for (int i = 0; i < high.length; i++ )
 			{
-				if ( this._root._periodic[i] && high[i] > this._root.getHigh()[i] )
-					high[i] -= this._root._lengths[i];
-				if ( this._root._periodic[i] && low[i] < this._root.getLow()[i] )
-					low[i] += this._root._lengths[i];
+				if ( _periodic[i] && high[i] > _domainHigh[i] )
+					high[i] -= lengths()[i];
+				if ( _periodic[i] && low[i] < _domainLow[i] )
+					low[i] += lengths()[i];
 			}
 			this._entries.add(new Entry<T>(low, high, entry));
 		}
