@@ -20,19 +20,13 @@ public class DummyTree<T> implements SpatialRegistry<T>
 	}
 
 	@Override
-	public List<T> search(double[] coords, double[] dimension)
+	public List<T> search(double[] low, double[] high)
 	{
 		return this._emptyList;
 	}
 
 	@Override
-	public List<T> all()
-	{
-		return this._emptyList;
-	}
-
-	@Override
-	public void insert(double[] coords, double[] dimensions, T entry)
+	public void insert(double[] low, double[] high, T entry)
 	{
 		// TODO Some sort of warning message?
 	}
@@ -52,12 +46,6 @@ public class DummyTree<T> implements SpatialRegistry<T>
 	@Override
 	public List<T> search(List<BoundingBox> boundingBoxes) {
 		// TODO Auto-generated method stub
-		return null;
-	}
-	
-	@Override
-	public T getRandom()
-	{
 		return null;
 	}
 	

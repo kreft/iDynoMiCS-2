@@ -2,7 +2,6 @@ package spatialRegistry;
 
 import java.util.List;
 
-import linearAlgebra.Vector;
 import surface.BoundingBox;
 
 /**
@@ -45,14 +44,6 @@ public interface SpatialRegistry<T>
 	/**
 	 * \brief TODO
 	 * 
-	 * @return
-	 * @deprecated
-	 */
-	public abstract List<T> all();
-	
-	/**
-	 * \brief TODO
-	 * 
 	 * @param coords
 	 * @param dimensions
 	 * @param entry
@@ -66,16 +57,5 @@ public interface SpatialRegistry<T>
 	 */
 	public abstract void insert(BoundingBox boundingBox, T entry);
 	
-	/**
-	 * 
-	 * @return
-	 */
-	public abstract T getRandom();
-	
-	/**
-	 * 
-	 * @param entry
-	 * @return
-	 */
 	public abstract boolean delete(T entry);
 }

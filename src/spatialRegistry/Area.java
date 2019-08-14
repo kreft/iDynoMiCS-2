@@ -1,6 +1,5 @@
 package spatialRegistry;
 
-import java.util.List;
 import java.util.function.Predicate;
 
 import linearAlgebra.Vector;
@@ -26,10 +25,7 @@ public class Area implements Predicate<Area> {
 		this.high = high;
 		this.periodic = periodic;
 	}
-	
-	public  void add(List<Area> entries) {
-	}
-	
+
 	/**
 	 * test whether this area is NOT hitting the input area
 	 */
@@ -69,11 +65,12 @@ public class Area implements Predicate<Area> {
 		/* if this is not passing a periodic boundary in this dimension */
 		if ( getLow()[dim] < getHigh()[dim] ) 
 		{
+			this.periodic[dim] = false;
 			/* if the partner area is also not passing a periodic boundary in
 			 * this dimension  */
 			if ( area.getLow()[dim] < area.getHigh()[dim] )
 			{
-				this.periodic[dim] = false;
+				area.periodic[dim] = false;
 				return normal(area, dim);
 			}
 			else
@@ -110,6 +107,10 @@ public class Area implements Predicate<Area> {
 
 	public double[] getHigh() {
 		return high;
+	}
+	
+	public boolean[] getPeriodic() {
+		return periodic;
 	}
 
 }

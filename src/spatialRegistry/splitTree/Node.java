@@ -3,57 +3,41 @@ package spatialRegistry.splitTree;
 import java.util.LinkedList;
 import java.util.List;
 
-import dataIO.Log;
-import dataIO.Log.Tier;
 import linearAlgebra.Vector;
 import spatialRegistry.Area;
 import spatialRegistry.Entry;
 
-@SuppressWarnings( {"rawtypes", "unchecked"} )
 public class Node<T> extends Area
 {
-	
-	/**
-	 * 
-	 */
-	private final SplitTree<T> splitTree;
-	
-	protected boolean _leafNode;
+	private LinkedList<Entry<T>> _entries = new LinkedList<Entry<T>>();
+	private LinkedList<Node<T>> _nodes = new LinkedList<Node<T>>();
 
-	private LinkedList<Area> _entries = new LinkedList<Area>();
-	
-	private SplitTree<T> _tree;
-
-	public Node(SplitTree<T> splitTree, double[] low, double[] high, boolean isLeaf, SplitTree<T> tree,
+	public Node( double[] low, double[] high,
 			boolean[] periodic)
 	{
 		super(low, high, Vector.copy(periodic));
-		this.splitTree = splitTree;
-		this._leafNode = isLeaf;
-		this._tree = tree;
 	}
-
 	
-	public List<Entry> find(Area test) 
+	public List<Entry<T>> find(Area test) 
 	{
-		LinkedList<Entry> out = new LinkedList<Entry>();
+		LinkedList<Entry<T>> out = new LinkedList<Entry<T>>();
 		if ( ! this.test(test) )
 		{
-			if ( this._leafNode )
+			if ( this._nodes.isEmpty() )
 				return this.allConc(out, test);
 			else
 			{
-				for ( Area a : _entries )
+				for ( Node<T> a : _nodes )
 				{
 					if ( out.isEmpty() )
 					{
-						for (Entry e :((Node<T>) a).find(test))
+						for ( Entry<T> e : a.find(test) )
 							out.add(e);
 					}
 					else
 					{
-						for (Entry e :((Node<T>) a).find(test))
-							if ( ! out.contains(e))
+						for ( Entry<T> e : a.find(test) )
+							if ( ! out.contains(e) )
 								out.add(e);
 					}
 				}
@@ -62,80 +46,72 @@ public class Node<T> extends Area
 		return out;
 	}
 	
-	public List<Entry> findUnfiltered(Area area) 
+	public List<Entry<T>> findUnfiltered(Area area) 
 	{
-		LinkedList<Entry> out = new LinkedList<Entry>();
+		LinkedList<Entry<T>> out = new LinkedList<Entry<T>>();
 		if ( ! this.test(area) )
 		{
-			if ( this._leafNode )
+			if ( this._nodes.isEmpty() )
 				return this.allUnfiltered(out);
 			else
 			{
-				for ( Area a : _entries )
-					out.addAll(((Node<T>) a).findUnfiltered(area));
+				for ( Node<T> a : _nodes )
+					out.addAll( a.findUnfiltered(area) );
 			}
 		}
 		return out;
 	}
 
-	public void add(Area entry)
+	public void add( Node<T> node )
+	{
+		this._nodes.add(node);
+		if( this.size() > SplitTree._maxEntries )
+			split();	
+	}
+	
+	public void add( Entry<T> entry )
 	{
 		if ( ! this.test(entry) )
 		{
-			if ( this._leafNode || entry instanceof Node)
+			if ( this._nodes.isEmpty() )
 			{
 				this.getEntries().add(entry);
 				if( this.size() > SplitTree._maxEntries )
-					_tree.split(this);
+					split();
 			}
 			else
 			{
-				for ( Area a : this.getEntries() )
-					((Node<T>) a).add(entry);
+				for ( Node<T> a : this._nodes )
+					a.add(entry);
 			}
-		}
-		else if ( this.equals(_tree._root))
-		{
-			Log.out(Tier.CRITICAL, "Split tree skipped entry outside the domain");
-		}
-		
+		}		
 	}
 	
-	public void add(List<Area> entries) 
+	public void add( List<Entry<T>> entries ) 
 	{
 		entries.removeIf(this);
-		for (Area entry : entries) 
-			this.add(entry);
+		for (Entry<T> entry : entries) 
+			this.add( entry );
 	}
 	
-	protected LinkedList<Area> getEntries() {
+	protected LinkedList<Entry<T>> getEntries() {
 		return _entries;
 	}
+
+	public boolean remove(Entry<T> entry)
+	{
+		return this.getEntries().remove(entry);
+	}
 	
-	protected LinkedList<Area> getSectorEntries() {
-		LinkedList<Area> out = new LinkedList<Area>();
-		for (Area a : getEntries())
-			if( this.sectorTest(a))
-				out.add(a);
-		return out;
-	}
-
-	public boolean leafless()
+	public boolean delete(T member) 
 	{
-		if (this._leafNode)
-			return false;
-		for ( Area entry : this.getEntries() )
-			if( ((Node) entry)._leafNode )
-				return false;
-		return true;
-	}
-	protected void setEntries(LinkedList<Area> _entries) {
-		this._entries = _entries;
-	}
-
-	public void remove(Entry entry)
-	{
-		this.getEntries().remove(entry);
+		for( Entry<T> t : _entries)
+			if ( t.getEntry() == member )
+				return remove(t);
+		for ( Node<T> a : _nodes )
+			return a.delete(member);
+		return false;
+			
 	}
 	
 	public int size()
@@ -143,103 +119,67 @@ public class Node<T> extends Area
 		return getEntries().size();
 	}
 
-	public List<Area> allLocal()
+	public List<Entry<T>> allLocal()
 	{
-		return new LinkedList<Area>(this.getEntries());
+		return new LinkedList<Entry<T>>(this.getEntries());
 	}
 	
-	public List<Entry> allUnfiltered(LinkedList<Entry> out)
+	public List<Entry<T>> allUnfiltered(LinkedList<Entry<T>> out)
 	{
-		if ( this._leafNode)
+		if ( this._nodes.isEmpty() )
 		{
-			for (Area a : this.getEntries())
-				out.add( (Entry) a);
+			for (Entry<T> a : this.getEntries())
+				out.add( a);
 		}
 		else
 		{
-			for (Area a : this.getEntries())
-				((Node<T>) a).allUnfiltered(out);
+			for (Node<T> a : this._nodes)
+				a.allUnfiltered(out);
 		}
 		return out;
 	}
 	
-	public List<Entry> allConc(LinkedList<Entry> out, Area test)
+	public List<Entry<T>> allConc(LinkedList<Entry<T>> out, Area test)
 	{
 		if (out.isEmpty())
 		{
-			for (Area a : this.getEntries())
-			{
-//				for (int dim = 0; dim < this.splitTree._dimensions; dim++)
-				{
+			for (Entry<T> a : this.getEntries())
 					if ( ! a.test(test) )
-					{
-						out.add( (Entry) a);
-//						break;
-					}
-				}
-			}
-			return out;
+						out.add( (Entry<T>) a);
 		}
 		else
 		{
-			for (Area a : this.getEntries())
-			{
-//				for (int dim = 0; dim < this.splitTree._dimensions; dim++)
-				{
+			for (Entry<T> a : this.getEntries())
 					if ( ! a.test(test) )
-					{
 						if ( ! out.contains(a) )
-							out.add( (Entry) a);
-//						break;
-					}
-				}
-			}
-			return out;
+							out.add( (Entry<T>) a);
 		}
+		return out;
 	}
 
-	public List<Entry> allEntries(LinkedList<Entry> out) 
-	{
-		if ( this._leafNode)
-		{
-			for (Area a : this.getEntries())
-				if ( ! out.contains(a))
-					out.add( (Entry) a);
-		}
-		else
-		{
-			for (Area a : this.getEntries())
-				((Node<T>) a).allEntries(out);
-		}
-		return out;
-	}
-	
-	public List<Node<T>> allLeaves(LinkedList<Node<T>> out) 
-	{
-		if ( this._leafNode)
-		{
-			out.add( this );
-		}
-		else
-		{
-			for (Area a : this.getEntries())
-				((Node<T>) a).allLeaves(out);
-		}
-		return out;
-	}
-	
-	public void purge()
-	{
-		getEntries().removeIf(this);
-	}
-	
 	public void promote(List<Node<T>> nodes)
 	{
 		this.getEntries().clear();
-		this._leafNode = false;
 		for (Node<T> n : nodes)
 			this.add(n);
 	}
+	
+	public void split()
+	{
+		Node<T> newNode;
+		List<Node<T>> childNodes = new LinkedList<Node<T>>();
+		
+		for ( boolean[] b : combinations())
+		{
+			newNode = new Node<T>( corner(getLow(), splits(), b), 
+					corner(splits(), getHigh(), b), super.getPeriodic());
+			newNode.add(allLocal());
+			childNodes.add(newNode);
+		}
+
+		/* promote node from leaf to branch */
+		promote(childNodes);
+	}	
 	
 	/* ************************************************************************
 	 * Helper methods

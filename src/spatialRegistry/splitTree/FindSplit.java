@@ -38,18 +38,18 @@ public class FindSplit extends RecursiveTask<List<List<Entry>>>
 	protected List<List<Entry>> compute()
 	{
 		List<List<Entry>> listr = new LinkedList<List<Entry>>();
-		if (objectives.size() > 100)
-		{
-			FindSplit p1 = new FindSplit(this.tree, this.objectives.subList(0, objectives.size()/2));
-			p1.fork();
-			listr.addAll(new FindSplit(this.tree, this.objectives.subList(objectives.size()/2+1, objectives.size())).compute());
-			listr.addAll(p1.join());
-		}
-		else
-		{
-			for ( Area a : objectives )
-				listr.add(tree.find(a));
-		}
+//		if (objectives.size() > 100)
+//		{
+//			FindSplit p1 = new FindSplit(this.tree, this.objectives.subList(0, objectives.size()/2));
+//			p1.fork();
+//			listr.addAll(new FindSplit(this.tree, this.objectives.subList(objectives.size()/2+1, objectives.size())).compute());
+//			listr.addAll(p1.join());
+//		}
+//		else
+//		{
+//			for ( Area a : objectives )
+//				listr.add(tree.find(a));
+//		}
 		return listr;
 	}
 }

@@ -1,6 +1,5 @@
 package spatialRegistry;
 
-import java.util.List;
 
 import linearAlgebra.Vector;
 
@@ -13,11 +12,6 @@ public class Entry<T> extends Area
 	{
 		super(low, high, Vector.copy(periodic));
 		this.setEntry(entry);
-	}
-
-	@Override
-	public void add(List<Area> entries) {
-		// Do nothing
 	}
 
 	public T getEntry() {

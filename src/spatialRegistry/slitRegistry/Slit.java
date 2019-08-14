@@ -275,18 +275,6 @@ public class Slit<T> extends Area implements SpatialRegistry<T> {
 	}
 
 	@Override
-	public List<T> all() 
-	{
-		LinkedList<T> out = new LinkedList<T>();
-		if (_slits != null)
-			for ( Slit<T> s : _slits)
-				out.addAll(s.all());
-		for (Entry<T> e : _entries)
-			out.add(e.getEntry());
-		return out;
-	}
-
-	@Override
 	public void insert(double[] low, double[] high, T entry) {
 		if( this._slits != null)
 			_slits.get( destination(low[_dim]) ).insert(low, high, entry);
@@ -309,19 +297,10 @@ public class Slit<T> extends Area implements SpatialRegistry<T> {
 		this.insert(boundingBox.lowerCorner(), boundingBox.higherCorner(), entry);
 		
 	}
-
+	
 	@Override
-	public T getRandom() {
-		System.out.println("unsuported method Slit getRandom");
-		return null;
-	}
-
-	@Override
-	public boolean delete(T entry) 
+	public boolean delete(T entry)
 	{
-		System.out.println("unsuported method Slit delete");
 		return false;
 	}
-
-
 }

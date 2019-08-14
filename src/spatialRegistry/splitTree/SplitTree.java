@@ -3,8 +3,6 @@ package spatialRegistry.splitTree;
 import java.util.LinkedList;
 import java.util.List;
 
-import dataIO.Log.Tier;
-import dataIO.Log;
 import linearAlgebra.Vector;
 import spatialRegistry.Area;
 import spatialRegistry.Entry;
@@ -20,7 +18,6 @@ import surface.BoundingBox;
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
  *
  */
-@SuppressWarnings( {"rawtypes", "unchecked"} )
 public class SplitTree<T> implements SpatialRegistry<T>
 {	
 	protected boolean _root = false;
@@ -37,84 +34,29 @@ public class SplitTree<T> implements SpatialRegistry<T>
 	
 	private double[] _lengths;
 	
-	public SplitTree(int dimensions, int min, int max, 
+	public SplitTree(int dims, int min, int max, 
 			double[] low, double[] high, boolean[] periodic)
 	{
 		this._root = true;
-		_dimensions = dimensions;
+		_dimensions = dims;
 		_minEntries = min;
 		_maxEntries = max;
 		_periodic = periodic;
 		_lengths = Vector.minus(high, low);
-		this.node = new Node<T>(this, low, high, true, this, periodic);
-	}
-	
-	public SplitTree(int dimensions, int min, int max, boolean[] periodic)
-	{
-		this(dimensions, min, max, 
-				Vector.setAll(new double[dimensions], -Math.sqrt(Double.MAX_VALUE)), 
-				Vector.setAll(new double[dimensions], Math.sqrt(Double.MAX_VALUE)), 
-				periodic);
+		this.node = new Node<T>(low, high, periodic);
 	}
 
-	public void add(double[] low, double[] high, boolean[] periodic, T obj)
-	{
-		this.add(new Entry<T>(low, high, periodic, obj));
-	}
-
-	public void add(Area entry) 
+	public void add(Entry<T> entry) 
 	{
 		this.node.add(entry);
 	}
 	
-	public void add(List<Area> entries)
-	{
-		if (node._leafNode)
-			node.add(entries);
-		else
-			for (Area n : this.node.getEntries())
-				n.add(entries);
-	}
-	
 	/** Area must have been updated for periodicy */
-	public List<Entry> find(Area area) 
+	public List<Entry<T>> find(Area area) 
 	{
 		return node.find(area);
 	}
-	
-	public void split(Node<T> leaf)
-	{
-		Node<T> newNode;
-		List<Node<T>> childNodes = new LinkedList<Node<T>>();
-		
-		for ( boolean[] b : leaf.combinations())
-		{
-			newNode = new Node<T>( this, leaf.corner(leaf.getLow(), leaf.splits(), b), 
-					leaf.corner(leaf.splits(), leaf.getHigh(), b), true, this, this._periodic);
-			newNode.add(leaf.allLocal());
-			childNodes.add(newNode);
-		}
 
-		/* promote node from leaf to branch */
-		leaf.promote(childNodes);
-	}	
-	
-	public List<Entry> allEntries(LinkedList<Entry> out) 
-	{
-		return this.node.allEntries(out);
-	}
-	
-	public List<T> allObjects()
-	{
-		LinkedList<Entry> entries = new LinkedList<Entry>();
-		LinkedList<T> out = new LinkedList<T>();
-			for (Entry<T> e : allEntries(entries))
-				out.add(e.getEntry());
-		return out;
-	}
-	
-	
-	
 	/* *************************************************************************
 	 * SpatialRegistry implementation
 	 * *************************************************************************
@@ -128,12 +70,15 @@ public class SplitTree<T> implements SpatialRegistry<T>
 		/* also does periodic search */
 		for (int i = 0; i < high.length; i++ )
 		{
-			if ( this._periodic[i] && high[i] > this.node.getHigh()[i] )
-				high[i] -= this._lengths[i];
-			if ( this._periodic[i] && low[i] < this.node.getLow()[i] )
-				low[i] += this._lengths[i];
+			if ( this._periodic[i] ) 
+			{
+				if ( high[i] > this.node.getHigh()[i] )
+					high[i] -= this._lengths[i];
+				if ( low[i] < this.node.getLow()[i] )
+					low[i] += this._lengths[i];
+			}
 		}
-		for ( Entry<T> e : node.find(new Entry<T>(low, high, _periodic, null)))
+		for ( Entry<T> e : node.find(new Area(low, high, _periodic)))
 		{
 			out.add(e.getEntry());
 		}
@@ -143,7 +88,8 @@ public class SplitTree<T> implements SpatialRegistry<T>
 	@Override
 	public List<T> search(BoundingBox boundingBox) 
 	{
-		return this.search(boundingBox.lowerCorner(), boundingBox.higherCorner());
+		return this.search(boundingBox.lowerCorner(), 
+				boundingBox.higherCorner());
 	}
 	
 	@Override
@@ -154,22 +100,19 @@ public class SplitTree<T> implements SpatialRegistry<T>
 			out.addAll(search(b) );
 		return out;
 	}
-
-	@Override
-	public List<T> all() 
-	{
-		return this.allObjects();
-	}
-
+	
 	@Override
 	public void insert(double[] low, double[] high, T entry) 
 	{
 		for (int i = 0; i < high.length; i++ )
 		{
-			if ( this._periodic[i] && high[i] > this.node.getHigh()[i] )
-				high[i] -= this._lengths[i];
-			if ( this._periodic[i] && low[i] < this.node.getLow()[i] )
-				low[i] += this._lengths[i];
+			if ( this._periodic[i] ) 
+			{
+				if ( high[i] > this.node.getHigh()[i] )
+					high[i] -= this._lengths[i];
+				if ( low[i] < this.node.getLow()[i] )
+					low[i] += this._lengths[i];
+			}
 		}
 		this.add(new Entry<T>(low, high, _periodic, entry));
 	}
@@ -177,20 +120,13 @@ public class SplitTree<T> implements SpatialRegistry<T>
 	@Override
 	public void insert(BoundingBox boundingBox, T entry) 
 	{
-		this.insert(boundingBox.lowerCorner(), boundingBox.higherCorner(), entry);
+		this.insert(boundingBox.lowerCorner(), 
+				boundingBox.higherCorner(), entry);
 	}
-
+	
 	@Override
-	public T getRandom() {
-		System.out.println("unsuported method Split tree getRandom");
-		return null;
-	}
-
-	@Override
-	public boolean delete(T entry) 
+	public boolean delete(T entry)
 	{
-		System.out.println("unsuported method Split tree DELETE");
-		return false;
+		return this.node.delete(entry);
 	}
-
 }
