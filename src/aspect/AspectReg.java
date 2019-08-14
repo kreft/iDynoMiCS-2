@@ -288,7 +288,7 @@ public class AspectReg
 			{
 				out = m.reg().getAspect(key);
 				if (out != null)
-					return out.clone();
+					return out;
 			}
 		return out;
 	}
