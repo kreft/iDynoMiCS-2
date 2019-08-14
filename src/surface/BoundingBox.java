@@ -11,10 +11,6 @@ import utility.ExtraMath;
  */
 public class BoundingBox
 {	
-	/**
-	 * TODO
-	 */
-	protected double[] _dimensions;
 	
 	/**
 	 * TODO
@@ -48,7 +44,6 @@ public class BoundingBox
 		double size = radius + margin;
 		this._higher = upper(p, size);
 		this._lower = lower(p, size);
-		this._dimensions = dimensions(p, size);
 		return this;
 	}
 	
@@ -89,10 +84,9 @@ public class BoundingBox
 	 * @param dimensions
 	 * @param lower
 	 */
-	public BoundingBox get(double[] dimensions, double[] lower)
+	public BoundingBox get(double[] lower, double[] higher)
 	{
-		Vector.checkLengths(dimensions, lower);
-		this._dimensions = dimensions;
+		this._higher = higher;
 		this._lower = lower;
 		return this;
 	}
@@ -107,7 +101,6 @@ public class BoundingBox
 	{
 		this._lower = lower;
 		this._higher = upper;
-		this._dimensions = Vector.minus(upper, lower);
 		return this;
 	}
 	
@@ -121,8 +114,8 @@ public class BoundingBox
 	 */
 	public String getReport()
 	{
-		return "lower: " + Vector.toString(this._lower) + " dimensions: " + 
-				Vector.toString(this._dimensions);
+		return "lower: " + Vector.toString(this._lower) + " higher: " + 
+				Vector.toString(this._higher);
 	}
 	
 	/**
@@ -131,7 +124,7 @@ public class BoundingBox
 	 */
 	public double[] ribLengths()
 	{
-		return this._dimensions;
+		return Vector.minus(_higher, _lower);
 	}
 	
 	/**
@@ -157,29 +150,12 @@ public class BoundingBox
 	 */
 	public double[] getRandomInside()
 	{
-		double[] out = Vector.randomZeroOne(this._dimensions);
-		Vector.timesEquals(out, this._dimensions);
+		double[] out = Vector.randomZeroOne(this.ribLengths());
+		Vector.timesEquals(out, this.ribLengths());
 		Vector.addEquals(out, this._lower);
 		return out;
 	}
 	
-	/**
-	 * @return Random position on the surface of this bounding box.
-	 */
-	public double[] getRandomOnPeriphery()
-	{
-		/* Get a random point inside this bounding box. */
-		double[] out = getRandomInside();
-		/*
-		 * Choose a random dimension, and force the position to one of the two
-		 * extremes in that dimension.
-		 */
-		int dim = ExtraMath.getUniRandInt(out.length);
-		out[dim] = this._lower[dim];
-		if ( ExtraMath.getRandBool() )
-			out[dim] += this._dimensions[dim];
-		return out;
-	}
 	
 	/*************************************************************************
 	 * STATIC HELPER METHODS

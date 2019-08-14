@@ -15,22 +15,13 @@ import surface.BoundingBox;
 public interface SpatialRegistry<T>
 {	
 	/**
-	 * \brief perform local search, ignore periodic boundaries.
-	 * 
-	 * @param coords
-	 * @param dimension
-	 * @return
-	 */
-	public abstract List<T> localSearch(double[] coords, double[] dimension);
-	
-	/**
 	 * \brief TODO
 	 * 
 	 * @param coords
 	 * @param dimension
 	 * @return
 	 */
-	public abstract List<T> search(double[] coords, double[] dimension);
+	public abstract List<T> search(double[] lower, double[] higher);
 	
 	/**
 	 * 
@@ -48,7 +39,7 @@ public interface SpatialRegistry<T>
 	
 	public default List<T> search(double[] pointLocation)
 	{
-		return this.search(pointLocation, Vector.zeros(pointLocation));
+		return this.search(pointLocation, pointLocation);
 	}
 
 	/**

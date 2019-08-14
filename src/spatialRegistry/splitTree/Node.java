@@ -27,7 +27,7 @@ public class Node<T> extends Area
 	public Node(SplitTree<T> splitTree, double[] low, double[] high, boolean isLeaf, SplitTree<T> tree,
 			boolean[] periodic)
 	{
-		super(low, high);
+		super(low, high, Vector.copy(periodic));
 		this.splitTree = splitTree;
 		this._leafNode = isLeaf;
 		this._tree = tree;
@@ -169,12 +169,12 @@ public class Node<T> extends Area
 		{
 			for (Area a : this.getEntries())
 			{
-				for (int dim = 0; dim < this.splitTree._dimensions; dim++)
+//				for (int dim = 0; dim < this.splitTree._dimensions; dim++)
 				{
 					if ( ! a.test(test) )
 					{
 						out.add( (Entry) a);
-						break;
+//						break;
 					}
 				}
 			}
@@ -184,13 +184,13 @@ public class Node<T> extends Area
 		{
 			for (Area a : this.getEntries())
 			{
-				for (int dim = 0; dim < this.splitTree._dimensions; dim++)
+//				for (int dim = 0; dim < this.splitTree._dimensions; dim++)
 				{
 					if ( ! a.test(test) )
 					{
 						if ( ! out.contains(a) )
 							out.add( (Entry) a);
-						break;
+//						break;
 					}
 				}
 			}

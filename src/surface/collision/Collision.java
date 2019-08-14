@@ -1005,7 +1005,7 @@ public class Collision
 		for(int i=0; i < p.length ; i++) 
 		{ 
 			p[i] = Math.max( p[i], voxel.getLower()[i] );
-			p[i] = Math.min( p[i], voxel.getLower()[i] + voxel.getDimensions()[i] );
+			p[i] = Math.min( p[i], voxel.getHigher()[i] );
 		}
 		return this.spherePoint(sphere, p, var);
 	}

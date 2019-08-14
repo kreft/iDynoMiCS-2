@@ -124,7 +124,7 @@ public class SpatialGrid implements Settable, Instantiable
 			Shape shape = env.getShape();
 			int nDim = shape.getNumberOfDimensions();
 			double[] location = new double[nDim];
-			double[] dimension = new double[nDim];
+			double[] upper = new double[nDim];
 			int[] coord = shape.resetIterator();
 			while ( shape.isIteratorValid() )
 			{
@@ -132,8 +132,8 @@ public class SpatialGrid implements Settable, Instantiable
 				shape.voxelOriginTo(location, coord);
 				
 				/* FIXME this assumes Cartesian grids  */
-				shape.getVoxelSideLengthsTo(dimension, coord);
-				List<Agent> neighbors = agents.treeSearch(location, dimension);
+				shape.voxelUpperCornerTo(upper, coord);
+				List<Agent> neighbors = agents.treeSearch(location, upper);
 				/* If there are any agents in this voxel, update the 
 				 * diffusivity. */
 				if ( ! neighbors.isEmpty() )

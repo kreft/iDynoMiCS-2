@@ -3,16 +3,19 @@ package processManager.library;
 import java.util.List;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedList;
 
 import org.w3c.dom.Element;
 
 import agent.Agent;
 import agent.Body;
+import agent.predicate.IsLocated;
 import compartment.AgentContainer;
 import compartment.EnvironmentContainer;
 import dataIO.Log;
 import dataIO.Log.Tier;
 import expression.Expression;
+import gereralPredicates.IsSame;
 import idynomics.Global;
 import idynomics.Idynomics;
 import linearAlgebra.Vector;
@@ -20,6 +23,9 @@ import physicalObject.PhysicalObject;
 import processManager.ProcessManager;
 import referenceLibrary.AspectRef;
 import shape.Shape;
+import spatialRegistry.SpatialRegistry;
+import spatialRegistry.slitRegistry.Slit;
+import surface.BoundingBox;
 import surface.Point;
 import surface.Rod;
 import surface.Surface;
@@ -409,6 +415,26 @@ public class AgentRelaxation extends ProcessManager
 					" agents after " + nstep + " iterations" );
 	}
 	
+	public List<Agent> treeSearch(Agent anAgent, double searchDist, SpatialRegistry<Agent> agentRegistry)
+	{
+		// TODO not sure if this is the best response
+		if ( ! IsLocated.isLocated(anAgent) )
+			return new LinkedList<Agent>();
+		/*
+		 * Find all nearby agents.
+		 */
+		Body body = (Body) anAgent.get(AspectRef.agentBody);
+		List<BoundingBox> boxes = body.getBoxes(searchDist, this._shape);
+		List<Agent> out = agentRegistry.search(boxes);;
+		/* 
+		 * Remove the focal agent from this list.
+		 */
+		IsSame isSame = new IsSame(anAgent);
+		out.removeIf(isSame);
+		// NOTE lambda expressions are known to be slow in java
+		return out;
+	}
+	
 	
 	/**
 	 * \brief Update all forces on all agent mass points.
@@ -418,6 +444,21 @@ public class AgentRelaxation extends ProcessManager
 	 */
 	private void updateForces(AgentContainer agents) 
 	{
+//		Slit<Agent> mySlit = new Slit<Agent>(
+//				_shape.getRealLengths().length, // dimensions
+//				0.5, // minimum slit width
+//				new double[]{0.0, 0.0}, // lower corner
+//				Vector.add(new double[]{0.0, 0.0}, _shape.getRealLengths()), // higher corner
+//				new boolean[] { false, false}); // dimension periodic
+//		for ( Agent agent: agents.getAllLocatedAgents() ) 
+//		{
+//			Body body = (Body) agent.get(AspectRef.agentBody);
+//			List<BoundingBox> boxes = body.getBoxes(0.0, this._shape);
+//			for ( BoundingBox b : boxes)
+//			{
+//				mySlit.insert(b, agent);
+//			}
+//		}
 		/* Calculate forces. */
 		for ( Agent agent: agents.getAllLocatedAgents() ) 
 		{
@@ -430,7 +471,9 @@ public class AgentRelaxation extends ProcessManager
 					spineEvaluation(agent, s);
 			
 			/* Look for neighbors and resolve collisions */
-			neighboorhoodEvaluation(agent, agentSurfs, agents);
+//			neighboorhoodEvaluation(agent, agentSurfs, mySlit);
+
+			neighboorhoodEvaluation(agent, agentSurfs, agents.getSpatialTree());
 			
 			/*
 			 * Collisions with other physical objects and
@@ -465,14 +508,14 @@ public class AgentRelaxation extends ProcessManager
 	 * @param agents (all agents in the compartment).
 	 */
 	private void neighboorhoodEvaluation(Agent agent, List<Surface> surfaces, 
-			AgentContainer agents)
+			SpatialRegistry<Agent> tree)
 	{
 		double searchDist = (agent.isAspect(SEARCH_DIST) ?
 				agent.getDouble(SEARCH_DIST) : 0.0);
 		
 		/* Perform neighborhood search and perform collision detection and
 		 * response. */
-		Collection<Agent> nhbs = agents.treeSearch(agent, searchDist);
+		Collection<Agent> nhbs = this.treeSearch(agent, searchDist, tree);
 		for ( Agent neighbour: nhbs )
 			if ( agent.identity() > neighbour.identity() )
 			{

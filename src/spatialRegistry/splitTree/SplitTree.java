@@ -46,10 +46,7 @@ public class SplitTree<T> implements SpatialRegistry<T>
 		_maxEntries = max;
 		_periodic = periodic;
 		_lengths = Vector.minus(high, low);
-		if ( Vector.allOfValue(periodic, false) )
-			this.node = new Node<T>(this, low, high, true, this, null);
-		else
-			this.node = new Node<T>(this, low, high, true, this, periodic);
+		this.node = new Node<T>(this, low, high, true, this, periodic);
 	}
 	
 	public SplitTree(int dimensions, int min, int max, boolean[] periodic)
@@ -60,9 +57,9 @@ public class SplitTree<T> implements SpatialRegistry<T>
 				periodic);
 	}
 
-	public void add(double[] low, double[] high, T obj)
+	public void add(double[] low, double[] high, boolean[] periodic, T obj)
 	{
-		this.add(new Entry<T>(low, high, obj));
+		this.add(new Entry<T>(low, high, periodic, obj));
 	}
 
 	public void add(Area entry) 
@@ -84,16 +81,6 @@ public class SplitTree<T> implements SpatialRegistry<T>
 	{
 		return node.find(area);
 	}
-//	public List<Entry> find(Area area) 
-//	{
-//		if ( _periodic == null )
-//			return node.find(new OutsideNormal(area));
-//		else
-//		{
-//			return node.find(new OutsidePeriodic(area,_periodic));
-//		}
-//
-//	}
 	
 	public void split(Node<T> leaf)
 	{
@@ -135,20 +122,10 @@ public class SplitTree<T> implements SpatialRegistry<T>
 	 */
 
 	@Override
-	public List<T> localSearch(double[] coords, double[] dimensions) 
-	{
-		Log.out(Tier.CRITICAL, "warning local search not implemented in "
-				+ "splittree");
-		return search(coords, dimensions);
-	}
-
-	@Override
-	public List<T> search(double[] coords, double[] dimensions) 
+	public List<T> search(double[] low, double[] high) 
 	{
 		LinkedList<T> out = new LinkedList<T>();
 		/* also does periodic search */
-		double[] high = Vector.add(coords, dimensions);
-		double[] low = coords;
 		for (int i = 0; i < high.length; i++ )
 		{
 			if ( this._periodic[i] && high[i] > this.node.getHigh()[i] )
@@ -156,7 +133,7 @@ public class SplitTree<T> implements SpatialRegistry<T>
 			if ( this._periodic[i] && low[i] < this.node.getLow()[i] )
 				low[i] += this._lengths[i];
 		}
-		for ( Entry<T> e : node.find(new Entry<T>(low, high, null)))
+		for ( Entry<T> e : node.find(new Entry<T>(low, high, _periodic, null)))
 		{
 			out.add(e.getEntry());
 		}
@@ -166,7 +143,7 @@ public class SplitTree<T> implements SpatialRegistry<T>
 	@Override
 	public List<T> search(BoundingBox boundingBox) 
 	{
-		return this.search(boundingBox.lowerCorner(), boundingBox.ribLengths());
+		return this.search(boundingBox.lowerCorner(), boundingBox.higherCorner());
 	}
 	
 	@Override
@@ -185,10 +162,8 @@ public class SplitTree<T> implements SpatialRegistry<T>
 	}
 
 	@Override
-	public void insert(double[] coords, double[] dimensions, T entry) 
+	public void insert(double[] low, double[] high, T entry) 
 	{
-		double[] high = Vector.add(coords, dimensions);
-		double[] low = coords;
 		for (int i = 0; i < high.length; i++ )
 		{
 			if ( this._periodic[i] && high[i] > this.node.getHigh()[i] )
@@ -196,13 +171,13 @@ public class SplitTree<T> implements SpatialRegistry<T>
 			if ( this._periodic[i] && low[i] < this.node.getLow()[i] )
 				low[i] += this._lengths[i];
 		}
-		this.add(new Entry<T>(low, high, entry));
+		this.add(new Entry<T>(low, high, _periodic, entry));
 	}
 
 	@Override
 	public void insert(BoundingBox boundingBox, T entry) 
 	{
-		this.insert(boundingBox.lowerCorner(), boundingBox.ribLengths(), entry);
+		this.insert(boundingBox.lowerCorner(), boundingBox.higherCorner(), entry);
 	}
 
 	@Override

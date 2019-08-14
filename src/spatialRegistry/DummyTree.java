@@ -18,12 +18,6 @@ public class DummyTree<T> implements SpatialRegistry<T>
 	{
 		this._emptyList = new LinkedList<T>();
 	}
-	
-	@Override
-	public List<T> localSearch(double[] coords, double[] dimension)
-	{
-		return this._emptyList;
-	}
 
 	@Override
 	public List<T> search(double[] coords, double[] dimension)

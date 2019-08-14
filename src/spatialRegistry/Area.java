@@ -3,18 +3,28 @@ package spatialRegistry;
 import java.util.List;
 import java.util.function.Predicate;
 
+import linearAlgebra.Vector;
+
 public class Area implements Predicate<Area> {
 	
 	private final double[] low;
 	
 	private final double[] high;
 	
-	boolean periodic = true;
+	private boolean[] periodic;
 	
 	public Area(double[] low, double[] high)
 	{
 		this.low = low;
 		this.high = high;
+		this.periodic = Vector.setAll(new boolean[low.length], true);
+	}
+	
+	public Area(double[] low, double[] high, boolean[] periodic)
+	{
+		this.low = low;
+		this.high = high;
+		this.periodic = periodic;
 	}
 	
 	public  void add(List<Area> entries) {
@@ -28,7 +38,7 @@ public class Area implements Predicate<Area> {
 	{
 		/* periodic set use the more expensive periodic check */
 		for (int i = 0; i < getLow().length; i++)
-			if ( ( periodic || area.periodic) ? periodic(area, i) : normal(area, i) )
+			if ( ( periodic[i] || area.periodic[i]) ? periodic(area, i) : normal(area, i) )
 				return true;
 		return false;		
 	}
@@ -63,7 +73,7 @@ public class Area implements Predicate<Area> {
 			 * this dimension  */
 			if ( area.getLow()[dim] < area.getHigh()[dim] )
 			{
-				this.periodic = false;
+				this.periodic[dim] = false;
 				return normal(area, dim);
 			}
 			else

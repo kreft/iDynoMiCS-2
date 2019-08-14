@@ -303,6 +303,7 @@ public abstract class ProcessDiffusion extends ProcessManager
 			double[] location;
 			double[] dimension = new double[3];
 			double[] sides;
+			double[] upper;
 			Collection<SubvoxelPoint> svPoints;
 			List<Agent> nhbs;
 			List<Surface> surfaces;
@@ -324,8 +325,9 @@ public abstract class ProcessDiffusion extends ProcessManager
 					shape.getVoxelSideLengthsTo(dimension, coord); //FIXME returns arc lengths with polar coords
 					// FIXME create a bounding box that always captures at least the complete voxel
 					sides = Vector.subset(dimension, nDim);
+					upper = Vector.add(location, sides);
 					/* NOTE the agent tree is always the amount of actual dimension */
-					nhbs = this._agents.treeSearch(location, sides);
+					nhbs = this._agents.treeSearch(location, upper);
 					
 					/* used later to find subgridpoint scale */
 					minRad = Vector.min(sides);
