@@ -2,6 +2,7 @@ package spatialRegistry.splitTree;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.RecursiveTask;
 
 import spatialRegistry.Area;
@@ -18,7 +19,6 @@ import spatialRegistry.Entry;
 @SuppressWarnings("rawtypes")
 public class FindSplit extends RecursiveTask<List<List<Entry>>> 
 {
-	
 	/**
 	 * 
 	 */

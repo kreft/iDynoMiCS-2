@@ -14,6 +14,7 @@ import boundary.Boundary;
 import boundary.SpatialBoundary;
 import dataIO.Log;
 import dataIO.Log.Tier;
+import debugTools.SegmentTimer;
 import gereralPredicates.IsSame;
 
 import static dataIO.Log.Tier.*;

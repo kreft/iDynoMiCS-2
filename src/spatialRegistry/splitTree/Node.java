@@ -3,6 +3,7 @@ package spatialRegistry.splitTree;
 import java.util.LinkedList;
 import java.util.List;
 
+import debugTools.SegmentTimer;
 import linearAlgebra.Vector;
 import spatialRegistry.Area;
 import spatialRegistry.Entry;
@@ -11,6 +12,7 @@ public class Node<T> extends Area
 {
 	private LinkedList<Entry<T>> _entries = new LinkedList<Entry<T>>();
 	private LinkedList<Node<T>> _nodes = new LinkedList<Node<T>>();
+	private boolean culled = false;
 
 	public Node( double[] low, double[] high,
 			boolean[] periodic)
@@ -20,6 +22,8 @@ public class Node<T> extends Area
 	
 	public List<Entry<T>> find(Area test) 
 	{
+		if ( !this.culled )
+			cull();
 		LinkedList<Entry<T>> out = new LinkedList<Entry<T>>();
 		if ( ! this.test(test) )
 		{
@@ -94,6 +98,39 @@ public class Node<T> extends Area
 			this.add( entry );
 	}
 	
+	public void push( LinkedList<Entry<T>> entries )
+	{
+		this.culled = false;
+		this._entries = entries;
+	}
+	
+	public void push( Entry<T> entry)
+	{
+		this.culled = false;
+		this._entries.add(entry);
+	}
+	
+	public void cull()
+	{
+		LinkedList<Entry<T>> in = new LinkedList<Entry<T>>();
+		for( Entry<T> entry : this._entries)
+		{
+			if( !this.test(entry))
+				in.add(entry);
+		}
+		this._entries = in;
+		if( this.size() > SplitTree._maxEntries )
+			splitCon();
+		this.culled = true;
+	}
+	
+	public void build()
+	{
+		LinkedList<Entry<T>> temp = this._entries;
+		this._entries = new LinkedList<Entry<T>> ();
+		add( temp );
+	}
+	
 	protected LinkedList<Entry<T>> getEntries() {
 		return _entries;
 	}
@@ -119,7 +156,7 @@ public class Node<T> extends Area
 		return getEntries().size();
 	}
 
-	public List<Entry<T>> allLocal()
+	public LinkedList<Entry<T>> allLocal()
 	{
 		return new LinkedList<Entry<T>>(this.getEntries());
 	}
@@ -177,6 +214,47 @@ public class Node<T> extends Area
 			childNodes.add(newNode);
 		}
 
+		/* promote node from leaf to branch */
+		promote(childNodes);
+	}	
+	
+	public void splitCon()
+	{
+		Node<T> newNode;
+		List<Node<T>> childNodes = new LinkedList<Node<T>>();
+		if( this._entries.size() > 250 )
+		{
+			LinkedList<ParallelBuild<T>> buildTasks = 
+					new LinkedList<ParallelBuild<T>>();
+			for ( boolean[] b : combinations())
+			{
+				newNode = new Node<T>( corner(getLow(), splits(), b), 
+						corner(splits(), getHigh(), b), super.getPeriodic());
+				newNode.push(allLocal());
+				childNodes.add(newNode);
+				buildTasks.add( new ParallelBuild<T>( newNode ) );
+			}
+			for( ParallelBuild<T> p : buildTasks )
+			{
+				ParallelBuild.pool.execute( p );
+			}
+			for( ParallelBuild<T> p : buildTasks )
+			{
+				p.join();
+			}
+		}
+		else
+		{
+			for ( boolean[] b : combinations())
+			{
+				newNode = new Node<T>( corner(getLow(), splits(), b), 
+						corner(splits(), getHigh(), b), super.getPeriodic());
+				newNode.push(allLocal());
+				childNodes.add(newNode);
+				newNode.cull();
+			}
+		}
+			
 		/* promote node from leaf to branch */
 		promote(childNodes);
 	}	
