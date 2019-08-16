@@ -13,7 +13,7 @@ public class PeriodicTest {
 	@Test
 	public void periodicTest()
 	{
-		SplitTree<Double> tree = new SplitTree<Double>(1, 3, 5, 
+		SplitTree<Double> tree = new SplitTree<Double>(1, 5,
 				new double[] {0.0}, new double[] {1.0}, new boolean[] { true });
 //		
 //		Predicate<Area> test = new Entry(new double[] {0.0}, new double[] {0.4}, null);

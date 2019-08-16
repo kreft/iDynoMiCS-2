@@ -24,28 +24,28 @@ public class SplitTree<T> implements SpatialRegistry<T>
 	
 	public int _dimensions;
 	
-	static int _minEntries;
-	
 	static int _maxEntries;
 	
 	private boolean[] _periodic; 
 	
 	private double[] _lengths;
 	
-	public SplitTree(int dims, int min, int max, 
+	public static boolean[] nodeTemplate;
+	
+	public SplitTree(int dims,  int max, 
 			double[] low, double[] high, boolean[] periodic)
 	{
 		_dimensions = dims;
-		_minEntries = min;
 		_maxEntries = max;
 		_periodic = periodic;
 		_lengths = Vector.minus(high, low);
+		nodeTemplate = Vector.setAll(new boolean[low.length], false);
 		this.node = new Node<T>(low, high);
 	}
 
 	public void add(Entry<T> entry) 
 	{
-		this.node.push(entry);
+		this.node.add(entry);
 	}
 	
 	/** Area must have been updated for periodicy */
