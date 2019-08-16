@@ -62,14 +62,14 @@ public class Area implements Predicate<Area> {
 	private boolean periodic(Area area, int dim)
 	{
 		/* if this is not passing a periodic boundary in this dimension */
-		if ( getLow()[dim] < getHigh()[dim] ) 
+		if ( !this.periodic[dim] ) 
 		{
-			this.periodic[dim] = false;
+//			this.periodic[dim] = false;
 			/* if the partner area is also not passing a periodic boundary in
 			 * this dimension  */
-			if ( area.getLow()[dim] < area.getHigh()[dim] )
+			if ( !area.periodic[dim] )
 			{
-				area.periodic[dim] = false;
+//				area.periodic[dim] = false;
 				return normal(area, dim);
 			}
 			else
@@ -85,7 +85,7 @@ public class Area implements Predicate<Area> {
 		{
 			/* if the partner area is not passing a periodic boundary in
 			 * this dimension  */
-			if ( area.getLow()[dim] < area.getHigh()[dim] )
+			if ( !area.periodic[dim] )
 			{
 				return ( area.getLow()[dim] > getHigh()[dim] && 
 						area.getHigh()[dim] < getLow()[dim] );	
