@@ -16,7 +16,6 @@ public class Area implements Predicate<Area> {
 	{
 		this.low = low;
 		this.high = high;
-		this.periodic = Vector.setAll(new boolean[low.length], true);
 	}
 	
 	public Area(double[] low, double[] high, boolean[] periodic)
@@ -109,7 +108,7 @@ public class Area implements Predicate<Area> {
 		return high;
 	}
 	
-	public boolean[] getPeriodic() {
+	public boolean[] periodic() {
 		return periodic;
 	}
 

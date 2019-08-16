@@ -1,7 +1,7 @@
 package surface;
 
 import linearAlgebra.Vector;
-import utility.ExtraMath;
+import spatialRegistry.Area;
 
 /**
  * This class constructs and holds the bounding box for sphere swept volumes
@@ -9,28 +9,13 @@ import utility.ExtraMath;
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
-public class BoundingBox
+public class BoundingBox extends Area
 {	
-	
-	/**
-	 * TODO
-	 */
-	protected double[] _higher;
-	
-	/**
-	 * TODO
-	 */
-	protected double[] _lower;
+
 	
 	/*************************************************************************
 	 * CONSTRUCTORS
 	 ************************************************************************/
-	
-	public BoundingBox()
-	{
-		
-	}
-	
 	/**
 	 * construct from a matrix of locations, a sphere radius for the sphere-
 	 * swept volume and an optional margin.
@@ -39,12 +24,9 @@ public class BoundingBox
 	 * @param radius
 	 * @param margin
 	 */
-	public BoundingBox get(double[][] p, double radius, double margin)
+	public BoundingBox(double[][] p, double radius, double margin)
 	{
-		double size = radius + margin;
-		this._higher = upper(p, size);
-		this._lower = lower(p, size);
-		return this;
+		super(lower(p, radius + margin), upper(p, radius + margin));
 	}
 	
 	/**
@@ -52,9 +34,9 @@ public class BoundingBox
 	 * @param p
 	 * @param radius
 	 */
-	public BoundingBox get(double[][] p, double radius)
+	public BoundingBox(double[][] p, double radius)
 	{
-		return this.get(p, radius, 0.0);
+		super(lower(p, radius), upper(p, radius));
 	}
 	
 	/**
@@ -63,9 +45,10 @@ public class BoundingBox
 	 * @param radius
 	 * @param margin
 	 */
-	public BoundingBox get(double[] p, double radius, double margin)
+	public BoundingBox(double[] p, double radius, double margin)
 	{
-		return this.get(new double[][]{ p }, radius, margin);
+		super(lower(new double[][]{ p }, radius + margin),
+				upper(new double[][]{ p }, radius + margin));
 	}
 	
 	/**
@@ -73,9 +56,10 @@ public class BoundingBox
 	 * @param p
 	 * @param radius
 	 */
-	public BoundingBox get(double[] p, double radius)
+	public BoundingBox(double[] p, double radius)
 	{
-		return this.get(p, radius, 0.0);
+		super(lower(new double[][]{ p }, radius),
+				upper(new double[][]{ p }, radius));
 	}
 	
 	/**
@@ -84,24 +68,9 @@ public class BoundingBox
 	 * @param dimensions
 	 * @param lower
 	 */
-	public BoundingBox get(double[] lower, double[] higher)
+	public BoundingBox(double[] lower, double[] higher)
 	{
-		this._higher = higher;
-		this._lower = lower;
-		return this;
-	}
-	
-	/**
-	 * \ Construct a bounding box directly from lower and upper corner
-	 * @param lower
-	 * @param upper
-	 * @param b
-	 */
-	public BoundingBox get(double[] lower, double[] upper, boolean b) 
-	{
-		this._lower = lower;
-		this._higher = upper;
-		return this;
+		super(lower, higher);
 	}
 	
 	/*************************************************************************
@@ -114,8 +83,8 @@ public class BoundingBox
 	 */
 	public String getReport()
 	{
-		return "lower: " + Vector.toString(this._lower) + " higher: " + 
-				Vector.toString(this._higher);
+		return "lower: " + Vector.toString(this.getLow()) + " higher: " + 
+				Vector.toString(this.getHigh());
 	}
 	
 	/**
@@ -124,21 +93,7 @@ public class BoundingBox
 	 */
 	public double[] ribLengths()
 	{
-		return Vector.minus(_higher, _lower);
-	}
-	
-	/**
-	 * return the lower corner of the bounding box
-	 * @return
-	 */
-	public double[] lowerCorner()
-	{
-		return this._lower;
-	}
-	
-	public double[] higherCorner()
-	{
-		return this._higher;
+		return Vector.minus(this.getHigh(), this.getLow());
 	}
 
 	/*************************************************************************
@@ -152,7 +107,7 @@ public class BoundingBox
 	{
 		double[] out = Vector.randomZeroOne(this.ribLengths());
 		Vector.timesEquals(out, this.ribLengths());
-		Vector.addEquals(out, this._lower);
+		Vector.addEquals(out, this.getLow());
 		return out;
 	}
 	

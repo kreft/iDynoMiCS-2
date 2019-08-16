@@ -163,7 +163,7 @@ public class AgentContainer implements Settable
 				 * FIXME when more than max_entries agents overlap in on position
 				 *  the split tree will cause a stack overflow exception
 				 */
-				this._agentTree = new SplitTree<Agent>(this.getNumDims(), 3, 24, 
+				this._agentTree = new SplitTree<Agent>(this.getNumDims(), 15, 24, 
 						min, Vector.add( min, 
 						this.getShape().getDimensionLengths() ),
 						this._shape.getIsCyclicNaturalOrder() );

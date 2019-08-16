@@ -149,17 +149,15 @@ public class Ball extends Surface implements HasBoundingBox, Copyable
 	/*************************************************************************
 	 * BOUNDING BOX
 	 ************************************************************************/
-	
-	protected BoundingBox boundingBox = new BoundingBox();
-	
+
 	public BoundingBox boundingBox(double margin, Shape shape)
 	{
-		return boundingBox.get(this.getCenter(), this._radius, margin);
+		return new BoundingBox(this.getCenter(), this._radius, margin);
 	}
 
 	public BoundingBox boundingBox(Shape shape)
 	{
-		return boundingBox.get(this.getCenter(), this._radius);
+		return new BoundingBox(this.getCenter(), this._radius);
 	}
 
 	@Override

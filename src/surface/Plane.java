@@ -98,9 +98,7 @@ public class Plane extends Surface implements HasBoundingBox
 	{
 		return this._normal.nDim();
 	}
-	
-	protected BoundingBox boundingBox = new BoundingBox();
-	
+
 	@Override
 	public BoundingBox boundingBox(Shape shape) {
 
@@ -130,10 +128,9 @@ public class Plane extends Surface implements HasBoundingBox
 			 */
 			else if ( n > 0 )
 			{
-				return boundingBox.get(
+				return new BoundingBox(
 						Vector.setAll(lower, -Math.sqrt(Double.MAX_VALUE)),
-						Vector.setAll(upper, Math.sqrt(Double.MAX_VALUE)), 
-						true);
+						Vector.setAll(upper, Math.sqrt(Double.MAX_VALUE)));
 			}
 			/*
 			 * if the plane's normal is pointing in a single dimension we can
@@ -146,7 +143,7 @@ public class Plane extends Surface implements HasBoundingBox
 				upper[i] = _normal.getPosition()[i] * _d + margin;
 			}
 		}
-		return boundingBox.get(lower,upper, true);
+		return new BoundingBox(lower, upper);
 	}
 
 	public double[] getNormal() 

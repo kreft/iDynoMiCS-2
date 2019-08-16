@@ -104,9 +104,7 @@ public class Cuboid extends Surface implements HasBoundingBox {
 	 * FIXME rod bounding box is broken since it receives periodic point
 	 * positions but cannot correct it's bounding box for it
 	 */
-	protected BoundingBox boundingBox = new BoundingBox();
-	
-	 
+
 	public BoundingBox boundingBox(double margin, Shape shape)
 	{
 		double[] corner1 = _points[0].getPosition();
@@ -120,7 +118,7 @@ public class Cuboid extends Surface implements HasBoundingBox {
 				corner2[i] -= margin;
 			}
 
-			return boundingBox.get(corner2, corner1, true);
+			return new BoundingBox(corner2, corner1);
 		}
 		
 		else {
@@ -133,7 +131,7 @@ public class Cuboid extends Surface implements HasBoundingBox {
 				corner1[i] -= margin;
 			}
 			
-			return boundingBox.get(corner1, corner2, true);
+			return new BoundingBox(corner1, corner2);
 		}
 	
 	}
@@ -149,12 +147,12 @@ public class Cuboid extends Surface implements HasBoundingBox {
 		double[] corner2 = _points[1].getPosition();
 		if (corner1[0] > corner2[0]) {
 			
-			return boundingBox.get(corner2, corner1, true);
+			return new BoundingBox(corner2, corner1);
 		}
 		
 		else {
 			
-			return boundingBox.get(corner1, corner2, true);
+			return new BoundingBox(corner1, corner2);
 		}
 	}
 }

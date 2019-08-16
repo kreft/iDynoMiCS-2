@@ -62,8 +62,6 @@ public class Voxel extends Surface implements HasBoundingBox {
 		return this._points[0].nDim();
 	}
 	
-	protected BoundingBox boundingBox = new BoundingBox();
-	
 	/**
 	 * Currently we assume every voxel is on grid en thus never periodic. Also
 	 * we do not allow margin
@@ -79,7 +77,7 @@ public class Voxel extends Surface implements HasBoundingBox {
 
 	public BoundingBox boundingBox(Shape shape)
 	{
-		return boundingBox.get(getLower(), getHigher());
+		return new BoundingBox(getLower(), getHigher());
 	}
 
 	public double[] getLower() 

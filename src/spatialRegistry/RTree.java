@@ -229,7 +229,7 @@ public class RTree<T> implements SpatialRegistry<T>
 	 */
 	public List<T> search(BoundingBox boundingBox)
 	{
-		return search(boundingBox.lowerCorner(), boundingBox.higherCorner());
+		return search(boundingBox.getLow(), boundingBox.getHigh());
 	}
 	
 	public List<T> search(List<BoundingBox> boundingBoxes)
@@ -515,7 +515,7 @@ public class RTree<T> implements SpatialRegistry<T>
 	 * insert entry with bounding box object
 	 */
 	public void insert(BoundingBox boundingBox, T entry) {
-		insert(boundingBox.lowerCorner(), boundingBox.ribLengths(), entry);
+		insert(boundingBox.getLow(), boundingBox.ribLengths(), entry);
 	}
 
 	/**

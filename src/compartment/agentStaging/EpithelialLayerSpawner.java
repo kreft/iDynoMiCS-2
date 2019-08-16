@@ -118,8 +118,8 @@ public class EpithelialLayerSpawner extends Spawner {
 	 */
 	public double[][] calculateLayerCorners() {
 		BoundingBox spawnDomain = this.getSpawnDomain();
-		double[] lower = spawnDomain.lowerCorner();
-		double[] higher = spawnDomain.higherCorner();
+		double[] lower = spawnDomain.getLow();
+		double[] higher = spawnDomain.getHigh();
 		double[][] corners = {lower, higher};
 		return corners;
 	}

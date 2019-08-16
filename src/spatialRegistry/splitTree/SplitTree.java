@@ -20,8 +20,6 @@ import surface.BoundingBox;
  */
 public class SplitTree<T> implements SpatialRegistry<T>
 {	
-	protected boolean _root = false;
-	
 	public Node<T> node;
 	
 	public int _dimensions;
@@ -37,18 +35,17 @@ public class SplitTree<T> implements SpatialRegistry<T>
 	public SplitTree(int dims, int min, int max, 
 			double[] low, double[] high, boolean[] periodic)
 	{
-		this._root = true;
 		_dimensions = dims;
 		_minEntries = min;
 		_maxEntries = max;
 		_periodic = periodic;
 		_lengths = Vector.minus(high, low);
-		this.node = new Node<T>(low, high, periodic);
+		this.node = new Node<T>(low, high);
 	}
 
 	public void add(Entry<T> entry) 
 	{
-		this.node.push(entry);
+		this.node.add(entry);
 	}
 	
 	/** Area must have been updated for periodicy */
@@ -68,17 +65,24 @@ public class SplitTree<T> implements SpatialRegistry<T>
 	{
 		LinkedList<T> out = new LinkedList<T>();
 		/* also does periodic search */
+		boolean[] periodic = Vector.setAll(new boolean[low.length], false);
 		for (int i = 0; i < high.length; i++ )
 		{
 			if ( this._periodic[i] ) 
 			{
 				if ( high[i] > this.node.getHigh()[i] )
+				{
 					high[i] -= this._lengths[i];
+					periodic[i] = true;
+				}
 				if ( low[i] < this.node.getLow()[i] )
+				{
 					low[i] += this._lengths[i];
+					periodic[i] = true;
+				}
 			}
 		}
-		for ( Entry<T> e : node.find(new Area(low, high, _periodic)))
+		for ( Entry<T> e : node.find(new Area(low, high, periodic)))
 		{
 			out.add(e.getEntry());
 		}
@@ -88,8 +92,8 @@ public class SplitTree<T> implements SpatialRegistry<T>
 	@Override
 	public List<T> search(BoundingBox boundingBox) 
 	{
-		return this.search(boundingBox.lowerCorner(), 
-				boundingBox.higherCorner());
+		return this.search(boundingBox.getLow(), 
+				boundingBox.getHigh());
 	}
 	
 	@Override
@@ -104,24 +108,31 @@ public class SplitTree<T> implements SpatialRegistry<T>
 	@Override
 	public void insert(double[] low, double[] high, T entry) 
 	{
+		boolean[] periodic = Vector.setAll(new boolean[low.length], false);
 		for (int i = 0; i < high.length; i++ )
 		{
 			if ( this._periodic[i] ) 
 			{
 				if ( high[i] > this.node.getHigh()[i] )
+				{
 					high[i] -= this._lengths[i];
+					periodic[i] = true;
+				}
 				if ( low[i] < this.node.getLow()[i] )
+				{
 					low[i] += this._lengths[i];
+					periodic[i] = true;
+				}
 			}
 		}
-		this.add(new Entry<T>(low, high, _periodic, entry));
+		this.add(new Entry<T>(low, high, periodic, entry));
 	}
 
 	@Override
 	public void insert(BoundingBox boundingBox, T entry) 
 	{
-		this.insert(boundingBox.lowerCorner(), 
-				boundingBox.higherCorner(), entry);
+		this.insert(boundingBox.getLow(), 
+				boundingBox.getHigh(), entry);
 	}
 	
 	@Override

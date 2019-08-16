@@ -3,7 +3,6 @@ package spatialRegistry.splitTree;
 import java.util.LinkedList;
 import java.util.List;
 
-import debugTools.SegmentTimer;
 import linearAlgebra.Vector;
 import spatialRegistry.Area;
 import spatialRegistry.Entry;
@@ -12,17 +11,15 @@ public class Node<T> extends Area
 {
 	private LinkedList<Entry<T>> _entries = new LinkedList<Entry<T>>();
 	private LinkedList<Node<T>> _nodes = new LinkedList<Node<T>>();
-	private boolean culled = false;
 
-	public Node( double[] low, double[] high,
-			boolean[] periodic)
+	public Node( double[] low, double[] high)
 	{
-		super(low, high, Vector.copy(periodic));
+		super(low, high, Vector.setAll(new boolean[low.length], false));
 	}
 	
 	public List<Entry<T>> find(Area test) 
 	{
-		if ( !this.culled )
+		if ( this.size() > SplitTree._maxEntries )
 			cull();
 		LinkedList<Entry<T>> out = new LinkedList<Entry<T>>();
 		if ( ! this.test(test) )
@@ -100,13 +97,11 @@ public class Node<T> extends Area
 	
 	public void push( LinkedList<Entry<T>> entries )
 	{
-		this.culled = false;
 		this._entries = entries;
 	}
 	
 	public void push( Entry<T> entry)
 	{
-		this.culled = false;
 		this._entries.add(entry);
 	}
 	
@@ -121,7 +116,6 @@ public class Node<T> extends Area
 		this._entries = in;
 		if( this.size() > SplitTree._maxEntries )
 			splitCon();
-		this.culled = true;
 	}
 	
 	public void build()
@@ -209,7 +203,7 @@ public class Node<T> extends Area
 		for ( boolean[] b : combinations())
 		{
 			newNode = new Node<T>( corner(getLow(), splits(), b), 
-					corner(splits(), getHigh(), b), super.getPeriodic());
+					corner(splits(), getHigh(), b));
 			newNode.add(allLocal());
 			childNodes.add(newNode);
 		}
@@ -222,39 +216,14 @@ public class Node<T> extends Area
 	{
 		Node<T> newNode;
 		List<Node<T>> childNodes = new LinkedList<Node<T>>();
-		if( this._entries.size() > 250 )
+		for ( boolean[] b : combinations())
 		{
-			LinkedList<ParallelBuild<T>> buildTasks = 
-					new LinkedList<ParallelBuild<T>>();
-			for ( boolean[] b : combinations())
-			{
-				newNode = new Node<T>( corner(getLow(), splits(), b), 
-						corner(splits(), getHigh(), b), super.getPeriodic());
-				newNode.push(allLocal());
-				childNodes.add(newNode);
-				buildTasks.add( new ParallelBuild<T>( newNode ) );
-			}
-			for( ParallelBuild<T> p : buildTasks )
-			{
-				ParallelBuild.pool.execute( p );
-			}
-			for( ParallelBuild<T> p : buildTasks )
-			{
-				p.join();
-			}
+			newNode = new Node<T>( corner(getLow(), splits(), b), 
+					corner(splits(), getHigh(), b));
+			newNode.push(allLocal());
+			childNodes.add(newNode);
+			newNode.cull();
 		}
-		else
-		{
-			for ( boolean[] b : combinations())
-			{
-				newNode = new Node<T>( corner(getLow(), splits(), b), 
-						corner(splits(), getHigh(), b), super.getPeriodic());
-				newNode.push(allLocal());
-				childNodes.add(newNode);
-				newNode.cull();
-			}
-		}
-			
 		/* promote node from leaf to branch */
 		promote(childNodes);
 	}	
