@@ -45,7 +45,7 @@ public class SplitTree<T> implements SpatialRegistry<T>
 
 	public void add(Entry<T> entry) 
 	{
-		this.node.add(entry);
+		this.node.push(entry);
 	}
 	
 	/** Area must have been updated for periodicy */

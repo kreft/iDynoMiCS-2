@@ -2,8 +2,6 @@ package spatialRegistry;
 
 import java.util.function.Predicate;
 
-import linearAlgebra.Vector;
-
 public class Area implements Predicate<Area> {
 	
 	private final double[] low;
@@ -33,7 +31,7 @@ public class Area implements Predicate<Area> {
 	{
 		/* periodic set use the more expensive periodic check */
 		for (int i = 0; i < getLow().length; i++)
-			if ( ( periodic[i] || area.periodic[i]) ? periodic(area, i) : normal(area, i) )
+			if ( periodic(area, i) )
 				return true;
 		return false;		
 	}
@@ -64,12 +62,10 @@ public class Area implements Predicate<Area> {
 		/* if this is not passing a periodic boundary in this dimension */
 		if ( !this.periodic[dim] ) 
 		{
-//			this.periodic[dim] = false;
 			/* if the partner area is also not passing a periodic boundary in
 			 * this dimension  */
 			if ( !area.periodic[dim] )
 			{
-//				area.periodic[dim] = false;
 				return normal(area, dim);
 			}
 			else
