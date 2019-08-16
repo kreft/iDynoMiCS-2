@@ -222,7 +222,6 @@ public class Node<T> extends Area
 					corner(splits(), getHigh(), b));
 			newNode.push(allLocal());
 			childNodes.add(newNode);
-			newNode.cull();
 		}
 		/* promote node from leaf to branch */
 		promote(childNodes);
