@@ -132,5 +132,9 @@ public class Area implements Predicate<Area> {
 	public boolean[] periodic() {
 		return periodic;
 	}
+	
+	public void setperiodic(boolean[] periodic) {
+		this.periodic = periodic;
+	}
 
 }

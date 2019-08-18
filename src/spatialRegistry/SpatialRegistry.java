@@ -27,7 +27,7 @@ public interface SpatialRegistry<T>
 	 * @param boundingBox
 	 * @return
 	 */
-	public abstract List<T> search(BoundingBox boundingBox);
+	public abstract List<T> search(Area area);
 	
 	/**
 	 * 

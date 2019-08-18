@@ -39,7 +39,7 @@ public class SplitTree<T> implements SpatialRegistry<T>
 		_maxEntries = max;
 		_periodic = periodic;
 		_lengths = Vector.minus(high, low);
-		nodeTemplate = Vector.setAll(new boolean[low.length], false);
+		nodeTemplate = new boolean[low.length];
 		this.node = new Node<T>(low, high);
 	}
 
@@ -65,7 +65,7 @@ public class SplitTree<T> implements SpatialRegistry<T>
 	{
 		LinkedList<T> out = new LinkedList<T>();
 		/* also does periodic search */
-		boolean[] periodic = Vector.setAll(new boolean[low.length], false);
+		boolean[] periodic = new boolean[low.length];
 		for (int i = 0; i < high.length; i++ )
 		{
 			if ( this._periodic[i] ) 
@@ -90,10 +90,33 @@ public class SplitTree<T> implements SpatialRegistry<T>
 	}
 
 	@Override
-	public List<T> search(BoundingBox boundingBox) 
+	public List<T> search(Area area) 
 	{
-		return this.search(boundingBox.getLow(), 
-				boundingBox.getHigh());
+		LinkedList<T> out = new LinkedList<T>();
+		/* also does periodic search */
+		boolean[] periodic = new boolean[_periodic.length];
+		for (int i = 0; i < _periodic.length; i++ )
+		{
+			if ( this._periodic[i] ) 
+			{
+				if ( area.getHigh()[i] > this.node.getHigh()[i] )
+				{
+					area.getHigh()[i] -= this._lengths[i];
+					periodic[i] = true;
+				}
+				if ( area.getLow()[i] < this.node.getLow()[i] )
+				{
+					area.getLow()[i] += this._lengths[i];
+					periodic[i] = true;
+				}
+			}
+		}
+		area.setperiodic(periodic);
+		for ( Entry<T> e : node.find(area))
+		{
+			out.add(e.getEntry());
+		}
+		return out;
 	}
 	
 	@Override
@@ -108,7 +131,7 @@ public class SplitTree<T> implements SpatialRegistry<T>
 	@Override
 	public void insert(double[] low, double[] high, T entry) 
 	{
-		boolean[] periodic = Vector.setAll(new boolean[low.length], false);
+		boolean[] periodic = new boolean[low.length];
 		for (int i = 0; i < high.length; i++ )
 		{
 			if ( this._periodic[i] ) 
