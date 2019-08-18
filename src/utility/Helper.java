@@ -3,6 +3,7 @@ package utility;
 import java.awt.Color;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -510,6 +511,18 @@ public final class Helper
 			out[i] = s;
 			i++;
 		}
+		return out;
+	}
+	
+	/**
+	 * Convert a java Set of T to a list of T
+	 * @param <T>
+	 * @param all
+	 * @return
+	 */
+	public static <T> List<T> collectionToList(Collection<T> all) {
+		ArrayList<T> out = new ArrayList<T>(all.size());
+		out.addAll(all);
 		return out;
 	}
 	

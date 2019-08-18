@@ -2,6 +2,7 @@ package grid;
 
 import static grid.ArrayType.DIFFUSIVITY;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -133,7 +134,7 @@ public class SpatialGrid implements Settable, Instantiable
 				
 				/* FIXME this assumes Cartesian grids  */
 				shape.voxelUpperCornerTo(upper, coord);
-				List<Agent> neighbors = agents.treeSearch(location, upper);
+				Collection<Agent> neighbors = agents.treeSearch(location, upper);
 				/* If there are any agents in this voxel, update the 
 				 * diffusivity. */
 				if ( ! neighbors.isEmpty() )

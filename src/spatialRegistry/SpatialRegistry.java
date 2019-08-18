@@ -1,5 +1,6 @@
 package spatialRegistry;
 
+import java.util.Collection;
 import java.util.List;
 
 import surface.BoundingBox;
@@ -20,23 +21,23 @@ public interface SpatialRegistry<T>
 	 * @param dimension
 	 * @return
 	 */
-	public abstract List<T> search(double[] lower, double[] higher);
+	public abstract Collection<T> search(double[] lower, double[] higher);
 	
 	/**
 	 * 
 	 * @param boundingBox
 	 * @return
 	 */
-	public abstract List<T> search(Area area);
+	public abstract Collection<T> search(Area area);
 	
 	/**
 	 * 
 	 * @param boundingBox
 	 * @return
 	 */
-	public abstract List<T> search(List<BoundingBox> boundingBoxes);
+	public abstract Collection<T> search(List<BoundingBox> boundingBoxes);
 	
-	public default List<T> search(double[] pointLocation)
+	public default Collection<T> search(double[] pointLocation)
 	{
 		return this.search(pointLocation, pointLocation);
 	}

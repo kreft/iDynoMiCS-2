@@ -1,7 +1,10 @@
 package spatialRegistry.splitTree;
 
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.TreeSet;
 
 import linearAlgebra.Vector;
 import spatialRegistry.Area;
@@ -32,8 +35,6 @@ public class SplitTree<T> implements SpatialRegistry<T>
 	
 	private double[] _lengths;
 	
-	public static boolean[] nodeTemplate;
-	
 	public SplitTree(int dims,  int max, 
 			double[] low, double[] high, boolean[] periodic)
 	{
@@ -42,7 +43,6 @@ public class SplitTree<T> implements SpatialRegistry<T>
 		_periodic = periodic;
 		_childnodes = (int) Math.pow(2, low.length);
 		_lengths = Vector.minus(high, low);
-		nodeTemplate = new boolean[low.length];
 		this.node = new Node<T>(low, high);
 	}
 
@@ -52,7 +52,7 @@ public class SplitTree<T> implements SpatialRegistry<T>
 	}
 	
 	/** Area must have been updated for periodicy */
-	public List<Entry<T>> find(Area area) 
+	public HashSet<Entry<T>> find(Area area) 
 	{
 		return node.find(area);
 	}
@@ -64,7 +64,7 @@ public class SplitTree<T> implements SpatialRegistry<T>
 	 */
 
 	@Override
-	public List<T> search(double[] low, double[] high) 
+	public Collection<T> search(double[] low, double[] high) 
 	{
 		LinkedList<T> out = new LinkedList<T>();
 		/* also does periodic search */
@@ -93,7 +93,7 @@ public class SplitTree<T> implements SpatialRegistry<T>
 	}
 
 	@Override
-	public List<T> search(Area area) 
+	public Collection<T> search(Area area) 
 	{
 		LinkedList<T> out = new LinkedList<T>();
 		/* also does periodic search */
@@ -123,7 +123,7 @@ public class SplitTree<T> implements SpatialRegistry<T>
 	}
 	
 	@Override
-	public List<T> search(List<BoundingBox> boundingBoxes) 
+	public Collection<T> search(List<BoundingBox> boundingBoxes) 
 	{
 		LinkedList<T> out = new LinkedList<T>();
 		for (BoundingBox b : boundingBoxes )

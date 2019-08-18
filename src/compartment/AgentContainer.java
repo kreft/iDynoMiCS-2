@@ -150,10 +150,6 @@ public class AgentContainer implements Settable
 				 * change, min represents domain minima */
 				double[] min = Vector.zerosDbl(
 						this.getShape().getNumberOfDimensions() );
-				/* 
-				 * FIXME when more than max_entries agents overlap in on position
-				 *  the split tree will cause a stack overflow exception
-				 */
 				this._agentTree = new SplitTree<Agent>(this.getNumDims(), 19, 
 						min, Vector.add( min, 
 						this.getShape().getDimensionLengths() ),
@@ -255,7 +251,7 @@ public class AgentContainer implements Settable
 	 * @return Collection of agents that may be overlap with this box: note
 	 * that there may be some false positives (but no false negatives).
 	 */
-	public List<Agent> treeSearch(BoundingBox boundingBox)
+	public Collection<Agent> treeSearch(BoundingBox boundingBox)
 	{
 		return this._agentTree.search(boundingBox);
 	}
@@ -268,7 +264,7 @@ public class AgentContainer implements Settable
 	 * @return Collection of agents that may be overlap with these boxes: note
 	 * that there may be some false positives (but no false negatives).
 	 */
-	public List<Agent> treeSearch(List<BoundingBox> boundingBoxes)
+	public Collection<Agent> treeSearch(List<BoundingBox> boundingBoxes)
 	{
 		return this._agentTree.search(boundingBoxes);
 	}
@@ -282,7 +278,7 @@ public class AgentContainer implements Settable
 	 * @return Collection of agents that may be overlap with this box: note
 	 * that there may be some false positives (but no false negatives).
 	 */
-	public List<Agent> treeSearch(double[] location, double[] dimensions)
+	public Collection<Agent> treeSearch(double[] location, double[] dimensions)
 	{
 		return this._agentTree.search(location, dimensions);
 	}
@@ -294,7 +290,7 @@ public class AgentContainer implements Settable
 	 * @return Collection of agents that may be overlap with this point: note
 	 * that there may be some false positives (but no false negatives).
 	 */
-	public List<Agent> treeSearch(double[] pointLocation)
+	public Collection<Agent> treeSearch(double[] pointLocation)
 	{
 		return this.treeSearch(pointLocation, Vector.zeros(pointLocation));
 	}
@@ -310,7 +306,7 @@ public class AgentContainer implements Settable
 	 * that there may be some false positives (but no false negatives). The
 	 * focal agent is not in this collection.
 	 */
-	public List<Agent> treeSearch(Agent anAgent, double searchDist)
+	public Collection<Agent> treeSearch(Agent anAgent, double searchDist)
 	{
 		// TODO not sure if this is the best response
 		if ( ! IsLocated.isLocated(anAgent) )
@@ -320,7 +316,7 @@ public class AgentContainer implements Settable
 		 */
 		Body body = (Body) anAgent.get(AspectRef.agentBody);
 		List<BoundingBox> boxes = body.getBoxes(searchDist, this.getShape());
-		List<Agent> out = this.treeSearch(boxes);
+		Collection<Agent> out = this.treeSearch(boxes);
 		/* 
 		 * Remove the focal agent from this list.
 		 */

@@ -1,6 +1,7 @@
 package spatialRegistry.splitTree;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -20,9 +21,9 @@ public class Node<T> extends Area
 		this.atomic = isAtomic(low, high);
 	}
 	
-	public List<Entry<T>> find(Area test) 
+	public HashSet<Entry<T>> find(Area test) 
 	{
-		LinkedList<Entry<T>> out = new LinkedList<Entry<T>>();
+		HashSet<Entry<T>> out = new HashSet<Entry<T>>();
 		if ( ! this.test(test) )
 		{
 			if ( this._nodes == null )
@@ -43,22 +44,6 @@ public class Node<T> extends Area
 								out.add(e);
 					}
 				}
-			}
-		}
-		return out;
-	}
-	
-	public List<Entry<T>> findUnfiltered(Area area) 
-	{
-		LinkedList<Entry<T>> out = new LinkedList<Entry<T>>();
-		if ( ! this.test(area) )
-		{
-			if ( this._nodes == null )
-				return this.allUnfiltered(out);
-			else
-			{
-				for ( Node<T> a : _nodes )
-					out.addAll( a.findUnfiltered(area) );
 			}
 		}
 		return out;
@@ -127,20 +112,20 @@ public class Node<T> extends Area
 		return out;
 	}
 	
-	public List<Entry<T>> allConc(LinkedList<Entry<T>> out, Area test)
+	public HashSet<Entry<T>> allConc(HashSet<Entry<T>> out, Area test)
 	{
 		if (out.isEmpty())
 		{
 			for (Entry<T> a : this.getEntries())
-					if ( ! a.test(test) )
-						out.add( (Entry<T>) a);
+				if ( ! a.test(test) )
+					out.add( (Entry<T>) a);
 		}
 		else
 		{
 			for (Entry<T> a : this.getEntries())
+				if ( ! out.contains(a) )
 					if ( ! a.test(test) )
-						if ( ! out.contains(a) )
-							out.add( (Entry<T>) a);
+						out.add( (Entry<T>) a);
 		}
 		return out;
 	}
@@ -167,13 +152,6 @@ public class Node<T> extends Area
 		/* promote node from leaf to branch */
 		promote(childNodes);
 	}	
-	
-	public void whipe() 
-	{
-		this._entries.clear();
-		for ( Node<T> a : _nodes )
-			a.whipe();
-	}
 	
 	@Override
 	public boolean periodic(Area area, int dim)
@@ -243,7 +221,7 @@ public class Node<T> extends Area
 	private boolean isAtomic(double[] low, double[] high)
 	{
 		for ( int i = 0; i < low.length; i++ )
-			if( high[i] - low[i] > 1.0)
+			if( high[i] - low[i] > 0.5)
 				return false;
 		return true;
 	}
