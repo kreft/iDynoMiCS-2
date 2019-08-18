@@ -25,6 +25,8 @@ public class Cuboid extends Surface implements HasBoundingBox {
      * Rest length of internal springs connecting the points.
      */
     public double _height;
+
+	private BoundingBox boundingBox = new BoundingBox();
 	
     
     public Cuboid(Point[] points)
@@ -118,7 +120,7 @@ public class Cuboid extends Surface implements HasBoundingBox {
 				corner2[i] -= margin;
 			}
 
-			return new BoundingBox(corner2, corner1);
+			return boundingBox.get(corner2, corner1);
 		}
 		
 		else {
@@ -131,7 +133,7 @@ public class Cuboid extends Surface implements HasBoundingBox {
 				corner1[i] -= margin;
 			}
 			
-			return new BoundingBox(corner1, corner2);
+			return boundingBox.get(corner1, corner2);
 		}
 	
 	}
@@ -147,12 +149,12 @@ public class Cuboid extends Surface implements HasBoundingBox {
 		double[] corner2 = _points[1].getPosition();
 		if (corner1[0] > corner2[0]) {
 			
-			return new BoundingBox(corner2, corner1);
+			return boundingBox.get(corner2, corner1);
 		}
 		
 		else {
 			
-			return new BoundingBox(corner1, corner2);
+			return boundingBox.get(corner1, corner2);
 		}
 	}
 }

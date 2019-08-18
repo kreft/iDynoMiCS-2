@@ -16,6 +16,12 @@ public class BoundingBox extends Area
 	/*************************************************************************
 	 * CONSTRUCTORS
 	 ************************************************************************/
+	
+	public BoundingBox()
+	{
+		
+	}
+	
 	/**
 	 * construct from a matrix of locations, a sphere radius for the sphere-
 	 * swept volume and an optional margin.
@@ -24,9 +30,10 @@ public class BoundingBox extends Area
 	 * @param radius
 	 * @param margin
 	 */
-	public BoundingBox(double[][] p, double radius, double margin)
+	public BoundingBox get(double[][] p, double radius, double margin)
 	{
-		super(lower(p, radius + margin), upper(p, radius + margin));
+		super.set(lower(p, radius + margin), upper(p, radius + margin));
+		return this;
 	}
 	
 	/**
@@ -34,9 +41,10 @@ public class BoundingBox extends Area
 	 * @param p
 	 * @param radius
 	 */
-	public BoundingBox(double[][] p, double radius)
+	public BoundingBox get(double[][] p, double radius)
 	{
-		super(lower(p, radius), upper(p, radius));
+		super.set(lower(p, radius), upper(p, radius));
+		return this;
 	}
 	
 	/**
@@ -45,10 +53,11 @@ public class BoundingBox extends Area
 	 * @param radius
 	 * @param margin
 	 */
-	public BoundingBox(double[] p, double radius, double margin)
+	public BoundingBox get(double[] p, double radius, double margin)
 	{
-		super(lower(new double[][]{ p }, radius + margin),
+		super.set(lower(new double[][]{ p }, radius + margin),
 				upper(new double[][]{ p }, radius + margin));
+		return this;
 	}
 	
 	/**
@@ -56,10 +65,11 @@ public class BoundingBox extends Area
 	 * @param p
 	 * @param radius
 	 */
-	public BoundingBox(double[] p, double radius)
+	public BoundingBox get(double[] p, double radius)
 	{
-		super(lower(new double[][]{ p }, radius),
+		super.set(lower(new double[][]{ p }, radius),
 				upper(new double[][]{ p }, radius));
+		return this;
 	}
 	
 	/**
@@ -68,9 +78,10 @@ public class BoundingBox extends Area
 	 * @param dimensions
 	 * @param lower
 	 */
-	public BoundingBox(double[] lower, double[] higher)
+	public BoundingBox get(double[] lower, double[] higher)
 	{
-		super(lower, higher);
+		super.set(lower, higher);
+		return this;
 	}
 	
 	/*************************************************************************

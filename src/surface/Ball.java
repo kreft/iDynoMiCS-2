@@ -37,6 +37,8 @@ public class Ball extends Surface implements HasBoundingBox, Copyable
 	 * Radius of this sphere.
 	 */
 	public double _radius;
+	
+	private BoundingBox boundingBox = new BoundingBox();
 
 	/*************************************************************************
 	 * CONSTRUCTORS
@@ -152,12 +154,12 @@ public class Ball extends Surface implements HasBoundingBox, Copyable
 
 	public BoundingBox boundingBox(double margin, Shape shape)
 	{
-		return new BoundingBox(this.getCenter(), this._radius, margin);
+		return boundingBox.get(this.getCenter(), this._radius, margin);
 	}
 
 	public BoundingBox boundingBox(Shape shape)
 	{
-		return new BoundingBox(this.getCenter(), this._radius);
+		return boundingBox.get(this.getCenter(), this._radius);
 	}
 
 	@Override

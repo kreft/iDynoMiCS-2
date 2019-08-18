@@ -11,17 +11,16 @@ public class Node<T> extends Area
 {
 	private LinkedList<Entry<T>> _entries = new LinkedList<Entry<T>>();
 	private LinkedList<Node<T>> _nodes = new LinkedList<Node<T>>();
-	private final boolean atomic;
-
 
 	public Node( double[] low, double[] high)
 	{
-		super(low, high, SplitTree.nodeTemplate );
-			this.atomic = isAtomic(low, high);
+		super(low, high, Vector.setAll(new boolean[low.length], false));
 	}
 	
 	public List<Entry<T>> find(Area test) 
 	{
+		if ( this.size() > SplitTree._maxEntries )
+			cull();
 		LinkedList<Entry<T>> out = new LinkedList<Entry<T>>();
 		if ( ! this.test(test) )
 		{
@@ -78,7 +77,7 @@ public class Node<T> extends Area
 			if ( this._nodes.isEmpty() )
 			{
 				this.getEntries().add(entry);
-				if( !this.atomic && this.size() > SplitTree._maxEntries )
+				if( this.size() > SplitTree._maxEntries )
 					split();
 			}
 			else
@@ -95,7 +94,37 @@ public class Node<T> extends Area
 		for (Entry<T> entry : entries) 
 			this.add( entry );
 	}
-
+	
+	public void push( LinkedList<Entry<T>> entries )
+	{
+		this._entries = entries;
+	}
+	
+	public void push( Entry<T> entry)
+	{
+		this._entries.add(entry);
+	}
+	
+	public void cull()
+	{
+		LinkedList<Entry<T>> in = new LinkedList<Entry<T>>();
+		for( Entry<T> entry : this._entries)
+		{
+			if( !this.test(entry))
+				in.add(entry);
+		}
+		this._entries = in;
+		if( this.size() > SplitTree._maxEntries )
+			splitCon();
+	}
+	
+	public void build()
+	{
+		LinkedList<Entry<T>> temp = this._entries;
+		this._entries = new LinkedList<Entry<T>> ();
+		add( temp );
+	}
+	
 	protected LinkedList<Entry<T>> getEntries() {
 		return _entries;
 	}
@@ -112,7 +141,8 @@ public class Node<T> extends Area
 				return remove(t);
 		for ( Node<T> a : _nodes )
 			return a.delete(member);
-		return false;	
+		return false;
+			
 	}
 	
 	public int size()
@@ -181,7 +211,23 @@ public class Node<T> extends Area
 		/* promote node from leaf to branch */
 		promote(childNodes);
 	}	
-
+	
+	public void splitCon()
+	{
+		Node<T> newNode;
+		List<Node<T>> childNodes = new LinkedList<Node<T>>();
+		for ( boolean[] b : combinations())
+		{
+			newNode = new Node<T>( corner(getLow(), splits(), b), 
+					corner(splits(), getHigh(), b));
+			newNode.push(allLocal());
+			childNodes.add(newNode);
+			newNode.cull();
+		}
+		/* promote node from leaf to branch */
+		promote(childNodes);
+	}	
+	
 	/* ************************************************************************
 	 * Helper methods
 	 */
@@ -189,8 +235,7 @@ public class Node<T> extends Area
 	{
 		double[] split = new double[this.getLow().length];
 		for (int i = 0; i < this.getLow().length; i++)
-			split[i] = this.getLow()[i] + 
-				( (this.getHigh()[i] - this.getLow()[i]) / 2.0 );
+			split[i] = this.getLow()[i] + ( (this.getHigh()[i] - this.getLow()[i]) / 2.0 );
 		return split;
 	}
 	
@@ -227,13 +272,5 @@ public class Node<T> extends Area
 			c[pos] = true;
 			build.add(c);
 		}
-	}
-	
-	private boolean isAtomic(double[] low, double[] high)
-	{
-		for ( int i = 0; i < low.length; i++ )
-			if( high[i] - low[i] > 1.0)
-				return false;
-		return true;
 	}
 }

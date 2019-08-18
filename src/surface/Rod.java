@@ -30,6 +30,8 @@ public class Rod extends Surface implements HasBoundingBox {
 	 * TODO
 	 */
     public double _radius;
+
+	private BoundingBox boundingBox = new BoundingBox();
     
     public Rod(Point[] points, double spineLength, double radius)
     {
@@ -129,11 +131,11 @@ public class Rod extends Surface implements HasBoundingBox {
 
 	public BoundingBox boundingBox(double margin, Shape shape)
 	{
-		return new BoundingBox(pointMatrix(shape),_radius,margin);
+		return boundingBox.get(pointMatrix(shape),_radius,margin);
 	}
 
 	public BoundingBox boundingBox(Shape shape)
 	{
-		return new BoundingBox(pointMatrix(shape),_radius);
+		return boundingBox .get(pointMatrix(shape),_radius);
 	}
 }

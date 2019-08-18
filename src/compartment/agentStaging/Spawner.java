@@ -53,7 +53,7 @@ public abstract class Spawner implements Settable, Instantiable, AspectInterface
 	 * TODO maybe this can be more generally applied and we should move this to
 	 * the Spawner super class.
 	 */
-	protected BoundingBox _spawnDomain;
+	protected BoundingBox _spawnDomain = new BoundingBox();
 	
 	public void instantiate(Element xmlElem, Settable parent)
 	{
@@ -106,9 +106,9 @@ public abstract class Spawner implements Settable, Instantiable, AspectInterface
 			double[][] input = 
 					Matrix.dblFromString(p.getAttribute(XmlRef.spawnDomain));
 			if( Matrix.rowDim(input) < 2)
-				_spawnDomain = new BoundingBox(Vector.zeros(input[0]), input[0]);
+				_spawnDomain.get(Vector.zeros(input[0]), input[0]);
 			else
-				_spawnDomain = new BoundingBox(input[0], input[1]);
+				_spawnDomain.get(input[0], input[1]);
 		}
 	}
 

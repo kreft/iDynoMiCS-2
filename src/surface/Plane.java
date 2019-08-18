@@ -29,6 +29,8 @@ public class Plane extends Surface implements HasBoundingBox
 	 */
 	private double _d;
 
+	private BoundingBox boundingBox = new BoundingBox();
+
 	/**
 	 * \brief Construct plane from its normal and the dot product of the
 	 * plane's normal vector with a point on the plane.
@@ -128,7 +130,7 @@ public class Plane extends Surface implements HasBoundingBox
 			 */
 			else if ( n > 0 )
 			{
-				return new BoundingBox(
+				return boundingBox.get(
 						Vector.setAll(lower, -Math.sqrt(Double.MAX_VALUE)),
 						Vector.setAll(upper, Math.sqrt(Double.MAX_VALUE)));
 			}
@@ -143,7 +145,7 @@ public class Plane extends Surface implements HasBoundingBox
 				upper[i] = _normal.getPosition()[i] * _d + margin;
 			}
 		}
-		return new BoundingBox(lower, upper);
+		return boundingBox .get(lower, upper);
 	}
 
 	public double[] getNormal() 

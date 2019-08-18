@@ -24,6 +24,7 @@ public class Voxel extends Surface implements HasBoundingBox {
 	 * Lower corner at position 0, higher corner at position 1
 	 */
 	private Point[] _points = new Point[2];
+	private BoundingBox boundingBox = new BoundingBox();
 
     public Voxel(double[] lower, double[] higher)
     {
@@ -77,7 +78,7 @@ public class Voxel extends Surface implements HasBoundingBox {
 
 	public BoundingBox boundingBox(Shape shape)
 	{
-		return new BoundingBox(getLower(), getHigher());
+		return boundingBox .get(getLower(), getHigher());
 	}
 
 	public double[] getLower() 

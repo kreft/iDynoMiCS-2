@@ -4,11 +4,17 @@ import java.util.function.Predicate;
 
 public class Area implements Predicate<Area> {
 	
-	private final double[] low;
+	private double[] low;
 	
-	private final double[] high;
+	private double[] high;
 	
 	private boolean[] periodic;
+	
+	public Area()
+	{
+
+	}
+	
 	
 	public Area(double[] low, double[] high)
 	{
@@ -16,7 +22,20 @@ public class Area implements Predicate<Area> {
 		this.high = high;
 	}
 	
+	public void set(double[] low, double[] high)
+	{
+		this.low = low;
+		this.high = high;
+	}
+	
 	public Area(double[] low, double[] high, boolean[] periodic)
+	{
+		this.low = low;
+		this.high = high;
+		this.periodic = periodic;
+	}
+	
+	public void set(double[] low, double[] high, boolean[] periodic)
 	{
 		this.low = low;
 		this.high = high;
@@ -36,13 +55,24 @@ public class Area implements Predicate<Area> {
 		return false;		
 	}
 	
-	public boolean sectorTest(Area area) 
+	/**
+	 * returns true if this has at least 1 length greater than area
+	 * periodic
+	 * @param area
+	 * @return
+	 */
+	public boolean capsulating(Area area)
 	{
-		/* periodic set use the more expensive periodic check */
 		for (int i = 0; i < getLow().length; i++)
-			if ( sector(area, i) )
+			if ( capsule(area, i) )
 				return true;
-		return false;		
+		return false;	
+	}
+	
+	private boolean capsule(Area area, int dim)
+	{
+		return ( getHigh()[dim]-getLow()[dim] > 
+			area.getHigh()[dim]-area.getLow()[dim] );
 	}
 	
 	private boolean normal(Area area, int dim)
@@ -51,11 +81,6 @@ public class Area implements Predicate<Area> {
 				getHigh()[dim] < area.getLow()[dim] );
 	}
 	
-	private boolean sector(Area area, int dim)
-	{
-		return ( getLow()[dim] > area.getLow()[dim] || 
-				getHigh()[dim] < area.getLow()[dim] );
-	}
 	
 	private boolean periodic(Area area, int dim)
 	{
