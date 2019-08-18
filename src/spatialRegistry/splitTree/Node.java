@@ -16,8 +16,8 @@ public class Node<T> extends Area
 
 	public Node( double[] low, double[] high)
 	{
-		super(low, high, SplitTree.nodeTemplate );
-			this.atomic = isAtomic(low, high);
+		super(low, high);
+		this.atomic = isAtomic(low, high);
 	}
 	
 	public List<Entry<T>> find(Area test) 
@@ -181,6 +181,25 @@ public class Node<T> extends Area
 		/* promote node from leaf to branch */
 		promote(childNodes);
 	}	
+	
+	@Override
+	public boolean periodic(Area area, int dim)
+	{
+		/* if the partner area is not passing a periodic boundary in
+		 * this dimension  */
+		if ( !area.periodic()[dim] )
+		{
+			return normal(area, dim);
+		}
+		else
+		{
+			/* if the partner area is passing a periodic boundary in
+			 * this dimension  */
+			return ( getLow()[dim] > area.getHigh()[dim] && 
+					getHigh()[dim] < area.getLow()[dim] );	
+		}
+	}
+
 
 	/* ************************************************************************
 	 * Helper methods

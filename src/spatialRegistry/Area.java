@@ -4,11 +4,11 @@ import java.util.function.Predicate;
 
 public class Area implements Predicate<Area> {
 	
-	private double[] low;
+	protected double[] low;
 	
-	private double[] high;
+	protected double[] high;
 	
-	private boolean[] periodic;
+	protected boolean[] periodic;
 	
 	public Area()
 	{
@@ -75,14 +75,14 @@ public class Area implements Predicate<Area> {
 			area.getHigh()[dim]-area.getLow()[dim] );
 	}
 	
-	private boolean normal(Area area, int dim)
+	protected boolean normal(Area area, int dim)
 	{
 		return ( getLow()[dim] > area.getHigh()[dim] || 
 				getHigh()[dim] < area.getLow()[dim] );
 	}
 	
 	
-	private boolean periodic(Area area, int dim)
+	public boolean periodic(Area area, int dim)
 	{
 		/* if this is not passing a periodic boundary in this dimension */
 		if ( !this.periodic[dim] ) 
