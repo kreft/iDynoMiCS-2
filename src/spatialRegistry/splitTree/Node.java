@@ -78,7 +78,7 @@ public class Node<T> extends Area
 			if ( this._nodes.isEmpty() )
 			{
 				this.getEntries().add(entry);
-				if( !this.atomic && this.size() > SplitTree._maxEntries )
+				if( this.size() > SplitTree._maxEntries && !this.atomic )
 					split();
 			}
 			else
