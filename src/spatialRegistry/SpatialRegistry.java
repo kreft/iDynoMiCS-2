@@ -58,4 +58,6 @@ public interface SpatialRegistry<T>
 	public abstract void insert(BoundingBox boundingBox, T entry);
 	
 	public abstract boolean delete(T entry);
+	
+	public abstract void clear();
 }

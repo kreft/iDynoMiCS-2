@@ -1,16 +1,16 @@
 package spatialRegistry.splitTree;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import linearAlgebra.Vector;
 import spatialRegistry.Area;
 import spatialRegistry.Entry;
 
 public class Node<T> extends Area
 {
-	private LinkedList<Entry<T>> _entries = new LinkedList<Entry<T>>();
-	private LinkedList<Node<T>> _nodes = new LinkedList<Node<T>>();
+	private ArrayList<Entry<T>> _entries = new ArrayList<Entry<T>>(SplitTree._maxEntries+1);
+	private ArrayList<Node<T>> _nodes;
 	private final boolean atomic;
 
 
@@ -25,7 +25,7 @@ public class Node<T> extends Area
 		LinkedList<Entry<T>> out = new LinkedList<Entry<T>>();
 		if ( ! this.test(test) )
 		{
-			if ( this._nodes.isEmpty() )
+			if ( this._nodes == null )
 				return this.allConc(out, test);
 			else
 			{
@@ -53,7 +53,7 @@ public class Node<T> extends Area
 		LinkedList<Entry<T>> out = new LinkedList<Entry<T>>();
 		if ( ! this.test(area) )
 		{
-			if ( this._nodes.isEmpty() )
+			if ( this._nodes == null )
 				return this.allUnfiltered(out);
 			else
 			{
@@ -63,19 +63,12 @@ public class Node<T> extends Area
 		}
 		return out;
 	}
-
-	public void add( Node<T> node )
-	{
-		this._nodes.add(node);
-		if( this.size() > SplitTree._maxEntries )
-			split();	
-	}
 	
 	public void add( Entry<T> entry )
 	{
 		if ( ! this.test(entry) )
 		{
-			if ( this._nodes.isEmpty() )
+			if ( this._nodes == null )
 			{
 				this.getEntries().add(entry);
 				if( this.size() > SplitTree._maxEntries && !this.atomic )
@@ -91,12 +84,11 @@ public class Node<T> extends Area
 	
 	public void add( List<Entry<T>> entries ) 
 	{
-		entries.removeIf(this);
 		for (Entry<T> entry : entries) 
 			this.add( entry );
 	}
 
-	protected LinkedList<Entry<T>> getEntries() {
+	protected List<Entry<T>> getEntries() {
 		return _entries;
 	}
 
@@ -120,14 +112,9 @@ public class Node<T> extends Area
 		return getEntries().size();
 	}
 
-	public LinkedList<Entry<T>> allLocal()
-	{
-		return new LinkedList<Entry<T>>(this.getEntries());
-	}
-	
 	public List<Entry<T>> allUnfiltered(LinkedList<Entry<T>> out)
 	{
-		if ( this._nodes.isEmpty() )
+		if ( this._nodes == null )
 		{
 			for (Entry<T> a : this.getEntries())
 				out.add( a);
@@ -158,29 +145,35 @@ public class Node<T> extends Area
 		return out;
 	}
 
-	public void promote(List<Node<T>> nodes)
+	public void promote(ArrayList<Node<T>> nodes)
 	{
 		this.getEntries().clear();
-		for (Node<T> n : nodes)
-			this.add(n);
+		this._nodes = nodes;
 	}
 	
 	public void split()
 	{
 		Node<T> newNode;
-		List<Node<T>> childNodes = new LinkedList<Node<T>>();
+		ArrayList<Node<T>> childNodes = new ArrayList<Node<T>>(SplitTree._childnodes);
 		
 		for ( boolean[] b : combinations())
 		{
 			newNode = new Node<T>( corner(getLow(), splits(), b), 
 					corner(splits(), getHigh(), b));
-			newNode.add(allLocal());
+			newNode.add(this.getEntries());
 			childNodes.add(newNode);
 		}
 
 		/* promote node from leaf to branch */
 		promote(childNodes);
 	}	
+	
+	public void whipe() 
+	{
+		this._entries.clear();
+		for ( Node<T> a : _nodes )
+			a.whipe();
+	}
 	
 	@Override
 	public boolean periodic(Area area, int dim)
@@ -229,8 +222,7 @@ public class Node<T> extends Area
 	private List<boolean[]> combinations(int length)
 	{
 		boolean[] a = new boolean[length];
-		Vector.setAll(a, false);
-		List<boolean[]> b = new LinkedList<boolean[]>();
+		List<boolean[]> b = new ArrayList<boolean[]>(SplitTree._childnodes);
 		b.add(a);
 		for ( int i = 0; i < length; i++)
 			combinations(i, b);
@@ -242,7 +234,7 @@ public class Node<T> extends Area
 		int length = build.size();
 		for ( int i = 0; i < length; i++ )
 		{
-			boolean[] c = Vector.copy(build.get(i));
+			boolean[] c = linearAlgebra.Vector.copy(build.get(i));
 			c[pos] = true;
 			build.add(c);
 		}

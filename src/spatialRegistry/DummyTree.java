@@ -54,4 +54,9 @@ public class DummyTree<T> implements SpatialRegistry<T>
 	{
 		return false;
 	}
+	
+	public void clear()
+	{
+
+	}
 }

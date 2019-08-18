@@ -40,7 +40,6 @@ import utility.Helper;
 public class RegularReaction 
 	implements Instantiable, Copyable, Settable, Reaction
 {
-	private long reaction_tally = 0;
 	/**
 	 * The name of this reaction. This is particularly useful for writing
 	 * reaction rate to a grid as output.

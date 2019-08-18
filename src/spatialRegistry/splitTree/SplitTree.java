@@ -26,6 +26,8 @@ public class SplitTree<T> implements SpatialRegistry<T>
 	
 	static int _maxEntries;
 	
+	static int _childnodes;
+	
 	private boolean[] _periodic; 
 	
 	private double[] _lengths;
@@ -38,6 +40,7 @@ public class SplitTree<T> implements SpatialRegistry<T>
 		_dimensions = dims;
 		_maxEntries = max;
 		_periodic = periodic;
+		_childnodes = (int) Math.pow(2, low.length);
 		_lengths = Vector.minus(high, low);
 		nodeTemplate = new boolean[low.length];
 		this.node = new Node<T>(low, high);
@@ -162,5 +165,10 @@ public class SplitTree<T> implements SpatialRegistry<T>
 	public boolean delete(T entry)
 	{
 		return this.node.delete(entry);
+	}
+	
+	public void clear()
+	{
+		this.node = new Node<T>(node.getLow(), node.getHigh());
 	}
 }
