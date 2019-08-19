@@ -1,7 +1,6 @@
 package spatialRegistry.splitTree;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -10,7 +9,8 @@ import spatialRegistry.Entry;
 
 public class Node<T> extends Area
 {
-	private ArrayList<Entry<T>> _entries = new ArrayList<Entry<T>>(SplitTree._maxEntries+1);
+	private ArrayList<Entry<T>> _entries = 
+			new ArrayList<Entry<T>>(SplitTree._maxEntries);
 	private ArrayList<Node<T>> _nodes;
 	private final boolean atomic;
 
@@ -21,34 +21,24 @@ public class Node<T> extends Area
 		this.atomic = isAtomic(low, high);
 	}
 	
-	public HashSet<Entry<T>> find(Area test) 
+	public List<T> find(Area test) 
 	{
-		HashSet<Entry<T>> out = new HashSet<Entry<T>>();
+		LinkedList<T> out = new LinkedList<T>();
 		if ( ! this.test(test) )
-		{
 			if ( this._nodes == null )
 				return this.allConc(out, test);
 			else
-			{
 				for ( Node<T> a : _nodes )
-				{
 					if ( out.isEmpty() )
-					{
-						for ( Entry<T> e : a.find(test) )
+						for ( T e : a.find(test) )
 							out.add(e);
-					}
 					else
-					{
-						for ( Entry<T> e : a.find(test) )
+						for ( T e : a.find(test) )
 							if ( ! out.contains(e) )
 								out.add(e);
-					}
-				}
-			}
-		}
 		return out;
 	}
-	
+
 	public void add( Entry<T> entry )
 	{
 		if ( ! this.test(entry) )
@@ -56,7 +46,7 @@ public class Node<T> extends Area
 			if ( this._nodes == null )
 			{
 				this.getEntries().add(entry);
-				if( this.size() > SplitTree._maxEntries && !this.atomic )
+				if( this.size() > SplitTree._maxEntries &! this.atomic )
 					split();
 			}
 			else
@@ -73,73 +63,60 @@ public class Node<T> extends Area
 			this.add( entry );
 	}
 
-	protected List<Entry<T>> getEntries() {
+	private List<Entry<T>> getEntries() {
 		return _entries;
 	}
 
-	public boolean remove(Entry<T> entry)
+	private boolean remove(Entry<T> entry)
 	{
 		return this.getEntries().remove(entry);
 	}
 	
 	public boolean delete(T member) 
 	{
+		boolean out = false;
 		for( Entry<T> t : _entries)
 			if ( t.getEntry() == member )
-				return remove(t);
+				out = remove(t);
 		for ( Node<T> a : _nodes )
-			return a.delete(member);
-		return false;	
+			out = ( out ? out : a.delete(member) );
+		return out;	
 	}
 	
 	public int size()
 	{
 		return getEntries().size();
 	}
-
-	public List<Entry<T>> allUnfiltered(LinkedList<Entry<T>> out)
-	{
-		if ( this._nodes == null )
-		{
-			for (Entry<T> a : this.getEntries())
-				out.add( a);
-		}
-		else
-		{
-			for (Node<T> a : this._nodes)
-				a.allUnfiltered(out);
-		}
-		return out;
-	}
 	
-	public HashSet<Entry<T>> allConc(HashSet<Entry<T>> out, Area test)
+	private List<T> allConc(LinkedList<T> out, Area test)
 	{
 		if (out.isEmpty())
 		{
 			for (Entry<T> a : this.getEntries())
 				if ( ! a.test(test) )
-					out.add( (Entry<T>) a);
+					out.add( a.getEntry() );
 		}
 		else
 		{
 			for (Entry<T> a : this.getEntries())
-				if ( ! out.contains(a) )
+				if ( ! out.contains(a.getEntry()) )
 					if ( ! a.test(test) )
-						out.add( (Entry<T>) a);
+						out.add( a.getEntry() );
 		}
 		return out;
 	}
 
-	public void promote(ArrayList<Node<T>> nodes)
+	private void promote(ArrayList<Node<T>> nodes)
 	{
 		this.getEntries().clear();
 		this._nodes = nodes;
 	}
 	
-	public void split()
+	private void split()
 	{
 		Node<T> newNode;
-		ArrayList<Node<T>> childNodes = new ArrayList<Node<T>>(SplitTree._childnodes);
+		ArrayList<Node<T>> childNodes = 
+				new ArrayList<Node<T>>( SplitTree._childnodes );
 		
 		for ( boolean[] b : combinations())
 		{
@@ -152,7 +129,7 @@ public class Node<T> extends Area
 		/* promote node from leaf to branch */
 		promote(childNodes);
 	}	
-	
+
 	@Override
 	public boolean periodic(Area area, int dim)
 	{
@@ -175,7 +152,7 @@ public class Node<T> extends Area
 	/* ************************************************************************
 	 * Helper methods
 	 */
-	double[] splits()
+	private double[] splits()
 	{
 		double[] split = new double[this.getLow().length];
 		for (int i = 0; i < this.getLow().length; i++)
@@ -184,7 +161,7 @@ public class Node<T> extends Area
 		return split;
 	}
 	
-	double[] corner(double[] lower, double[] higher, boolean[] combination)
+	private double[] corner(double[] lower, double[] higher, boolean[] combination)
 	{
 		double [] out = new double[combination.length];
 		for (int i = 0; i < combination.length; i++)
@@ -192,9 +169,9 @@ public class Node<T> extends Area
 		return out;
 	}
 	
-	List<boolean[]> combinations()
+	private List<boolean[]> combinations()
 	{
-		return this.combinations(getLow().length);
+		return combinations(getLow().length);
 	}
 	
 	private List<boolean[]> combinations(int length)
@@ -212,7 +189,9 @@ public class Node<T> extends Area
 		int length = build.size();
 		for ( int i = 0; i < length; i++ )
 		{
-			boolean[] c = linearAlgebra.Vector.copy(build.get(i));
+			boolean[] c = new boolean[getLow().length];
+			for ( int j = 0; j < pos; j++ )
+				c[j] = build.get(i)[j];
 			c[pos] = true;
 			build.add(c);
 		}
@@ -221,7 +200,7 @@ public class Node<T> extends Area
 	private boolean isAtomic(double[] low, double[] high)
 	{
 		for ( int i = 0; i < low.length; i++ )
-			if( high[i] - low[i] > 0.5)
+			if( high[i] - low[i] > 1.0)
 				return false;
 		return true;
 	}

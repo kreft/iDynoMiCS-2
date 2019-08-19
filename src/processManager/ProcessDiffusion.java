@@ -305,7 +305,7 @@ public abstract class ProcessDiffusion extends ProcessManager
 			double[] sides;
 			double[] upper;
 			Collection<SubvoxelPoint> svPoints;
-			Collection<Agent> nhbs;
+			List<Agent> nhbs;
 			List<Surface> surfaces;
 			double[] pLoc;
 			Collision collision = new Collision(null, null, shape);

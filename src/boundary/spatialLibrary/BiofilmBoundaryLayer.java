@@ -155,6 +155,7 @@ public class BiofilmBoundaryLayer extends WellMixedBoundary
 		int[] coords = aShape.resetIterator();
 		double[] voxelCenter = aShape.getVoxelCentre(coords);
 		double[] voxelCenterTrimmed = Vector.zerosDbl(numDim);
+		List<Agent> neighbors;
 		BoundingBox box;
 		while ( aShape.isIteratorValid() )
 		{
@@ -166,7 +167,7 @@ public class BiofilmBoundaryLayer extends WellMixedBoundary
 			 * within the grid's sphere
 			 */
 			box = this._gridSphere.boundingBox(this._agents.getShape());
-			Collection<Agent> neighbors = this._agents.treeSearch(box);
+			neighbors = this._agents.treeSearch(box);
 			for ( Agent a : neighbors )
 				for (Surface s : (List<Surface>) ((Body) a.get(AspectRef.agentBody)).getSurfaces())
 					if ( this._gridSphere.distanceTo(s) < 0.0 )

@@ -236,7 +236,7 @@ public class AgentMediator implements CommandMediator {
 //		draw(_shape);
         
 		/* get the surfaces from the agents */
-		for ( Agent a : this._agents.getAllLocatedAgents() )
+		for ( Agent a : this._agents.getAllLocatedAgentsSafety() )
 		{
 
 			/* cycle through the agent surfaces */

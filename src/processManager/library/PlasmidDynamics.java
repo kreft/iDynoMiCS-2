@@ -158,7 +158,7 @@ public class PlasmidDynamics extends ProcessManager {
 		
 		double maxPiliLength = (Double) newPlasmid.get(PILUS_LENGTH);
 		
-		Collection<Agent> neighbours = agents.treeSearch(a, maxPiliLength);
+		List<Agent> neighbours = agents.treeSearch(a, maxPiliLength);
 		
 		/*
 		 * No need to proceed if there are no neighbours to receive the plasmid.
@@ -323,9 +323,8 @@ public class PlasmidDynamics extends ProcessManager {
 			}
 			if (numCellsScreen < neighbours.size()) {
 				Random randomSelector = new Random();
-				List<Agent> neighbourList = Helper.collectionToList(neighbours);
 				for (int i = 0; i < numCellsScreen; i++) {
-					Agent nbr = neighbourList.get(randomSelector.nextInt(neighbours.size()));
+					Agent nbr = neighbours.get(randomSelector.nextInt(neighbours.size()));
 					sendPlasmid(a, nbr, plasmid, _currentTime);
 					neighbours.remove(nbr);
 				}

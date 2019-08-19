@@ -1,6 +1,5 @@
 package analysis.quantitative;
 
-import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -160,7 +159,7 @@ public class Raster {
 			/* create collision voxel and find potential agents TODO we could 
 			 * set this voxel instead of creating a new one. */
 			Voxel v = new Voxel( toContinuous(c, voxelLength), Vector.add(toContinuous(c, voxelLength), vox) );
-			Collection<Agent> agents = _agentContainer.treeSearch( 
+			List<Agent> agents = _agentContainer.treeSearch( 
 					v.boundingBox(null) );
 			
 			/* iterate over all surfaces of all potential colliders and only
