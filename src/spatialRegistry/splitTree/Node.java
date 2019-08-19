@@ -11,7 +11,8 @@ public class Node<T> extends Area
 {
 	private ArrayList<Entry<T>> _entries = 
 			new ArrayList<Entry<T>>(SplitTree._maxEntries);
-	private ArrayList<Node<T>> _nodes;
+	private ArrayList<Node<T>> _nodes =
+			new ArrayList<Node<T>>(SplitTree._childnodes);
 	private final boolean atomic;
 
 
@@ -24,13 +25,11 @@ public class Node<T> extends Area
 	public List<T> find(List<T> out, Area test) 
 	{
 		if ( ! this.test(test) )
-			if ( this._nodes == null )
-				return this.allConc(out, test);
-			else
-				for ( Node<T> a : _nodes )
-					if ( out.isEmpty() )
-						for ( T e : a.find(out, test) )
-							out.add(e);
+		{
+			for ( Node<T> a : _nodes )
+				a.find(out, test);
+			return this.allConc(out, test);
+		}
 		return out;
 	}
 
@@ -38,7 +37,7 @@ public class Node<T> extends Area
 	{
 		if ( ! this.test(entry) )
 		{
-			if ( this._nodes == null )
+			if ( this._nodes.isEmpty() )
 			{
 				this.getEntries().add(entry);
 				if( this.size() > SplitTree._maxEntries &! this.atomic )
@@ -110,19 +109,16 @@ public class Node<T> extends Area
 	private void split()
 	{
 		Node<T> newNode;
-		ArrayList<Node<T>> childNodes = 
-				new ArrayList<Node<T>>( SplitTree._childnodes );
-		
 		for ( boolean[] b : combinations())
 		{
 			newNode = new Node<T>( corner(getLow(), splits(), b), 
 					corner(splits(), getHigh(), b));
 			newNode.add(this.getEntries());
-			childNodes.add(newNode);
+			this._nodes.add(newNode);
 		}
 
 		/* promote node from leaf to branch */
-		promote(childNodes);
+		this.getEntries().clear();
 	}	
 
 	@Override
