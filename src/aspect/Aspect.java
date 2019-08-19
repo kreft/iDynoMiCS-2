@@ -109,13 +109,7 @@ public class Aspect implements Instantiable, Settable
     {
     	
     }
-    
-    public Aspect clone()
-    {
-    	return new Aspect ((Object) ObjectFactory.copy(
-				this.aspect ), this.key, this.registry );
-    }
-    
+
     /**
      * Set passed object as aspect for existing aspect object
      * @param aspect
