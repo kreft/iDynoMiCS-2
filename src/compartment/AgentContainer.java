@@ -150,9 +150,8 @@ public class AgentContainer implements Settable
 				 * change, min represents domain minima */
 				double[] min = Vector.zerosDbl(
 						this.getShape().getNumberOfDimensions() );
-				/* for 2D optimum seems to be between 18 and 20 per leaf, could
-				 * be different for 3D.  */
-				this._agentTree = new SplitTree<Agent>(this.getNumDims(), 19, 
+				/* The 2D optimum could be different from 3D.  */
+				this._agentTree = new SplitTree<Agent>(9, 
 						min, Vector.add( min, 
 						this.getShape().getDimensionLengths() ),
 						this._shape.getIsCyclicNaturalOrder() );

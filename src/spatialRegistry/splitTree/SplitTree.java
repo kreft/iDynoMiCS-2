@@ -20,10 +20,8 @@ import surface.BoundingBox;
  */
 public class SplitTree<T> implements SpatialRegistry<T>
 {	
-	public Node<T> node;
-	
-	public int _dimensions;
-	
+	private Node<T> node;
+
 	static int _maxEntries;
 	
 	static int _childnodes;
@@ -32,20 +30,35 @@ public class SplitTree<T> implements SpatialRegistry<T>
 	
 	private double[] _lengths;
 	
-	public SplitTree(int dims,  int max, 
+	static int _longest;
+	
+	public SplitTree(int max, 
 			double[] low, double[] high, boolean[] periodic)
 	{
-		_dimensions = dims;
 		_maxEntries = max;
 		_periodic = periodic;
-		_childnodes = (int) Math.pow(2, low.length);
+		_childnodes = 1<<low.length;
 		_lengths = Vector.minus(high, low);
+		_longest = longest(low, high);
 		this.node = new Node<T>(low, high);
 	}
 
 	public void add(Entry<T> entry) 
 	{
 		this.node.add(entry);
+	}
+	
+	public int longest(double[] low, double[] high)
+	{
+		int out = 0;
+		double longest = high[0] - low[0];
+		for ( int i = 1; i < low.length; i++ )
+			if( high[i] - low[i] > longest)
+			{
+				out = i;
+				longest = high[i] - low[i];
+			}
+		return out;
 	}
 
 	/* *************************************************************************
@@ -75,7 +88,6 @@ public class SplitTree<T> implements SpatialRegistry<T>
 				}
 			}
 		}
-
 		LinkedList<T> out = new LinkedList<T>();
 		return node.find(out,new Area(low, high, periodic));
 	}

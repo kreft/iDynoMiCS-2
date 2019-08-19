@@ -1,7 +1,6 @@
 package spatialRegistry.splitTree;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 import spatialRegistry.Area;
@@ -9,9 +8,9 @@ import spatialRegistry.Entry;
 
 public class Node<T> extends Area
 {
-	private ArrayList<Entry<T>> _entries = 
+	private final ArrayList<Entry<T>> _entries = 
 			new ArrayList<Entry<T>>(SplitTree._maxEntries);
-	private ArrayList<Node<T>> _nodes =
+	private final ArrayList<Node<T>> _nodes =
 			new ArrayList<Node<T>>(SplitTree._childnodes);
 	private final boolean atomic;
 
@@ -63,9 +62,16 @@ public class Node<T> extends Area
 
 	private boolean remove(Entry<T> entry)
 	{
-		return this.getEntries().remove(entry);
+		return this._entries.remove(entry);
 	}
 	
+	/**
+	 * Delete any occurrence of object member (Warning, the entire tree has
+	 * to be searched for member, this is a slow process, do not use this if 
+	 * the tree will be rebuild before it is searched anyway).
+	 * @param member
+	 * @return
+	 */
 	public boolean delete(T member) 
 	{
 		boolean out = false;
@@ -100,12 +106,6 @@ public class Node<T> extends Area
 		return out;
 	}
 
-	private void promote(ArrayList<Node<T>> nodes)
-	{
-		this.getEntries().clear();
-		this._nodes = nodes;
-	}
-	
 	private void split()
 	{
 		Node<T> newNode;
@@ -120,6 +120,17 @@ public class Node<T> extends Area
 		/* promote node from leaf to branch */
 		this.getEntries().clear();
 	}	
+	
+	/**
+	 * Whipe all entries from the tree (testing shows rebuilding a new tree
+	 * instead is slightly faster.
+	 */
+	public void whipe() 
+	{
+		this._entries.clear();
+		for ( Node<T> a : _nodes )
+			a.whipe();
+	}
 
 	@Override
 	public boolean periodic(Area area, int dim)
@@ -190,9 +201,7 @@ public class Node<T> extends Area
 	
 	private boolean isAtomic(double[] low, double[] high)
 	{
-		for ( int i = 0; i < low.length; i++ )
-			if( high[i] - low[i] > 1.0)
-				return false;
-		return true;
+		return ( high[SplitTree._longest] - low[SplitTree._longest] < 0.1);
+
 	}
 }

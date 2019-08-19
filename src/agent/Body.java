@@ -91,18 +91,18 @@ public class Body implements Copyable, Instantiable, Settable
 	 */
 	public Body(Point point, double radius)
 	{
-		this._points = new ArrayList<Point>(1);
+		this._points = new LinkedList<Point>();
 		this._points.add(point);
-		this._surfaces = new ArrayList<Surface>(1);
+		this._surfaces = new LinkedList<Surface>();
 		this._surfaces.add(new Ball(point, radius));
 		this._morphology = Morphology.COCCOID;
 	}
 
 	public Body(Ball sphere)
 	{
-		this._points = new ArrayList<Point>(1);
+		this._points = new LinkedList<Point>();
 		this._points.add(sphere._point);
-		this._surfaces = new ArrayList<Surface>(1);
+		this._surfaces = new LinkedList<Surface>();
 		this._surfaces.add(sphere);
 		this._morphology = Morphology.COCCOID;
 	}
@@ -119,27 +119,27 @@ public class Body implements Copyable, Instantiable, Settable
 	 */
 	public Body(Point[] points, double spineLength, double radius)
 	{
-		this._points = new ArrayList<Point>(2);
+		this._points = new LinkedList<Point>();
 		this._points.add(points[0]);
 		this._points.add(points[1]);
-		this._surfaces = new ArrayList<Surface>(1);
+		this._surfaces = new LinkedList<Surface>();
 		this._surfaces.add(new Rod(points, spineLength, radius));
 		this._morphology = Morphology.BACILLUS;
 	}
 
 	public Body(Rod rod)
 	{
-		this._points = new ArrayList<Point>(2);
+		this._points = new LinkedList<Point>();
 		this._points.add(rod._points[0]);
 		this._points.add(rod._points[1]);
-		this._surfaces = new ArrayList<Surface>(1);
+		this._surfaces = new LinkedList<Surface>();
 		this._surfaces.add(rod);
 		this._morphology = Morphology.BACILLUS;
 	}
 	
 	public Body(Point[] points)
 	{
-		this._points = new ArrayList<Point>(2);
+		this._points = new LinkedList<Point>();
 		this._points.add(points[0]);
 		this._points.add(points[1]);
 		this._morphology = Morphology.CUBOID;
@@ -195,17 +195,17 @@ public class Body implements Copyable, Instantiable, Settable
 	public Body(Morphology morphology, double[] positionA, double[] positionB, 
 			double radius, double length)
 	{
-		this._surfaces = new ArrayList<Surface>(1);
+		this._surfaces = new LinkedList<Surface>();
 		switch (morphology)
 		{
 			case COCCOID :
-				this._points = new ArrayList<Point>(1);
+				this._points = new LinkedList<Point>();
 				this._points.add( new Point( positionA ) );
 				this._surfaces.add( new Ball(this._points.get(0), radius) );
 				this._morphology = Morphology.COCCOID;
 				break;
 			case BACILLUS :
-				this._points = new ArrayList<Point>(2);
+				this._points = new LinkedList<Point>();
 				Point p = new Point( positionA );
 				this._points.add( p );
 				this._points.add( new Point( positionB ) );
@@ -232,7 +232,7 @@ public class Body implements Copyable, Instantiable, Settable
 	{
 		// This enables the program to distinguish
 		// rods and balls depending on number of points.
-		this._points = new ArrayList<Point>(points.size());
+		this._points = new LinkedList<Point>();
 		this._points.addAll(points);
 		this.assignMorphology(null);
 		this.constructBody(length, radius);
@@ -265,7 +265,7 @@ public class Body implements Copyable, Instantiable, Settable
 	
 	public void constructBody( double length, double radius )
 	{
-		this._surfaces = new ArrayList<Surface>(1);
+		this._surfaces = new LinkedList<Surface>();
 		switch (this._morphology)
 		{
 		case COCCOID :
@@ -311,7 +311,7 @@ public class Body implements Copyable, Instantiable, Settable
 		if( !Helper.isNullOrEmpty( xmlElem ))
 		{
 			/* obtain all body points */
-			List<Point> pointList = new ArrayList<Point>();
+			List<Point> pointList = new LinkedList<Point>();
 			Collection<Element> pointNodes =
 			XmlHandler.getAllSubChild(xmlElem, XmlRef.point);
 			for (Element e : pointNodes) 

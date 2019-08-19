@@ -1,11 +1,7 @@
 package test.junit.oldTests;
 
-import java.util.function.Predicate;
-
 import org.junit.Test;
 
-import spatialRegistry.Area;
-import spatialRegistry.Entry;
 import spatialRegistry.splitTree.SplitTree;
 
 public class PeriodicTest {
@@ -13,7 +9,7 @@ public class PeriodicTest {
 	@Test
 	public void periodicTest()
 	{
-		SplitTree<Double> tree = new SplitTree<Double>(1, 5,
+		SplitTree<Double> tree = new SplitTree<Double>(5,
 				new double[] {0.0}, new double[] {1.0}, new boolean[] { true });
 //		
 //		Predicate<Area> test = new Entry(new double[] {0.0}, new double[] {0.4}, null);
