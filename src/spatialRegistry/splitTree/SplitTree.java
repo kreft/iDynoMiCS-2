@@ -75,7 +75,9 @@ public class SplitTree<T> implements SpatialRegistry<T>
 				}
 			}
 		}
-		return node.find(new Area(low, high, periodic));
+
+		LinkedList<T> out = new LinkedList<T>();
+		return node.find(out,new Area(low, high, periodic));
 	}
 
 	@Override
@@ -100,7 +102,9 @@ public class SplitTree<T> implements SpatialRegistry<T>
 			}
 		}
 		area.setperiodic(periodic);
-		return node.find(area);
+
+		LinkedList<T> out = new LinkedList<T>();
+		return node.find(out,area);
 	}
 	
 	@Override

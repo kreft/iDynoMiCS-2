@@ -21,21 +21,16 @@ public class Node<T> extends Area
 		this.atomic = isAtomic(low, high);
 	}
 	
-	public List<T> find(Area test) 
+	public List<T> find(List<T> out, Area test) 
 	{
-		LinkedList<T> out = new LinkedList<T>();
 		if ( ! this.test(test) )
 			if ( this._nodes == null )
 				return this.allConc(out, test);
 			else
 				for ( Node<T> a : _nodes )
 					if ( out.isEmpty() )
-						for ( T e : a.find(test) )
+						for ( T e : a.find(out, test) )
 							out.add(e);
-					else
-						for ( T e : a.find(test) )
-							if ( ! out.contains(e) )
-								out.add(e);
 		return out;
 	}
 
@@ -88,7 +83,7 @@ public class Node<T> extends Area
 		return getEntries().size();
 	}
 	
-	private List<T> allConc(LinkedList<T> out, Area test)
+	private List<T> allConc(List<T> out, Area test)
 	{
 		if (out.isEmpty())
 		{
