@@ -20,27 +20,29 @@ import surface.BoundingBox;
  */
 public class SplitTree<T> implements SpatialRegistry<T>
 {	
-	private Node<T> node;
 
-	static int _maxEntries;
+	protected final int maxEntries;
 	
-	static int _childnodes;
+	protected final int childnodes;	
+	
+	protected final int longest;
+	
+	private Node<T> node;
 	
 	private boolean[] _periodic; 
 	
 	private double[] _lengths;
-	
-	static int _longest;
+
 	
 	public SplitTree(int max, 
 			double[] low, double[] high, boolean[] periodic)
 	{
-		_maxEntries = max;
+		maxEntries = max;
 		_periodic = periodic;
-		_childnodes = 1<<low.length;
+		childnodes = 1<<low.length;
 		_lengths = Vector.minus(high, low);
-		_longest = longest(low, high);
-		this.node = new Node<T>(low, high);
+		longest = longest(low, high);
+		this.node = new Node<T>(low, high, this);
 	}
 
 	public void add(Entry<T> entry) 
@@ -166,6 +168,6 @@ public class SplitTree<T> implements SpatialRegistry<T>
 	
 	public void clear()
 	{
-		this.node = new Node<T>(node.getLow(), node.getHigh());
+		this.node = new Node<T>(node.getLow(), node.getHigh(), this);
 	}
 }
