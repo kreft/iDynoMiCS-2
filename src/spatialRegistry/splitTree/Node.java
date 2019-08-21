@@ -161,7 +161,7 @@ public class Node<T> extends Area
 	private void split()
 	{
 		Node<T> newNode;
-		for ( boolean[] b : combinations())
+		for ( boolean[] b : this._tree.combinations())
 		{
 			newNode = new Node<T>( corner(getLow(), midPoint(), b), 
 					corner(midPoint(), getHigh(), b), this._tree);
@@ -230,49 +230,6 @@ public class Node<T> extends Area
 		for (int i = 0; i < child.length; i++)
 			out[i] = (child[i] ? higher[i] : lower[i]);
 		return out;
-	}
-	
-	/**
-	 * \brief: returns profile for all applicable child nodes.
-	 * @return
-	 */
-	private List<boolean[]> combinations()
-	{
-		return combinations(getLow().length);
-	}
-	
-	/**
-	 * \brief: returns profile for all applicable child nodes given a number of
-	 * dimensions.
-	 * @return
-	 */
-	private List<boolean[]> combinations(int length)
-	{
-		boolean[] a = new boolean[length];
-		List<boolean[]> b = new ArrayList<boolean[]>(this._tree.childnodes);
-		b.add(a);
-		for ( int i = 0; i < length; i++)
-			combinations(i, b);
-		return b;
-	}
-	
-	/**
-	 * \brief: intermediate for combinations(int) add all unique combinations
-	 * for dimension pos
-	 * @param pos
-	 * @param build
-	 */
-	private void combinations(int pos, List<boolean[]> build)
-	{
-		int length = build.size();
-		for ( int i = 0; i < length; i++ )
-		{
-			boolean[] c = new boolean[getLow().length];
-			for ( int j = 0; j < pos; j++ )
-				c[j] = build.get(i)[j];
-			c[pos] = true;
-			build.add(c);
-		}
 	}
 	
 	/**
