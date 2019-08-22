@@ -8,6 +8,11 @@ import spatialRegistry.Area;
 import spatialRegistry.Entry;
 
 /**
+ * \brief: The {@link Node} object is the structural element that forms the
+ * {@link SplitTree} a {@link Node} can be either a branch node or a leaf node.
+ * Branch will have child nodes but no entries, leaf nodes can have entries but
+ * no child nodes. A full leaf node will be promoted to branch node, giving it 
+ * 2^nDim child nodes on which its entries will be transfered.
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
  *
@@ -46,7 +51,7 @@ public class Node<T> extends Area
 		{
 			for ( Node<T> a : _nodes )
 				a.find(out, test);
-			return this.allConc(out, test);
+			return this.collectLocal(out, test);
 		}
 		return out;
 	}
@@ -136,7 +141,7 @@ public class Node<T> extends Area
 	 * @param test
 	 * @return
 	 */
-	private List<T> allConc(List<T> out, Area test)
+	private List<T> collectLocal(List<T> out, Area test)
 	{
 		if (out.isEmpty())
 		{

@@ -3,6 +3,13 @@ package spatialRegistry;
 
 import linearAlgebra.Vector;
 
+/**
+ * Extends {@link Area} allowing for the coupling of a specific area in the
+ * {@link SplitTree} with a given object {@link T}.
+ * @author Bastiaan
+ *
+ * @param <T>
+ */
 public class Entry<T> extends Area
 {
 	

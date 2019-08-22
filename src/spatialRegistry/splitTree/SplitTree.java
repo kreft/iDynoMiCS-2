@@ -11,10 +11,8 @@ import spatialRegistry.SpatialRegistry;
 import surface.BoundingBox;
 
 /**
- * First version of nDimensional tree, behaves like quadtree in 2d and octree in
- * 3d, named "splitTree"
- * 
- * TODO clean-up, further optimizations 
+ * \brief: nDimensional {@link SpatialRegistry}, behaves like quadtree in 2d and
+ * octree in 3d, named {@link SplitTree}
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
  *

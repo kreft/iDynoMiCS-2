@@ -2,6 +2,13 @@ package spatialRegistry;
 
 import java.util.function.Predicate;
 
+/**
+ * The {@link Area} object is used to quickly check for overlaps in the 
+ * {@link: SplitTree}
+ * 
+ * @author Bastiaan
+ *
+ */
 public class Area implements Predicate<Area> {
 	
 	protected double[] low;
