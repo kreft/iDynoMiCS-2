@@ -3,6 +3,7 @@ package grid;
 import static grid.ArrayType.DIFFUSIVITY;
 
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -10,6 +11,7 @@ import java.util.Set;
 import org.w3c.dom.Element;
 
 import agent.Agent;
+import agent.Body;
 import compartment.AgentContainer;
 import compartment.EnvironmentContainer;
 import dataIO.Log;
@@ -20,12 +22,16 @@ import dataIO.Log.Tier;
 import linearAlgebra.Array;
 import linearAlgebra.Matrix;
 import linearAlgebra.Vector;
+import referenceLibrary.AspectRef;
 import referenceLibrary.XmlRef;
 import settable.Attribute;
 import settable.Module;
 import settable.Settable;
 import settable.Module.Requirements;
 import shape.Shape;
+import surface.Surface;
+import surface.Voxel;
+import surface.collision.Collision;
 import utility.ExtraMath;
 import utility.Helper;
 
@@ -133,7 +139,27 @@ public class SpatialGrid implements Settable, Instantiable
 				
 				/* FIXME this assumes Cartesian grids  */
 				shape.voxelUpperCornerTo(upper, coord);
-				List<Agent> neighbors = agents.treeSearch(location, upper);
+
+
+				/* FIXME this returns all agents with hitting bounding boxes,
+				 * but the agent itself may be out!
+				 */
+				List<Agent> search = agents.treeSearch(location, upper);
+				List<Agent> neighbors = new LinkedList<Agent>();
+				
+				Voxel vox = new Voxel(location, upper);
+				Collision iterator = new Collision(agents.getShape());
+				boolean check;
+				for( Agent a : search)
+				{
+					check = false;
+					for( Surface s : ((Body) a.get(AspectRef.agentBody)).getSurfaces())
+					if( iterator.areColliding(s, vox, 0.0))
+						check = true;
+					if(check)
+						neighbors.add(a);
+					
+				}
 				/* If there are any agents in this voxel, update the 
 				 * diffusivity. */
 				if ( ! neighbors.isEmpty() )

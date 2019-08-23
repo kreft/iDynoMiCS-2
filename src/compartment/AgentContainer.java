@@ -208,7 +208,10 @@ public class AgentContainer implements Settable
 	 */
 	public List<Agent> getAllLocatedAgents()
 	{
-		return this._locatedAgentList;
+		ArrayList<Agent> out = 
+				new ArrayList<Agent>(this._locatedAgentList.size() );
+		out.addAll( this._locatedAgentList );
+		return out;
 	}
 	
 	public List<Agent> getAllLocatedAgentsSafety()
@@ -224,7 +227,10 @@ public class AgentContainer implements Settable
 	 */
 	public List<Agent> getAllUnlocatedAgents()
 	{
-		return this._agentList;
+		ArrayList<Agent> out = 
+				new ArrayList<Agent>(this._agentList.size() );
+		out.addAll( this._agentList );
+		return out;
 	}
 
 	/**

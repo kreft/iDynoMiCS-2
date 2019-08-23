@@ -98,6 +98,6 @@ public class Voxel extends Surface implements HasBoundingBox {
 
 	public void setHigher(double[] higher) 
 	{
-		this._points[0] = new Point(higher);
+		this._points[1] = new Point(higher);
 	}
 }
