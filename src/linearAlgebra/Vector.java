@@ -2252,6 +2252,24 @@ public final class Vector
 	}
 	
 	/**
+	 * \brief Calculates the sum of each element squared in the given
+	 * <b>vector</b> and writes the result to out.
+	 * 
+	 * <p>E.g. the normSquare of the vector <i>(a, b)</i> is
+	 * <i>a<sup>2</sup> + b<sup>2</sup></i>.</p>
+	 * 
+	 * @param vector One-dimensional array of doubles (preserved).
+	 * @Param out re-usable double
+	 * @return double sum of all elements in <b>vector</b>.
+	 * @see #normEuclid(double[] vector)
+	 * @see #normSquare(int[] vector)
+	 */
+	public static double normSquareTo(double out, double[] vector)
+	{
+		return dotProductTo(out, vector, vector);
+	}
+	
+	/**
 	 * \brief Euclidean norm of the given <b>vector</b>.
 	 * 
 	 * <p>E.g. the normEuclid of the vector <i>(a, b)</i> is
@@ -2267,6 +2285,12 @@ public final class Vector
 	public static double normEuclid(double[] vector)
 	{
 		return Math.sqrt(normSquare(vector));
+	}
+	
+	public static double normEuclidTo(double out, double[] vector)
+	{
+		out = Math.sqrt(normSquareTo(out, vector));
+		return out;
 	}
 	
 	/* Statistics */
@@ -2518,8 +2542,30 @@ public final class Vector
 	 */
 	public static double dotProduct(double[] a, double[] b)
 	{
-		checkLengths(a, b);
 		double out = 0.0;
+		for ( int i = 0; i < a.length; i++ )
+			out += a[i] * b[i];	
+		return out;
+	}
+	
+	/**
+	 * \brief Calculate the dot product of the two vectors given and writes the
+	 * result to out.
+	 * 
+	 * <p>For example, <i>(a<sub>1</sub> , a<sub>2</sub> ).(b<sub>1</sub> ,
+	 * b<sub>2</sub> ) = a<sub>1</sub>*b<sub>1</sub> +
+	 * a<sub>2</sub>*b<sub>2</sub></i></p>
+	 * 
+	 * @Param out re-usable double
+	 * @param a One-dimensional array of doubles (preserved).
+	 * @param b One-dimensional array of doubles (preserved).
+	 * @return double value of the dot product of <b>a</b> and <b>b</b>.
+	 * @see #dotQuotient(double[] a, double[] b)
+	 * @see #dotProduct(int[] a, int[] b)
+	 */
+	public static double dotProductTo(double out, double[] a, double[] b)
+	{
+		out = 0.0;
 		for ( int i = 0; i < a.length; i++ )
 			out += a[i] * b[i];	
 		return out;
@@ -2539,7 +2585,6 @@ public final class Vector
 	 */
 	public static double dotQuotient(double[] a, double[] b)
 	{
-		checkLengths(a, b);
 		double out = 0.0;
 		for ( int i = 0; i < a.length; i++ )
 			out += a[i] / b[i];	
@@ -2557,7 +2602,6 @@ public final class Vector
 	 */
 	public static double distanceEuclid(double[] a, double[] b)
 	{
-		checkLengths(a, b);
 		double out = 0.0;
 		for ( int i = 0; i < a.length; i++ )
 			out += ExtraMath.sq(a[i] - b[i]);
@@ -2876,7 +2920,6 @@ public final class Vector
 	public static void normaliseEuclidTo(double[] destination, double[] source, 
 			double newNorm)
 	{
-		checkLengths(destination, source);
 		double oldNorm = normEuclid(source);
 		if ( oldNorm != 0.0 )
 			timesTo(destination, source, newNorm/oldNorm);
@@ -2938,6 +2981,22 @@ public final class Vector
 		double oldNorm = normEuclid(vector);
 		if ( oldNorm != 0.0 )
 			timesEquals(vector, newNorm/oldNorm);
+	}
+	
+	/**
+	 * \brief Scale each element of the given <b>vector</b> by the same
+	 * amount, so that the Euclidean norm of <b>vector</b> becomes 
+	 * <b>newNorm</b> NOTE: does not check for division by 0.
+	 * 
+	 * <p>Note that if the <b>vector</b> is composed of all zeros, this
+	 * method will simply exit with the <b>vector</b> unchanged.</p>
+	 * 
+	 * @param vector One-dimensional array of doubles (overwritten).
+	 * @param newNorm double value for the new Euclidean norm of <b>vector</i>.
+	 */
+	public static void normaliseEuclidEqualsUnchecked(double[] vector, double newNorm)
+	{
+		timesEquals(vector, newNorm/normEuclid(vector));
 	}
 	
 	/**

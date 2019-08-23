@@ -75,7 +75,7 @@ public class HerzSoftSphere implements CollisionFunction
 			
 			double c = kn * Math.pow(-var.distance, 1.5 );
 			/* dP is overwritten here. */
-			Vector.normaliseEuclidEquals( var.interactionVector, c );
+			Vector.normaliseEuclidEqualsUnchecked( var.interactionVector, c );
 			return var;
 		}
 		/* dP is not overwritten here. */
