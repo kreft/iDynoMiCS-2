@@ -139,27 +139,7 @@ public class SpatialGrid implements Settable, Instantiable
 				
 				/* FIXME this assumes Cartesian grids  */
 				shape.voxelUpperCornerTo(upper, coord);
-
-
-				/* FIXME this returns all agents with hitting bounding boxes,
-				 * but the agent itself may be out!
-				 */
-				List<Agent> search = agents.treeSearch(location, upper);
-				List<Agent> neighbors = new LinkedList<Agent>();
-				
-				Voxel vox = new Voxel(location, upper);
-				Collision iterator = new Collision(agents.getShape());
-				boolean check;
-				for( Agent a : search)
-				{
-					check = false;
-					for( Surface s : ((Body) a.get(AspectRef.agentBody)).getSurfaces())
-					if( iterator.areColliding(s, vox, 0.0))
-						check = true;
-					if(check)
-						neighbors.add(a);
-					
-				}
+				List<Agent> neighbors = agents.treeSearch(location, upper);
 				/* If there are any agents in this voxel, update the 
 				 * diffusivity. */
 				if ( ! neighbors.isEmpty() )

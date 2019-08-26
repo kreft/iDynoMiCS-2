@@ -2,6 +2,7 @@ package compartment;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -65,7 +66,7 @@ public class AgentContainer implements Settable
 	/**
 	 * All agents without a spatial location are stored in here.
 	 */
-	protected LinkedList<Agent> _agentList = new LinkedList<Agent>();
+	protected List<Agent> _agentList = new LinkedList<Agent>();
 
 	/**
 	 * All dead agents waiting for their death to be recorded as output before
@@ -103,7 +104,6 @@ public class AgentContainer implements Settable
 	{
 		this._shape = aShape;
 		this.makeAgentTree();
-		this._agentList = new LinkedList<Agent>();
 	}
 
 	/**
@@ -210,16 +210,8 @@ public class AgentContainer implements Settable
 	{
 		ArrayList<Agent> out = 
 				new ArrayList<Agent>(this._locatedAgentList.size() );
-		out.addAll( this._locatedAgentList );
-		return out;
-	}
-	
-	public List<Agent> getAllLocatedAgentsSafety()
-	{
-		ArrayList<Agent> out = 
-				new ArrayList<Agent>(this._locatedAgentList.size() );
-		out.addAll( this._locatedAgentList );
-		return out;
+		out.addAll( _locatedAgentList );
+		return _locatedAgentList;
 	}
 
 	/**
