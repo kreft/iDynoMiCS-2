@@ -17,7 +17,6 @@ import idynomics.launchable.GuiLaunch;
 public class GuiMain
 {
 	public static JTabbedPane tabbedPane = GuiComponent.newPane();
-	
 		
 	final static int CONSOLEPANE = 0;
 	

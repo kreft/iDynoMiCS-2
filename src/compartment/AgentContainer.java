@@ -2,7 +2,6 @@ package compartment;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -66,7 +65,7 @@ public class AgentContainer implements Settable
 	/**
 	 * All agents without a spatial location are stored in here.
 	 */
-	protected List<Agent> _agentList = new LinkedList<Agent>();
+	protected LinkedList<Agent> _agentList = new LinkedList<Agent>();
 
 	/**
 	 * All dead agents waiting for their death to be recorded as output before
@@ -150,8 +149,9 @@ public class AgentContainer implements Settable
 				 * change, min represents domain minima */
 				double[] min = Vector.zerosDbl(
 						this.getShape().getNumberOfDimensions() );
-				/* The 2D optimum could be different from 3D.  */
-				this._agentTree = new SplitTree<Agent>(9, 
+				/* The 2D optimum is different from 3D, 2 * 2 ^ #dimensions
+				 * seems to perform well in general.  */
+				this._agentTree = new SplitTree<Agent>( 1 + (2 << min.length) , 
 						min, Vector.add( min, 
 						this.getShape().getDimensionLengths() ),
 						this._shape.getIsCyclicNaturalOrder() );
@@ -210,9 +210,10 @@ public class AgentContainer implements Settable
 	{
 		ArrayList<Agent> out = 
 				new ArrayList<Agent>(this._locatedAgentList.size() );
-		out.addAll( _locatedAgentList );
-		return _locatedAgentList;
+		out.addAll( this._locatedAgentList );
+		return out;
 	}
+
 
 	/**
 	 * @return A list of all {@code Agent}s which do not have a location.

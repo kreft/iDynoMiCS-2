@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import idynomics.Global;
 import spatialRegistry.Area;
 import spatialRegistry.Entry;
 
@@ -246,7 +247,8 @@ public class Node<T> extends Area
 	 */
 	private boolean isAtomic(double[] low, double[] high)
 	{
-		return ( high[this._tree.longest] - low[this._tree.longest] < 0.1);
+		return ( high[this._tree.longest] - low[this._tree.longest] < 
+				Global.atomic_length);
 
 	}
 }
