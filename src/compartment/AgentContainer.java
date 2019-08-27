@@ -292,19 +292,6 @@ public class AgentContainer implements Settable
 	}
 
 	/**
-	 * \brief Find agents that may overlap with the given point location.
-	 * 
-	 * @param pointLocation Vector representing a point in space.
-	 * @return Collection of agents that may be overlap with this point: note
-	 * that there may be some false positives (but no false negatives).
-	 */
-	public List<Agent> treeSearch(double[] pointLocation)
-	{
-		return this.treeSearch(pointLocation, Vector.zeros(pointLocation));
-	}
-
-		// FIXME move all aspect related methods out of general classes
-	/**
 	 * \brief Find all agents that are potentially within the given distance of 
 	 * a given focal agent.
 	 * 

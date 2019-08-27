@@ -173,6 +173,7 @@ public class Raster {
 							areColliding( s, v, 0.0 ) &! colliders.contains(a) )
 					{
 						colliders.add(a);
+						break;
 					}
 				}
 			this._agentRaster.put( c, colliders );

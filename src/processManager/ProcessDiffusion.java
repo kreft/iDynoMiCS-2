@@ -2,9 +2,11 @@ package processManager;
 
 import static grid.ArrayType.CONCN;
 import static grid.ArrayType.PRODUCTIONRATE;
+import static grid.ArrayType.WELLMIXED;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -21,6 +23,7 @@ import dataIO.Log;
 import dataIO.Log.Tier;
 import debugTools.SegmentTimer;
 import grid.SpatialGrid;
+import grid.WellMixedConstants;
 import idynomics.Global;
 import linearAlgebra.Vector;
 import reaction.RegularReaction;
@@ -34,6 +37,7 @@ import shape.subvoxel.SubvoxelPoint;
 import solver.PDEsolver;
 import solver.PDEupdater;
 import surface.Surface;
+import surface.Voxel;
 import surface.collision.Collision;
 import utility.Helper;
 
@@ -326,8 +330,26 @@ public abstract class ProcessDiffusion extends ProcessManager
 					// FIXME create a bounding box that always captures at least the complete voxel
 					sides = Vector.subset(dimension, nDim);
 					upper = Vector.add(location, sides);
+					
+					Voxel vox = new Voxel(location, upper);
+					vox.init(shape.getCollision());
 					/* NOTE the agent tree is always the amount of actual dimension */
-					nhbs = this._agents.treeSearch(location, upper);
+					List<Agent> neighbors = this._agents.treeSearch(location, upper);
+					nhbs = new LinkedList<Agent>();
+					for ( Agent a : neighbors )
+					{
+						boolean keep = false;
+						for (Surface s : (List<Surface>) ((Body) a.get(AspectRef.agentBody)).getSurfaces())
+						{
+							if ( vox.distanceTo(s) <= 0.0 )
+							{
+								keep = true;
+								break;
+							}
+						}
+						if ( keep )
+							nhbs.add(a);
+					}
 					
 					/* used later to find subgridpoint scale */
 					minRad = Vector.min(sides);

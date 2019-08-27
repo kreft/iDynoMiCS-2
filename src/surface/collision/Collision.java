@@ -355,17 +355,18 @@ public class Collision
 		 */
 		if ( a == null || b == null )
 			throw new IllegalArgumentException("Null surface given");
-		/* Plane interactions. */
-		if ( a.type() == Surface.Type.PLANE )
+		/* Sphere-sphere interactions. */
+		if( a.type() == Surface.Type.SPHERE )
 		{
 			var.flip = false;
-			return this.assessPlane((Plane) a, b, var);
+			return this.assessSphere((Ball) a, b, var);
 		}
-		else if ( b.type() == Surface.Type.PLANE )
+		else if ( b.type() == Surface.Type.SPHERE )
 		{
 			var.flip = true;
-			return this.assessPlane((Plane) b, a, var);
+			return this.assessSphere((Ball) b, a, var);
 		}
+		
 		/* Sphere-swept-volume interactions. */
 		if ( a.type() == Surface.Type.ROD )
 		{
@@ -377,11 +378,17 @@ public class Collision
 			var.flip = true;
 			return this.assessRod((Rod) b, a, var);
 		}
-		/* Sphere-sphere interactions. */
-		if( a.type() == Surface.Type.SPHERE )
+		
+		/* Plane interactions. */
+		if ( a.type() == Surface.Type.PLANE )
 		{
 			var.flip = false;
-			return this.assessSphere((Ball) a, b, var);
+			return this.assessPlane((Plane) a, b, var);
+		}
+		else if ( b.type() == Surface.Type.PLANE )
+		{
+			var.flip = true;
+			return this.assessPlane((Plane) b, a, var);
 		}
 		else
 		{
