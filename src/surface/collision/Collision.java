@@ -64,6 +64,12 @@ public class Collision
 	 */
 	private final boolean extend = Global.additional_collision_variables;
 	
+	/**
+	 * Small value to counteract arithmetic errors.
+	 */
+	static final float EPSILON = 0.00001f;
+			
+	
 	/* ***********************************************************************
 	 * CONSTRUCTORS
 	 * **********************************************************************/
@@ -355,46 +361,25 @@ public class Collision
 		 */
 		if ( a == null || b == null )
 			throw new IllegalArgumentException("Null surface given");
-		/* Sphere-sphere interactions. */
-		if( a.type() == Surface.Type.SPHERE )
-		{
+		
+		switch( a.type() ) {
+		case SPHERE:
 			var.flip = false;
 			return this.assessSphere((Ball) a, b, var);
-		}
-		else if ( b.type() == Surface.Type.SPHERE )
-		{
-			var.flip = true;
-			return this.assessSphere((Ball) b, a, var);
-		}
-		
-		/* Sphere-swept-volume interactions. */
-		if ( a.type() == Surface.Type.ROD )
-		{
+		case ROD:
 			var.flip = false;
 			return this.assessRod((Rod) a, b, var); 
-		}
-		else if ( b.type() == Surface.Type.ROD )
-		{
-			var.flip = true;
-			return this.assessRod((Rod) b, a, var);
-		}
-		
-		/* Plane interactions. */
-		if ( a.type() == Surface.Type.PLANE )
-		{
+		case PLANE:
 			var.flip = false;
 			return this.assessPlane((Plane) a, b, var);
-		}
-		else if ( b.type() == Surface.Type.PLANE )
-		{
-			var.flip = true;
-			return this.assessPlane((Plane) b, a, var);
-		}
-		else
-		{
+		case VOXEL:
+			var.flip = false;
+			return this.assessVoxel((Voxel) a, b, var);
+		default:
 			System.out.println("WARNING: undefined Surface type");
 			return null;
 		}
+
 	}
 	
 	/**
@@ -470,6 +455,11 @@ public class Collision
 	{
 		if ( otherSurface.type() == Surface.Type.SPHERE )
 			return this.rodSphere(rod, (Ball) otherSurface, var);
+		else if ( otherSurface.type() == Surface.Type.VOXEL )
+		{
+			this.voxelRod(rod, (Voxel) otherSurface, var);
+			return var;	
+		}
 		else
 			return this.rodRod(rod, (Rod) otherSurface, var);
 	}
@@ -484,8 +474,32 @@ public class Collision
 			return this.sphereSphere(sphere, (Ball) otherSurface, var);
 		else if ( otherSurface.type() == Surface.Type.VOXEL )
 			return this.voxelSphere((Voxel) otherSurface, sphere, var);
+		else if ( otherSurface.type() == Surface.Type.PLANE )
+		{
+			var.flip = false;
+			return this.planeSphere((Plane) otherSurface, sphere, var);
+		}
 		else
-			return null; // TODO sphere plane
+		{
+			return null;
+		}
+	}
+	
+	private CollisionVariables assessVoxel(Voxel vox, Surface otherSurface, 
+			CollisionVariables var)
+	{
+		/* FIXME check surface order in arguments */
+		if ( otherSurface.type() == Surface.Type.ROD )
+		{
+			this.voxelRod((Rod) otherSurface, vox, var);
+			return var;
+		}
+		else if ( otherSurface.type() == Surface.Type.SPHERE )
+			return this.voxelSphere(vox, (Ball) otherSurface, var);
+		else
+		{
+			return null;
+		}
 	}
 	/*************************************************************************
 	 * PRIVATE DISTANCE METHODS
@@ -1025,13 +1039,101 @@ public class Collision
 	 * @param t 
 	 * @return
 	 */
-	private int voxelRod(Rod rod, Voxel voxel, double t)
+	private boolean voxelRod(Rod rod, Voxel voxel, CollisionVariables t)
 	{
-		return 0;
+		// Compute the AABB resulting from expanding b by sphere radius r 
+//		AABB e = b; 
+		double[] emin = voxel.getLower();
+		double[] emax = voxel.getHigher();
+		double r = rod.getRadius();
+		Voxel e = new Voxel(Vector.minus(emin, r), Vector.add(emax, r));
+//		e.min.x -= s.r; e.min.y -= s.r; e.min.z -= s.r; 
+//		e.max.x += s.r; e.max.y += s.r; e.max.z += s.r;
+		// Intersect ray against expanded AABB e. Exit with no intersection if ray 
+		// misses e, else get intersection point p and time t as result 
+		
+		double[] p = new double[emin.length];
+		if ( !intersectRayAABB(rod._points[0].getPosition(), 
+				Vector.minus(rod._points[1].getPosition(), 
+				rod._points[0].getPosition()), e, t.t, p) || t.t > 1.0f ) 
+			return false;
+		// Compute which min and max faces of b the intersection point p lies 
+		// outside of. Note, u and v cannot have the same bits set and 
+		// they must have at least one bit set among them 
+		int u=0,v=0; 
+			if (p[0] < voxel.getLower()[0]) u |= 1; 
+			if (p[0] > voxel.getHigher()[0]) v |= 1; 
+		if (p.length > 1)
+		{
+			if (p[1] < voxel.getLower()[1]) u |= 2; 
+			if (p[1] > voxel.getHigher()[1]) v |= 2; 
+		}
+		if (p.length > 2)
+		{
+			if (p[2] < voxel.getLower()[2]) u |= 4; 
+			if (p[2] > voxel.getHigher()[2]) v |= 4;
+		}
+		// ‘Or’ all set bits together into a bit mask (note: here u+v==u|v) 
+		int m = u + v;
+		// Define line segment [c, c+d] specified by the sphere movement 
+		//Segment seg(s.c, s.c + d);
+		// --> Rod
+		
+		// If all 3 bits set (m == 7) then p is in a vertex region 
+		if (m == 7) { 
+			// Must now intersect segment [c, c+d] against the capsules of the three 
+			// edges meeting at the vertex and return the best time, if one or more hit 
+			float tmin = Float.MAX_VALUE; 
+			if ( intersectSegmentCapsule(Corner(voxel, bool(v)), 
+					Corner(voxel, bool(v ^ 1)), rod._points[0].getPosition(), 
+					rod._points[1].getPosition(), rod.getRadius(), t.t) ) 
+				tmin = (float) Math.min(t.t, tmin);
+			if ( intersectSegmentCapsule(Corner(voxel, bool(v)), 
+					Corner(voxel, bool(v ^ 2)), rod._points[0].getPosition(), 
+					rod._points[1].getPosition(), rod.getRadius(), t.t) ) 
+				tmin = (float) Math.min(t.t, tmin);
+			if ( intersectSegmentCapsule(Corner(voxel, bool(v)), 
+					Corner(voxel, bool(v ^ 4)), rod._points[0].getPosition(), 
+					rod._points[1].getPosition(), rod.getRadius(), t.t) ) 
+				tmin = (float) Math.min(t.t, tmin);
+			if ( tmin == Float.MAX_VALUE ) 
+				return false; // No intersection
+		t.t = tmin; 
+		return true;
+		// Intersection at time t == tmin 
+		}
+		// If only one bit set in m, then p is in a face region 
+		if ((m & (m - 1)) == 0) { 
+			// Do nothing. Time t from intersection with 
+			// expanded box is correct intersection time 
+			return true;
+		}
+		// p is in an edge region. Intersect against the capsule at the edge 
+		return intersectSegmentCapsule(Corner(voxel, bool(u ^ 7)), 
+				Corner(voxel, bool(v)), rod._points[0].getPosition(), 
+				rod._points[1].getPosition(), rod.getRadius(), t.t);
 	}
-
+	
+	private boolean bool(int n)
+	{
+		return n != 0;
+	}
+	
+	//Support function that returns the AABB vertex with index n 
+	private double[] Corner(Voxel b, boolean n) 
+	{
+		double[] p = new double[b.getHigher().length]; 
+		p[0] = ((n & true) ? b.getHigher()[0] : b.getLower()[0]); 
+		p[1] = ((n & true) ? b.getHigher()[1] : b.getLower()[1]); 
+		p[2] = ((n & true) ? b.getHigher()[2] : b.getLower()[2]); 
+		return p;
+	}
 	/**
 	 * TODO Real-time collision detection pp 180
+	 * 
+	 * // Intersect ray R(t)=p+t*d against AABB a. When intersecting, 
+	 * // return intersection distance tmin and point q of intersection
+	 * 
 	 * @param p
 	 * @param d
 	 * @param a
@@ -1039,10 +1141,122 @@ public class Collision
 	 * @param q
 	 * @return
 	 */
-	private int intersectRayAABB( double[] p, double[] d, Voxel a, double tmin, 
+	private boolean intersectRayAABB( double[] p, double[] d, Voxel a, double tmin, 
 			double[] q)
 	{
-		return 0;
+		// set to -FLT_MAX to get first hit on line
+		tmin = 0.0f;  
+		// set to max distance ray can travel (for segment)
+		float tmax = Float.MAX_VALUE; 
+		// For all three slabs 
+		for(int i=0; i<3; i++) 
+		{ 
+			if ( Math.abs(d[i]) < EPSILON) 
+			{ 
+				// Ray is parallel to slab. No hit if origin not within slab 
+				if (p[i] < a.getLower()[i] || p[i] > a.getHigher()[i]) 
+					return false;
+			} 
+			else
+			{ 
+				// Compute intersection t value of ray with near and far plane of slab 
+				float ood = 1.0f / (float) d[i]; 
+				float t1 = (float) ((a.getLower()[i] - p[i]) * ood); 
+				float t2 = (float) ((a.getLower()[i] - p[i]) * ood); 
+				// Make t1 be intersection with near plane, t2 with far plane 
+				if (t1 > t2) 
+					Swap(t1, t2); 
+				// Compute the intersection of slab intersection intervals 
+				if (t1 > tmin) 
+					tmin = t1; 
+				if (t2 > tmax) 
+					tmax = t2; 
+				// Exit with no collision as soon as slab intersection becomes empty 
+				if (tmin > tmax) 
+					return false;
+			} 
+		}
+		// Ray intersects all 3 slabs. Return point (q) and intersection t value (tmin) 
+	//		q=p+d* tmin;
+			q = Vector.add(Vector.times(d, tmin), p); 
+			return true;
+
+	}
+	
+	/**
+	 * TODO Real-time collision detection pp 197
+	 * 
+	 * Intersect segment S(t)=sa+t(sb-sa), 0<=t<=1 against cylinder specified by p, q and r
+	 * @return
+	 */
+	private boolean intersectSegmentCylinder(double[] sa, double[] sb, double[] p, double[] q, float r, float t)
+	{
+		double[] d = Vector.minus(q, p), 
+				m = Vector.minus(sa,p), 
+				n = Vector.minus(sb,sa); 
+		double md = Vector.dotProduct(m, d); 
+		double nd = Vector.dotProduct(n, d); 
+		double dd = Vector.dotProduct(d, d); 
+		// Test if segment fully outside either endcap of cylinder 
+		if (md < 0.0f && md + nd < 0.0f) 
+			return false; 
+		// Segment outside ’p’ side of cylinder 
+		if (md > dd && md + nd > dd) 
+			return false; 
+		// Segment outside ’q’ side of cylinder 
+		double nn = Vector.dotProduct(n, n); 
+		double mn = Vector.dotProduct(m, n); 
+		double a = dd * nn - nd * nd;
+		float k = (float) Vector.dotProduct(m, m) - r*r; 
+		float c = (float) (dd * k - md * md); 
+		if ( Math.abs(a) < EPSILON) { 
+			// Segment runs parallel to cylinder axis 
+			if (c > 0.0f) 
+				return false;
+		// ’a’ and thus the segment lie outside cylinder
+		// Now known that segment intersects cylinder; figure out how it intersects 
+			if (md < 0.0f)
+				t = (float) (-mn/nn);
+		// Intersect segment against ’p’ endcap
+		else if (md > dd)
+			t = (float) ((nd-mn)/nn); 
+			// Intersect segment against ’q’ endcap 
+		else 
+			t = 0.0f;
+		// ’a’ lies inside cylinder
+		return true;
+		}
+		
+		float b = (float) (dd*mn-nd*md); 
+		float discr=(float) (b*b - a*c); 
+		if (discr < 0.0f) 
+			return false;
+		// No real roots; no intersection
+		
+		t = (float) ((-b - Math.sqrt(discr)) / a); 
+		if (t < 0.0f || t > 1.0f) 
+			return false;
+		// Intersection lies outside segment
+		if( md+t*nd< 0.0f) { 
+			// Intersection outside cylinder on ’p’ side 
+			if (nd <= 0.0f) 
+				return false;
+		// Segment pointing away from endcap
+		t = (float) (-md / nd); 
+		// Keep intersection if Dot(S(t) - p, S(t) - p) <= r∧2 
+		return k+2*t*(mn+t*nn)<= 0.0f;
+		} 
+		else if (md+t*nd>dd)
+		{ 
+			// Intersection outside cylinder on ’q’ side 
+			if (nd >= 0.0f) return false; 
+			// Segment pointing away from endcap 
+			t = (float) ((dd - md) / nd); 
+			// Keep intersection if Dot(S(t) - q, S(t) - q) <= r∧2 
+			return k+dd-2*md+t*(2*(mn-nd)+t*nn)<= 0.0f;
+		}
+		// Segment intersects cylinder between the endcaps; t is correct 
+		return true;
 	}
 	
 	/**
@@ -1050,9 +1264,74 @@ public class Collision
 	 * slight adjust of IntersectSegmentCylinder
 	 * @return
 	 */
-	private int intersectSegmentCapsule ( )
+	private boolean intersectSegmentCapsule(double[] sa, double[] sb, double[] p, double[] q, double r, double t)
 	{
-		return 0;
+		double[] d = Vector.minus(q, p), 
+				m = Vector.minus(sa,p), 
+				n = Vector.minus(sb,sa); 
+		double md = Vector.dotProduct(m, d); 
+		double nd = Vector.dotProduct(n, d); 
+		double dd = Vector.dotProduct(d, d); 
+		// Test if segment fully outside either endcap of cylinder 
+//		if (md < 0.0f && md + nd < 0.0f) 
+//			return false; 
+//		// Segment outside ’p’ side of cylinder 
+//		if (md > dd && md + nd > dd) 
+//			return false; 
+//		// Segment outside ’q’ side of cylinder 
+		double nn = Vector.dotProduct(n, n); 
+		double mn = Vector.dotProduct(m, n); 
+		double a = dd * nn - nd * nd;
+		float k = (float) ((float) Vector.dotProduct(m, m) - r*r); 
+		float c = (float) (dd * k - md * md); 
+		if ( Math.abs(a) < EPSILON) { 
+			// Segment runs parallel to cylinder axis 
+			if (c > 0.0f) 
+				return false;
+		// ’a’ and thus the segment lie outside cylinder
+		// Now known that segment intersects cylinder; figure out how it intersects 
+			if (md < 0.0f)
+				t = (float) (-mn/nn);
+		// Intersect segment against ’p’ endcap
+		else if (md > dd)
+			t = (float) ((nd-mn)/nn); 
+			// Intersect segment against ’q’ endcap 
+		else 
+			t = 0.0f;
+		// ’a’ lies inside cylinder
+		return true;
+		}
+		
+		float b = (float) (dd*mn-nd*md); 
+		float discr=(float) (b*b - a*c); 
+		if (discr < 0.0f) 
+			return false;
+		// No real roots; no intersection
+		
+		t = (float) ((-b - Math.sqrt(discr)) / a); 
+		if (t < 0.0f || t > 1.0f) 
+			return false;
+		// Intersection lies outside segment
+		if( md+t*nd< 0.0f) { 
+			// Intersection outside cylinder on ’p’ side 
+			if (nd <= 0.0f) 
+				return false;
+		// Segment pointing away from endcap
+		t = (float) (-md / nd); 
+		// Keep intersection if Dot(S(t) - p, S(t) - p) <= r∧2 
+		return k+2*t*(mn+t*nn)<= 0.0f;
+		} 
+		else if (md+t*nd>dd)
+		{ 
+			// Intersection outside cylinder on ’q’ side 
+			if (nd >= 0.0f) return false; 
+			// Segment pointing away from endcap 
+			t = (float) ((dd - md) / nd); 
+			// Keep intersection if Dot(S(t) - q, S(t) - q) <= r∧2 
+			return k+dd-2*md+t*(2*(mn-nd)+t*nn)<= 0.0f;
+		}
+		// Segment intersects cylinder between the endcaps; t is correct 
+		return true;
 	}
 	
 	/**
@@ -1068,5 +1347,12 @@ public class Collision
 	private static double clamp(double a) 
 	{
 		return Math.max( Math.min(a, 1.0), 0.0 );
+	}
+	
+	private void Swap(float t1, float t2) 
+	{
+		float temp = t1;
+		t1 = t2;
+		t2 = temp;
 	}
 }
