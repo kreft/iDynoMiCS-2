@@ -4,7 +4,6 @@
 package processManager.library;
 
 import static grid.ArrayType.CONCN;
-import static grid.ArrayType.PRODUCTIONRATE;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -19,19 +18,15 @@ import dataIO.ObjectFactory;
 import grid.SpatialGrid;
 import processManager.ProcessDiffusion;
 import processManager.ProcessMethods;
-import reaction.RegularReaction;
 import reaction.Reaction;
 import referenceLibrary.XmlRef;
-import shape.subvoxel.CoordinateMap;
 import shape.subvoxel.IntegerArray;
 import shape.Shape;
 import solver.PDEagentsOnly;
-import solver.PDEexplicit;
 import solver.PDEupdater;
 
 public class SolveAgentReactionsOnly extends ProcessDiffusion
 {
-	double track = 0.0;
 	/* ***********************************************************************
 	 * CONSTRUCTORS
 	 * **********************************************************************/
@@ -70,11 +65,6 @@ public class SolveAgentReactionsOnly extends ProcessDiffusion
 
 	private void applyAgentReactions(Agent agent, double dt)
 	{
-		if( agent.identity() == 1)
-		{
-			track += dt;
-			System.out.println(track);
-		}
 		@SuppressWarnings("unchecked")
 		List<Reaction> reactions = 
 				(List<Reaction>) agent.getValue(XmlRef.reactions);

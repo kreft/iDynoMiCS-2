@@ -53,11 +53,6 @@ public class Global extends ParameterSet
 		Idynomics.global.simulationName = XmlHandler.obtainAttribute( elem, 
 				XmlRef.nameAttribute, XmlRef.simulation);
 		
-		if ( XmlHandler.hasAttribute(elem, XmlRef.outputskip) )
-			Idynomics.global.outputskip = Integer.valueOf( 
-					XmlHandler.obtainAttribute( elem, XmlRef.outputskip, 
-					XmlRef.simulation));
-		
 		if ( XmlHandler.hasAttribute(elem, XmlRef.configuration) )
 		{
 			Global.supplementary_property_files = 

@@ -47,27 +47,37 @@ public class Timer implements Instantiable, Settable
 		
 	public Timer()
 	{
-		this._iteration = 0;
+		this._iteration = 1;
 		this._now = 0.0;
 	}
 		
-	public void instantiate(Element xmlNode, Settable parent)
+	public void instantiate(Element xmlElem, Settable parent)
 	{
 		/* Get starting time step */
 		this.setCurrentTime( Helper.setIfNone( XmlHandler.gatherDouble(
-				xmlNode, XmlRef.currentTime ), 0.0 ) );
+				xmlElem, XmlRef.currentTime ), 0.0 ) );
 		
 		this.setCurrentIteration( Integer.valueOf( Helper.setIfNone( 
 				XmlHandler.gatherAttribute(
-				xmlNode, XmlRef.currentIter ), "0" ) ) );
+						xmlElem, XmlRef.currentIter ), "1" ) ) );
 		
 		/* Get the time step. */
 		this.setTimeStepSize( XmlHandler.obtainDouble (
-				xmlNode, XmlRef.timerStepSize, this.defaultXmlTag() ) );
+				xmlElem, XmlRef.timerStepSize, this.defaultXmlTag() ) );
 
 		/* Get the total time span. */
 		this.setEndOfSimulation( XmlHandler.obtainDouble (
-				xmlNode, XmlRef.endOfSimulation, this.defaultXmlTag() ) );
+				xmlElem, XmlRef.endOfSimulation, this.defaultXmlTag() ) );
+		
+		if ( XmlHandler.hasAttribute(xmlElem, XmlRef.outputskip) )
+			Idynomics.global.outputskip = Integer.valueOf( 
+					XmlHandler.obtainAttribute( xmlElem, XmlRef.outputskip, 
+					XmlRef.simulation));
+		
+		if ( XmlHandler.hasAttribute(xmlElem, XmlRef.outputTime) )
+			Idynomics.global.outputskip = (int) Math.round( (Double.valueOf(
+					XmlHandler.obtainAttribute( xmlElem, XmlRef.outputTime, 
+					XmlRef.simulation)) / this.getTimeStepSize()));
 	}
 	
 	/*************************************************************************
@@ -78,7 +88,7 @@ public class Timer implements Instantiable, Settable
 	public void reset()
 	{
 		this._now = 0.0;
-		this._iteration = 0;
+		this._iteration = 1;
 	}
 	
 	public void setTimeStepSize(double stepSize)

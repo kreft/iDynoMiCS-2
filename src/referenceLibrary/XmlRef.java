@@ -541,6 +541,11 @@ public class XmlRef
 	public static final String outputskip = "outputskip";
 	
 	/**
+	 * Number of global time steps to skip for next xml out
+	 */
+	public static final String outputTime = "outputTime";
+	
+	/**
 	 * Scaling factor determined by the real to modelled ratio
 	 */
 	public final static String compartmentScale = "scale";
@@ -616,4 +621,6 @@ public class XmlRef
 	public static final String length = "length";
 
 	public static final String objects = "objects";
+
+	public static final String processSkips = "skips";
 }

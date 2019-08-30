@@ -52,6 +52,14 @@ public abstract class ProcessManager implements Instantiable, AspectInterface,
 	 */
 	protected double _timeStepSize;
 	/**
+	 * Force one internal step before simulation.
+	 */
+	protected int _skips = 0;
+	/**
+	 * How often this has been skipped since last run.
+	 */
+	private int _skipped = 0;
+	/**
 	 * The aspect registry.
 	 */
 	private AspectReg _aspectRegistry = new AspectReg();
@@ -151,9 +159,12 @@ public abstract class ProcessManager implements Instantiable, AspectInterface,
 		/* Time step size. */
 		time = Idynomics.simulator.timer.getTimeStepSize();
 		if ( XmlHandler.hasAttribute(p, XmlRef.processTimeStepSize) )
-			time = Double.valueOf( p.getAttribute(XmlRef.processTimeStepSize) );
+			time = Double.valueOf( p.getAttribute(XmlRef.processTimeStepSize));
 		this.setTimeStepSize(time);
-		
+		if ( XmlHandler.hasAttribute(p, XmlRef.processSkips ))
+		{
+			this._skips = Integer.valueOf( p.getAttribute(XmlRef.processSkips));
+		}
 		this.redirect(xmlElem);		
 		if( Log.shouldWrite(Tier.EXPRESSIVE))
 			Log.out(Tier.EXPRESSIVE, this._name + " loaded");
@@ -267,31 +278,37 @@ public abstract class ProcessManager implements Instantiable, AspectInterface,
 	 */
 	public void step()
 	{
-		this._tick = System.currentTimeMillis();
-		/*
-		 * This is where subclasses of ProcessManager do their step. Note that
-		 * this._timeStepSize may change if an adaptive timestep is used.
-		 */
-		this.internalStep();
-		if ( !Idynomics.simulator.active())
-			return;
-		/*
-		 * Move the time for next step forward by the step size.
-		 */
+		/* Move the time for next step forward by the step size. */
 		this._timeForNextStep = BigDecimal.valueOf( _timeForNextStep ).add(
 				BigDecimal.valueOf( _timeStepSize ) ).doubleValue();
 		
-		Tier level = Tier.EXPRESSIVE;
-		if ( Log.shouldWrite(level) )
+		if ( this._skips > ++this._skipped )
 		{
-			/* logging time, using BigDecimal prevents weird last decimal 
-			 * round-off errors. */
-			Log.out( level, this._name + " next: " + this._timeForNextStep + 
-					", duration: " + ( BigDecimal.valueOf(
-					System.currentTimeMillis() - _tick ).multiply(
-					BigDecimal.valueOf( 0.001 ) ).doubleValue() ) + " s");
+			/* skip */
 		}
-		this._realTimeTaken += (System.currentTimeMillis() - _tick);
+		else
+		{
+			this._tick = System.currentTimeMillis();
+			/*This is where subclasses of ProcessManager do their step. Note 
+			 * that this._timeStepSize may change if an adaptive timestep is 
+			 * used. */
+			this.internalStep();
+			if ( !Idynomics.simulator.active())
+				return;
+			
+			Tier level = Tier.EXPRESSIVE;
+			if ( Log.shouldWrite(level) )
+			{
+				/* logging time, using BigDecimal prevents weird last decimal 
+				 * round-off errors. */
+				Log.out( level, this._name + " next: " + this._timeForNextStep + 
+						", duration: " + ( BigDecimal.valueOf(
+						System.currentTimeMillis() - _tick ).multiply(
+						BigDecimal.valueOf( 0.001 ) ).doubleValue() ) + " s");
+			}
+			this._realTimeTaken += (System.currentTimeMillis() - _tick);
+			this._skipped = 0;
+		}
 	}
 	
 	/**
