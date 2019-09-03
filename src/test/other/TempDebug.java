@@ -2,13 +2,14 @@ package test.other;
 
 import test.junit.*;
 import test.junit.oldTests.BoundaryTest;
+import test.junit.oldTests.CollisionTest;
 
 public class TempDebug {
 
 	public static void main(String[] args) {
 		
-		BoundaryTest test = new BoundaryTest();
-		test.agentInsertionBoundaryLayer();
+		CollisionTest test = new CollisionTest();
+		test.periodicTest();
 	}
 
 }
