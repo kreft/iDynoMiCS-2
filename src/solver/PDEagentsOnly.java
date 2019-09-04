@@ -15,6 +15,15 @@ import static grid.ArrayType.*;
 
 import grid.SpatialGrid;
 
+/**
+ * \brief: Placeholder solver for scenarios with static concentration
+ * 
+ * not a PDE solver, but a dummy that only enables agent-reactions, environment
+ * remains unchanged. Useful for testing and debugging.
+ * 
+ * @author Bastiaan
+ *
+ */
 public class PDEagentsOnly extends PDEsolver
 {
 

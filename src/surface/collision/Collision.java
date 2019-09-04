@@ -1128,6 +1128,7 @@ public class Collision
 		p[2] = ((n & true) ? b.getHigher()[2] : b.getLower()[2]); 
 		return p;
 	}
+	
 	/**
 	 * TODO Real-time collision detection pp 180
 	 * 
