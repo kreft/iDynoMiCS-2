@@ -1036,10 +1036,10 @@ public class Collision
 	 * TODO real-time collsion detection pp 229
 	 * @param rod
 	 * @param voxel
-	 * @param t 
+	 * @param var 
 	 * @return
 	 */
-	private boolean voxelRod(Rod rod, Voxel voxel, CollisionVariables t)
+	private boolean voxelRod(Rod rod, Voxel voxel, CollisionVariables var)
 	{
 		// Compute the AABB resulting from expanding b by sphere radius r 
 //		AABB e = b; 
@@ -1047,15 +1047,18 @@ public class Collision
 		double[] emax = voxel.getHigher();
 		double r = rod.getRadius();
 		Voxel e = new Voxel(Vector.minus(emin, r), Vector.add(emax, r));
-//		e.min.x -= s.r; e.min.y -= s.r; e.min.z -= s.r; 
-//		e.max.x += s.r; e.max.y += s.r; e.max.z += s.r;
+//		for( int i = 0; i < emin.length; i++ )
+//		{
+//			emin[i] -= rod.getRadius();
+//			emax[i] += rod.getRadius();
+//		}
 		// Intersect ray against expanded AABB e. Exit with no intersection if ray 
 		// misses e, else get intersection point p and time t as result 
 		
 		double[] p = new double[emin.length];
 		if ( !intersectRayAABB(rod._points[0].getPosition(), 
 				Vector.minus(rod._points[1].getPosition(), 
-				rod._points[0].getPosition()), e, t.t, p) || t.t > 1.0f ) 
+				rod._points[0].getPosition()), e, var.t, p) || var.t > 1.0f ) 
 			return false;
 		// Compute which min and max faces of b the intersection point p lies 
 		// outside of. Note, u and v cannot have the same bits set and 
@@ -1086,19 +1089,19 @@ public class Collision
 			float tmin = Float.MAX_VALUE; 
 			if ( intersectSegmentCapsule(Corner(voxel, bool(v)), 
 					Corner(voxel, bool(v ^ 1)), rod._points[0].getPosition(), 
-					rod._points[1].getPosition(), rod.getRadius(), t.t) ) 
-				tmin = (float) Math.min(t.t, tmin);
+					rod._points[1].getPosition(), rod.getRadius(), var.t) ) 
+				tmin = (float) Math.min(var.t, tmin);
 			if ( intersectSegmentCapsule(Corner(voxel, bool(v)), 
 					Corner(voxel, bool(v ^ 2)), rod._points[0].getPosition(), 
-					rod._points[1].getPosition(), rod.getRadius(), t.t) ) 
-				tmin = (float) Math.min(t.t, tmin);
+					rod._points[1].getPosition(), rod.getRadius(), var.t) ) 
+				tmin = (float) Math.min(var.t, tmin);
 			if ( intersectSegmentCapsule(Corner(voxel, bool(v)), 
 					Corner(voxel, bool(v ^ 4)), rod._points[0].getPosition(), 
-					rod._points[1].getPosition(), rod.getRadius(), t.t) ) 
-				tmin = (float) Math.min(t.t, tmin);
+					rod._points[1].getPosition(), rod.getRadius(), var.t) ) 
+				tmin = (float) Math.min(var.t, tmin);
 			if ( tmin == Float.MAX_VALUE ) 
 				return false; // No intersection
-		t.t = tmin; 
+		var.t = tmin; 
 		return true;
 		// Intersection at time t == tmin 
 		}
@@ -1111,7 +1114,7 @@ public class Collision
 		// p is in an edge region. Intersect against the capsule at the edge 
 		return intersectSegmentCapsule(Corner(voxel, bool(u ^ 7)), 
 				Corner(voxel, bool(v)), rod._points[0].getPosition(), 
-				rod._points[1].getPosition(), rod.getRadius(), t.t);
+				rod._points[1].getPosition(), rod.getRadius(), var.t);
 	}
 	
 	private boolean bool(int n)
@@ -1123,9 +1126,8 @@ public class Collision
 	private double[] Corner(Voxel b, boolean n) 
 	{
 		double[] p = new double[b.getHigher().length]; 
-		p[0] = ((n & true) ? b.getHigher()[0] : b.getLower()[0]); 
-		p[1] = ((n & true) ? b.getHigher()[1] : b.getLower()[1]); 
-		p[2] = ((n & true) ? b.getHigher()[2] : b.getLower()[2]); 
+		for (int i = 0; i < p.length; i++)
+			p[i] = ((n & true) ? b.getHigher()[i] : b.getLower()[i]); 
 		return p;
 	}
 	
@@ -1150,7 +1152,7 @@ public class Collision
 		// set to max distance ray can travel (for segment)
 		float tmax = Float.MAX_VALUE; 
 		// For all three slabs 
-		for(int i=0; i<3; i++) 
+		for(int i=0; i<d.length; i++) 
 		{ 
 			if ( Math.abs(d[i]) < EPSILON) 
 			{ 

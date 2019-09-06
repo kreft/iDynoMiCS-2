@@ -17,14 +17,14 @@ public class CollisionTest {
 
 		
 		Rod rod = new Rod(
-				new double[] {1.0, 1.0}, 	// first point
+				new double[] {1.1, 1.1}, 	// first point
 				new double[] {1.0, 2.0}, 	// second point
 				0.5);						// radius
 		rod.init(com.getShape().getCollision());
 
 		Voxel vox = new Voxel(
-				new double[] {1.0, 2.1},	// lower corner
-				new double[] {1.5, 2.6});	// upper corner
+				new double[] {0.0, 0.0},	// lower corner
+				new double[] {1.0, 1.0});	// upper corner
 		vox.init(com.getShape().getCollision());
 
 		System.out.println( rod.collisionWith(vox) );
