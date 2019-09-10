@@ -106,9 +106,9 @@ public abstract class Spawner implements Settable, Instantiable, AspectInterface
 			double[][] input = 
 					Matrix.dblFromString(p.getAttribute(XmlRef.spawnDomain));
 			if( Matrix.rowDim(input) < 2)
-				_spawnDomain.get(Vector.zeros(input[0]), input[0], true);
+				_spawnDomain.get(Vector.zeros(input[0]), input[0]);
 			else
-				_spawnDomain.get(input[0], input[1], true);
+				_spawnDomain.get(input[0], input[1]);
 		}
 	}
 

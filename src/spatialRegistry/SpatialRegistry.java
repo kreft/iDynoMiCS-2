@@ -2,7 +2,6 @@ package spatialRegistry;
 
 import java.util.List;
 
-import linearAlgebra.Vector;
 import surface.BoundingBox;
 
 /**
@@ -15,29 +14,20 @@ import surface.BoundingBox;
 public interface SpatialRegistry<T>
 {	
 	/**
-	 * \brief perform local search, ignore periodic boundaries.
-	 * 
-	 * @param coords
-	 * @param dimension
-	 * @return
-	 */
-	public abstract List<T> localSearch(double[] coords, double[] dimension);
-	
-	/**
 	 * \brief TODO
 	 * 
 	 * @param coords
 	 * @param dimension
 	 * @return
 	 */
-	public abstract List<T> search(double[] coords, double[] dimension);
+	public abstract List<T> search(double[] lower, double[] higher);
 	
 	/**
 	 * 
 	 * @param boundingBox
 	 * @return
 	 */
-	public abstract List<T> search(BoundingBox boundingBox);
+	public abstract List<T> search(Area area);
 	
 	/**
 	 * 
@@ -48,17 +38,9 @@ public interface SpatialRegistry<T>
 	
 	public default List<T> search(double[] pointLocation)
 	{
-		return this.search(pointLocation, Vector.zeros(pointLocation));
+		return this.search(pointLocation, pointLocation);
 	}
 
-	/**
-	 * \brief TODO
-	 * 
-	 * @return
-	 * @deprecated
-	 */
-	public abstract List<T> all();
-	
 	/**
 	 * \brief TODO
 	 * 
@@ -75,16 +57,7 @@ public interface SpatialRegistry<T>
 	 */
 	public abstract void insert(BoundingBox boundingBox, T entry);
 	
-	/**
-	 * 
-	 * @return
-	 */
-	public abstract T getRandom();
-	
-	/**
-	 * 
-	 * @param entry
-	 * @return
-	 */
 	public abstract boolean delete(T entry);
+	
+	public abstract void clear();
 }

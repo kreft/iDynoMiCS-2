@@ -21,14 +21,15 @@ import utility.StandardizedImportMethods;
 public class Voxel extends Surface implements HasBoundingBox {
 	
 	/**
-	 * Lower corner at position 0, voxel dimensions at position 1
+	 * Lower corner at position 0, higher corner at position 1
 	 */
 	private Point[] _points = new Point[2];
+	private BoundingBox boundingBox = new BoundingBox();
 
-    public Voxel(double[] lower, double[] dimensions)
+    public Voxel(double[] lower, double[] higher)
     {
     	this.setLower(lower);
-    	this.setDimensions(dimensions);
+    	this.setHigher(higher);
     }
 	
 	public Voxel(LinkedList<double[]> points)
@@ -62,8 +63,6 @@ public class Voxel extends Surface implements HasBoundingBox {
 		return this._points[0].nDim();
 	}
 	
-	protected BoundingBox boundingBox = new BoundingBox();
-	
 	/**
 	 * Currently we assume every voxel is on grid en thus never periodic. Also
 	 * we do not allow margin
@@ -79,7 +78,7 @@ public class Voxel extends Surface implements HasBoundingBox {
 
 	public BoundingBox boundingBox(Shape shape)
 	{
-		return boundingBox.get(getDimensions(),getLower());
+		return boundingBox .get(getLower(), getHigher());
 	}
 
 	public double[] getLower() 
@@ -87,18 +86,18 @@ public class Voxel extends Surface implements HasBoundingBox {
 		return _points[0].getPosition();
 	}
 
-	public void setLower(double[] _lower) 
+	public void setLower(double[] lower) 
 	{
-		this._points[0] = new Point(_lower);
+		this._points[0] = new Point(lower);
 	}
 
-	public double[] getDimensions() 
+	public double[] getHigher() 
 	{
 		return _points[1].getPosition();
 	}
 
-	public void setDimensions(double[] _dimensions) 
+	public void setHigher(double[] higher) 
 	{
-		this._points[0] = new Point(_dimensions);
+		this._points[1] = new Point(higher);
 	}
 }

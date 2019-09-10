@@ -3,6 +3,7 @@ package grid;
 import static grid.ArrayType.DIFFUSIVITY;
 
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -10,6 +11,7 @@ import java.util.Set;
 import org.w3c.dom.Element;
 
 import agent.Agent;
+import agent.Body;
 import compartment.AgentContainer;
 import compartment.EnvironmentContainer;
 import dataIO.Log;
@@ -20,12 +22,16 @@ import dataIO.Log.Tier;
 import linearAlgebra.Array;
 import linearAlgebra.Matrix;
 import linearAlgebra.Vector;
+import referenceLibrary.AspectRef;
 import referenceLibrary.XmlRef;
 import settable.Attribute;
 import settable.Module;
 import settable.Settable;
 import settable.Module.Requirements;
 import shape.Shape;
+import surface.Surface;
+import surface.Voxel;
+import surface.collision.Collision;
 import utility.ExtraMath;
 import utility.Helper;
 
@@ -124,7 +130,7 @@ public class SpatialGrid implements Settable, Instantiable
 			Shape shape = env.getShape();
 			int nDim = shape.getNumberOfDimensions();
 			double[] location = new double[nDim];
-			double[] dimension = new double[nDim];
+			double[] upper = new double[nDim];
 			int[] coord = shape.resetIterator();
 			while ( shape.isIteratorValid() )
 			{
@@ -132,8 +138,8 @@ public class SpatialGrid implements Settable, Instantiable
 				shape.voxelOriginTo(location, coord);
 				
 				/* FIXME this assumes Cartesian grids  */
-				shape.getVoxelSideLengthsTo(dimension, coord);
-				List<Agent> neighbors = agents.treeSearch(location, dimension);
+				shape.voxelUpperCornerTo(upper, coord);
+				List<Agent> neighbors = agents.treeSearch(location, upper);
 				/* If there are any agents in this voxel, update the 
 				 * diffusivity. */
 				if ( ! neighbors.isEmpty() )

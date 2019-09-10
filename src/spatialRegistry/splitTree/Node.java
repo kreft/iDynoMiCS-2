@@ -1,287 +1,254 @@
 package spatialRegistry.splitTree;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
-import dataIO.Log;
-import dataIO.Log.Tier;
-import linearAlgebra.Vector;
+import idynomics.Global;
+import spatialRegistry.Area;
+import spatialRegistry.Entry;
 
-@SuppressWarnings( {"rawtypes", "unchecked"} )
+/**
+ * \brief: The {@link Node} object is the structural element that forms the
+ * {@link SplitTree} a {@link Node} can be either a branch node or a leaf node.
+ * Branch will have child nodes but no entries, leaf nodes can have entries but
+ * no child nodes. A full leaf node will be promoted to branch node, giving it 
+ * 2^nDim child nodes on which its entries will be transfered.
+ * 
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
+ *
+ * @param <T>
+ */
 public class Node<T> extends Area
 {
-	
+	private final ArrayList<Entry<T>> _entries;
+	private final ArrayList<Node<T>> _nodes;
+	private final boolean _atomic;
+	private final SplitTree<T> _tree;
+
 	/**
-	 * 
+	 * Constructor
+	 * @param low
+	 * @param high
 	 */
-	private final SplitTree<T> splitTree;
-	
-	protected boolean _leafNode;
-
-	private LinkedList<Area> _entries = new LinkedList<Area>();
-	
-	private SplitTree<T> _tree;
-
-	public Node(SplitTree<T> splitTree, double[] low, double[] high, boolean isLeaf, SplitTree<T> tree,
-			boolean[] periodic)
+	public Node( double[] low, double[] high, SplitTree<T> tree)
 	{
 		super(low, high);
-		this.splitTree = splitTree;
-		this._leafNode = isLeaf;
 		this._tree = tree;
+		this._atomic = isAtomic(low, high);
+		this._nodes = new ArrayList<Node<T>>(this._tree.childnodes);
+		this._entries = new ArrayList<Entry<T>>(this._tree.maxEntries);
 	}
-
 	
-	public List<Entry> find(Area test) 
+	/**
+	 * find all T that hit Area
+	 * @param out
+	 * @param test
+	 * @return
+	 */
+	public List<T> find(List<T> out, Area test) 
 	{
-		LinkedList<Entry> out = new LinkedList<Entry>();
 		if ( ! this.test(test) )
 		{
-			if ( this._leafNode )
-				return this.allConc(out, test);
-			else
-			{
-				for ( Area a : _entries )
-				{
-					if ( out.isEmpty() )
-					{
-						for (Entry e :((Node<T>) a).find(test))
-							out.add(e);
-					}
-					else
-					{
-						for (Entry e :((Node<T>) a).find(test))
-							if ( ! out.contains(e))
-								out.add(e);
-					}
-				}
-			}
-		}
-		return out;
-	}
-	
-	public List<Entry> findUnfiltered(Area area) 
-	{
-		LinkedList<Entry> out = new LinkedList<Entry>();
-		if ( ! this.test(area) )
-		{
-			if ( this._leafNode )
-				return this.allUnfiltered(out);
-			else
-			{
-				for ( Area a : _entries )
-					out.addAll(((Node<T>) a).findUnfiltered(area));
-			}
+			for ( Node<T> a : _nodes )
+				a.find(out, test);
+			return this.collectLocal(out, test);
 		}
 		return out;
 	}
 
-	public void add(Area entry)
+	/**
+	 * \brief: add a new entry
+	 * @param entry
+	 */
+	public void add( Entry<T> entry )
 	{
 		if ( ! this.test(entry) )
 		{
-			if ( this._leafNode || entry instanceof Node)
+			if ( this._nodes.isEmpty() )
 			{
 				this.getEntries().add(entry);
-				if( this.size() > SplitTree._maxEntries )
-					_tree.split(this);
+				if( this.size() > this._tree.maxEntries &! this._atomic )
+					split();
 			}
 			else
 			{
-				for ( Area a : this.getEntries() )
-					((Node<T>) a).add(entry);
+				for ( Node<T> a : this._nodes )
+					a.add(entry);
 			}
-		}
-		else if ( this.equals(_tree._root))
-		{
-			Log.out(Tier.CRITICAL, "Split tree skipped entry outside the domain");
-		}
-		
+		}		
 	}
 	
-	public void add(List<Area> entries) 
+	/**
+	 * \brief: add multiple entries
+	 * @param entries
+	 */
+	public void add( Collection<Entry<T>> entries ) 
 	{
-		entries.removeIf(this);
-		for (Area entry : entries) 
-			this.add(entry);
+		for (Entry<T> entry : entries) 
+			this.add( entry );
 	}
-	
-	protected LinkedList<Area> getEntries() {
+
+	/**
+	 * \brief: returns the entry list
+	 * @return
+	 */
+	private List<Entry<T>> getEntries() {
 		return _entries;
 	}
-	
-	protected LinkedList<Area> getSectorEntries() {
-		LinkedList<Area> out = new LinkedList<Area>();
-		for (Area a : getEntries())
-			if( this.sectorTest(a))
-				out.add(a);
-		return out;
-	}
 
-	public boolean leafless()
+	/**
+	 * \brief: remove entry from this node's entry list
+ 	 * does not remove the entry from child nodes!
+	 * @param entry
+	 * @return
+	 */
+	private boolean remove(Entry<T> entry)
 	{
-		if (this._leafNode)
-			return false;
-		for ( Area entry : this.getEntries() )
-			if( ((Node) entry)._leafNode )
-				return false;
-		return true;
-	}
-	protected void setEntries(LinkedList<Area> _entries) {
-		this._entries = _entries;
-	}
-
-	public void remove(Entry entry)
-	{
-		this.getEntries().remove(entry);
+		return this._entries.remove(entry);
 	}
 	
+	/**
+	 * Delete any occurrence of object member (Warning, the entire tree has
+	 * to be searched for member, this is a slow process, do not use this if 
+	 * the tree will be rebuild before it is searched anyway).
+	 * @param member
+	 * @return
+	 */
+	public boolean delete(T member) 
+	{
+		boolean out = false;
+		for( Entry<T> t : _entries)
+			if ( t.getEntry() == member )
+				out = remove(t);
+		for ( Node<T> a : _nodes )
+			out = ( out ? out : a.delete(member) );
+		return out;	
+	}
+	
+	/**
+	 * \brief: amount of locally stored entries (excluding child nodes)
+	 * @return
+	 */
 	public int size()
 	{
 		return getEntries().size();
 	}
-
-	public List<Area> allLocal()
-	{
-		return new LinkedList<Area>(this.getEntries());
-	}
 	
-	public List<Entry> allUnfiltered(LinkedList<Entry> out)
-	{
-		if ( this._leafNode)
-		{
-			for (Area a : this.getEntries())
-				out.add( (Entry) a);
-		}
-		else
-		{
-			for (Area a : this.getEntries())
-				((Node<T>) a).allUnfiltered(out);
-		}
-		return out;
-	}
-	
-	public List<Entry> allConc(LinkedList<Entry> out, Area test)
+	/**
+	 * \brief: Test locally stored entries against input area and adds them to
+	 * input list on hit.
+	 * @param out
+	 * @param test
+	 * @return
+	 */
+	private List<T> collectLocal(List<T> out, Area test)
 	{
 		if (out.isEmpty())
 		{
-			for (Area a : this.getEntries())
-			{
-				for (int dim = 0; dim < this.splitTree._dimensions; dim++)
-				{
-					if ( ! a.test(test) )
-					{
-						out.add( (Entry) a);
-						break;
-					}
-				}
-			}
-			return out;
+			for (Entry<T> a : this.getEntries())
+				if ( ! a.test(test) )
+					out.add( a.getEntry() );
 		}
 		else
 		{
-			for (Area a : this.getEntries())
-			{
-				for (int dim = 0; dim < this.splitTree._dimensions; dim++)
-				{
+			for (Entry<T> a : this.getEntries())
+				if ( ! out.contains(a.getEntry()) )
 					if ( ! a.test(test) )
-					{
-						if ( ! out.contains(a) )
-							out.add( (Entry) a);
-						break;
-					}
-				}
-			}
-			return out;
+						out.add( a.getEntry() );
+		}
+		return out;
+	}
+
+	/**
+	 * \brief: Promotes this leaf node to branch node and distributes entries
+	 * over newly created leaf nodes.
+	 */
+	private void split()
+	{
+		Node<T> newNode;
+		for ( boolean[] b : this._tree.combinations())
+		{
+			newNode = new Node<T>( corner(getLow(), midPoint(), b), 
+					corner(midPoint(), getHigh(), b), this._tree);
+			newNode.add(this.getEntries());
+			this._nodes.add(newNode);
+		}
+		this.getEntries().clear();
+	}	
+	
+	/**
+	 * \brief: Whipe all entries from the tree (testing shows rebuilding a new
+	 * tree instead is slightly faster.
+	 */
+	public void whipe() 
+	{
+		this._entries.clear();
+		for ( Node<T> a : _nodes )
+			a.whipe();
+	}
+
+	/**
+	 * \brief: Overrides Area.periodic, SplitTree nodes never cross periodic
+	 * boundaries and thus do not require periodic check.
+	 */
+	@Override
+	public boolean periodic(Area area, int dim)
+	{
+		/* if the partner area is not passing a periodic boundary in
+		 * this dimension  */
+		if ( !area.periodic()[dim] )
+		{
+			return normal(area, dim);
+		}
+		else
+		{
+			/* if the partner area is passing a periodic boundary in
+			 * this dimension  */
+			return ( getLow()[dim] > area.getHigh()[dim] && 
+					getHigh()[dim] < area.getLow()[dim] );	
 		}
 	}
 
-	public List<Entry> allEntries(LinkedList<Entry> out) 
-	{
-		if ( this._leafNode)
-		{
-			for (Area a : this.getEntries())
-				if ( ! out.contains(a))
-					out.add( (Entry) a);
-		}
-		else
-		{
-			for (Area a : this.getEntries())
-				((Node<T>) a).allEntries(out);
-		}
-		return out;
-	}
-	
-	public List<Node<T>> allLeaves(LinkedList<Node<T>> out) 
-	{
-		if ( this._leafNode)
-		{
-			out.add( this );
-		}
-		else
-		{
-			for (Area a : this.getEntries())
-				((Node<T>) a).allLeaves(out);
-		}
-		return out;
-	}
-	
-	public void purge()
-	{
-		getEntries().removeIf(this);
-	}
-	
-	public void promote(List<Node<T>> nodes)
-	{
-		this.getEntries().clear();
-		this._leafNode = false;
-		for (Node<T> n : nodes)
-			this.add(n);
-	}
-	
-	/* ************************************************************************
-	 * Helper methods
+	/**
+	 * \brief: returns midpoint to determine corners of child nodes.
+	 * @return
 	 */
-	double[] splits()
+	private double[] midPoint()
 	{
-		double[] split = new double[this.low.length];
-		for (int i = 0; i < this.low.length; i++)
-			split[i] = this.low[i] + ( (this.high[i] - this.low[i]) / 2.0 );
+		double[] split = new double[this.getLow().length];
+		for (int i = 0; i < this.getLow().length; i++)
+			split[i] = this.getLow()[i] + 
+				( (this.getHigh()[i] - this.getLow()[i]) / 2.0 );
 		return split;
 	}
 	
-	double[] corner(double[] lower, double[] higher, boolean[] combination)
+	/**
+	 * \brief: returns appropriate corner location for child node variant bool[]
+	 * @param lower
+	 * @param higher
+	 * @param child
+	 * @return
+	 */
+	private double[] corner(double[] lower, double[] higher, boolean[] child)
 	{
-		double [] out = new double[combination.length];
-		for (int i = 0; i < combination.length; i++)
-			out[i] = (combination[i] ? higher[i] : lower[i]);
+		double [] out = new double[child.length];
+		for (int i = 0; i < child.length; i++)
+			out[i] = (child[i] ? higher[i] : lower[i]);
 		return out;
 	}
 	
-	List<boolean[]> combinations()
+	/**
+	 * \brief: returns true if this node should not be split any further (and
+	 * thus allowing to obtain more entries than usual).
+	 * @param low
+	 * @param high
+	 * @return
+	 */
+	private boolean isAtomic(double[] low, double[] high)
 	{
-		return this.combinations(low.length);
-	}
-	
-	private List<boolean[]> combinations(int length)
-	{
-		boolean[] a = new boolean[length];
-		Vector.setAll(a, false);
-		List<boolean[]> b = new LinkedList<boolean[]>();
-		b.add(a);
-		for ( int i = 0; i < length; i++)
-			combinations(i, b);
-		return b;
-	}
-	
-	private void combinations(int pos, List<boolean[]> build)
-	{
-		int length = build.size();
-		for ( int i = 0; i < length; i++ )
-		{
-			boolean[] c = Vector.copy(build.get(i));
-			c[pos] = true;
-			build.add(c);
-		}
+		return ( high[this._tree.longest] - low[this._tree.longest] < 
+				Global.atomic_length);
+
 	}
 }

@@ -326,4 +326,8 @@ public class Global extends ParameterSet
 	 */
 	public static double mechanical_low_stress_skip = 0.0;
 	
+	/**
+	 * {@Link SplitTree} atomic length, the smallest length scale for leafnodes
+	 */
+	public static double atomic_length = 0.05;
 }

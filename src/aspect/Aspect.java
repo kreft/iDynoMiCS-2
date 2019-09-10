@@ -109,7 +109,7 @@ public class Aspect implements Instantiable, Settable
     {
     	
     }
-    
+
     /**
      * Set passed object as aspect for existing aspect object
      * @param aspect

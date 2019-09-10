@@ -158,7 +158,7 @@ public class Raster {
 		{
 			/* create collision voxel and find potential agents TODO we could 
 			 * set this voxel instead of creating a new one. */
-			Voxel v = new Voxel( toContinuous(c, voxelLength), vox );
+			Voxel v = new Voxel( toContinuous(c, voxelLength), Vector.add(toContinuous(c, voxelLength), vox) );
 			List<Agent> agents = _agentContainer.treeSearch( 
 					v.boundingBox(null) );
 			

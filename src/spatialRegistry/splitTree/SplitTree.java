@@ -1,172 +1,197 @@
 package spatialRegistry.splitTree;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import dataIO.Log.Tier;
-import dataIO.Log;
 import linearAlgebra.Vector;
+import spatialRegistry.Area;
+import spatialRegistry.Entry;
 import spatialRegistry.SpatialRegistry;
 import surface.BoundingBox;
 
 /**
- * First version of nDimensional tree, behaves like quadtree in 2d and octree in
- * 3d, named "splitTree"
- * 
- * TODO clean-up, further optimizations 
+ * \brief: nDimensional {@link SpatialRegistry}, behaves like quadtree in 2d and
+ * octree in 3d, named {@link SplitTree}
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
  *
  */
-@SuppressWarnings( {"rawtypes", "unchecked"} )
 public class SplitTree<T> implements SpatialRegistry<T>
 {	
-	protected boolean _root = false;
+
+	protected final int maxEntries;
 	
-	public Node<T> node;
+	protected final int childnodes;	
 	
-	public int _dimensions;
+	protected final int longest;
 	
-	static int _minEntries;
+	protected final List<boolean[]> combinations;
 	
-	static int _maxEntries;
+	private Node<T> node;
 	
 	private boolean[] _periodic; 
 	
 	private double[] _lengths;
+
 	
-	public SplitTree(int dimensions, int min, int max, 
+	public SplitTree(int max, 
 			double[] low, double[] high, boolean[] periodic)
 	{
-		this._root = true;
-		_dimensions = dimensions;
-		_minEntries = min;
-		_maxEntries = max;
-		_periodic = periodic;
-		_lengths = Vector.minus(high, low);
-		if ( Vector.allOfValue(periodic, false) )
-			this.node = new Node<T>(this, low, high, true, this, null);
-		else
-			this.node = new Node<T>(this, low, high, true, this, periodic);
-	}
-	
-	public SplitTree(int dimensions, int min, int max, boolean[] periodic)
-	{
-		this(dimensions, min, max, 
-				Vector.setAll(new double[dimensions], -Math.sqrt(Double.MAX_VALUE)), 
-				Vector.setAll(new double[dimensions], Math.sqrt(Double.MAX_VALUE)), 
-				periodic);
+		this._periodic = periodic;
+		this._lengths = Vector.minus(high, low);
+		
+		this.maxEntries = max;
+		this.longest = longest(low, high);
+		this.childnodes = 1 << low.length;
+		this.combinations = this.combinations(low.length);
+		this.node = new Node<T>(low, high, this);
 	}
 
-	public void add(double[] low, double[] high, T obj)
-	{
-		this.add(new Entry<T>(low, high, obj));
-	}
-
-	public void add(Area entry) 
+	/**
+	 * Adds an Tree-entry to the tree (Area parameters must have already been
+	 * set).
+	 * @param entry
+	 */
+	public void add(Entry<T> entry) 
 	{
 		this.node.add(entry);
 	}
 	
-	public void add(List<Area> entries)
+	/**
+	 * returns longest dimension given a specific area defined by provided lower
+	 * and higher corner coordinates
+	 * @param low
+	 * @param high
+	 * @return
+	 */
+	public int longest(double[] low, double[] high)
 	{
-		if (node._leafNode)
-			node.add(entries);
-		else
-			for (Area n : this.node.getEntries())
-				n.add(entries);
-	}
-	
-	/** Area must have been updated for periodicy */
-	public List<Entry> find(Area area) 
-	{
-		return node.find(area);
-	}
-//	public List<Entry> find(Area area) 
-//	{
-//		if ( _periodic == null )
-//			return node.find(new OutsideNormal(area));
-//		else
-//		{
-//			return node.find(new OutsidePeriodic(area,_periodic));
-//		}
-//
-//	}
-	
-	public void split(Node<T> leaf)
-	{
-		Node<T> newNode;
-		List<Node<T>> childNodes = new LinkedList<Node<T>>();
-		
-		for ( boolean[] b : leaf.combinations())
-		{
-			newNode = new Node<T>( this, leaf.corner(leaf.low, leaf.splits(), b), 
-					leaf.corner(leaf.splits(), leaf.high, b), true, this, this._periodic);
-			newNode.add(leaf.allLocal());
-			childNodes.add(newNode);
-		}
-
-		/* promote node from leaf to branch */
-		leaf.promote(childNodes);
-	}	
-	
-	public List<Entry> allEntries(LinkedList<Entry> out) 
-	{
-		return this.node.allEntries(out);
-	}
-	
-	public List<T> allObjects()
-	{
-		LinkedList<Entry> entries = new LinkedList<Entry>();
-		LinkedList<T> out = new LinkedList<T>();
-			for (Entry<T> e : allEntries(entries))
-				out.add(e.entry);
+		int out = 0;
+		double longest = high[0] - low[0];
+		for ( int i = 1; i < low.length; i++ )
+			if( high[i] - low[i] > longest)
+			{
+				out = i;
+				longest = high[i] - low[i];
+			}
 		return out;
 	}
 	
+	/**
+	 * \brief: returns profile for all applicable child nodes.
+	 * @return
+	 */
+	protected List<boolean[]> combinations()
+	{
+		return this.combinations;
+	}
 	
+	/**
+	 * \brief: returns profile for all applicable child nodes given a number of
+	 * dimensions.
+	 * @return
+	 */
+	private List<boolean[]> combinations(int length)
+	{
+		boolean[] a = new boolean[length];
+		List<boolean[]> b = new ArrayList<boolean[]>(this.childnodes);
+		b.add(a);
+		for ( int i = 0; i < length; i++)
+			combinations(i, b);
+		return b;
+	}
 	
+	/**
+	 * \brief: intermediate for combinations(int) add all unique combinations
+	 * for dimension pos
+	 * @param pos
+	 * @param build
+	 */
+	private void combinations(int pos, List<boolean[]> build)
+	{
+		int length = build.size();
+		for ( int i = 0; i < length; i++ )
+		{
+			boolean[] c = new boolean[this._lengths.length];
+			for ( int j = 0; j < pos; j++ )
+				c[j] = build.get(i)[j];
+			c[pos] = true;
+			build.add(c);
+		}
+	}
+
 	/* *************************************************************************
 	 * SpatialRegistry implementation
 	 * *************************************************************************
 	 * FIXME quick and dirty first version for testing.
 	 */
 
+	/**
+	 * \brief search a specific area within provided area defined by its lower 
+	 * and higher corner in the tree, returns all entries with overlapping 
+	 * bounding boxes
+	 */
 	@Override
-	public List<T> localSearch(double[] coords, double[] dimensions) 
+	public List<T> search(double[] low, double[] high) 
 	{
-		Log.out(Tier.CRITICAL, "warning local search not implemented in "
-				+ "splittree");
-		return search(coords, dimensions);
-	}
-
-	@Override
-	public List<T> search(double[] coords, double[] dimensions) 
-	{
-		LinkedList<T> out = new LinkedList<T>();
 		/* also does periodic search */
-		double[] high = Vector.add(coords, dimensions);
-		double[] low = coords;
+		boolean[] periodic = new boolean[low.length];
 		for (int i = 0; i < high.length; i++ )
 		{
-			if ( this._periodic[i] && high[i] > this.node.high[i] )
-				high[i] -= this._lengths[i];
-			if ( this._periodic[i] && low[i] < this.node.low[i] )
-				low[i] += this._lengths[i];
+			if ( this._periodic[i] ) 
+			{
+				if ( high[i] > this.node.getHigh()[i] )
+				{
+					high[i] -= this._lengths[i];
+					periodic[i] = true;
+				}
+				if ( low[i] < this.node.getLow()[i] )
+				{
+					low[i] += this._lengths[i];
+					periodic[i] = true;
+				}
+			}
 		}
-		for ( Entry<T> e : node.find(new Entry<T>(low, high, null)))
-		{
-			out.add(e.entry);
-		}
-		return out;
+		LinkedList<T> out = new LinkedList<T>();
+		return node.find(out,new Area(low, high, periodic));
 	}
 
+	/**
+	 * \brief search a specific area in the tree, returns all entries with 
+	 * overlapping bounding boxes
+	 */
 	@Override
-	public List<T> search(BoundingBox boundingBox) 
+	public List<T> search(Area area) 
 	{
-		return this.search(boundingBox.lowerCorner(), boundingBox.ribLengths());
+		/* also does periodic search */
+		boolean[] periodic = new boolean[_periodic.length];
+		for (int i = 0; i < _periodic.length; i++ )
+		{
+			if ( this._periodic[i] ) 
+			{
+				if ( area.getHigh()[i] > this.node.getHigh()[i] )
+				{
+					area.getHigh()[i] -= this._lengths[i];
+					periodic[i] = true;
+				}
+				if ( area.getLow()[i] < this.node.getLow()[i] )
+				{
+					area.getLow()[i] += this._lengths[i];
+					periodic[i] = true;
+				}
+			}
+		}
+		area.setperiodic(periodic);
+
+		LinkedList<T> out = new LinkedList<T>();
+		return node.find(out,area);
 	}
 	
+	/**
+	 * \brief search a specific set of areas in the tree, returns all entries
+	 * with overlapping bounding boxes
+	 */
 	@Override
 	public List<T> search(List<BoundingBox> boundingBoxes) 
 	{
@@ -175,45 +200,64 @@ public class SplitTree<T> implements SpatialRegistry<T>
 			out.addAll(search(b) );
 		return out;
 	}
-
+	
+	/**
+	 * \brief insert entry with corresponding lower and higher corner 
+	 * coordinates into the tree.
+	 */
 	@Override
-	public List<T> all() 
+	public void insert(double[] low, double[] high, T entry) 
 	{
-		return this.allObjects();
-	}
-
-	@Override
-	public void insert(double[] coords, double[] dimensions, T entry) 
-	{
-		double[] high = Vector.add(coords, dimensions);
-		double[] low = coords;
+		boolean[] periodic = new boolean[low.length];
 		for (int i = 0; i < high.length; i++ )
 		{
-			if ( this._periodic[i] && high[i] > this.node.high[i] )
-				high[i] -= this._lengths[i];
-			if ( this._periodic[i] && low[i] < this.node.low[i] )
-				low[i] += this._lengths[i];
+			if ( this._periodic[i] ) 
+			{
+				if ( high[i] > this.node.getHigh()[i] )
+				{
+					high[i] -= this._lengths[i];
+					periodic[i] = true;
+				}
+				if ( low[i] < this.node.getLow()[i] )
+				{
+					low[i] += this._lengths[i];
+					periodic[i] = true;
+				}
+			}
 		}
-		this.add(new Entry<T>(low, high, entry));
+		this.add(new Entry<T>(low, high, periodic, entry));
 	}
 
+	/**
+	 * \brief insert entry with corresponding bounding box into the tree.
+	 */
 	@Override
 	public void insert(BoundingBox boundingBox, T entry) 
 	{
-		this.insert(boundingBox.lowerCorner(), boundingBox.ribLengths(), entry);
+		this.insert(boundingBox.getLow(), 
+				boundingBox.getHigh(), entry);
 	}
-
+	
+	/**
+	 * Delete any occurrence of object member (Warning, the entire tree has
+	 * to be searched for member, this is a slow process, do not use this if 
+	 * the tree will be rebuild before it is searched anyway).
+	 * @param member
+	 * @return
+	 */
 	@Override
-	public T getRandom() {
-		System.out.println("unsuported method Split tree getRandom");
-		return null;
-	}
-
-	@Override
-	public boolean delete(T entry) 
+	public boolean delete(T entry)
 	{
-		System.out.println("unsuported method Split tree DELETE");
-		return false;
+		return this.node.delete(entry);
 	}
-
+	
+	/**
+	 * brief: removes all entries from the tree
+	 */
+	public void clear()
+	{
+		/* Some testing showed that it is faster to let the garbage collector
+		 * handle this and rebuilding than it wiping the tree. */
+		this.node = new Node<T>(node.getLow(), node.getHigh(), this);
+	}
 }

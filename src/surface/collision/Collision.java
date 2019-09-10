@@ -529,7 +529,7 @@ public class Collision
 			CollisionVariables var) 
 	{
 		this.setPeriodicDistanceVector(p, q, var);
-		var.distance = Vector.normEuclid(var.interactionVector);
+		var.distance = Vector.normEuclidTo(var.distance, var.interactionVector);
 		return var;
 	}
 	
@@ -573,18 +573,19 @@ public class Collision
 			CollisionVariables var)
 	{
 		this.pointPoint(a.getCenter(), b.getCenter(), var);
-		/* a is around b. */
-		if ( a.bounding )
-		{
-			var.distance = - var.distance + a.getRadius() - b.getRadius();
-			return var;
-		}
-		/* b is around a. */
-		if ( b.bounding )
-		{
-			var.distance = - var.distance  - a.getRadius() + b.getRadius();
-			return var;
-		}
+// NOTE: this is only needed if we implement bounding volumes
+//		/* a is around b. */
+//		if ( a.bounding )
+//		{
+//			var.distance = - var.distance + a.getRadius() - b.getRadius();
+//			return var;
+//		}
+//		/* b is around a. */
+//		if ( b.bounding )
+//		{
+//			var.distance = - var.distance  - a.getRadius() + b.getRadius();
+//			return var;
+//		}
 		/* Normal collision. */
 		var.distance -= a.getRadius() + b.getRadius();
 		/*
@@ -1005,7 +1006,7 @@ public class Collision
 		for(int i=0; i < p.length ; i++) 
 		{ 
 			p[i] = Math.max( p[i], voxel.getLower()[i] );
-			p[i] = Math.min( p[i], voxel.getLower()[i] + voxel.getDimensions()[i] );
+			p[i] = Math.min( p[i], voxel.getHigher()[i] );
 		}
 		return this.spherePoint(sphere, p, var);
 	}

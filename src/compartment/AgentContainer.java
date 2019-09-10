@@ -14,6 +14,7 @@ import boundary.Boundary;
 import boundary.SpatialBoundary;
 import dataIO.Log;
 import dataIO.Log.Tier;
+import debugTools.SegmentTimer;
 import gereralPredicates.IsSame;
 
 import static dataIO.Log.Tier.*;
@@ -102,7 +103,6 @@ public class AgentContainer implements Settable
 	{
 		this._shape = aShape;
 		this.makeAgentTree();
-		this._agentList = new LinkedList<Agent>();
 	}
 
 	/**
@@ -122,15 +122,6 @@ public class AgentContainer implements Settable
 	public TreeType getSpatialTreeType() 
 	{
 		return this._spatialTreeType;
-	}
-	
-	/**
-	 * testing
-	 * @return
-	 */
-	public SplitTree<Agent> getSpatialTree() 
-	{
-		return (SplitTree<Agent>) this._agentTree;
 	}
 	
 	/**
@@ -158,11 +149,9 @@ public class AgentContainer implements Settable
 				 * change, min represents domain minima */
 				double[] min = Vector.zerosDbl(
 						this.getShape().getNumberOfDimensions() );
-				/* 
-				 * FIXME when more than max_entries agents overlap in on position
-				 *  the split tree will cause a stack overflow exception
-				 */
-				this._agentTree = new SplitTree<Agent>(this.getNumDims(), 3, 24, 
+				/* The 2D optimum is different from 3D, 2 * 2 ^ #dimensions
+				 * seems to perform well in general.  */
+				this._agentTree = new SplitTree<Agent>( 1 + (2 << min.length) , 
 						min, Vector.add( min, 
 						this.getShape().getDimensionLengths() ),
 						this._shape.getIsCyclicNaturalOrder() );
@@ -219,18 +208,21 @@ public class AgentContainer implements Settable
 	 */
 	public List<Agent> getAllLocatedAgents()
 	{
-		List<Agent> out = new LinkedList<Agent>();
-		out.addAll(this._locatedAgentList);
+		ArrayList<Agent> out = 
+				new ArrayList<Agent>(this._locatedAgentList.size() );
+		out.addAll( this._locatedAgentList );
 		return out;
 	}
+
 
 	/**
 	 * @return A list of all {@code Agent}s which do not have a location.
 	 */
 	public List<Agent> getAllUnlocatedAgents()
 	{
-		List<Agent> out = new LinkedList<Agent>();
-		out.addAll(this._agentList);
+		ArrayList<Agent> out = 
+				new ArrayList<Agent>(this._agentList.size() );
+		out.addAll( this._agentList );
 		return out;
 	}
 
@@ -240,9 +232,10 @@ public class AgentContainer implements Settable
 	 * @return A list of all Agents, i.e. those with spatial location AND
 	 * those without.
 	 */
-	public LinkedList<Agent> getAllAgents()
+	public List<Agent> getAllAgents()
 	{
-		LinkedList<Agent> out = new LinkedList<Agent>();
+		ArrayList<Agent> out = new ArrayList<Agent>(
+				this._agentList.size()+this._locatedAgentList.size() );
 		out.addAll(this._agentList);
 		out.addAll(this._locatedAgentList);
 		return out;
@@ -563,7 +556,7 @@ public class AgentContainer implements Settable
 	 */
 	public void refreshSpatialRegistry()
 	{
-		this.makeAgentTree();
+		this._agentTree.clear();
 		for ( Agent a : this.getAllLocatedAgents() )
 			this.treeInsert(a);
 	}

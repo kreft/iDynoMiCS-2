@@ -883,7 +883,6 @@ public abstract class Shape implements
 	public void getMinDifferenceVectorTo(double[] destination, double[] a, 
 			double[] b)
 	{
-		Vector.checkLengths(destination, a, b);
 		int i = 0;
 		for ( Dimension dim : this._dimensions.values() )
 		{

@@ -227,9 +227,9 @@ public class RTree<T> implements SpatialRegistry<T>
 	/**
 	 * Cyclic search using bounding box as query
 	 */
-	public List<T> search(BoundingBox boundingBox)
+	public List<T> search(Area area)
 	{
-		return search(boundingBox.lowerCorner(), boundingBox.ribLengths());
+		return search(area.getLow(), area.getHigh());
 	}
 	
 	public List<T> search(List<BoundingBox> boundingBoxes)
@@ -515,7 +515,7 @@ public class RTree<T> implements SpatialRegistry<T>
 	 * insert entry with bounding box object
 	 */
 	public void insert(BoundingBox boundingBox, T entry) {
-		insert(boundingBox.lowerCorner(), boundingBox.ribLengths(), entry);
+		insert(boundingBox.getLow(), boundingBox.ribLengths(), entry);
 	}
 
 	/**

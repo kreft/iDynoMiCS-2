@@ -3,7 +3,7 @@
 	<simulation name="test" outputfolder="../results" log="NORMAL" randomSeed="22432423"
 						comment="This is a file for testing purposes only.">
 		
-		<timer stepSize="1.0" endOfSimulation="15.0" />
+		<timer stepSize="1.0" endOfSimulation="20.0" />
 		
 		<speciesLib>
 			<!-- species/species library The species library contains all agent species 
@@ -49,9 +49,9 @@
 
 		<compartment name="second" tree="SPLITTREE">
 			<shape class="Rectangle">
-				<dimension name="X" isCyclic="false" targetResolution="1.0" max="16.0">
+				<dimension name="X" isCyclic="false" targetResolution="1.0" max="32.0">
 				</dimension> 
-				<dimension name="Y" isCyclic="false" targetResolution="1.0" max="16.0">
+				<dimension name="Y" isCyclic="false" targetResolution="1.0" max="32.0">
 				</dimension> 
 			</shape>
 			<solutes>
@@ -83,7 +83,7 @@
 					<aspect name="density" type="PRIMARY" class="Double" value="1" />
 					<aspect name="pigment" type="PRIMARY" class="String" value="RED" />
 					<aspect name="body" type="PRIMARY" class="Body">
-						<point position="12.2, 12.2" />
+						<point position="10.2, 20.2" />
 					</aspect>
 				</agent>
 				<agent>
@@ -96,7 +96,7 @@
 					<aspect name="density" type="PRIMARY" class="Double" value="1" />
 					<aspect name="pigment" type="PRIMARY" class="String" value="BLUE" />
 					<aspect name="body" type="PRIMARY" class="Body">
-						<point position="12.0, 5.3" />
+						<point position="15.0, 10.3" />
 					</aspect>
 				</agent>
 				<agent>

@@ -1,7 +1,7 @@
 package surface;
 
 import linearAlgebra.Vector;
-import utility.ExtraMath;
+import spatialRegistry.Area;
 
 /**
  * This class constructs and holds the bounding box for sphere swept volumes
@@ -9,22 +9,9 @@ import utility.ExtraMath;
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
-public class BoundingBox
+public class BoundingBox extends Area
 {	
-	/**
-	 * TODO
-	 */
-	protected double[] _dimensions;
-	
-	/**
-	 * TODO
-	 */
-	protected double[] _higher;
-	
-	/**
-	 * TODO
-	 */
-	protected double[] _lower;
+
 	
 	/*************************************************************************
 	 * CONSTRUCTORS
@@ -45,10 +32,7 @@ public class BoundingBox
 	 */
 	public BoundingBox get(double[][] p, double radius, double margin)
 	{
-		double size = radius + margin;
-		this._higher = upper(p, size);
-		this._lower = lower(p, size);
-		this._dimensions = dimensions(p, size);
+		super.set(lower(p, radius + margin), upper(p, radius + margin));
 		return this;
 	}
 	
@@ -59,7 +43,8 @@ public class BoundingBox
 	 */
 	public BoundingBox get(double[][] p, double radius)
 	{
-		return this.get(p, radius, 0.0);
+		super.set(lower(p, radius), upper(p, radius));
+		return this;
 	}
 	
 	/**
@@ -70,7 +55,9 @@ public class BoundingBox
 	 */
 	public BoundingBox get(double[] p, double radius, double margin)
 	{
-		return this.get(new double[][]{ p }, radius, margin);
+		super.set(lower(new double[][]{ p }, radius + margin),
+				upper(new double[][]{ p }, radius + margin));
+		return this;
 	}
 	
 	/**
@@ -80,7 +67,9 @@ public class BoundingBox
 	 */
 	public BoundingBox get(double[] p, double radius)
 	{
-		return this.get(p, radius, 0.0);
+		super.set(lower(new double[][]{ p }, radius),
+				upper(new double[][]{ p }, radius));
+		return this;
 	}
 	
 	/**
@@ -89,25 +78,9 @@ public class BoundingBox
 	 * @param dimensions
 	 * @param lower
 	 */
-	public BoundingBox get(double[] dimensions, double[] lower)
+	public BoundingBox get(double[] lower, double[] higher)
 	{
-		Vector.checkLengths(dimensions, lower);
-		this._dimensions = dimensions;
-		this._lower = lower;
-		return this;
-	}
-	
-	/**
-	 * \ Construct a bounding box directly from lower and upper corner
-	 * @param lower
-	 * @param upper
-	 * @param b
-	 */
-	public BoundingBox get(double[] lower, double[] upper, boolean b) 
-	{
-		this._lower = lower;
-		this._higher = upper;
-		this._dimensions = Vector.minus(upper, lower);
+		super.set(lower, higher);
 		return this;
 	}
 	
@@ -121,8 +94,8 @@ public class BoundingBox
 	 */
 	public String getReport()
 	{
-		return "lower: " + Vector.toString(this._lower) + " dimensions: " + 
-				Vector.toString(this._dimensions);
+		return "lower: " + Vector.toString(this.getLow()) + " higher: " + 
+				Vector.toString(this.getHigh());
 	}
 	
 	/**
@@ -131,21 +104,7 @@ public class BoundingBox
 	 */
 	public double[] ribLengths()
 	{
-		return this._dimensions;
-	}
-	
-	/**
-	 * return the lower corner of the bounding box
-	 * @return
-	 */
-	public double[] lowerCorner()
-	{
-		return this._lower;
-	}
-	
-	public double[] higherCorner()
-	{
-		return this._higher;
+		return Vector.minus(this.getHigh(), this.getLow());
 	}
 
 	/*************************************************************************
@@ -157,29 +116,12 @@ public class BoundingBox
 	 */
 	public double[] getRandomInside()
 	{
-		double[] out = Vector.randomZeroOne(this._dimensions);
-		Vector.timesEquals(out, this._dimensions);
-		Vector.addEquals(out, this._lower);
+		double[] out = Vector.randomZeroOne(this.ribLengths());
+		Vector.timesEquals(out, this.ribLengths());
+		Vector.addEquals(out, this.getLow());
 		return out;
 	}
 	
-	/**
-	 * @return Random position on the surface of this bounding box.
-	 */
-	public double[] getRandomOnPeriphery()
-	{
-		/* Get a random point inside this bounding box. */
-		double[] out = getRandomInside();
-		/*
-		 * Choose a random dimension, and force the position to one of the two
-		 * extremes in that dimension.
-		 */
-		int dim = ExtraMath.getUniRandInt(out.length);
-		out[dim] = this._lower[dim];
-		if ( ExtraMath.getRandBool() )
-			out[dim] += this._dimensions[dim];
-		return out;
-	}
 	
 	/*************************************************************************
 	 * STATIC HELPER METHODS

@@ -376,8 +376,6 @@ public abstract class SphericalShape extends Shape
 		{
 			outbound = new Ball( new Point(centre) , radius);
 			outbound.init(_defaultCollision);
-			outbound.bounding = false;
-			//this._surfaces.put(outbound, dim.getBoundary(0));
 			dim.setSurface(outbound, 0);
 		}
 		/* Outer radius always exists. */

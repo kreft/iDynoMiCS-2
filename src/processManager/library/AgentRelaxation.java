@@ -478,16 +478,20 @@ public class AgentRelaxation extends ProcessManager
 			{
 				/* obtain maximum distance for which pulls should be considered
 				 */
-				agent.event(PULL_EVALUATION, neighbour);
-				Double pull = agent.getDouble(CURRENT_PULL_DISTANCE);
+				Double pull = null;
+				if( searchDist != 0.0 )
+				{
+					agent.event(PULL_EVALUATION, neighbour);
+					pull = agent.getDouble(CURRENT_PULL_DISTANCE);
+				}
 				if ( pull == null || pull.isNaN() )
 					pull = 0.0;
-				Body body = ((Body) neighbour.get(BODY));
-				List<Surface> t = body.getSurfaces();
-				
+
 				/* pass this agents and neighbor surfaces as well as the pull
 				 * region to the collision iterator to update the net forces. */
-				this._iterator.collision(surfaces, agent, t, neighbour, pull);
+				this._iterator.collision(surfaces, agent, 
+						((Body) neighbour.get(BODY)).getSurfaces(), neighbour, 
+						pull);
 			}
 	}
 
