@@ -1263,7 +1263,6 @@ public final class Vector
 	 */
 	public static void minusTo(double[] destination, double[] a, double[] b)
 	{
-		checkLengths(destination, a, b);
 		for ( int i = 0; i < a.length; i++ ) 
 			destination[i] = a[i] - b[i];
 	}

@@ -1089,15 +1089,15 @@ public class Collision
 			float tmin = Float.MAX_VALUE; 
 			if ( intersectSegmentCapsule(Corner(voxel, bool(v)), 
 					Corner(voxel, bool(v ^ 1)), rod._points[0].getPosition(), 
-					rod._points[1].getPosition(), rod.getRadius(), var.t) ) 
+					rod._points[1].getPosition(), rod.getRadius(), var) ) 
 				tmin = (float) Math.min(var.t, tmin);
 			if ( intersectSegmentCapsule(Corner(voxel, bool(v)), 
 					Corner(voxel, bool(v ^ 2)), rod._points[0].getPosition(), 
-					rod._points[1].getPosition(), rod.getRadius(), var.t) ) 
+					rod._points[1].getPosition(), rod.getRadius(), var) ) 
 				tmin = (float) Math.min(var.t, tmin);
 			if ( intersectSegmentCapsule(Corner(voxel, bool(v)), 
 					Corner(voxel, bool(v ^ 4)), rod._points[0].getPosition(), 
-					rod._points[1].getPosition(), rod.getRadius(), var.t) ) 
+					rod._points[1].getPosition(), rod.getRadius(), var) ) 
 				tmin = (float) Math.min(var.t, tmin);
 			if ( tmin == Float.MAX_VALUE ) 
 				return false; // No intersection
@@ -1114,7 +1114,7 @@ public class Collision
 		// p is in an edge region. Intersect against the capsule at the edge 
 		return intersectSegmentCapsule(Corner(voxel, bool(u ^ 7)), 
 				Corner(voxel, bool(v)), rod._points[0].getPosition(), 
-				rod._points[1].getPosition(), rod.getRadius(), var.t);
+				rod._points[1].getPosition(), rod.getRadius(), var);
 	}
 	
 	private boolean bool(int n)
@@ -1267,8 +1267,16 @@ public class Collision
 	 * slight adjust of IntersectSegmentCylinder
 	 * @return
 	 */
-	private boolean intersectSegmentCapsule(double[] sa, double[] sb, double[] p, double[] q, double r, double t)
+	private boolean intersectSegmentCapsule(double[] sa, double[] sb, double[] p, double[] q, double r, CollisionVariables var)
 	{
+		// hacking in some capsuel cap test
+		linesegPoint(sa,sb,p,var);
+		if(var.distance < 0.0)
+			return true;
+		linesegPoint(sa,sb,q,var);
+		if(var.distance < 0.0)
+			return true;
+		
 		double[] d = Vector.minus(q, p), 
 				m = Vector.minus(sa,p), 
 				n = Vector.minus(sb,sa); 
@@ -1276,12 +1284,12 @@ public class Collision
 		double nd = Vector.dotProduct(n, d); 
 		double dd = Vector.dotProduct(d, d); 
 		// Test if segment fully outside either endcap of cylinder 
-//		if (md < 0.0f && md + nd < 0.0f) 
-//			return false; 
-//		// Segment outside ’p’ side of cylinder 
-//		if (md > dd && md + nd > dd) 
-//			return false; 
-//		// Segment outside ’q’ side of cylinder 
+		if (md < 0.0f && md + nd < 0.0f) 
+			return false; 
+		// Segment outside ’p’ side of cylinder 
+		if (md > dd && md + nd > dd) 
+			return false; 
+		// Segment outside ’q’ side of cylinder 
 		double nn = Vector.dotProduct(n, n); 
 		double mn = Vector.dotProduct(m, n); 
 		double a = dd * nn - nd * nd;
@@ -1294,13 +1302,13 @@ public class Collision
 		// ’a’ and thus the segment lie outside cylinder
 		// Now known that segment intersects cylinder; figure out how it intersects 
 			if (md < 0.0f)
-				t = (float) (-mn/nn);
+				var.t = (float) (-mn/nn);
 		// Intersect segment against ’p’ endcap
 		else if (md > dd)
-			t = (float) ((nd-mn)/nn); 
+			var.t = (float) ((nd-mn)/nn); 
 			// Intersect segment against ’q’ endcap 
 		else 
-			t = 0.0f;
+			var.t = 0.0f;
 		// ’a’ lies inside cylinder
 		return true;
 		}
@@ -1311,27 +1319,27 @@ public class Collision
 			return false;
 		// No real roots; no intersection
 		
-		t = (float) ((-b - Math.sqrt(discr)) / a); 
-		if (t < 0.0f || t > 1.0f) 
+		var.t = (float) ((-b - Math.sqrt(discr)) / a); 
+		if (var.t < 0.0f || var.t > 1.0f) 
 			return false;
 		// Intersection lies outside segment
-		if( md+t*nd< 0.0f) { 
+		if( md+var.t*nd< 0.0f) { 
 			// Intersection outside cylinder on ’p’ side 
 			if (nd <= 0.0f) 
 				return false;
 		// Segment pointing away from endcap
-		t = (float) (-md / nd); 
+			var.t = (float) (-md / nd); 
 		// Keep intersection if Dot(S(t) - p, S(t) - p) <= r∧2 
-		return k+2*t*(mn+t*nn)<= 0.0f;
+		return k+2*var.t*(mn+var.t*nn)<= 0.0f;
 		} 
-		else if (md+t*nd>dd)
+		else if (md+var.t*nd>dd)
 		{ 
 			// Intersection outside cylinder on ’q’ side 
 			if (nd >= 0.0f) return false; 
 			// Segment pointing away from endcap 
-			t = (float) ((dd - md) / nd); 
+			var.t = (float) ((dd - md) / nd); 
 			// Keep intersection if Dot(S(t) - q, S(t) - q) <= r∧2 
-			return k+dd-2*md+t*(2*(mn-nd)+t*nn)<= 0.0f;
+			return k+dd-2*md+var.t*(2*(mn-nd)+var.t*nn)<= 0.0f;
 		}
 		// Segment intersects cylinder between the endcaps; t is correct 
 		return true;
