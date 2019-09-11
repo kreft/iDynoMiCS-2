@@ -1283,6 +1283,7 @@ public class Collision
 		double md = Vector.dotProduct(m, d); 
 		double nd = Vector.dotProduct(n, d); 
 		double dd = Vector.dotProduct(d, d); 
+// FIXME check is this the correct adjustment from cylinder to rod?
 		// Test if segment fully outside either endcap of cylinder 
 		if (md < 0.0f && md + nd < 0.0f) 
 			return false; 
