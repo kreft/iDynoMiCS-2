@@ -360,7 +360,8 @@ public class Collision
 		 * First check that both Surfaces exist.
 		 */
 		if ( a == null || b == null )
-			throw new IllegalArgumentException("Null surface given");
+			throw new IllegalArgumentException(this.getClass().getSimpleName() +
+					" Null surface given");
 		
 		switch( a.type() ) {
 		case SPHERE:
@@ -376,10 +377,42 @@ public class Collision
 			var.flip = false;
 			return this.assessVoxel((Voxel) a, b, var);
 		default:
-			System.out.println("WARNING: undefined Surface type");
+			System.out.println(this.getClass().getSimpleName() +
+					" WARNING: undefined Surface type");
 			return null;
 		}
-
+	}
+	
+	public boolean intersect(Surface a, Surface b, double margin)
+	{
+		_variables.setPullRange( margin );
+		/*
+		 * First check that both Surfaces exist.
+		 */
+		if ( a == null || b == null )
+			throw new IllegalArgumentException(this.getClass().getSimpleName() +
+					" Null surface given");
+		
+		switch( a.type() ) {
+		case SPHERE:
+			_variables.flip = false;
+			this.assessSphere((Ball) a, b, _variables);
+			return _variables.distance < margin;
+		case ROD:
+			_variables.flip = false;
+			return this.intersectRod((Rod) a, b, _variables); 
+		case PLANE:
+			_variables.flip = false;
+			this.assessPlane((Plane) a, b, _variables);
+			return _variables.distance < margin;
+		case VOXEL:
+			_variables.flip = false;
+			return this.intersectVoxel((Voxel) a, b, _variables);
+		default:
+			System.out.println(this.getClass().getSimpleName() +
+					" WARNING: undefined Surface type");
+			return false;
+		}
 	}
 	
 	/**
@@ -455,13 +488,38 @@ public class Collision
 	{
 		if ( otherSurface.type() == Surface.Type.SPHERE )
 			return this.rodSphere(rod, (Ball) otherSurface, var);
-		else if ( otherSurface.type() == Surface.Type.VOXEL )
+		else if ( otherSurface.type() == Surface.Type.ROD )
+			return this.rodRod(rod, (Rod) otherSurface, var);
+		else if ( otherSurface.type() == Surface.Type.PLANE )
+			return this.planeRod((Plane) otherSurface, rod, var);
+		else
+			return null;
+	}
+	
+	private boolean intersectRod(Rod rod, Surface otherSurface, 
+			CollisionVariables var)
+	{
+		if ( otherSurface.type() == Surface.Type.VOXEL )
 		{
-			this.voxelRod(rod, (Voxel) otherSurface, var);
-			return var;	
+			return this.voxelRodIntersection(rod, (Voxel) otherSurface, var);
+		}
+		if ( otherSurface.type() == Surface.Type.SPHERE )
+		{
+			this.rodSphere(rod, (Ball) otherSurface, var);
+			return var.distance < var.pullRange;
+		}
+		else if ( otherSurface.type() == Surface.Type.ROD )
+		{
+			this.rodRod(rod, (Rod) otherSurface, var);
+			return var.distance < var.pullRange;
+		}
+		else if ( otherSurface.type() == Surface.Type.PLANE )
+		{
+			this.planeRod((Plane) otherSurface, rod, var);
+			return var.distance < var.pullRange;
 		}
 		else
-			return this.rodRod(rod, (Rod) otherSurface, var);
+			return false;
 	}
 	
 	private CollisionVariables assessSphere(Ball sphere, Surface otherSurface, 
@@ -489,17 +547,31 @@ public class Collision
 			CollisionVariables var)
 	{
 		/* FIXME check surface order in arguments */
-		if ( otherSurface.type() == Surface.Type.ROD )
-		{
-			this.voxelRod((Rod) otherSurface, vox, var);
-			return var;
-		}
-		else if ( otherSurface.type() == Surface.Type.SPHERE )
+		/* For voxel rod distance have a look at: 
+		 * https://www.geometrictools.com/Source/Distance3D.html */
+		if ( otherSurface.type() == Surface.Type.SPHERE )
 			return this.voxelSphere(vox, (Ball) otherSurface, var);
 		else
 		{
 			return null;
 		}
+	}
+	
+	private boolean intersectVoxel(Voxel vox, Surface otherSurface, 
+			CollisionVariables var)
+	{
+		/* FIXME check surface order in arguments */
+		if ( otherSurface.type() == Surface.Type.ROD )
+		{
+			return this.voxelRodIntersection((Rod) otherSurface, vox, var);
+		}
+		else if ( otherSurface.type() == Surface.Type.SPHERE )
+		{
+			this.voxelSphere(vox, (Ball) otherSurface, var);
+			return var.distance < var.pullRange;
+		}
+		return false;
+
 	}
 	/*************************************************************************
 	 * PRIVATE DISTANCE METHODS
@@ -1031,7 +1103,7 @@ public class Collision
 		}
 		return this.spherePoint(sphere, p, var);
 	}
-
+	
 	/**
 	 * TODO real-time collsion detection pp 229
 	 * @param rod
@@ -1039,7 +1111,7 @@ public class Collision
 	 * @param var 
 	 * @return
 	 */
-	private boolean voxelRod(Rod rod, Voxel voxel, CollisionVariables var)
+	private boolean voxelRodIntersection(Rod rod, Voxel voxel, CollisionVariables var)
 	{
 		// Compute the AABB resulting from expanding b by sphere radius r 
 //		AABB e = b; 
@@ -1269,21 +1341,22 @@ public class Collision
 	 */
 	private boolean intersectSegmentCapsule(double[] sa, double[] sb, double[] p, double[] q, double r, CollisionVariables var)
 	{
-		// hacking in some capsuel cap test
-		linesegPoint(sa,sb,p,var);
-		if(var.distance < 0.0)
-			return true;
-		linesegPoint(sa,sb,q,var);
-		if(var.distance < 0.0)
-			return true;
-		
 		double[] d = Vector.minus(q, p), 
 				m = Vector.minus(sa,p), 
 				n = Vector.minus(sb,sa); 
 		double md = Vector.dotProduct(m, d); 
 		double nd = Vector.dotProduct(n, d); 
 		double dd = Vector.dotProduct(d, d); 
-// FIXME check is this the correct adjustment from cylinder to rod?
+		
+		// FIXME there are probably better/faster/cleaner ways to convert
+		// cylinder assessment into a capsule assessment
+		// hacking in some capsule cap test
+		linesegPoint(sa,sb,p,var);
+		if(var.distance < r + var.pullRange)
+			return true;
+		linesegPoint(sa,sb,q,var);
+		if(var.distance < r + var.pullRange)
+			return true;
 		// Test if segment fully outside either endcap of cylinder 
 		if (md < 0.0f && md + nd < 0.0f) 
 			return false; 
@@ -1291,6 +1364,7 @@ public class Collision
 		if (md > dd && md + nd > dd) 
 			return false; 
 		// Segment outside ’q’ side of cylinder 
+		
 		double nn = Vector.dotProduct(n, n); 
 		double mn = Vector.dotProduct(m, n); 
 		double a = dd * nn - nd * nd;

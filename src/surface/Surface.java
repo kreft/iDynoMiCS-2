@@ -104,7 +104,7 @@ public abstract class Surface
 	 */
 	public boolean collisionWith(Surface surface)
 	{
-		return (this._collisionDomain.distance(this, surface) < 0.0);
+		return this._collisionDomain.intersect(this, surface, 0.0);
 	}
 
 	/**
