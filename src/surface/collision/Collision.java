@@ -548,7 +548,9 @@ public class Collision
 	{
 		/* FIXME check surface order in arguments */
 		/* For voxel rod distance have a look at: 
-		 * https://www.geometrictools.com/Source/Distance3D.html */
+		 * for rod voxel note that output par t defines the fraction of the 
+		 * vector between rod1 and rod2 where the rod is closest to the voxel,
+		 * from that you can do a voxel point distance.*/
 		if ( otherSurface.type() == Surface.Type.SPHERE )
 			return this.voxelSphere(vox, (Ball) otherSurface, var);
 		else
@@ -1089,19 +1091,26 @@ public class Collision
 	/**
 	 * TODO \brief
 	 * 
+	 * real-time collsion detection pp 130~132
 	 * FIXME this method does not seem to be adjusted to account for periodic
 	 * boundaries
 	 */
 	private CollisionVariables voxelSphere(Voxel voxel, Ball sphere, 
 			CollisionVariables var)
 	{
-		double[] p = Vector.copy( sphere._point.getPosition() );
-		for(int i=0; i < p.length ; i++) 
+		var.distance = 0.0; double t,v = 0.0;
+		for(int i=0; i < voxel.getLower().length ; i++) 
 		{ 
-			p[i] = Math.max( p[i], voxel.getLower()[i] );
-			p[i] = Math.min( p[i], voxel.getHigher()[i] );
+			t = voxel.getLower()[i];
+			v = sphere._point.getPosition()[i];
+			if (v < t)
+				var.distance += ( t - v ) * ( v - t );
+			t = voxel.getHigher()[i];
+			if (v > t)
+				var.distance += ( v - t ) * ( t - v );
 		}
-		return this.spherePoint(sphere, p, var);
+		var.distance = Math.sqrt(var.distance);
+		return var;
 	}
 	
 	/**
@@ -1128,9 +1137,10 @@ public class Collision
 		// misses e, else get intersection point p and time t as result 
 		
 		double[] p = new double[emin.length];
-		if ( !intersectRayAABB(rod._points[0].getPosition(), 
+		intersectRayAABB(rod._points[0].getPosition(), 
 				Vector.minus(rod._points[1].getPosition(), 
-				rod._points[0].getPosition()), e, var.t, p) || var.t > 1.0f ) 
+				rod._points[0].getPosition()), e, var, p);
+		if ( var.distance == Double.MAX_VALUE || var.t > 1.0 ) 
 			return false;
 		// Compute which min and max faces of b the intersection point p lies 
 		// outside of. Note, u and v cannot have the same bits set and 
@@ -1216,11 +1226,11 @@ public class Collision
 	 * @param q
 	 * @return
 	 */
-	private boolean intersectRayAABB( double[] p, double[] d, Voxel a, double tmin, 
+	private CollisionVariables intersectRayAABB( double[] p, double[] d, Voxel a, CollisionVariables var, 
 			double[] q)
 	{
 		// set to -FLT_MAX to get first hit on line
-		tmin = 0.0f;  
+		var.t = 0.0;  
 		// set to max distance ray can travel (for segment)
 		float tmax = Float.MAX_VALUE; 
 		// For all three slabs 
@@ -1229,32 +1239,38 @@ public class Collision
 			if ( Math.abs(d[i]) < EPSILON) 
 			{ 
 				// Ray is parallel to slab. No hit if origin not within slab 
-				if (p[i] < a.getLower()[i] || p[i] > a.getHigher()[i]) 
-					return false;
+				if (p[i] < a.getLower()[i] || p[i] > a.getHigher()[i])
+				{
+					var.distance = Double.MAX_VALUE;
+					return var;
+				}
 			} 
 			else
 			{ 
 				// Compute intersection t value of ray with near and far plane of slab 
 				float ood = 1.0f / (float) d[i]; 
 				float t1 = (float) ((a.getLower()[i] - p[i]) * ood); 
-				float t2 = (float) ((a.getLower()[i] - p[i]) * ood); 
+				float t2 = (float) ((a.getHigher()[i] - p[i]) * ood); 
 				// Make t1 be intersection with near plane, t2 with far plane 
 				if (t1 > t2) 
 					Swap(t1, t2); 
 				// Compute the intersection of slab intersection intervals 
-				if (t1 > tmin) 
-					tmin = t1; 
+				if (t1 > var.t) 
+					var.t = t1; 
 				if (t2 > tmax) 
 					tmax = t2; 
 				// Exit with no collision as soon as slab intersection becomes empty 
-				if (tmin > tmax) 
-					return false;
+				if (var.t > tmax) 
+				{
+					var.distance = Double.MAX_VALUE;
+					return var;
+				}
 			} 
 		}
 		// Ray intersects all 3 slabs. Return point (q) and intersection t value (tmin) 
 	//		q=p+d* tmin;
-			q = Vector.add(Vector.times(d, tmin), p); 
-			return true;
+//			q = Vector.add(Vector.times(d, var.t), p); 
+			return var;
 
 	}
 	
