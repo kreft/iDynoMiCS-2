@@ -1280,7 +1280,8 @@ public class Collision
 	 * Intersect segment S(t)=sa+t(sb-sa), 0<=t<=1 against cylinder specified by p, q and r
 	 * @return
 	 */
-	private boolean intersectSegmentCylinder(double[] sa, double[] sb, double[] p, double[] q, float r, float t)
+	private boolean intersectSegmentCylinder(double[] sa, double[] sb, 
+			double[] p, double[] q, float r, float t)
 	{
 		double[] d = Vector.minus(q, p), 
 				m = Vector.minus(sa,p), 
@@ -1355,7 +1356,8 @@ public class Collision
 	 * slight adjust of IntersectSegmentCylinder
 	 * @return
 	 */
-	private boolean intersectSegmentCapsule(double[] sa, double[] sb, double[] p, double[] q, double r, CollisionVariables var)
+	private boolean intersectSegmentCapsule(double[] sa, double[] sb, 
+			double[] p, double[] q, double r, CollisionVariables var)
 	{
 		double[] d = Vector.minus(q, p), 
 				m = Vector.minus(sa,p), 
@@ -1434,6 +1436,101 @@ public class Collision
 		}
 		// Segment intersects cylinder between the endcaps; t is correct 
 		return true;
+	}
+	
+	/**
+	 * TODO Real-time collision detection pp 197
+	 * slight adjust of IntersectSegmentCylinder
+	 * @return
+	 */
+	private CollisionVariables segmentCapsule(double[] sa, double[] sb, 
+			double[] p, double[] q, double r, CollisionVariables var)
+	{
+		double[] d = Vector.minus(q, p), 
+				m = Vector.minus(sa,p), 
+				n = Vector.minus(sb,sa); 
+		double md = Vector.dotProduct(m, d); 
+		double nd = Vector.dotProduct(n, d); 
+		double dd = Vector.dotProduct(d, d); 		
+		double nn = Vector.dotProduct(n, n); 
+		double mn = Vector.dotProduct(m, n); 
+		double a = dd * nn - nd * nd;
+		
+		float k = (float) ((float) Vector.dotProduct(m, m) - r*r); 
+		float c = (float) (dd * k - md * md); 
+		if ( Math.abs(a) < EPSILON) { 
+			// Segment runs parallel to cylinder axis 
+			if (c > 0.0f) 
+			{
+				// TODO
+//				var.t = 0.5;
+			}
+		// ’a’ and thus the segment lie outside cylinder
+		// Now known that segment intersects cylinder; figure out how it intersects 
+			if (md < 0.0f)
+				var.t = (float) (-mn/nn);
+		// Intersect segment against ’p’ endcap
+		else if (md > dd)
+			var.t = (float) ((nd-mn)/nn); 
+			// Intersect segment against ’q’ endcap 
+		else 
+			var.t = 0.0f;
+		// ’a’ lies inside cylinder
+			{
+//		return true;
+			}
+		}
+		
+		float b = (float) (dd*mn-nd*md); 
+		float discr = (float) (b*b - a*c); 
+		if (discr < 0.0f) 
+		{
+//			TODO
+//			return false;
+		}
+		// No real roots; no intersection
+		
+		var.t = (float) ((-b - Math.sqrt(discr)) / a); 
+		if (var.t < 0.0f || var.t > 1.0f) 
+		{
+			var.t = clamp(var.t);
+
+//			return false;
+		}
+		// Intersection lies outside segment
+		if( md+var.t*nd< 0.0f) { 
+			// Intersection outside cylinder on ’p’ side 
+			if (nd <= 0.0f) 
+			{
+				// TODO
+//				return false;
+			}
+		// Segment pointing away from endcap
+			var.t = (float) (-md / nd); 
+		// Keep intersection if Dot(S(t) - p, S(t) - p) <= r∧2 
+			// TODO
+//		return k+2*var.t*(mn+var.t*nn)<= 0.0f;
+		} 
+		else if (md+var.t*nd>dd)
+		{ 
+			// Intersection outside cylinder on ’q’ side 
+			if (nd >= 0.0f) 
+				{
+				// TODO
+//				return false; 
+				}
+			// Segment pointing away from endcap 
+			var.t = (float) ((dd - md) / nd); 
+			// Keep intersection if Dot(S(t) - q, S(t) - q) <= r∧2 
+			{
+				// TODO
+			// return k+dd-2*md+var.t*(2*(mn-nd)+var.t*nn)<= 0.0f;
+			}
+		}
+		// Segment intersects cylinder between the endcaps; t is correct 
+		// return true;
+		
+		return var;
 	}
 	
 	/**
