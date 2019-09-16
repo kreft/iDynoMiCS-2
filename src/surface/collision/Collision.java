@@ -1269,22 +1269,35 @@ public class Collision
 	private boolean intersectSegmentCapsule(double[] sa, double[] sb, 
 			double[] p, double[] q, double r, CollisionVariables var)
 	{
+		
+		// FIXME there are probably better/faster/cleaner ways to convert
+		// cylinder assessment into a capsule assessment
+		// hacking in some capsule cap test
+		var = linesegPoint( sa, sb, p, var );
+		if(var.distance < r + var.pullRange)
+			return true;
+		var = linesegPoint( sa, sb, q, var );
+		if(var.distance < r + var.pullRange)
+			return true;
+		return intersectSegmentCylinder( sa, sb, p, q, r, var );
+	}
+	
+	
+	/**
+	 * TODO Real-time collision detection pp 197
+	 * IntersectSegmentCylinder
+	 * @return
+	 */
+	private boolean intersectSegmentCylinder(double[] sa, double[] sb, 
+			double[] p, double[] q, double r, CollisionVariables var)
+	{
 		double[] d = Vector.minus(q, p), 
 				m = Vector.minus(sa,p), 
 				n = Vector.minus(sb,sa); 
 		double md = Vector.dotProduct(m, d); 
 		double nd = Vector.dotProduct(n, d); 
 		double dd = Vector.dotProduct(d, d); 
-		
-		// FIXME there are probably better/faster/cleaner ways to convert
-		// cylinder assessment into a capsule assessment
-		// hacking in some capsule cap test
-		var = linesegPoint(sa,sb,p,var);
-		if(var.distance < r + var.pullRange)
-			return true;
-		var = linesegPoint(sa,sb,q,var);
-		if(var.distance < r + var.pullRange)
-			return true;
+
 		// Test if segment fully outside either endcap of cylinder 
 		if (md < 0.0 && md + nd < 0.0) 
 			return false; 
@@ -1348,7 +1361,6 @@ public class Collision
 		// Segment intersects cylinder between the endcaps; t is correct 
 		return true;
 	}
-	
 	/* ***********************************************************************
 	 * Helper methods
 	 ************************************************************************/
