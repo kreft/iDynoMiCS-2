@@ -8,14 +8,12 @@ import dataIO.Log.Tier;
 import idynomics.Global;
 import instantiable.Instance;
 import linearAlgebra.Vector;
-import referenceLibrary.AspectRef;
 import shape.Shape;
 import surface.Ball;
 import surface.Plane;
 import surface.Rod;
 import surface.Surface;
 import surface.Voxel;
-import surface.Surface.Type;
 import surface.collision.model.*;
 
 /**
@@ -33,7 +31,6 @@ import surface.collision.model.*;
  */
 public class Collision
 {
-
 	/* ***********************************************************************
 	 * VARIABLES
 	 * **********************************************************************/
@@ -67,11 +64,11 @@ public class Collision
 	/**
 	 * Small value to counteract arithmetic errors.
 	 */
-	static final float EPSILON = 0.00001f;
+	static final double EPSILON = 0.00001;
 			
 	
 	/* ***********************************************************************
-	 * CONSTRUCTORS
+	 * Constructors and constructor helper methods
 	 * **********************************************************************/
 	
 	/**
@@ -89,16 +86,12 @@ public class Collision
 		this._shape = compartmentShape;
 		this._variables = new CollisionVariables(
 				this._shape.getNumberOfDimensions(), 0.0);
-		
 		setCollisionFunction(collisionFunction);
-		
 		setAttractionFunction(pullFunction);
-		
 		this._pullFun.instantiate(null, null);
 		this._collisionFun.instantiate(null, null);
 	}
 	
-
 	/**
 	 * \brief Construct a collision iterator with default push and pull 
 	 * functions
@@ -110,6 +103,12 @@ public class Collision
 		this(null, null, aShape);
 	}
 	
+	/**
+	 * Set a standard collision function from string, if this fails (for
+	 * example if the user defined function does not exist) write a critical
+	 * warning and set the default function instead.
+	 * @param functionClass
+	 */
 	public void setCollisionFunction(String functionClass)
 	{
 		try {
@@ -136,6 +135,12 @@ public class Collision
 		}
 	}
 	
+	/**
+	 * Set a standard attraction function from string, if this fails (for
+	 * example if the user defined function does not exist) write a critical
+	 * warning and set the default function instead.
+	 * @param functionClass
+	 */
 	public void setAttractionFunction(String functionClass)
 	{
 		try {
@@ -181,8 +186,8 @@ public class Collision
 	 * \brief Apply a collision force on two surfaces, if applicable.
 	 * 
 	 * <p>This method always also sets the internal variables {@link #_flip}
-	 * and {@link #interactionVector}. It may also set {@link #s} and {@link #t}, depending on
-	 * the surface types.</p>
+	 * and {@link #interactionVector}. It may also set {@link #s} and 
+	 * {@link #t}, depending on the surface types.</p>
 	 * 
 	 * @param a One surface object.
 	 * @param b Another surface object.
@@ -228,18 +233,19 @@ public class Collision
 			if( var.flip )
 			{
 				this.applyForce(a, var.interactionVector, var.s);
-				this.applyForce(b, Vector.reverse(var.interactionVector), var.t);
+				this.applyForce(b, Vector.reverse(var.interactionVector),var.t);
 			} 
 			else
 			{
 				this.applyForce(b, var.interactionVector, var.s);
-				this.applyForce(a, Vector.reverse(var.interactionVector), var.t);
+				this.applyForce(a, Vector.reverse(var.interactionVector),var.t);
 			}
 		}
 	}
 
 	/**
-	 * \brief TODO
+	 * \brief Check all surfaces from collection A against all surfaces from 
+	 * collection B.
 	 * 
 	 * @param allA
 	 * @param allB
@@ -258,6 +264,13 @@ public class Collision
 		}
 	}
 	
+	/**
+	 * \brief Check surface A against all surfaces from collection B.
+	 * 
+	 * @param allA
+	 * @param allB
+	 * @param pullDistance
+	 */
 	public void collision(Surface a, AspectInterface first, 
 			Collection<Surface> allB, AspectInterface second, double pullDistance)
 	{
@@ -296,23 +309,8 @@ public class Collision
 	}
 	
 	/* ***********************************************************************
-	 * KEY DISTANCE METHODS
+	 * Assess distance of between two surfaces.
 	 * **********************************************************************/
-
-	/**
-	 * \brief Check if the distance between two surfaces less than a given
-	 * margin.
-	 * 
-	 * @param a One surface, of unknown type.
-	 * @param b Another surface, of unknown type.
-	 * @param margin Minimum distance between the two surfaces.
-	 * @return True if the distance between the two surfaces is less than
-	 * the margin given, otherwise false.
-	 */
-	public boolean areColliding(Surface a, Surface b, double margin)
-	{
-		return ( this.distance( a, b ) < margin );
-	}
 	
 	/**
 	 * \brief Calculate the distance between two surfaces, subtracting a given
@@ -332,7 +330,7 @@ public class Collision
 		return this.distance( a, b ) - margin;
 	}
 	
-	/*
+	/**
 	 * calculate distance without saving orientation data
 	 */
 	public double distance(Surface a, Surface b)
@@ -377,41 +375,9 @@ public class Collision
 			var.flip = false;
 			return this.assessVoxel((Voxel) a, b, var);
 		default:
-			System.out.println(this.getClass().getSimpleName() +
-					" WARNING: undefined Surface type");
+			Log.out( Tier.CRITICAL, this.getClass().getSimpleName() +
+					" encountered undefined surface assessment." );
 			return null;
-		}
-	}
-	
-	public boolean intersect(Surface a, Surface b, double margin)
-	{
-		_variables.setPullRange( margin );
-		/*
-		 * First check that both Surfaces exist.
-		 */
-		if ( a == null || b == null )
-			throw new IllegalArgumentException(this.getClass().getSimpleName() +
-					" Null surface given");
-		
-		switch( a.type() ) {
-		case SPHERE:
-			_variables.flip = false;
-			this.assessSphere((Ball) a, b, _variables);
-			return _variables.distance < margin;
-		case ROD:
-			_variables.flip = false;
-			return this.intersectRod((Rod) a, b, _variables); 
-		case PLANE:
-			_variables.flip = false;
-			this.assessPlane((Plane) a, b, _variables);
-			return _variables.distance < margin;
-		case VOXEL:
-			_variables.flip = false;
-			return this.intersectVoxel((Voxel) a, b, _variables);
-		default:
-			System.out.println(this.getClass().getSimpleName() +
-					" WARNING: undefined Surface type");
-			return false;
 		}
 	}
 	
@@ -432,13 +398,13 @@ public class Collision
 		switch ( a.type() )
 		{
 		case SPHERE :
-			this.spherePoint((Ball) a, p, this._variables);
+			this.spherePoint( (Ball) a, p, this._variables );
 			return this._variables.distance;
 		case ROD :
-			this.rodPoint((Rod) a, p, this._variables);
+			this.rodPoint( (Rod) a, p, this._variables );
 			return this._variables.distance;
 		case PLANE:
-			this.planePoint((Plane) a, p, this._variables);
+			this.planePoint( (Plane) a, p, this._variables );
 			return this._variables.distance;
 		default:
 			break;
@@ -446,9 +412,70 @@ public class Collision
 		return 0.0;
 	}
 	
-	/* ***********************************************************************
-	 * PRIVATE ASSESMENT METHODS
-	 * **********************************************************************/
+	/**
+	 * \brief Calculate the distance between a sphere and another surface of
+	 * unknown type.
+	 * 
+	 * <p>This method always also sets the internal variables {@link #s} and 
+	 * {@link #interactionVector}. It may also set {@link #t}, depending on the 
+	 * other surface type.</p>
+	 * 
+	 * @param Sphere surface.
+	 * @param otherSurface Another surface object, of unknown type.
+	 * @return CollisionVariables including the minimum distance between the 
+	 * two surfaces.
+	 */
+	private CollisionVariables assessSphere(Ball sphere, Surface otherSurface, 
+			CollisionVariables var)
+	{
+		/* FIXME check surface order in arguments */
+		switch( otherSurface.type() ) 
+		{
+		case SPHERE:
+			return this.sphereSphere(sphere, (Ball) otherSurface, var);
+		case ROD:
+			return this.rodSphere((Rod) otherSurface, sphere, var);
+		case PLANE:
+			var.flip = false;
+			return this.planeSphere((Plane) otherSurface, sphere, var);
+		case VOXEL:
+			return this.voxelSphere((Voxel) otherSurface, sphere, var);
+		default:
+			Log.out( Tier.CRITICAL, this.getClass().getSimpleName() +
+					" encountered unimplemented surface assessment.");
+			return null;
+		}
+	}
+	
+	/**
+	 * \brief Calculate the distance between a Rod and another surface of
+	 * unknown type.
+	 * 
+	 * <p>This method always also sets the internal variables {@link #s} and 
+	 * {@link #interactionVector}. It may also set {@link #t}, depending on the 
+	 * other surface type.</p>
+	 * 
+	 * @param Rod surface
+	 * @param otherSurface Another surface object, of unknown type.
+	 * @return The minimum distance between the two surfaces.
+	 */
+	private CollisionVariables assessRod(Rod rod, Surface otherSurface, 
+			CollisionVariables var)
+	{
+		switch( otherSurface.type() ) 
+		{
+		case SPHERE:
+			return this.rodSphere( rod, (Ball) otherSurface, var );
+		case ROD:
+			return this.rodRod( rod, (Rod) otherSurface, var );
+		case PLANE:
+			return this.planeRod( (Plane) otherSurface, rod, var );
+		default:
+			Log.out(Tier.CRITICAL, this.getClass().getSimpleName() +
+					" encountered unimplemented surface assessment.");
+			return null;
+		}
+	}
 	
 	/**
 	 * \brief Calculate the distance between a Plane and another surface of
@@ -465,84 +492,32 @@ public class Collision
 	private CollisionVariables assessPlane(Plane plane, Surface otherSurface, 
 			CollisionVariables var)
 	{
-		if ( otherSurface.type() == Surface.Type.SPHERE )
+		switch( otherSurface.type() ) 
+		{
+		case SPHERE:
 			return this.planeSphere(plane, (Ball) otherSurface, var);
-		else
+		case ROD:
 			return this.planeRod(plane, (Rod) otherSurface, var);
+		default:
+			Log.out(Tier.CRITICAL, this.getClass().getSimpleName() +
+					" encountered unimplemented surface assessment.");
+			return null;
+		}
 	}
 	
 	/**
-	 * \brief Calculate the distance between a Rod and another surface of
+	 * \brief Calculate the distance between a voxel and another surface of
 	 * unknown type.
 	 * 
 	 * <p>This method always also sets the internal variables {@link #s} and 
 	 * {@link #interactionVector}. It may also set {@link #t}, depending on the 
 	 * other surface type.</p>
 	 * 
-	 * @param rod Rod surface.
+	 * @param Voxel surface.
 	 * @param otherSurface Another surface object, of unknown type.
-	 * @return The minimum distance between the two surfaces.
+	 * @return CollisionVariables including the minimum distance between the 
+	 * two surfaces.
 	 */
-	private CollisionVariables assessRod(Rod rod, Surface otherSurface, 
-			CollisionVariables var)
-	{
-		if ( otherSurface.type() == Surface.Type.SPHERE )
-			return this.rodSphere(rod, (Ball) otherSurface, var);
-		else if ( otherSurface.type() == Surface.Type.ROD )
-			return this.rodRod(rod, (Rod) otherSurface, var);
-		else if ( otherSurface.type() == Surface.Type.PLANE )
-			return this.planeRod((Plane) otherSurface, rod, var);
-		else
-			return null;
-	}
-	
-	private boolean intersectRod(Rod rod, Surface otherSurface, 
-			CollisionVariables var)
-	{
-		if ( otherSurface.type() == Surface.Type.VOXEL )
-		{
-			return this.voxelRodIntersection(rod, (Voxel) otherSurface, var);
-		}
-		if ( otherSurface.type() == Surface.Type.SPHERE )
-		{
-			this.rodSphere(rod, (Ball) otherSurface, var);
-			return var.distance < var.pullRange;
-		}
-		else if ( otherSurface.type() == Surface.Type.ROD )
-		{
-			this.rodRod(rod, (Rod) otherSurface, var);
-			return var.distance < var.pullRange;
-		}
-		else if ( otherSurface.type() == Surface.Type.PLANE )
-		{
-			this.planeRod((Plane) otherSurface, rod, var);
-			return var.distance < var.pullRange;
-		}
-		else
-			return false;
-	}
-	
-	private CollisionVariables assessSphere(Ball sphere, Surface otherSurface, 
-			CollisionVariables var)
-	{
-		/* FIXME check surface order in arguments */
-		if ( otherSurface.type() == Surface.Type.ROD )
-			return this.rodSphere((Rod) otherSurface, sphere, var);
-		else if ( otherSurface.type() == Surface.Type.SPHERE )
-			return this.sphereSphere(sphere, (Ball) otherSurface, var);
-		else if ( otherSurface.type() == Surface.Type.VOXEL )
-			return this.voxelSphere((Voxel) otherSurface, sphere, var);
-		else if ( otherSurface.type() == Surface.Type.PLANE )
-		{
-			var.flip = false;
-			return this.planeSphere((Plane) otherSurface, sphere, var);
-		}
-		else
-		{
-			return null;
-		}
-	}
-	
 	private CollisionVariables assessVoxel(Voxel vox, Surface otherSurface, 
 			CollisionVariables var)
 	{
@@ -551,65 +526,121 @@ public class Collision
 		 * for rod voxel note that output par t defines the fraction of the 
 		 * vector between rod1 and rod2 where the rod is closest to the voxel,
 		 * from that you can do a voxel point distance.*/
-		if ( otherSurface.type() == Surface.Type.SPHERE )
-			return this.voxelSphere(vox, (Ball) otherSurface, var);
-		else
+		switch( otherSurface.type() ) 
 		{
+		case SPHERE:
+			return this.voxelSphere(vox, (Ball) otherSurface, var);
+		default:
+			Log.out( Tier.CRITICAL, this.getClass().getSimpleName() +
+					" encountered unimplemented surface assessment.");
 			return null;
 		}
 	}
 	
+	/* ***********************************************************************
+	 * Detect intersection of two surfaces.
+	 * **********************************************************************/
+
+	/**
+	 * \brief Check for intersection (overlap) between surface a and surface b.
+	 * 
+	 * TODO: some surface types may be more efficiently evaluated by switching
+	 * from the more expensive assess distance < margin to intersect paradigms.
+	 * 
+	 * @param a One surface, of unknown type.
+	 * @param b Another surface, of unknown type.
+	 * @param margin Minimum distance between the two surfaces.
+	 * @return True if the distance between the two surfaces is less than
+	 * the margin given, otherwise false.
+	 */
+	public boolean intersect(Surface a, Surface b, double margin)
+	{
+		if( margin != 0.0 )
+			Log.out(Tier.CRITICAL, "Margin is not fully implemented for "
+					+ "intersect method.");
+		_variables.setPullRange( margin );
+		switch( a.type() ) 
+		{
+		case SPHERE:
+			_variables.flip = false;
+			this.assessSphere((Ball) a, b, _variables);
+			return _variables.distance < margin;
+		case ROD:
+			_variables.flip = false;
+			return this.intersectRod((Rod) a, b, _variables); 
+		case PLANE:
+			_variables.flip = false;
+			this.assessPlane((Plane) a, b, _variables);
+			return _variables.distance < margin;
+		case VOXEL:
+			_variables.flip = false;
+			return this.intersectVoxel((Voxel) a, b, _variables);
+		default:
+			Log.out( Tier.CRITICAL, this.getClass().getSimpleName() +
+					" encountered undefined surface assessment." );
+			return false;
+		}
+	}
+	
+	/**
+	 * \brief: Assess whether rod is intersecting (overlap) with other surface.
+	 * @param rod
+	 * @param otherSurface
+	 * @param var
+	 * @return
+	 */
+	private boolean intersectRod(Rod rod, Surface otherSurface, 
+			CollisionVariables var)
+	{
+		switch( otherSurface.type() ) 
+		{
+		case SPHERE:
+			this.rodSphere(rod, (Ball) otherSurface, var);
+			return var.distance < var.pullRange;
+		case ROD:
+			this.rodRod(rod, (Rod) otherSurface, var);
+			return var.distance < var.pullRange;
+		case PLANE:
+			this.planeRod((Plane) otherSurface, rod, var);
+			return var.distance < var.pullRange;
+		case VOXEL:
+			return this.voxelRodIntersection(rod, (Voxel) otherSurface, var);
+		default:
+			Log.out( Tier.CRITICAL, this.getClass().getSimpleName() +
+					" encountered unimplemented surface assessment.");
+			return false;
+		}
+	}
+	
+	/**
+	 * \brief: Assess whether vox is intersecting (overlap) with other surface.
+	 * @param vox
+	 * @param otherSurface
+	 * @param CollisionVariables object
+	 * @return true if surfaces intersect
+	 */
 	private boolean intersectVoxel(Voxel vox, Surface otherSurface, 
 			CollisionVariables var)
 	{
 		/* FIXME check surface order in arguments */
-		if ( otherSurface.type() == Surface.Type.ROD )
+		switch( otherSurface.type() ) 
 		{
-			return this.voxelRodIntersection((Rod) otherSurface, vox, var);
-		}
-		else if ( otherSurface.type() == Surface.Type.SPHERE )
-		{
+		case SPHERE:
 			this.voxelSphere(vox, (Ball) otherSurface, var);
 			return var.distance < var.pullRange;
+		case ROD:
+			return this.voxelRodIntersection((Rod) otherSurface, vox, var);
+		default:
+			Log.out( Tier.CRITICAL, this.getClass().getSimpleName() +
+					" encountered unimplemented surface assessment.");
+			return false;
 		}
-		return false;
-
 	}
+	
 	/* ***********************************************************************
-	 * PRIVATE DISTANCE METHODS
+	 * Distance and intersection evaluation methods for numerous surfaces
 	 ************************************************************************/
 
-	/**
-	 * \brief Stores the vector that points the shortest distance between two
-	 * locations.
-	 * 
-	 * <p>Neither vector is changed by this method.</p>
-	 * 
-	 * @param a One point in space.
-	 * @param b Another point in space.
-	 */
-	private void setPeriodicDistanceVector(double[] a, double[] b, 
-			CollisionVariables var)
-	{
-		this._shape.getMinDifferenceVectorTo(var.interactionVector, a, b);
-	}
-	
-	/**
-	 * \brief Calculate the minimum distance between two points in space and
-	 * assign it to the var.interactionVector (reduce memory usage)
-	 * 
-	 * <p>Neither vector is changed by this method.</p>
-	 * 
-	 * @param a One point in space.
-	 * @param b Another point in space.
-	 * @return The minmum distance between them.
-	 */
-	private double[] minDistance(double[] a, double[] b, CollisionVariables var)
-	{
-		this._shape.getMinDifferenceVectorTo(var.interactionVector, a,b);
-		return var.interactionVector;
-	}
-	
 	/**
 	 * \brief Point-point distance.
 	 * 
@@ -668,19 +699,20 @@ public class Collision
 			CollisionVariables var)
 	{
 		this.pointPoint(a.getCenter(), b.getCenter(), var);
-// NOTE: this is only needed if we implement bounding volumes
-//		/* a is around b. */
-//		if ( a.bounding )
-//		{
-//			var.distance = - var.distance + a.getRadius() - b.getRadius();
-//			return var;
-//		}
-//		/* b is around a. */
-//		if ( b.bounding )
-//		{
-//			var.distance = - var.distance  - a.getRadius() + b.getRadius();
-//			return var;
-//		}
+		
+		/*  NOTE: The following commented code would be required to create
+		 * bounding surfaces for non cartesian domain shapes for example a
+		 * spherical or cylindrical domain.
+		if ( a.bounding ) {
+			var.distance = - var.distance + a.getRadius() - b.getRadius();
+			return var;
+		}
+		if ( b.bounding ) {
+			var.distance = - var.distance  - a.getRadius() + b.getRadius();
+			return var;
+		}
+		 */
+		
 		/* Normal collision. */
 		var.distance -= a.getRadius() + b.getRadius();
 		/*
@@ -1093,7 +1125,7 @@ public class Collision
 	 * 
 	 * TODO is this method correct? maybe easier to just clamp the box
 	 * 
-	 * real-time collsion detection pp 130~132
+	 * real-time collision detection pp 130~132
 	 * FIXME this method does not seem to be adjusted to account for periodic
 	 * boundaries
 	 */
@@ -1116,7 +1148,7 @@ public class Collision
 	}
 	
 	/**
-	 * TODO real-time collsion detection pp 229
+	 * TODO real-time collision detection pp 229
 	 * @param rod
 	 * @param voxel
 	 * @param var 
@@ -1260,7 +1292,6 @@ public class Collision
 		return var;
 	}
 	
-	
 	/**
 	 * TODO Real-time collision detection pp 197
 	 * slight adjust of IntersectSegmentCylinder
@@ -1281,7 +1312,6 @@ public class Collision
 			return true;
 		return intersectSegmentCylinder( sa, sb, p, q, r, var );
 	}
-	
 	
 	/**
 	 * TODO Real-time collision detection pp 197
@@ -1364,6 +1394,38 @@ public class Collision
 	/* ***********************************************************************
 	 * Helper methods
 	 ************************************************************************/
+	
+	/**
+	 * \brief Stores the vector that points the shortest distance between two
+	 * locations.
+	 * 
+	 * <p>Neither vector is changed by this method.</p>
+	 * 
+	 * @param a One point in space.
+	 * @param b Another point in space.
+	 */
+	private void setPeriodicDistanceVector(double[] a, double[] b, 
+			CollisionVariables var)
+	{
+		this._shape.getMinDifferenceVectorTo(var.interactionVector, a, b);
+	}
+	
+	/**
+	 * \brief Calculate the minimum distance between two points in space and
+	 * assign it to the var.interactionVector (reduce memory usage)
+	 * 
+	 * <p>Neither vector is changed by this method.</p>
+	 * 
+	 * @param a One point in space.
+	 * @param b Another point in space.
+	 * @return The minmum distance between them.
+	 */
+	private double[] minDistance(double[] a, double[] b, CollisionVariables var)
+	{
+		this._shape.getMinDifferenceVectorTo(var.interactionVector, a,b);
+		return var.interactionVector;
+	}
+	
 	
 	/**
 	 * \brief Helper method used in line segment distance algorithms.

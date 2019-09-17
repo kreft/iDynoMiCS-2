@@ -170,7 +170,7 @@ public class Raster {
 					( (Body) a.get( AspectRef.agentBody ) ).getSurfaces() )
 				{
 					if ( _shape.getCollision().
-							areColliding( s, v, 0.0 ) &! colliders.contains(a) )
+							intersect( s, v, 0.0 ) &! colliders.contains(a) )
 					{
 						colliders.add(a);
 						break;
