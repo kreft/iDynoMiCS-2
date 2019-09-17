@@ -1276,16 +1276,17 @@ public class Collision
 		double nd = Vector.dotProduct(n, d); 
 		double dd = Vector.dotProduct(d, d); 
 		
-		// FIXME there are probably better/faster/cleaner ways to convert
-		// cylinder assessment into a capsule assessment
-		// hacking in some capsule cap test
-		var = linesegPoint(sa,sb,p,var);
+		/* Test if segment is in end cap spheres
+		 * TODO there are probably better/faster/cleaner ways to convert
+		 * cylinder assessment into a capsule assessment. */
+		var = linesegPoint( sa, sb, p, var );
 		if(var.distance < r + var.pullRange)
 			return true;
-		var = linesegPoint(sa,sb,q,var);
+		var = linesegPoint( sa, sb, q, var );
 		if(var.distance < r + var.pullRange)
 			return true;
-		// Test if segment fully outside either endcap of cylinder 
+		
+		// Test if segment beooutside either endcap of cylinder 
 		if (md < 0.0 && md + nd < 0.0) 
 			return false; 
 		// Segment outside ’p’ side of cylinder 
@@ -1328,7 +1329,7 @@ public class Collision
 		// Intersection lies outside segment
 		if( md+var.t*nd< 0.0) { 
 			// Intersection outside cylinder on ’p’ side 
-			if (nd <= 0.0f) 
+			if (nd <= 0.0) 
 				return false;
 		// Segment pointing away from endcap
 			var.t = -md / nd; 
