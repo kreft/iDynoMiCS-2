@@ -385,7 +385,7 @@ public class AgentContainer implements Settable
 			for ( Surface s : ((Body) a.get(AspectRef.agentBody)).getSurfaces())
 			{
 				/* on collision set boolean true and exit loop */
-				if ( collision.areColliding(aSurface, s, searchDist))
+				if ( collision.intersect(aSurface, s, searchDist))
 				{
 					c = true;
 					break;
@@ -412,7 +412,7 @@ public class AgentContainer implements Settable
 
 		/* check each surface for collision, remove if not */
 		for ( Surface s : surfaces)
-			if ( ! collision.areColliding(aSurface, s, searchDist))
+			if ( ! collision.intersect(aSurface, s, searchDist))
 				surfaces.remove(s);
 	}
 	
