@@ -1196,9 +1196,12 @@ public class Collision
 		// Define line segment [c, c+d] specified by the sphere movement 
 		//Segment seg(s.c, s.c + d);
 		// --> Rod
+		int l = 3;
+		if ( voxel.getLower().length == 3 )
+			l = 7;
 		
 		// If all 3 bits set (m == 7) then p is in a vertex region 
-		if (m == 7) { 
+		if (m == l) { 
 			// Must now intersect segment [c, c+d] against the capsules of the three 
 			// edges meeting at the vertex and return the best time, if one or more hit 
 			double tmin = Float.MAX_VALUE; 
@@ -1228,7 +1231,7 @@ public class Collision
 		}
 		//FIXME seems to receive [0, 0] twice from corner rather than a segment
 		// p is in an edge region. Intersect against the capsule at the edge 
-		return intersectSegmentCapsule(Corner(voxel, u ^ 7), 
+		return intersectSegmentCapsule(Corner(voxel, u ^ l), 
 				Corner(voxel, v), rod._points[0].getPosition(), 
 				rod._points[1].getPosition(), rod.getRadius(), var);
 	}
