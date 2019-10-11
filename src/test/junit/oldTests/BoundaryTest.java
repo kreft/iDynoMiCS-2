@@ -3,10 +3,10 @@
  */
 package test.junit.oldTests;
 
+import static org.junit.Assert.assertTrue;
+
 import org.junit.Test;
 import org.w3c.dom.Element;
-
-import static org.junit.Assert.assertTrue;
 
 import agent.Agent;
 import agent.Body;
@@ -20,8 +20,8 @@ import referenceLibrary.AspectRef;
 import referenceLibrary.XmlRef;
 import shape.Dimension;
 import shape.Dimension.DimName;
-import test.OldTests;
 import shape.Shape;
+import test.OldTests;
 import utility.ExtraMath;
 
 /**

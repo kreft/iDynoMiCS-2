@@ -3,14 +3,14 @@
  */
 package test.junit.oldTests;
 
+import static org.junit.Assert.assertTrue;
+
 import org.junit.Test;
 import org.w3c.dom.Element;
 
 import instantiable.Instance;
 import instantiable.Instantiable;
 import settable.Settable;
-
-import static org.junit.Assert.assertTrue;
 
 /**
  * 

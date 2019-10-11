@@ -1,20 +1,18 @@
 package processManager.library;
 
+import static grid.ArrayType.CONCN;
+
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
 import org.w3c.dom.Element;
 
-import static grid.ArrayType.CONCN;
-
 import agent.Agent;
 import agent.Body;
 import compartment.AgentContainer;
 import compartment.EnvironmentContainer;
 import dataIO.GraphicalExporter;
-import dataIO.Log;
-import dataIO.Log.Tier;
 import grid.ArrayType;
 import grid.SpatialGrid;
 import instantiable.Instance;

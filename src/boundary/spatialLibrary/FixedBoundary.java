@@ -8,8 +8,8 @@ import org.w3c.dom.Element;
 
 import boundary.SpatialBoundary;
 import dataIO.Log;
-import dataIO.XmlHandler;
 import dataIO.Log.Tier;
+import dataIO.XmlHandler;
 import grid.SpatialGrid;
 import instantiable.Instantiable;
 import referenceLibrary.XmlRef;

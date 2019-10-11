@@ -8,14 +8,14 @@ import org.w3c.dom.NodeList;
 
 import aspect.AspectInterface;
 import dataIO.Log;
-import dataIO.XmlHandler;
 import dataIO.Log.Tier;
+import dataIO.XmlHandler;
 import instantiable.Instantiable;
 import referenceLibrary.ClassRef;
 import referenceLibrary.XmlRef;
 import settable.Module;
-import settable.Settable;
 import settable.Module.Requirements;
+import settable.Settable;
 
 /**
  * \brief Stores information about all species relevant to a simulation.

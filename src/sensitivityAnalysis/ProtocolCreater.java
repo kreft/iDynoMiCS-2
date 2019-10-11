@@ -9,19 +9,27 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
-import javax.xml.transform.*;
-import javax.xml.transform.dom.*;
-import javax.xml.transform.stream.*;
-import org.w3c.dom.*;
 
-import referenceLibrary.XmlRef;
-import utility.Helper;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
 import dataIO.CsvExport;
 import dataIO.XmlHandler;
 import idynomics.Idynomics;
 import idynomics.launchable.SamplerLaunch;
 import linearAlgebra.Vector;
 import optimization.sampling.Sampler;
+import referenceLibrary.XmlRef;
+import utility.Helper;
 
 
 /**

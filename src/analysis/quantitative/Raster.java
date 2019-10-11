@@ -3,17 +3,6 @@ package analysis.quantitative;
 import java.util.LinkedList;
 import java.util.List;
 
-import instantiable.Instance;
-import linearAlgebra.Array;
-import linearAlgebra.Vector;
-import referenceLibrary.AspectRef;
-import referenceLibrary.ClassRef;
-import shape.CartesianShape;
-import shape.Shape;
-import spatialRegistry.SpatialMap;
-import surface.Surface;
-import surface.Voxel;
-import utility.Helper;
 import agent.Agent;
 import agent.Body;
 import analysis.Counter;
@@ -27,6 +16,17 @@ import dataIO.CsvExport;
 import dataIO.GraphicalExporter;
 import dataIO.Log;
 import dataIO.Log.Tier;
+import instantiable.Instance;
+import linearAlgebra.Array;
+import linearAlgebra.Vector;
+import referenceLibrary.AspectRef;
+import referenceLibrary.ClassRef;
+import shape.CartesianShape;
+import shape.Shape;
+import spatialRegistry.SpatialMap;
+import surface.Surface;
+import surface.Voxel;
+import utility.Helper;
 
 /**
  * \Brief Raster is used to rasterize and quantify spatial properties of

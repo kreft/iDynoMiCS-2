@@ -3,7 +3,6 @@ package dataIO;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import dataIO.Log.Tier;
 import idynomics.Idynomics;
 
 public class Report {

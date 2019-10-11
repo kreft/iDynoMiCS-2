@@ -44,7 +44,6 @@ import dataIO.Log;
 import dataIO.Log.Tier;
 import idynomics.Global;
 import idynomics.Idynomics;
-import linearAlgebra.Vector;
 
 /**
  * TODO clean-up commenting

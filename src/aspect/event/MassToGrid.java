@@ -1,11 +1,11 @@
 package aspect.event;
 
-import grid.ArrayType;
-import grid.SpatialGrid;
 import agent.Agent;
 import agent.Body;
 import aspect.AspectInterface;
 import aspect.Event;
+import grid.ArrayType;
+import grid.SpatialGrid;
 
 /**
  * \brief Created for testing purposes: Event writes agent mass to SpatialGrid.

@@ -1,12 +1,5 @@
 package aspect.event;
 
-import surface.Point;
-import utility.ExtraMath;
-import utility.Helper;
-import linearAlgebra.Vector;
-import referenceLibrary.AspectRef;
-import shape.Shape;
-
 import java.util.LinkedList;
 import java.util.Map;
 
@@ -14,6 +7,11 @@ import agent.Agent;
 import agent.Body;
 import aspect.AspectInterface;
 import aspect.Event;
+import linearAlgebra.Vector;
+import referenceLibrary.AspectRef;
+import shape.Shape;
+import surface.Point;
+import utility.Helper;
 
 /**
  * FIXME MAP handling for this class needs updating, see CoccoidDivision as

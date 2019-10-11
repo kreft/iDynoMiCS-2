@@ -4,6 +4,7 @@
 package processManager.library;
 
 import static grid.ArrayType.CONCN;
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -20,8 +21,8 @@ import processManager.ProcessDiffusion;
 import processManager.ProcessMethods;
 import reaction.Reaction;
 import referenceLibrary.XmlRef;
-import shape.subvoxel.IntegerArray;
 import shape.Shape;
+import shape.subvoxel.IntegerArray;
 import solver.PDEagentsOnly;
 import solver.PDEupdater;
 

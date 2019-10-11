@@ -12,20 +12,22 @@ import agent.SpeciesLib;
 import chemical.ChemicalLib;
 import compartment.Compartment;
 import dataIO.Log;
+import dataIO.Log.Tier;
+import dataIO.Report;
 import dataIO.XmlExport;
 import dataIO.XmlHandler;
 import debugTools.SegmentTimer;
-import dataIO.Log.Tier;
-import dataIO.Report;
 import generalInterfaces.CanPrelaunchCheck;
 import instantiable.Instance;
 import instantiable.Instantiable;
-import utility.*;
 import referenceLibrary.ClassRef;
 import referenceLibrary.XmlRef;
-import settable.*;
+import settable.Attribute;
 import settable.Module;
 import settable.Module.Requirements;
+import settable.Settable;
+import utility.ExtraMath;
+import utility.Helper;
 
 /**
  * \brief Simulator manages all compartments, making sure they synchronise at

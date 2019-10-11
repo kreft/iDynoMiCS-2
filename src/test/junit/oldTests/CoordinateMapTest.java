@@ -1,12 +1,12 @@
 package test.junit.oldTests;
 
+import static org.junit.Assert.assertTrue;
+import static test.OldTests.TOLERANCE;
+
 import org.junit.Test;
 
 import shape.subvoxel.CoordinateMap;
 import utility.ExtraMath;
-
-import static org.junit.Assert.assertTrue;
-import static test.OldTests.TOLERANCE;
 
 /**
  * \brief Unit test checking that Coordinate Maps behave as they should,

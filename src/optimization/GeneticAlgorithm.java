@@ -5,7 +5,6 @@ import dataIO.Log.Tier;
 import optimization.geneticAlgorithm.Population;
 import optimization.objectiveFunction.MeanSquareError;
 import optimization.objectiveFunction.ObjectiveFunction;
-import optimization.objectiveFunction.QuadraticLossFunction;
 import sensitivityAnalysis.ProtocolCreater;
 
 /**

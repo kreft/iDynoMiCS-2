@@ -10,8 +10,8 @@ import linearAlgebra.Vector;
 import optimization.GeneticAlgorithm;
 import optimization.constraint.Bound;
 import optimization.constraint.Constraint;
-import optimization.geneticAlgorithm.Population;
 import optimization.geneticAlgorithm.DataFromCSV;
+import optimization.geneticAlgorithm.Population;
 import optimization.objectiveFunction.ObjectiveFunction;
 import sensitivityAnalysis.ProtocolCreater;
 

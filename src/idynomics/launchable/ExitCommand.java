@@ -1,7 +1,5 @@
 package idynomics.launchable;
 
-import dataIO.Log;
-import dataIO.Log.Tier;
 import idynomics.Idynomics;
 import utility.Helper;
 

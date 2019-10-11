@@ -5,15 +5,15 @@ import java.math.BigDecimal;
 import org.w3c.dom.Element;
 
 import dataIO.Log;
+import dataIO.Log.Tier;
 import dataIO.XmlHandler;
 import gui.GuiButtons;
+import instantiable.Instantiable;
 import referenceLibrary.XmlRef;
 import settable.Attribute;
 import settable.Module;
-import settable.Settable;
 import settable.Module.Requirements;
-import dataIO.Log.Tier;
-import instantiable.Instantiable;
+import settable.Settable;
 import utility.Helper;
 
 /**

@@ -10,9 +10,8 @@ import aspect.AspectReg;
 import compartment.AgentContainer;
 import compartment.Compartment;
 import compartment.EnvironmentContainer;
-import dataIO.Log.Tier;
-import debugTools.SegmentTimer;
 import dataIO.Log;
+import dataIO.Log.Tier;
 import dataIO.XmlHandler;
 import generalInterfaces.Redirectable;
 import idynomics.Idynomics;
@@ -21,8 +20,8 @@ import referenceLibrary.ClassRef;
 import referenceLibrary.XmlRef;
 import settable.Attribute;
 import settable.Module;
-import settable.Settable;
 import settable.Module.Requirements;
+import settable.Settable;
 import utility.Helper;
 
 /**

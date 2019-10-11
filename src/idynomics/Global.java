@@ -7,8 +7,8 @@ import java.util.Date;
 import org.w3c.dom.Element;
 
 import dataIO.Log;
-import dataIO.XmlHandler;
 import dataIO.Log.Tier;
+import dataIO.XmlHandler;
 import referenceLibrary.XmlRef;
 import utility.Helper;
 

@@ -1,6 +1,7 @@
 package instantiable.object;
 
 import java.util.HashMap;
+
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
@@ -8,14 +9,13 @@ import dataIO.ObjectFactory;
 import dataIO.XmlHandler;
 import generalInterfaces.Copyable;
 import idynomics.Idynomics;
-import instantiable.Instance;
 import instantiable.Instantiable;
 import referenceLibrary.XmlRef;
 import settable.Attribute;
 import settable.Module;
+import settable.Module.Requirements;
 import settable.Settable;
 import utility.Helper;
-import settable.Module.Requirements;
 
 /**
  * The Bundle Map extends the Java HashMap and implements the iDynoMiCS

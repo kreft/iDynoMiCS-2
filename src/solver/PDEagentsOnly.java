@@ -7,12 +7,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import dataIO.Log;
-import dataIO.Log.Tier;
-
-import static dataIO.Log.Tier.*;
-import static grid.ArrayType.*;
-
 import grid.SpatialGrid;
 
 /**

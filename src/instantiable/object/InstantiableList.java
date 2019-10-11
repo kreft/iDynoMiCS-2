@@ -1,6 +1,7 @@
 package instantiable.object;
 
 import java.util.LinkedList;
+
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
@@ -12,8 +13,8 @@ import instantiable.Instantiable;
 import referenceLibrary.XmlRef;
 import settable.Attribute;
 import settable.Module;
-import settable.Settable;
 import settable.Module.Requirements;
+import settable.Settable;
 import utility.Helper;
 
 /**

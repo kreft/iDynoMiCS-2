@@ -7,12 +7,10 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import aspect.Aspect.AspectClass;
-import compartment.Compartment;
 import aspect.AspectInterface;
 import aspect.AspectReg;
+import compartment.Compartment;
 import dataIO.XmlHandler;
-import dataIO.Log;
-import dataIO.Log.Tier;
 import idynomics.Idynomics;
 import instantiable.Instantiable;
 import linearAlgebra.Vector;
@@ -21,8 +19,8 @@ import referenceLibrary.ClassRef;
 import referenceLibrary.XmlRef;
 import settable.Attribute;
 import settable.Module;
-import settable.Settable;
 import settable.Module.Requirements;
+import settable.Settable;
 import surface.Point;
 import utility.Helper;
 

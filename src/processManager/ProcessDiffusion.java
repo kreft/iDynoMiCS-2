@@ -2,14 +2,12 @@ package processManager;
 
 import static grid.ArrayType.CONCN;
 import static grid.ArrayType.PRODUCTIONRATE;
-import static grid.ArrayType.WELLMIXED;
 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.Predicate;
 
 import org.w3c.dom.Element;
@@ -21,17 +19,14 @@ import compartment.AgentContainer;
 import compartment.EnvironmentContainer;
 import dataIO.Log;
 import dataIO.Log.Tier;
-import debugTools.SegmentTimer;
 import grid.SpatialGrid;
-import grid.WellMixedConstants;
 import idynomics.Global;
 import linearAlgebra.Vector;
-import reaction.RegularReaction;
 import reaction.Reaction;
+import reaction.RegularReaction;
 import referenceLibrary.AspectRef;
 import shape.CartesianShape;
 import shape.Shape;
-import shape.subvoxel.CoordinateMap;
 import shape.subvoxel.IntegerArray;
 import shape.subvoxel.SubvoxelPoint;
 import solver.PDEsolver;

@@ -1,18 +1,13 @@
 package solver;
 
+import static grid.ArrayType.CHANGERATE;
+
 import java.util.Collection;
 import java.util.LinkedList;
-
-import dataIO.Log;
-import dataIO.Log.Tier;
-
-import static dataIO.Log.Tier.*;
-import static grid.ArrayType.*;
 
 import grid.ArrayType;
 import grid.SpatialGrid;
 import grid.WellMixedConstants;
-import linearAlgebra.Vector;
 import shape.Shape;
 
 /**

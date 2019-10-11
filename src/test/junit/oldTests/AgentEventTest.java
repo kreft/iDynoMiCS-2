@@ -1,11 +1,11 @@
 package test.junit.oldTests;
 
+import static org.junit.Assert.assertEquals;
+
 import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
 
 import agent.Agent;
 import aspect.event.CoccoidDivision;

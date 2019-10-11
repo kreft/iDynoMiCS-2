@@ -19,9 +19,6 @@ import java.text.DecimalFormat;
 import java.util.Calendar;
 import java.util.Random;
 
-import dataIO.Log;
-import utility.MTRandom;
-
 /**
  * \brief Abstract class with some extra useful math functions.
  * 

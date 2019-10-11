@@ -1,11 +1,11 @@
 package aspect;
 
+import org.w3c.dom.Element;
+
 import generalInterfaces.Copyable;
 import generalInterfaces.Redirectable;
 import instantiable.Instantiable;
 import settable.Settable;
-
-import org.w3c.dom.Element;
 
 
 /**

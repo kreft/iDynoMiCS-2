@@ -1,5 +1,8 @@
 package compartment;
 
+import static dataIO.Log.Tier.CRITICAL;
+import static dataIO.Log.Tier.DEBUG;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -14,27 +17,27 @@ import boundary.Boundary;
 import boundary.SpatialBoundary;
 import dataIO.Log;
 import dataIO.Log.Tier;
-import debugTools.SegmentTimer;
 import gereralPredicates.IsSame;
-
-import static dataIO.Log.Tier.*;
 import linearAlgebra.Vector;
 import physicalObject.PhysicalObject;
 import referenceLibrary.AspectRef;
 import referenceLibrary.ClassRef;
 import referenceLibrary.XmlRef;
 import settable.Module;
-import settable.Settable;
 import settable.Module.Requirements;
+import settable.Settable;
 import shape.Dimension;
-import shape.Shape;
 import shape.Dimension.DimName;
-import spatialRegistry.*;
+import shape.Shape;
+import spatialRegistry.DummyTree;
+import spatialRegistry.RTree;
+import spatialRegistry.SpatialRegistry;
+import spatialRegistry.TreeType;
 import spatialRegistry.splitTree.SplitTree;
 import surface.BoundingBox;
-import surface.predicate.IsNotColliding;
 import surface.Surface;
 import surface.collision.Collision;
+import surface.predicate.IsNotColliding;
 import utility.ExtraMath;
 import utility.Helper;
 

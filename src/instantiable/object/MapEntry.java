@@ -6,8 +6,8 @@ import dataIO.ObjectFactory;
 import instantiable.Instantiable;
 import settable.Attribute;
 import settable.Module;
-import settable.Settable;
 import settable.Module.Requirements;
+import settable.Settable;
 
 public class MapEntry<K, T> implements Settable, Instantiable {
 

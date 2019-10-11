@@ -2,6 +2,7 @@ package spatialRegistry;
 
 
 import linearAlgebra.Vector;
+import spatialRegistry.splitTree.SplitTree;
 
 /**
  * Extends {@link Area} allowing for the coupling of a specific area in the

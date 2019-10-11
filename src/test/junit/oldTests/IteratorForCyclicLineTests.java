@@ -1,7 +1,7 @@
 package test.junit.oldTests;
 
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -9,9 +9,9 @@ import org.junit.Test;
 import linearAlgebra.Vector;
 import shape.Dimension;
 import shape.Dimension.DimName;
+import shape.Shape;
 import shape.resolution.ResolutionCalculator;
 import shape.resolution.UniformResolution;
-import shape.Shape;
 import test.OldTests;
 
 /**

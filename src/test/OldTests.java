@@ -14,13 +14,30 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import dataIO.Log;
-import dataIO.XmlHandler;
 import dataIO.Log.Tier;
+import dataIO.XmlHandler;
 import grid.SpatialGrid;
 import idynomics.Idynomics;
 import idynomics.Simulator;
 import shape.Shape;
-import test.junit.oldTests.*;
+import test.junit.oldTests.AgentEventTest;
+import test.junit.oldTests.BoundaryTest;
+import test.junit.oldTests.ChemostatsTest;
+import test.junit.oldTests.CoordinateMapTest;
+import test.junit.oldTests.ExtraMathTest;
+import test.junit.oldTests.IteratorForCyclicLineTests;
+import test.junit.oldTests.IteratorForCyclicSquaresTests;
+import test.junit.oldTests.LinearAlgebraTest;
+import test.junit.oldTests.MultigridLayerForLineTests;
+import test.junit.oldTests.MultigridLayerForRectangleTests;
+import test.junit.oldTests.MultigridLayerForSquareTests;
+import test.junit.oldTests.MultigridResolutionTests;
+import test.junit.oldTests.PDEmultigridTestsForLine;
+import test.junit.oldTests.PDEmultigridTestsForSquare;
+import test.junit.oldTests.PdeTransientTest;
+import test.junit.oldTests.RateExpressionTest;
+import test.junit.oldTests.ShapesTest;
+import test.junit.oldTests.XMLableTest;
 
 @RunWith(Suite.class)
 @SuiteClasses({ AgentEventTest.class,

@@ -2,7 +2,9 @@ package analysis;
 
 import java.util.List;
 
-import analysis.filter.*;
+import analysis.filter.CategoryFilter;
+import analysis.filter.Filter;
+import analysis.filter.ValueFilter;
 import aspect.AspectInterface;
 import dataIO.Log;
 import dataIO.Log.Tier;

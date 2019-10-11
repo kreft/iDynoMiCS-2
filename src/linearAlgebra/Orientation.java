@@ -7,8 +7,8 @@ import instantiable.Instantiable;
 import referenceLibrary.XmlRef;
 import settable.Attribute;
 import settable.Module;
-import settable.Settable;
 import settable.Module.Requirements;
+import settable.Settable;
 
 /** 
  * Object encapsulates unit vector to indicate direction or orientation

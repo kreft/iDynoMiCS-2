@@ -5,8 +5,8 @@ import java.util.Collection;
 import org.w3c.dom.Element;
 
 import dataIO.Log;
-import dataIO.XmlHandler;
 import dataIO.Log.Tier;
+import dataIO.XmlHandler;
 import linearAlgebra.Vector;
 import referenceLibrary.XmlRef;
 import surface.Point;

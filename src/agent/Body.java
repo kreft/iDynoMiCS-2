@@ -1,13 +1,11 @@
 package agent;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
 import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
 
 import dataIO.Log;
 import dataIO.Log.Tier;
@@ -20,10 +18,15 @@ import linearAlgebra.Vector;
 import referenceLibrary.XmlRef;
 import settable.Attribute;
 import settable.Module;
-import settable.Settable;
 import settable.Module.Requirements;
+import settable.Settable;
 import shape.Shape;
-import surface.*;
+import surface.Ball;
+import surface.BoundingBox;
+import surface.Link;
+import surface.Point;
+import surface.Rod;
+import surface.Surface;
 import utility.Helper;
 
 /**

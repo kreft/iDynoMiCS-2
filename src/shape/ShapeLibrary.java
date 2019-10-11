@@ -4,6 +4,7 @@
 package shape;
 
 import org.w3c.dom.Element;
+
 import dataIO.Log;
 import dataIO.Log.Tier;
 import dataIO.XmlHandler;

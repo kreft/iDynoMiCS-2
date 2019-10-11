@@ -8,8 +8,8 @@ import org.w3c.dom.Element;
 import agent.Agent;
 import compartment.AgentContainer;
 import compartment.EnvironmentContainer;
-import referenceLibrary.AspectRef;
 import processManager.ProcessManager;
+import referenceLibrary.AspectRef;
 
 /**
  * \brief Simple process that asks all agents to perform events by name.

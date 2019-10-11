@@ -7,9 +7,9 @@ import grid.ArrayType;
 import grid.SpatialGrid;
 import idynomics.Idynomics;
 import processManager.library.SolveDiffusionSteadyState;
-import shape.Shape;
 import shape.Dimension;
 import shape.Dimension.DimName;
+import shape.Shape;
 import shape.resolution.UniformResolution;
 import test.OldTests;
 

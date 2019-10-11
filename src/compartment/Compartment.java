@@ -8,15 +8,16 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import org.w3c.dom.Element;
+
 import agent.Agent;
 import boundary.Boundary;
 import boundary.SpatialBoundary;
 import compartment.agentStaging.Spawner;
 import dataIO.Log;
-import dataIO.XmlHandler;
 import dataIO.Log.Tier;
+import dataIO.XmlHandler;
 import generalInterfaces.CanPrelaunchCheck;
-import grid.*;
+import grid.SpatialGrid;
 import idynomics.Idynomics;
 import instantiable.Instance;
 import instantiable.Instantiable;
@@ -30,12 +31,12 @@ import referenceLibrary.ClassRef;
 import referenceLibrary.XmlRef;
 import settable.Attribute;
 import settable.Module;
-import settable.Settable;
 import settable.Module.Requirements;
+import settable.Settable;
+import shape.Dimension.DimName;
 import shape.Shape;
 import spatialRegistry.TreeType;
 import utility.Helper;
-import shape.Dimension.DimName;
 
 /**
  * \brief TODO

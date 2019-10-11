@@ -3,16 +3,13 @@ package surface.collision.model;
 import org.w3c.dom.Element;
 
 import aspect.AspectInterface;
-import dataIO.Log;
 import dataIO.XmlHandler;
-import dataIO.Log.Tier;
 import idynomics.Global;
 import linearAlgebra.Vector;
 import referenceLibrary.XmlRef;
 import settable.Settable;
 import surface.collision.CollisionFunction;
 import surface.collision.CollisionVariables;
-import utility.Helper;
 
 /**
  * Herz soft sphere collision model

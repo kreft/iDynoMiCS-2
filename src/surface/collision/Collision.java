@@ -14,7 +14,8 @@ import surface.Plane;
 import surface.Rod;
 import surface.Surface;
 import surface.Voxel;
-import surface.collision.model.*;
+import surface.collision.model.DefaultPullFunction;
+import surface.collision.model.DefaultPushFunction;
 
 /**
  * Distance methods are based on closest point algorithms from:

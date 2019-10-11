@@ -4,11 +4,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 import compartment.EnvironmentContainer;
-import dataIO.Log;
 import dataIO.ObjectFactory;
 import dataIO.XmlHandler;
 import expression.Component;
@@ -20,8 +20,8 @@ import instantiable.object.InstantiableMap;
 import referenceLibrary.XmlRef;
 import settable.Attribute;
 import settable.Module;
-import settable.Settable;
 import settable.Module.Requirements;
+import settable.Settable;
 import utility.Helper;
 
 /**

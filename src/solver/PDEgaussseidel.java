@@ -3,7 +3,6 @@ package solver;
 import static dataIO.Log.Tier.DEBUG;
 import static grid.ArrayType.CONCN;
 import static grid.ArrayType.PRODUCTIONRATE;
-import static grid.ArrayType.WELLMIXED;
 
 import java.util.Collection;
 

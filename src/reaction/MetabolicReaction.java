@@ -18,8 +18,8 @@ import instantiable.object.InstantiableMap;
 import referenceLibrary.XmlRef;
 import settable.Attribute;
 import settable.Module;
-import settable.Settable;
 import settable.Module.Requirements;
+import settable.Settable;
 import utility.Helper;
 
 public class MetabolicReaction 

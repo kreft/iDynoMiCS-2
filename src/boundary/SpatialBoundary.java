@@ -9,8 +9,8 @@ import agent.Agent;
 import agent.Body;
 import agent.predicate.IsLocated;
 import dataIO.Log;
-import dataIO.XmlHandler;
 import dataIO.Log.Tier;
+import dataIO.XmlHandler;
 import grid.ArrayType;
 import grid.SpatialGrid;
 import grid.WellMixedConstants;
@@ -20,9 +20,9 @@ import referenceLibrary.XmlRef;
 import settable.Attribute;
 import settable.Module;
 import settable.Settable;
-import shape.Shape;
 import shape.Dimension;
 import shape.Dimension.DimName;
+import shape.Shape;
 
 /**
  * \brief Abstract class of boundary that has a location in space.

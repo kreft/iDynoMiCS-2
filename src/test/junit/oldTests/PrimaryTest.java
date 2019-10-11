@@ -1,10 +1,10 @@
 package test.junit.oldTests;
 
+import static org.junit.Assert.assertTrue;
+
 import org.junit.Test;
 
 import linearAlgebra.Vector;
-
-import static org.junit.Assert.assertTrue;
 
 /**
  * be careful using Vector.xxxEquals operations

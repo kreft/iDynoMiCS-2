@@ -1,7 +1,5 @@
 package dataIO;
 
-import dataIO.Log.Tier;
-import idynomics.Global;
 import idynomics.Idynomics;
 
 /**
