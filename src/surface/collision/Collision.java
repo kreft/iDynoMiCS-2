@@ -1325,9 +1325,9 @@ public class Collision
 	private boolean intersectSegmentCylinder(double[] sa, double[] sb, 
 			double[] p, double[] q, double r, CollisionVariables var)
 	{
-		double[] d = Vector.minus(q, p), 
-				m = Vector.minus(sa,p), 
-				n = Vector.minus(sb,sa); 
+		double[] d = this.minDistance(q, p, var).clone();
+		double[] m = this.minDistance(sa, p, var).clone();
+		double[] n = this.minDistance(sb, sa, var).clone();
 		double md = Vector.dotProduct(m, d); 
 		double nd = Vector.dotProduct(n, d); 
 		double dd = Vector.dotProduct(d, d); 

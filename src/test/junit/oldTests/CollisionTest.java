@@ -4,6 +4,9 @@ import org.junit.Test;
 
 import compartment.Compartment;
 import dataIO.Log;
+import dataIO.Log.Tier;
+import debugTools.Tester;
+import debugTools.Testable;
 import idynomics.Idynomics;
 import linearAlgebra.Vector;
 import surface.Rod;
@@ -12,41 +15,44 @@ import surface.Voxel;
 /**
  * \brief: Unit tests for surface intersection.
  * 
- * @author Bastiaan
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  *
  */
-public class CollisionTest {
+public class CollisionTest implements Testable {
 	
 	@Test
-	public void test2D()
+	public void test()
 	{
+		test(TestMode.UNIT);
+	}
+	
+	public void test(TestMode mode)
+	{
+		Log.set(Tier.CRITICAL);
 		Idynomics.setupSimulator("protocol/unit-tests/empty_5x5.xml");
 		Compartment com = Idynomics.simulator.getCompartment("5x5x5");
 
-		Log.out("2D test");
+		Tester.println("2D test", mode);
 		/* tip to tip hit */
-		tiptest(com, 0.6, 1.1, 0.4, 0.0, 0.5, 2);
+		Tester.assess( tiptest(com, 0.6, 1.1, 0.4, 0.0, 0.5, 2), true, mode);
 		/* flipped tip to tip hit */
-		tiptest(com, 0.0, 0.5, 0.4, 0.6, 1.1, 2);
+		Tester.assess( tiptest(com, 0.0, 0.5, 0.4, 0.6, 1.1, 2), true, mode);
 		/* tip to tip miss */
-		tiptest(com, 0.9, 1.4, 0.4, 0.0, 0.5, 2);
-	}
-	
-	@Test
-	public void test3D()
-	{
+		Tester.assess( tiptest(com, 0.9, 1.4, 0.4, 0.0, 0.5, 2), false, mode);
+		
+		Log.set(Tier.CRITICAL);
 		Idynomics.setupSimulator("protocol/unit-tests/empty_5x5.xml");
-		Compartment com = Idynomics.simulator.getCompartment("5x5x5");
+		com = Idynomics.simulator.getCompartment("5x5x5");
 
-		Log.out("3D test");
+		Tester.println("3D test", mode);
 		/* tip to tip hit */
-		tiptest(com, 0.6, 1.1, 0.4, 0.0, 0.5, 3);
+		Tester.assess( tiptest(com, 0.6, 1.1, 0.4, 0.0, 0.5, 3), true, mode);
 		/* flipped tip to tip hit */
-		tiptest(com, 0.0, 0.5, 0.4, 0.6, 1.1, 3);
+		Tester.assess( tiptest(com, 0.0, 0.5, 0.4, 0.6, 1.1, 3), true, mode);
 		/* tip to tip miss */
-		tiptest(com, 0.9, 1.4, 0.4, 0.0, 0.5, 3);
+		Tester.assess( tiptest(com, 0.9, 1.4, 0.4, 0.0, 0.5, 3), false, mode);
 	}
-	
+
 	private boolean tiptest(Compartment com, double lr, double hr, double rr, 
 			double lv, double hv, int dim)
 	{
@@ -65,7 +71,6 @@ public class CollisionTest {
 		vox.init(com.getShape().getCollision());
 
 		boolean out = rod.collisionWith(vox);
-		System.out.println( out );
 		return out;
 	}
 }

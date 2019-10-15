@@ -225,9 +225,9 @@ public strictfp class Idynomics
 			return;
 		}
 		/* prevent writing logFile before tier and location is set */
-			Log.printToScreen("Initiating from: " + protocolPath + 
+			Log.out("Initiating from: " + protocolPath + 
 				"\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-				+ "~~~~~~~~~~~~~~~~~~~~~~~~", false);
+				+ "~~~~~~~~~~~~~~~~~~~~~~~~");
 			
 
 		/* 
