@@ -30,7 +30,7 @@ public class CollisionTest implements Testable {
 	{
 		Log.set(Tier.CRITICAL);
 		Idynomics.setupSimulator("protocol/unit-tests/empty_5x5.xml");
-		Compartment com = Idynomics.simulator.getCompartment("5x5x5");
+		Compartment com = Idynomics.simulator.getCompartment("5x5");
 
 		Tester.println("2D test", mode);
 		/* tip to tip hit */
@@ -39,9 +39,16 @@ public class CollisionTest implements Testable {
 		Tester.assess( tiptest(com, 0.0, 0.5, 0.4, 0.6, 1.1, 2), true, mode);
 		/* tip to tip miss */
 		Tester.assess( tiptest(com, 0.9, 1.4, 0.4, 0.0, 0.5, 2), false, mode);
-		
-		Log.set(Tier.CRITICAL);
-		Idynomics.setupSimulator("protocol/unit-tests/empty_5x5.xml");
+
+		com = Idynomics.simulator.getCompartment("5x5_periodic");
+
+		Tester.println("2D test periodic", mode);
+		/* tip to tip hit */
+		Tester.assess( tiptest(com, 4.3, 4.9, 0.4, 0.0, 0.5, 2), true, mode);
+		/* tip to tip miss */
+		Tester.assess( tiptest(com, 3.9, 4.5, 0.4, 0.0, 0.5, 2), false, mode);
+		/* pass trough hit */
+		Tester.assess( tiptest(com, 4.6, 0.2, 0.4, 0.5, 1.0, 2), true, mode);
 		com = Idynomics.simulator.getCompartment("5x5x5");
 
 		Tester.println("3D test", mode);

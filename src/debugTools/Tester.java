@@ -62,7 +62,7 @@ public class Tester {
 				if( result.equals(expected) )
 					System.out.println(" pass");
 				else
-					System.err.println(" fail");
+					System.out.println(" fail");
 		}
 	}
 	
