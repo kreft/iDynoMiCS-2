@@ -1,5 +1,6 @@
 package surface.collision;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
 
 import aspect.AspectInterface;
@@ -115,8 +116,7 @@ public class Collision
 		try {
 			this._collisionFun = (CollisionFunction) 
 					Instance.getNewThrows(functionClass, null);
-		} catch (InstantiationException | IllegalAccessException | 
-				ClassNotFoundException | NullPointerException e) {
+		} catch ( Exception e ) {
 			if (functionClass == null || functionClass != Global.collision_model)
 			{
 				setCollisionFunction(Global.collision_model);
@@ -147,8 +147,7 @@ public class Collision
 		try {
 			this._pullFun = (CollisionFunction) 
 					Instance.getNewThrows(functionClass, null);
-		} catch (InstantiationException | IllegalAccessException | 
-				ClassNotFoundException | NullPointerException e) {
+		} catch ( Exception e ) {
 			if (functionClass != Global.attraction_model)
 			{
 				setAttractionFunction(Global.attraction_model);

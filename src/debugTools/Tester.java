@@ -5,6 +5,7 @@ import static org.junit.Assert.assertEquals;
 import java.util.Arrays;
 
 import debugTools.Testable.TestMode;
+import instantiable.Instance;
 import test.junit.oldTests.CollisionTest;
 
 /**
@@ -29,7 +30,8 @@ public class Tester {
 		 * above exceptions is thrown.  */
 		for (String a : tests)
 		{
-			test((Testable) Class.forName(a).newInstance(), mode);
+			test((Testable) Instance.getNew( Class.forName(a).getName(), null ), 
+					mode );
 		}
 	}
 
