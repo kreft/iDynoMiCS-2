@@ -6,7 +6,7 @@ import java.util.Arrays;
 
 import debugTools.Testable.TestMode;
 import instantiable.Instance;
-import test.junit.oldTests.CollisionTest;
+import test.junit.newTests.CollisionEvaluation;
 
 /**
  * 
@@ -20,7 +20,7 @@ public class Tester {
 		/* If no arguments are given run an example test */
 		if (args.length == 0)
 			args = new String[] { TestMode.CONSOLE.toString(), 
-					CollisionTest.class.getName() };
+					CollisionEvaluation.class.getName() };
 		
 		/* First argument is the test mode */
 		TestMode mode = TestMode.valueOf(args[0]);

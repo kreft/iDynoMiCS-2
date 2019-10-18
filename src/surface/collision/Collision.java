@@ -1257,9 +1257,10 @@ public class Collision
 	private CollisionVariables intersectRayAABB( double[] p, double[] o, 
 			Voxel a, CollisionVariables var)
 	{
-		double[] d = this.minDistance(o, p, var).clone();
+		var.distance = 0.0;
+		double[] d = Vector.minus(o, p);
 		/* set to max distance ray can travel (for segment) */
-		double tmax = Vector.normEuclid(d); 
+		double tmax = Vector.distanceEuclid(p, o); 
 		/* set to -FLT_MAX to get first hit on line */
 		var.t = 0.0;  
 		/* For all three slabs */
@@ -1330,9 +1331,9 @@ public class Collision
 	private boolean intersectSegmentCylinder(double[] sa, double[] sb, 
 			double[] p, double[] q, double r, CollisionVariables var)
 	{
-		double[] d = this.minDistance(q, p, var).clone();
-		double[] m = this.minDistance(sa, p, var).clone();
-		double[] n = this.minDistance(sb, sa, var).clone();
+		double[] d =  Vector.minus(q, p);
+		double[] m =  Vector.minus(sa, p);
+		double[] n =  Vector.minus(sb, sa);
 		double md = Vector.dotProduct(m, d); 
 		double nd = Vector.dotProduct(n, d); 
 		double dd = Vector.dotProduct(d, d); 
