@@ -45,10 +45,12 @@ public class CollisionTest implements Testable {
 		Tester.println("2D test periodic", mode);
 		/* tip to tip hit */
 		Tester.assess( tiptest(com, 4.3, 4.9, 0.4, 0.0, 0.5, 2), true, mode);
+		/* tip to tip hit (rod reflection)*/
+		Tester.assess( tiptest(com, -0.7, -0.1, 0.4, 0.0, 0.5, 2), true, mode);
 		/* tip to tip miss */
 		Tester.assess( tiptest(com, 3.9, 4.5, 0.4, 0.0, 0.5, 2), false, mode);
 		/* pass trough hit */
-		Tester.assess( tiptest(com, 4.6, 0.2, 0.4, 0.5, 1.0, 2), true, mode);
+		Tester.assess( tiptest(com, 4.6, 0.2, 0.4, 0.4, 1.0, 2), true, mode);
 		com = Idynomics.simulator.getCompartment("5x5x5");
 
 		Tester.println("3D test", mode);

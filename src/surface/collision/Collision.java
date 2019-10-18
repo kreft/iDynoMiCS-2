@@ -926,7 +926,7 @@ public class Collision
 		double[] r	= this.minDistance(p0, q0, var).clone();
 		/* direction vector of first segment */
 		double[] d1	= this.minDistance(p1, p0, var).clone();
-		/* direction vector of second segement */
+		/* direction vector of second segment */
 		double[] d2	= this.minDistance(q1, q0, var).clone();
 		/* squared length of first segment */
 		double a 	= Vector.normSquare(d1);
@@ -1156,21 +1156,26 @@ public class Collision
 	 */
 	private boolean voxelRodIntersection(Rod rod, Voxel voxel, CollisionVariables var)
 	{
-		// Compute the AABB resulting from expanding b by sphere radius r 
+		/* Compute the AABB resulting from expanding b by sphere radius r */
 		double[] emin = voxel.getLower();
 		double[] emax = voxel.getHigher();
 		double r = rod.getRadius();
+		double[] p0 = this._shape.getNearestShadowPoint(
+				rod._points[0].getPosition(), voxel.getLower());
+		double[] p1 = this._shape.getNearestShadowPoint(
+				rod._points[1].getPosition(), voxel.getLower());
+		Rod periodicShadow = new Rod(p0, p1, r);
 		Voxel e = new Voxel(Vector.minus(emin, r), Vector.add(emax, r));
-		// Intersect ray against expanded AABB e. Exit with no intersection if ray 
-		// misses e, else get intersection point p and time t as result 
+		/* Intersect ray against expanded AABB e. Exit with no intersection if 
+		 * ray misses e, else get intersection point p and time t as result */
 		
-		var = intersectRayAABB(rod._points[0].getPosition(), 
-				rod._points[1].getPosition(), e, var);
+		var = intersectRayAABB(periodicShadow._points[0].getPosition(), 
+				periodicShadow._points[1].getPosition(), e, var);
 		if (var.distance == Double.MAX_VALUE || var.t > 1.0 ) 
 			return false;
-		// Compute which min and max faces of b the intersection point p lies 
-		// outside of. Note, u and v cannot have the same bits set and 
-		// they must have at least one bit set among them 
+		/* Compute which min and max faces of b the intersection point p lies 
+		 * outside of. Note, u and v cannot have the same bits set and 
+		 * they must have at least one bit set among them */
 		int u = 0;
 		int v = 0; 
 		if (var.interactionVector[0] < voxel.getLower()[0]) 
@@ -1206,16 +1211,16 @@ public class Collision
 			// edges meeting at the vertex and return the best time, if one or more hit 
 			double tmin = Float.MAX_VALUE; 
 			if ( intersectSegmentCapsule(Corner(voxel, v), 
-					Corner(voxel, v ^ 1), rod._points[0].getPosition(), 
-					rod._points[1].getPosition(), rod.getRadius(), var) ) 
+					Corner(voxel, v ^ 1), periodicShadow._points[0].getPosition(), 
+					periodicShadow._points[1].getPosition(), periodicShadow.getRadius(), var) ) 
 				tmin = Math.min(var.t, tmin);
 			if ( intersectSegmentCapsule(Corner(voxel, v), 
-					Corner(voxel, v ^ 2), rod._points[0].getPosition(), 
-					rod._points[1].getPosition(), rod.getRadius(), var) ) 
+					Corner(voxel, v ^ 2), periodicShadow._points[0].getPosition(), 
+					periodicShadow._points[1].getPosition(), periodicShadow.getRadius(), var) ) 
 				tmin = Math.min(var.t, tmin);
 			if ( intersectSegmentCapsule(Corner(voxel, v), 
-					Corner(voxel, v ^ 4), rod._points[0].getPosition(), 
-					rod._points[1].getPosition(), rod.getRadius(), var) ) 
+					Corner(voxel, v ^ 4), periodicShadow._points[0].getPosition(), 
+					periodicShadow._points[1].getPosition(), periodicShadow.getRadius(), var) ) 
 				tmin = Math.min(var.t, tmin);
 			if ( tmin == Float.MAX_VALUE ) 
 				return false; // No intersection
@@ -1232,8 +1237,8 @@ public class Collision
 		//FIXME seems to receive [0, 0] twice from corner rather than a segment
 		// p is in an edge region. Intersect against the capsule at the edge 
 		return intersectSegmentCapsule(Corner(voxel, u ^ l), 
-				Corner(voxel, v), rod._points[0].getPosition(), 
-				rod._points[1].getPosition(), rod.getRadius(), var);
+				Corner(voxel, v), periodicShadow._points[0].getPosition(), 
+				periodicShadow._points[1].getPosition(), periodicShadow.getRadius(), var);
 	}
 	
 	/**
@@ -1252,17 +1257,18 @@ public class Collision
 	private CollisionVariables intersectRayAABB( double[] p, double[] o, 
 			Voxel a, CollisionVariables var)
 	{
-		double[] d = Vector.minus(o, p);
-		// set to max distance ray can travel (for segment)
-		double tmax = Vector.distanceEuclid(p, o); 
-		// set to -FLT_MAX to get first hit on line
+		double[] d = this.minDistance(o, p, var).clone();
+		/* set to max distance ray can travel (for segment) */
+		double tmax = Vector.normEuclid(d); 
+		/* set to -FLT_MAX to get first hit on line */
 		var.t = 0.0;  
-		// For all three slabs 
+		/* For all three slabs */
 		for(int i=0; i<d.length; i++) 
 		{ 
+			/** TODO periodic */
 			if ( Math.abs(d[i]) < EPSILON) 
 			{ 
-				// Ray is parallel to slab. No hit if origin not within slab 
+				/* Ray is parallel to slab. No hit if origin not within slab */
 				if (p[i] < a.getLower()[i] || p[i] > a.getHigher()[i])
 				{
 					var.distance = Double.MAX_VALUE;

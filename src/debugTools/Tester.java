@@ -15,12 +15,12 @@ import test.junit.oldTests.CollisionTest;
  */
 public class Tester {
 	
-	public static void main(String[] args) throws InstantiationException, 
-			IllegalAccessException, ClassNotFoundException
+	public static void main(String[] args)
 	{
 		/* If no arguments are given run an example test */
 		if (args.length == 0)
-			args = new String[] { "CONSOLE", CollisionTest.class.getName() };
+			args = new String[] { TestMode.CONSOLE.toString(), 
+					CollisionTest.class.getName() };
 		
 		/* First argument is the test mode */
 		TestMode mode = TestMode.valueOf(args[0]);
@@ -30,8 +30,12 @@ public class Tester {
 		 * above exceptions is thrown.  */
 		for (String a : tests)
 		{
-			test((Testable) Instance.getNew( Class.forName(a).getName(), null ), 
-					mode );
+			try {
+				test(( Testable) Instance.getNew( 
+						Class.forName(a).getName(), null ), mode );
+			} catch (ClassNotFoundException e) {
+				System.out.println("Could not find class " + a);
+			}
 		}
 	}
 
@@ -92,7 +96,7 @@ public class Tester {
 			case UNIT:
 				break;
 			default:
-				System.out.print(msg);
+				System.out.print( msg );
 		}
 	}
 }
