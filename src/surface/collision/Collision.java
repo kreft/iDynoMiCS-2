@@ -816,14 +816,16 @@ public class Collision
 	public CollisionVariables linesegPoint(double[] p0, double[] p1, 
 			double[] q0, CollisionVariables var) 
 	{
+		double[] sp0 = this._shape.getNearestShadowPoint(p0,q0);
+		double[] sp1 = this._shape.getNearestShadowPoint(p1,q0);
 		/* ab = p1 - p0 */
-		this.setPeriodicDistanceVector(p1, p0, var);
-		var.s = Vector.dotProduct( Vector.minus(q0, p0), var.interactionVector);
+		this.setPeriodicDistanceVector(sp1, sp0, var);
+		var.s = Vector.dotProduct( Vector.minus(q0, sp0), var.interactionVector);
 		var.s /= Vector.normSquare(var.interactionVector);
 		var.s  = clamp( var.s );
 		/* dP = (ab*s) + p0 - q0 */
 		Vector.timesEquals(var.interactionVector, var.s);
-		Vector.addEquals(var.interactionVector, p0);
+		Vector.addEquals(var.interactionVector, sp0);
 		Vector.minusEquals(var.interactionVector, q0);
 		var.distance = Vector.normEuclid(var.interactionVector);
 		return var;
@@ -1132,19 +1134,30 @@ public class Collision
 	private CollisionVariables voxelSphere(Voxel voxel, Ball sphere, 
 			CollisionVariables var)
 	{
+		var = voxelPoint(voxel, sphere._point.getPosition(), var);
+		var.distance -= sphere.getRadius();
+		return var;
+	}
+	
+	private CollisionVariables voxelPoint(Voxel voxel, double[] point,
+			CollisionVariables var)
+	{
 		var.distance = 0.0; double t,v = 0.0;
 		for(int i=0; i < voxel.getLower().length ; i++) 
 		{ 
+			double[] p = this._shape.getNearestShadowPoint( point, 
+					voxel.getLower() );
 			t = voxel.getLower()[i];
-			v = sphere._point.getPosition()[i];
+			v = p[i];
 			if (v < t)
-				var.distance += ( t - v ) * ( v - t );
+				var.distance += ( t - v ) * ( t - v );
 			t = voxel.getHigher()[i];
 			if (v > t)
-				var.distance += ( v - t ) * ( t - v );
+				var.distance += ( v - t ) * ( v - t );
 		}
 		var.distance = Math.sqrt(var.distance);
 		return var;
+		
 	}
 	
 	/**

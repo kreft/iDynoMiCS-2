@@ -53,11 +53,25 @@ public class Tester {
 	 * Assess whether the 2 inputs are equal, depends on test mode, the input
 	 * class must implement a sensible equals(T) method.
 	 * 
-	 * @param result
-	 * @param expected
-	 * @param mode
+	 * @param result - the test result
+	 * @param expected - the expected value
+	 * @param mode - the test mode (for example run as UNIT test or in console mode)
 	 */
 	public static <T> void assess(T result, T expected, TestMode mode)
+	{
+		assess(result, expected, mode, "");
+	}
+	
+	/**
+	 * Assess whether the 2 inputs are equal, depends on test mode, the input
+	 * class must implement a sensible equals(T) method.
+	 * 
+	 * @param result - the test result
+	 * @param expected - the expected value
+	 * @param mode - the test mode (for example run as UNIT test or in console mode)
+	 * @param description - short desription of the test
+	 */
+	public static <T> void assess(T result, T expected, TestMode mode, String desription)
 	{
 		switch(mode) 
 		{
@@ -66,9 +80,9 @@ public class Tester {
 				break;
 			default:
 				if( result.equals(expected) )
-					System.out.println(" pass");
+					println(" pass" +  " (" + desription + ")", mode);
 				else
-					System.out.println(" fail");
+					println(" fail" + " (" + desription + ")", mode);
 		}
 	}
 	
