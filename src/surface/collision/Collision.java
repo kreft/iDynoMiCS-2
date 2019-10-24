@@ -1,6 +1,5 @@
 package surface.collision;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
 
 import aspect.AspectInterface;
@@ -715,9 +714,7 @@ public class Collision
 		
 		/* Normal collision. */
 		var.distance -= a.getRadius() + b.getRadius();
-		/*
-		 * additional collision variables
-		 */
+		/* additional collision variables */
 		if (extend) 
 		{ 
 			var.radiusEffective = ( a.getRadius() * b.getRadius() ) / 
@@ -777,21 +774,15 @@ public class Collision
 	private CollisionVariables planeRod(Plane plane, Rod rod, 
 			CollisionVariables var)
 	{
-		/*
-		 * First find the distance between the plane and the axis of the rod. 
-		 */
+		/* First find the distance between the plane and the axis of the rod. */
 		this.planeLineSeg( plane.getNormal(), plane.getD(), 
 				rod._points[0].getPosition(), 
 				rod._points[1].getPosition(), 
 				var);
-		/*
-		 * Subtract the rod's radius to find the distance between the plane and
-		 * the rod's surface.
-		 */
+		/* Subtract the rod's radius to find the distance between the plane and
+		 * the rod's surface. */
 		var.distance -= rod.getRadius();
-		/*
-		 * additional collision variables
-		 */
+		/* additional collision variables */
 		if (extend) 
 		{ 
 			var.radiusEffective = rod.getRadius();
@@ -846,16 +837,12 @@ public class Collision
 	public CollisionVariables rodPoint(Rod aRod, double[] p, 
 			CollisionVariables var)
 	{
-		/*
-		 * First find the distance between the axis of the rod and the point. 
-		 */
+		/* First find the distance between the axis of the rod and the point. */
 		this.linesegPoint(
 				aRod._points[0].getPosition(), 
 				aRod._points[1].getPosition(), p, var);
-		/*
-		 * Subtract the rod's radius to find the distance between the point and
-		 * the rod's surface.
-		 */
+		/* Subtract the rod's radius to find the distance between the point and
+		 * the rod's surface. */
 		var.distance -= aRod.getRadius();
 		return var;
 	}
@@ -944,19 +931,13 @@ public class Collision
 			var.s = 0.0;
 		else
 			var.s = clamp( (b*f-c*e) / denominator );	
-		
-		/*
-		 * Compute point on L2 closest to S1(s) using 
-		 * t = Dot( (P1 + D1*s) - P2,D2) / Dot(D2,D2) = (b*s + f) / e
-		 */
+		/* Compute point on L2 closest to S1(s) using 
+		 * t = Dot( (P1 + D1*s) - P2,D2) / Dot(D2,D2) = (b*s + f) / e */
 		var.t = (b*var.s + f) / e;
-		
-		/*
-		 * If t in [0,1] (on the line-segment) we can continue. Else we clamp t,
+		/*If t in [0,1] (on the line-segment) we can continue. Else we clamp t,
 		 * recompute s for the new value of t using 
 		 * s = Dot( (P2 + D2*t) - P1 , D1 ) / Dot( D1 ,D1 ) = ( t * b - c ) / a 
-		 * and clamp s to [0, 1].
-		 */
+		 * and clamp s to [0, 1]. */
 		if ( var.t < 0.0 ) 
 		{
 			var.t = 0.0;
@@ -967,21 +948,14 @@ public class Collision
 			var.t = 1.0;
 			var.s = clamp((b-c)/a);
 		}
-
-		/*
-		 * the closest point on the first segment is now fraction s of the
+		/* the closest point on the first segment is now fraction s of the
 		 * length from the first start in the following the direction of the 
-		 * segment
-		 */
+		 * segment. */
 		Vector.timesEquals(d1, var.s);
 		Vector.addEquals(d1, p0);
-		
-		/*
-		 * similar for the second point with fraction t
-		 */
+		/* similar for the second point with fraction t */
 		Vector.timesEquals(d2, var.t);
 		Vector.addEquals(d2, q0);
-
 		/* finally calculate the distance between the two points */
 		this.setPeriodicDistanceVector(d1, d2, var);
 		var.distance = Vector.normEuclid(var.interactionVector);
@@ -1000,22 +974,16 @@ public class Collision
 	 */
 	private CollisionVariables rodRod(Rod a, Rod b, CollisionVariables var)
 	{
-		/*
-		 * First find the distance between the axes of the two rods. 
-		 */
+		/* First find the distance between the axes of the two rods.  */
 		this.linesegLineseg(
 				a._points[0].getPosition(),
 				a._points[1].getPosition(),
 				b._points[0].getPosition(),
 				b._points[1].getPosition(), var);
-		/*
-		 * Subtract the radii of both rods to find the distance between their
-		 * surfaces.
-		 */
+		/* Subtract the radii of both rods to find the distance between their
+		 * surfaces.  */
 		var.distance -= a.getRadius() + b.getRadius();
-		/*
-		 * additional collision variables
-		 */
+		/* additional collision variables */
 		if (extend) 
 		{ 
 			var.radiusEffective = ( a.getRadius() * b.getRadius() ) / 
@@ -1209,56 +1177,59 @@ public class Collision
 			if (var.interactionVector[2] > voxel.getHigher()[2]) 
 				v |= 4;
 		}
-		// ‘Or’ all set bits together into a bit mask (note: here u+v==u|v) 
+		/* ‘Or’ all set bits together into a bit mask (note: here u+v==u|v) */
 		int m = u + v;
-		// Define line segment [c, c+d] specified by the sphere movement 
-		//Segment seg(s.c, s.c + d);
-		// --> Rod
+		/* Define line segment [c, c+d] specified by the sphere movement 
+		 * Segment seg(s.c, s.c + d);
+		 * --> Rod */
 		int l = 3;
 		if ( voxel.getLower().length == 3 )
 			l = 7;
-		
-		// If all 3 bits set (m == 7) then p is in a vertex region 
+		/* If all 3 bits set (m == 7) then p is in a vertex region */
 		if (m == l) { 
-			// Must now intersect segment [c, c+d] against the capsules of the three 
-			// edges meeting at the vertex and return the best time, if one or more hit 
+		/* Must now intersect segment [c, c+d] against the capsules of the three 
+		 * edges meeting at the vertex and return the best time, if one or more 
+		 * hit. */
 			double tmin = Float.MAX_VALUE; 
-			if ( intersectSegmentCapsule(Corner(voxel, v), 
-					Corner(voxel, v ^ 1), periodicShadow._points[0].getPosition(), 
-					periodicShadow._points[1].getPosition(), periodicShadow.getRadius(), var) ) 
+			if ( intersectSegmentCapsule(Corner(voxel, v), Corner(voxel, v ^ 1),
+					periodicShadow._points[0].getPosition(), 
+					periodicShadow._points[1].getPosition(), 
+					periodicShadow.getRadius(), var) ) 
 				tmin = Math.min(var.t, tmin);
-			if ( intersectSegmentCapsule(Corner(voxel, v), 
-					Corner(voxel, v ^ 2), periodicShadow._points[0].getPosition(), 
-					periodicShadow._points[1].getPosition(), periodicShadow.getRadius(), var) ) 
+			if ( intersectSegmentCapsule(Corner(voxel, v), Corner(voxel, v ^ 2),
+					periodicShadow._points[0].getPosition(), 
+					periodicShadow._points[1].getPosition(), 
+					periodicShadow.getRadius(), var) ) 
 				tmin = Math.min(var.t, tmin);
-			if ( intersectSegmentCapsule(Corner(voxel, v), 
-					Corner(voxel, v ^ 4), periodicShadow._points[0].getPosition(), 
-					periodicShadow._points[1].getPosition(), periodicShadow.getRadius(), var) ) 
+			if ( intersectSegmentCapsule(Corner(voxel, v), Corner(voxel, v ^ 4),
+					periodicShadow._points[0].getPosition(), 
+					periodicShadow._points[1].getPosition(), 
+					periodicShadow.getRadius(), var) ) 
 				tmin = Math.min(var.t, tmin);
 			if ( tmin == Float.MAX_VALUE ) 
-				return false; // No intersection
+				return false; /* No intersection */
 		var.t = tmin; 
 		return true;
-		// Intersection at time t == tmin 
+		/* Intersection at time t == tmin */
 		}
-		// If only one bit set in m, then p is in a face region 
+		/* If only one bit set in m, then p is in a face region */
 		if ((m & (m - 1)) == 0) { 
-			// Do nothing. Time t from intersection with 
-			// expanded box is correct intersection time 
+			/* Do nothing. Time t from intersection with 
+			 * expanded box is correct intersection time */
 			return true;
 		}
-		//FIXME seems to receive [0, 0] twice from corner rather than a segment
-		// p is in an edge region. Intersect against the capsule at the edge 
-		return intersectSegmentCapsule(Corner(voxel, u ^ l), 
-				Corner(voxel, v), periodicShadow._points[0].getPosition(), 
-				periodicShadow._points[1].getPosition(), periodicShadow.getRadius(), var);
+		/* p is in an edge region. Intersect against the capsule at the edge */
+		return intersectSegmentCapsule( Corner(voxel, u ^ l), Corner(voxel, v), 
+				periodicShadow._points[0].getPosition(), 
+				periodicShadow._points[1].getPosition(), 
+				periodicShadow.getRadius(), var);
 	}
 	
 	/**
 	 * TODO Real-time collision detection pp 180
 	 * 
-	 * // Intersect ray R(t)=p+t*d against AABB a. When intersecting, 
-	 * // return intersection distance tmin and point q of intersection
+	 * Intersect ray R(t)=p+t*d against AABB a. When intersecting, 
+	 * return intersection distance tmin and point q of intersection
 	 * 
 	 * @param p
 	 * @param d
@@ -1291,19 +1262,21 @@ public class Collision
 			} 
 			else
 			{ 
-				// Compute intersection t value of ray with near and far plane of slab 
+				/* Compute intersection t value of ray with near and far plane
+				 * of slab */
 				double ood = 1.0 / d[i]; 
 				double t1 = ((a.getLower()[i] - p[i]) * ood); 
 				double t2 = ((a.getHigher()[i] - p[i]) * ood); 
-				// Make t1 be intersection with near plane, t2 with far plane 
+				/* Make t1 be intersection with near plane, t2 with far plane */
 				if (t1 > t2) 
 					Swap(t1, t2); 
-				// Compute the intersection of slab intersection intervals 
+				/* Compute the intersection of slab intersection intervals */
 				if (t1 > var.t) 
 					var.t = t1; 
 				if (t2 > tmax) 
 					tmax = t2; 
-				// Exit with no collision as soon as slab intersection becomes empty 
+				/* Exit with no collision as soon as slab intersection becomes 
+				 * empty. */
 				if (var.t > tmax) 
 				{
 					var.distance = Double.MAX_VALUE;
@@ -1323,16 +1296,14 @@ public class Collision
 	private boolean intersectSegmentCapsule(double[] sa, double[] sb, 
 			double[] p, double[] q, double r, CollisionVariables var)
 	{
-		
-		// FIXME there are probably better/faster/cleaner ways to convert
-		// cylinder assessment into a capsule assessment
-		// hacking in some capsule cap test
+		/* checking caps */
 		var = linesegPoint( sa, sb, p, var );
 		if(var.distance < r + var.pullRange)
 			return true;
 		var = linesegPoint( sa, sb, q, var );
 		if(var.distance < r + var.pullRange)
 			return true;
+		/* checking cylinder */
 		return intersectSegmentCylinder( sa, sb, p, q, r, var );
 	}
 	
@@ -1351,34 +1322,33 @@ public class Collision
 		double nd = Vector.dotProduct(n, d); 
 		double dd = Vector.dotProduct(d, d); 
 
-		// Test if segment fully outside either endcap of cylinder 
+		/* Test if segment fully outside either endcap of cylinder */
 		if (md < 0.0 && md + nd < 0.0) 
 			return false; 
-		// Segment outside ’p’ side of cylinder 
+		/* Segment outside ’p’ side of cylinder */
 		if (md > dd && md + nd > dd) 
 			return false; 
-		// Segment outside ’q’ side of cylinder 
-		
+		/* Segment outside ’q’ side of cylinder */
 		double nn = Vector.dotProduct(n, n); 
 		double mn = Vector.dotProduct(m, n); 
 		double a = dd * nn - nd * nd;
 		double k = Vector.dotProduct(m, m) - r*r; 
 		double c = (dd * k - md * md); 
 		if ( Math.abs(a) < EPSILON) { 
-			// Segment runs parallel to cylinder axis 
+		/* Segment runs parallel to cylinder axis */
 			if (c > 0.0) 
 				return false;
-		// ’a’ and thus the segment lie outside cylinder
-		// Now known that segment intersects cylinder; figure out how it intersects 
+		/* ’a’ and thus the segment lie outside cylinder. Now known that segment 
+		 * intersects cylinder; figure out how it intersects. */
 			if (md < 0.0)
 				var.t =  (-mn/nn);
-		// Intersect segment against ’p’ endcap
+		/* Intersect segment against ’p’ endcap */
 		else if (md > dd)
 			var.t = (nd-mn) / nn; 
-			// Intersect segment against ’q’ endcap 
+			/* Intersect segment against ’q’ endcap */
 		else 
 			var.t = 0.0;
-		// ’a’ lies inside cylinder
+		/* ’a’ lies inside cylinder */
 		return true;
 		}
 		
@@ -1386,32 +1356,32 @@ public class Collision
 		double discr = (b*b - a*c); 
 		if (discr < 0.0) 
 			return false;
-		// No real roots; no intersection
+		/* No real roots; no intersection */
 		
 		var.t = (-b - Math.sqrt(discr)) / a; 
 		if (var.t < 0.0 || var.t > 1.0) 
 			return false;
-		// Intersection lies outside segment
+		/* Intersection lies outside segment */
 		if( md+var.t*nd< 0.0) { 
-			// Intersection outside cylinder on ’p’ side 
+			/* Intersection outside cylinder on ’p’ side */
 			if (nd <= 0.0) 
 				return false;
-		// Segment pointing away from endcap
+		/* Segment pointing away from endcap */
 			var.t = -md / nd; 
-		// Keep intersection if Dot(S(t) - p, S(t) - p) <= r∧2 
+		/* Keep intersection if Dot(S(t) - p, S(t) - p) <= r∧2 */
 		return k+2*var.t*(mn+var.t*nn) <= 0.0;
 		} 
 		else if (md+var.t*nd>dd)
 		{ 
-			// Intersection outside cylinder on ’q’ side 
+			/* Intersection outside cylinder on ’q’ side */
 			if (nd >= 0.0) 
 				return false; 
-			// Segment pointing away from endcap 
+			/* Segment pointing away from endcap */
 			var.t = (dd - md) / nd; 
-			// Keep intersection if Dot(S(t) - q, S(t) - q) <= r∧2 
+			/* Keep intersection if Dot(S(t) - q, S(t) - q) <= r∧2 */
 			return k+dd-2*md+var.t*(2*(mn-nd)+var.t*nn) <= 0.0;
 		}
-		// Segment intersects cylinder between the endcaps; t is correct 
+		/* Segment intersects cylinder between the endcaps; t is correct */
 		return true;
 	}
 	/* ***********************************************************************
