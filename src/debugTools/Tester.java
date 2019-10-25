@@ -55,7 +55,7 @@ public class Tester {
 	 * 
 	 * @param result - the test result
 	 * @param expected - the expected value
-	 * @param mode - the test mode (for example run as UNIT test or in console mode)
+	 * @param mode - the test mode (eg unit-test or console)
 	 */
 	public static <T> void assess(T result, T expected, TestMode mode)
 	{
@@ -68,10 +68,11 @@ public class Tester {
 	 * 
 	 * @param result - the test result
 	 * @param expected - the expected value
-	 * @param mode - the test mode (for example run as UNIT test or in console mode)
-	 * @param description - short desription of the test
+	 * @param mode - the test mode (eg unit-test or console)
+	 * @param description - short description of the test
 	 */
-	public static <T> void assess(T result, T expected, TestMode mode, String desription)
+	public static <T> void assess(T result, T expected, TestMode mode, 
+			String desription)
 	{
 		switch(mode) 
 		{

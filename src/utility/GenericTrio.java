@@ -1,5 +1,15 @@
 package utility;
 
+/**
+ * Generic data class used to either pass or store a triplet of associated 
+ * objects.
+ * 
+ * @author Bastiaan
+ *
+ * @param <E>
+ * @param <S>
+ * @param <U>
+ */
 public class GenericTrio<E,S,U>  {
 
     private final E first;

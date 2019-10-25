@@ -116,7 +116,8 @@ public class Collision
 			this._collisionFun = (CollisionFunction) 
 					Instance.getNewThrows(functionClass, null);
 		} catch ( Exception e ) {
-			if (functionClass == null || functionClass != Global.collision_model)
+			if (functionClass == null || 
+					functionClass != Global.collision_model)
 			{
 				setCollisionFunction(Global.collision_model);
 				if (Log.shouldWrite(Tier.CRITICAL) && functionClass != null )
@@ -251,7 +252,8 @@ public class Collision
 	 * @param pullDistance
 	 */
 	public void collision(Collection<Surface> allA, AspectInterface first, 
-			Collection<Surface> allB, AspectInterface second, double pullDistance)
+			Collection<Surface> allB, AspectInterface second, double 
+			pullDistance)
 	{
 		_variables.setPullRange(pullDistance);
 		for ( Surface a : allA )
@@ -271,7 +273,8 @@ public class Collision
 	 * @param pullDistance
 	 */
 	public void collision(Surface a, AspectInterface first, 
-			Collection<Surface> allB, AspectInterface second, double pullDistance)
+			Collection<Surface> allB, AspectInterface second, 
+			double pullDistance)
 	{
 		_variables.setPullRange(pullDistance);
 		for ( Surface b : allB )
