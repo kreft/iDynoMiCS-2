@@ -431,13 +431,49 @@ public abstract class ProcessDiffusion extends ProcessManager
 				if ( a.isAspect(VD_TAG) )
 				{
 					mapOfMaps = (Map<Shape, HashMap<IntegerArray,Double>>) a.getValue(VD_TAG);
+					// FIXME (overwritng distribution map?????)
 					distributionMap = mapOfMaps.get(shape);
 					ProcessDiffusion.scale(distributionMap, 1.0);
 				}
 			}
 		}
+		
 		else
 		{
+			
+		/// TESTING distribute over all hit voxels
+//			double[] location;
+//			double[] dimension = new double[3];
+//			double[] sides;
+//			double[] upper;
+//			
+//			for ( Agent a : this._agents.getAllLocatedAgents() )
+//			{
+//				mapOfMaps = (Map<Shape, HashMap<IntegerArray,Double>>) a.getValue(VD_TAG);
+//				distributionMap = mapOfMaps.get(shape);
+//				
+//				for ( int[] coord = shape.resetIterator(); 
+//						shape.isIteratorValid(); coord = shape.iteratorNext())
+//				{
+//					location = Vector.subset(shape.getVoxelOrigin(coord), nDim);
+//					shape.getVoxelSideLengthsTo(dimension, coord); 
+//					sides = Vector.subset(dimension, nDim);
+//					upper = Vector.add(location, sides);
+//					
+//					Voxel vox = new Voxel(location, upper);
+//					vox.init(shape.getCollision());
+//					
+//					for (Surface s : (List<Surface>) ((Body) a.get(AspectRef.agentBody)).getSurfaces())
+//					{
+//						if ( vox.collisionWith(s))
+//						{
+//							distributionMap.put(new IntegerArray(shape.getCoords(location)), 1.0);
+//						}
+//					}
+//				}
+//				ProcessDiffusion.scale(distributionMap, 1.0);
+//			}
+			
 			for ( Agent a : this._agents.getAllLocatedAgents() )
 			{
 				IntegerArray coordArray = new IntegerArray( 

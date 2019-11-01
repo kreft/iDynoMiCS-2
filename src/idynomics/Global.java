@@ -75,6 +75,7 @@ public class Global extends ParameterSet
 			{
 				t = Tier.valueOf( XmlHandler.obtainAttribute( elem, 
 						XmlRef.logLevel, XmlRef.simulation ) );
+				Log.set(t);
 			}
 			catch (IllegalArgumentException e)
 			{
@@ -82,8 +83,6 @@ public class Global extends ParameterSet
 						Helper.enumToString(Tier.class));
 			}
 		}
-		if( ! Log.isSet() )
-			Log.set(t);
 		/* 
 		 * 
 		 */

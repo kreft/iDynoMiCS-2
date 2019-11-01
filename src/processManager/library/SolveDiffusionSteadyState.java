@@ -333,6 +333,7 @@ public class SolveDiffusionSteadyState extends ProcessDiffusion
 					{
 						newBiomass.put(productName, newBiomass.get(productName)
 								+ (productRate * this.getTimeStepSize() * volume));
+						System.out.println(productRate * volume);
 					}
 					else if ( agent.isAspect(productName) )
 					{

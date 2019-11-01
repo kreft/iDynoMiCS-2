@@ -64,22 +64,18 @@ public class PDEmultigrid extends PDEsolver
 	 */
 	private int _numLayers;
 	
-	private int _numVCycles = 3;
+	private int _numVCycles = 10;
 	
-	private int _numPreSteps = 150;
+	private int _numPreSteps = 100;
 	
-	private int _numCoarseStep = 150;
+	private int _numCoarseStep = 100;
 	
-	private int _numPostSteps = 1500;
+	private int _numPostSteps = 500;
 	
 	private double _absToleranceLevel;
 	
 	private double _relToleranceLevel;
-	
-	private boolean _earlyStop = false;
-	
 
-	
 	private boolean _checkVCycleDiscrepancy = true;
 	
 	private double tempRes[];
@@ -89,6 +85,8 @@ public class PDEmultigrid extends PDEsolver
 	private int num = 0;
 	
 	private double _discrepancyThreshold = 0.01;
+	
+	private boolean _reachedStopCondition = false;
 	
 	/* ***********************************************************************
 	 * SOLVER METHODS
@@ -493,7 +491,7 @@ public class PDEmultigrid extends PDEsolver
 			for ( SpatialGrid grid : currentGrids ) {
 				this.relax(grid, currentCommon);
 			}
-			if (this._earlyStop) {
+			if (this._reachedStopCondition) {
 				if( Log.shouldWrite(Tier.DEBUG) )
 					Log.out(Tier.DEBUG, "Breaking early: "+ i +" of "
 							+ numRepetitions );
@@ -528,7 +526,7 @@ public class PDEmultigrid extends PDEsolver
 		double lop, totalNhbWeight, residual;
 		@SuppressWarnings("unused")
 		int[] current, nhb;
-		this._earlyStop = true;
+		this._reachedStopCondition = true;
 		
 		for ( current = shape.resetIterator(); shape.isIteratorValid();
 				current = shape.iteratorNext() )
@@ -619,7 +617,7 @@ public class PDEmultigrid extends PDEsolver
 			if (Math.abs(residual) > this._absToleranceLevel &&
 					Math.abs(relChange) > this._relToleranceLevel) 
 			{
-				this._earlyStop = false;
+				this._reachedStopCondition = false;
 			} else {
 				if( Log.shouldWrite(Tier.DEBUG) )
 					Log.out(Tier.DEBUG, "residual = "+residual+" relChange = "+
