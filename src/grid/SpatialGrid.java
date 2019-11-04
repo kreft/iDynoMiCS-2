@@ -145,8 +145,6 @@ public class SpatialGrid implements Settable, Instantiable
 
 				List<Agent> nhbs = CollisionUtilities.getCollidingAgents(
 						vox, agents.treeSearch( location, upper ) );
-				nhbs = new LinkedList<Agent>();
-
 				/* If there are any agents in this voxel, update the 
 				 * diffusivity. */
 				if ( ! nhbs.isEmpty() )
