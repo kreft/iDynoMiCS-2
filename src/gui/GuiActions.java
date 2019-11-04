@@ -66,6 +66,7 @@ public final class GuiActions
     		checkProtocol();
     		GuiButtons.resetProgressBar();
     		GuiActions.loadCurrentState();
+    		GuiMain.setStatus( Idynomics.global.protocolFile );
     	}    		
 	}
 	
