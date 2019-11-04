@@ -34,6 +34,7 @@ import solver.PDEupdater;
 import surface.Surface;
 import surface.Voxel;
 import surface.collision.Collision;
+import surface.collision.CollisionUtilities;
 import utility.Helper;
 
 /**
@@ -329,23 +330,8 @@ public abstract class ProcessDiffusion extends ProcessManager
 					Voxel vox = new Voxel(location, upper);
 					vox.init(shape.getCollision());
 					/* NOTE the agent tree is always the amount of actual dimension */
-					List<Agent> neighbors = this._agents.treeSearch(location, upper);
-					nhbs = new LinkedList<Agent>();
-					for ( Agent a : neighbors )
-					{
-						boolean keep = false;
-						for (Surface s : (List<Surface>) ((Body) a.get(AspectRef.agentBody)).getSurfaces())
-						{
-							if ( vox.distanceTo(s) <= 0.0 )
-							{
-								keep = true;
-								break;
-							}
-						}
-						if ( keep )
-							nhbs.add(a);
-					}
-					
+					nhbs = CollisionUtilities.getCollidingAgents(
+							vox, this._agents.treeSearch( location, upper ) );
 					/* used later to find subgridpoint scale */
 					minRad = Vector.min(sides);
 				}

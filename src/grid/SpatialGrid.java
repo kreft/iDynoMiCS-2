@@ -31,6 +31,7 @@ import settable.Settable;
 import shape.Shape;
 import surface.Surface;
 import surface.Voxel;
+import surface.collision.CollisionUtilities;
 import utility.ExtraMath;
 import utility.Helper;
 
@@ -138,26 +139,14 @@ public class SpatialGrid implements Settable, Instantiable
 				
 				/* FIXME this assumes Cartesian grids  */
 				shape.voxelUpperCornerTo(upper, coord);
-				List<Agent> neighbors = agents.treeSearch(location, upper);
+				
 				Voxel vox = new Voxel(location, upper);
 				vox.init(_shape.getCollision());
-				
-				List<Agent> nhbs = new LinkedList<Agent>();
+
+				List<Agent> nhbs = CollisionUtilities.getCollidingAgents(
+						vox, agents.treeSearch( location, upper ) );
 				nhbs = new LinkedList<Agent>();
-				for ( Agent a : neighbors )
-				{
-					boolean keep = false;
-					for (Surface s : (List<Surface>) ((Body) a.get(AspectRef.agentBody)).getSurfaces())
-					{
-						if ( vox.distanceTo(s) <= 0.0 )
-						{
-							keep = true;
-							break;
-						}
-					}
-					if ( keep )
-						nhbs.add(a);
-				}
+
 				/* If there are any agents in this voxel, update the 
 				 * diffusivity. */
 				if ( ! nhbs.isEmpty() )
