@@ -87,7 +87,7 @@
 			</solutes>
 			<processManagers>
 				<process name="solveChemostat" class="ChemostatSolver" priority="0"
-					firstStep="0.0"  timerStepSize="15.0">
+					firstStep="0.0">
 					<aspect name="hMax" type="PRIMARY" class="Double" value="15.0" />
 					<aspect name="solver" type="PRIMARY" class="String" value="heun" />
 					<aspect name="tolerance" class="Double" value="1.0E-6" />
@@ -107,9 +107,9 @@
 			<shape class="Rectangle" resolutionCalculator="MultigridResolution">
 				<!-- µm -->
 				<dimension name="X" isCyclic="true" targetResolution="1.0" max="32.0"></dimension>
-				<dimension name="Y" isCyclic="false" targetResolution="1.0" max="64.0">
+				<dimension name="Y" isCyclic="false" targetResolution="1.0" max="128.0">
 					<boundary extreme="0" class="SolidBoundary" />
-					<boundary extreme="1" class="BiofilmBoundaryLayer" partnerCompartment="chemostat" layerThickness="20" />
+					<boundary extreme="1" class="BiofilmBoundaryLayer" partnerCompartment="chemostat" layerThickness="60" />
 				</dimension>
 			</shape>
 			<solutes>
@@ -131,12 +131,12 @@
 			</agents>
 			<processManagers>				
 				<!-- ms -->
-				<process name="SolveDiffusionSteadyState" class="SolveDiffusionSteadyState" priority="1" firstStep="0.0" timerStepSize="15.0">
+				<process name="SolveDiffusionSteadyState" class="SolveDiffusionSteadyState" priority="1" firstStep="0.0">
 					<aspect name="absoluteTolerance" type="PRIMARY" class="Double" value="1.0e-10" />
 					<aspect name="relativeTolerance" type="PRIMARY" class="Double" value="1.0e-6" />
 					<!-- µm^2 ms^-1-->
 				</process>
-				<process name="agentRelax" class="AgentRelaxation" priority="-2" firstStep="0.0"  timerStepSize="15.0">
+				<process name="agentRelax" class="AgentRelaxation" priority="-2" firstStep="0.0">
 					<aspect name="maxMovement" type="PRIMARY" class="Double" value="0.10" />
 					<aspect name="relaxationMethod" type="PRIMARY" class="String" value="EULER" />
 					<aspect name="stressThreshold" type="PRIMARY" class="Double" value="10000.0" />
