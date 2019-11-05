@@ -29,7 +29,7 @@ public class IsSame implements Predicate<Object>
 	@Override
 	public String toString()
 	{
-		return " equals " + _object.toString();
+		return " = " + _object.toString();
 	}
 
 }

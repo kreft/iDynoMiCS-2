@@ -43,12 +43,12 @@ public class CategoryFilter implements Filter
 
 	}
 
-	public String stringValue(AspectInterface subject)
+	public String stringValue(AspectInterface subject, String format)
 	{
 		for ( int i = 0; i < filters.size(); i++)
 			if (this.filters.get(i).match(subject) )
 				return String.valueOf(i+1);
-		return String.valueOf(0);
+		return String.format( screenLocale,  format, 0);
 			
 	}
 	

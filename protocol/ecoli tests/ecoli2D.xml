@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document>
 	<simulation log="EXPRESSIVE" outputfolder="../results" name="ecoli2D"  randomSeed="22432423">
-	<timer stepSize="15.0" endOfSimulation="720.0" /> <!-- 10 weeks -->
+	<timer stepSize="5.0" endOfSimulation="300.0" />
 		<speciesLib>
 			<!-- species/species library The species library contains all agent species 
 				in the simulations. This may include microbial species, plasmid and vector 
@@ -93,7 +93,7 @@
 					<aspect name="tolerance" class="Double" value="1.0E-6" />
 				</process>
 				<process name="summary" class="Summary"  priority="2"
-					firstStep="0.0" timerStepSize="15.0">
+					firstStep="0.0">
 					<aspect name="includeHeader" type="PRIMARY" class="Boolean" value="TRUE" />
 					<aspect name="fileName" type="PRIMARY" class="String" value="chemostat" />
 					<aspect name="tableSpecification" type="PRIMARY" class="String"
@@ -109,7 +109,7 @@
 				<dimension name="X" isCyclic="true" targetResolution="1.0" max="32.0"></dimension>
 				<dimension name="Y" isCyclic="false" targetResolution="1.0" max="128.0">
 					<boundary extreme="0" class="SolidBoundary" />
-					<boundary extreme="1" class="BiofilmBoundaryLayer" partnerCompartment="chemostat" layerThickness="60" />
+					<boundary extreme="1" class="BiofilmBoundaryLayer" partnerCompartment="chemostat" layerThickness="10" />
 				</dimension>
 			</shape>
 			<solutes>
@@ -119,7 +119,7 @@
 			</solutes>
 			<reactions>
 			</reactions>
-			<spawn class="randomSpawner" domain="32.0, 0.2" priority="1" number="5" morphology="COCCOID">
+			<spawn class="randomSpawner" domain="32.0, 0.2" priority="1" number="1" morphology="COCCOID">
 				<templateAgent>
 					<aspect name="species" type="PRIMARY" class="String" value="EColi" />
 					<aspect name="#isLocated" type="PRIMARY" class="Boolean" value="true" />
@@ -145,7 +145,7 @@
 					<aspect name="gravity_testing" type="PRIMARY" class="Boolean" value="FALSE" />
 				</process>
 				<process name="summary" class="Summary"  priority="2"
-					firstStep="0.0" timerStepSize="15.0">
+					firstStep="0.0">
 					<aspect name="includeHeader" type="PRIMARY" class="Boolean" value="TRUE" />
 					<aspect name="fileName" type="PRIMARY" class="String" value="bioflm" />
 					<aspect name="tableSpecification" type="PRIMARY" class="String"

@@ -9,6 +9,7 @@ import org.w3c.dom.Element;
 import dataIO.Log;
 import dataIO.Log.Tier;
 import dataIO.XmlHandler;
+import processManager.ProcessDiffusion.DistributionMethod;
 import referenceLibrary.XmlRef;
 import utility.Helper;
 
@@ -248,7 +249,8 @@ public class Global extends ParameterSet
 	 * Only determine location of agent based on primary mass point
 	 */
 	public static boolean fastAgentDistribution = true;
-		
+
+	public static String agentDistribution = DistributionMethod.COLLISION.toString();
 	/**
 	 * dynamic viscosity of the medium
 	 */

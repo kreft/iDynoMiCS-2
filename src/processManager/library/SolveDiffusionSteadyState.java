@@ -15,6 +15,7 @@ import compartment.AgentContainer;
 import compartment.EnvironmentContainer;
 import dataIO.ObjectFactory;
 import grid.SpatialGrid;
+import linearAlgebra.Array;
 import processManager.ProcessDiffusion;
 import processManager.ProcessMethods;
 import reaction.Reaction;
@@ -222,13 +223,14 @@ public class SolveDiffusionSteadyState extends ProcessDiffusion
 					solute = FindGrid(variables, productName);
 					if ( solute != null )
 						solute.addValueAt(PRODUCTIONRATE, coord.get(), productRate);
+
 					/* 
 					 * Unlike in a transient solver, we do not update the agent
 					 * mass here.
 					 */
 				}
 			}
-		}
+		}	
 	}
 	
 	private SpatialGrid FindGrid(Collection<SpatialGrid> grids, String name)
@@ -277,6 +279,10 @@ public class SolveDiffusionSteadyState extends ProcessDiffusion
 		{
 			volume = this._agents.getShape().getVoxelVolume(coord.get());
 			perVolume = 1.0/volume;
+			
+
+//			System.out.println( volume );
+			
 			for ( Reaction r : reactions )
 			{
 				/* 
@@ -293,11 +299,14 @@ public class SolveDiffusionSteadyState extends ProcessDiffusion
 					{
 						solute = this._environment.getSoluteGrid(varName);
 						concn = solute.getValueAt(CONCN, coord.get());
+
+//						System.out.println(varName + " " + concn );
 					}
 					else if ( biomass.containsKey(varName) )
 					{
 						concn = biomass.get(varName) * 
 								distributionMap.get(coord) * perVolume;
+
 					}
 					else if ( agent.isAspect(varName) )
 					{
@@ -324,6 +333,8 @@ public class SolveDiffusionSteadyState extends ProcessDiffusion
 				for ( String productName : r.getReactantNames() )
 				{
 					productRate = r.getProductionRate(concns,productName);
+//					System.out.println(productName + " " + productRate );
+					
 					if ( this._environment.isSoluteName(productName) )
 					{
 						solute = this._environment.getSoluteGrid(productName);
@@ -333,7 +344,6 @@ public class SolveDiffusionSteadyState extends ProcessDiffusion
 					{
 						newBiomass.put(productName, newBiomass.get(productName)
 								+ (productRate * this.getTimeStepSize() * volume));
-						System.out.println(productRate * volume);
 					}
 					else if ( agent.isAspect(productName) )
 					{
@@ -351,6 +361,7 @@ public class SolveDiffusionSteadyState extends ProcessDiffusion
 						System.out.println("agent reaction catched " + 
 								productName);
 						// TODO safety?
+
 					}
 				}
 			}

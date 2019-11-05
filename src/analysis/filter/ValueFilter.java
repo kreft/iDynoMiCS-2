@@ -22,10 +22,10 @@ public class ValueFilter implements Filter
 	}
 
 	@Override
-	public String stringValue(AspectInterface subject) 
+	public String stringValue(AspectInterface subject, String format)
 	{
 		Object obj = subject.getValue(this.property);
-		return ( Helper.isNullOrEmpty(obj) ? "NONE" : String.valueOf(obj) );
+		return ( Helper.isNullOrEmpty(obj) ? "NONE" : String.format( screenLocale,  format, obj) );
 	}
 
 	@Override

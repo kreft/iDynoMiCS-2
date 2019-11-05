@@ -64,7 +64,7 @@ public class PDEmultigrid extends PDEsolver
 	 */
 	private int _numLayers;
 	
-	private int _numVCycles = 10;
+	private int _numVCycles = 2;
 	
 	private int _numPreSteps = 100;
 	
@@ -404,7 +404,6 @@ public class PDEmultigrid extends PDEsolver
 						LOCALERROR, CONCN, 0.0, currentCommon);
 				currentLayer.subtractArrayFromArray(CONCN, LOCALERROR);
 			}
-			
 			layerCounter--;
 			this._commonMultigrid = this._commonMultigrid.getFiner();
 			currentCommon = this._commonMultigrid.getGrid();
@@ -418,6 +417,10 @@ public class PDEmultigrid extends PDEsolver
 				currentLayer.addArrayToArray(CONCN, RELATIVEERROR);
 				if ( ! this._allowNegatives )
 					currentLayer.makeNonnegative(CONCN);
+
+// DEBUGGIMG
+//				System.out.println(layerCounter + "\t" + currentLayer.getName() + " \t" + currentLayer.getMin(PRODUCTIONRATE) + " " );
+//				System.out.println(layerCounter + "\t" + currentLayer.getName() + " \t" + currentLayer.getMin(CONCN) + " " );
 			}
 			/* Relaxation */
 			this.relaxAll(this._numPostSteps);

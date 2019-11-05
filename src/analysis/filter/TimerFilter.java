@@ -20,9 +20,9 @@ public class TimerFilter implements Filter {
 	}
 	
 	@Override
-	public String stringValue(AspectInterface subject)
+	public String stringValue(AspectInterface subject, String format)
 	{
-		return String.valueOf(Idynomics.simulator.timer.getCurrentTime());
+		return String.format( screenLocale,  format, Idynomics.simulator.timer.getCurrentTime());
 	}
 
 	@Override

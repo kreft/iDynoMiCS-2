@@ -17,11 +17,11 @@ public class SoluteFilter implements Filter
 		this._solute = filter.split("%")[1];
 	}
 	@Override
-	public String stringValue(AspectInterface subject) {
+	public String stringValue(AspectInterface subject, String format) {
 		if ( this._solute.equals( XmlRef.volume ) )
 			return String.valueOf( 
 					this._compartment.getShape().getTotalVolume() );
-		return String.valueOf( this._compartment.getSolute( 
+		return String.format( screenLocale,  format, this._compartment.getSolute( 
 				this._solute ).getAverage( ArrayType.CONCN ) );
 	}
 

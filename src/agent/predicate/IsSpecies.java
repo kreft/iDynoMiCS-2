@@ -58,6 +58,6 @@ public class IsSpecies implements Predicate<Agent>
 	@Override
 	public String toString()
 	{
-		return "Species is " + _speciesName;
+		return "" + _speciesName;
 	}
 }
