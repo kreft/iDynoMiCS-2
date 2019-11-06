@@ -23,9 +23,9 @@ import settable.Settable;
 public class ConstantConcentrationToChemostat extends Boundary
 {
 	/**
-	 * Solute concentrations.
+	 * Solute concentrations (set public for unit-test.
 	 */
-	protected Map<String,Double> _concns = new HashMap<String,Double>();
+	public Map<String,Double> _concns = new HashMap<String,Double>();
 
 	public ConstantConcentrationToChemostat()
 	{

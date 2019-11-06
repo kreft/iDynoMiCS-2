@@ -5,6 +5,7 @@ import static org.junit.Assert.assertEquals;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.Test;
 
@@ -14,6 +15,7 @@ import analysis.FilterLogic;
 import analysis.filter.Filter;
 import aspect.AspectInterface;
 import boundary.Boundary;
+import boundary.library.ConstantConcentrationToChemostat;
 import compartment.Compartment;
 import dataIO.Log;
 import dataIO.Log.Tier;
@@ -77,11 +79,7 @@ public class MassBalance implements Testable {
 		double[] mflow = new double[2];
 		double[] con = new double[2];
 		
-		
-		double[] in = { 0.0, 0.0 };
-		double[] out = { 0.0, 0.0 };
-		double[] dM = new double[2];
-		
+		double[] dM = new double[3];
 		double[] mPre = { chemostat.environment.getSoluteGrid(sol).getAverage(
 				ArrayType.CONCN)*vol[0], 
 			biofilm.environment.getSoluteGrid(sol).getAverage(
@@ -105,7 +103,8 @@ public class MassBalance implements Testable {
 		while ( Idynomics.simulator.timer.isRunning() )
 		{
 			System.out.println("\n # " + i++);
-			
+			double[] in = { 0.0, 0.0, 0.0 };
+			double[] out = { 0.0, 0.0, 0.0 };
 			Idynomics.simulator.step();
 			Collection<Boundary> boundaries = chemostat.getShape().getAllBoundaries();
 			con[0] = chemostat.environment.getSoluteGrid(sol).getAverage(ArrayType.CONCN);
@@ -116,20 +115,35 @@ public class MassBalance implements Testable {
 //				System.out.println(e.getClass().getSimpleName());
 				flow[0] = e.getVolumeFlowRate();	
 				mflow[0] = e.getMassFlowRate(sol);
-				
-				
+
 				if( mflow[0] > 0.0)
+				{
 					in[0] += mflow[0];
+					Map<String,Double> cons = 
+							((ConstantConcentrationToChemostat) e)._concns;
+					in[2] += flow[0] * cons.get(sol);
+				}
 				else
+				{
 					out[0] -= mflow[0];
+					out[2] -= flow[0]*con[0];
+				}
 			}
 			
 			dM[0] = in[0]-out[0];
-			System.out.print(
-					String.format("%.2f-\t", in[0]) +
-					String.format("%.2f=\t\t", out[0]) +
-					String.format("%.2f\t", dM[0]));
-			System.out.println(String.format(" f: %.4g", (con[0]*vol[0])-mPre[0]));
+			System.out.println(
+					String.format("%- 10.2f -", in[0]) +
+					String.format("%- 20.2f =", out[0]) +
+					String.format("%- 10.2f", dM[0]) +
+					String.format("f%- 10.2g", (con[0]*vol[0])-mPre[0]) +
+					String.format("%50s", "chemostat mass flows, f: deltaBackCalc"));
+			
+			dM[2] = in[2]-out[2];
+			System.out.println(
+					String.format("%- 10.2g -", in[2]) +
+					String.format("%- 20.2g =", out[2]) +
+					String.format("%- 20.2g ", dM[2]) +
+					String.format("%50s", "chemostat volume flows * concentration"));
 
 			boundaries = biofilm.getShape().getAllBoundaries();
 			
@@ -153,31 +167,41 @@ public class MassBalance implements Testable {
 			biomass = Counter.count(agents, subjects)[0];
 			
 			dM[1] = in[1]-out[1]-(2.63*dBiomass);
-			System.out.print(
-					String.format("%.2f-\t", in[1]) +
-					String.format("%.2f-\t", out[1]) +
-					String.format("%.2f=\t", dBiomass) +
-					String.format("%.2f\t", dM[1]));
-			System.out.println(String.format(" f: %.4g", (con[1]*vol[1])-mPre[1]));
+			System.out.println(
+					String.format("%- 10.2f -", in[1]) +
+					String.format("%- 10.2f -", out[1]) +
+					String.format("%- 8.2f =", (2.63*dBiomass)) +
+					String.format("%- 10.2f", dM[1]) +
+					String.format("f%- 10.2g", (con[1]*vol[1])-mPre[1]) +
+					String.format("%50s", "chemostat mass flows, : deltaBackCalc"));
 
 			double dMtot = dM[0]+dM[1];
 			double mPretot = ((con[0]*vol[0])-mPre[0])+((con[1]*vol[1])-mPre[1]);
-			System.out.println( String.format("%.2f\t", dMtot) + " " + 
-					String.format("%.2f\t", mPretot) + " " + 
-					String.format("%.2f\t", (mPretot-dMtot) ) );
+			System.out.println( 
+					String.format("%- 10.2f ", dMtot) +
+					String.format(" %- 10.2f ", mPretot) +
+					String.format(" %- 10.2f ", (mPretot-dMtot) ) +
+					String.format("%70s", "deltaTot, deltaBackCalcTot, difference") );
 			
 			dMq += dMtot;
 			dPq += mPretot;
 			
-			System.out.println( String.format("%.2f\t", dMq) + " " + 
-					String.format("%.2f\t", dPq) + " " + 
-					String.format("%.2f\t", (dPq-dMq) ) );
+			System.out.println( 
+					String.format("%- 10.2f ", dMq) +
+					String.format(" %- 10.2f ", dPq) +
+					String.format(" %- 10.2f ", (dPq-dMq) ) +
+					String.format("%70s", "Cummulative deltas")  );
 			mPre[0] = con[0]*vol[0];
 			mPre[1] = con[1]*vol[1];
 		}
+		
+		biomass = Counter.count(agents, subjects)[0];
 		System.out.println( "\ntotal mass gained/lossed by solver: " + dPq);
-		System.out.println( "\nfinal biomass sim: " + Counter.count(agents, subjects)[0]);
-		 assertEquals(0.0, dPq, 0.1);
+		System.out.println( "\nfinal biomass sim: " + biomass);
+		
+		/* the mass balance should close, but a small error can be permitted
+		 * eg. < 1% of the biomass */
+		assertEquals(0.0, dPq, biomass*0.01);
 	}
 
 }
