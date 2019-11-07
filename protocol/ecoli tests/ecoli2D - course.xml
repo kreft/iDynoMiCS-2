@@ -77,7 +77,7 @@
 				<solute name="glucose" concentration="2.00E-06" defaultDiffusivity="36000"  />
 				<solute name="oxygen" 	concentration="8.74E-6" defaultDiffusivity="132000"  />
 				</boundary>
-				<boundary  class="chemostatOut" volumeFlowRate="1.0E6" agentRemoval="false" >
+				<boundary  class="chemostatOut" volumeFlowRate="-1.0E6" agentRemoval="false" >
 				</boundary> 
 			</shape>
 			<solutes>
