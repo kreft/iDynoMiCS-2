@@ -75,9 +75,11 @@ public class MassBalance implements Testable {
 		String sol = "glucose";
 		double[] vol = { chemostat.environment.getShape().getTotalVolume(), 
 				biofilm.environment.getShape().getTotalVolume() };
+		
 		double[] flow = new double[2];	
 		double[] mflow = new double[2];
 		double[] con = new double[2];
+		double conInit = 0.0;
 		
 		double[] dM = new double[3];
 		double[] mPre = { chemostat.environment.getSoluteGrid(sol).getAverage(
@@ -87,6 +89,7 @@ public class MassBalance implements Testable {
 		
 		double dMq = 0.0;
 		double dPq = 0.0;
+		double dF = 0.0;
 		
 		Filter agents = FilterLogic.filterFromString("mass", biofilm);
 		LinkedList<AspectInterface> subjects = new LinkedList<AspectInterface>();
@@ -109,6 +112,8 @@ public class MassBalance implements Testable {
 			Collection<Boundary> boundaries = chemostat.getShape().getAllBoundaries();
 			con[0] = chemostat.environment.getSoluteGrid(sol).getAverage(ArrayType.CONCN);
 			con[1] = biofilm.environment.getSoluteGrid(sol).getAverage(ArrayType.CONCN);
+			if (conInit == 0.0)
+				conInit = con[0];
 			
 			for( Boundary e : boundaries)
 			{
@@ -129,21 +134,21 @@ public class MassBalance implements Testable {
 					out[2] -= flow[0]*con[0];
 				}
 			}
-			
+			System.out.println("chemostat: in - out = acc, solved");
 			dM[0] = in[0]-out[0];
 			System.out.println(
 					String.format("%- 10.2f -", in[0]) +
 					String.format("%- 20.2f =", out[0]) +
 					String.format("%- 10.2f", dM[0]) +
-					String.format("f%- 10.2g", (con[0]*vol[0])-mPre[0]) +
-					String.format("%50s", "chemostat mass flows, f: deltaBackCalc"));
+					String.format("f%- 10.2g", (con[0]*vol[0])-mPre[0]));
 			
 			dM[2] = in[2]-out[2];
+			dF += dM[2];
+			System.out.println("excluding biofilm diffusion (net change in overall system)");
 			System.out.println(
 					String.format("%- 10.2g -", in[2]) +
 					String.format("%- 20.2g =", out[2]) +
-					String.format("%- 20.2g ", dM[2]) +
-					String.format("%50s", "chemostat volume flows * concentration"));
+					String.format("%- 20.2g ", dM[2]));
 
 			boundaries = biofilm.getShape().getAllBoundaries();
 			
@@ -166,22 +171,25 @@ public class MassBalance implements Testable {
 			double dBiomass = -(biomass - Counter.count(agents, subjects)[0]);
 			biomass = Counter.count(agents, subjects)[0];
 			
-			dM[1] = in[1]-out[1]-(2.63*dBiomass);
+			dM[1] = in[1]-out[1]-(2.63*(dBiomass));
+			
+
+			System.out.println("biofilm: in - out - consumed = acc, solver");
 			System.out.println(
 					String.format("%- 10.2f -", in[1]) +
 					String.format("%- 10.2f -", out[1]) +
 					String.format("%- 8.2f =", (2.63*dBiomass)) +
 					String.format("%- 10.2f", dM[1]) +
-					String.format("f%- 10.2g", (con[1]*vol[1])-mPre[1]) +
-					String.format("%50s", "chemostat mass flows, : deltaBackCalc"));
+					String.format("f%- 10.2g", (con[1]*vol[1])-mPre[1]));
 
 			double dMtot = dM[0]+dM[1];
 			double mPretot = ((con[0]*vol[0])-mPre[0])+((con[1]*vol[1])-mPre[1]);
+			System.out.println("Mass, Mass solved, difference");
 			System.out.println( 
 					String.format("%- 10.2f ", dMtot) +
 					String.format(" %- 10.2f ", mPretot) +
 					String.format(" %- 10.2f ", (mPretot-dMtot) ) +
-					String.format("%70s", "deltaTot, deltaBackCalcTot, difference") );
+					String.format("%70s", "Delta Step") );
 			
 			dMq += dMtot;
 			dPq += mPretot;
@@ -190,18 +198,27 @@ public class MassBalance implements Testable {
 					String.format("%- 10.2f ", dMq) +
 					String.format(" %- 10.2f ", dPq) +
 					String.format(" %- 10.2f ", (dPq-dMq) ) +
-					String.format("%70s", "Cummulative deltas")  );
+					String.format("%70s", "Delta Cummulative")  );
 			mPre[0] = con[0]*vol[0];
 			mPre[1] = con[1]*vol[1];
 		}
 		
 		biomass = Counter.count(agents, subjects)[0];
-		System.out.println( "\ntotal mass gained/lossed by solver: " + dPq);
-		System.out.println( "\nfinal biomass sim: " + biomass);
+
+		System.out.println( "\n delta gluc from start (total mass): " + (((con[0]-conInit) * vol[0]) + ((con[1]-conInit) * vol[1])));
+		System.out.println( "\n delta gluc from start tracked cumalative: " + dPq);
+		System.out.println( "\n final substrate converted to biomass sim: " + 2.63*(biomass-0.4));
+		System.out.println( "\n delta mass chemostat in/out flows: " + dF);
+		System.out.println( "\n total mass gained/lossed by solver: " + (dPq + 2.63*(biomass-0.4) + dF));
 		
 		/* the mass balance should close, but a small error can be permitted
-		 * eg. < 1% of the biomass */
-		assertEquals(0.0, dPq, biomass*0.01);
+		 * eg. < 1% of the biomass 
+		 * 
+		 * dPq: total increase/decrease of glucose in system
+		 * 2.63*(biomass-0.4): amount of glucose converted to biomass (0.4 was initial biomass)
+		 * dF: net glucose added/removed from chemostat by in and outflows
+		 * */
+		assertEquals(0.0, (dPq + 2.63*(biomass-0.4) + dF), biomass*0.01);
 	}
 
 }

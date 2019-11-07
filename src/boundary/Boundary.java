@@ -11,6 +11,7 @@ import java.util.Random;
 import org.w3c.dom.Element;
 
 import agent.Agent;
+import boundary.library.ChemostatBoundary;
 import boundary.library.ChemostatToBoundaryLayer;
 import boundary.spatialLibrary.BiofilmBoundaryLayer;
 import compartment.AgentContainer;
@@ -331,6 +332,18 @@ public abstract class Boundary implements Settable, Instantiable
 		 * 
 		 */
 		int currentIter = Idynomics.simulator.timer.getCurrentIteration();
+//		testing w/o compartment to compartment transfer
+//		this._iterLastUpdated = currentIter;
+		if (this instanceof SpatialBoundary)
+			System.out.println("SpatialBoundary");
+		if (this instanceof ChemostatBoundary)
+			System.out.println("ChemostatBoundary");
+		if (this instanceof BiofilmBoundaryLayer)
+			System.out.println("BiofilmBoundaryLayer");
+		if (this instanceof ChemostatToBoundaryLayer)
+			System.out.println("ChemostatToBoundaryLayer");
+		if (this instanceof WellMixedBoundary)
+			System.out.println("WellMixedBoundary");
 		if ( this._partner == null )
 		{
 			this._iterLastUpdated = currentIter;
@@ -355,7 +368,10 @@ public abstract class Boundary implements Settable, Instantiable
 				 * Apply the switch.
 				 */
 				this.setMassFlowRate(name, partnerRate);
-				this._partner.setMassFlowRate(name, thisRate);
+				this._partner.setMassFlowRate(name, partnerRate);
+				System.out.println(" " + getMassFlowRate(name) + " " + _partner.getMassFlowRate(name)
+						);
+				Compartment news = new Compartment();
 			}
 			/*
 			 * Update the iteration numbers so that the partner boundary
