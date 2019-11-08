@@ -8,15 +8,15 @@ import java.util.Set;
 
 import aspect.Aspect.AspectClass;
 import dataIO.Log;
+import dataIO.Log.Tier;
 import dataIO.ObjectFactory;
 import idynomics.Idynomics;
 import instantiable.object.InstantiableList;
-import dataIO.Log.Tier;
 import referenceLibrary.XmlRef;
 import settable.Attribute;
 import settable.Module;
-import settable.Settable;
 import settable.Module.Requirements;
+import settable.Settable;
 
 
 /**

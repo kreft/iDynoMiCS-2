@@ -4,16 +4,16 @@ import static shape.Dimension.DimName.X;
 import static shape.Dimension.DimName.Y;
 import static shape.Dimension.DimName.Z;
 
-import dataIO.Log.Tier;
 import dataIO.Log;
+import dataIO.Log.Tier;
 import linearAlgebra.Array;
 import linearAlgebra.Vector;
 import shape.Dimension.DimName;
 import shape.ShapeConventions.SingleVoxel;
 import shape.iterator.CartesianShapeIterator;
 import shape.iterator.ShapeIterator;
-import shape.resolution.ResolutionCalculator;
 import shape.resolution.MultigridResolution;
+import shape.resolution.ResolutionCalculator;
 
 /**
  * \brief Abstract subclass of {@code Shape} that handles the important methods

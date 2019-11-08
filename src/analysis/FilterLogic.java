@@ -1,14 +1,17 @@
 package analysis;
 
+import analysis.filter.AndFilter;
 import analysis.filter.CategoryFilter;
 import analysis.filter.Filter;
 import analysis.filter.SoluteFilter;
-import analysis.filter.AndFilter;
 import analysis.filter.SpecificationFilter;
 import analysis.filter.TimerFilter;
 import analysis.filter.ValueFilter;
 import compartment.Compartment;
-import gereralPredicates.*;
+import gereralPredicates.IsEquals;
+import gereralPredicates.IsLarger;
+import gereralPredicates.IsSame;
+import gereralPredicates.IsSmaller;
 
 /**
  * Identify and create Filters based on their operators.

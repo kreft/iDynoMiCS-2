@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+	<simulation name="empty_5x5" outputfolder="../results" log="NORMAL" randomSeed="1"
+						comment="This is used for unit testing.">
+		
+		<timer stepSize="1.0" endOfSimulation="15.0" />
+		
+		<speciesLib>
+		</speciesLib>
+
+		<compartment name="5x5" tree="SPLITTREE">
+			<shape class="Rectangle">
+				<dimension name="X" isCyclic="false" targetResolution="1.0" max="5.0" />
+				<dimension name="Y" isCyclic="false" targetResolution="1.0" max="5.0" />
+			</shape>
+			<solutes>
+			</solutes>
+			<reactions>
+			</reactions>
+			<agents>
+			</agents>
+			<processManagers>
+			</processManagers>
+		</compartment>
+		
+		<compartment name="5x5_periodic" tree="SPLITTREE">
+			<shape class="Rectangle">
+				<dimension name="X" isCyclic="true" targetResolution="1.0" max="5.0" />
+				<dimension name="Y" isCyclic="true" targetResolution="1.0" max="5.0" />
+			</shape>
+			<solutes>
+			</solutes>
+			<reactions>
+			</reactions>
+			<agents>
+			</agents>
+			<processManagers>
+			</processManagers>
+		</compartment>
+		
+		<compartment name="5x5x5" tree="SPLITTREE">
+			<shape class="Cuboid">
+				<dimension name="X" isCyclic="false" targetResolution="1.0" max="5.0" />
+				<dimension name="Y" isCyclic="false" targetResolution="1.0" max="5.0" />
+				<dimension name="Z" isCyclic="false" targetResolution="1.0" max="5.0" />
+			</shape>
+			<solutes>
+			</solutes>
+			<reactions>
+			</reactions>
+			<agents>
+			</agents>
+			<processManagers>
+			</processManagers>
+		</compartment>
+		
+	</simulation>
+</document>

@@ -5,6 +5,7 @@ package processManager.library;
 
 import static grid.ArrayType.CONCN;
 import static grid.ArrayType.PRODUCTIONRATE;
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -19,12 +20,10 @@ import dataIO.ObjectFactory;
 import grid.SpatialGrid;
 import processManager.ProcessDiffusion;
 import processManager.ProcessMethods;
-import reaction.RegularReaction;
 import reaction.Reaction;
 import referenceLibrary.XmlRef;
-import shape.subvoxel.CoordinateMap;
-import shape.subvoxel.IntegerArray;
 import shape.Shape;
+import shape.subvoxel.IntegerArray;
 import solver.PDEexplicit;
 import solver.PDEupdater;
 

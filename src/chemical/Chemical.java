@@ -3,16 +3,16 @@ package chemical;
 import org.w3c.dom.Element;
 
 import dataIO.Log;
-import dataIO.XmlHandler;
 import dataIO.Log.Tier;
+import dataIO.XmlHandler;
 import instantiable.Instantiable;
 import linearAlgebra.Vector;
 import referenceLibrary.XmlRef;
 import settable.Attribute;
 import settable.Module;
+import settable.Module.Requirements;
 import settable.Settable;
 import utility.Helper;
-import settable.Module.Requirements;
 
 public class Chemical implements Settable, Instantiable
 {

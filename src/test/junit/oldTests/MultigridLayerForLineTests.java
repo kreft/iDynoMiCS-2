@@ -3,7 +3,6 @@ package test.junit.oldTests;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-
 import static test.OldTests.TOLERANCE;
 
 import org.junit.Before;
@@ -13,8 +12,8 @@ import grid.ArrayType;
 import grid.SpatialGrid;
 import linearAlgebra.Array;
 import linearAlgebra.Vector;
-import shape.Dimension.DimName;
 import shape.Dimension;
+import shape.Dimension.DimName;
 import shape.Shape;
 import shape.resolution.MultigridResolution;
 import shape.resolution.ResolutionCalculator;

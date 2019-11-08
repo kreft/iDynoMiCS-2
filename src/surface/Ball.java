@@ -1,23 +1,13 @@
 package surface;
 
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
-
 import org.w3c.dom.Element;
 
-import dataIO.Log;
 import dataIO.ObjectFactory;
-import dataIO.XmlHandler;
-import dataIO.Log.Tier;
 import generalInterfaces.Copyable;
 import generalInterfaces.HasBoundingBox;
-import linearAlgebra.Vector;
 import referenceLibrary.XmlRef;
 import settable.Attribute;
 import settable.Module;
-import settable.Settable;
-import settable.Module.Requirements;
 import shape.Shape;
 import utility.Helper;
 import utility.StandardizedImportMethods;

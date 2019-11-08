@@ -1,10 +1,6 @@
 package test.other;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import linearAlgebra.*;
-import utility.ExtraMath;
+import linearAlgebra.Matrix;
 
 public class ArrayTest
 {

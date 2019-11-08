@@ -1,5 +1,8 @@
 package compartment;
 
+import static grid.ArrayType.CONCN;
+import static grid.ArrayType.WELLMIXED;
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -11,19 +14,17 @@ import boundary.WellMixedBoundary;
 import dataIO.Log;
 import dataIO.Log.Tier;
 import generalInterfaces.CanPrelaunchCheck;
-import static grid.ArrayType.CONCN;
-import static grid.ArrayType.WELLMIXED;
 import grid.SpatialGrid;
 import grid.WellMixedConstants;
 import idynomics.Idynomics;
 import instantiable.object.InstantiableList;
-import reaction.RegularReaction;
 import reaction.Reaction;
+import reaction.RegularReaction;
 import referenceLibrary.ClassRef;
 import referenceLibrary.XmlRef;
 import settable.Module;
-import settable.Settable;
 import settable.Module.Requirements;
+import settable.Settable;
 import shape.Shape;
 
 /**

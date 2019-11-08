@@ -7,11 +7,8 @@ import java.util.Map;
 import org.junit.Test;
 
 import linearAlgebra.Vector;
-import spatialRegistry.Entry;
 import spatialRegistry.RTree;
 import spatialRegistry.RTree.SeedPicker;
-import spatialRegistry.splitTree.Node;
-import spatialRegistry.splitTree.SplitTree;
 import utility.ExtraMath;
 
 /**

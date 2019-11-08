@@ -9,11 +9,14 @@ import referenceLibrary.ClassRef;
 import referenceLibrary.XmlRef;
 import settable.Attribute;
 import settable.Module;
-import settable.Settable;
 import settable.Module.Requirements;
-import spatialRegistry.TreeType;
-import surface.*;
-import utility.Helper;
+import settable.Settable;
+import surface.Ball;
+import surface.Cuboid;
+import surface.Plane;
+import surface.Rod;
+import surface.Surface;
+import surface.Voxel;
 
 /**
  * \brief wrapper object for physical entities within the domain such as

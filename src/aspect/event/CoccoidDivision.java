@@ -1,23 +1,20 @@
 package aspect.event;
 
-import surface.Point;
-import utility.ExtraMath;
-import utility.Helper;
-import linearAlgebra.Vector;
-import referenceLibrary.AspectRef;
-
 import java.util.LinkedList;
 import java.util.Map;
 
 import agent.Agent;
 import agent.Body;
 import aspect.Aspect.AspectClass;
-import aspect.Aspect;
 import aspect.AspectInterface;
 import aspect.Event;
 import dataIO.Log;
 import dataIO.Log.Tier;
-import instantiable.object.InstantiableMap;
+import linearAlgebra.Vector;
+import referenceLibrary.AspectRef;
+import surface.Point;
+import utility.ExtraMath;
+import utility.Helper;
 
 /**
  * Simple coccoid division class, divides mother cell in two with a random

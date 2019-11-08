@@ -15,10 +15,10 @@ import agent.Body;
 import compartment.AgentContainer;
 import compartment.EnvironmentContainer;
 import dataIO.Log;
+import dataIO.Log.Tier;
 import dataIO.ObjectFactory;
 import dataIO.XmlHandler;
 import instantiable.Instantiable;
-import dataIO.Log.Tier;
 import linearAlgebra.Array;
 import linearAlgebra.Matrix;
 import linearAlgebra.Vector;
@@ -26,12 +26,12 @@ import referenceLibrary.AspectRef;
 import referenceLibrary.XmlRef;
 import settable.Attribute;
 import settable.Module;
-import settable.Settable;
 import settable.Module.Requirements;
+import settable.Settable;
 import shape.Shape;
 import surface.Surface;
 import surface.Voxel;
-import surface.collision.Collision;
+import surface.collision.CollisionUtilities;
 import utility.ExtraMath;
 import utility.Helper;
 
@@ -139,10 +139,15 @@ public class SpatialGrid implements Settable, Instantiable
 				
 				/* FIXME this assumes Cartesian grids  */
 				shape.voxelUpperCornerTo(upper, coord);
-				List<Agent> neighbors = agents.treeSearch(location, upper);
+				
+				Voxel vox = new Voxel(location, upper);
+				vox.init(_shape.getCollision());
+
+				List<Agent> nhbs = CollisionUtilities.getCollidingAgents(
+						vox, agents.treeSearch( location, upper ) );
 				/* If there are any agents in this voxel, update the 
 				 * diffusivity. */
-				if ( ! neighbors.isEmpty() )
+				if ( ! nhbs.isEmpty() )
 				{
 					/* TODO Calculate the total biomass/concentration, see if 
 					 * above the threshold */

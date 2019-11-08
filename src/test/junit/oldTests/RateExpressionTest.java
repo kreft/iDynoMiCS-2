@@ -1,12 +1,12 @@
 package test.junit.oldTests;
 
+import static dataIO.Log.Tier.DEBUG;
 import static org.junit.Assert.assertTrue;
 import static test.OldTests.TOLERANCE;
 
 import java.util.HashMap;
-import org.junit.Test;
 
-import static dataIO.Log.Tier.DEBUG;
+import org.junit.Test;
 
 import dataIO.Log;
 import expression.Expression;

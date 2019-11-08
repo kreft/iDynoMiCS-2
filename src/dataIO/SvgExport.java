@@ -2,7 +2,6 @@ package dataIO;
 
 import org.w3c.dom.Element;
 
-import dataIO.Log.Tier;
 import idynomics.Idynomics;
 import linearAlgebra.Vector;
 import settable.Settable;

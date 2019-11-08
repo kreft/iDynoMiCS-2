@@ -7,8 +7,8 @@ import java.util.Date;
 import org.w3c.dom.Element;
 
 import dataIO.Log;
-import dataIO.XmlHandler;
 import dataIO.Log.Tier;
+import dataIO.XmlHandler;
 import referenceLibrary.XmlRef;
 import utility.Helper;
 
@@ -52,11 +52,6 @@ public class Global extends ParameterSet
 		/* set simulation name from xml file */
 		Idynomics.global.simulationName = XmlHandler.obtainAttribute( elem, 
 				XmlRef.nameAttribute, XmlRef.simulation);
-		
-		if ( XmlHandler.hasAttribute(elem, XmlRef.outputskip) )
-			Idynomics.global.outputskip = Integer.valueOf( 
-					XmlHandler.obtainAttribute( elem, XmlRef.outputskip, 
-					XmlRef.simulation));
 		
 		if ( XmlHandler.hasAttribute(elem, XmlRef.configuration) )
 		{

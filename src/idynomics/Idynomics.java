@@ -11,16 +11,16 @@
 */
 package idynomics;
 
-import org.w3c.dom.Element;
-
-import dataIO.Log;
-
-import static dataIO.Log.Tier.*;
+import static dataIO.Log.Tier.CRITICAL;
+import static dataIO.Log.Tier.NORMAL;
 
 import java.util.Map;
 
-import dataIO.XmlHandler;
+import org.w3c.dom.Element;
+
+import dataIO.Log;
 import dataIO.Log.Tier;
+import dataIO.XmlHandler;
 import expression.Unit;
 import expression.Unit.SI;
 import idynomics.launchable.ConsoleLaunch;
@@ -225,9 +225,9 @@ public strictfp class Idynomics
 			return;
 		}
 		/* prevent writing logFile before tier and location is set */
-			Log.printToScreen("Initiating from: " + protocolPath + 
+			Log.out("Initiating from: " + protocolPath + 
 				"\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-				+ "~~~~~~~~~~~~~~~~~~~~~~~~", false);
+				+ "~~~~~~~~~~~~~~~~~~~~~~~~");
 			
 
 		/* 

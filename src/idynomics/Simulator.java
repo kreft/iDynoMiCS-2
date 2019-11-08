@@ -12,20 +12,22 @@ import agent.SpeciesLib;
 import chemical.ChemicalLib;
 import compartment.Compartment;
 import dataIO.Log;
+import dataIO.Log.Tier;
+import dataIO.Report;
 import dataIO.XmlExport;
 import dataIO.XmlHandler;
 import debugTools.SegmentTimer;
-import dataIO.Log.Tier;
-import dataIO.Report;
 import generalInterfaces.CanPrelaunchCheck;
 import instantiable.Instance;
 import instantiable.Instantiable;
-import utility.*;
 import referenceLibrary.ClassRef;
 import referenceLibrary.XmlRef;
-import settable.*;
+import settable.Attribute;
 import settable.Module;
 import settable.Module.Requirements;
+import settable.Settable;
+import utility.ExtraMath;
+import utility.Helper;
 
 /**
  * \brief Simulator manages all compartments, making sure they synchronise at
@@ -163,6 +165,7 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 			compartment.checkBoundaryConnections(this._compartments);
 		}
 
+		
 	}
 	
 	/* ***********************************************************************
@@ -354,6 +357,7 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 		/* Check if any boundary connections need to be made. */
 		for ( Compartment c : this._compartments )
 			c.checkBoundaryConnections(this._compartments);
+		
 		/* Run the simulation. */
 		while ( this.timer.isRunning() && !this.interupt )
 			this.step();
@@ -367,6 +371,7 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 		}
 		else
 		{
+			
 			/*
 			 * Print the simulation results.
 			 */
@@ -383,7 +388,8 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 			 * Report simulation time.
 			 */
 			tic = (System.currentTimeMillis() - tic) * 0.001;
-			Log.out(Tier.NORMAL, "Simulation finished in " + tic + " seconds\n"+
+			Log.out(Tier.NORMAL, "Time: "+ timer._endOfSimulation + 
+					" Simulation finished in " + tic + " seconds\n"+
 					"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 					+ "~~~~~~~~~~~~~~~~~~~~~~~~\n");
 			this.printProcessManagerRealTimeStats();

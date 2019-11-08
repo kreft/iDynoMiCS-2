@@ -7,14 +7,12 @@ import static shape.iterator.ShapeIterator.WhereAmI.DEFINED;
 import static shape.iterator.ShapeIterator.WhereAmI.INSIDE;
 import static shape.iterator.ShapeIterator.WhereAmI.UNDEFINED;
 
-import java.util.Arrays;
-
 import dataIO.Log;
 import dataIO.Log.Tier;
 import linearAlgebra.Vector;
 import shape.Dimension;
-import shape.Shape;
 import shape.Dimension.DimName;
+import shape.Shape;
 import shape.resolution.ResolutionCalculator;
 import utility.ExtraMath;
 

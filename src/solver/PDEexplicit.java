@@ -3,15 +3,14 @@
  */
 package solver;
 
+import static grid.ArrayType.CHANGERATE;
+import static grid.ArrayType.CONCN;
+import static grid.ArrayType.DIFFUSIVITY;
+import static grid.ArrayType.PRODUCTIONRATE;
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-
-import dataIO.Log;
-import dataIO.Log.Tier;
-
-import static dataIO.Log.Tier.*;
-import static grid.ArrayType.*;
 
 import grid.SpatialGrid;
 

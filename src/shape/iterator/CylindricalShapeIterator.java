@@ -3,10 +3,9 @@ package shape.iterator;
 import static shape.Dimension.DimName.R;
 import static shape.Dimension.DimName.THETA;
 import static shape.Dimension.DimName.Z;
-import static shape.iterator.ShapeIterator.WhereAmI.UNDEFINED;
-
 import static shape.iterator.ShapeIterator.NhbDirection.AHEAD;
 import static shape.iterator.ShapeIterator.NhbDirection.BEHIND;
+import static shape.iterator.ShapeIterator.WhereAmI.UNDEFINED;
 
 import shape.CylindricalShape;
 

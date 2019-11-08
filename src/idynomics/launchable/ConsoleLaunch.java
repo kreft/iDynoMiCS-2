@@ -2,8 +2,8 @@ package idynomics.launchable;
 
 import java.util.Scanner;
 
-import idynomics.Idynomics;
 import idynomics.Global;
+import idynomics.Idynomics;
 
 /**\brief General class to launch simulation from the console, asks user for
  * protocol file path as input.

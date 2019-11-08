@@ -3,6 +3,9 @@
  */
 package instantiable;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+
 import org.w3c.dom.Element;
 
 import dataIO.Log;
@@ -63,21 +66,15 @@ public class Instance
 		{
 			if ( ! xmlElem.hasAttribute(XmlRef.classAttribute) )
 			{
+				/** No class defined */
 				Log.out(Tier.CRITICAL, "No className defined in: " +
 						xmlElem.getTagName());
 				return null;
 			}
-			else if ( ! xmlElem.hasAttribute(XmlRef.packageAttribute) )
-			{
+			else 
+				/** Will obtain class path from package Library */
 				return getNew(xmlElem, parent,
 						xmlElem.getAttribute(XmlRef.classAttribute));
-			}
-			else
-			{
-				//FIXME option for if package name is specified
-				return getNew(xmlElem, parent,
-						xmlElem.getAttribute(XmlRef.classAttribute));
-			}
 			
 		}
 		/* If one class name is provided continue instantiating.  */
@@ -88,16 +85,9 @@ public class Instance
 				out = getNew( className[0], null );
 			/* if not lookup the path from the package library. */
 			else
-			{
 				out = getNew( className[0], 
 						Idynomics.xmlPackageLibrary.get( className[0] ) );
-			}
-			/* Disabled Debug message 
-			if ( parent == null && Log.shouldWrite(Tier.DEBUG) )
-				Log.out(Tier.DEBUG, "Warning initiating without parent");
-			else if ( xmlElem == null && Log.shouldWrite(Tier.DEBUG) )
-				Log.out(Tier.DEBUG, "Warning initiating without xml element");
-			*/
+			
 			((Instantiable) out).instantiate( xmlElem, parent );
 			return out;
 		} 
@@ -110,39 +100,14 @@ public class Instance
 					className, "select class", false ) );	
 		}
 	}
-	
-	/**
-	 * FIXME @Deprecated only used in unit test, use getNew(className, null) 
-	 * instead
-	 * 
-	 * \brief general method for creating a new instance for an object from the
-	 * classRef library.
-	 * 
-	 * <b>NOTE: method does not call any post instance initiation methods. This
-	 * method falls outside the {@link instantiable.Instantiable} paradigm. For
-	 * specific purposes this may provide useful code simplification, but use 
-	 * with some caution.</b>
-	 * 
-	 * @param className {@code String} name of the class to be instantiated.
-	 * This method will ensure that the first letter is in upper case, but only
-	 * the first!
-	 * @param prefix {@code String} prefix to <b>className</b>. Typical format:
-	 * "packageName.ClassLibrary$".
-	 * @return A new instance of the class required.
-	 */
-	@Deprecated 
-	public static Object getNew(String className)
-	{
-		return getNew(className, Idynomics.xmlPackageLibrary.get(className));
-	}
 
 	/**
 	 * \brief Internal method for creating a new instance.
 	 * 
 	 * <b>NOTE: method does not call any post instance initiation methods. This
 	 * method falls outside the {@link instantiable.Instantiable} paradigm. For
-	 * specific purposes this may provide useful code simplification, but use 
-	 * with some caution.</b>
+	 * specific purposes this may provide useful code simplification, but it
+	 * should never be used for standard user initiation.</b>
 	 * 
 	 * @param className {@code String} name of the class to be instantiated.
 	 * This method will ensure that the first letter is in upper case, but only
@@ -154,13 +119,19 @@ public class Instance
 	public static Object getNew(String className, String prefix)
 	{
 		className = contstructClassName(className, prefix);
-		/*
-		 * Finally, try to create a new instance.
-		 */
 		Object out = null;
 		try
 		{
-			out = Class.forName(className).newInstance();
+			/* get an empty constructor and create a new instance of the class*/
+			Constructor<?>[] cons = Class.forName(className).getConstructors();
+			Constructor<?> constructor = null;
+			for (int i = 0; i < cons.length; i++) {
+			    constructor = cons[i];
+			    if (constructor.getGenericParameterTypes().length == 0)
+				break;
+			}
+			constructor.setAccessible(true);
+			return constructor.newInstance();
 		}
 		catch ( Exception e )
 		{
@@ -171,11 +142,36 @@ public class Instance
 		return out;
 	}
 	
+	/**
+	 * \brief Internal method for creating a new instance that throws errors 
+	 * rather then catching them.
+	 * 
+	 * <b>NOTE: method does not call any post instance initiation methods. This
+	 * method falls outside the {@link instantiable.Instantiable} paradigm. For
+	 * specific purposes this may provide useful code simplification, but it
+	 * should never be used for standard user initiation.</b>
+	 * 
+	 * @param className {@code String} name of the class to be instantiated.
+	 * This method will ensure that the first letter is in upper case, but only
+	 * the first!
+	 * @param prefix {@code String} prefix to <b>className</b>. Typical format:
+	 * "packageName.ClassLibrary$".
+	 * @return A new instance of the class required.
+	 */
 	public static Object getNewThrows(String className, String prefix) throws 
-		InstantiationException, IllegalAccessException, ClassNotFoundException
+		InstantiationException, IllegalAccessException, ClassNotFoundException, 
+		IllegalArgumentException, InvocationTargetException
 	{
 		className = contstructClassName(className, prefix);
-		return Class.forName(className).newInstance();
+		Constructor<?>[] cons = Class.forName(className).getConstructors();
+		Constructor<?> constructor = null;
+		for (int i = 0; i < cons.length; i++) {
+		    constructor = cons[i];
+		    if (constructor.getGenericParameterTypes().length == 0)
+			break;
+		}
+		constructor.setAccessible(true);
+		return constructor.newInstance();
 	}
 	
 	/**
@@ -205,18 +201,5 @@ public class Instance
 		if ( prefix == null &! className.contains("."))
 			className = Idynomics.xmlPackageLibrary.getFull( className );
 		return className;
-	}
-	
-	@SuppressWarnings("unused")
-	private static String getClass(Element xml)
-	{
-		if ( ! xml.hasAttribute(XmlRef.classAttribute) )
-			Log.out(Tier.CRITICAL, "No className defined in: "+ xml.getTagName());
-		else if ( ! xml.hasAttribute(XmlRef.packageAttribute) )
-			return xml.getAttribute(XmlRef.classAttribute);
-		else
-			return xml.getAttribute(XmlRef.packageAttribute) + "." + 
-			xml.getAttribute(XmlRef.classAttribute);
-		return null;
 	}
 }

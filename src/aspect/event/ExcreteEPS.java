@@ -7,8 +7,6 @@ import agent.Body;
 import aspect.AspectInterface;
 import aspect.Event;
 import compartment.Compartment;
-import dataIO.Log;
-import dataIO.Log.Tier;
 import linearAlgebra.Vector;
 import referenceLibrary.AspectRef;
 import surface.Point;

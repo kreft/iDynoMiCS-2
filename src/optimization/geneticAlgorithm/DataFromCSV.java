@@ -8,11 +8,9 @@ import java.nio.file.Paths;
 import java.util.TreeMap;
 import java.util.stream.Stream;
 
-
 import dataIO.CsvImport;
 import dataIO.Log;
 import dataIO.Log.Tier;
-import linearAlgebra.Matrix;
 import linearAlgebra.Vector;
 
 

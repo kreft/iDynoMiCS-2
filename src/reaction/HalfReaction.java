@@ -9,9 +9,9 @@ import org.w3c.dom.Node;
 
 import chemical.Chemical;
 import dataIO.Log;
+import dataIO.Log.Tier;
 import dataIO.ObjectFactory;
 import dataIO.XmlHandler;
-import dataIO.Log.Tier;
 import generalInterfaces.Copyable;
 import idynomics.Idynomics;
 import instantiable.Instantiable;
@@ -20,8 +20,8 @@ import instantiable.object.InstantiableMap;
 import referenceLibrary.XmlRef;
 import settable.Attribute;
 import settable.Module;
-import settable.Settable;
 import settable.Module.Requirements;
+import settable.Settable;
 import utility.Helper;
 
 /**

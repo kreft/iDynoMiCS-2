@@ -26,8 +26,8 @@ import javax.swing.text.StyleConstants;
 
 import dataIO.Log;
 import dataIO.Log.Tier;
-import idynomics.Idynomics;
 import idynomics.Global;
+import idynomics.Idynomics;
 import utility.Helper;
 
 /**

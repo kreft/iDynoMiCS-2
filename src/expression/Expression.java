@@ -2,25 +2,23 @@ package expression;
 
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.TreeMap;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-import dataIO.Log.Tier;
-import instantiable.object.InstantiableMap;
-import dataIO.Log;
 import dataIO.XmlHandler;
 import expression.Unit.SI;
 import idynomics.Idynomics;
+import instantiable.object.InstantiableMap;
 import referenceLibrary.XmlRef;
 import settable.Attribute;
 import settable.Module;
-import settable.Settable;
 import settable.Module.Requirements;
+import settable.Settable;
 import utility.GenericTrio;
 import utility.Helper;
 

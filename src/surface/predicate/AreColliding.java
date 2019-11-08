@@ -53,7 +53,7 @@ public class AreColliding<A> implements Predicate<Collection<Surface>>
 	{
 		for ( Surface surf : this._surfaces )
 			for ( Surface other : a )
-				if ( this._collision.areColliding(other, surf, this._margin) )
+				if ( this._collision.intersect(other, surf, this._margin) )
 					return true;
 		return false;
 	}

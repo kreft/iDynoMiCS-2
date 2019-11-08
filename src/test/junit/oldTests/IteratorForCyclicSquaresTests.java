@@ -7,9 +7,9 @@ import org.junit.Before;
 import org.junit.Test;
 
 import linearAlgebra.Vector;
-import shape.Shape;
 import shape.Dimension;
 import shape.Dimension.DimName;
+import shape.Shape;
 import shape.resolution.ResolutionCalculator;
 import shape.resolution.UniformResolution;
 import test.OldTests;

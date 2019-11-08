@@ -9,7 +9,6 @@ import dataIO.Log.Tier;
 import generalInterfaces.HasBoundingBox;
 import settable.Module;
 import shape.Shape;
-import surface.BoundingBox;
 import utility.Helper;
 import utility.StandardizedImportMethods;
 

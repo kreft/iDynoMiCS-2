@@ -6,12 +6,10 @@ import static shape.iterator.ShapeIterator.WhereAmI.INSIDE;
 import static shape.iterator.ShapeIterator.WhereAmI.UNDEFINED;
 
 import boundary.SpatialBoundary;
-import dataIO.Log;
-import dataIO.Log.Tier;
 import linearAlgebra.Vector;
 import shape.Dimension;
-import shape.Shape;
 import shape.Dimension.DimName;
+import shape.Shape;
 import shape.resolution.ResolutionCalculator;
 
 public abstract class ShapeIterator

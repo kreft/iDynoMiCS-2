@@ -5,9 +5,9 @@ import static grid.ArrayType.PRODUCTIONRATE;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.Predicate;
 
 import org.w3c.dom.Element;
@@ -19,22 +19,22 @@ import compartment.AgentContainer;
 import compartment.EnvironmentContainer;
 import dataIO.Log;
 import dataIO.Log.Tier;
-import debugTools.SegmentTimer;
 import grid.SpatialGrid;
 import idynomics.Global;
 import linearAlgebra.Vector;
-import reaction.RegularReaction;
 import reaction.Reaction;
+import reaction.RegularReaction;
 import referenceLibrary.AspectRef;
 import shape.CartesianShape;
 import shape.Shape;
-import shape.subvoxel.CoordinateMap;
 import shape.subvoxel.IntegerArray;
 import shape.subvoxel.SubvoxelPoint;
 import solver.PDEsolver;
 import solver.PDEupdater;
 import surface.Surface;
+import surface.Voxel;
 import surface.collision.Collision;
+import surface.collision.CollisionUtilities;
 import utility.Helper;
 
 /**
@@ -326,9 +326,12 @@ public abstract class ProcessDiffusion extends ProcessManager
 					// FIXME create a bounding box that always captures at least the complete voxel
 					sides = Vector.subset(dimension, nDim);
 					upper = Vector.add(location, sides);
-					/* NOTE the agent tree is always the amount of actual dimension */
-					nhbs = this._agents.treeSearch(location, upper);
 					
+					Voxel vox = new Voxel(location, upper);
+					vox.init(shape.getCollision());
+					/* NOTE the agent tree is always the amount of actual dimension */
+					nhbs = CollisionUtilities.getCollidingAgents(
+							vox, this._agents.treeSearch( location, upper ) );
 					/* used later to find subgridpoint scale */
 					minRad = Vector.min(sides);
 				}

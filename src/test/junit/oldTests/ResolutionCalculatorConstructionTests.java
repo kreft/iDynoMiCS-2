@@ -15,7 +15,7 @@ public class ResolutionCalculatorConstructionTests
 	public void CanConstructUniformResolution()
 	{
 		ResolutionCalculator rC = (ResolutionCalculator)
-				Instance.getNew("uniformResolution");
+				Instance.getNew("uniformResolution", null);
 		
 		assertTrue(rC instanceof UniformResolution);
 	}
@@ -24,7 +24,7 @@ public class ResolutionCalculatorConstructionTests
 	public void CanConstructMultigridResolution()
 	{
 		ResolutionCalculator rC = (ResolutionCalculator) 
-				Instance.getNew("multigridResolution");
+				Instance.getNew("multigridResolution", null);
 		
 		assertTrue(rC instanceof MultigridResolution);
 	}

@@ -1,14 +1,15 @@
 package compartment.agentStaging;
 
 import org.w3c.dom.Element;
+
 import agent.Agent;
 import agent.Body;
+import compartment.AgentContainer;
 import dataIO.Log;
-import dataIO.XmlHandler;
 import dataIO.Log.Tier;
+import dataIO.XmlHandler;
 import idynomics.Idynomics;
 import linearAlgebra.Vector;
-import compartment.AgentContainer;
 import referenceLibrary.AspectRef;
 import referenceLibrary.XmlRef;
 import surface.BoundingBox;

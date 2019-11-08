@@ -3,9 +3,10 @@
  */
 package test.junit.oldTests;
 
-import org.junit.Test;
 import static org.junit.Assert.assertTrue;
 import static test.OldTests.TOLERANCE;
+
+import org.junit.Test;
 
 import linearAlgebra.Vector;
 import solver.ODEderivatives;

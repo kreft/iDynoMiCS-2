@@ -11,8 +11,8 @@ import instantiable.Instantiable;
 import referenceLibrary.ClassRef;
 import referenceLibrary.XmlRef;
 import settable.Module;
-import settable.Settable;
 import settable.Module.Requirements;
+import settable.Settable;
 
 public class ChemicalLib implements Instantiable, Settable
 {

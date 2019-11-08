@@ -7,13 +7,13 @@ import boundary.SpatialBoundary;
 import dataIO.XmlHandler;
 import generalInterfaces.CanPrelaunchCheck;
 import instantiable.Instance;
-import surface.Surface;
 import referenceLibrary.XmlRef;
 import settable.Attribute;
 import settable.Module;
-import settable.Settable;
 import settable.Module.Requirements;
+import settable.Settable;
 import shape.iterator.PolarShapeIterator;
+import surface.Surface;
 import utility.ExtraMath;
 import utility.Helper;
 

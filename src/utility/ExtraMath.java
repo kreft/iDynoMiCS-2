@@ -19,9 +19,6 @@ import java.text.DecimalFormat;
 import java.util.Calendar;
 import java.util.Random;
 
-import dataIO.Log;
-import utility.MTRandom;
-
 /**
  * \brief Abstract class with some extra useful math functions.
  * 
@@ -55,7 +52,8 @@ public final class ExtraMath
 	 * This always has 2 digits after the decimal point, and will round any
 	 * smaller decimals.
 	 */
-	public static java.text.DecimalFormat dfUs = new DecimalFormat("########.##");
+	public static java.text.DecimalFormat dfUs = 
+			new DecimalFormat("########.##");
 	
 	/**
 	 * Random number generator
@@ -219,8 +217,8 @@ public final class ExtraMath
 	 * as the <b>dividend</b>. Where the two arguments have the same sign, the
 	 * result will be identical.</p>
 	 * 
-	 * <p>This is the equivalent of {@code StrictMath.floorMod(int, int)} for real
-	 * numbers.</b>
+	 * <p>This is the equivalent of {@code StrictMath.floorMod(int, int)} for 
+	 * real numbers.</b>
 	 * 
 	 * @param dividend The dividend.
 	 * @param divisor The divisor.
@@ -464,7 +462,8 @@ public final class ExtraMath
 	{
 		if ( xMin > xMax || yMin > yMax )
 			throw new IllegalArgumentException("Minimum > Maximum!");
-		return StrictMath.max(0.0, StrictMath.min(xMax, yMax) - StrictMath.max(xMin, yMin));
+		return StrictMath.max( 0.0, StrictMath.min(xMax, yMax) - 
+				StrictMath.max(xMin, yMin) );
 	}
 	
 	/**
@@ -635,7 +634,6 @@ public final class ExtraMath
 	{
 		/* alternatively Math.pow((volume*0.23873241463),0.333333333333) */
 		return cubeRoot(volume*0.75/Math.PI);
-//		return Math.pow((volume*0.23873241463),0.333333333333);
 	}
 	
 	

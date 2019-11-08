@@ -1,10 +1,5 @@
 package test.junit.oldTests;
 
-import java.util.LinkedList;
-import java.util.function.Predicate;
-
-import org.junit.Test;
-
 /**
  * Lambda expressions are known to be slower than alternatives, try to avoid
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.

@@ -1,14 +1,14 @@
 package aspect;
 
+import org.w3c.dom.Element;
+
+import dataIO.XmlHandler;
 import generalInterfaces.Copyable;
 import generalInterfaces.Redirectable;
 import instantiable.Instance;
 import instantiable.Instantiable;
 import referenceLibrary.XmlRef;
 import settable.Settable;
-
-import org.w3c.dom.Element;
-import dataIO.XmlHandler;
 
 /**
  * Calculated/Secondary states contain a description of how secondary states 

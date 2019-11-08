@@ -12,6 +12,7 @@ import utility.ExtraMath;
  * \brief abstract class that captures identical agent transfer behvior for
  * chemostat boundaries. 
  * 
+ * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
  *
  */
@@ -34,6 +35,11 @@ public abstract class ChemostatBoundary extends Boundary {
 	 * 
 	 * dA/dt = rA
 	 * A(t) = A(0) * e^(rt)
+	 * 
+	 * TeX:
+	 * $$\frac{dA}{dt} = -rA$$
+	 * $$A(t) = A(0)*e^{-rt} $$
+	 * $$r = \frac{detachment.rate*h}{surface.distance}$$
 	 * 
 	 * here r is the removal rate and A is the number of agents.
 	 * Translating this to agent based we can say the chance of any

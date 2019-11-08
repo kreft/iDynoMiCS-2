@@ -5,8 +5,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import dataIO.Log;
-import dataIO.Log.Tier;
 import grid.ArrayType;
 import grid.SpatialGrid;
 import grid.WellMixedConstants;

@@ -1,5 +1,8 @@
 package compartment;
 
+import static dataIO.Log.Tier.CRITICAL;
+import static dataIO.Log.Tier.DEBUG;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -14,27 +17,27 @@ import boundary.Boundary;
 import boundary.SpatialBoundary;
 import dataIO.Log;
 import dataIO.Log.Tier;
-import debugTools.SegmentTimer;
 import gereralPredicates.IsSame;
-
-import static dataIO.Log.Tier.*;
 import linearAlgebra.Vector;
 import physicalObject.PhysicalObject;
 import referenceLibrary.AspectRef;
 import referenceLibrary.ClassRef;
 import referenceLibrary.XmlRef;
 import settable.Module;
-import settable.Settable;
 import settable.Module.Requirements;
+import settable.Settable;
 import shape.Dimension;
-import shape.Shape;
 import shape.Dimension.DimName;
-import spatialRegistry.*;
+import shape.Shape;
+import spatialRegistry.DummyTree;
+import spatialRegistry.RTree;
+import spatialRegistry.SpatialRegistry;
+import spatialRegistry.TreeType;
 import spatialRegistry.splitTree.SplitTree;
 import surface.BoundingBox;
-import surface.predicate.IsNotColliding;
 import surface.Surface;
 import surface.collision.Collision;
+import surface.predicate.IsNotColliding;
 import utility.ExtraMath;
 import utility.Helper;
 
@@ -292,19 +295,6 @@ public class AgentContainer implements Settable
 	}
 
 	/**
-	 * \brief Find agents that may overlap with the given point location.
-	 * 
-	 * @param pointLocation Vector representing a point in space.
-	 * @return Collection of agents that may be overlap with this point: note
-	 * that there may be some false positives (but no false negatives).
-	 */
-	public List<Agent> treeSearch(double[] pointLocation)
-	{
-		return this.treeSearch(pointLocation, Vector.zeros(pointLocation));
-	}
-
-		// FIXME move all aspect related methods out of general classes
-	/**
 	 * \brief Find all agents that are potentially within the given distance of 
 	 * a given focal agent.
 	 * 
@@ -398,7 +388,7 @@ public class AgentContainer implements Settable
 			for ( Surface s : ((Body) a.get(AspectRef.agentBody)).getSurfaces())
 			{
 				/* on collision set boolean true and exit loop */
-				if ( collision.areColliding(aSurface, s, searchDist))
+				if ( collision.intersect(aSurface, s, searchDist))
 				{
 					c = true;
 					break;
@@ -425,7 +415,7 @@ public class AgentContainer implements Settable
 
 		/* check each surface for collision, remove if not */
 		for ( Surface s : surfaces)
-			if ( ! collision.areColliding(aSurface, s, searchDist))
+			if ( ! collision.intersect(aSurface, s, searchDist))
 				surfaces.remove(s);
 	}
 	

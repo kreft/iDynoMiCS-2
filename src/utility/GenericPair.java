@@ -1,7 +1,8 @@
 package utility;
 
 /**
- * 
+ * Generic data class used to either pass or store a pair of associated objects.
+ *  
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
  *
  * @param <E>

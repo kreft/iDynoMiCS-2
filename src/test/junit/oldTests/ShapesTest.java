@@ -1,23 +1,23 @@
 package test.junit.oldTests;
 
+import static dataIO.Log.Tier.DEBUG;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static test.OldTests.TOLERANCE;
+
 import java.util.LinkedList;
+
 import org.junit.Test;
 import org.w3c.dom.Element;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertFalse;
-import static test.OldTests.TOLERANCE;
-
 import boundary.spatialLibrary.SolidBoundary;
 import dataIO.Log;
-
-import static dataIO.Log.Tier.DEBUG;
 import linearAlgebra.Matrix;
 import linearAlgebra.Vector;
-import shape.Shape;
 import shape.Dimension;
 import shape.Dimension.DimName;
+import shape.Shape;
 import shape.resolution.UniformResolution;
 import test.OldTests;
 import utility.ExtraMath;

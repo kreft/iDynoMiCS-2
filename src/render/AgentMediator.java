@@ -16,8 +16,6 @@ import com.jogamp.opengl.util.gl2.GLUT;
 import agent.Agent;
 import compartment.AgentContainer;
 import compartment.Compartment;
-import dataIO.Log;
-import dataIO.Log.Tier;
 import grid.ArrayType;
 import grid.SpatialGrid;
 import linearAlgebra.Vector;
@@ -25,14 +23,12 @@ import referenceLibrary.AspectRef;
 import shape.CartesianShape;
 import shape.CylindricalShape;
 import shape.Dimension;
-import shape.Dimension.DimName;
-import shape.iterator.ShapeIterator;
 import shape.Shape;
 import shape.SphericalShape;
+import shape.iterator.ShapeIterator;
 import surface.Ball;
 import surface.Rod;
 import surface.Surface;
-import utility.ExtraMath;
 import utility.Helper;
 
 

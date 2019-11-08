@@ -9,8 +9,8 @@ import java.io.File;
 import javax.swing.JFileChooser;
 
 import dataIO.Log;
-import idynomics.Idynomics;
 import idynomics.Global;
+import idynomics.Idynomics;
 import idynomics.Simulator;
 import render.AgentMediator;
 import render.Render;

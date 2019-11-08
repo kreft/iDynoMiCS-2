@@ -4,12 +4,12 @@ import java.util.HashMap;
 import java.util.LinkedList;
 
 import org.w3c.dom.Element;
-import agent.Body;
+
 import aspect.calculated.StateExpression;
 import dataIO.Log;
+import dataIO.Log.Tier;
 import dataIO.ObjectFactory;
 import idynomics.Idynomics;
-import dataIO.Log.Tier;
 import instantiable.Instance;
 import instantiable.Instantiable;
 import referenceLibrary.ClassRef;
@@ -18,11 +18,10 @@ import referenceLibrary.PackageRef;
 import referenceLibrary.XmlRef;
 import settable.Attribute;
 import settable.Module;
-import settable.Settable;
 import settable.Module.Requirements;
+import settable.Settable;
 import settable.primarySetters.HashMapSetter;
 import settable.primarySetters.LinkedListSetter;
-import surface.Point;
 import utility.Helper;
 
 /**

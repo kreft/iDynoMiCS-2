@@ -7,8 +7,9 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
-import idynomics.Idynomics;
+
 import idynomics.Global;
+import idynomics.Idynomics;
 import idynomics.Simulator;
 import referenceLibrary.XmlRef;
 import utility.Helper;

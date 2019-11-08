@@ -2,13 +2,9 @@ package surface;
 
 import org.w3c.dom.Element;
 
-import dataIO.ObjectFactory;
 import generalInterfaces.HasBoundingBox;
-import referenceLibrary.XmlRef;
-import settable.Attribute;
 import settable.Module;
 import shape.Shape;
-import surface.BoundingBox;
 import utility.Helper;
 import utility.StandardizedImportMethods;
 

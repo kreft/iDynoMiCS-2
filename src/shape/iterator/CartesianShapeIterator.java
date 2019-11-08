@@ -2,9 +2,6 @@ package shape.iterator;
 
 import static shape.iterator.ShapeIterator.WhereAmI.UNDEFINED;
 
-import dataIO.Log;
-import dataIO.Log.Tier;
-import linearAlgebra.Vector;
 import shape.CartesianShape;
 import shape.Dimension.DimName;
 

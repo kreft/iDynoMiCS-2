@@ -2,7 +2,6 @@ package test.junit.oldTests;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-
 import static test.OldTests.TOLERANCE;
 
 import org.junit.Test;

@@ -4,14 +4,14 @@ import org.w3c.dom.Element;
 
 import agent.Agent;
 import agent.Body.Morphology;
-import aspect.AspectReg;
 import aspect.Aspect.AspectClass;
 import aspect.AspectInterface;
+import aspect.AspectReg;
 import compartment.AgentContainer;
 import compartment.Compartment;
 import dataIO.Log;
-import dataIO.XmlHandler;
 import dataIO.Log.Tier;
+import dataIO.XmlHandler;
 import idynomics.Idynomics;
 import instantiable.Instantiable;
 import linearAlgebra.Matrix;
@@ -20,8 +20,8 @@ import referenceLibrary.ClassRef;
 import referenceLibrary.XmlRef;
 import settable.Attribute;
 import settable.Module;
-import settable.Settable;
 import settable.Module.Requirements;
+import settable.Settable;
 import surface.BoundingBox;
 
 /**

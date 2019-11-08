@@ -76,7 +76,8 @@ public class Plane extends Surface implements HasBoundingBox
 		{
 			this._normal = StandardizedImportMethods.
 					pointImport(xmlElem, this, 1)[0];
-			this._d = Double.valueOf( xmlElem.getAttribute(XmlRef.valueAttribute));
+			this._d = Double.valueOf( 
+					xmlElem.getAttribute( XmlRef.valueAttribute ));
 		}
 	}
 	

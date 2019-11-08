@@ -1,10 +1,11 @@
 package expression;
 
+import static dataIO.Log.Tier.CRITICAL;
+
 import java.util.Collection;
 import java.util.Map;
 
 import dataIO.Log;
-import static dataIO.Log.Tier.CRITICAL;
 
 /**
  * \brief A component of a mathematical expression composed of strictly two

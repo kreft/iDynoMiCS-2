@@ -36,7 +36,7 @@ public class IsNotColliding<A> implements Predicate<Surface>
 	public boolean test(Surface a) 
 	{
 		for ( Surface surf : this._surfaces )
-			if ( this._collision.areColliding(a, surf, this._margin) )
+			if ( this._collision.intersect(a, surf, this._margin) )
 				return false;
 		return true;
 	}
