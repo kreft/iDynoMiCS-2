@@ -79,17 +79,29 @@ public class SolveDiffusionSteadyState extends ProcessDiffusion
 		 * Do the generic set up and solving.
 		 */
 		super.internalStep();
-		/*
-		 * Estimate the steady-state mass flows in or out of the well-mixed
-		 * region, and distribute it among the relevant boundaries.
-		 */
-		this._environment.distributeWellMixedFlows();
+		
+		for ( SpatialGrid var : this._environment.getSolutes() )
+		{
+			var.reset(PRODUCTIONRATE);
+		}
 		/*
 		 * Estimate agent growth based on the steady-state solute 
 		 * concentrations.
 		 */
 		for ( Agent agent : this._agents.getAllLocatedAgents() )
 			this.applyAgentGrowth(agent);
+		
+//		MultigridLayer currentLayer;
+		for ( SpatialGrid var : this._environment.getSolutes() )
+		{
+			double massMove = var.getTotal(PRODUCTIONRATE);
+			var.increaseWellMixedMassFlow(massMove);
+		}
+		/*
+		 * Estimate the steady-state mass flows in or out of the well-mixed
+		 * region, and distribute it among the relevant boundaries.
+		 */
+		this._environment.distributeWellMixedFlows();
 
 		/* perform final clean-up and update agents to represent updated 
 		 * situation. */
@@ -217,6 +229,7 @@ public class SolveDiffusionSteadyState extends ProcessDiffusion
 				 * stoichiometry may not be the same as those in the reaction
 				 * variables (although there is likely to be a large overlap).
 				 */
+				
 				for ( String productName : r.getReactantNames() )
 				{
 					productRate = r.getProductionRate(concns, productName);
@@ -338,7 +351,7 @@ public class SolveDiffusionSteadyState extends ProcessDiffusion
 					if ( this._environment.isSoluteName(productName) )
 					{
 						solute = this._environment.getSoluteGrid(productName);
-						solute.addValueAt(PRODUCTIONRATE, coord.get(), productRate);
+						solute.addValueAt(PRODUCTIONRATE, coord.get(), productRate * this.getTimeStepSize());
 					}
 					else if ( newBiomass.containsKey(productName) )
 					{

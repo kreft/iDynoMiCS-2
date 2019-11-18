@@ -137,18 +137,18 @@ public class MassBalance implements Testable {
 			System.out.println("chemostat: in - out = acc, solved");
 			dM[0] = in[0]-out[0];
 			System.out.println(
-					String.format("%- 10.2f -", in[0]) +
-					String.format("%- 20.2f =", out[0]) +
-					String.format("%- 10.2f", dM[0]) +
-					String.format("f%- 10.2g", (con[0]*vol[0])-mPre[0]));
+					String.format("%- 10.3f -", in[0]) +
+					String.format("%- 20.3f =", out[0]) +
+					String.format("%- 10.3f", dM[0]) +
+					String.format("f%- 10.3g", (con[0]*vol[0])-mPre[0]));
 			
 			dM[2] = in[2]-out[2];
 			dF += dM[2];
 			System.out.println("excluding biofilm diffusion (net change in overall system)");
 			System.out.println(
-					String.format("%- 10.2g -", in[2]) +
-					String.format("%- 20.2g =", out[2]) +
-					String.format("%- 20.2g ", dM[2]));
+					String.format("%- 10.3g -", in[2]) +
+					String.format("%- 20.3g =", out[2]) +
+					String.format("%- 20.3g ", dM[2]));
 
 			boundaries = biofilm.getShape().getAllBoundaries();
 			
@@ -176,28 +176,28 @@ public class MassBalance implements Testable {
 
 			System.out.println("biofilm: in - out - consumed = acc, solver");
 			System.out.println(
-					String.format("%- 10.2f -", in[1]) +
-					String.format("%- 10.2f -", out[1]) +
-					String.format("%- 8.2f =", (2.63*dBiomass)) +
-					String.format("%- 10.2f", dM[1]) +
-					String.format("f%- 10.2g", (con[1]*vol[1])-mPre[1]));
+					String.format("%- 10.3f -", in[1]) +
+					String.format("%- 10.3f -", out[1]) +
+					String.format("%- 8.3f =", (2.63*dBiomass)) +
+					String.format("%- 10.3f", dM[1]) +
+					String.format("f%- 10.3g", (con[1]*vol[1])-mPre[1]));
 
 			double dMtot = dM[0]+dM[1];
 			double mPretot = ((con[0]*vol[0])-mPre[0])+((con[1]*vol[1])-mPre[1]);
 			System.out.println("Mass, Mass solved, difference");
 			System.out.println( 
-					String.format("%- 10.2f ", dMtot) +
-					String.format(" %- 10.2f ", mPretot) +
-					String.format(" %- 10.2f ", (mPretot-dMtot) ) +
+					String.format("%- 10.3f ", dMtot) +
+					String.format(" %- 10.3f ", mPretot) +
+					String.format(" %- 10.3f ", (mPretot-dMtot) ) +
 					String.format("%70s", "Delta Step") );
 			
 			dMq += dMtot;
 			dPq += mPretot;
 			
 			System.out.println( 
-					String.format("%- 10.2f ", dMq) +
-					String.format(" %- 10.2f ", dPq) +
-					String.format(" %- 10.2f ", (dPq-dMq) ) +
+					String.format("%- 10.3f ", dMq) +
+					String.format(" %- 10.3f ", dPq) +
+					String.format(" %- 10.3f ", (dPq-dMq) ) +
 					String.format("%70s", "Delta Cummulative")  );
 			mPre[0] = con[0]*vol[0];
 			mPre[1] = con[1]*vol[1];

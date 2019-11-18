@@ -69,7 +69,9 @@ public class BiofilmBoundaryLayer extends WellMixedBoundary
 	 * **********************************************************************/
 	
 	public BiofilmBoundaryLayer()
-	{}
+	{
+		this._dominant = true;
+	}
 	
 	@Override
 	public void setContainers(

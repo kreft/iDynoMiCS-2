@@ -63,45 +63,13 @@
 						
 		</speciesLib>
 
-		<compartment name="chemostat">
-			<shape class="Dimensionless" volume="1e9">
-				<boundary  class="constantConcentrationToChemostat" volumeFlowRate="1.0E6">
-				<solute name="glucose" concentration="2.00E-06" defaultDiffusivity="36000"  />
-				<solute name="oxygen" 	concentration="8.74E-6" defaultDiffusivity="132000"  />
-				</boundary>
-				<boundary  class="chemostatOut" volumeFlowRate="-1.0E6" agentRemoval="false" >
-				</boundary> 
-			</shape>
-			<solutes>
-				<!-- pg / µm3 -->
-				<solute name="glucose" concentration="2.00E-06" defaultDiffusivity="36000"  />
-				<solute name="oxygen" 	concentration="8.74E-6" defaultDiffusivity="132000"  />
-			</solutes>
-			<processManagers>
-				<process name="solveChemostat" class="ChemostatSolver" priority="0"
-					firstStep="0.0">
-					<aspect name="hMax" type="PRIMARY" class="Double" value="15.0" />
-					<aspect name="solver" type="PRIMARY" class="String" value="heun" />
-					<aspect name="tolerance" class="Double" value="1.0E-6" />
-				</process>
-				<process name="summary" class="Summary"  priority="2"
-					firstStep="0.0">
-					<aspect name="includeHeader" type="PRIMARY" class="Boolean" value="TRUE" />
-					<aspect name="fileName" type="PRIMARY" class="String" value="chemostat" />
-					<aspect name="tableSpecification" type="PRIMARY" class="String"
-					value="mass ? species == EColi | %oxygen | %glucose" />
-					<aspect name="fileName" type="PRIMARY" class="String" value="data" />
-				</process>
-			</processManagers>
-		</compartment>
-		
 		<compartment name="biofilm" tree="SPLITTREE">
 			<shape class="Rectangle" resolutionCalculator="MultigridResolution">
 				<!-- µm -->
-				<dimension name="X" isCyclic="true" targetResolution="0.5" max="32.0"></dimension>
-				<dimension name="Y" isCyclic="false" targetResolution="0.5" max="128.0">
+				<dimension name="X" isCyclic="true" targetResolution="1.0" max="32.0"></dimension>
+				<dimension name="Y" isCyclic="false" targetResolution="1.0" max="128.0">
 					<boundary extreme="0" class="SolidBoundary" />
-					<boundary extreme="1" class="BiofilmBoundaryLayer" partnerCompartment="chemostat" layerThickness="20" />
+					<boundary extreme="1" class="BiofilmBoundaryLayer" partnerCompartment="chemostat" layerThickness="60" />
 				</dimension>
 			</shape>
 			<solutes>
@@ -159,5 +127,37 @@
 				</process>
 			</processManagers>
 		</compartment>
+		<compartment name="chemostat">
+			<shape class="Dimensionless" volume="1e9">
+				<boundary  class="constantConcentrationToChemostat" volumeFlowRate="1.0E6">
+				<solute name="glucose" concentration="2.00E-06" defaultDiffusivity="36000"  />
+				<solute name="oxygen" 	concentration="8.74E-6" defaultDiffusivity="132000"  />
+				</boundary>
+				<boundary  class="chemostatOut" volumeFlowRate="-1.0E6" agentRemoval="false" >
+				</boundary> 
+			</shape>
+			<solutes>
+				<!-- pg / µm3 -->
+				<solute name="glucose" concentration="2.00E-06" defaultDiffusivity="36000"  />
+				<solute name="oxygen" 	concentration="8.74E-6" defaultDiffusivity="132000"  />
+			</solutes>
+			<processManagers>
+				<process name="solveChemostat" class="ChemostatSolver" priority="0"
+					firstStep="0.0">
+					<aspect name="hMax" type="PRIMARY" class="Double" value="15.0" />
+					<aspect name="solver" type="PRIMARY" class="String" value="heun" />
+					<aspect name="tolerance" class="Double" value="1.0E-6" />
+				</process>
+				<process name="summary" class="Summary"  priority="2"
+					firstStep="0.0">
+					<aspect name="includeHeader" type="PRIMARY" class="Boolean" value="TRUE" />
+					<aspect name="fileName" type="PRIMARY" class="String" value="chemostat" />
+					<aspect name="tableSpecification" type="PRIMARY" class="String"
+					value="mass ? species == EColi | %oxygen | %glucose" />
+					<aspect name="fileName" type="PRIMARY" class="String" value="data" />
+				</process>
+			</processManagers>
+		</compartment>
+		
 	</simulation>
 </document>

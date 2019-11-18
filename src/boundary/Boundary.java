@@ -60,6 +60,7 @@ public abstract class Boundary implements Settable, Instantiable
 	/**
 	 * 
 	 */
+	protected boolean _dominant = false;
 	// TODO implement this in node construction
 	protected String _partnerCompartmentName;
 	
@@ -278,6 +279,7 @@ public abstract class Boundary implements Settable, Instantiable
 	 */
 	public double getMassFlowRate(String name)
 	{
+//		System.out.println(name + " massFlow " + this.getName());
 		if ( this._massFlowRate.containsKey(name) )
 			return this._massFlowRate.get(name);
 		return 0.0;
@@ -361,14 +363,14 @@ public abstract class Boundary implements Settable, Instantiable
 				thisRate = this.getMassFlowRate(name);
 				partnerRate = this._partner.getMassFlowRate(name);
 				/*
-				 * Apply any volume-change conversions.
-				 */
-				// TODO
-				/*
 				 * Apply the switch.
 				 */
-				this.setMassFlowRate(name, partnerRate);
-				this._partner.setMassFlowRate(name, partnerRate);
+				if (this._dominant)
+					partnerRate = -thisRate;
+				if (this._partner._dominant)
+					thisRate = -partnerRate;
+				this.setMassFlowRate(name, -partnerRate);
+				this._partner.setMassFlowRate(name, -thisRate);
 				System.out.println(" " + getMassFlowRate(name) + " " + _partner.getMassFlowRate(name)
 						);
 				Compartment news = new Compartment();
