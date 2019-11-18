@@ -101,7 +101,8 @@ public class SolveDiffusionSteadyState extends ProcessDiffusion
 		 * Estimate the steady-state mass flows in or out of the well-mixed
 		 * region, and distribute it among the relevant boundaries.
 		 */
-		this._environment.distributeWellMixedFlows();
+		this._environment.distributeWellMixedFlows(this._timeStepSize);
+
 
 		/* perform final clean-up and update agents to represent updated 
 		 * situation. */

@@ -249,6 +249,7 @@ public class ChemostatSolver extends ProcessManager
 						dydt [_n ] += volFlowRate;
 						for ( int i = 0; i < _n; i++ )
 							dydt[i] += aBoundary.getMassFlowRate( _solutes[i] );
+						System.out.println(dydt[0]);
 					}
 					if ( volFlowRate != 0.0 )
 					{

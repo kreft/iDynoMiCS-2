@@ -65,7 +65,7 @@ public class SolveDiffusionTransient extends ProcessDiffusion
 		 * If any mass has flowed in or out of the well-mixed region,
 		 * distribute it among the relevant boundaries.
 		 */
-		this._environment.distributeWellMixedFlows();
+		this._environment.distributeWellMixedFlows(this._timeStepSize);
 
 		/* perform final clean-up and update agents to represent updated 
 		 * situation. */

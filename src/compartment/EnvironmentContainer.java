@@ -314,7 +314,7 @@ public class EnvironmentContainer implements CanPrelaunchCheck, Settable
 	 * accumulate during diffusion methods when solving PDEs. Here, we
 	 * distribute these flows among the relevant spatial boundaries.
 	 */
-	public void distributeWellMixedFlows()
+	public void distributeWellMixedFlows(double dt)
 	{
 		/* Find all relevant boundaries. */
 		Collection<WellMixedBoundary> boundaries = 
@@ -340,7 +340,7 @@ public class EnvironmentContainer implements CanPrelaunchCheck, Settable
 			{
 				double solMassFlow = -solute.getWellMixedMassFlow();
 				b.increaseMassFlowRate(solute.getName(), 
-						solMassFlow * scFac);
+						solMassFlow/dt * scFac);
 				solute.resetWellMixedMassFlow();
 			}
 			return;

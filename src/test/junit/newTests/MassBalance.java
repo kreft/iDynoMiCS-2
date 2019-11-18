@@ -123,15 +123,15 @@ public class MassBalance implements Testable {
 
 				if( mflow[0] > 0.0)
 				{
-					in[0] += mflow[0];
+					in[0] += mflow[0] * Idynomics.simulator.timer.getTimeStepSize();
 					Map<String,Double> cons = 
 							((ConstantConcentrationToChemostat) e)._concns;
-					in[2] += flow[0] * cons.get(sol);
+					in[2] += flow[0] * cons.get(sol) * Idynomics.simulator.timer.getTimeStepSize();
 				}
 				else
 				{
-					out[0] -= mflow[0];
-					out[2] -= flow[0]*con[0];
+					out[0] -= mflow[0] * Idynomics.simulator.timer.getTimeStepSize();
+					out[2] -= flow[0]*con[0] * Idynomics.simulator.timer.getTimeStepSize();
 				}
 			}
 			System.out.println("chemostat: in - out = acc, solved");
@@ -160,9 +160,9 @@ public class MassBalance implements Testable {
 				
 				
 				if( mflow[1] > 0.0)
-					in[1] += mflow[1];
+					in[1] += mflow[1] * Idynomics.simulator.timer.getTimeStepSize();
 				else
-					out[1] -= mflow[1];
+					out[1] -= mflow[1] * Idynomics.simulator.timer.getTimeStepSize();
 			}
 
 			subjects = new LinkedList<AspectInterface>();
