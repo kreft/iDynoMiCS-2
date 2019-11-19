@@ -26,6 +26,8 @@ public enum ArrayType
 	 */
 	WELLMIXED,
 	/**
+	 * FIXME: this appears to be: mass<sup>1</sup> time<sup>-1</sup> 
+	 * length<sup>-3</sup>.<br><br>
 	 * The rate of production of this solute. Consumption is described by
 	 * negative production. This is always in terms of mass per time 
 	 * (mass<sup>1</sup> time<sup>-1</sup>).

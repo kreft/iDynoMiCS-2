@@ -113,6 +113,11 @@ public class SpatialGrid implements Settable, Instantiable
 		
 		BIOMASS_SCALED
 	}
+	
+	public double voxelVolume()
+	{
+		return this.getShape().getCurrVoxelVolume();
+	}
 
 	
 	public void updateDiffusivity(
