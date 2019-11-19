@@ -112,9 +112,9 @@ public class MassBalance implements Testable {
 				if( mflow[0] > 0.0)
 				{
 					in[0] += mflow[0] * dt;
-					Map<String,Double> cons = 
-							((ConstantConcentrationToChemostat) e)._concns;
-					in[2] += flow[0] * cons.get(sol) * dt;
+					double cons =((ConstantConcentrationToChemostat) e).
+							getConcentration(sol);
+					in[2] += flow[0] * cons * dt;
 				}
 				else
 				{

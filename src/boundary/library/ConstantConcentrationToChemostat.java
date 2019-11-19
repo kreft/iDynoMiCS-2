@@ -23,9 +23,9 @@ import settable.Settable;
 public class ConstantConcentrationToChemostat extends Boundary
 {
 	/**
-	 * Solute concentrations (set public for unit-test.
+	 * Solute concentrations.
 	 */
-	public Map<String,Double> _concns = new HashMap<String,Double>();
+	private Map<String,Double> _concns = new HashMap<String,Double>();
 
 	public ConstantConcentrationToChemostat()
 	{
@@ -75,7 +75,14 @@ public class ConstantConcentrationToChemostat extends Boundary
 		this._concns.put(name, concn);
 	}
 	
-	private double getConcentration(String name)
+	/**
+	 * getConcentration of solute
+	 * 
+	 * (set to public for unit testing).
+	 * @param name
+	 * @return
+	 */
+	public double getConcentration(String name)
 	{
 		if ( this._concns.containsKey(name) )
 			return this._concns.get(name);

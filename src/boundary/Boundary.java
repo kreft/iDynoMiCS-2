@@ -334,26 +334,13 @@ public abstract class Boundary implements Settable, Instantiable
 		 * 
 		 */
 		int currentIter = Idynomics.simulator.timer.getCurrentIteration();
-//		testing w/o compartment to compartment transfer
-//		this._iterLastUpdated = currentIter;
-		if (this instanceof SpatialBoundary)
-			System.out.println("SpatialBoundary");
-		if (this instanceof ChemostatBoundary)
-			System.out.println("ChemostatBoundary");
-		if (this instanceof BiofilmBoundaryLayer)
-			System.out.println("BiofilmBoundaryLayer");
-		if (this instanceof ChemostatToBoundaryLayer)
-			System.out.println("ChemostatToBoundaryLayer");
-		if (this instanceof WellMixedBoundary)
-			System.out.println("WellMixedBoundary");
+
 		if ( this._partner == null )
 		{
 			this._iterLastUpdated = currentIter;
 			// TODO check that we should do nothing here
 			return;
 		}
-		if ( this._iterLastUpdated < currentIter )
-		{
 			double thisRate, partnerRate;
 			for ( String name : this._environment.getSoluteNames() )
 			{
@@ -371,9 +358,6 @@ public abstract class Boundary implements Settable, Instantiable
 					thisRate = -partnerRate;
 				this.setMassFlowRate(name, -partnerRate);
 				this._partner.setMassFlowRate(name, -thisRate);
-				System.out.println(" " + getMassFlowRate(name) + " " + _partner.getMassFlowRate(name)
-						);
-				Compartment news = new Compartment();
 			}
 			/*
 			 * Update the iteration numbers so that the partner boundary
@@ -381,7 +365,6 @@ public abstract class Boundary implements Settable, Instantiable
 			 */
 			this._iterLastUpdated = currentIter;
 			this._partner._iterLastUpdated = currentIter;
-		}
 		/*
 		 * If there is any additional updating to do, do it now.
 		 */
