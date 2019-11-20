@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document>
-	<simulation log="CRITICAL" outputfolder="../results" name="ecoli2D"  randomSeed="22432423">
+	<simulation log="EXPRESSIVE" outputfolder="../results" name="ecoli2D"  randomSeed="22432423">
 	<timer stepSize="10.0" endOfSimulation="300.0" />
 		<speciesLib>
 			<!-- species/species library The species library contains all agent species 

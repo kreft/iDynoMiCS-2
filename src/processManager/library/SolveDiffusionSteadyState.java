@@ -236,7 +236,7 @@ public class SolveDiffusionSteadyState extends ProcessDiffusion
 					productRate = r.getProductionRate(concns, productName);
 					solute = FindGrid(variables, productName);
 					if ( solute != null )
-						solute.addValueAt(PRODUCTIONRATE, coord.get(), productRate);
+						solute.addValueAt(PRODUCTIONRATE, coord.get(), volume * productRate);
 
 					/* 
 					 * Unlike in a transient solver, we do not update the agent
@@ -352,7 +352,8 @@ public class SolveDiffusionSteadyState extends ProcessDiffusion
 					if ( this._environment.isSoluteName(productName) )
 					{
 						solute = this._environment.getSoluteGrid(productName);
-						solute.addValueAt(PRODUCTIONRATE, coord.get(), productRate * this.getTimeStepSize());
+						solute.addValueAt(PRODUCTIONRATE, coord.get(), 
+								productRate * volume * this.getTimeStepSize());
 					}
 					else if ( newBiomass.containsKey(productName) )
 					{

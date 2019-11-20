@@ -48,7 +48,7 @@ public class MassBalance implements Testable {
 		/* basic simulator initiation */
 		Log.set(Tier.CRITICAL);
 		Idynomics.setupSimulator("protocol/unit-tests/mass_balance.xml");
-
+		Log.set(Tier.CRITICAL);
 		Tester.println("mass balance", mode);
 		Compartment chemostat = Idynomics.simulator.getCompartment("chemostat");
 		Compartment biofilm = Idynomics.simulator.getCompartment("biofilm");

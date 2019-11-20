@@ -176,8 +176,9 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable, C
 		 */
 		this.name = XmlHandler.obtainAttribute(
 				xmlElem, XmlRef.nameAttribute, XmlRef.compartment);
-		this._priority = Integer.valueOf( XmlHandler.obtainAttribute(
-				xmlElem, XmlRef.priority, XmlRef.compartment) );
+		if( XmlHandler.hasAttribute(xmlElem, XmlRef.priority))
+			this._priority = Integer.valueOf( XmlHandler.gatherAttribute(
+					xmlElem, XmlRef.priority) );
 		Idynomics.simulator.addCompartment(this);
 		/*
 		 * Set up the shape.
