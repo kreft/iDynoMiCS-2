@@ -63,31 +63,67 @@ public class PDEmultigrid extends PDEsolver
 	 * afterwards.
 	 */
 	private int _numLayers;
-	
-	private int _numVCycles = 2;
-	
+	/**
+	 * number of V-cycles performed by multi-grid solver.
+	 * (can try to increase when the solver appears to behave badly)
+	 */
+	private int _numVCycles = 3;
+	/**
+	 * maximum number of pre-steps
+	 */
 	private int _numPreSteps = 100;
-	
+	/**
+	 * maximum number of coarse steps
+	 */
 	private int _numCoarseStep = 100;
-	
+	/**
+	 * maximum number of post steps
+	 */
 	private int _numPostSteps = 500;
 	
+	/**
+	 * Absolute threshold of the residual value at which relaxation is 
+	 * interrupted.
+	 * 
+	 * NOTE: [Bas 2019] relative and absolute tolerance appear to just look at
+	 * the multi-grid residual, I'm not sure whether that is completely correct.
+	 * Looking at concentration changes between steps may be more appropriate.
+	 */
 	private double _absToleranceLevel;
-	
+	/**
+	 * Relative threshold (relative to concentration) of the residual value at 
+	 * which relaxation is interrupted. 
+	 */
 	private double _relToleranceLevel;
-
-	private boolean _checkVCycleDiscrepancy = true;
-	
+	/**
+	 * Enable stopping relaxation when stop conditions are met
+	 */
+	private boolean _enableEarlyStop = true;
+	/**
+	 * Warn for large differences between Vcycle residuals (Debugging tool)
+	 */
+	private boolean _checkVCycleDiscrepancy = false;
+	/**
+	 * Difference between Vcycle residuals to warn at (Debugging tool)
+	 */
+	private double _discrepancyThreshold = 1.0;
+	/**
+	 * Stored old residual (Debugging tool internal use)
+	 */
 	private double tempRes[];
-	
+	/**
+	 * Stored layer number (Debugging tool internal use)
+	 */
 	private int tempLay = 0;
-	
+	/**
+	 * Stored Vcycle count (Debugging tool internal use)
+	 */
 	private int num = 0;
-	
-	private double _discrepancyThreshold = 0.01;
-	
+	/**
+	 * Internal use, is set to true when stop condition is reached.
+	 */
 	private boolean _reachedStopCondition = false;
-	
+
 	/* ***********************************************************************
 	 * SOLVER METHODS
 	 * **********************************************************************/
@@ -218,6 +254,7 @@ public class PDEmultigrid extends PDEsolver
 			// NOTE iDynoMiCS 1 uses fracOfOldValueKept of 0.5
 			for ( ArrayType type : variable.getAllArrayTypes() )
 				currentLayer.fillArrayFromFiner(type, 0.0, null);
+			// [Bas 2019] Enabling this seems to also increase the total biomass production of a sim.
 		}
 	}
 	
@@ -529,7 +566,8 @@ public class PDEmultigrid extends PDEsolver
 		double lop, totalNhbWeight, residual;
 		@SuppressWarnings("unused")
 		int[] current, nhb;
-		this._reachedStopCondition = true;
+		if ( this._enableEarlyStop  )
+			this._reachedStopCondition = true;
 		
 		for ( current = shape.resetIterator(); shape.isIteratorValid();
 				current = shape.iteratorNext() )
