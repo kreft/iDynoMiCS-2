@@ -67,7 +67,7 @@ public class PDEmultigrid extends PDEsolver
 	 * number of V-cycles performed by multi-grid solver.
 	 * (can try to increase when the solver appears to behave badly)
 	 */
-	private int _numVCycles = 3;
+	private int _numVCycles = 1;
 	/**
 	 * maximum number of pre-steps
 	 */

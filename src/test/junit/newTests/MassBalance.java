@@ -37,6 +37,8 @@ import surface.Voxel;
  */
 public class MassBalance implements Testable {
 	
+	private double _initialMass = 0.4*10;
+	
 	@Test
 	public void test()
 	{
@@ -202,13 +204,14 @@ public class MassBalance implements Testable {
 				dPq);
 		
 		System.out.println( "\n final substrate converted to biomass sim: " + 
-				2.63*(biomass-0.4));
+				2.63*(biomass-_initialMass));
 		
 		System.out.println( "\n delta mass chemostat in/out flows: " + 
 				dF);
 		
 		System.out.println( "\n total mass gained/lossed by solver: " + 
-				(dF - 2.63*(biomass-0.4) - dPq));
+				(dF - 2.63*(biomass-_initialMass) - dPq));
+		
 		
 		/* the mass balance should close, but a small error can be permitted
 		 * eg. < 1% of the biomass 
@@ -218,8 +221,8 @@ public class MassBalance implements Testable {
 		 * dPq: total increase/decrease of glucose in system
 		 * 
 		 * in - out - consumption - accumulation = 0 */ 
-		assertEquals(0.0, (dF - 2.63*(biomass-0.4) - dPq), 
-				2.63*(biomass-0.4)*0.01);
+		assertEquals(0.0, (dF - 2.63*( biomass-_initialMass ) - dPq), 
+				2.63*(biomass-_initialMass)*0.01);
 	}
 
 }
