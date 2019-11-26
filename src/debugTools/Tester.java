@@ -62,6 +62,11 @@ public class Tester {
 		assess(result, expected, mode, "");
 	}
 	
+	public static <T> void assess(T result, T expected, double errorTolerance, TestMode mode)
+	{
+		assess(result, expected, errorTolerance, mode, "");
+	}
+	
 	/**
 	 * Assess whether the 2 inputs are equal, depends on test mode, the input
 	 * class must implement a sensible equals(T) method.
@@ -84,6 +89,32 @@ public class Tester {
 					println(" pass" +  " (" + desription + ")", mode);
 				else
 					println(" fail" + " (" + desription + ")", mode);
+		}
+	}
+	
+	/**
+	 * (for double types only)
+	 * @param <T>
+	 * @param result
+	 * @param expected
+	 * @param errorTolerance
+	 * @param mode
+	 * @param desription
+	 */
+	public static <T> void assess(T result, T expected, double errorTolerance, TestMode mode, 
+			String desription)
+	{
+		switch(mode) 
+		{
+			case UNIT:
+				assertEquals( (double) result, (double) expected, errorTolerance);
+				break;
+			default:
+				//TODO
+//				if( result.equals(expected) )
+//					println(" pass" +  " (" + desription + ")", mode);
+//				else
+//					println(" fail" + " (" + desription + ")", mode);
 		}
 	}
 	

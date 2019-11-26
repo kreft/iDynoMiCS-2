@@ -4,8 +4,6 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.Collection;
 import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
 
 import org.junit.Test;
 
@@ -23,11 +21,7 @@ import debugTools.Tester;
 import grid.ArrayType;
 import debugTools.Testable;
 import idynomics.Idynomics;
-import linearAlgebra.Vector;
-import surface.*;
-import surface.Rod;
-import surface.Surface;
-import surface.Voxel;
+
 
 /**
  * \brief: Unit test for conservation of mass 
@@ -83,15 +77,15 @@ public class MassBalance implements Testable {
 			toCount.add((AspectInterface) a);
 		double biomass = Counter.count(agents, toCount)[0];
 		
-		System.out.print( "in -\t" +
+		Tester.print( "in -\t" +
 				"out -\t" +
 				"cons =\t" +
 				"accu\t" +
-				"solver");
+				"solver", mode);
 
 		while ( Idynomics.simulator.timer.isRunning() )
 		{
-			System.out.println("\n # " + i++);
+			Tester.println("\n # " + i++, mode);
 			double[] in = { 0.0, 0.0, 0.0 };
 			double[] out = { 0.0, 0.0, 0.0 };
 			Idynomics.simulator.step();
@@ -124,22 +118,22 @@ public class MassBalance implements Testable {
 					out[2] -= flow[0] * con[0] * dt;
 				}
 			}
-			System.out.println("chemostat: in - out = acc, solved");
+			Tester.println("chemostat: in - out = acc, solved", mode);
 			dM[0] = in[0]-out[0];
-			System.out.println(
+			Tester.println(
 					String.format("%- 10.3f -", in[0]) +
 					String.format("%- 20.3f =", out[0]) +
 					String.format("%- 10.3f", 	dM[0]) +
-					String.format("f%- 10.3g", 	(con[0]*vol[0])-mPre[0]));
+					String.format("f%- 10.3g", 	(con[0]*vol[0])-mPre[0]), mode);
 			
 			dM[2] = in[2]-out[2];
 			dF += dM[2];
-			System.out.println("excluding biofilm diffusion "
-					+ "(net in/out for overall system)");
-			System.out.println(
+			Tester.println("excluding biofilm diffusion "
+					+ "(net in/out for overall system)", mode);
+			Tester.println(
 					String.format("%- 10.3g -", in[2]) +
 					String.format("%- 20.3g =", out[2]) +
-					String.format("%- 20.3g ", 	dM[2]));
+					String.format("%- 20.3g ", 	dM[2]), mode);
 
 			boundaries = biofilm.getShape().getAllBoundaries();
 			
@@ -164,53 +158,54 @@ public class MassBalance implements Testable {
 			dM[1] = in[1]-out[1]-(2.63*(dBiomass));
 			
 
-			System.out.println("biofilm: in - out - consumed = acc, solver");
-			System.out.println(
+			Tester.println("biofilm: in - out - consumed = acc, solver", mode);
+			Tester.println(
 					String.format("%- 10.3f -", in[1]) +
 					String.format("%- 10.3f -", out[1]) +
 					String.format("%- 8.3f =", 	(2.63*dBiomass)) +
 					String.format("%- 10.3f", 	dM[1]) +
-					String.format("f%- 10.3g", 	(con[1]*vol[1])-mPre[1]));
+					String.format("f%- 10.3g", 	(con[1]*vol[1])-mPre[1]), mode);
 
 			double dMtot = dM[0]+dM[1];
 			double mPretot = 	((con[0] * vol[0]) - mPre[0]) +
 								((con[1] * vol[1]) - mPre[1]);
 			
-			System.out.println("Mass, Mass solved, difference");
-			System.out.println( 
+			Tester.println("Mass, Mass solved, difference", mode);
+			Tester.println( 
 					String.format("%- 10.3f ", 	dMtot) +
 					String.format(" %- 10.3f ", mPretot) +
 					String.format(" %- 10.3f ", (mPretot-dMtot) ) +
-					String.format("%30s", "Delta Step") );
+					String.format("%30s", "Delta Step"), mode);
 			
 			dMq += dMtot;
 			dPq += mPretot;
 			
-			System.out.println( 
+			Tester.println( 
 					String.format("%- 10.3f ", 	dMq) +
 					String.format(" %- 10.3f ", dPq) +
 					String.format(" %- 10.3f ", (dPq-dMq) ) +
-					String.format("%30s", "Delta Cummulative")  );
+					String.format("%30s", "Delta Cummulative"), mode);
 			mPre[0] = con[0]*vol[0];
 			mPre[1] = con[1]*vol[1];
 		}
 		
 		biomass = Counter.count(agents, toCount)[0];
 
-		System.out.println( "\n delta gluc from start (total mass): " + 
-				(((con[0]-conInit) * vol[0]) + ((con[1]-conInit) * vol[1])));
+		Tester.println( "\n delta gluc from start (total mass): " + 
+				( ( (con[0]-conInit) * vol[0]) + ( (con[1]-conInit) * 
+				vol[1]) ), mode);
 		
-		System.out.println( "\n delta gluc from start tracked cumalative: " + 
-				dPq);
+		Tester.println( "\n delta gluc from start tracked cumalative: " + 
+				dPq, mode);
 		
-		System.out.println( "\n final substrate converted to biomass sim: " + 
-				2.63*(biomass-_initialMass));
+		Tester.println( "\n final substrate converted to biomass sim: " + 
+				2.63*(biomass-_initialMass), mode);
 		
-		System.out.println( "\n delta mass chemostat in/out flows: " + 
-				dF);
+		Tester.println( "\n delta mass chemostat in/out flows: " + 
+				dF, mode);
 		
-		System.out.println( "\n total mass gained/lossed by solver: " + 
-				(dF - 2.63*(biomass-_initialMass) - dPq));
+		Tester.println( "\n total mass gained/lossed by solver: " + 
+				(dF - 2.63*(biomass-_initialMass) - dPq), mode);
 		
 		
 		/* the mass balance should close, but a small error can be permitted
@@ -221,8 +216,8 @@ public class MassBalance implements Testable {
 		 * dPq: total increase/decrease of glucose in system
 		 * 
 		 * in - out - consumption - accumulation = 0 */ 
-		assertEquals(0.0, (dF - 2.63*( biomass-_initialMass ) - dPq), 
-				2.63*(biomass-_initialMass)*0.01);
+		Tester.assess(0.0, (dF - 2.63*( biomass-_initialMass ) - dPq), 
+				2.63*(biomass-_initialMass)*0.01, mode);
 	}
 
 }
