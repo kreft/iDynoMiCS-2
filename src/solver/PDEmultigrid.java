@@ -140,6 +140,7 @@ public class PDEmultigrid extends PDEsolver
 	public void solve(Collection<SpatialGrid> variables,
 			SpatialGrid commonGrid, double tFinal)
 	{
+		
 		this.refreshCommonGrid(commonGrid);
 		for ( SpatialGrid var : variables )
 			this.refreshVariable(var);

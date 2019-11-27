@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document>
-	<simulation log="EXPRESSIVE" outputfolder="../results" name="ecoli2D"  randomSeed="224324231">
-	<timer stepSize="10.0" endOfSimulation="300.0" />
+	<simulation log="CRITICAL" outputfolder="../results" name="ecoli2D"  randomSeed="224324231">
+	<timer stepSize="10.0" endOfSimulation="20.0" />
 		<speciesLib>
 			<!-- species/species library The species library contains all agent species 
 				in the simulations. This may include microbial species, plasmid and vector 
@@ -43,8 +43,8 @@
 		<compartment name="biofilm" priority="1" tree="SPLITTREE">
 			<shape class="Rectangle" resolutionCalculator="MultigridResolution">
 				<!-- µm -->
-				<dimension name="X" isCyclic="true" targetResolution="2.0" max="32.0"></dimension>
-				<dimension name="Y" isCyclic="false" targetResolution="2.0" max="128.0">
+				<dimension name="X" isCyclic="true" targetResolution="8.0" max="32.0"></dimension>
+				<dimension name="Y" isCyclic="false" targetResolution="8.0" max="128.0">
 					<boundary extreme="0" class="SolidBoundary" />
 					<boundary extreme="1" class="BiofilmBoundaryLayer" partnerCompartment="chemostat" layerThickness="60" />
 				</dimension>
@@ -55,7 +55,7 @@
 			</solutes>
 			<reactions>
 			</reactions>
-			<spawn class="randomSpawner" domain="32.0, 0.2" priority="1" number="100" morphology="COCCOID">
+			<spawn class="randomSpawner" domain="32.0, 0.2" priority="1" number="10" morphology="COCCOID">
 				<templateAgent>
 					<aspect name="species" type="PRIMARY" class="String" value="Catalyst" />
 					<aspect name="#isLocated" type="PRIMARY" class="Boolean" value="true" />

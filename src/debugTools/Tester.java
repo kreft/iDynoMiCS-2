@@ -15,6 +15,8 @@ import test.junit.newTests.CollisionEvaluation;
  */
 public class Tester {
 	
+	public static boolean verbose = true;
+	
 	public static void main(String[] args)
 	{
 		/* If no arguments are given run an example test */
@@ -140,6 +142,8 @@ public class Tester {
 		switch(mode) 
 		{
 			case UNIT:
+				if (Tester.verbose)
+					System.out.print( msg );
 				break;
 			default:
 				System.out.print( msg );
