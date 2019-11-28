@@ -233,11 +233,12 @@ public class SolveDiffusionSteadyState extends ProcessDiffusion
 				
 				for ( String productName : r.getReactantNames() )
 				{
-					productRate = r.getProductionRate(concns, productName);
 					solute = FindGrid(variables, productName);
 					if ( solute != null )
+					{
+						productRate = r.getProductionRate(concns, productName);
 						solute.addValueAt(PRODUCTIONRATE, coord.get(), volume * productRate);
-
+					}
 					/* 
 					 * Unlike in a transient solver, we do not update the agent
 					 * mass here.
@@ -293,10 +294,6 @@ public class SolveDiffusionSteadyState extends ProcessDiffusion
 		{
 			volume = this._agents.getShape().getVoxelVolume(coord.get());
 			perVolume = 1.0/volume;
-			
-
-//			System.out.println( volume );
-			
 			for ( Reaction r : reactions )
 			{
 				/* 
@@ -313,8 +310,6 @@ public class SolveDiffusionSteadyState extends ProcessDiffusion
 					{
 						solute = this._environment.getSoluteGrid(varName);
 						concn = solute.getValueAt(CONCN, coord.get());
-
-//						System.out.println(varName + " " + concn );
 					}
 					else if ( biomass.containsKey(varName) )
 					{
@@ -346,9 +341,7 @@ public class SolveDiffusionSteadyState extends ProcessDiffusion
 				 */
 				for ( String productName : r.getReactantNames() )
 				{
-					productRate = r.getProductionRate(concns,productName);
-//					System.out.println(productName + " " + productRate );
-					
+					productRate = r.getProductionRate(concns,productName);					
 					if ( this._environment.isSoluteName(productName) )
 					{
 						solute = this._environment.getSoluteGrid(productName);
