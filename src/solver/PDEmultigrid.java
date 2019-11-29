@@ -67,7 +67,7 @@ public class PDEmultigrid extends PDEsolver
 	 * number of V-cycles performed by multi-grid solver.
 	 * (can try to increase when the solver appears to behave badly)
 	 */
-	private int _numVCycles = 1;
+	private int _numVCycles = 2;
 	/**
 	 * maximum number of pre-steps
 	 */
@@ -343,6 +343,7 @@ public class PDEmultigrid extends PDEsolver
 			 * Equation (19.6.30).
 			 */
 			currentCommon = this._commonMultigrid.getGrid();
+//			this._updater.prestep(variables, 1.0); // maybe we should update prodrates here??
 			for ( SpatialGrid variable : variables )
 			{
 				currentLayer = this.getMultigrid(variable).getGrid();
@@ -516,6 +517,7 @@ public class PDEmultigrid extends PDEsolver
 				this.relax(grid, currentCommon);
 			}
 			if (this._reachedStopCondition) {
+				this._updater.prestep(currentGrids, 0.0);
 				if( Log.shouldWrite(Tier.DEBUG) )
 					Log.out(Tier.DEBUG, "Breaking early: "+ i +" of "
 							+ numRepetitions );

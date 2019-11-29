@@ -69,7 +69,7 @@
 				<dimension name="X" isCyclic="true" targetResolution="2.0" max="32.0"></dimension>
 				<dimension name="Y" isCyclic="false" targetResolution="2.0" max="128.0">
 					<boundary extreme="0" class="SolidBoundary" />
-					<boundary extreme="1" class="BiofilmBoundaryLayer" partnerCompartment="chemostat" layerThickness="60" />
+					<boundary extreme="1" class="BiofilmBoundaryLayer" partnerCompartment="chemostat" layerThickness="30" />
 				</dimension>
 			</shape>
 			<solutes>

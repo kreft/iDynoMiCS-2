@@ -30,7 +30,7 @@
 						<reaction name="growth">
 							<expression value="mass * k * glucose">
 								<!-- per minute -->
-								<constant name="k" 	value="1000000.0" />  
+								<constant name="k" 	value="100000.0" />  
 							</expression>
 							<stoichiometric component="glucose" coefficient="-1.0" />
 						</reaction> 
@@ -46,7 +46,7 @@
 				<dimension name="X" isCyclic="true" targetResolution="8.0" max="32.0"></dimension>
 				<dimension name="Y" isCyclic="false" targetResolution="8.0" max="128.0">
 					<boundary extreme="0" class="SolidBoundary" />
-					<boundary extreme="1" class="BiofilmBoundaryLayer" partnerCompartment="chemostat" layerThickness="60" />
+					<boundary extreme="1" class="BiofilmBoundaryLayer" partnerCompartment="chemostat" layerThickness="30" />
 				</dimension>
 			</shape>
 			<solutes>
@@ -55,7 +55,7 @@
 			</solutes>
 			<reactions>
 			</reactions>
-			<spawn class="randomSpawner" domain="32.0, 0.2" priority="1" number="3" morphology="COCCOID">
+			<spawn class="randomSpawner" domain="32.0, 0.2" priority="1" number="100" morphology="COCCOID">
 				<templateAgent>
 					<aspect name="species" type="PRIMARY" class="String" value="Catalyst" />
 					<aspect name="#isLocated" type="PRIMARY" class="Boolean" value="true" />
