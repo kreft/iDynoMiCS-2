@@ -1,22 +1,13 @@
 package test.junit.newTests;
 
-import java.util.Collection;
-import java.util.LinkedList;
-
 import org.junit.Test;
 
-import agent.Agent;
-import analysis.Counter;
-import aspect.AspectInterface;
-import boundary.Boundary;
-import boundary.library.ConstantConcentrationToChemostat;
 import compartment.Compartment;
 import dataIO.Log;
 import dataIO.Log.Tier;
 import debugTools.Testable;
 import debugTools.Tester;
 import grid.ArrayType;
-import debugTools.Testable.TestMode;
 import idynomics.Idynomics;
 
 public class ReactionDiffusion implements Testable {
@@ -51,10 +42,19 @@ public class ReactionDiffusion implements Testable {
 		{
 			Tester.println("\n # " + i++, mode);
 			Idynomics.simulator.step();
-			for (int y = 0; y < 50; y++)
+			int hBiofilm = 10;
+			if(i > 1)
 			{
-				Tester.println( concn(0,y) + " \t" , mode );
-					//	concnFirstOrder(y, (1000.0*0.15*0.75)/36.0, 12, 1.5E-7), mode);
+				for (int y = 0; y < 30; y++)
+				{
+					if(y <= hBiofilm)
+						Tester.println( concn(0,y) + " \t" +
+								concnFirstOrder(y, (100000.0*0.15*0.8)/
+								36000.0, hBiofilm, concn(0, hBiofilm)), mode);
+					else
+						Tester.println( concn(0,y) + " \t", mode);
+				}
+
 			}
 		}
 		

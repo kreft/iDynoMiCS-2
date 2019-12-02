@@ -237,8 +237,10 @@ public class PDEmultigrid extends PDEsolver
 			currentLayer = currentLayer.getCoarser();
 			// NOTE iDynoMiCS 1 uses fracOfOldValueKept of 0.5
 			for ( ArrayType type : variable.getAllArrayTypes() )
-				currentLayer.fillArrayFromFiner(type, 0.0, null);
-			// [Bas 2019] Enabling this seems to also increase the total biomass production of a sim.
+				currentLayer.fillArrayFromFiner(type, 0.5, null);
+			/** [Bas 2019] In some cases, setting this to 0.5 also appears to
+			 * increase the total biomass production of a sim.
+			 */
 		}
 	}
 	
@@ -343,7 +345,6 @@ public class PDEmultigrid extends PDEsolver
 			 * Equation (19.6.30).
 			 */
 			currentCommon = this._commonMultigrid.getGrid();
-//			this._updater.prestep(variables, 1.0); // maybe we should update prodrates here??
 			for ( SpatialGrid variable : variables )
 			{
 				currentLayer = this.getMultigrid(variable).getGrid();
@@ -757,7 +758,6 @@ public class PDEmultigrid extends PDEsolver
 				}
 			}
 			diffusiveFlow = lop;
-			
 			/*diffusiveFlow = 0.0;
 			for ( shape.resetNbhIterator(); shape.isNbhIteratorValid();
 					shape.nbhIteratorNext() )
