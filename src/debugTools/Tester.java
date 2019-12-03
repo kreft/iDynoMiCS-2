@@ -85,7 +85,8 @@ public class Tester {
 		{
 			case UNIT:
 				assertEquals( result, expected);
-				break;
+				if ( !Tester.verbose )
+					break;
 			default:
 				if( result.equals(expected) )
 					println(" pass" +  " (" + desription + ")", mode);
@@ -110,14 +111,20 @@ public class Tester {
 		{
 			case UNIT:
 				assertEquals( (double) result, (double) expected, errorTolerance);
-				break;
+				if ( !Tester.verbose )
+					break;
 			default:
-				//TODO
-//				if( result.equals(expected) )
-//					println(" pass" +  " (" + desription + ")", mode);
-//				else
-//					println(" fail" + " (" + desription + ")", mode);
+				if( assessDoubles((double) result, (double) expected, (double) errorTolerance) )
+					println(" pass" +  " (" + desription + ")", mode);
+				else
+					println(" fail" + " (" + desription + ")", mode);
 		}
+	}
+	
+	private static boolean assessDoubles(double result, double expected, double errorTolerance)
+	{
+		return (result - expected < errorTolerance || 
+				expected - result < errorTolerance);
 	}
 	
 	/**
@@ -142,9 +149,8 @@ public class Tester {
 		switch(mode) 
 		{
 			case UNIT:
-				if (Tester.verbose)
-					System.out.print( msg );
-				break;
+				if ( !Tester.verbose )
+					break;
 			default:
 				System.out.print( msg );
 		}
