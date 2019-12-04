@@ -32,12 +32,10 @@ public class AgentAttachment extends ProcessManager
 	private String RASTER_SCALE = AspectRef.rasterScale;
 	private String VERBOSE = AspectRef.verbose;
 	private String REGION_DEPTH = AspectRef.regionDepth;
-	
 	/** 
 	 * verbose raster output for debuggin purposes 
 	 */
 	private boolean _verbose = false;
-	
 	/**
 	 * Raster used to create euclidean distance maps
 	 */
@@ -140,7 +138,5 @@ public class AgentAttachment extends ProcessManager
 				}
 			}
 		}
-		
 	}
-
 }

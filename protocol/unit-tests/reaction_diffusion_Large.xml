@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document>
-	<simulation log="CRITICAL" outputfolder="../results" name="ecoli2D"  randomSeed="224324231">
-	<timer stepSize="10.0" endOfSimulation="300.0" />
+	<simulation log="CRITICAL" outputfolder="../results" name="ecoli2D"  randomSeed="3">
+	<timer stepSize="10.0" endOfSimulation="20.0" />
 		<speciesLib>
 			<!-- species/species library The species library contains all agent species 
 				in the simulations. This may include microbial species, plasmid and vector 
@@ -19,43 +19,20 @@
 				<aspect name="updateBody" type="EVENT" class="UpdateBodySurfaceScaled" />
 				<aspect name="volume" type="CALCULATED" class="SimpleVolumeState" 	/>
 				<aspect name="radius" type="CALCULATED" class="CoccoidRadius" 		/>
-				
 			</species>
-			
-			<species name="bacterium">
-				<aspect name="differentiate" type="EVENT" class="Differentiate" />
-				<aspect name="differentiationMap" class="InstantiableMap">
-					<map entryClass="String" keyType="String">
-						<item key="mass smaller 0.02" value="inert"  />
-					</map>
-				</aspect>
-			</species>
-			
-			<species name="inert">
+
+			<species name="Catalyst">
 			<speciesModule name="coccoid" />
-				<aspect name="pigment" type="PRIMARY" class="String" value="GRAY" />
-			</species>
-			
-			<species name="EColi">
-			<speciesModule name="coccoid" />
-			<speciesModule name="bacterium" />
 				<aspect name="pigment" type="PRIMARY" class="String" value="PURPLE" />
 				<aspect name="reactions" type="PRIMARY"  class="InstantiableList"> 
 					<list class="RegularReaction" nodeLabel="reaction" 
 					entryClass="RegularReaction" keyClass="String" keyLabel="name">
 						<reaction name="growth">
-							<expression value="mass * mumax * 
-									( glucose / ( glucose + Ks ) ) * 
-									( oxygen / ( oxygen + Kox ) )">
-								<!-- pg/µm3 --> 
-								<constant name="Ks" 	value="7.6E-08" /> 
-								<constant name="Kox" 	value="3.00E-07" />
+							<expression value="mass * k * glucose">
 								<!-- per minute -->
-								<constant name="mumax" 	value="0.015" />  
+								<constant name="k" 	value="100000.0" />  
 							</expression>
-							<stoichiometric component="mass" 		coefficient="1.0" />
-							<stoichiometric component="glucose" 	coefficient="-2.63" />
-							<stoichiometric component="oxygen" 		coefficient="-1.40" />
+							<stoichiometric component="glucose" coefficient="-1.0" />
 						</reaction> 
 					</list>
 				</aspect>
@@ -66,22 +43,21 @@
 		<compartment name="biofilm" priority="1" tree="SPLITTREE">
 			<shape class="Rectangle" resolutionCalculator="MultigridResolution">
 				<!-- µm -->
-				<dimension name="X" isCyclic="true" targetResolution="1.0" max="32.0"></dimension>
-				<dimension name="Y" isCyclic="false" targetResolution="1.0" max="128.0">
+				<dimension name="X" isCyclic="true" targetResolution="2.0" max="32.0"></dimension>
+				<dimension name="Y" isCyclic="false" targetResolution="2.0" max="128.0">
 					<boundary extreme="0" class="SolidBoundary" />
-					<boundary extreme="1" class="BiofilmBoundaryLayer" partnerCompartment="chemostat" layerThickness="100" />
+					<boundary extreme="1" class="BiofilmBoundaryLayer" partnerCompartment="chemostat" layerThickness="40" />
 				</dimension>
 			</shape>
 			<solutes>
 				<!-- pg / µm3 -->
 				<solute name="glucose" concentration="2.00E-06" defaultDiffusivity="36000"  />
-				<solute name="oxygen" 	concentration="8.74E-6" defaultDiffusivity="132000"  />
 			</solutes>
 			<reactions>
 			</reactions>
-			<spawn class="randomSpawner" domain="32.0, 0.2" priority="1" number="10" morphology="COCCOID">
+			<spawn class="randomSpawner" domain="32.0, 0.2" priority="1" number="160" morphology="COCCOID">
 				<templateAgent>
-					<aspect name="species" type="PRIMARY" class="String" value="EColi" />
+					<aspect name="species" type="PRIMARY" class="String" value="Catalyst" />
 					<aspect name="#isLocated" type="PRIMARY" class="Boolean" value="true" />
 					<!-- pg -->
 					<aspect name="mass" type="PRIMARY" class="Double" value="0.4" />
@@ -104,34 +80,12 @@
 					<aspect name="maxIterations" type="PRIMARY" class="Integer" value="10000" />
 					<aspect name="gravity_testing" type="PRIMARY" class="Boolean" value="FALSE" />
 				</process>
-				<process name="summary" class="Summary"  priority="2"
-					firstStep="0.0">
-					<aspect name="includeHeader" type="PRIMARY" class="Boolean" value="TRUE" />
-					<aspect name="fileName" type="PRIMARY" class="String" value="bioflm" />
-					<aspect name="tableSpecification" type="PRIMARY" class="String"
-					value="mass ? species == EColi | %oxygen | %glucose" />
-					<aspect name="fileName" type="PRIMARY" class="String" value="data" />
-				</process>
-				<process name="svgWriter" class="GraphicalOutput"  priority="-3"
-					firstStep="0.0"  timerStepSize="600.0">
-					<aspect name="solute" type="PRIMARY" class="String" value="oxygen" />
-					<aspect name="maxConcentration" type="PRIMARY" class="Double" value="1.00E-3" />
-					<aspect name="outputWriter" type="PRIMARY" class="String" value="SvgExport" />
-					<aspect name="arrayType" type="PRIMARY" class="String" value="PRODUCTIONRATE" />
-				</process>
-				<process name="svgWriter" class="GraphicalOutput"  priority="-3"
-					firstStep="0.0"  timerStepSize="600.0">
-					<aspect name="solute" type="PRIMARY" class="String" value="oxygen" />
-					<aspect name="maxConcentration" type="PRIMARY" class="Double" value="8.74E-6" />
-					<aspect name="outputWriter" type="PRIMARY" class="String" value="SvgExport" />
-				</process>
 			</processManagers>
 		</compartment>
 		<compartment name="chemostat" priority="2" >
 			<shape class="Dimensionless" volume="1e9">
 				<boundary  class="constantConcentrationToChemostat" volumeFlowRate="1.0E6">
 				<solute name="glucose" concentration="2.00E-06" defaultDiffusivity="36000"  />
-				<solute name="oxygen" 	concentration="8.74E-6" defaultDiffusivity="132000"  />
 				</boundary>
 				<boundary  class="chemostatOut" volumeFlowRate="-1.0E6" agentRemoval="false" >
 				</boundary> 
@@ -139,7 +93,6 @@
 			<solutes>
 				<!-- pg / µm3 -->
 				<solute name="glucose" concentration="2.00E-06" defaultDiffusivity="36000"  />
-				<solute name="oxygen" concentration="8.74E-6" defaultDiffusivity="132000"  />
 			</solutes>
 			<processManagers>
 				<process name="solveChemostat" class="ChemostatSolver" priority="0"
@@ -153,7 +106,7 @@
 					<aspect name="includeHeader" type="PRIMARY" class="Boolean" value="TRUE" />
 					<aspect name="fileName" type="PRIMARY" class="String" value="chemostat" />
 					<aspect name="tableSpecification" type="PRIMARY" class="String"
-					value="mass ? species == EColi | %oxygen | %glucose" />
+					value="mass ? species == Catalyst | %glucose" />
 					<aspect name="fileName" type="PRIMARY" class="String" value="data" />
 				</process>
 			</processManagers>

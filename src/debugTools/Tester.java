@@ -64,7 +64,8 @@ public class Tester {
 		assess(result, expected, mode, "");
 	}
 	
-	public static <T> void assess(T result, T expected, double errorTolerance, TestMode mode)
+	public static <T> void assess(double result, double expected, 
+			double errorTolerance, TestMode mode)
 	{
 		assess(result, expected, errorTolerance, mode, "");
 	}
@@ -104,32 +105,30 @@ public class Tester {
 	 * @param mode
 	 * @param desription
 	 */
-	public static <T> void assess(T result, T expected, double errorTolerance, TestMode mode, 
-			String desription)
+	public static <T> void assess(double result, double expected, 
+			double errorTolerance, TestMode mode, String desription)
 	{
 		switch(mode) 
 		{
 			case UNIT:
-				assertEquals( (double) result, (double) expected, errorTolerance);
+				assertEquals( result, expected, errorTolerance);
 				if ( !Tester.verbose )
 					break;
 			default:
-				if( assessDoubles((double) result, (double) expected, (double) errorTolerance) )
+				if( assessDoubles(result,  expected, errorTolerance) )
 					println(" pass" +  " (" + desription + ")", mode);
 				else
 					println(" fail" + " (" + desription + ")", mode);
 		}
 	}
-	
-	private static boolean assessDoubles(double result, double expected, double errorTolerance)
+	private static boolean assessDoubles(double result, double expected, 
+			double errorTolerance)
 	{
 		return (result - expected < errorTolerance || 
 				expected - result < errorTolerance);
 	}
-	
 	/**
 	 * Quick println method that can change behavior based on TestMode.
-	 * 
 	 * @param msg
 	 * @param mode
 	 */
@@ -137,10 +136,8 @@ public class Tester {
 	{
 		print(msg + "\n", mode);
 	}
-	
 	/**
 	 * Quick print method that can change behavior based on TestMode.
-	 * 
 	 * @param msg
 	 * @param mode
 	 */

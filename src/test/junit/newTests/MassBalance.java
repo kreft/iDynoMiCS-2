@@ -1,7 +1,5 @@
 package test.junit.newTests;
 
-import static org.junit.Assert.assertEquals;
-
 import java.util.Collection;
 import java.util.LinkedList;
 
