@@ -49,31 +49,29 @@ public class MassBalance implements Testable {
 		
 		double dt = Idynomics.simulator.timer.getTimeStepSize();
 		int i=0;
-		
 		String sol = "glucose";
 		double[] vol = { chemostat.environment.getShape().getTotalVolume(), 
 				biofilm.environment.getShape().getTotalVolume() };
-		
 		double[] flow = new double[2];	
 		double[] mflow = new double[2];
 		double[] con = new double[2];
 		double conInit = 0.0;
-		
 		double[] dM = new double[3];
+		double dMq = 0.0;
+		double dPq = 0.0;
+		double dF = 0.0;
+		
+		/* amount of solute (mass) in the system previously (init with t=0) */
 		double[] mPre = { chemostat.environment.getSoluteGrid(sol).getAverage(
 				ArrayType.CONCN)*vol[0], 
 			biofilm.environment.getSoluteGrid(sol).getAverage(
 				ArrayType.CONCN)*vol[1] };
 		
-		double dMq = 0.0;
-		double dPq = 0.0;
-		double dF = 0.0;
-		
 		Filter agents = FilterLogic.filterFromString("mass", biofilm);
 		LinkedList<AspectInterface> toCount = new LinkedList<AspectInterface>();
 		for (Agent a : biofilm.agents.getAllAgents())
 			toCount.add((AspectInterface) a);
-		double biomass = Counter.count(agents, toCount)[0];
+		double biomass = _initialMass = Counter.count(agents, toCount)[0];
 		
 		Tester.print( "in -\t" +
 				"out -\t" +
@@ -81,6 +79,8 @@ public class MassBalance implements Testable {
 				"accu\t" +
 				"solver", mode);
 
+		/* run the simulator manually and gather relevant system properties
+		 * in the mean while. */
 		while ( Idynomics.simulator.timer.isRunning() )
 		{
 			Tester.println("\n # " + i++, mode);
@@ -88,16 +88,16 @@ public class MassBalance implements Testable {
 			double[] out = { 0.0, 0.0, 0.0 };
 			Idynomics.simulator.step();
 			
-			Collection<Boundary> boundaries = 
-					chemostat.getShape().getAllBoundaries();
 			con[0] = chemostat.environment.getSoluteGrid(sol).
 					getAverage(ArrayType.CONCN);
 			con[1] = biofilm.environment.getSoluteGrid(sol).
 					getAverage(ArrayType.CONCN);
-			
 			if (conInit == 0.0)
 				conInit = con[0];
 			
+			/* look at all chemostat in and out flows */
+			Collection<Boundary> boundaries = 
+					chemostat.getShape().getAllBoundaries();
 			for( Boundary e : boundaries)
 			{
 				flow[0] = e.getVolumeFlowRate();	
@@ -116,6 +116,7 @@ public class MassBalance implements Testable {
 					out[2] -= flow[0] * con[0] * dt;
 				}
 			}
+			
 			Tester.println("chemostat: in - out = acc, solved", mode);
 			dM[0] = in[0]-out[0];
 			Tester.println(
@@ -133,8 +134,8 @@ public class MassBalance implements Testable {
 					String.format("%- 20.3g =", out[2]) +
 					String.format("%- 20.3g ", 	dM[2]), mode);
 
+			/* look at all biofilm in and out flows */
 			boundaries = biofilm.getShape().getAllBoundaries();
-			
 			for( Boundary e : boundaries)
 			{
 				flow[1] = e.getVolumeFlowRate();	
@@ -164,6 +165,7 @@ public class MassBalance implements Testable {
 					String.format("%- 10.3f", 	dM[1]) +
 					String.format("f%- 10.3g", 	(con[1]*vol[1])-mPre[1]), mode);
 
+			/* look at the overall system */
 			double dMtot = dM[0]+dM[1];
 			double mPretot = 	((con[0] * vol[0]) - mPre[0]) +
 								((con[1] * vol[1]) - mPre[1]);
@@ -187,24 +189,19 @@ public class MassBalance implements Testable {
 			mPre[1] = con[1]*vol[1];
 		}
 		
+		/* report final flows, consumption and discrepancies */
 		biomass = Counter.count(agents, toCount)[0];
-
 		Tester.println( "\n delta gluc from start (total mass): " + 
 				( ( (con[0]-conInit) * vol[0]) + ( (con[1]-conInit) * 
 				vol[1]) ), mode);
-		
 		Tester.println( "\n delta gluc from start tracked cumalative: " + 
 				dPq, mode);
-		
 		Tester.println( "\n final substrate converted to biomass sim: " + 
 				2.63*(biomass-_initialMass), mode);
-		
 		Tester.println( "\n delta mass chemostat in/out flows: " + 
 				dF, mode);
-		
 		Tester.println( "\n total mass gained/lossed by solver: " + 
 				(dF - 2.63*(biomass-_initialMass) - dPq), mode);
-		
 		
 		/* the mass balance should close, but a small error can be permitted
 		 * eg. < 1% of the biomass 

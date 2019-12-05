@@ -113,6 +113,14 @@ public abstract class SpatialBoundary extends Boundary
 		this._layerThickness = thickness;
 	}
 	
+	/**
+	 * debugging purposes
+	 */
+	public double getLayerThickness()
+	{
+		return this._layerThickness;
+	}
+	
 	public double getTotalSurfaceArea()
 	{
 		// TODO it may be best to store this locally, updating it at each
