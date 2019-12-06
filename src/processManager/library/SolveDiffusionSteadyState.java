@@ -14,10 +14,8 @@ import agent.Agent;
 import compartment.AgentContainer;
 import compartment.EnvironmentContainer;
 import dataIO.Log;
-import dataIO.Log.Tier;
 import dataIO.ObjectFactory;
 import grid.SpatialGrid;
-import linearAlgebra.Array;
 import processManager.ProcessDiffusion;
 import processManager.ProcessMethods;
 import reaction.Reaction;
@@ -27,7 +25,6 @@ import referenceLibrary.XmlRef;
 import shape.Shape;
 import shape.subvoxel.IntegerArray;
 import solver.PDEmultigrid;
-import solver.PDEupdater;
 
 /**
  * \brief Simulate the diffusion of solutes and their production/consumption by
@@ -240,8 +237,7 @@ public class SolveDiffusionSteadyState extends ProcessDiffusion
 			}
 		}	
 		/* debugging */
-//		if( 0 != this._environment.getSoluteGrid("glucose").getAverage(PRODUCTIONRATE))
-//		Log.out(Tier.EXPRESSIVE , " -- " +
+//		Log.out(Tier.NORMAL , " -- " +
 //		this._environment.getSoluteGrid("glucose").getAverage(PRODUCTIONRATE));
 	}
 	
@@ -372,8 +368,8 @@ public class SolveDiffusionSteadyState extends ProcessDiffusion
 			}
 		}
 		/* debugging */
-		Log.out( " ## " +
-		this._environment.getSoluteGrid("glucose").getAverage(PRODUCTIONRATE));
+//		Log.out( " ## " +
+//		this._environment.getSoluteGrid("glucose").getAverage(PRODUCTIONRATE));
 		ProcessMethods.updateAgentMass(agent, newBiomass);
 	}
 }

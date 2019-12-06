@@ -66,10 +66,10 @@
 		<compartment name="biofilm" priority="1" tree="SPLITTREE">
 			<shape class="Rectangle" resolutionCalculator="MultigridResolution">
 				<!-- µm -->
-				<dimension name="X" isCyclic="true" targetResolution="2.0" max="32.0"></dimension>
-				<dimension name="Y" isCyclic="false" targetResolution="2.0" max="128.0">
+				<dimension name="X" isCyclic="true" targetResolution="1.0" max="32.0"></dimension>
+				<dimension name="Y" isCyclic="false" targetResolution="1.0" max="128.0">
 					<boundary extreme="0" class="SolidBoundary" />
-					<boundary extreme="1" class="BiofilmBoundaryLayer" partnerCompartment="chemostat" layerThickness="20" />
+					<boundary extreme="1" class="BiofilmBoundaryLayer" partnerCompartment="chemostat" layerThickness="30" />
 				</dimension>
 			</shape>
 			<solutes>
@@ -92,8 +92,8 @@
 			<processManagers>				
 				<!-- ms -->
 				<process name="SolveDiffusionSteadyState" class="SolveDiffusionSteadyState" priority="1" firstStep="0.0">
-					<aspect name="absoluteTolerance" type="PRIMARY" class="Double" value="1.0e-10" />
-					<aspect name="relativeTolerance" type="PRIMARY" class="Double" value="1.0e-6" />
+					<aspect name="absoluteTolerance" type="PRIMARY" class="Double" value="1.0e-8" />
+					<aspect name="relativeTolerance" type="PRIMARY" class="Double" value="1.0e-4" />
 					<!-- µm^2 ms^-1-->
 				</process>
 				<process name="agentRelax" class="AgentRelaxation" priority="-2" firstStep="0.0">

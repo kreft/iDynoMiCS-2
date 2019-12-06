@@ -43,8 +43,8 @@
 		<compartment name="biofilm" priority="1" tree="SPLITTREE">
 			<shape class="Rectangle" resolutionCalculator="MultigridResolution">
 				<!-- µm -->
-				<dimension name="X" isCyclic="true" targetResolution="1.0" max="32.0"></dimension>
-				<dimension name="Y" isCyclic="false" targetResolution="1.0" max="128.0">
+				<dimension name="X" isCyclic="true" targetResolution="2.0" max="32.0"></dimension>
+				<dimension name="Y" isCyclic="false" targetResolution="2.0" max="128.0">
 					<boundary extreme="0" class="SolidBoundary" />
 					<boundary extreme="1" class="BiofilmBoundaryLayer" partnerCompartment="chemostat" layerThickness="100" />
 				</dimension>

@@ -18,6 +18,7 @@ import dataIO.Log.Tier;
 import grid.ArrayType;
 import grid.SpatialGrid;
 import grid.WellMixedConstants;
+import linearAlgebra.Vector;
 import shape.Shape;
 import solver.multigrid.MultigridLayer;
 import utility.ExtraMath;
@@ -68,19 +69,19 @@ public class PDEmultigrid extends PDEsolver
 	 * number of V-cycles performed by multi-grid solver.
 	 * (can try to increase when the solver appears to behave badly)
 	 */
-	private int _numVCycles = 2;
+	private int _numVCycles = 1;
 	/**
 	 * maximum number of pre-steps
 	 */
-	private int _numPreSteps = 100;
+	private int _numPreSteps = 500;
 	/**
 	 * maximum number of coarse steps
 	 */
-	private int _numCoarseStep = 100;
+	private int _numCoarseStep = 500;
 	/**
 	 * maximum number of post steps
 	 */
-	private int _numPostSteps = 500;
+	private int _numPostSteps = 1500;
 	
 	/**
 	 * Absolute threshold of the residual value at which relaxation is 
@@ -99,7 +100,7 @@ public class PDEmultigrid extends PDEsolver
 	/**
 	 * Enable stopping relaxation when stop conditions are met
 	 */
-	private boolean _enableEarlyStop = true;
+	private boolean _enableEarlyStop = false;
 	/**
 	 * Warn for large differences between Vcycle residuals (Debugging tool)
 	 */
@@ -294,6 +295,8 @@ public class PDEmultigrid extends PDEsolver
 			this.setMultigrid(currentLayer);
 		}
 		
+
+		System.out.print("x ");
 		this.relaxAll(this._numCoarseStep);
 	}
 	
@@ -307,7 +310,6 @@ public class PDEmultigrid extends PDEsolver
 		while ( this._commonMultigrid.hasCoarser() && layerCounter < numLayers )
 		{
 			layerCounter++;
-
 			/* 
 			 * Smooth the current layer for a set number of iterations.
 			 */
@@ -325,6 +327,7 @@ public class PDEmultigrid extends PDEsolver
 				}
 			}
 			*/
+			System.out.print("a ");
 			this.relaxAll(this._numPreSteps);
 			/* Disabled Debug message 
 			if ( Log.shouldWrite(Tier.DEBUG) )
@@ -378,6 +381,7 @@ public class PDEmultigrid extends PDEsolver
 				currentGrids.add(variableMultigrid.getGrid());
 			}
 			/* Update the PRODUCTIONRATE arrays using updated CONCN values. */
+
 			this._updater.prestep(currentGrids, 0.0);
 			/*
 			 * TODO
@@ -398,6 +402,7 @@ public class PDEmultigrid extends PDEsolver
 			}
 		}
 		/* At the bottom of the V: solve the coarsest layer. */
+		System.out.print("b ");
 		this.relaxAll(this._numCoarseStep);
 		/* 
 		 * Upward stroke of V. The overall effect of this is:
@@ -447,6 +452,7 @@ public class PDEmultigrid extends PDEsolver
 //				System.out.println(layerCounter + "\t" + currentLayer.getName() + " \t" + currentLayer.getMin(CONCN) + " " );
 			}
 			/* Relaxation */
+			System.out.print("c ");
 			this.relaxAll(this._numPostSteps);
 		}
 		/*
@@ -514,18 +520,27 @@ public class PDEmultigrid extends PDEsolver
 		SpatialGrid currentCommon = this._commonMultigrid.getGrid();
 		relaxLoops: for ( int i = 0; i < numRepetitions; i++ )
 		{
+//			System.out.println("r" + i);
 			this._updater.prestep(currentGrids, 0.0);
-			for ( SpatialGrid grid : currentGrids ) {
+			boolean stop = true;
+			for ( SpatialGrid grid : currentGrids ) 
+			{
+				tempRes = new double[this._variableNames.length];
 				this.relax(grid, currentCommon);
+				if ( !this._reachedStopCondition )
+					stop = false;
 			}
-			if (this._reachedStopCondition) {
-				this._updater.prestep(currentGrids, 0.0);
-				if( Log.shouldWrite(Tier.DEBUG) )
-					Log.out(Tier.DEBUG, "Breaking early: "+ i +" of "
+			if ( stop ) {
+//				if( Log.shouldWrite(Tier.DEBUG) )
+					Log.out("Breaking early: "+ i +" of "
 							+ numRepetitions );
 				break relaxLoops;
 			}
+			if( i+1 >= numRepetitions )
+				System.out.println(i + " " + Vector.max(this.tempRes) + " > " + this._absToleranceLevel);
 		}
+
+		this._updater.prestep(currentGrids, 0.0);
 	}
 	
 	/**
@@ -545,6 +560,12 @@ public class PDEmultigrid extends PDEsolver
 	 */
 	private void relax(SpatialGrid variable, SpatialGrid commonGrid)
 	{
+		int pos = 0;
+		for (int i = 0; i < this._variableNames.length; i++)
+		{
+			if( variable.getName().equals(this._variableNames[i]))
+				pos = i;
+		}
 		if ( ! this._allowNegatives )
 			variable.makeNonnegative(CONCN);
 		Shape shape = variable.getShape();
@@ -640,6 +661,7 @@ public class PDEmultigrid extends PDEsolver
 			 * TODO
 			 */
 			residual = (lop - rhs) / totalNhbWeight;
+			this.tempRes[pos] = Math.max(this.tempRes[pos], Math.abs(residual));
 			double relChange = residual / concn;
 			/* Prepare to update the local concentration. */
 			concn += residual;
