@@ -13,6 +13,8 @@ import org.w3c.dom.Element;
 import agent.Agent;
 import compartment.AgentContainer;
 import compartment.EnvironmentContainer;
+import dataIO.Log;
+import dataIO.Log.Tier;
 import dataIO.ObjectFactory;
 import grid.SpatialGrid;
 import linearAlgebra.Array;
@@ -61,6 +63,8 @@ public class SolveDiffusionSteadyState extends ProcessDiffusion
 
 		// TODO Let the user choose which ODEsolver to use.
 		this._solver = new PDEmultigrid();
+
+		this._solver.setUpdater(this);
 		
 		this._solver.setAbsoluteTolerance(absTol);
 		
@@ -120,26 +124,15 @@ public class SolveDiffusionSteadyState extends ProcessDiffusion
 	 * 
 	 * @return PDE updater method.
 	 */
-	protected PDEupdater standardUpdater()
+	public void prestep(Collection<SpatialGrid> variables, double dt)
 	{
-		return new PDEupdater()
-		{
-			/*
-			 * This is the updater method that the PDEsolver will use before
-			 * each mini-timestep.
-			 */
-			@Override
-			public void prestep(Collection<SpatialGrid> variables, double dt)
-			{
-				for ( SpatialGrid var : variables )
-					var.newArray(PRODUCTIONRATE);
-				applyEnvReactions(variables);
-				for ( Agent agent : _agents.getAllLocatedAgents() )
-					applyAgentReactions(agent, variables);
-			}
-		};
+		for ( SpatialGrid var : variables )
+			var.newArray(PRODUCTIONRATE);
+		applyEnvReactions(variables);
+		for ( Agent agent : _agents.getAllLocatedAgents() )
+			applyAgentReactions(agent, variables);
 	}
-	
+
 	/**
 	 * \brief Apply the reactions for a single agent.
 	 * 
@@ -246,6 +239,10 @@ public class SolveDiffusionSteadyState extends ProcessDiffusion
 				}
 			}
 		}	
+		/* debugging */
+//		if( 0 != this._environment.getSoluteGrid("glucose").getAverage(PRODUCTIONRATE))
+//		Log.out(Tier.EXPRESSIVE , " -- " +
+//		this._environment.getSoluteGrid("glucose").getAverage(PRODUCTIONRATE));
 	}
 	
 	private SpatialGrid FindGrid(Collection<SpatialGrid> grids, String name)
@@ -374,6 +371,9 @@ public class SolveDiffusionSteadyState extends ProcessDiffusion
 				}
 			}
 		}
+		/* debugging */
+		Log.out( " ## " +
+		this._environment.getSoluteGrid("glucose").getAverage(PRODUCTIONRATE));
 		ProcessMethods.updateAgentMass(agent, newBiomass);
 	}
 }

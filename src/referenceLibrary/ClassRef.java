@@ -369,9 +369,6 @@ public class ClassRef
 	 */
 	public final static String solveDiffusionSteadyState =
 			processManager.library.SolveDiffusionSteadyState.class.getName();
-	
-	public final static String solveAgentReactionsOnly =
-			processManager.library.SolveAgentReactionsOnly.class.getName();
 	/**
 	 * solve chemostat process manager
 	 */

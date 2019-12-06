@@ -42,7 +42,7 @@ public class MassBalance implements Testable {
 		/* basic simulator initiation */
 		Log.set(Tier.CRITICAL);
 		Idynomics.setupSimulator("protocol/unit-tests/mass_balance.xml");
-		Log.set(Tier.CRITICAL);
+		Log.set(Tier.NORMAL);
 		Tester.println("mass balance", mode);
 		Compartment chemostat = Idynomics.simulator.getCompartment("chemostat");
 		Compartment biofilm = Idynomics.simulator.getCompartment("biofilm");
@@ -52,12 +52,16 @@ public class MassBalance implements Testable {
 		String sol = "glucose";
 		double[] vol = { chemostat.environment.getShape().getTotalVolume(), 
 				biofilm.environment.getShape().getTotalVolume() };
+		
 		double[] flow = new double[2];	
 		double[] mflow = new double[2];
+		
 		double[] con = new double[2];
 		double conInit = 0.0;
+		
 		double[] dM = new double[3];
 		double dMq = 0.0;
+		
 		double dPq = 0.0;
 		double dF = 0.0;
 		
@@ -106,7 +110,7 @@ public class MassBalance implements Testable {
 				if( mflow[0] > 0.0)
 				{
 					in[0] += mflow[0] * dt;
-					double cons =((ConstantConcentrationToChemostat) e).
+					double cons = ((ConstantConcentrationToChemostat) e).
 							getConcentration(sol);
 					in[2] += flow[0] * cons * dt;
 				}
@@ -116,9 +120,9 @@ public class MassBalance implements Testable {
 					out[2] -= flow[0] * con[0] * dt;
 				}
 			}
-			
 			Tester.println("chemostat: in - out = acc, solved", mode);
 			dM[0] = in[0]-out[0];
+			
 			Tester.println(
 					String.format("%- 10.3f -", in[0]) +
 					String.format("%- 20.3f =", out[0]) +
@@ -127,6 +131,7 @@ public class MassBalance implements Testable {
 			
 			dM[2] = in[2]-out[2];
 			dF += dM[2];
+			
 			Tester.println("excluding biofilm diffusion "
 					+ "(net in/out for overall system)", mode);
 			Tester.println(
@@ -140,7 +145,6 @@ public class MassBalance implements Testable {
 			{
 				flow[1] = e.getVolumeFlowRate();	
 				mflow[1] = e.getMassFlowRate(sol);
-				
 				if( mflow[1] > 0.0)
 					in[1] += mflow[1] * dt;
 				else
@@ -155,7 +159,6 @@ public class MassBalance implements Testable {
 			biomass = Counter.count(agents, toCount)[0];
 			
 			dM[1] = in[1]-out[1]-(2.63*(dBiomass));
-			
 
 			Tester.println("biofilm: in - out - consumed = acc, solver", mode);
 			Tester.println(

@@ -139,7 +139,6 @@ public abstract class ProcessDiffusion extends ProcessManager
 		 * after the protocol was loaded.
 		 */
 		this._solver.init(this._soluteNames, false);
-		this._solver.setUpdater(this.standardUpdater());		
 		/*
 		 * Set up the agent mass distribution maps, to ensure that agent
 		 * reactions are spread over voxels appropriately.
@@ -177,10 +176,9 @@ public abstract class ProcessDiffusion extends ProcessManager
 		 * tidy up 
 		 */
 	}
+	public abstract void prestep(Collection<SpatialGrid> variables, double dt);
 
-	protected abstract PDEupdater standardUpdater();
-	
-	 /*
+	/*
 	 * perform final clean-up and update agents to represent updated situation.
 	 */
 	protected void postStep()

@@ -44,6 +44,7 @@ import utility.ExtraMath;
  * 
  * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
  * @author Sankalp Arya (sankalp.arya@nottingham.ac.uk) University of Nottingham, U.K.
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
 public class PDEmultigrid extends PDEsolver
 {
