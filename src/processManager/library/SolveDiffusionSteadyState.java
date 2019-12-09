@@ -128,6 +128,10 @@ public class SolveDiffusionSteadyState extends ProcessDiffusion
 		applyEnvReactions(variables);
 		for ( Agent agent : _agents.getAllLocatedAgents() )
 			applyAgentReactions(agent, variables);
+//		for (SpatialGrid s : variables)
+//		{
+//			System.out.println(s.getAverage(PRODUCTIONRATE));
+//		}
 	}
 
 	/**

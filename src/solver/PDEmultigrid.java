@@ -18,6 +18,8 @@ import dataIO.Log.Tier;
 import grid.ArrayType;
 import grid.SpatialGrid;
 import grid.WellMixedConstants;
+import linearAlgebra.Array;
+import linearAlgebra.Matrix;
 import linearAlgebra.Vector;
 import shape.Shape;
 import solver.multigrid.MultigridLayer;
@@ -73,15 +75,15 @@ public class PDEmultigrid extends PDEsolver
 	/**
 	 * maximum number of pre-steps
 	 */
-	private int _numPreSteps = 500;
+	private int _numPreSteps = 150;
 	/**
 	 * maximum number of coarse steps
 	 */
-	private int _numCoarseStep = 500;
+	private int _numCoarseStep = 150;
 	/**
 	 * maximum number of post steps
 	 */
-	private int _numPostSteps = 1500;
+	private int _numPostSteps = 500;
 	
 	/**
 	 * Absolute threshold of the residual value at which relaxation is 
@@ -518,8 +520,20 @@ public class PDEmultigrid extends PDEsolver
 		for ( MultigridLayer layer : this._multigrids.values() )
 			currentGrids.add(layer.getGrid());
 		SpatialGrid currentCommon = this._commonMultigrid.getGrid();
+		
+		int nGrid = currentGrids.size();
+		double[][] validate = new double[3][nGrid];
+		
 		relaxLoops: for ( int i = 0; i < numRepetitions; i++ )
 		{
+			if(i >= numRepetitions-3)
+			{
+				int j = 0;
+				for ( SpatialGrid grid : currentGrids ) 
+				{
+					validate[i-(numRepetitions-3)][j++] = grid.getAverage(CONCN);
+				}
+			}
 //			System.out.println("r" + i);
 			this._updater.prestep(currentGrids, 0.0);
 			boolean stop = true;
@@ -539,8 +553,8 @@ public class PDEmultigrid extends PDEsolver
 			if( i+1 >= numRepetitions )
 				System.out.println(i + " " + Vector.max(this.tempRes) + " > " + this._absToleranceLevel);
 		}
-
 		this._updater.prestep(currentGrids, 0.0);
+		System.out.println(Matrix.toString(validate));
 	}
 	
 	/**
@@ -566,8 +580,8 @@ public class PDEmultigrid extends PDEsolver
 			if( variable.getName().equals(this._variableNames[i]))
 				pos = i;
 		}
-		if ( ! this._allowNegatives )
-			variable.makeNonnegative(CONCN);
+//		if ( ! this._allowNegatives )
+//			variable.makeNonnegative(CONCN);
 		Shape shape = variable.getShape();
 		/* Temporary storage. */
 		double prod, concn, diffusivity, vol, rhs;
@@ -578,9 +592,14 @@ public class PDEmultigrid extends PDEsolver
 		if ( this._enableEarlyStop  )
 			this._reachedStopCondition = true;
 		
+		/* FIXME: inverting the order we iterate the grid changes the result
+		 * I don't think the method should be sensitive to the direction of
+		 * evaluation! Bas [09.12.2019]
+		 */
 		for ( current = shape.resetIterator(); shape.isIteratorValid();
 				current = shape.iteratorNext() )
 		{
+
 			/* Skip this voxel if it is considered well-mixed. */
 			if ( WellMixedConstants.isWellMixed(commonGrid, current))
 				continue;
@@ -676,7 +695,7 @@ public class PDEmultigrid extends PDEsolver
 			}
 			/* Check if we need to remain non-negative. */
 			if ( (!this._allowNegatives) && (concn < 0.0) )
-				concn = 0.0;
+				concn = Array.tinyValue;
 			/* Update the value and continue to the next voxel. */
 			variable.setValueAtCurrent(CONCN, concn);
 		}
