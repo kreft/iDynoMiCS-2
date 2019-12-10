@@ -18,7 +18,6 @@ import dataIO.Log.Tier;
 import grid.ArrayType;
 import grid.SpatialGrid;
 import grid.WellMixedConstants;
-import linearAlgebra.Array;
 import linearAlgebra.Matrix;
 import linearAlgebra.Vector;
 import shape.Shape;
@@ -522,7 +521,7 @@ public class PDEmultigrid extends PDEsolver
 		SpatialGrid currentCommon = this._commonMultigrid.getGrid();
 		
 		int nGrid = currentGrids.size();
-		double[][] validate = new double[3][nGrid];
+		double[][] validate = new double[nGrid][3];
 		
 		relaxLoops: for ( int i = 0; i < numRepetitions; i++ )
 		{
@@ -531,7 +530,7 @@ public class PDEmultigrid extends PDEsolver
 				int j = 0;
 				for ( SpatialGrid grid : currentGrids ) 
 				{
-					validate[i-(numRepetitions-3)][j++] = grid.getAverage(CONCN);
+					validate[j++][i-(numRepetitions-3)] = grid.getAverage(CONCN);
 				}
 			}
 //			System.out.println("r" + i);
@@ -554,7 +553,15 @@ public class PDEmultigrid extends PDEsolver
 				System.out.println(i + " " + Vector.max(this.tempRes) + " > " + this._absToleranceLevel);
 		}
 		this._updater.prestep(currentGrids, 0.0);
-		System.out.println(Matrix.toString(validate));
+		boolean periodic = false;
+		for ( int i = 0; i < validate.length; i++)
+			if ( ( validate[i][0] < validate[i][1] && 
+					validate[i][1] > validate[i][2]) ||
+					( validate[i][0] > validate[i][1] && 
+					validate[i][1] < validate[i][2]) )
+						periodic = true;
+//		if ( periodic )
+//			System.out.println(Matrix.toString(validate));
 	}
 	
 	/**
@@ -580,8 +587,8 @@ public class PDEmultigrid extends PDEsolver
 			if( variable.getName().equals(this._variableNames[i]))
 				pos = i;
 		}
-//		if ( ! this._allowNegatives )
-//			variable.makeNonnegative(CONCN);
+		if ( ! this._allowNegatives )
+			variable.makeNonnegative(CONCN);
 		Shape shape = variable.getShape();
 		/* Temporary storage. */
 		double prod, concn, diffusivity, vol, rhs;
@@ -695,7 +702,7 @@ public class PDEmultigrid extends PDEsolver
 			}
 			/* Check if we need to remain non-negative. */
 			if ( (!this._allowNegatives) && (concn < 0.0) )
-				concn = Array.tinyValue;
+				concn = 0.0;
 			/* Update the value and continue to the next voxel. */
 			variable.setValueAtCurrent(CONCN, concn);
 		}

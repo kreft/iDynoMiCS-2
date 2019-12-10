@@ -14,10 +14,6 @@ public enum ArrayType
 	 */
 	CONCN,
 	/**
-	 * 
-	 */
-	TEMP,
-	/**
 	 * The diffusion coefficient of a solute. For example, this may be
 	 * lower inside a biofilm than in the surrounding water. This is always in
 	 * terms of area per time (length<sup>2</sup> time<sup>-1</sup>).

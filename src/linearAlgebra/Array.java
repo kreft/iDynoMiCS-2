@@ -34,10 +34,7 @@ public final class Array
 	// NOTE arrayString.split(DELIMITER) does not work when we use "|" here!
 	// This can change, but check it works with testJUnit.LinearAlgebraTest
 	public final static String DELIMITER = "%";
-	
 
-	public static double tinyValue = 0.0;
-	
 	/*************************************************************************
 	 * STANDARD NEW ARRAYS
 	 ************************************************************************/
@@ -436,7 +433,7 @@ public final class Array
 	 */
 	public static void makeNonnegative(double[][][] array)
 	{
-		restrictMinimum(array, tinyValue);
+		restrictMinimum(array, 0.0);
 	}
 	
 	/*************************************************************************
