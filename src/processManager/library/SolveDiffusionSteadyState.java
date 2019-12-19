@@ -13,7 +13,6 @@ import org.w3c.dom.Element;
 import agent.Agent;
 import compartment.AgentContainer;
 import compartment.EnvironmentContainer;
-import dataIO.Log;
 import dataIO.ObjectFactory;
 import grid.SpatialGrid;
 import processManager.ProcessDiffusion;

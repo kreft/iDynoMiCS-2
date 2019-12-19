@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document>
 	<simulation log="CRITICAL" outputfolder="../results" name="ecoli2D"  randomSeed="224324231">
-	<timer stepSize="1.0" endOfSimulation="2.0" />
+	<timer stepSize="10.0" endOfSimulation="20.0" />
 		<speciesLib>
 			<!-- species/species library The species library contains all agent species 
 				in the simulations. This may include microbial species, plasmid and vector 
@@ -43,10 +43,10 @@
 		<compartment name="biofilm" priority="1" tree="SPLITTREE">
 			<shape class="Rectangle" resolutionCalculator="MultigridResolution">
 				<!-- µm -->
-				<dimension name="X" isCyclic="true" targetResolution="1.0" max="32.0"></dimension>
-				<dimension name="Y" isCyclic="false" targetResolution="1.0" max="128.0">
+				<dimension name="X" isCyclic="true" targetResolution="0.5" max="32.0"></dimension>
+				<dimension name="Y" isCyclic="false" targetResolution="0.5" max="128.0">
 					<boundary extreme="0" class="SolidBoundary" />
-					<boundary extreme="1" class="BiofilmBoundaryLayer" partnerCompartment="chemostat" layerThickness="20" />
+					<boundary extreme="1" class="BiofilmBoundaryLayer" partnerCompartment="chemostat" layerThickness="50" />
 				</dimension>
 			</shape>
 			<solutes>
