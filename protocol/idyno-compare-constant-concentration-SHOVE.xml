@@ -78,7 +78,7 @@
 			</shape>
 			<solutes>
 				<!-- pg / µm3 -->
-				<solute name="cod" concentration="5.0e-9" defaultDiffusivity="70000000.0" biofilmDiffusivity="0.8*70000000.0" />
+				<solute name="cod" concentration="5.0e-6" defaultDiffusivity="70000.0" biofilmDiffusivity="0.8*70000.0" />
 			</solutes>
 			<reactions>
 			</reactions>
@@ -118,14 +118,14 @@
 		<compartment name="chemostat" priority="2" >
 			<shape class="Dimensionless" volume="1e9">
 				<boundary  class="constantConcentrationToChemostat" volumeFlowRate="0.6e9">
-				<solute name="cod" concentration="5.0e-9"  />
+				<solute name="cod" concentration="5.0e-6"  />
 				</boundary>
 				<boundary  class="chemostatOut" volumeFlowRate="-0.6e9" agentRemoval="false" >
 				</boundary> 
 			</shape>
 			<solutes>
 				<!-- pg / µm3 -->
-				<solute name="cod" concentration="5.0e-9" defaultDiffusivity="70000.0" biofilmDiffusivity="70000.0" />
+				<solute name="cod" concentration="5.0e-6" defaultDiffusivity="70000.0" biofilmDiffusivity="70000.0" />
 			</solutes>
 			<processManagers>
 				<process name="summary" class="Summary"  priority="2"
