@@ -312,11 +312,14 @@ public class AgentRelaxation extends ProcessManager
 						break;
 				} else if ( this._method == Method.SHOVE )
 				{
+					if (_stressThreshold == 0.0)
+					{
 					Log.out(Tier.CRITICAL, AspectRef.stressThreshold + " must "
 							+ "be set for relaxation method " + 
 							Method.SHOVE.toString() );
 					Idynomics.simulator.interupt(null);
 					return;
+					}
 				}
 	
 				/* When stochastic movement is enabled update vs to represent 
@@ -389,7 +392,10 @@ public class AgentRelaxation extends ProcessManager
 
 			/* NOTE that with proper boundary surfaces for any compartment
 			 * shape this should never yield any difference, it is here as a
-			 * fail safe */
+			 * fail safe 
+			 * 
+			 * FIXME this seems to result in crashes
+			 * */
 			for(Agent agent : allAgents)
 				for ( Point point: ( (Body) agent.get(BODY) ).getPoints() )
 					this._shape.applyBoundaries( point.getPosition() );

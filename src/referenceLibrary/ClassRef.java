@@ -136,6 +136,8 @@ public class ClassRef
 	public final static String coccoidRadius =
 			aspect.calculated.CoccoidRadius.class.getName();
 	
+	public final static String cylinderRadius =
+			aspect.calculated.CylinderRadius.class.getName();	
 	/**
 	 * component volume state
 	 */

@@ -260,7 +260,7 @@ public class Point implements Copyable, Settable
 		/*
 		 * Scale the force.
 		 */
-		double scalar = 0.2;
+		double scalar = 0.4;
 		/* the following dynamic scaling is a slight deviation from the original
 		 * iDynoMiCS where instead of dynamic scaling the overlap was simply
 		 * considered resolved at small when the difference vector (and thus

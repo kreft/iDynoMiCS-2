@@ -73,15 +73,15 @@ public class PDEmultigrid extends PDEsolver
 	/**
 	 * maximum number of pre-steps
 	 */
-	private int _numPreSteps = 50;
+	private int _numPreSteps = 150;
 	/**
 	 * maximum number of coarse steps
 	 */
-	private int _numCoarseStep = 50;
+	private int _numCoarseStep = 1500;
 	/**
 	 * maximum number of post steps
 	 */
-	private int _numPostSteps = 3001; // 1 -> 1000, 0.5 -> 2500
+	private int _numPostSteps = 1500; // 1 -> 1000, 0.5 -> 2500 seems to work
 	
 	/**
 	 * Absolute threshold of the residual value at which relaxation is 

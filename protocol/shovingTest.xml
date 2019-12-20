@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document>
 	<simulation log="DEBUG" name="mySim" outputfolder="../../Simulations"
-		comment="this is a file for testing purposes only." configuration="arbitrary_system.cfg">
+		comment="this is a file for testing purposes only." configuration="config/models/arbitrary_testing_01.cfg">
 		<timer stepSize="1.0" endOfSimulation="50.0" />
 		<general>
 		</general>

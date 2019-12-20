@@ -211,7 +211,7 @@ public class ODErosenbrock extends ODEsolver
 			 * fails.
 			 */
 			noFailed = true;
-			usingHMin = false;
+			usingHMin = true;
 			while ( true )
 			{
 				tNext = ( lastStep ) ? tFinal : t + h;
