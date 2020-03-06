@@ -3,7 +3,7 @@
 	<simulation name="caseStudy_1e6" outputfolder="../results" log="EXPRESSIVE"
 		comment="this is a file for testing purposes only.">
 		<!-- minutes -->
-		<timer stepSize="10.0" endOfSimulation="1440.0" />
+		<timer stepSize="15.0" endOfSimulation="1440.0" />
 		<speciesLib>
 			<!-- species/species library The species library contains all agent species 
 				in the simulations. This may include microbial species, plasmid and vector 
@@ -17,7 +17,8 @@
 			<species name="coccoid">
 				<aspect name="density" type="PRIMARY" class="Double" value="0.15" />
 				<aspect name="surfaces" type="CALCULATED" class="AgentSurfaces" />
-				<aspect name="divisionMass" type="PRIMARY" class="Double" value="5.0" />
+				<!-- cylinder: 12.57*0.15 = 1.8855, Sphere: 33.5*0.15: 5.025 -->
+				<aspect name="divisionMass" type="PRIMARY" class="Double" value="1.9" />
 				<aspect name="divide" type="EVENT" class="CoccoidDivision"	/>
 				<aspect name="updateBody" type="EVENT" class="UpdateBodySurfaceScaled" />
 				<aspect name="volume" type="CALCULATED" class="SimpleVolumeState" 	/>
@@ -37,7 +38,7 @@
 								<!-- pg/µm3 --> 
 								<constant name="Ks" 	value="0.00025 [g*L-1]" /> 
 								<!-- per minute -->
-								<constant name="mumax" 	value="0.7 [h-1]" />   
+								<constant name="mumax" 	value="0.7 [h-1]" />  
 							</expression>
 							<stoichiometric component="mass" 		coefficient="1.0" />
 							<stoichiometric component="cod" 	coefficient="-1.5" />
@@ -119,23 +120,10 @@
 			</shape>
 			<solutes>
 				<!-- pg / µm3 -->
-				<solute name="cod" concentration="5.0e-6" defaultDiffusivity="70000.0" biofilmDiffusivity="0.8*70000.0" />
+				<solute name="cod" concentration="5.0e-6" defaultDiffusivity="70000.0" biofilmDiffusivity="70000.0" />
 			</solutes>
 			<processManagers>
-				<process name="solveChemostat" class="ChemostatSolver" priority="0"
-					firstStep="0.0">
-					<aspect name="solver" class="String" value="rosenbrock" />
-					<aspect name="hMax" type="PRIMARY" class="Double" value="1.0" />
-					<aspect name="tolerance" class="Double" value="1.0E-3" />
-				</process>
-				<process name="summary" class="Summary"  priority="2"
-					firstStep="0.0">
-					<aspect name="includeHeader" type="PRIMARY" class="Boolean" value="TRUE" />
-					<aspect name="fileName" type="PRIMARY" class="String" value="chemostat" />
-					<aspect name="tableSpecification" type="PRIMARY" class="String"
-					value="mass ? species == heterotroph | %cod" />
-					<aspect name="fileName" type="PRIMARY" class="String" value="data" />
-				</process>
+
 			</processManagers>
 		</compartment>
 		

@@ -35,9 +35,9 @@
 							<expression value="mass * mumax * 
 									( cod / ( cod + Ks ) )">
 								<!-- pg/µm3 --> 
-								<constant name="Ks" 	value="2.5e-10" /> 
+								<constant name="Ks" 	value="0.00025 [g*L-1]" /> 
 								<!-- per minute -->
-								<constant name="mumax" 	value="0.0117" />  
+								<constant name="mumax" 	value="0.7 [h-1]" />  
 							</expression>
 							<stoichiometric component="mass" 		coefficient="1.0" />
 							<stoichiometric component="cod" 	coefficient="-1.5" />

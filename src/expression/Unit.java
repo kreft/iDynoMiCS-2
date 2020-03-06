@@ -515,6 +515,7 @@ public class Unit {
 		 * Volume
 		 */
 			case "l" :
+			case "L" :
 				this.mutation( SI.m, (3 * update ));
 				this.modifier *= Math.pow( 0.001, power );
 				break;

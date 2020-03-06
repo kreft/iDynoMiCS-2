@@ -81,7 +81,7 @@ public class PDEmultigrid extends PDEsolver
 	/**
 	 * maximum number of post steps
 	 */
-	private int _numPostSteps = 1500; // 1 -> 1000, 0.5 -> 2500 seems to work
+	private int _numPostSteps = 150; // 1 -> 1000, 0.5 -> 2500 seems to work
 	
 	/**
 	 * Absolute threshold of the residual value at which relaxation is 
@@ -295,7 +295,6 @@ public class PDEmultigrid extends PDEsolver
 			this.setMultigrid(currentLayer);
 		}
 		
-		System.out.print("x ");
 		this.relaxAll(this._numCoarseStep);
 	}
 	
@@ -326,7 +325,7 @@ public class PDEmultigrid extends PDEsolver
 				}
 			}
 			*/
-			System.out.print("a ");
+			
 			this.relaxAll(this._numPreSteps);
 			/* Disabled Debug message 
 			if ( Log.shouldWrite(Tier.DEBUG) )
@@ -401,7 +400,7 @@ public class PDEmultigrid extends PDEsolver
 			}
 		}
 		/* At the bottom of the V: solve the coarsest layer. */
-		System.out.print("b ");
+
 		this.relaxAll(this._numCoarseStep);
 		/* 
 		 * Upward stroke of V. The overall effect of this is:
@@ -451,7 +450,6 @@ public class PDEmultigrid extends PDEsolver
 //				System.out.println(layerCounter + "\t" + currentLayer.getName() + " \t" + currentLayer.getMin(CONCN) + " " );
 			}
 			/* Relaxation */
-			System.out.print("c ");
 			this.relaxAll(this._numPostSteps);
 		}
 		/*
@@ -547,17 +545,21 @@ public class PDEmultigrid extends PDEsolver
 							+ numRepetitions );
 				break relaxLoops;
 			}
-			if( i+1 >= numRepetitions )
-				System.out.println(i + " " + Vector.max(this.tempRes) + " > " + this._absToleranceLevel);
+			if( i+1 >= numRepetitions && Log.shouldWrite(Tier.DEBUG) )
+			{
+				Log.out(Tier.DEBUG, i + " " + Vector.max(this.tempRes) + " > " +
+						this._absToleranceLevel );
+			}
 		}
 		this._updater.prestep(currentGrids, 0.0);
-		boolean periodic = false;
-		for ( int i = 0; i < validate.length; i++)
-			if ( ( validate[i][0] < validate[i][1] && 
-					validate[i][1] > validate[i][2]) ||
-					( validate[i][0] > validate[i][1] && 
-					validate[i][1] < validate[i][2]) )
-						periodic = true;
+		
+//		boolean periodic = false;
+//		for ( int i = 0; i < validate.length; i++)
+//			if ( ( validate[i][0] < validate[i][1] && 
+//					validate[i][1] > validate[i][2]) ||
+//					( validate[i][0] > validate[i][1] && 
+//					validate[i][1] < validate[i][2]) )
+//						periodic = true;
 //		if ( periodic )
 //			System.out.println(Matrix.toString(validate));
 	}
