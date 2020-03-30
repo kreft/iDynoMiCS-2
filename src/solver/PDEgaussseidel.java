@@ -136,7 +136,7 @@ public class PDEgaussseidel extends PDEsolver
 			}
 			
 			// FIXME This if clause is for debugging only, remove after
-			if ( rateFromReactions != 0.0 )
+			if ( rateFromReactions != 0.0  && Log.shouldWrite(Tier.DEBUG) )
 			{
 				Log.out(Tier.DEBUG, "Coord "+Vector.toString(current)+
 						" variable "+variable.getName()+
@@ -147,11 +147,14 @@ public class PDEgaussseidel extends PDEsolver
 			
 			if ( (! this._allowNegatives) && newConcn < 0.0 )
 			{
-				Log.out(Tier.EXPRESSIVE, "Truncating concentration of "+
-						variable.getName()+" to zero\n"+
-						"\tVoxel at "+Vector.toString(current)+"\n"+
-						"\tPrevious concn "+currConcn+
-						"\tPrevented concn "+newConcn);
+				if ( Log.shouldWrite(Tier.EXPRESSIVE) )
+				{
+					Log.out(Tier.EXPRESSIVE, "Truncating concentration of "+
+							variable.getName()+" to zero\n"+
+							"\tVoxel at "+Vector.toString(current)+"\n"+
+							"\tPrevious concn "+currConcn+
+							"\tPrevented concn "+newConcn);
+				}
 				newConcn = 0.0;
 			}
 			variable.setValueAt(CONCN, current, newConcn);
