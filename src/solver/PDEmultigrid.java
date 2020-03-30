@@ -722,6 +722,8 @@ public class PDEmultigrid extends PDEsolver
 	private void calculateResidual(SpatialGrid variable,
 			SpatialGrid commonGrid, ArrayType destinationType)
 	{
+	/* Commented out is the older method of calculating the residual, verify
+	   the new method and remove commented code when completely satisfied. */
 //		Shape shape = variable.getShape();
 //		double diffusiveFlow, rateFromReactions, residual;
 //		
