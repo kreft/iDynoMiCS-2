@@ -34,7 +34,7 @@ public final class Array
 	// NOTE arrayString.split(DELIMITER) does not work when we use "|" here!
 	// This can change, but check it works with testJUnit.LinearAlgebraTest
 	public final static String DELIMITER = "%";
-	
+
 	/*************************************************************************
 	 * STANDARD NEW ARRAYS
 	 ************************************************************************/

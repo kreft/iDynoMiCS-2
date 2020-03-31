@@ -113,6 +113,11 @@ public class SpatialGrid implements Settable, Instantiable
 		
 		BIOMASS_SCALED
 	}
+	
+	public double voxelVolume()
+	{
+		return this.getShape().getCurrVoxelVolume();
+	}
 
 	
 	public void updateDiffusivity(
@@ -635,8 +640,6 @@ public class SpatialGrid implements Settable, Instantiable
 	public void setValueAtCurrent(ArrayType type, double value)
 	{
 		this.setValueAt(type, this._shape.iteratorCurrent(), value);
-//		if(this._name.equals("oxygen") && value > 8.74E-6)
-//			System.out.println("catch");
 	}
 
 	/**

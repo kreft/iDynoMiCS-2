@@ -1,5 +1,7 @@
 package analysis.filter;
 
+import java.util.Locale;
+
 import aspect.AspectInterface;
 
 /**
@@ -9,13 +11,15 @@ import aspect.AspectInterface;
  *
  */
 public interface Filter {
+	
+	public static Locale screenLocale = Locale.ENGLISH;
 
 	/**
 	 * String representation of the filter value for the passed object, can be
 	 * numeric for category filter, boolean for specification- or multi-filter
 	 * or any other format for a value filter
 	 */
-	public String stringValue(AspectInterface subject);
+	public String stringValue(AspectInterface subject, String format);
 	
 	/**
 	 * returns the table header for this filter.

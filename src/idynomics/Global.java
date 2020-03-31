@@ -9,6 +9,7 @@ import org.w3c.dom.Element;
 import dataIO.Log;
 import dataIO.Log.Tier;
 import dataIO.XmlHandler;
+import processManager.ProcessDiffusion.DistributionMethod;
 import referenceLibrary.XmlRef;
 import utility.Helper;
 
@@ -75,6 +76,7 @@ public class Global extends ParameterSet
 			{
 				t = Tier.valueOf( XmlHandler.obtainAttribute( elem, 
 						XmlRef.logLevel, XmlRef.simulation ) );
+				Log.set(t);
 			}
 			catch (IllegalArgumentException e)
 			{
@@ -82,8 +84,6 @@ public class Global extends ParameterSet
 						Helper.enumToString(Tier.class));
 			}
 		}
-		if( ! Log.isSet() )
-			Log.set(t);
 		/* 
 		 * 
 		 */
@@ -249,7 +249,8 @@ public class Global extends ParameterSet
 	 * Only determine location of agent based on primary mass point
 	 */
 	public static boolean fastAgentDistribution = true;
-		
+
+	public static String agentDistribution = DistributionMethod.COLLISION.toString();
 	/**
 	 * dynamic viscosity of the medium
 	 */

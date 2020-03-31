@@ -227,7 +227,6 @@ public class CollisionEvaluation implements Testable {
 		second.init(com.getShape().getCollision());
 		return first.collisionWith(second);
 	}
-
 	/**
 	 * Quick method to setup rod voxel test with for every object x1 = y1 = z1,
 	 * x2 = y2 = z2, etc.
@@ -247,7 +246,6 @@ public class CollisionEvaluation implements Testable {
 		return rodVoxel(com, Vector.vector(dim,lr), Vector.vector(dim,hr), rr,
 				Vector.vector(dim,lv), Vector.vector(dim,hv) );
 	}
-	
 	/**
 	 * Quick method to setup rod voxel test.
 	 * 
@@ -263,7 +261,6 @@ public class CollisionEvaluation implements Testable {
 	private boolean rodVoxel(Compartment com, double[] lr, double hr[], 
 			double rr, 	double lv[], double hv[])
 	{
-
 		Rod rod = new Rod( lr, hr, rr );
 		Voxel vox = new Voxel( lv, hv );
 		return surfaceEval(com, rod, vox);

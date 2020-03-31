@@ -24,9 +24,9 @@ public class SpecificationFilter implements Filter
 		this.test = predicate;
 	}
 
-	public String stringValue(AspectInterface subject)
+	public String stringValue(AspectInterface subject, String format)
 	{
-		return String.valueOf( this.match(subject) );
+		return String.format( screenLocale,  format, this.match(subject) );
 	}
 	
 	public String header()

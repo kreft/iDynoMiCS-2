@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+	<simulation name="caseStudy_1e6" outputfolder="../results" log="EXPRESSIVE"
+		comment="this is a file for testing purposes only." >
+		<!-- minutes -->
+		<timer stepSize="60.0" endOfSimulation="1440.0" />
+		<speciesLib>
+			<!-- species/species library The species library contains all agent species 
+				in the simulations. This may include microbial species, plasmid and vector 
+				species, particle species etc. Species states are states that are in principal 
+				identical for all agents of that species. However note that iDynoMiCS 2.0 
+				does allow you to overwrite states on agent level. Thus if a state is defined 
+				both on species level and on agent level, the agent state will be used in 
+				the simulation. small test 
+
+				-->
+			<species name="coccoid">
+				<aspect name="density" type="PRIMARY" class="Double" value="0.15" />
+				<aspect name="surfaces" type="CALCULATED" class="AgentSurfaces" />
+				<aspect name="divisionMass" type="PRIMARY" class="Double" value="5.0" />
+				<aspect name="divide" type="EVENT" class="CoccoidDivision"	/>
+				<aspect name="updateBody" type="EVENT" class="UpdateBody" />
+				<aspect name="volume" type="CALCULATED" class="SimpleVolumeState" 	/>
+				<aspect name="radius" type="CALCULATED" class="CoccoidRadius" 		/>
+			</species>
+			
+			
+			<species name="heterotroph">
+				<aspect name="pigment" type="PRIMARY" class="String" value="RED" />
+				<speciesModule name="coccoid" />
+				<aspect name="reactions" type="PRIMARY"  class="InstantiableList"> 
+					<list class="RegularReaction" nodeLabel="reaction" 
+					entryClass="RegularReaction" keyClass="String" keyLabel="name">
+						<reaction name="growth">
+							<expression value="mass * mumax * 
+									( cod / ( cod + Ks ) )">
+								<!-- pg/µm3 --> 
+								<constant name="Ks" 	value="0.00025 [g*L-1]" /> 
+								<!-- per minute -->
+								<constant name="mumax" 	value="0.7 [h-1]" />  
+							</expression>
+							<stoichiometric component="mass" 		coefficient="1.0" />
+							<stoichiometric component="cod" 	coefficient="-1.5" />
+						</reaction> 
+					</list>
+				</aspect>
+			</species>
+
+			<species name="producer">
+				<aspect name="produce" 			type="EVENT"	class="InternalProduction" 	 />
+				<aspect name="epsExcretion" 	type="EVENT"	class="ExcreteEPSCumulative" 	 />
+				<!-- µm -->
+				<aspect name="epsDist" 			type="PRIMARY" class="Double" value="0.1" />
+				<!-- pg -->
+				<aspect  name="maxInternalEPS" 	type="PRIMARY" class="Double" value="1e-4" />
+				<aspect  name="epsSpecies" 		type="PRIMARY" class="String" value="particleEPS" />
+			</species>
+			
+			<species name="particleEPS">
+				<speciesModule name="coccoid" />
+				<aspect name="pigment" 		type="PRIMARY" class="String"	value="GRAY" />
+				<!-- µm -->
+				<aspect name="searchDist"	type="PRIMARY" class="Double"	value="0.05"  />
+				<!-- pg -->
+				<aspect name="divisionMass"	class="Double" value="1e-4" />
+			</species>
+		</speciesLib>
+		
+		
+		<compartment name="biofilm" priority="1" tree="SPLITTREE">
+			<shape class="Rectangle" resolutionCalculator="MultigridResolution">
+				<!-- µm -->
+				<dimension name="X" isCyclic="true" targetResolution="8.0" max="256.0"></dimension>
+				<dimension name="Y" isCyclic="false" targetResolution="8.0" max="256.0">
+					<boundary extreme="0" class="SolidBoundary" />
+					<boundary extreme="1" class="BiofilmBoundaryLayer" partnerCompartment="chemostat" layerThickness="48" />
+				</dimension>
+			</shape>
+			<solutes>
+				<!-- pg / µm3 -->
+				<solute name="cod" concentration="5.0e-6" defaultDiffusivity="70000.0" biofilmDiffusivity="0.8*70000.0" />
+			</solutes>
+			<reactions>
+			</reactions>
+			<spawn class="randomSpawner" domain="256.0, 4.0" priority="1" number="10" morphology="COCCOID">
+				<templateAgent>
+					<aspect name="species" type="PRIMARY" class="String" value="heterotroph" />
+					<aspect name="#isLocated" type="PRIMARY" class="Boolean" value="true" />
+					<!-- pg -->
+					<aspect name="mass" type="PRIMARY" class="Double" value="4.8" />
+				</templateAgent>
+			</spawn>
+			<agents>
+			</agents>
+			<processManagers>				
+				<!-- ms -->
+				<process name="SolveDiffusionSteadyState" class="SolveDiffusionSteadyState" priority="1" firstStep="0.0">
+					<aspect name="absoluteTolerance" type="PRIMARY" class="Double" value="1.0e-10" />
+					<aspect name="relativeTolerance" type="PRIMARY" class="Double" value="1.0e-6" />
+					<!-- µm^2 ms^-1-->
+				</process>
+				<process name="agentRelax" class="AgentRelaxation" priority="-2" firstStep="0.0">
+					<aspect name="maxMovement" type="PRIMARY" class="Double" value="0.10" />
+					<aspect name="relaxationMethod" type="PRIMARY" class="String" value="HEUN" />
+					<aspect name="stressThreshold" type="PRIMARY" class="Double" value="1000.0" />
+					<aspect name="gravity_testing" type="PRIMARY" class="Boolean" value="FALSE" />
+				</process>
+				<process name="summary" class="Summary"  priority="2"
+					firstStep="0.0">
+					<aspect name="includeHeader" type="PRIMARY" class="Boolean" value="TRUE" />
+					<aspect name="fileName" type="PRIMARY" class="String" value="chemostat" />
+					<aspect name="tableSpecification" type="PRIMARY" class="String"
+					value="mass ? species == heterotroph | %cod" />
+					<aspect name="fileName" type="PRIMARY" class="String" value="data" />
+				</process>
+			</processManagers>
+		</compartment>
+		<compartment name="chemostat" priority="2" >
+			<shape class="Dimensionless" volume="1e9">
+				<boundary  class="constantConcentrationToChemostat" volumeFlowRate="0.6e9">
+				<solute name="cod" concentration="5.0e-6"  />
+				</boundary>
+				<boundary  class="chemostatOut" volumeFlowRate="-0.6e9" agentRemoval="false" >
+				</boundary> 
+			</shape>
+			<solutes>
+				<!-- pg / µm3 -->
+				<solute name="cod" concentration="5.0e-6" defaultDiffusivity="70000.0" biofilmDiffusivity="70000.0" />
+			</solutes>
+			<processManagers>
+				<process name="summary" class="Summary"  priority="2"
+					firstStep="0.0">
+					<aspect name="includeHeader" type="PRIMARY" class="Boolean" value="TRUE" />
+					<aspect name="fileName" type="PRIMARY" class="String" value="chemostat" />
+					<aspect name="tableSpecification" type="PRIMARY" class="String"
+					value="mass ? species == heterotroph | %cod" />
+					<aspect name="fileName" type="PRIMARY" class="String" value="data" />
+				</process>
+			</processManagers>
+		</compartment>
+		
+	</simulation>
+</document>

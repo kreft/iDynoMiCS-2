@@ -2,6 +2,7 @@ package analysis;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 
 import agent.Agent;
 import analysis.filter.Filter;
@@ -157,7 +158,7 @@ public class FilteredTable {
 				{
 					if( this.qualification.get(i) == null || 
 							this.qualification.get(i).match( ( a ) ) )
-						out += columns.get(i).stringValue(a) 
+						out += columns.get(i).stringValue(a, "") 
 								+ (i < columns.size()-1 ? "\t, " : "\n" );
 				}
 			}
@@ -167,8 +168,8 @@ public class FilteredTable {
 	
 	public String summary()
 	{
-		String out = "Table: " + compartment.getName() + (this.filter == null ? 
-				"" : " ? " + this.filter.header() ) + " \n";
+		String out = compartment.getName() + (this.filter == null ? 
+				"" : " ? " + this.filter.header() ) + " summary\n";
 		LinkedList<AspectInterface> subjects = new LinkedList<AspectInterface>();
 		LinkedList<String> values = new LinkedList<String>();
 		
@@ -176,13 +177,11 @@ public class FilteredTable {
 		{
 			if ( columns.get(i) instanceof SoluteFilter )
 			{
-				values.add( columns.get(i).stringValue(null)
-						+ ( "\n" ) );
+				values.add( columns.get(i).stringValue(null, "%1.3e")	);
 			}
 			else if ( columns.get(i) instanceof TimerFilter )
 			{
-				values.add( columns.get(i).stringValue(null)
-						+ ( "\n" ) );
+				values.add( columns.get(i).stringValue(null, "%s")	);
 			}
 			else
 			{
@@ -192,17 +191,20 @@ public class FilteredTable {
 								this.qualification.get(i).match( ( a ) ) )
 							subjects.add(a);
 				
-				values.add(  Vector.toString( Counter.count( columns.get(i), subjects ) )
-						+ ( "\n" ) );
+				double[] count = Counter.count( columns.get(i), subjects );
+				values.add( (count.length == 1 ? 
+						String.format(Filter.screenLocale, "%1.3g", count[0]) :
+						Vector.toString( Counter.count( columns.get(i), subjects 
+						) ) ) );
 				subjects.clear();
 			}
 		}
 		
 		for (int i = 0; i < columns.size(); i++)
 		{
-			out += columns.get(i).header() + ( this.qualification.get(i) == null 
-					? "" : " ? " + this.qualification.get(i).header() )
-					+ ( " \t| " ) + values.get( i );
+			out += String.format("%35s | ",columns.get(i).header() + ( this.qualification.get(i) == null 
+					? "" : " ? " +  this.qualification.get(i).header()))
+					+ values.get( i ) + (i+1 < columns.size() ? "\n": "");
 		}
 		
 		return out;
@@ -218,12 +220,12 @@ public class FilteredTable {
 		{
 			if ( columns.get(i) instanceof SoluteFilter )
 			{
-				out += columns.get(i).stringValue(null)
+				out += columns.get(i).stringValue(null, "%e")
 						+ (i < columns.size()-1 ? delimiter : "" );
 			}
 			else if ( columns.get(i) instanceof TimerFilter )
 			{
-				out += columns.get(i).stringValue(null)
+				out += columns.get(i).stringValue(null, "%g")
 						+ (i < columns.size()-1 ? delimiter : "" );
 			}
 			else

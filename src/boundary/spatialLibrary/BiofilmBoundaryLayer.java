@@ -69,7 +69,9 @@ public class BiofilmBoundaryLayer extends WellMixedBoundary
 	 * **********************************************************************/
 	
 	public BiofilmBoundaryLayer()
-	{}
+	{
+		this._dominant = true;
+	}
 	
 	@Override
 	public void setContainers(
@@ -95,7 +97,7 @@ public class BiofilmBoundaryLayer extends WellMixedBoundary
 		Shape shape = this._agents.getShape();
 		Collision collision = new Collision(null, null, shape);
 		double[] zeros = Vector.zerosDbl(shape.getNumberOfDimensions());
-		this._gridSphere = new Ball(zeros, 0.5 * this._layerThickness);
+		this._gridSphere = new Ball(zeros, this._layerThickness);
 		this._gridSphere.init(collision);
 	}
 	

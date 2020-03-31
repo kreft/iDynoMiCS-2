@@ -57,7 +57,7 @@ public class IsNotSpecies implements Predicate<Agent>
 	@Override
 	public String toString()
 	{
-		return "Species is not " + _speciesName;
+		return "!" + _speciesName;
 	}
 	
 }

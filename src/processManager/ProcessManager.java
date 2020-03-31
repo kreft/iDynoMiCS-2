@@ -277,6 +277,7 @@ public abstract class ProcessManager implements Instantiable, AspectInterface,
 	 */
 	public void step()
 	{
+		double now = this._timeForNextStep;
 		/* Move the time for next step forward by the step size. */
 		this._timeForNextStep = BigDecimal.valueOf( _timeForNextStep ).add(
 				BigDecimal.valueOf( _timeStepSize ) ).doubleValue();
@@ -300,10 +301,10 @@ public abstract class ProcessManager implements Instantiable, AspectInterface,
 			{
 				/* logging time, using BigDecimal prevents weird last decimal 
 				 * round-off errors. */
-				Log.out( level, this._name + " next: " + this._timeForNextStep + 
-						", duration: " + ( BigDecimal.valueOf(
+				Log.out( level, this._name + ": " + now + " -> " + 
+						this._timeForNextStep + " (" + ( BigDecimal.valueOf(
 						System.currentTimeMillis() - _tick ).multiply(
-						BigDecimal.valueOf( 0.001 ) ).doubleValue() ) + " s");
+						BigDecimal.valueOf( 0.001 ) ).doubleValue() ) + "s)");
 			}
 			this._realTimeTaken += (System.currentTimeMillis() - _tick);
 			this._skipped = 0;

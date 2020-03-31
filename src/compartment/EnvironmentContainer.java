@@ -314,7 +314,7 @@ public class EnvironmentContainer implements CanPrelaunchCheck, Settable
 	 * accumulate during diffusion methods when solving PDEs. Here, we
 	 * distribute these flows among the relevant spatial boundaries.
 	 */
-	public void distributeWellMixedFlows()
+	public void distributeWellMixedFlows(double dt)
 	{
 		/* Find all relevant boundaries. */
 		Collection<WellMixedBoundary> boundaries = 
@@ -330,15 +330,17 @@ public class EnvironmentContainer implements CanPrelaunchCheck, Settable
 		 */
 		if ( boundaries.size() == 1 )
 		{
-			Boundary b = boundaries.iterator().next();
+
+			Boundary b = boundaries.iterator().next();			
+
 			String partnerCompName = b.getPartnerCompartmentName();
 			Compartment partnerComp = Idynomics.simulator.getCompartment(partnerCompName);
 			double scFac = thisComp.getScalingFactor() / partnerComp.getScalingFactor();
 			for ( SpatialGrid solute : this._solutes )
 			{
-				double solMassFlow = solute.getWellMixedMassFlow();
+				double solMassFlow = -solute.getWellMixedMassFlow();
 				b.increaseMassFlowRate(solute.getName(), 
-						solMassFlow * scFac);
+						solMassFlow/dt * scFac);
 				solute.resetWellMixedMassFlow();
 			}
 			return;

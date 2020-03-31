@@ -48,6 +48,7 @@ public class SolveDiffusionTransient extends ProcessDiffusion
 		// TODO Let the user choose which ODEsolver to use.
 		this._solver = new PDEexplicit();
 
+		this._solver.setUpdater(this);
 	}
 		
 	/* ***********************************************************************
@@ -65,7 +66,7 @@ public class SolveDiffusionTransient extends ProcessDiffusion
 		 * If any mass has flowed in or out of the well-mixed region,
 		 * distribute it among the relevant boundaries.
 		 */
-		this._environment.distributeWellMixedFlows();
+		this._environment.distributeWellMixedFlows(this._timeStepSize);
 
 		/* perform final clean-up and update agents to represent updated 
 		 * situation. */
@@ -83,24 +84,13 @@ public class SolveDiffusionTransient extends ProcessDiffusion
 	 * 
 	 * @return PDE updater method.
 	 */
-	protected PDEupdater standardUpdater()
+	public void prestep(Collection<SpatialGrid> variables, double dt)
 	{
-		return new PDEupdater()
-		{
-			/*
-			 * This is the updater method that the PDEsolver will use before
-			 * each mini-timestep.
-			 */
-			@Override
-			public void prestep(Collection<SpatialGrid> variables, double dt)
-			{
-				for ( SpatialGrid var : variables )
-					var.newArray(PRODUCTIONRATE);
-				applyEnvReactions(variables);
-				for ( Agent agent : _agents.getAllLocatedAgents() )
-					applyAgentReactions(agent, dt);
-			}
-		};
+		for ( SpatialGrid var : variables )
+			var.newArray(PRODUCTIONRATE);
+		applyEnvReactions(variables);
+		for ( Agent agent : _agents.getAllLocatedAgents() )
+			applyAgentReactions(agent, dt);
 	}
 	
 	/**

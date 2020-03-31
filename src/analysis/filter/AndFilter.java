@@ -33,9 +33,9 @@ public class AndFilter implements Filter
 	}
 
 	@Override
-	public String stringValue(AspectInterface subject) 
+	public String stringValue(AspectInterface subject, String format)
 	{
-		return String.valueOf( this.match( subject ) );
+		return String.format( screenLocale, format, this.match( subject ) );
 	}
 
 	@Override

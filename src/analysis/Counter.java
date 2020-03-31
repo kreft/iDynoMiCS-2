@@ -33,7 +33,7 @@ public class Counter {
 		{
 			double[] count = Vector.zerosDbl(((CategoryFilter) filter).size());
 			for (AspectInterface a : subjects)
-				count[ Integer.valueOf( filter.stringValue(a) ) ]++;
+				count[ Integer.valueOf( filter.stringValue(a,"%d") ) ]++;
 			return count;
 		}
 		/* return the sum of the aspects matching the value filter */
@@ -44,7 +44,7 @@ public class Counter {
 			{
 				try
 				{
-					count += Double.valueOf( filter.stringValue(a) );
+					count += Double.valueOf( filter.stringValue(a,"%g") );
 				}
 				catch (NumberFormatException e)
 				{

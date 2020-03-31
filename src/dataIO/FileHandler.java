@@ -208,6 +208,23 @@ public class FileHandler
 			}
 		}
 	}
+	
+	public void write(byte c)
+	{
+		if ( Global.write_to_disc ) 
+		{
+			try
+			{
+				this._output.write(c);
+				if ( this._flushAll )
+					this._output.flush();
+			}
+			catch (IOException e)
+			{
+				Log.printToScreen(e.toString(), false);
+			}
+		}
+	}
 
 	/**
 	 * Close this file handler's output file.

@@ -409,6 +409,8 @@ public class Collision
 			this.planePoint( (Plane) a, p, this._variables );
 			return this._variables.distance;
 		default:
+			Log.out( Tier.CRITICAL, this.getClass().getSimpleName() +
+					" encountered undefined surface assessment, returning 0.");
 			break;
 		}
 		return 0.0;

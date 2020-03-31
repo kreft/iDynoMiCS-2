@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -41,10 +43,10 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 	/**
 	 * \brief List of {@code Compartment}s in this {@code Simulator}.
 	 * 
-	 * Order is irrelevant, and each {@code Compartment} knows its own name.
+	 * Order is relevant, each {@code Compartment} knows its own name and priority.
 	 */
-	protected LinkedList<Compartment> _compartments = 
-												new LinkedList<Compartment>();
+	protected SortedSet<Compartment> _compartments = new TreeSet<Compartment>();
+
 	/**
 	 * Contains information about all species for this simulation.
 	 */
@@ -303,6 +305,8 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 		 */
 		for ( Compartment c : this._compartments )
 		{
+
+			c.environment.updateSoluteBoundaries();
 			c.step();
 			if(this.interupt)
 				return;

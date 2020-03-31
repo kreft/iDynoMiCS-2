@@ -131,7 +131,9 @@ public class ChemostatSolver extends ProcessManager
 		/* convert solute mass rate to concentration rate to 
 		 * concentration rates */
 		for ( int i = 0; i < _n; i++ )
+		{
 			yODE[i] /= yODE[ _n ];
+		}
 
 		/*
 		 * Update the environment
@@ -232,11 +234,18 @@ public class ChemostatSolver extends ProcessManager
 						/* outflows at bulk concentrations */
 						dydt [_n ] += volFlowRate;
 						for ( int i = 0; i < _n; i++ )
-							dydt[i] += volFlowRate * y[i];
+							dydt[i] += volFlowRate * (y[i]/y[_n]);
+					}
+					else if ( volFlowRate > 0.0 )
+					{
+						/* inflows determined by boundary */
+						dydt [_n ] += volFlowRate;
+						for ( int i = 0; i < _n; i++ )
+							dydt[i] += aBoundary.getMassFlowRate( _solutes[i] );
 					}
 					else
 					{
-						/* inflows determined by boundary */
+						/* diffusion flows */
 						dydt [_n ] += volFlowRate;
 						for ( int i = 0; i < _n; i++ )
 							dydt[i] += aBoundary.getMassFlowRate( _solutes[i] );

@@ -91,6 +91,15 @@ public class ODEheunsmethod extends ODEsolver
 		Vector.addEquals(destination, y);
 	}
 	
+	protected void euler(double[] y, double dt)
+	{
+		this._deriv.firstDeriv(this.k, y);
+		Vector.timesEquals(this.k, dt);
+		Vector.addEquals(y, this.k);
+		if ( ! this._allowNegatives )
+			Vector.makeNonnegative(y);
+	}
+	
 	/**
 	 * \brief Apply a step of Heun's method.
 	 * 
@@ -111,9 +120,11 @@ public class ODEheunsmethod extends ODEsolver
 		this._deriv.firstDeriv(dKdT, this.k);
 		Vector.addEquals(dYdT, dKdT);
 		Vector.timesEquals(dYdT, dt/2);
-		Vector.makeNonnegative(y);
+		if ( ! this._allowNegatives )
+			Vector.makeNonnegative(y);
 		Vector.addEquals(y, dYdT);
-		Vector.makeNonnegative(y);
+		if ( ! this._allowNegatives )
+			Vector.makeNonnegative(y);
 
 	}
 }

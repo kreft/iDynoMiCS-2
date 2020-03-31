@@ -71,6 +71,15 @@ public final class GuiMenu
 		menuItem.getAccessibleContext().setAccessibleDescription(
 				"Open existing protocol file");
 		menu.add(menuItem);
+		
+		
+		menuItem = new JMenuItem(new GuiMenu.FileDownload());
+		menuItem.setAccelerator(KeyStroke.getKeyStroke(
+				KeyEvent.VK_D, ActionEvent.CTRL_MASK));
+		menuItem.getAccessibleContext().setAccessibleDescription(
+				"Download protocol file");
+		menu.add(menuItem);
+		
 		/*
 		 * Add the option of rendering a compartment.
 		 */
@@ -228,6 +237,24 @@ public final class GuiMenu
 	    public void actionPerformed(ActionEvent e)
 	    {
 	    	GuiActions.chooseFile();
+	    }
+	}
+	
+	public static class FileDownload extends AbstractAction
+	{
+		private static final long serialVersionUID = 2247122248926681550L;
+		
+		/**
+		 * Action for the file open sub-menu.
+		 */
+		public FileDownload()
+		{
+	        super("Download..");
+		}
+		
+	    public void actionPerformed(ActionEvent e)
+	    {
+	    	GuiActions.downloadFile(null);
 	    }
 	}
 	

@@ -1,5 +1,6 @@
 package compartment;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -67,7 +68,7 @@ import utility.Helper;
  *     Friedrich-Schiller University Jena, Germany
  * @author Sankalp Arya (sankalp.arya@nottingham.ac.uk) University of Nottingham, U.K.
  */
-public class Compartment implements CanPrelaunchCheck, Instantiable, Settable
+public class Compartment implements CanPrelaunchCheck, Instantiable, Settable, Comparable<Compartment>
 {
 	/**
 	 * This has a name for reporting purposes.
@@ -116,6 +117,11 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable
 	 * the compartment parent node constructor (simulator)
 	 */
 	private Settable _parentNode;
+	
+	/**
+	 * 
+	 */
+	private int _priority = Integer.MAX_VALUE;
 		
 	/* ***********************************************************************
 	 * CONSTRUCTORS
@@ -170,6 +176,9 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable
 		 */
 		this.name = XmlHandler.obtainAttribute(
 				xmlElem, XmlRef.nameAttribute, XmlRef.compartment);
+		if( XmlHandler.hasAttribute(xmlElem, XmlRef.priority))
+			this._priority = Integer.valueOf( XmlHandler.gatherAttribute(
+					xmlElem, XmlRef.priority) );
 		Idynomics.simulator.addCompartment(this);
 		/*
 		 * Set up the shape.
@@ -452,7 +461,7 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable
 	 * omit their partners in the protocol file.
 	 * @param compartments List of compartments to choose from.
 	 */
-	public void checkBoundaryConnections(List<Compartment> compartments)
+	public void checkBoundaryConnections(Collection<Compartment> compartments)
 	{
 		List<String> compartmentNames = new LinkedList<String>();
 		for ( Compartment c : compartments )
@@ -556,10 +565,6 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable
 		 * Tell all agents queued to leave the compartment to move now.
 		 */
 		this.agents.agentsDepart();
-		/*
-		 * Ask all boundaries to update their solute concentrations.
-		 */
-		this.environment.updateSoluteBoundaries();
 	}
 	
 	/* ***********************************************************************
@@ -625,6 +630,9 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable
 		/* Add the name attribute. */
 		modelNode.add( new Attribute(XmlRef.nameAttribute, 
 				this.getName(), null, true ) );
+		modelNode.add( new Attribute(XmlRef.priority, 
+				String.valueOf(this._priority), null, true ) );
+		
 		modelNode.add( new Attribute(XmlRef.compartmentScale,
                 String.valueOf(this.getScalingFactor()), null, true ) );
 		/* Add the shape if it exists. */
@@ -700,6 +708,8 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable
 		{
 			/* Update the name. */
 			this.name = node.getAttribute( XmlRef.nameAttribute ).getValue();
+			this._priority = Integer.valueOf(node.getAttribute( 
+					XmlRef.priority ).getValue() );
 			
 			/* set the tree type */
 			String tree = node.getAttribute( XmlRef.tree ).getValue();
@@ -742,7 +752,7 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable
 	 * **********************************************************************/
 	
 	public static Compartment findByName(
-			List<Compartment> compartments, String name)
+			Collection<Compartment> compartments, String name)
 	{
 		for ( Compartment c : compartments )
 			if ( c.getName().equals(name) )
@@ -758,5 +768,15 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable
 	public double getScalingFactor()
 	{
 		return this._scalingFactor;
+	}
+
+	@Override
+	public int compareTo(Compartment o) 
+	{
+		int temp = this._priority - o._priority;
+		if ( temp != 0 )
+			return temp;
+		else
+			return this.name.compareTo(o.name);
 	}
 }

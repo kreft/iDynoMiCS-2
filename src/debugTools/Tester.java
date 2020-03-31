@@ -15,6 +15,8 @@ import test.junit.newTests.CollisionEvaluation;
  */
 public class Tester {
 	
+	public static boolean verbose = true;
+	
 	public static void main(String[] args)
 	{
 		/* If no arguments are given run an example test */
@@ -62,6 +64,12 @@ public class Tester {
 		assess(result, expected, mode, "");
 	}
 	
+	public static <T> void assess(double result, double expected, 
+			double errorTolerance, TestMode mode)
+	{
+		assess(result, expected, errorTolerance, mode, "");
+	}
+	
 	/**
 	 * Assess whether the 2 inputs are equal, depends on test mode, the input
 	 * class must implement a sensible equals(T) method.
@@ -78,7 +86,8 @@ public class Tester {
 		{
 			case UNIT:
 				assertEquals( result, expected);
-				break;
+				if ( !Tester.verbose )
+					break;
 			default:
 				if( result.equals(expected) )
 					println(" pass" +  " (" + desription + ")", mode);
@@ -88,8 +97,38 @@ public class Tester {
 	}
 	
 	/**
+	 * (for double types only)
+	 * @param <T>
+	 * @param result
+	 * @param expected
+	 * @param errorTolerance
+	 * @param mode
+	 * @param desription
+	 */
+	public static <T> void assess(double result, double expected, 
+			double errorTolerance, TestMode mode, String desription)
+	{
+		switch(mode) 
+		{
+			case UNIT:
+				assertEquals( result, expected, errorTolerance);
+				if ( !Tester.verbose )
+					break;
+			default:
+				if( assessDoubles(result,  expected, errorTolerance) )
+					println(" pass" +  " (" + desription + ")", mode);
+				else
+					println(" fail" + " (" + desription + ")", mode);
+		}
+	}
+	private static boolean assessDoubles(double result, double expected, 
+			double errorTolerance)
+	{
+		return (result - expected < errorTolerance || 
+				expected - result < errorTolerance);
+	}
+	/**
 	 * Quick println method that can change behavior based on TestMode.
-	 * 
 	 * @param msg
 	 * @param mode
 	 */
@@ -97,10 +136,8 @@ public class Tester {
 	{
 		print(msg + "\n", mode);
 	}
-	
 	/**
 	 * Quick print method that can change behavior based on TestMode.
-	 * 
 	 * @param msg
 	 * @param mode
 	 */
@@ -109,7 +146,8 @@ public class Tester {
 		switch(mode) 
 		{
 			case UNIT:
-				break;
+				if ( !Tester.verbose )
+					break;
 			default:
 				System.out.print( msg );
 		}

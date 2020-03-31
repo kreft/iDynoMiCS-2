@@ -18,6 +18,7 @@ import dataIO.Log.Tier;
 import grid.ArrayType;
 import grid.SpatialGrid;
 import grid.WellMixedConstants;
+import linearAlgebra.Vector;
 import shape.Shape;
 import solver.multigrid.MultigridLayer;
 import utility.ExtraMath;
@@ -44,6 +45,7 @@ import utility.ExtraMath;
  * 
  * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
  * @author Sankalp Arya (sankalp.arya@nottingham.ac.uk) University of Nottingham, U.K.
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
 public class PDEmultigrid extends PDEsolver
 {
@@ -63,33 +65,67 @@ public class PDEmultigrid extends PDEsolver
 	 * afterwards.
 	 */
 	private int _numLayers;
-	
-	private int _numVCycles = 3;
-	
+	/**
+	 * number of V-cycles performed by multi-grid solver.
+	 * (can try to increase when the solver appears to behave badly)
+	 */
+	private int _numVCycles = 1;
+	/**
+	 * maximum number of pre-steps
+	 */
 	private int _numPreSteps = 150;
+	/**
+	 * maximum number of coarse steps
+	 */
+	private int _numCoarseStep = 1500;
+	/**
+	 * maximum number of post steps
+	 */
+	private int _numPostSteps = 150; // 1 -> 1000, 0.5 -> 2500 seems to work
 	
-	private int _numCoarseStep = 150;
-	
-	private int _numPostSteps = 1500;
-	
+	/**
+	 * Absolute threshold of the residual value at which relaxation is 
+	 * interrupted.
+	 * 
+	 * NOTE: [Bas 2019] relative and absolute tolerance appear to just look at
+	 * the multi-grid residual, I'm not sure whether that is completely correct.
+	 * Looking at concentration changes between steps may be more appropriate.
+	 */
 	private double _absToleranceLevel;
-	
+	/**
+	 * Relative threshold (relative to concentration) of the residual value at 
+	 * which relaxation is interrupted. 
+	 */
 	private double _relToleranceLevel;
-	
-	private boolean _earlyStop = false;
-	
-
-	
-	private boolean _checkVCycleDiscrepancy = true;
-	
+	/**
+	 * Enable stopping relaxation when stop conditions are met
+	 */
+	private boolean _enableEarlyStop = false;
+	/**
+	 * Warn for large differences between Vcycle residuals (Debugging tool)
+	 */
+	private boolean _checkVCycleDiscrepancy = false;
+	/**
+	 * Difference between Vcycle residuals to warn at (Debugging tool)
+	 */
+	private double _discrepancyThreshold = 1.0;
+	/**
+	 * Stored old residual (Debugging tool internal use)
+	 */
 	private double tempRes[];
-	
+	/**
+	 * Stored layer number (Debugging tool internal use)
+	 */
 	private int tempLay = 0;
-	
+	/**
+	 * Stored Vcycle count (Debugging tool internal use)
+	 */
 	private int num = 0;
-	
-	private double _discrepancyThreshold = 0.01;
-	
+	/**
+	 * Internal use, is set to true when stop condition is reached.
+	 */
+	private boolean _reachedStopCondition = false;
+
 	/* ***********************************************************************
 	 * SOLVER METHODS
 	 * **********************************************************************/
@@ -106,6 +142,7 @@ public class PDEmultigrid extends PDEsolver
 	public void solve(Collection<SpatialGrid> variables,
 			SpatialGrid commonGrid, double tFinal)
 	{
+		
 		this.refreshCommonGrid(commonGrid);
 		for ( SpatialGrid var : variables )
 			this.refreshVariable(var);
@@ -132,23 +169,6 @@ public class PDEmultigrid extends PDEsolver
 			boolean continueVCycle = true;
 			for ( int v = 0; v < this._numVCycles && continueVCycle; v++ )
 				continueVCycle = this.doVCycle(variables, outer);
-		}
-		
-		//Calculate mass movement
-		double massMove = 0.0;
-		
-		/* Apply all computations. */
-		// TODO Rob [15Jan2017]: Not sure this is necessary, try removing once
-		// everything is working.
-		MultigridLayer currentLayer;
-		for ( SpatialGrid var : variables )
-		{
-			currentLayer = this.getMultigrid(var);
-			while ( currentLayer.hasFiner() )
-				currentLayer = currentLayer.getFiner();
-			massMove = var.getTotal(PRODUCTIONRATE);
-			var.increaseWellMixedMassFlow(massMove);
-			var.setTo(CONCN, currentLayer.getGrid().getArray(CONCN));
 		}
 	}
 
@@ -219,7 +239,10 @@ public class PDEmultigrid extends PDEsolver
 			currentLayer = currentLayer.getCoarser();
 			// NOTE iDynoMiCS 1 uses fracOfOldValueKept of 0.5
 			for ( ArrayType type : variable.getAllArrayTypes() )
-				currentLayer.fillArrayFromFiner(type, 0.0, null);
+				currentLayer.fillArrayFromFiner(type, 0.5, null);
+			/** [Bas 2019] In some cases, setting this to 0.5 also appears to
+			 * increase the total biomass production of a sim.
+			 */
 		}
 	}
 	
@@ -285,7 +308,6 @@ public class PDEmultigrid extends PDEsolver
 		while ( this._commonMultigrid.hasCoarser() && layerCounter < numLayers )
 		{
 			layerCounter++;
-
 			/* 
 			 * Smooth the current layer for a set number of iterations.
 			 */
@@ -303,6 +325,7 @@ public class PDEmultigrid extends PDEsolver
 				}
 			}
 			*/
+			
 			this.relaxAll(this._numPreSteps);
 			/* Disabled Debug message 
 			if ( Log.shouldWrite(Tier.DEBUG) )
@@ -356,6 +379,7 @@ public class PDEmultigrid extends PDEsolver
 				currentGrids.add(variableMultigrid.getGrid());
 			}
 			/* Update the PRODUCTIONRATE arrays using updated CONCN values. */
+
 			this._updater.prestep(currentGrids, 0.0);
 			/*
 			 * TODO
@@ -376,6 +400,7 @@ public class PDEmultigrid extends PDEsolver
 			}
 		}
 		/* At the bottom of the V: solve the coarsest layer. */
+
 		this.relaxAll(this._numCoarseStep);
 		/* 
 		 * Upward stroke of V. The overall effect of this is:
@@ -406,7 +431,6 @@ public class PDEmultigrid extends PDEsolver
 						LOCALERROR, CONCN, 0.0, currentCommon);
 				currentLayer.subtractArrayFromArray(CONCN, LOCALERROR);
 			}
-			
 			layerCounter--;
 			this._commonMultigrid = this._commonMultigrid.getFiner();
 			currentCommon = this._commonMultigrid.getGrid();
@@ -420,6 +444,10 @@ public class PDEmultigrid extends PDEsolver
 				currentLayer.addArrayToArray(CONCN, RELATIVEERROR);
 				if ( ! this._allowNegatives )
 					currentLayer.makeNonnegative(CONCN);
+
+// DEBUGGIMG
+//				System.out.println(layerCounter + "\t" + currentLayer.getName() + " \t" + currentLayer.getMin(PRODUCTIONRATE) + " " );
+//				System.out.println(layerCounter + "\t" + currentLayer.getName() + " \t" + currentLayer.getMin(CONCN) + " " );
 			}
 			/* Relaxation */
 			this.relaxAll(this._numPostSteps);
@@ -487,19 +515,53 @@ public class PDEmultigrid extends PDEsolver
 		for ( MultigridLayer layer : this._multigrids.values() )
 			currentGrids.add(layer.getGrid());
 		SpatialGrid currentCommon = this._commonMultigrid.getGrid();
+		
+		int nGrid = currentGrids.size();
+		double[][] validate = new double[nGrid][3];
+		
 		relaxLoops: for ( int i = 0; i < numRepetitions; i++ )
 		{
-			this._updater.prestep(currentGrids, 0.0);
-			for ( SpatialGrid grid : currentGrids ) {
-				this.relax(grid, currentCommon);
+			if(i >= numRepetitions-3)
+			{
+				int j = 0;
+				for ( SpatialGrid grid : currentGrids ) 
+				{
+					validate[j++][i-(numRepetitions-3)] = grid.getAverage(CONCN);
+				}
 			}
-			if (this._earlyStop) {
-				if( Log.shouldWrite(Tier.DEBUG) )
-					Log.out(Tier.DEBUG, "Breaking early: "+ i +" of "
+//			System.out.println("r" + i);
+			this._updater.prestep(currentGrids, 0.0);
+			boolean stop = true;
+			for ( SpatialGrid grid : currentGrids ) 
+			{
+				tempRes = new double[this._variableNames.length];
+				this.relax(grid, currentCommon);
+				if ( !this._reachedStopCondition )
+					stop = false;
+			}
+			if ( stop ) {
+//				if( Log.shouldWrite(Tier.DEBUG) )
+					Log.out("Breaking early: "+ i +" of "
 							+ numRepetitions );
 				break relaxLoops;
 			}
+			if( i+1 >= numRepetitions && Log.shouldWrite(Tier.DEBUG) )
+			{
+				Log.out(Tier.DEBUG, i + " " + Vector.max(this.tempRes) + " > " +
+						this._absToleranceLevel );
+			}
 		}
+		this._updater.prestep(currentGrids, 0.0);
+		
+//		boolean periodic = false;
+//		for ( int i = 0; i < validate.length; i++)
+//			if ( ( validate[i][0] < validate[i][1] && 
+//					validate[i][1] > validate[i][2]) ||
+//					( validate[i][0] > validate[i][1] && 
+//					validate[i][1] < validate[i][2]) )
+//						periodic = true;
+//		if ( periodic )
+//			System.out.println(Matrix.toString(validate));
 	}
 	
 	/**
@@ -519,6 +581,12 @@ public class PDEmultigrid extends PDEsolver
 	 */
 	private void relax(SpatialGrid variable, SpatialGrid commonGrid)
 	{
+		int pos = 0;
+		for (int i = 0; i < this._variableNames.length; i++)
+		{
+			if( variable.getName().equals(this._variableNames[i]))
+				pos = i;
+		}
 		if ( ! this._allowNegatives )
 			variable.makeNonnegative(CONCN);
 		Shape shape = variable.getShape();
@@ -528,11 +596,251 @@ public class PDEmultigrid extends PDEsolver
 		double lop, totalNhbWeight, residual;
 		@SuppressWarnings("unused")
 		int[] current, nhb;
-		this._earlyStop = true;
+		if ( this._enableEarlyStop  )
+			this._reachedStopCondition = true;
 		
+		/* FIXME: inverting the order we iterate the grid changes the result
+		 * I don't think the method should be sensitive to the direction of
+		 * evaluation! Bas [09.12.2019]
+		 */
 		for ( current = shape.resetIterator(); shape.isIteratorValid();
 				current = shape.iteratorNext() )
 		{
+
+			/* Skip this voxel if it is considered well-mixed. */
+			if ( WellMixedConstants.isWellMixed(commonGrid, current))
+				continue;
+			concn = variable.getValueAtCurrent(CONCN);
+			prod = variable.getValueAtCurrent(PRODUCTIONRATE);
+			diffusivity = variable.getValueAtCurrent(DIFFUSIVITY);
+			vol = shape.getCurrVoxelVolume();
+			/* The right-hand side of Equation 19.6.23. */
+			rhs = variable.getValueAtCurrent(NONLINEARITY);
+			/* Reset both lop and dlop. */
+			lop = 0.0;
+			totalNhbWeight = 0.0;
+			bndryFlow = 0.0;
+			/* Sum up over all neighbours. */
+			nhbLoop: for ( nhb = shape.resetNbhIterator();
+					shape.isNbhIteratorValid(); nhb = shape.nbhIteratorNext() )
+			{
+				boolean isInside = shape.isNbhIteratorInside();
+				/* First find the appropriate diffusivity. */
+				if ( isInside )
+				{
+					/*
+					 * If the neighbor voxel is inside the compartment, use the
+					 * harmonic mean average diffusivity of the two voxels. 
+					 */
+					nhbDiffusivity = variable.getValueAtNhb(DIFFUSIVITY);
+					nhbDiffusivity = 
+							ExtraMath.harmonicMean(diffusivity, nhbDiffusivity);
+				}
+				else
+				{
+					/*
+					 * If this is a boundary that does not contribute (e.g. a
+					 * solid boundary) then do not include it in the weighting.
+					 */
+					bndryFlow = shape.nbhIteratorOutside()
+							.getDiffusiveFlow(variable);
+					if ( bndryFlow == 0.0 )
+						continue nhbLoop;
+					/*
+					 * Otherwise, just use the current voxel's diffusivity.
+					 */
+					nhbDiffusivity = diffusivity;
+				}
+				nhbDist = shape.nhbCurrDistance();
+				nhbSArea = shape.nhbCurrSharedArea();
+				/*
+				 * The weighting of each voxel is in terms of per time.
+				 */
+				nhbWeight = (nhbSArea * nhbDiffusivity) / (nhbDist * vol);
+				totalNhbWeight += nhbWeight;
+				/*
+				 * The actual contribution of the neighbor voxel to the
+				 * concentration of the current voxel depends on whether it is
+				 * inside the compartment or on a boundary.
+				 */
+				if ( isInside )
+				{
+					nhbConcn = variable.getValueAtNhb(CONCN);
+					lop += nhbWeight * (nhbConcn - concn);
+				}
+				else
+				{
+					/* Here we convert the flow (mass per time) into a change
+					 * rate in concentration. */
+					lop += bndryFlow / vol;
+				}
+			}
+			/*
+			 * For the FAS, the source term is implicit in the L-operator
+			 * (see Equations 19.6.21-22).
+			 * 
+			 * NOTE: lop has units of concentration per time whereas prod would
+			 * have units of mass per time
+			 */
+			lop += prod / vol;
+			/* 
+			 * TODO
+			 */
+			residual = (lop - rhs) / totalNhbWeight;
+			this.tempRes[pos] = Math.max(this.tempRes[pos], Math.abs(residual));
+			double relChange = residual / concn;
+			/* Prepare to update the local concentration. */
+			concn += residual;
+			if (Math.abs(residual) > this._absToleranceLevel &&
+					Math.abs(relChange) > this._relToleranceLevel) 
+			{
+				this._reachedStopCondition = false;
+			} else {
+				if( Log.shouldWrite(Tier.DEBUG) )
+					Log.out(Tier.DEBUG, "residual = "+residual+" relChange = "+
+							relChange );
+			}
+			/* Check if we need to remain non-negative. */
+			if ( (!this._allowNegatives) && (concn < 0.0) )
+				concn = 0.0;
+			/* Update the value and continue to the next voxel. */
+			variable.setValueAtCurrent(CONCN, concn);
+		}
+	}
+	
+	/**
+	 * \brief Estimate the remaining work that needs to be done on the grid
+	 * given.
+	 * 
+	 * <p>This method corresponds to Equation (19.6.4) in <i>Numerical Recipes
+	 * in C</i>.</p>
+	 * 
+	 * @param variable Spatial grid representation of a solute field.
+	 * @param commonGrid Common store of the well-mixed array for all variables.
+	 * @param destinationType Type of array to overwrite with the new values.
+	 */
+	private void calculateResidual(SpatialGrid variable,
+			SpatialGrid commonGrid, ArrayType destinationType)
+	{
+	/* Commented out is the older method of calculating the residual, verify
+	   the new method and remove commented code when completely satisfied. */
+//		Shape shape = variable.getShape();
+//		double diffusiveFlow, rateFromReactions, residual;
+//		
+//		@SuppressWarnings("unused")
+//		double prod, concn, diffusivity, vol, rhs;
+//		double nhbDist, nhbSArea, nhbDiffusivity, nhbWeight, nhbConcn, bndryFlow;
+//		double lop;
+//		@SuppressWarnings("unused")
+//		int[] current, nhb;
+//		
+//		for ( current = shape.resetIterator(); shape.isIteratorValid();
+//				current = shape.iteratorNext() )
+//		{
+//			if ( WellMixedConstants.isWellMixed(commonGrid, current) )
+//			{
+//				/* Reset the value here in case it used to be inside the
+//				 * boundary layer and move on to the next voxel. */
+//				variable.setValueAt(destinationType, current, 0.0);
+//				continue;
+//			} 
+//			
+//			concn = variable.getValueAtCurrent(CONCN);
+//			prod = variable.getValueAtCurrent(PRODUCTIONRATE);
+//			diffusivity = variable.getValueAtCurrent(DIFFUSIVITY);
+//			vol = shape.getCurrVoxelVolume();
+//			/* The right-hand side of Equation 19.6.23. */
+//			rhs = variable.getValueAtCurrent(NONLINEARITY);
+//			/* Reset both lop and dlop. */
+//			lop = 0.0;
+//			bndryFlow = 0.0;
+//			/* Sum up over all neighbours. */
+//			nhbLoop: for ( nhb = shape.resetNbhIterator();
+//					shape.isNbhIteratorValid(); nhb = shape.nbhIteratorNext() )
+//			{
+//				boolean isInside = shape.isNbhIteratorInside();
+//				/* First find the appropriate diffusivity. */
+//				if ( isInside )
+//				{
+//					/*
+//					 * If the neighbor voxel is inside the compartment, use the
+//					 * harmonic mean average diffusivity of the two voxels. 
+//					 */
+//					nhbDiffusivity = variable.getValueAtNhb(DIFFUSIVITY);
+//					nhbDiffusivity = 
+//							ExtraMath.harmonicMean(diffusivity, nhbDiffusivity);
+//				}
+//				else
+//				{
+//					/*
+//					 * If this is a boundary that does not contribute (e.g. a
+//					 * solid boundary) then do not include it in the weighting.
+//					 */
+//					bndryFlow = shape.nbhIteratorOutside()
+//							.getDiffusiveFlow(variable);
+//					if ( bndryFlow == 0.0 )
+//						continue nhbLoop;
+//					/*
+//					 * Otherwise, just use the current voxel's diffusivity.
+//					 */
+//					nhbDiffusivity = diffusivity;
+//				}
+//				nhbDist = shape.nhbCurrDistance();
+//				nhbSArea = shape.nhbCurrSharedArea();
+//				/*
+//				 * The weighting of each voxel is in terms of per time.
+//				 */
+//				nhbWeight = (nhbSArea * nhbDiffusivity) / (nhbDist * vol);
+//				/*
+//				 * The actual contribution of the neighbor voxel to the
+//				 * concentration of the current voxel depends on whether it is
+//				 * inside the compartment or on a boundary.
+//				 */
+//				if ( isInside )
+//				{
+//					nhbConcn = variable.getValueAtNhb(CONCN);
+//					lop += nhbWeight * (nhbConcn - concn);
+//				}
+//				else
+//				{
+//					/* Here we convert the flow (mass per time) into a change
+//					 * rate in concentration. */
+//					lop += bndryFlow / vol;
+//				}
+//			}
+//			diffusiveFlow = lop;
+//			/*diffusiveFlow = 0.0;
+//			for ( shape.resetNbhIterator(); shape.isNbhIteratorValid();
+//					shape.nbhIteratorNext() )
+//			{
+//				diffusiveFlow += variable.getDiffusionFromNeighbor();
+//			}*/
+//			rateFromReactions = variable.getValueAt(PRODUCTIONRATE, current);
+//			residual = (diffusiveFlow + rateFromReactions) /
+//					shape.getCurrVoxelVolume();
+//			variable.setValueAt(destinationType, current, residual);
+//		}
+		
+		if ( ! this._allowNegatives )
+			variable.makeNonnegative(CONCN);
+		Shape shape = variable.getShape();
+		/* Temporary storage. */
+		double prod, concn, diffusivity, vol, rhs;
+		double nhbDist, nhbSArea, nhbDiffusivity, nhbWeight, nhbConcn, bndryFlow;
+		double lop, totalNhbWeight, residual;
+		@SuppressWarnings("unused")
+		int[] current, nhb;
+		if ( this._enableEarlyStop  )
+			this._reachedStopCondition = true;
+		
+		/* FIXME: inverting the order we iterate the grid changes the result
+		 * I don't think the method should be sensitive to the direction of
+		 * evaluation! Bas [09.12.2019]
+		 */
+		for ( current = shape.resetIterator(); shape.isIteratorValid();
+				current = shape.iteratorNext() )
+		{
+
 			/* Skip this voxel if it is considered well-mixed. */
 			if ( WellMixedConstants.isWellMixed(commonGrid, current))
 				continue;
@@ -619,7 +927,7 @@ public class PDEmultigrid extends PDEsolver
 			if (Math.abs(residual) > this._absToleranceLevel &&
 					Math.abs(relChange) > this._relToleranceLevel) 
 			{
-				this._earlyStop = false;
+				this._reachedStopCondition = false;
 			} else {
 				if( Log.shouldWrite(Tier.DEBUG) )
 					Log.out(Tier.DEBUG, "residual = "+residual+" relChange = "+
@@ -629,119 +937,6 @@ public class PDEmultigrid extends PDEsolver
 			if ( (!this._allowNegatives) && (concn < 0.0) )
 				concn = 0.0;
 			/* Update the value and continue to the next voxel. */
-			variable.setValueAtCurrent(CONCN, concn);
-		}
-	}
-	
-	/**
-	 * \brief Estimate the remaining work that needs to be done on the grid
-	 * given.
-	 * 
-	 * <p>This method corresponds to Equation (19.6.4) in <i>Numerical Recipes
-	 * in C</i>.</p>
-	 * 
-	 * @param variable Spatial grid representation of a solute field.
-	 * @param commonGrid Common store of the well-mixed array for all variables.
-	 * @param destinationType Type of array to overwrite with the new values.
-	 */
-	private void calculateResidual(SpatialGrid variable,
-			SpatialGrid commonGrid, ArrayType destinationType)
-	{
-		Shape shape = variable.getShape();
-		double diffusiveFlow, rateFromReactions, residual;
-		
-		@SuppressWarnings("unused")
-		double prod, concn, diffusivity, vol, rhs;
-		double nhbDist, nhbSArea, nhbDiffusivity, nhbWeight, nhbConcn, bndryFlow;
-		double lop;
-		@SuppressWarnings("unused")
-		int[] current, nhb;
-		
-		for ( current = shape.resetIterator(); shape.isIteratorValid();
-				current = shape.iteratorNext() )
-		{
-			if ( WellMixedConstants.isWellMixed(commonGrid, current) )
-			{
-				/* Reset the value here in case it used to be inside the
-				 * boundary layer and move on to the next voxel. */
-				variable.setValueAt(destinationType, current, 0.0);
-				continue;
-			} 
-			
-			concn = variable.getValueAtCurrent(CONCN);
-			prod = variable.getValueAtCurrent(PRODUCTIONRATE);
-			diffusivity = variable.getValueAtCurrent(DIFFUSIVITY);
-			vol = shape.getCurrVoxelVolume();
-			/* The right-hand side of Equation 19.6.23. */
-			rhs = variable.getValueAtCurrent(NONLINEARITY);
-			/* Reset both lop and dlop. */
-			lop = 0.0;
-			bndryFlow = 0.0;
-			/* Sum up over all neighbours. */
-			nhbLoop: for ( nhb = shape.resetNbhIterator();
-					shape.isNbhIteratorValid(); nhb = shape.nbhIteratorNext() )
-			{
-				boolean isInside = shape.isNbhIteratorInside();
-				/* First find the appropriate diffusivity. */
-				if ( isInside )
-				{
-					/*
-					 * If the neighbor voxel is inside the compartment, use the
-					 * harmonic mean average diffusivity of the two voxels. 
-					 */
-					nhbDiffusivity = variable.getValueAtNhb(DIFFUSIVITY);
-					nhbDiffusivity = 
-							ExtraMath.harmonicMean(diffusivity, nhbDiffusivity);
-				}
-				else
-				{
-					/*
-					 * If this is a boundary that does not contribute (e.g. a
-					 * solid boundary) then do not include it in the weighting.
-					 */
-					bndryFlow = shape.nbhIteratorOutside()
-							.getDiffusiveFlow(variable);
-					if ( bndryFlow == 0.0 )
-						continue nhbLoop;
-					/*
-					 * Otherwise, just use the current voxel's diffusivity.
-					 */
-					nhbDiffusivity = diffusivity;
-				}
-				nhbDist = shape.nhbCurrDistance();
-				nhbSArea = shape.nhbCurrSharedArea();
-				/*
-				 * The weighting of each voxel is in terms of per time.
-				 */
-				nhbWeight = (nhbSArea * nhbDiffusivity) / (nhbDist * vol);
-				/*
-				 * The actual contribution of the neighbor voxel to the
-				 * concentration of the current voxel depends on whether it is
-				 * inside the compartment or on a boundary.
-				 */
-				if ( isInside )
-				{
-					nhbConcn = variable.getValueAtNhb(CONCN);
-					lop += nhbWeight * (nhbConcn - concn);
-				}
-				else
-				{
-					/* Here we convert the flow (mass per time) into a change
-					 * rate in concentration. */
-					lop += bndryFlow / vol;
-				}
-			}
-			diffusiveFlow = lop;
-			
-			/*diffusiveFlow = 0.0;
-			for ( shape.resetNbhIterator(); shape.isNbhIteratorValid();
-					shape.nbhIteratorNext() )
-			{
-				diffusiveFlow += variable.getDiffusionFromNeighbor();
-			}*/
-			rateFromReactions = variable.getValueAt(PRODUCTIONRATE, current);
-			residual = (diffusiveFlow + rateFromReactions) /
-					shape.getCurrVoxelVolume();
 			variable.setValueAt(destinationType, current, residual);
 		}
 	}

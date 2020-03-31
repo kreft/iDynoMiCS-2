@@ -24,7 +24,6 @@ import referenceLibrary.XmlRef;
 import shape.Shape;
 import shape.subvoxel.IntegerArray;
 import solver.PDEmultigrid;
-import solver.PDEupdater;
 
 /**
  * \brief Simulate the diffusion of solutes and their production/consumption by
@@ -60,6 +59,8 @@ public class SolveDiffusionSteadyState extends ProcessDiffusion
 
 		// TODO Let the user choose which ODEsolver to use.
 		this._solver = new PDEmultigrid();
+
+		this._solver.setUpdater(this);
 		
 		this._solver.setAbsoluteTolerance(absTol);
 		
@@ -78,17 +79,30 @@ public class SolveDiffusionSteadyState extends ProcessDiffusion
 		 * Do the generic set up and solving.
 		 */
 		super.internalStep();
-		/*
-		 * Estimate the steady-state mass flows in or out of the well-mixed
-		 * region, and distribute it among the relevant boundaries.
-		 */
-		this._environment.distributeWellMixedFlows();
+		
+		for ( SpatialGrid var : this._environment.getSolutes() )
+		{
+			var.reset(PRODUCTIONRATE);
+		}
 		/*
 		 * Estimate agent growth based on the steady-state solute 
 		 * concentrations.
 		 */
 		for ( Agent agent : this._agents.getAllLocatedAgents() )
 			this.applyAgentGrowth(agent);
+		
+//		MultigridLayer currentLayer;
+		for ( SpatialGrid var : this._environment.getSolutes() )
+		{
+			double massMove = var.getTotal(PRODUCTIONRATE);
+			var.increaseWellMixedMassFlow(massMove);
+		}
+		/*
+		 * Estimate the steady-state mass flows in or out of the well-mixed
+		 * region, and distribute it among the relevant boundaries.
+		 */
+		this._environment.distributeWellMixedFlows(this._timeStepSize);
+
 
 		/* perform final clean-up and update agents to represent updated 
 		 * situation. */
@@ -106,26 +120,19 @@ public class SolveDiffusionSteadyState extends ProcessDiffusion
 	 * 
 	 * @return PDE updater method.
 	 */
-	protected PDEupdater standardUpdater()
+	public void prestep(Collection<SpatialGrid> variables, double dt)
 	{
-		return new PDEupdater()
-		{
-			/*
-			 * This is the updater method that the PDEsolver will use before
-			 * each mini-timestep.
-			 */
-			@Override
-			public void prestep(Collection<SpatialGrid> variables, double dt)
-			{
-				for ( SpatialGrid var : variables )
-					var.newArray(PRODUCTIONRATE);
-				applyEnvReactions(variables);
-				for ( Agent agent : _agents.getAllLocatedAgents() )
-					applyAgentReactions(agent, variables);
-			}
-		};
+		for ( SpatialGrid var : variables )
+			var.newArray(PRODUCTIONRATE);
+		applyEnvReactions(variables);
+		for ( Agent agent : _agents.getAllLocatedAgents() )
+			applyAgentReactions(agent, variables);
+//		for (SpatialGrid s : variables)
+//		{
+//			System.out.println(s.getAverage(PRODUCTIONRATE));
+//		}
 	}
-	
+
 	/**
 	 * \brief Apply the reactions for a single agent.
 	 * 
@@ -216,19 +223,25 @@ public class SolveDiffusionSteadyState extends ProcessDiffusion
 				 * stoichiometry may not be the same as those in the reaction
 				 * variables (although there is likely to be a large overlap).
 				 */
+				
 				for ( String productName : r.getReactantNames() )
 				{
-					productRate = r.getProductionRate(concns, productName);
 					solute = FindGrid(variables, productName);
 					if ( solute != null )
-						solute.addValueAt(PRODUCTIONRATE, coord.get(), productRate);
+					{
+						productRate = r.getProductionRate(concns, productName);
+						solute.addValueAt(PRODUCTIONRATE, coord.get(), volume * productRate);
+					}
 					/* 
 					 * Unlike in a transient solver, we do not update the agent
 					 * mass here.
 					 */
 				}
 			}
-		}
+		}	
+		/* debugging */
+//		Log.out(Tier.NORMAL , " -- " +
+//		this._environment.getSoluteGrid("glucose").getAverage(PRODUCTIONRATE));
 	}
 	
 	private SpatialGrid FindGrid(Collection<SpatialGrid> grids, String name)
@@ -298,6 +311,7 @@ public class SolveDiffusionSteadyState extends ProcessDiffusion
 					{
 						concn = biomass.get(varName) * 
 								distributionMap.get(coord) * perVolume;
+
 					}
 					else if ( agent.isAspect(varName) )
 					{
@@ -323,11 +337,12 @@ public class SolveDiffusionSteadyState extends ProcessDiffusion
 				 */
 				for ( String productName : r.getReactantNames() )
 				{
-					productRate = r.getProductionRate(concns,productName);
+					productRate = r.getProductionRate(concns,productName);					
 					if ( this._environment.isSoluteName(productName) )
 					{
 						solute = this._environment.getSoluteGrid(productName);
-						solute.addValueAt(PRODUCTIONRATE, coord.get(), productRate);
+						solute.addValueAt(PRODUCTIONRATE, coord.get(), 
+								productRate * volume * this.getTimeStepSize());
 					}
 					else if ( newBiomass.containsKey(productName) )
 					{
@@ -350,10 +365,14 @@ public class SolveDiffusionSteadyState extends ProcessDiffusion
 						System.out.println("agent reaction catched " + 
 								productName);
 						// TODO safety?
+
 					}
 				}
 			}
 		}
+		/* debugging */
+//		Log.out( " ## " +
+//		this._environment.getSoluteGrid("glucose").getAverage(PRODUCTIONRATE));
 		ProcessMethods.updateAgentMass(agent, newBiomass);
 	}
 }

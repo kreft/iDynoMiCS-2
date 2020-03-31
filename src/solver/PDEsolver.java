@@ -8,6 +8,7 @@ import java.util.LinkedList;
 import grid.ArrayType;
 import grid.SpatialGrid;
 import grid.WellMixedConstants;
+import processManager.ProcessDiffusion;
 import shape.Shape;
 
 /**
@@ -20,14 +21,14 @@ public abstract class PDEsolver extends Solver
 	/**
 	 * TODO
 	 */
-	protected PDEupdater _updater;
+	protected ProcessDiffusion _updater;
 	
 	/**
 	 * \brief TODO
 	 * 
 	 * @param updater
 	 */
-	public void setUpdater(PDEupdater updater)
+	public void setUpdater(ProcessDiffusion updater)
 	{
 		this._updater = updater;
 	}

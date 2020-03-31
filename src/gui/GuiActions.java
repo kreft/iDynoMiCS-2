@@ -5,9 +5,18 @@ package gui;
 
 import java.awt.EventQueue;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 
+import dataIO.FileHandler;
 import dataIO.Log;
 import idynomics.Global;
 import idynomics.Idynomics;
@@ -66,7 +75,55 @@ public final class GuiActions
     		checkProtocol();
     		GuiButtons.resetProgressBar();
     		GuiActions.loadCurrentState();
+    		GuiMain.setStatus( Idynomics.global.protocolFile );
     	}    		
+	}
+	
+	public static String inputUrl()
+	{  
+		JFrame f;  
+	    f=new JFrame();   
+	    return JOptionPane.showInputDialog(f,"Enter URL");
+	}
+	
+	public static void downloadFile(String url)
+	{
+		String local = "tmp_dl.xml";
+		FileHandler handler = new FileHandler();
+		
+		if (url == null)
+			url = inputUrl();
+		
+		Log.out("Downloading file: " + url + " -> " + local );
+		handler.fnew(local);
+		InputStream webIS = null;
+		FileOutputStream fo = null;
+		URL urly = null;
+		
+		try {
+			urly = new URL(url); 
+		} catch ( MalformedURLException e) {
+			e.printStackTrace();
+		}
+		
+		
+		try {
+			webIS = urly.openStream();
+			int c = 0;
+			do {
+			    c = webIS.read();
+			    if (c !=-1) {
+			    	handler.write((byte) c);
+			    }
+			} while(c != -1);
+			webIS.close();
+			handler.fclose();
+			Log.out("finished Download");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		File in = new File(local);
+		openFile(in);
 	}
 	
 	public static void checkProtocol()
