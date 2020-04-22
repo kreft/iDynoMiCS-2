@@ -10,10 +10,6 @@ import referenceLibrary.AspectRef;
 import referenceLibrary.XmlRef;
 
 /**
- * \brief Agent growth where the agent has only one kind of biomass.
- * 
- * <p>For more complex growth, consider using the event InternalProduction
- * instead.</p>
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  * 
