@@ -392,6 +392,12 @@ public class ClassRef
 	public final static String agentDetachment =
 			processManager.library.AgentDetachment.class.getName();
 	
+	/**
+	 * Process for maintenance of biofilm at maximum thickness through 
+	 * removal of all agents above threshold height
+	 */
+	public final static String agentScraper =
+			processManager.library.AgentScraper.class.getName();
 	/* ************************************************************************
 	 * IdynoMiCS main classes
 	 */

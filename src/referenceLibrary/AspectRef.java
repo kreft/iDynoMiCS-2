@@ -512,6 +512,12 @@ public class AspectRef
 	public static final String regionDepth = "regionDepth";
 
 	/**
+	 * Maximum thickness of a biofilm.
+	 * 
+	 */
+	public static final String maxThickness = "maxThickness";
+
+	/**
 	 * Increase speed of agent relaxation by scaling to object with highest
 	 * velocity
 	 */
