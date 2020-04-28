@@ -6,13 +6,16 @@
 		<timer stepSize="6.0" endOfSimulation="432000.0" />
 		<speciesLib>
 			<species name="heterotroph">
-				<aspect name="pigment" type="PRIMARY" class="String" value="RED" />
+				<aspect name="redComponent" type="PRIMARY" class="Double" value="1.0" />
+				<aspect name="greenComponent" type="CALCULATED" 
+				class="structuredBiomassCalculation" input="1.0 - inert / (biomass + inert)" />
+				<aspect name="pigment" type="CALCULATED" class="AgentColouring" />
 				<speciesModule name="coccoid" />
 				<aspect name="reactions" type="PRIMARY"  class="InstantiableList"> 
 					<list class="RegularReaction" nodeLabel="reaction" 
 					entryClass="RegularReaction" keyClass="String" keyLabel="name">
 						<reaction name="hetGrowth">
-							<expression value="mass * mumax * 
+							<expression value="biomass * mumax * 
 									( COD / ( COD + KS ) ) * 
 									( ( oxygen / ( oxygen + Kox ) )">
 								<!-- pg/µm3 --> 
@@ -21,25 +24,25 @@
 								<!-- per minute -->
 								<constant name="mumax" 	value="0.004167" />
 							</expression>
-							<stoichiometric component="mass" coefficient="1.0" />
+							<stoichiometric component="biomass" coefficient="1.0" />
 							<stoichiometric component="COD" 	coefficient="-1.5873" />
 							<stoichiometric component="oxygen" 	coefficient="-0.5873" />
 						</reaction> 
 						<reaction name="hetInactivation">
-							<expression value="inactivationRate * mass">
+							<expression value="inactivationRate * biomass">
 							<!-- per minute -->
 								<constant name="inactivationRate" 	value="5.556e-5" /> 
 							</expression>
-							<stoichiometric component="mass" coefficient="-1.0" />
+							<stoichiometric component="biomass" coefficient="-1.0" />
 							<stoichiometric component="inert" 	coefficient="1.0" />
 						</reaction>
 						<reaction name="hetRespiration">
-							<expression value="mass * respirationRate * (oxygen / (oxygen + Kox))">
+							<expression value="biomass * respirationRate * (oxygen / (oxygen + Kox))">
 								<!-- pg/µm3 --> 
 								<constant name="respirationRate" 	value="2.222e-4" />
 								<constant name="Kox" 				value="2.0e-7" />
 							</expression>
-							<stoichiometric component="mass" coefficient="-1.0" />
+							<stoichiometric component="biomass" coefficient="-1.0" />
 							<stoichiometric component="oxygen" 	coefficient="-1.0" />
 						</reaction>
 					</list>
@@ -47,13 +50,16 @@
 			</species>
 			
 			<species name="autotroph">
-				<aspect name="pigment" type="PRIMARY" class="String" value="RED" />
+				<aspect name="blueComponent" type="PRIMARY" class="Double" value="1.0" />
+				<aspect name="redComponent" type="CALCULATED" 
+				class="structuredBiomassCalculation" input="1.0 - inert / (biomass + inert)" />
+				<aspect name="pigment" type="CALCULATED" class="AgentColouring" />
 				<speciesModule name="coccoid" />
 				<aspect name="reactions" type="PRIMARY"  class="InstantiableList"> 
 					<list class="RegularReaction" nodeLabel="reaction" 
 					entryClass="RegularReaction" keyClass="String" keyLabel="name">
 						<reaction name="autGrowth">
-							<expression value="mass * mumax * 
+							<expression value="biomass * mumax * 
 									( ammonium / ( ammonium + KN ) ) * 
 									( ( oxygen / ( oxygen + Kox ) )">
 								<!-- pg/µm3 --> 
@@ -62,25 +68,25 @@
 								<!-- per minute -->
 								<constant name="mumax" 	value="6.95e-4" />  
 							</expression>
-							<stoichiometric component="mass" 	 coefficient="1.0" />
+							<stoichiometric component="biomass" 	 coefficient="1.0" />
 							<stoichiometric component="oxygen" 	 coefficient="-18.0417" />
 							<stoichiometric component="ammonium" coefficient="-4.1667" />
 						</reaction> 
 						<reaction name="autInactivation">
-							<expression value="inactivationRate * mass">
+							<expression value="inactivationRate * biomass">
 								<!-- per minute --> 
 								<constant name="inactivationRate" 	value="2.083e-5" /> 
 							</expression>
-							<stoichiometric component="mass"	coefficient="-1.0" />
+							<stoichiometric component="biomass"	coefficient="-1.0" />
 							<stoichiometric component="inert" 	coefficient="1.0" />
 						</reaction>
 						<reaction name="autRespiration">
-							<expression value="mass * respirationRate * (oxygen / (oxygen + Kox))">
+							<expression value="biomass * respirationRate * (oxygen / (oxygen + Kox))">
 								<!-- pg/µm3 --> 
 								<constant name="respirationRate" 	value="8.333e-5" />
 								<constant name="Kox" 				value="5.0e-7" />
 							</expression>
-							<stoichiometric component="mass" coefficient="-1.0" />
+							<stoichiometric component="biomass" coefficient="-1.0" />
 							<stoichiometric component="oxygen" 	coefficient="-1.0" />
 						</reaction>
 					</list>
@@ -153,11 +159,11 @@
 					<aspect name="species" type="PRIMARY" class="String" value="heterotroph" />
 					<aspect  name="massMap" class="InstantiableMap">
 						<map entryClass="Double" keyType="String">
-							<item key="mass" value="10.0"  />
+							<item key="biomass" value="10.0"  />
 							<item key="inert" value="0.0"  />
+							<item key="blueComponent" value="0.0"  />
 						</map>
 					</aspect>
-					<aspect name="pigment" type="PRIMARY" class="String" value="BLUE" />
 				</templateAgent>
 			</spawn>
 			<spawn class="randomSpawner" domain="360.0, 40.0" priority="0" number="10" morphology="COCCOID">
@@ -165,36 +171,35 @@
 					<aspect name="species" type="PRIMARY" class="String" value="autotroph" />
 					<aspect  name="massMap" class="InstantiableMap">
 						<map entryClass="Double" keyType="String">
-							<item key="mass" value="10.0"  />
+							<item key="biomass" value="10.0"  />
 							<item key="inert" value="0.0"  />
 						</map>
 					</aspect>
-					<aspect name="pigment" type="PRIMARY" class="String" value="RED" />
 				</templateAgent>
 			</spawn>
 			<processManagers>
 				<!-- minute -->
 				<process name="agentRelax"	class="AgentRelaxation" priority="-2"
-					firstStep="0.0"  		timerStepSize="30">
+					firstStep="0.0"  		timerStepSize="6.0">
 					<!-- µm -->
 					<aspect name="maxMovement" 		type="PRIMARY" class="Double" value="0.05" />
 					<aspect name="relaxationMethod" type="PRIMARY" class="String" value="EULER" />
 				</process>
 				<!-- minute -->
 				<process name="SolveDiffusionSteadyState" class="SolveDiffusionSteadyState" priority="-1"
-					firstStep="0.0"  timerStepSize="30.0">	
+					firstStep="0.0"  timerStepSize="6.0">	
 					<!-- In principle they are not all the same but all in the 
 					same order of magnitude ~ 2.0e-4 m2.day-1 values here in 
 					µm^2/ minute-->
 				</process>
 				<process name="svgWriter" class="GraphicalOutput"  priority="-3"
-					firstStep="0.0"  timerStepSize="60.0">
+					firstStep="0.0"  timerStepSize="14400.0">
 					<aspect name="solute" type="PRIMARY" class="String" value="oxygen" />
 					<aspect name="maxConcentration" type="PRIMARY" class="Double" value="1e-5" />
 					<aspect name="outputWriter" type="PRIMARY" class="String" value="SvgExport" />
 				</process>
 				<process name="svgWriter" class="GraphicalOutput"  priority="-3"
-					firstStep="0.0"  timerStepSize="60.0">
+					firstStep="0.0"  timerStepSize="1440.0">
 					<aspect name="solute" type="PRIMARY" class="String" value="ammonium" />
 					<aspect name="maxConcentration" type="PRIMARY" class="Double" value="6e-6" />
 					<aspect name="outputWriter" type="PRIMARY" class="String" value="SvgExport" />
@@ -204,7 +209,7 @@
 					<aspect name="maxThickness" type="PRIMARY" class="Double" value="500.0" />
 				</process>
 				<process name="svgWriter" class="GraphicalOutput"  priority="-3"
-					firstStep="0.0"  timerStepSize="60.0">
+					firstStep="0.0"  timerStepSize="14400.0">
 					<aspect name="solute" type="PRIMARY" class="String" value="COD" />
 					<aspect name="maxConcentration" type="PRIMARY" class="Double" value="3e-5" />
 					<aspect name="outputWriter" type="PRIMARY" class="String" value="SvgExport" />

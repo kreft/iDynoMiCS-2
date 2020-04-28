@@ -352,6 +352,21 @@ public class AspectRef
 	 * TODO
 	 */
 	public final static String agentPigment = "pigment";
+	
+	/**
+	 * TODO
+	 */
+	public final static String redComponent = "redComponent";
+	
+	/**
+	 * TODO
+	 */
+	public final static String greenComponent = "greenComponent";
+	
+	/**
+	 * TODO
+	 */
+	public final static String blueComponent = "blueComponent";
 
 	/**
 	 * TODO

@@ -185,6 +185,18 @@ public class ClassRef
 	 */
 	public final static String numberWithUnit =
 			aspect.calculated.NumberWithUnit.class.getName();
+	
+	/**
+	 * 
+	 */
+	public final static String agentColouring =
+			aspect.calculated.AgentColouring.class.getName();
+	
+	/**
+	 * 
+	 */
+	public final static String agentMassProportion =
+			aspect.calculated.StructuredBiomassCalculation.class.getName();
 
 	/* ************************************************************************
 	 * Class reference library : Aspects - Event
