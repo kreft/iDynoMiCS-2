@@ -277,6 +277,11 @@ public class EnvironmentContainer implements CanPrelaunchCheck, Settable
 		this.getSoluteGrid(soluteName).setAllTo(CONCN, newConcn);
 	}
 	
+	public void setConcentration(String soluteName, double[][][] newConcn)
+	{
+		this.getSoluteGrid(soluteName).setTo(CONCN, newConcn);
+	}
+	
 	/* ***********************************************************************
 	 * SOLUTE BOUNDARIES
 	 * **********************************************************************/
