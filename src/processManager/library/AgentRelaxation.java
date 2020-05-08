@@ -15,6 +15,7 @@ import dataIO.Log.Tier;
 import expression.Expression;
 import idynomics.Global;
 import idynomics.Idynomics;
+import linearAlgebra.Array;
 import linearAlgebra.Vector;
 import physicalObject.PhysicalObject;
 import processManager.ProcessManager;
@@ -24,6 +25,7 @@ import surface.Point;
 import surface.Rod;
 import surface.Surface;
 import surface.collision.Collision;
+import surface.collision.Decompress;
 import utility.Helper;
 
 /**
@@ -177,6 +179,8 @@ public class AgentRelaxation extends ProcessManager
 	private Expression _spineFunction = 
 			new Expression( "stiffness * ( dh + SIGN(dh) * dh * dh * 100.0 )" );
 	
+	public Decompress decompressionMatrix;
+	
 	/* ************************************************************************
 	 * Initiation
 	 * ***********************************************************************/
@@ -242,6 +246,9 @@ public class AgentRelaxation extends ProcessManager
 		 * is used. */
 		if ( ! Helper.isNullOrEmpty( this.getValue(SPINE_FUNCTION) ) )
 			this._spineFunction = (Expression) this.getValue(SPINE_FUNCTION);
+		
+		decompressionMatrix = 
+				new Decompress(this._agents.getShape().getDimensionLengths(), 1.0);
 	}
 
 	/* ************************************************************************
@@ -265,7 +272,7 @@ public class AgentRelaxation extends ProcessManager
 		double st;
 		/* All located agents in this compartment */
 		Collection<Agent> allAgents = this._agents.getAllLocatedAgents();
-		
+
 		/* if higher order ODE solvers are used we need additional space to 
 		 * write. */
 		switch ( _method )
@@ -282,6 +289,7 @@ public class AgentRelaxation extends ProcessManager
 		{	
 			this._agents.refreshSpatialRegistry();
 			this.updateForces( this._agents );
+			decompressionMatrix.buildDirectionMatrix();
 			
 			/* adjust step size unless static step size is forced */
 			if( !this._dtStatic || this._method == Method.SHOVE )
@@ -455,6 +463,14 @@ public class AgentRelaxation extends ProcessManager
 			/* NOTE: testing purposes only */
 			if (this._gravity)
 				gravityEvaluation(agent, body);
+			
+			for( Point p : ((Body) agent.get(BODY)).getPoints())
+			{
+				decompressionMatrix.addPressure(
+						p.getPosition(), Vector.normEuclid(p.getForce()));
+				p.addToForce(decompressionMatrix.getDirection(p.getPosition()));
+			}
+			
 		}
 	}
 	
