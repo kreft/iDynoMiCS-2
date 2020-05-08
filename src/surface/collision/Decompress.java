@@ -8,7 +8,8 @@ public class Decompress {
 	public double[] resolution;
 	public double[][][] pressure;
 	public double[][][][] shift; // directionDim, x, y, z
-	public double threshold = 10;
+	public double threshold = 1000;
+	public double threshold2 = 1E14;
 	public int[] maxima;
 	
 	public Decompress(double[] max, double targetResolution)
@@ -41,7 +42,7 @@ public class Decompress {
 	public void addPressure(double[] location, double amount)
 	{
 		int[] loc = Vector.translate(location, resolution);
-		pressure[loc[0]][loc[1]][loc[2]] += amount/10.0;
+		pressure[loc[0]][loc[1]][loc[2]] += amount/1000.0;
 	}
 	
 	public int[] getMop(double[] location)
@@ -73,7 +74,7 @@ public class Decompress {
 				for( int k = 0; k < pressure[0][0].length; k++ )
 		{
 			int [] location = new int[] { i, j, k };
-			if( pressure[i][j][k] != 0.0)	
+			if( pressure[i][j][k] > threshold2)	
 				for( int l = 0; l < resolution.length; l++)
 				{
 					int range[] = shiftRange(location, l);
@@ -137,6 +138,7 @@ public class Decompress {
 		if( range[1] == maxima[dimension] && value > threshold)
 			range[1] = location[dimension];
 		
+		System.out.println(Vector.toString(range));
 		return range;
 	}
 }
