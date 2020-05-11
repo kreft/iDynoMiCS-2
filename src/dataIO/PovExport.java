@@ -145,6 +145,8 @@ public class PovExport implements GraphicalExporter
 				"	}\n" +
 				"	union {\n" +
 		
+				"	#declare PURPLE = color rgb < 1.0 , 0.0 , 1.0 >;\n" +
+				"	#declare ORANGE = color rgb < 1.0 , 0.6 , 0.1 >;\n" +
 				"	#declare RED = color rgb < 1.0 , 0.0 , 0.0 >;\n" +
 				"	#declare BLUE = color rgb < 0.0 , 0.0 , 1.0 >;\n" +
 				"	#declare GREEN = color rgb < 0.0 , 1.0 , 0.0 >;\n" +
@@ -169,6 +171,24 @@ public class PovExport implements GraphicalExporter
 		}
 	}
 
+	/**
+	 * 
+	 */
+	public String resolveColour (Object pigment)
+	{
+		if (pigment instanceof String)
+		{
+			return (String) pigment;
+		}
+		else
+		{
+			double[] pigmentArray = (double[]) pigment;
+			String rgbStatement = "color rgb < " + pigmentArray[0] + ", " + 
+				pigmentArray[1] + ", " + pigmentArray[2] + " >";
+			return rgbStatement;
+		}
+	}
+	
 	/**
 	 * 
 	 */

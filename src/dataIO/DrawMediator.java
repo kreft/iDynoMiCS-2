@@ -199,7 +199,7 @@ public class DrawMediator {
 			{
 				List<Surface> surfaces = ((Body) a.getValue(BODY)).getSurfaces();
 				for( Surface s : surfaces)
-					_graphics.draw(s, a.getString(PIGMENT));
+					_graphics.draw(s, a.getValue(PIGMENT));
 			}
 		/* Close the file */
 		_graphics.closeFile();

@@ -22,8 +22,6 @@ import utility.ExtraMath;
  */
 public class PlasmidLoss extends Event {
 	
-	public String PIGMENT = AspectRef.agentPigment;
-	
 	public String FITNESS_COST = AspectRef.agentFitnessCost;
 
 	@SuppressWarnings("unchecked")

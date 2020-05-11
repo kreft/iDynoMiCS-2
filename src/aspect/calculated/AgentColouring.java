@@ -28,6 +28,7 @@ public class AgentColouring extends Calculated {
 		setInput("red, green, blue");
 	}
 
+	/**
 	@Override
 	public Object get(AspectInterface aspectOwner)
 	{
@@ -40,6 +41,21 @@ public class AgentColouring extends Calculated {
 				(double) Helper.setIfNone(aspectOwner.getValue(BLUE), 0.0));
 		
 		pigmentRGB = "rgb(" + red + "," + green + "," + blue + ")";
+		
+		return pigmentRGB;
+	}
+	*/
+	@Override
+	public Object get(AspectInterface aspectOwner)
+	{
+		double red = 
+				(double) Helper.setIfNone(aspectOwner.getValue(RED), 0.0);
+		double green = 
+				(double) Helper.setIfNone(aspectOwner.getValue(GREEN), 0.0);
+		double blue = 
+				(double) Helper.setIfNone(aspectOwner.getValue(BLUE), 0.0);
+		
+		double[] pigmentRGB = {red, green, blue};
 		
 		return pigmentRGB;
 	}
