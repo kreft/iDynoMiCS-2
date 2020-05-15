@@ -41,12 +41,13 @@ public interface GraphicalExporter extends Instantiable {
 	 * @param surface
 	 * @param pigment
 	 */
-	public default void draw(Surface surface, String pigment)
+	public default void draw(Surface surface, Object pigment)
 	{
+		String pigmentString = this.resolveColour(pigment);
 		if (surface instanceof Ball)
-			this.draw((Ball) surface, pigment);
+			this.draw((Ball) surface, pigmentString);
 		if (surface instanceof Rod)
-			this.draw((Rod) surface, pigment);
+			this.draw((Rod) surface, pigmentString);
 	}
 	
 	/**
@@ -60,6 +61,11 @@ public interface GraphicalExporter extends Instantiable {
 	 * @param rod
 	 */
 	public void draw(Rod rod, String pigment);
+	
+	/**
+	 * 
+	 */
+	public String resolveColour(Object pigment);
 	
 	/*************************************************************************
 	 * Drawing basic shapes

@@ -109,6 +109,30 @@ public class SvgExport implements GraphicalExporter
 	 */
 	
 	/**
+	 * 
+	 */
+	public String resolveColour (Object pigment)
+	{
+		if (pigment instanceof String)
+		{
+			return (String) pigment;
+		}
+		else
+		{
+			double[] pigmentArray = (double[]) pigment;
+			String rgbStatement = new String();
+			
+			int red = (int) Math.round(255 * pigmentArray[0]);
+			int green = (int) Math.round(255 * pigmentArray[1]);
+			int blue = (int) Math.round(255 * pigmentArray[2]);
+			
+			rgbStatement = "rgb(" + red + "," + green + "," + blue + ")";
+			
+			return rgbStatement;
+		}
+	}
+	
+	/**
 	 * draw a circle
 	 * @param center
 	 * @param radius

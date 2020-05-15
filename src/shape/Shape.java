@@ -1362,7 +1362,7 @@ public abstract class Shape implements
 	 * @return Continuous location of the corner of this voxel that is furthest
 	 * from its origin.
 	 */
-	protected double[] getVoxelUpperCorner(int[] coord)
+	public double[] getVoxelUpperCorner(int[] coord)
 	{
 		return this.getLocation(coord, VOXEL_All_ONE_HELPER);
 	}

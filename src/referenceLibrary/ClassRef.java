@@ -185,6 +185,18 @@ public class ClassRef
 	 */
 	public final static String numberWithUnit =
 			aspect.calculated.NumberWithUnit.class.getName();
+	
+	/**
+	 * 
+	 */
+	public final static String agentColouring =
+			aspect.calculated.AgentColouring.class.getName();
+	
+	/**
+	 * 
+	 */
+	public final static String agentMassProportion =
+			aspect.calculated.StructuredBiomassCalculation.class.getName();
 
 	/* ************************************************************************
 	 * Class reference library : Aspects - Event
@@ -392,6 +404,12 @@ public class ClassRef
 	public final static String agentDetachment =
 			processManager.library.AgentDetachment.class.getName();
 	
+	/**
+	 * Process for maintenance of biofilm at maximum thickness through 
+	 * removal of all agents above threshold height
+	 */
+	public final static String agentScraper =
+			processManager.library.AgentScraper.class.getName();
 	/* ************************************************************************
 	 * IdynoMiCS main classes
 	 */

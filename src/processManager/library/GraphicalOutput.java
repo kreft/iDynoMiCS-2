@@ -129,6 +129,9 @@ public class GraphicalOutput extends ProcessManager
 				"output writer", true, this.options() );
 		this._graphics = (GraphicalExporter) Instance.getNew(null, null, str);
 		
+		/* write scene files (used by pov ray) */
+		this._graphics.init( this._prefix, this._shape );
+		
 		/* set max concentration for solute grid color gradient */
 		this._maxConcn = (double) this.getOr( MAX_VALUE, 2.0 );
 
@@ -225,7 +228,7 @@ public class GraphicalOutput extends ProcessManager
 			{
 				List<Surface> surfaces = ((Body) a.getValue(BODY)).getSurfaces();
 				for( Surface s : surfaces)
-					this._graphics.draw(s, a.getString(PIGMENT));
+					this._graphics.draw(s, a.getValue(PIGMENT));
 			}
 		/* Close the file */
 		this._graphics.closeFile();

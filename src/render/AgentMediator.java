@@ -67,7 +67,7 @@ public class AgentMediator implements CommandMediator {
 	/*
 	 * pigment declaration in string format (eg: RED, BLUE etc)
 	 */
-	private String _pigment;
+	private Object _pigment;
 	
 	/* 
 	 * rgb color code
@@ -240,32 +240,43 @@ public class AgentMediator implements CommandMediator {
 					AspectRef.surfaceList) ? a.get(AspectRef.surfaceList) :
 					new LinkedList<Surface>()))
 			{
-				_pigment = a.getString("pigment");
+				_pigment = a.getValue("pigment");
 				_pigment = Helper.setIfNone(_pigment, "WHITE");
-				switch (_pigment)
+				if (!(_pigment instanceof String))
 				{
-				case "GREEN" :
-					  _rgba = new float[] {0.0f, 1.0f, 0.0f};
-					  break;
-				case "RED" :
-					  _rgba = new float[] {1.0f, 0.0f, 0.0f};
-					  break;
-				case "BLUE" :
-					  _rgba = new float[] {0.01f, 0.0f, 1.0f};
-					  break;
-				case "PURPLE" :
-					  _rgba = new float[] {1.0f, 0.0f, 1.0f};
-					  break;
-				case "ORANGE" :
-					  _rgba = new float[] {1.0f, 0.6f, 0.1f};
-					  break;
-				case "BLACK" :
-					  _rgba = new float[] {0.0f, 0.0f, 0.0f};
-					  break;
-				case "WHITE" :
-				default :
-					  _rgba = new float[] {1.0f, 1.0f, 1.0f};
-					  break;
+					double[] _pigmentDouble = (double[]) _pigment;
+					for (int i = 0; i < _pigmentDouble.length; i++)
+					{
+						_rgba[i] = (float) _pigmentDouble[i];
+					}
+				}
+				else
+				{
+					switch ((String) _pigment)
+					{
+					case "GREEN" :
+						_rgba = new float[] {0.0f, 1.0f, 0.0f};
+						break;
+					case "RED" :
+						_rgba = new float[] {1.0f, 0.0f, 0.0f};
+						break;
+					case "BLUE" :
+						_rgba = new float[] {0.01f, 0.0f, 1.0f};
+						break;
+					case "PURPLE" :
+						_rgba = new float[] {1.0f, 0.0f, 1.0f};
+						break;
+					case "ORANGE" :
+						_rgba = new float[] {1.0f, 0.6f, 0.1f};
+						break;
+					case "BLACK" :
+						_rgba = new float[] {0.0f, 0.0f, 0.0f};
+						break;
+					case "WHITE" :
+					default :
+						_rgba = new float[] {1.0f, 1.0f, 1.0f};
+						break;
+					}
 				}
 				
 				/*

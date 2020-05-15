@@ -86,7 +86,7 @@ public class BiofilmBoundaryLayer extends WellMixedBoundary
 	{
 		if ( ! super.isReadyForLaunch() )
 			return false;
-		return this._gridSphere != null;
+		return (this._layerThickness >= 0.0);
 	}
 
 	private void tryToCreateGridSphere()
@@ -154,31 +154,56 @@ public class BiofilmBoundaryLayer extends WellMixedBoundary
 		/*
 		 * Iterate over all voxels, checking if there are agents nearby.
 		 */
-		int[] coords = aShape.resetIterator();
-		double[] voxelCenter = aShape.getVoxelCentre(coords);
-		double[] voxelCenterTrimmed = Vector.zerosDbl(numDim);
-		List<Agent> neighbors;
-		BoundingBox box;
-		while ( aShape.isIteratorValid() )
+		if (this._layerThickness == 0.0 )
 		{
-			aShape.voxelCentreTo(voxelCenter, coords);
-			Vector.copyTo(voxelCenterTrimmed, voxelCenter);
-			this._gridSphere.setCenter(voxelCenterTrimmed);
-			/*
-			 * Find all nearby agents. Set the grid to zero if an agent is
-			 * within the grid's sphere
-			 */
-			box = this._gridSphere.boundingBox(this._agents.getShape());
-			neighbors = this._agents.treeSearch(box);
-			for ( Agent a : neighbors )
-				for (Surface s : (List<Surface>) ((Body) a.get(AspectRef.agentBody)).getSurfaces())
-					if ( this._gridSphere.distanceTo(s) < 0.0 )
-						{
-							grid.setValueAt(WELLMIXED, coords, 
-									WellMixedConstants.NOT_MIXED);
-							break;
-						}
+			int[] coords = aShape.resetIterator();
+			BoundingBox box = new BoundingBox();
+			List<Agent> neighbors;
+			while ( aShape.isIteratorValid() )
+			{
+				double[] voxelOrigin = aShape.getVoxelOrigin(coords);
+				double[] voxelUpper = aShape.getVoxelUpperCorner(coords);
+				box.get(voxelOrigin, voxelUpper);
+				neighbors = this._agents.treeSearch(box);
+				if (neighbors.size() > 0)
+				{
+					grid.setValueAt(WELLMIXED, coords, 
+							WellMixedConstants.NOT_MIXED);
+				}
 			coords = aShape.iteratorNext();
+			}
+			
+			
+		}
+		
+		else
+		{
+			int[] coords = aShape.resetIterator();
+			double[] voxelCenter = aShape.getVoxelCentre(coords);
+			double[] voxelCenterTrimmed = Vector.zerosDbl(numDim);
+			List<Agent> neighbors;
+			BoundingBox box;
+			while ( aShape.isIteratorValid() )
+			{
+				aShape.voxelCentreTo(voxelCenter, coords);
+				Vector.copyTo(voxelCenterTrimmed, voxelCenter);
+				this._gridSphere.setCenter(voxelCenterTrimmed);
+				/*
+				 * Find all nearby agents. Set the grid to zero if an agent is
+				 * within the grid's sphere
+				 */
+				box = this._gridSphere.boundingBox(this._agents.getShape());
+				neighbors = this._agents.treeSearch(box);
+				for ( Agent a : neighbors )
+					for (Surface s : (List<Surface>) ((Body) a.get(AspectRef.agentBody)).getSurfaces())
+						if ( this._gridSphere.distanceTo(s) < 0.0 )
+							{
+								grid.setValueAt(WELLMIXED, coords, 
+										WellMixedConstants.NOT_MIXED);
+								break;
+							}
+				coords = aShape.iteratorNext();
+			}
 		}
 	}
 

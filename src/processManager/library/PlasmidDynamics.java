@@ -49,7 +49,6 @@ public class PlasmidDynamics extends ProcessManager {
 	public String PLASMID = AspectRef.plasmidList;
 	public String FITNESS_COST = AspectRef.agentFitnessCost;
 	public String BODY = AspectRef.agentBody;
-	public String PIGMENT = AspectRef.agentPigment;
 	public String PLASMID_LOSS = AspectRef.agentPlasmidLoss;
 	
 	/**

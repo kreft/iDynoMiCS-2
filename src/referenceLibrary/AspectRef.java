@@ -352,6 +352,21 @@ public class AspectRef
 	 * TODO
 	 */
 	public final static String agentPigment = "pigment";
+	
+	/**
+	 * TODO
+	 */
+	public final static String redComponent = "redComponent";
+	
+	/**
+	 * TODO
+	 */
+	public final static String greenComponent = "greenComponent";
+	
+	/**
+	 * TODO
+	 */
+	public final static String blueComponent = "blueComponent";
 
 	/**
 	 * TODO
@@ -510,6 +525,12 @@ public class AspectRef
 	 * 
 	 */
 	public static final String regionDepth = "regionDepth";
+
+	/**
+	 * Maximum thickness of a biofilm.
+	 * 
+	 */
+	public static final String maxThickness = "maxThickness";
 
 	/**
 	 * Increase speed of agent relaxation by scaling to object with highest
