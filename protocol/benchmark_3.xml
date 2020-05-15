@@ -166,7 +166,7 @@
 					</aspect>
 				</templateAgent>
 			</spawn>
-			<spawn class="randomSpawner" domain="360.0, 40.0" priority="0" number="10" morphology="COCCOID">
+			<spawn class="randomSpawner" domain="320.0, 40.0" priority="0" number="10" morphology="COCCOID">
 				<templateAgent>
 					<aspect name="species" type="PRIMARY" class="String" value="autotroph" />
 					<aspect  name="massMap" class="InstantiableMap">
@@ -183,7 +183,7 @@
 					firstStep="0.0"  		timerStepSize="6.0">
 					<!-- µm -->
 					<aspect name="maxMovement" 		type="PRIMARY" class="Double" value="0.5" />
-					<aspect name="relaxationMethod" type="PRIMARY" class="String" value="SHOVE" />
+					<aspect name="relaxationMethod" type="PRIMARY" class="String" value="EULER" />
 					<aspect name="stressThreshold" type="PRIMARY" class="Double" value="1000.0" />
 				</process>
 				<!-- minute -->
