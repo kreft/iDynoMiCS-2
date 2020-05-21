@@ -1,9 +1,13 @@
 package dataIO;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URLDecoder;
 import java.security.CodeSource;
 import java.util.Collection;
@@ -13,13 +17,31 @@ import java.util.List;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMResult;
+import javax.xml.transform.sax.SAXSource;
+import javax.xml.transform.stream.StreamResult;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
+
+import com.siemens.ct.exi.core.CodingMode;
+import com.siemens.ct.exi.core.EXIFactory;
+import com.siemens.ct.exi.core.FidelityOptions;
+import com.siemens.ct.exi.core.exceptions.EXIException;
+import com.siemens.ct.exi.core.grammars.Grammars;
+import com.siemens.ct.exi.core.helpers.DefaultEXIFactory;
+import com.siemens.ct.exi.grammars.GrammarFactory;
+import com.siemens.ct.exi.main.api.sax.EXIResult;
+import com.siemens.ct.exi.main.api.sax.EXISource;
 
 import dataIO.Log.Tier;
 import expression.Expression;
@@ -57,6 +79,24 @@ public class XmlHandler
 		}
 		
 	}
+	protected static Document decode(XMLReader exiReader, String exiLocation)
+			throws SAXException, IOException, TransformerException {
+
+		TransformerFactory tf = TransformerFactory.newInstance();
+		Transformer transformer = tf.newTransformer();
+
+		InputStream exiIS = new FileInputStream(exiLocation);
+		SAXSource exiSource = new SAXSource(new InputSource(exiIS));
+		exiSource.setXMLReader(exiReader);
+
+		OutputStream os = new ByteArrayOutputStream();
+		Document doc = null;
+		DOMResult result = new DOMResult(doc) ;
+		transformer.transform(exiSource, result);
+		os.close();
+
+		return (Document) result.getNode();
+	}
 	
 	/**
 	 * \brief Returns specified document as xml Element
@@ -71,9 +111,43 @@ public class XmlHandler
 			File fXmlFile = new File(document);
 			DocumentBuilderFactory dbF = DocumentBuilderFactory.newInstance();
 			DocumentBuilder dBuilder = dbF.newDocumentBuilder();
-			Document doc;
+			Document doc = null;
+			if( fXmlFile.getName().contains(".exi") )
+			{
+				EXIFactory factory = DefaultEXIFactory.newInstance();
+
+				factory.setFidelityOptions(FidelityOptions.createDefault());
+				factory.setCodingMode(CodingMode.COMPRESSION);
+				GrammarFactory grammarFactory = GrammarFactory.newInstance();
+				Grammars g = grammarFactory.createSchemaLessGrammars();
+				factory.setGrammars( g );
+				
+				EXIResult exiResult = null;
+				try {
+					exiResult = new EXIResult(factory);
+				} catch (EXIException e3) {
+					// TODO Auto-generated catch block
+					e3.printStackTrace();
+				}
+				SAXSource exiSource = null;
+				try {
+					exiSource = new EXISource(factory);
+				} catch (EXIException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				XMLReader exiReader = exiSource.getXMLReader();
+				try {
+					doc = decode(exiReader, document);
+				} catch (TransformerException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			
+			} else {
 			doc = dBuilder.parse(fXmlFile);
 			doc.getDocumentElement().normalize();
+			}
 			return doc.getDocumentElement();
 		} catch ( ParserConfigurationException | IOException e) {
 			Log.printToScreen("Error while loading: " + document + "\n"
