@@ -123,32 +123,10 @@ public class ExiExport
 		EXIResult exiResult = null;
 		try {
 			exiResult = new EXIResult(factory);
-		} catch (EXIException e3) {
-			// TODO Auto-generated catch block
-			e3.printStackTrace();
-		}
-		try {
 			exiResult.setOutputStream(exiOutput);
-		} catch (EXIException e2) {
-			// TODO Auto-generated catch block
-			e2.printStackTrace();
-		} catch (IOException e2) {
-			// TODO Auto-generated catch block
-			e2.printStackTrace();
-		}
-
-		try {
 			encode(exiResult.getHandler());
-		} catch (SAXException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		try {
 			exiOutput.close();
-		} catch (IOException e) {
+		} catch (EXIException|IOException|SAXException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
