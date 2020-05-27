@@ -162,7 +162,7 @@ public final class ExiTesting {
 		 */
 		if (args.length == 0) 
 			args = new String[] { 
-					"C:/Users/gebruiker/git/iDynoMiCS-2/protocol/benchmark3_2732.xml", 
+					"C:/Users/gebruiker/git/iDynoMiCS-2/protocol/test.xml", 
 					"C:/Users/gebruiker/git/iDynoMiCS-2/protocol.xsd",
 					"1" };
 			
