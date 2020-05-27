@@ -1,4 +1,4 @@
-package dataIO;
+package test.other;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;

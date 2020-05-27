@@ -97,8 +97,6 @@ public class XmlExport
 	{
 		this._xmlFile.write(XML_FOOTER);
 		this._xmlFile.flushAll();
-		if( this._exiEncoding )
-			this._xmlFile.encode();
 		this._xmlFile.fclose();
 		this._fileCounter++;
 	}

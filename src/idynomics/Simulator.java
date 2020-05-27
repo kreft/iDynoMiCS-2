@@ -13,7 +13,6 @@ import org.w3c.dom.NodeList;
 import agent.SpeciesLib;
 import chemical.ChemicalLib;
 import compartment.Compartment;
-import dataIO.ExiExport;
 import dataIO.Log;
 import dataIO.Log.Tier;
 import dataIO.Report;

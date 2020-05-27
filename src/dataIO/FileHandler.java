@@ -50,7 +50,7 @@ public class FileHandler
 	/**
 	 * 
 	 */
-	private boolean buffer = false;
+	private boolean _encoding = false;
 	
 	/**
 	 * output buffer
@@ -141,7 +141,7 @@ public class FileHandler
 	
 	public void bufferOutput()
 	{
-		this.buffer = true;
+		this._encoding = true;
 	}
 
 	/**
@@ -184,7 +184,7 @@ public class FileHandler
 		{
 			if ( file.split("/").length > 1 )
 				this.dir(file, 1);
-			if ( this.buffer )
+			if ( this._encoding )
 			{
 				this._file = file;
 				this.outputBuffer = new StringBuffer();
@@ -240,7 +240,7 @@ public class FileHandler
 	{
 		if ( Global.write_to_disc ) 
 		{
-			if ( this.buffer )
+			if ( this._encoding )
 				outputBuffer.append(text);
 			else
 			{
@@ -263,7 +263,7 @@ public class FileHandler
 	{
 		if ( Global.write_to_disc ) 
 		{
-			if ( this.buffer )
+			if ( this._encoding )
 				outputBuffer.append(c);
 			else
 			{
@@ -284,7 +284,6 @@ public class FileHandler
 	public void encode()
 	{
 		EXIFactory factory = DefaultEXIFactory.newInstance();
-
 		factory.setFidelityOptions(FidelityOptions.createDefault());
 		factory.setCodingMode(CodingMode.COMPRESSION);
 		GrammarFactory grammarFactory = GrammarFactory.newInstance();
@@ -311,6 +310,8 @@ public class FileHandler
 	 */
 	public void fclose()
 	{
+		if( this._encoding )
+			this.encode();
 		if( this._output != null )
 		{
 			try
