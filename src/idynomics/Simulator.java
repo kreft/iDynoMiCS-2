@@ -66,8 +66,6 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 	 */
 	private XmlExport _xmlOut;
 	
-	private ExiExport _exiOut;
-	
 	private long _timeSpentOnXmlOutput = 0;
 	
 	private int _outputTicker = 0;
@@ -89,8 +87,7 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 		if( ExtraMath.random == null )
     		ExtraMath.initialiseRandomNumberGenerator();
 		this.timer = new Timer();
-		this._xmlOut = new XmlExport();
-		this._exiOut = new ExiExport();
+		this._xmlOut = new XmlExport(Global.output_compression);
 	}
 	
 	public void deleteFromCompartment(String name, Object object)
@@ -334,8 +331,7 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 			this._outputTicker++;
 		else
 		{
-//			this._xmlOut.writeFile();
-			this._exiOut.writeFile();
+			this._xmlOut.writeFile();
 			this._outputTicker = 0;
 		}
 

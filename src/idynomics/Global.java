@@ -151,6 +151,11 @@ public class Global extends ParameterSet
 	public static boolean write_to_disc = true;
 	
 	/**
+	 * 
+	 */
+	public static boolean output_compression = true;
+	
+	/**
 	 * console font
 	 */
 	public static String console_font = "consolas";

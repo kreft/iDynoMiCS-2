@@ -24,6 +24,11 @@ public class XmlExport
 	protected FileHandler _xmlFile = new FileHandler();
 	
 	/**
+	 * 
+	 */
+	protected boolean _exiEncoding = false;
+	
+	/**
 	 * The minimum number of digits allowed in a file name.
 	 */
 	private final static int NUMBER_OF_DIGITS = 4;
@@ -38,6 +43,16 @@ public class XmlExport
 	 * The final line in any XML document.
 	 */
 	private final static String XML_FOOTER = "</document>\n";
+	
+	public XmlExport(boolean encoding)
+	{
+		this._exiEncoding = encoding;
+	}
+	
+	public XmlExport()
+	{
+		this._exiEncoding = false;
+	}
 	
 	/**
 	 * \brief Formats the file number counter as a string, padding the start
@@ -63,11 +78,16 @@ public class XmlExport
 	 */
 	public void newXml(String prefix)
 	{
+		if( this._exiEncoding )
+			this._xmlFile.bufferOutput();
 		String fileString = Idynomics.global.outputLocation + prefix + "/" 
-				+ prefix + "_" + this.fileNumberAsPaddedString() + ".xml";
+				+ prefix + "_" + this.fileNumberAsPaddedString() + 
+				(this._exiEncoding ? ".exi" : ".xml");
 		this._xmlFile.fnew(fileString);
 		this._xmlFile.write(XML_HEADER);
 	}
+	
+	
 	
 	/**
 	 * Close the XML file and increment the file number counter for the next
@@ -77,6 +97,8 @@ public class XmlExport
 	{
 		this._xmlFile.write(XML_FOOTER);
 		this._xmlFile.flushAll();
+		if( this._exiEncoding )
+			this._xmlFile.encode();
 		this._xmlFile.fclose();
 		this._fileCounter++;
 	}

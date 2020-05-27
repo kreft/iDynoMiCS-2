@@ -2,11 +2,28 @@ package dataIO;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
+
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
+import org.xml.sax.helpers.XMLReaderFactory;
+
+import com.siemens.ct.exi.core.CodingMode;
+import com.siemens.ct.exi.core.EXIFactory;
+import com.siemens.ct.exi.core.FidelityOptions;
+import com.siemens.ct.exi.core.exceptions.EXIException;
+import com.siemens.ct.exi.core.grammars.Grammars;
+import com.siemens.ct.exi.core.helpers.DefaultEXIFactory;
+import com.siemens.ct.exi.grammars.GrammarFactory;
+import com.siemens.ct.exi.main.api.sax.EXIResult;
 
 import dataIO.Log.Tier;
 import idynomics.Global;
@@ -24,6 +41,21 @@ public class FileHandler
 	 * The file output stream.
 	 */
 	private BufferedWriter _output;
+	
+	/**
+	 * 
+	 */
+	private String _file;
+	
+	/**
+	 * 
+	 */
+	private boolean buffer = false;
+	
+	/**
+	 * output buffer
+	 */
+	private StringBuffer outputBuffer;
 
 	/**
 	 * TODO Intended usage: giving files in a series unique and sequential
@@ -106,6 +138,11 @@ public class FileHandler
 		}
 		return result;
 	}
+	
+	public void bufferOutput()
+	{
+		this.buffer = true;
+	}
 
 	/**
 	 * opens file
@@ -147,17 +184,25 @@ public class FileHandler
 		{
 			if ( file.split("/").length > 1 )
 				this.dir(file, 1);
-			try
+			if ( this.buffer )
 			{
-				File f = new File(file);
-				FileWriter fstream = new FileWriter(f, true);
-				this._output = new BufferedWriter(fstream);
-				if( Log.shouldWrite(Tier.EXPRESSIVE) )
-					Log.out(Tier.EXPRESSIVE, "New file: " + file);
+				this._file = file;
+				this.outputBuffer = new StringBuffer();
 			}
-			catch (IOException e)
+			else
 			{
-				Log.printToScreen(e.toString(), false);
+				try
+				{
+					File f = new File(file);
+					FileWriter fstream = new FileWriter(f, true);
+					this._output = new BufferedWriter(fstream);
+					if( Log.shouldWrite(Tier.EXPRESSIVE) )
+						Log.out(Tier.EXPRESSIVE, "New file: " + file);
+				}
+				catch (IOException e)
+				{
+					Log.printToScreen(e.toString(), false);
+				}
 			}
 		}
 	}
@@ -195,16 +240,21 @@ public class FileHandler
 	{
 		if ( Global.write_to_disc ) 
 		{
-			try
+			if ( this.buffer )
+				outputBuffer.append(text);
+			else
 			{
-				this._output.write(text);
-				if ( this._flushAll )
-					this._output.flush();
-			}
-			catch (IOException e)
-			{
-				Log.printToScreen(e.toString(), false);
-				Log.printToScreen("skipped line: " + text, false);
+				try
+				{
+					this._output.write(text);
+					if ( this._flushAll )
+						this._output.flush();
+				}
+				catch (IOException e)
+				{
+					Log.printToScreen(e.toString(), false);
+					Log.printToScreen("skipped line: " + text, false);
+				}
 			}
 		}
 	}
@@ -213,16 +263,46 @@ public class FileHandler
 	{
 		if ( Global.write_to_disc ) 
 		{
-			try
+			if ( this.buffer )
+				outputBuffer.append(c);
+			else
 			{
-				this._output.write(c);
-				if ( this._flushAll )
-					this._output.flush();
+				try
+				{
+					this._output.write(c);
+					if ( this._flushAll )
+						this._output.flush();
+				}
+				catch (IOException e)
+				{
+					Log.printToScreen(e.toString(), false);
+				}
 			}
-			catch (IOException e)
-			{
-				Log.printToScreen(e.toString(), false);
-			}
+		}
+	}
+	
+	public void encode()
+	{
+		EXIFactory factory = DefaultEXIFactory.newInstance();
+
+		factory.setFidelityOptions(FidelityOptions.createDefault());
+		factory.setCodingMode(CodingMode.COMPRESSION);
+		GrammarFactory grammarFactory = GrammarFactory.newInstance();
+		Grammars g = grammarFactory.createSchemaLessGrammars();
+		factory.setGrammars( g );
+				
+		try {
+			EXIResult exiResult = new EXIResult(factory);
+			OutputStream exiOutput = new FileOutputStream(this._file);
+			exiResult.setOutputStream(exiOutput);
+			XMLReader xmlReader = XMLReaderFactory.createXMLReader();
+			xmlReader.setContentHandler(exiResult.getHandler());
+			xmlReader.parse(new InputSource(new ByteArrayInputStream( 
+					outputBuffer.toString().getBytes() ) ) );
+			exiOutput.close();
+		} catch (EXIException|IOException|SAXException e) {
+			Log.out(this.getClass().getSimpleName() + " encountered error.");
+			e.printStackTrace();
 		}
 	}
 

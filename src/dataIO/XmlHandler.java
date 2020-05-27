@@ -112,6 +112,7 @@ public class XmlHandler
 			DocumentBuilderFactory dbF = DocumentBuilderFactory.newInstance();
 			DocumentBuilder dBuilder = dbF.newDocumentBuilder();
 			Document doc = null;
+			
 			if( fXmlFile.getName().contains(".exi") )
 			{
 				EXIFactory factory = DefaultEXIFactory.newInstance();
@@ -121,25 +122,11 @@ public class XmlHandler
 				GrammarFactory grammarFactory = GrammarFactory.newInstance();
 				Grammars g = grammarFactory.createSchemaLessGrammars();
 				factory.setGrammars( g );
-				
-				EXIResult exiResult = null;
 				try {
-					exiResult = new EXIResult(factory);
-				} catch (EXIException e3) {
-					// TODO Auto-generated catch block
-					e3.printStackTrace();
-				}
-				SAXSource exiSource = null;
-				try {
-					exiSource = new EXISource(factory);
-				} catch (EXIException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				XMLReader exiReader = exiSource.getXMLReader();
-				try {
+					SAXSource exiSource = new EXISource(factory);
+					XMLReader exiReader = exiSource.getXMLReader();
 					doc = decode(exiReader, document);
-				} catch (TransformerException e) {
+				} catch (EXIException | TransformerException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}

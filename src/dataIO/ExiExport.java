@@ -1,6 +1,5 @@
 package dataIO;
 
-import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -28,7 +27,6 @@ import idynomics.Idynomics;
  * Writes the model state to XML files, automatic number increment
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
- * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
  * 
  * NOTE for compression look into Fast Infoset
  *
