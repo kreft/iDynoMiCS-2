@@ -15,6 +15,7 @@ import dataIO.Log.Tier;
 public class AspectRef
 {
 
+
 	public static String[] getAllOptions()
 	{
 		Field[] fields = AspectRef.class.getFields();
@@ -552,6 +553,10 @@ public class AspectRef
 	public static final String collisionFunction = "collisionFunction";
 
 	public static final String attractionFunction = "attractionFunction";
+	
+	public static final String agentDecompression = "agentDecompression";
 
+	public static final String decompressionCellLength = "decompressionCellLength";
 
+	public static final String decompressionThreshold = "decompressionThreshold";
 }

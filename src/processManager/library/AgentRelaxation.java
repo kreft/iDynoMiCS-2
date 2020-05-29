@@ -72,6 +72,10 @@ public class AgentRelaxation extends ProcessManager
 	
 	public String SPINE_FUNCTION = AspectRef.genreicSpineFunction;
 	
+	public String DECOMPRESSION = AspectRef.agentDecompression;
+	public String DECOMPRESSION_CELL_LENGTH = AspectRef.decompressionCellLength;
+	private String DECOMPRESSION_THRESHOLD = AspectRef.decompressionThreshold;
+	
 	
 	/**
 	 * Available relaxation methods.
@@ -179,7 +183,11 @@ public class AgentRelaxation extends ProcessManager
 	private Expression _spineFunction = 
 			new Expression( "stiffness * ( dh + SIGN(dh) * dh * dh * 100.0 )" );
 	
-	public Decompress decompressionMatrix;
+	private Boolean _decompression;
+	
+	private Decompress decompressionMatrix;
+
+
 	
 	/* ************************************************************************
 	 * Initiation
@@ -247,8 +255,19 @@ public class AgentRelaxation extends ProcessManager
 		if ( ! Helper.isNullOrEmpty( this.getValue(SPINE_FUNCTION) ) )
 			this._spineFunction = (Expression) this.getValue(SPINE_FUNCTION);
 		
-		decompressionMatrix = 
-				new Decompress(this._agents.getShape().getDimensionLengths(), 1.0);
+		/* Include decompression */
+		this._decompression = Helper.setIfNone( this.getBoolean(DECOMPRESSION), 
+				false);
+		
+
+		if ( this._decompression )
+			decompressionMatrix = new Decompress( 
+					this._agents.getShape().getDimensionLengths(), 
+					Helper.setIfNone(this.getDouble(DECOMPRESSION_CELL_LENGTH), //possibly change to must set since very depended on case.
+					2.0 ), Helper.setIfNone(this.getDouble(DECOMPRESSION_THRESHOLD), 
+					this._stressThreshold ), 
+					this._agents.getShape().getIsCyclicNaturalOrderIncludingVirtual());
+		
 	}
 
 	/* ************************************************************************
@@ -289,7 +308,8 @@ public class AgentRelaxation extends ProcessManager
 		{	
 			this._agents.refreshSpatialRegistry();
 			this.updateForces( this._agents );
-			decompressionMatrix.buildDirectionMatrix();
+			if ( this._decompression )
+				decompressionMatrix.buildDirectionMatrix();
 			
 			/* adjust step size unless static step size is forced */
 			if( !this._dtStatic || this._method == Method.SHOVE )
@@ -454,22 +474,25 @@ public class AgentRelaxation extends ProcessManager
 			{
 				this._iterator.collision(p.getSurface(), p, agentSurfs, agent, 0.0);
 			}
-			/*
-			 * TODO friction
-			 * FIXME here we need to selectively apply surface collision methods
-			 */
-			this._iterator.collision(this._shapeSurfs, null, agentSurfs, agent, 0.0);
+			
 			
 			/* NOTE: testing purposes only */
 			if (this._gravity)
 				gravityEvaluation(agent, body);
 			
-			for( Point p : ((Body) agent.get(BODY)).getPoints())
-			{
-				decompressionMatrix.addPressure(
-						p.getPosition(), Vector.normEuclid(p.getForce()));
-				p.addToForce(decompressionMatrix.getDirection(p.getPosition()));
-			}
+			/*
+			 * TODO friction
+			 * FIXME here we need to selectively apply surface collision methods
+			 */
+			this._iterator.collision(this._shapeSurfs, null, agentSurfs, agent, 0.0);
+
+			if ( this._decompression )
+				for( Point p : ((Body) agent.get(BODY)).getPoints())
+				{
+					decompressionMatrix.addPressure(
+							p.getPosition(), Vector.normEuclid(p.getForce()));
+					p.addToForce(decompressionMatrix.getDirection(p.getPosition()));
+				}
 			
 		}
 	}

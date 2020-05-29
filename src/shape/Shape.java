@@ -465,6 +465,19 @@ public abstract class Shape implements
 		return dims;
 	}
 	
+	/*
+	 * returns an array of booleans that indicate whether the dimensions are
+	 * periodic in their natural order.
+	 */
+	public boolean[] getIsCyclicNaturalOrderIncludingVirtual()
+	{
+		boolean[] dims = new boolean[3];
+		int i = 0;
+		for (Dimension d : this.getSignificantDimensions())
+			dims[i++] = d.isCyclic();
+		return dims;
+	}
+	
 	/**
 	 * \brief Make the given dimension cyclic.
 	 * 

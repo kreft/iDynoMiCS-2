@@ -281,7 +281,7 @@ public class Global extends ParameterSet
 	 * files that use the old function, this should be 1 for all new protocol
 	 * files and should be removed as soon as all protocols have been updated.
 	 */
-	public static double agent_stress_scaling = 100000;
+	public static double agent_stress_scaling = 1;
 	
 	/**
 	 * pass additional collision variables (required for more advanced collision
