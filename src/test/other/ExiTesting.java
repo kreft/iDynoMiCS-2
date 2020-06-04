@@ -53,20 +53,24 @@ public final class ExiTesting {
 			xmlName = xmlFile.getName();
 			// xsd
 			xsdLocation = args[1];
-			File xsdFile = new File(xsdLocation);
+//			File xsdFile = new File(xsdLocation);
 
 			// number of runs
 			if (args.length == 3) {
 				NUMBER_OF_RUNS = Integer.parseInt(args[2]);
 			}
 
-			if (xmlFile.exists() && xsdFile.exists()) {
-				// output path
-				File outputDir = new File(OUTPUT_FOLDER);
-				outputDir.mkdirs();
-
-				return;
-			}
+//			if (xmlFile.exists() && xsdFile.exists()) {
+//				// output path
+//				File outputDir = new File(OUTPUT_FOLDER);
+//				outputDir.mkdirs();
+//
+//				return;
+//			}
+			
+			File outputDir = new File(OUTPUT_FOLDER);
+			outputDir.mkdirs();
+			return;
 		}
 
 		throw new IllegalArgumentException("Input files not valid!");
