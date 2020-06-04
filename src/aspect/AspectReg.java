@@ -6,8 +6,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import analysis.FilterLogic;
-import analysis.filter.Filter;
 import aspect.Aspect.AspectClass;
 import dataIO.Log;
 import dataIO.Log.Tier;
