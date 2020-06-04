@@ -326,4 +326,10 @@ public class Global extends ParameterSet
 	 * {@Link SplitTree} atomic length, the smallest length scale for leafnodes
 	 */
 	public static double atomic_length = 0.05;
+	
+	/**
+	 * {@Link Decompress} fraction of local stress traversing outwards in
+	 * decompression algorithm
+	 */
+	public static double traversing_fraction = 0.02;
 }

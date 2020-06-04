@@ -1,5 +1,6 @@
 package surface.collision;
 
+import idynomics.Global;
 import linearAlgebra.Vector;
 
 public class Decompress {
@@ -12,7 +13,7 @@ public class Decompress {
 	public double thresholdHigh;
 	public int[] maxima;
 	public boolean[] _periodicDimensions;
-	public double traversingFraction = 0.02;
+	public double traversingFraction = Global.traversing_fraction;
 	
 	public Decompress(double[] max, double targetResolution, double threshold,
 			boolean[] periodicDimensions)
