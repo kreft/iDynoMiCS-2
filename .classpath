@@ -27,6 +27,8 @@
 			<attribute name="javadoc_location" value="http://jogamp.org/deployment/jogamp-next/javadoc/jogl/javadoc/"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="src/lib/exificient-core.jar"/>
+	<classpathentry kind="lib" path="src/lib/exificient-1.0.4.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
