@@ -1,6 +1,5 @@
 package test.other;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -8,7 +7,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import javax.xml.namespace.QName;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
@@ -22,16 +20,17 @@ import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLReaderFactory;
 
 import com.siemens.ct.exi.core.CodingMode;
-import com.siemens.ct.exi.core.EXIBodyEncoder;
 import com.siemens.ct.exi.core.EXIFactory;
-import com.siemens.ct.exi.core.EncodingOptions;
 import com.siemens.ct.exi.core.FidelityOptions;
-import com.siemens.ct.exi.core.grammars.Grammars;
+import com.siemens.ct.exi.core.grammars.SchemaLessGrammars;
 import com.siemens.ct.exi.core.helpers.DefaultEXIFactory;
-import com.siemens.ct.exi.grammars.GrammarFactory;
 import com.siemens.ct.exi.main.api.sax.EXIResult;
 import com.siemens.ct.exi.main.api.sax.EXISource;
 
+/**
+ * Note schemed test with xsd scheme disabled due to dependency on library with
+ * some compatibility problems (exificient-gui).
+ */
 public final class ExiTesting {
 
 	static final String OUTPUT_FOLDER = "./sample-out/";
@@ -91,8 +90,8 @@ public final class ExiTesting {
 
 		factory.setFidelityOptions(FidelityOptions.createDefault());
 		factory.setCodingMode(CodingMode.COMPRESSION);
-		GrammarFactory grammarFactory = GrammarFactory.newInstance();
-		Grammars g = grammarFactory.createSchemaLessGrammars();
+
+		SchemaLessGrammars g = new SchemaLessGrammars();
 		factory.setGrammars( g );
 		
 		EXIResult exiResult = new EXIResult(factory);
@@ -107,31 +106,32 @@ public final class ExiTesting {
 		decode(exiReader, exiLocation);
 	}
 
-	protected void codeSchemaInformed() throws Exception {
-		String exiLocation = getEXILocation(false);
-
-		// create default factory and EXI grammar for schema
-		EXIFactory exiFactory = DefaultEXIFactory.newInstance();
-		exiFactory.setCodingMode(CodingMode.COMPRESSION);
-		EncodingOptions encodingOptions = exiFactory.getEncodingOptions();
-		encodingOptions.setOption("DEFLATE_COMPRESSION_VALUE", 9);
-		exiFactory.setEncodingOptions(encodingOptions);
-		GrammarFactory grammarFactory = GrammarFactory.newInstance();
-		Grammars g = grammarFactory.createGrammars(xsdLocation);
-		exiFactory.setGrammars(g);
-		
-		// encode
-		OutputStream exiOS = new FileOutputStream(exiLocation);
-		EXIResult exiResult = new EXIResult(exiFactory);
-		exiResult.setOutputStream(exiOS);
-		encode(exiResult.getHandler());
-		exiOS.close();
-
-		// decode
-		EXISource saxSource = new EXISource(exiFactory);
-		XMLReader xmlReader = saxSource.getXMLReader();
-		decode(xmlReader, exiLocation);
-	}
+//	protected void codeSchemaInformed() throws Exception {
+//		String exiLocation = getEXILocation(false);
+//
+//		// create default factory and EXI grammar for schema
+//		EXIFactory exiFactory = DefaultEXIFactory.newInstance();
+//		exiFactory.setCodingMode(CodingMode.COMPRESSION);
+//		EncodingOptions encodingOptions = exiFactory.getEncodingOptions();
+//		encodingOptions.setOption("DEFLATE_COMPRESSION_VALUE", 9);
+//		exiFactory.setEncodingOptions(encodingOptions);
+//		
+//		GrammarFactory grammarFactory = GrammarFactory.newInstance();
+//		Grammars g = grammarFactory.createGrammars(xsdLocation);
+//		exiFactory.setGrammars(g);
+//		
+//		// encode
+//		OutputStream exiOS = new FileOutputStream(exiLocation);
+//		EXIResult exiResult = new EXIResult(exiFactory);
+//		exiResult.setOutputStream(exiOS);
+//		encode(exiResult.getHandler());
+//		exiOS.close();
+//
+//		// decode
+//		EXISource saxSource = new EXISource(exiFactory);
+//		XMLReader xmlReader = saxSource.getXMLReader();
+//		decode(xmlReader, exiLocation);
+//	}
 
 	protected void encode(ContentHandler ch) throws SAXException, IOException {
 		XMLReader xmlReader = XMLReaderFactory.createXMLReader();
@@ -181,17 +181,17 @@ public final class ExiTesting {
 			System.out.println("\t" + " <-- " + sample.getEXILocation(true)
 					+ XML_EXTENSION);
 
-			// schema-informed
-			for (int i = 0; i < NUMBER_OF_RUNS; i++) {
-				sample.codeSchemaInformed();
-				System.out.print(". ");
-			}
-			System.out.println();
-			System.out.println("# SchemaInformed - " + NUMBER_OF_RUNS
-					+ " run(s)");
-			System.out.println("\t" + " --> " + sample.getEXILocation(false));
-			System.out.println("\t" + " <-- " + sample.getEXILocation(false)
-					+ XML_EXTENSION);
+//			// schema-informed
+//			for (int i = 0; i < NUMBER_OF_RUNS; i++) {
+//				sample.codeSchemaInformed();
+//				System.out.print(". ");
+//			}
+//			System.out.println();
+//			System.out.println("# SchemaInformed - " + NUMBER_OF_RUNS
+//					+ " run(s)");
+//			System.out.println("\t" + " --> " + sample.getEXILocation(false));
+//			System.out.println("\t" + " <-- " + sample.getEXILocation(false)
+//					+ XML_EXTENSION);
 
 	}
 

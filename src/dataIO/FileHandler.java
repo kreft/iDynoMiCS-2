@@ -18,12 +18,10 @@ import org.xml.sax.helpers.XMLReaderFactory;
 
 import com.siemens.ct.exi.core.CodingMode;
 import com.siemens.ct.exi.core.EXIFactory;
-import com.siemens.ct.exi.core.EncodingOptions;
 import com.siemens.ct.exi.core.FidelityOptions;
 import com.siemens.ct.exi.core.exceptions.EXIException;
-import com.siemens.ct.exi.core.grammars.Grammars;
+import com.siemens.ct.exi.core.grammars.SchemaLessGrammars;
 import com.siemens.ct.exi.core.helpers.DefaultEXIFactory;
-import com.siemens.ct.exi.grammars.GrammarFactory;
 import com.siemens.ct.exi.main.api.sax.EXIResult;
 
 import dataIO.Log.Tier;
@@ -293,9 +291,8 @@ public class FileHandler
 		EncodingOptions encodingOptions = factory.getEncodingOptions();
 		encodingOptions.setOption("DEFLATE_COMPRESSION_VALUE", 9);
 		 */
-		GrammarFactory grammarFactory = GrammarFactory.newInstance();
-		Grammars g = grammarFactory.createSchemaLessGrammars();
-		factory.setGrammars( g );
+		SchemaLessGrammars grammer = new SchemaLessGrammars();
+		factory.setGrammars( grammer );
 				
 		try {
 			EXIResult exiResult = new EXIResult(factory);

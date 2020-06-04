@@ -38,9 +38,8 @@ import com.siemens.ct.exi.core.EXIFactory;
 import com.siemens.ct.exi.core.FidelityOptions;
 import com.siemens.ct.exi.core.exceptions.EXIException;
 import com.siemens.ct.exi.core.grammars.Grammars;
+import com.siemens.ct.exi.core.grammars.SchemaLessGrammars;
 import com.siemens.ct.exi.core.helpers.DefaultEXIFactory;
-import com.siemens.ct.exi.grammars.GrammarFactory;
-import com.siemens.ct.exi.main.api.sax.EXIResult;
 import com.siemens.ct.exi.main.api.sax.EXISource;
 
 import dataIO.Log.Tier;
@@ -119,9 +118,8 @@ public class XmlHandler
 
 				factory.setFidelityOptions(FidelityOptions.createDefault());
 				factory.setCodingMode(CodingMode.COMPRESSION);
-				GrammarFactory grammarFactory = GrammarFactory.newInstance();
-				Grammars g = grammarFactory.createSchemaLessGrammars();
-				factory.setGrammars( g );
+				SchemaLessGrammars grammer = new SchemaLessGrammars();
+				factory.setGrammars( grammer );
 				try {
 					SAXSource exiSource = new EXISource(factory);
 					XMLReader exiReader = exiSource.getXMLReader();
