@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import analysis.FilterLogic;
+import analysis.filter.Filter;
 import aspect.Aspect.AspectClass;
 import dataIO.Log;
 import dataIO.Log.Tier;
@@ -32,6 +34,11 @@ public class AspectReg
 	 * 
 	 */
 	protected String _identity;
+	
+	/**
+	 * nested value delimiter
+	 */
+	protected String DELIMITER = "@";
 	
 	/**
 	 * The _aspects HashMap stores all aspects (primary, secondary states and 
@@ -227,12 +234,31 @@ public class AspectReg
 	/**
 	 * get value if the aspect is a primary or calculated state
 	 */
+	@SuppressWarnings("unchecked")
 	public Object getValue( AspectInterface rootRegistry, String key )
 	{
+		/*
+		 * NOTE will result in crash for Maps with non-string keys
+		 */
+		if( key.contains(DELIMITER))
+		{
+			String[] keys = key.split( DELIMITER );
+			key = keys[1];
+			String nested = keys[0];
+			Aspect a = getAspect(key);
+			if ( a == null )
+				return null;
+			if( a.aspect instanceof Map<?, ?> )
+				return ((Map<String, Object>) a.aspect).get(nested);
+			else if( a.aspect instanceof List<?> )
+				return ((List<Object>) a.aspect).get(Integer.valueOf(nested));
+			return null;
+		}
+		
 		Aspect a = getAspect(key);
-
 		if ( a == null )
 			return null;
+
 		switch (a.type)
 		{
 		case PRIMARY: return a.aspect;
