@@ -15,6 +15,7 @@ import dataIO.Log.Tier;
 import expression.Expression;
 import idynomics.Global;
 import idynomics.Idynomics;
+import linearAlgebra.Array;
 import linearAlgebra.Vector;
 import physicalObject.PhysicalObject;
 import processManager.ProcessManager;
@@ -24,6 +25,7 @@ import surface.Point;
 import surface.Rod;
 import surface.Surface;
 import surface.collision.Collision;
+import surface.collision.Decompress;
 import utility.Helper;
 
 /**
@@ -69,6 +71,10 @@ public class AgentRelaxation extends ProcessManager
 	public String STIFFNESS = AspectRef.spineStiffness;
 	
 	public String SPINE_FUNCTION = AspectRef.genreicSpineFunction;
+	
+	public String DECOMPRESSION = AspectRef.agentDecompression;
+	public String DECOMPRESSION_CELL_LENGTH = AspectRef.decompressionCellLength;
+	private String DECOMPRESSION_THRESHOLD = AspectRef.decompressionThreshold;
 	
 	
 	/**
@@ -177,6 +183,12 @@ public class AgentRelaxation extends ProcessManager
 	private Expression _spineFunction = 
 			new Expression( "stiffness * ( dh + SIGN(dh) * dh * dh * 100.0 )" );
 	
+	private Boolean _decompression;
+	
+	private Decompress decompressionMatrix;
+
+
+	
 	/* ************************************************************************
 	 * Initiation
 	 * ***********************************************************************/
@@ -242,6 +254,20 @@ public class AgentRelaxation extends ProcessManager
 		 * is used. */
 		if ( ! Helper.isNullOrEmpty( this.getValue(SPINE_FUNCTION) ) )
 			this._spineFunction = (Expression) this.getValue(SPINE_FUNCTION);
+		
+		/* Include decompression */
+		this._decompression = Helper.setIfNone( this.getBoolean(DECOMPRESSION), 
+				false);
+		
+
+		if ( this._decompression )
+			decompressionMatrix = new Decompress( 
+					this._agents.getShape().getDimensionLengths(), 
+					Helper.setIfNone(this.getDouble(DECOMPRESSION_CELL_LENGTH), //possibly change to must set since very depended on case.
+					2.0 ), Helper.setIfNone(this.getDouble(DECOMPRESSION_THRESHOLD), 
+					this._stressThreshold ), 
+					this._agents.getShape().getIsCyclicNaturalOrderIncludingVirtual());
+		
 	}
 
 	/* ************************************************************************
@@ -265,7 +291,7 @@ public class AgentRelaxation extends ProcessManager
 		double st;
 		/* All located agents in this compartment */
 		Collection<Agent> allAgents = this._agents.getAllLocatedAgents();
-		
+
 		/* if higher order ODE solvers are used we need additional space to 
 		 * write. */
 		switch ( _method )
@@ -282,6 +308,8 @@ public class AgentRelaxation extends ProcessManager
 		{	
 			this._agents.refreshSpatialRegistry();
 			this.updateForces( this._agents );
+			if ( this._decompression )
+				decompressionMatrix.buildDirectionMatrix();
 			
 			/* adjust step size unless static step size is forced */
 			if( !this._dtStatic || this._method == Method.SHOVE )
@@ -446,15 +474,26 @@ public class AgentRelaxation extends ProcessManager
 			{
 				this._iterator.collision(p.getSurface(), p, agentSurfs, agent, 0.0);
 			}
+			
+			
+			/* NOTE: testing purposes only */
+			if (this._gravity)
+				gravityEvaluation(agent, body);
+			
 			/*
 			 * TODO friction
 			 * FIXME here we need to selectively apply surface collision methods
 			 */
 			this._iterator.collision(this._shapeSurfs, null, agentSurfs, agent, 0.0);
+
+			if ( this._decompression )
+				for( Point p : ((Body) agent.get(BODY)).getPoints())
+				{
+					decompressionMatrix.addPressure(
+							p.getPosition(), Vector.normEuclid(p.getForce()));
+					p.addToForce(decompressionMatrix.getDirection(p.getPosition()));
+				}
 			
-			/* NOTE: testing purposes only */
-			if (this._gravity)
-				gravityEvaluation(agent, body);
 		}
 	}
 	

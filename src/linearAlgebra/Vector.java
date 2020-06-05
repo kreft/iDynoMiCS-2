@@ -1160,7 +1160,6 @@ public final class Vector
 	 */
 	public static void addTo(double[] destination, double[] a, double[] b)
 	{
-		checkLengths(destination, a, b);
 		for ( int i = 0; i < a.length; i++ ) 
 			destination[i] = a[i] + b[i];
 	}
@@ -3463,4 +3462,17 @@ public final class Vector
 		outerProductTo(out, a, b);
 		return out;
 	}
+
+	public static int[] translate(double[] location, double[] resolution) 
+	{
+		int out[] = new int[3];
+		for(int i = 0; i < resolution.length; i++)
+			if( i < location.length)
+				out[i] = (int) Math.floor(location[i]/resolution[i]);
+			else
+				out[i] = 0;
+		return out;
+	}
+
+
 }
