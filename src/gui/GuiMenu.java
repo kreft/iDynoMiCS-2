@@ -115,6 +115,11 @@ public final class GuiMenu
 				"Sample master protocol file");
 		menu.add(menuItem);
 		
+		menuItem = new JMenuItem(new GuiMenu.PostProcess());
+		menuItem.getAccessibleContext().setAccessibleDescription(
+				"Perform post processing");
+		menu.add(menuItem);
+		
 		/*
 		 * Finally, return the File menu.
 		 */
@@ -275,6 +280,24 @@ public final class GuiMenu
 	    public void actionPerformed(ActionEvent e)
 	    {
 	    	GuiActions.render();
+	    }
+	}
+	
+	public static class PostProcess extends AbstractAction
+	{
+		private static final long serialVersionUID = 2247122248926681550L;
+		
+		/**
+		 * Action for the file open sub-menu.
+		 */
+		public PostProcess()
+		{
+	        super("Post-process");
+		}
+		
+	    public void actionPerformed(ActionEvent e)
+	    {
+	    	GuiActions.postProcess();
 	    }
 	}
 	

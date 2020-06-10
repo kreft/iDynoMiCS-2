@@ -49,6 +49,11 @@ public strictfp class Idynomics
 	public static Simulator simulator;
 	
 	/**
+	 * {@code PostProcess} object: there can only be one. 
+	 */
+	public static PostProcess postProcess;
+	
+	/**
 	 * iDynoMiCS internal unit system.
 	 */
 	final static public Map<SI,GenericTrio<SI, String, Double>> unitSystem = 
@@ -63,6 +68,11 @@ public strictfp class Idynomics
 	 * Simulator thread
 	 */
 	public static Thread simThread;
+	
+	/**
+	 * post-processing thread
+	 */
+	public static Thread postProcessingThread;
 	
 	/**
 	 * Contains all predefined className package association for easy class
@@ -273,6 +283,15 @@ public strictfp class Idynomics
 	{
 		simThread = new Thread(simulator);
 		simThread.start();
+	}
+	
+	/**
+	 * run
+	 */
+	public static void runPostProcess()
+	{
+		postProcessingThread = new Thread(postProcess);
+		postProcessingThread.start();
 	}
 	
 	/**
