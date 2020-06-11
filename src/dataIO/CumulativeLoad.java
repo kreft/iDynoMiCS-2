@@ -1,6 +1,10 @@
 package dataIO;
 
+import java.util.Collection;
+import java.util.List;
+
 import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 import compartment.Compartment;
 import idynomics.Idynomics;
@@ -21,6 +25,17 @@ public class CumulativeLoad {
 	public CumulativeLoad(String xml) 
 	{
 		document = XmlHandler.loadDocument(xml);
+	}
+	
+	public Collection<Element> getProcessNodes()
+	{
+		return XmlHandler.getElements( document ,XmlRef.process );
+	}
+	
+	public String test()
+	{
+		
+		return "";
 	}
 	
 	public void postProcess()

@@ -3,6 +3,8 @@ package idynomics;
 import java.io.File;
 import java.util.List;
 
+import dataIO.CumulativeLoad;
+
 public class PostProcess implements Runnable {
 
 	/**
@@ -14,11 +16,14 @@ public class PostProcess implements Runnable {
 	 * Post processing script
 	 */
 	private File _script;
+	
+	private CumulativeLoad loader;
 
 	public PostProcess(File script, List<File> files)
 	{
 		this._script = script;
 		this._files = files;
+		this.loader = new CumulativeLoad( this._script.getAbsolutePath() );
 	}
 	
 	@Override
