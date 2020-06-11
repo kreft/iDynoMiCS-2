@@ -158,7 +158,7 @@ public class FilteredTable {
 				{
 					if( this.qualification.get(i) == null || 
 							this.qualification.get(i).match( ( a ) ) )
-						out += columns.get(i).stringValue(a, "") 
+						out += columns.get(i).stringValue(a, "%s") 
 								+ (i < columns.size()-1 ? "\t, " : "\n" );
 				}
 			}
