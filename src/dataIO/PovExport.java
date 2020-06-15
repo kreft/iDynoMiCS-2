@@ -83,7 +83,10 @@ public class PovExport implements GraphicalExporter
 		
 	}
 	
-	
+	public void setFileNumber(Integer number)
+	{
+		this._filewriterfilenr = number;
+	}
 	
 	/**
 	 * 

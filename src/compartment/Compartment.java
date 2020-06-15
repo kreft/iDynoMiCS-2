@@ -22,6 +22,7 @@ import grid.SpatialGrid;
 import idynomics.Idynomics;
 import instantiable.Instance;
 import instantiable.Instantiable;
+import instantiable.object.InstantiableList;
 import linearAlgebra.Orientation;
 import linearAlgebra.Vector;
 import physicalObject.PhysicalObject;
@@ -567,6 +568,13 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable, C
 		this.agents.agentsDepart();
 	}
 	
+	public void process(String process)
+	{
+		for ( ProcessManager p : this._processes )
+			if( p.getName().equals(process) )
+				p.step();
+	}
+	
 	/* ***********************************************************************
 	 * PRE-LAUNCH CHECK
 	 * **********************************************************************/
@@ -642,6 +650,7 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable, C
 		modelNode.add( this.environment.getModule() );
 		/* Add the Agents node. */
 		modelNode.add( this.agents.getModule() );
+
 		/* Add the process managers node. */
 		modelNode.add( this.getProcessNode() );
 		

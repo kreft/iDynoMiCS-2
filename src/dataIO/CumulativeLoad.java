@@ -6,10 +6,12 @@ import java.util.List;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
+import aspect.AspectReg;
 import compartment.Compartment;
 import idynomics.Idynomics;
 import instantiable.Instance;
 import processManager.ProcessManager;
+import referenceLibrary.AspectRef;
 import referenceLibrary.XmlRef;
 import utility.Helper;
 
@@ -38,13 +40,19 @@ public class CumulativeLoad {
 		return "";
 	}
 	
-	public void postProcess()
+	public void postProcess(int num)
 	{
 		Compartment comp = null;
 		for ( Element e : XmlHandler.getElements( document, XmlRef.process) )
 		{
-			comp.addProcessManager(
-					(ProcessManager) Instance.getNew(e, comp, (String[])null));
+			String name = XmlHandler.gatherAttribute(e, XmlRef.nameAttribute);
+			String compartment = XmlHandler.gatherAttribute(e.getParentNode(), XmlRef.nameAttribute);
+			comp = Idynomics.simulator.getCompartment(compartment);
+			ProcessManager p = (ProcessManager) Instance.getNew(e, comp, (String[])null);
+			p.set(AspectRef.fileNumber, num);
+			comp.addProcessManager( p );
+			comp.process(name);
+
 		}
 	}
 		

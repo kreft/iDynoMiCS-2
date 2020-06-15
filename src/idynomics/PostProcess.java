@@ -29,9 +29,13 @@ public class PostProcess implements Runnable {
 	@Override
 	public void run() 
 	{
+		int num = 0;
 		for( File f : _files)
 		{
 			Idynomics.setupSimulator( f.getAbsolutePath() );
+			loader.postProcess(num);
+			Idynomics.simulator = new Simulator();
+			num++;
 		}
 	}
 }

@@ -65,7 +65,7 @@ public final class GuiActions
 	{
 		/* Open a FileChooser window in the current directory. */
 		JFileChooser chooser = new JFileChooser("" +
-				System.getProperty("user.dir")+"/protocol");
+				System.getProperty("user.dir")+"/"+relPath);
 		chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 		// TODO Allow the user to select multiple files.
 		chooser.setMultiSelectionEnabled(false);

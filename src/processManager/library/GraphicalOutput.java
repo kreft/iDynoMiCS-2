@@ -128,7 +128,6 @@ public class GraphicalOutput extends ProcessManager
 		str = Helper.obtainIfNone( this.getString(OUTPUT_WRITER), 
 				"output writer", true, this.options() );
 		this._graphics = (GraphicalExporter) Instance.getNew(null, null, str);
-		
 		/* write scene files (used by pov ray) */
 		this._graphics.init( this._prefix, this._shape );
 		
@@ -152,6 +151,8 @@ public class GraphicalOutput extends ProcessManager
 	@Override
 	protected void internalStep()
 	{
+		if ( this.getInt(AspectRef.fileNumber) != null )
+			this._graphics.setFileNumber(this.getInt(AspectRef.fileNumber));
 		/* Initiate new file. */
 		this._graphics.createFile(this._prefix);
 		

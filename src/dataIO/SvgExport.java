@@ -108,6 +108,12 @@ public class SvgExport implements GraphicalExporter
 	 *
 	 */
 	
+
+	public void setFileNumber(Integer number)
+	{
+		this._filewriterfilenr = number;
+	}
+	
 	/**
 	 * 
 	 */

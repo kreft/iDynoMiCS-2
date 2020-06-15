@@ -177,5 +177,7 @@ public interface GraphicalExporter extends Instantiable {
 	}
 
 	public void createCustomFile(String fileName);
+
+	public void setFileNumber(Integer number);
 	
 }
