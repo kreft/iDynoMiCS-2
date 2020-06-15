@@ -626,6 +626,12 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 	{
 		return this._modelNode.getXML();
 	}
+	
+	public void saveSimulationState(String path, boolean exi)
+	{
+		XmlExport xmlOut = new XmlExport(exi);
+		xmlOut.writeFile(path);
+	}
 
 	@Override
 	public void setParent(Settable parent) 
