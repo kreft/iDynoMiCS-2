@@ -282,7 +282,7 @@ public final class GuiActions
 		if( Helper.obtainInput( "Would you like to continue processing " +
 				finalFiles.size() + " files?", false) )
 		{
-			for( File f : files )
+			for( File f : finalFiles )
 			{
 				boolean exi = false;
 				String out = null;
@@ -290,11 +290,11 @@ public final class GuiActions
 				if( path.toLowerCase().contains(".xml"))
 				{
 					exi = true;
-					out = path.toLowerCase().replaceAll(".xml", ".exi");
+					out = path.toLowerCase().replaceAll(".xml", "");
 				} else if( path.toLowerCase().contains(".exi"))
 				{
 					exi = false;
-					out = path.toLowerCase().replaceAll(".exi", ".xml");
+					out = path.toLowerCase().replaceAll(".exi", "");
 				}
 				Idynomics.setupSimulator( f.getAbsolutePath() );
 				Idynomics.simulator.saveSimulationState(out, exi);
