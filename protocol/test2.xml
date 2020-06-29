@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document>
-	<simulation name="test" outputfolder="../results" log="NORMAL" randomSeed="22432423"
+	<simulation name="test" outputfolder="../results" log="EXPRESSIVE" randomSeed="22432423"
 						comment="This is a file for testing purposes only.">
 		
 		<timer stepSize="1.0" endOfSimulation="20.0" />
@@ -85,6 +85,11 @@
 					<aspect name="body" type="PRIMARY" class="Body">
 						<point position="10.2, 20.2" />
 					</aspect>
+					<aspect name="listTest" type="PRIMARY" class="InstantiableList">
+						<list entryClass="Double">
+							<item value="1.0" />
+						</list>
+					</aspect>		
 				</agent>
 				<agent>
 					<aspect name="species" type="PRIMARY" class="String" value="AOB" />
@@ -160,7 +165,7 @@
 				<process name="summary" class="processManager.library.Summary"  priority="2"
 					firstStep="0.0" timerStepSize="0.5">
 					<aspect name="tableSpecification" type="PRIMARY" class="String" 
-					value="0 ~ mass | mass > 0.2, mass > 0.15, mass > 0.1, mass > 0.0 | species = AOB | pigment = RED, pigment = BLUE, pigment = GREEN" />
+					value="0 ~ mass | mass > 0.2, mass > 0.15, mass > 0.1, mass > 0.0 | species = AOB | pigment = RED, pigment = BLUE, pigment = GREEN | bioMass@massMap | 0@listTest" />
 				</process>
 			</processManagers>
 		</compartment>
