@@ -6,6 +6,8 @@ import java.util.Map;
 import agent.Agent;
 import aspect.Aspect;
 import aspect.Aspect.AspectClass;
+import bookkeeper.KeeperEntry.EventType;
+import idynomics.Global;
 import referenceLibrary.AspectRef;
 
 /**
@@ -42,6 +44,12 @@ public class ProcessMethods {
 		if ( mass != null && mass instanceof Double && 
 				agent.getAspectType( AspectRef.agentMass ) == Aspect.AspectClass.PRIMARY)
 		{
+			if( Global.bookkeeping )
+				agent.getCompartment().register(
+						EventType.ODE, 
+						AspectRef.agentMass, 
+						String.valueOf(agent.identity()), 
+						String.valueOf(biomass.get(AspectRef.agentMass)));
 			/**
 			 * NOTE map.remove returns the current associated value and removes
 			 * it from the map
@@ -55,6 +63,12 @@ public class ProcessMethods {
 			Map<String,Double> massMap = (Map<String,Double>) massMapAspect;
 			for ( String key : massMap.keySet() )
 			{
+				if( Global.bookkeeping )
+					agent.getCompartment().register(
+							EventType.ODE, 
+							key, 
+							String.valueOf(agent.identity()), 
+							String.valueOf(biomass.get(key)));
 				massMap.put(key, biomass.remove(key));
 			}			
 			agent.set(AspectRef.agentMassMap, massMap);
@@ -65,6 +79,12 @@ public class ProcessMethods {
 		 */
 		for ( String key : biomass.keySet() )
 		{
+			if( Global.bookkeeping )
+				agent.getCompartment().register(
+						EventType.ODE, 
+						key, 
+						String.valueOf(agent.identity()), 
+						String.valueOf(biomass.get(key)));
 			if ( agent.isAspect(key) )
 			{
 				agent.set(key, biomass.get(key));

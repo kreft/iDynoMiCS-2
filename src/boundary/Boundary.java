@@ -11,6 +11,7 @@ import java.util.Random;
 import org.w3c.dom.Element;
 
 import agent.Agent;
+import bookkeeper.KeeperEntry.EventType;
 import boundary.library.ChemostatBoundary;
 import boundary.library.ChemostatToBoundaryLayer;
 import boundary.spatialLibrary.BiofilmBoundaryLayer;
@@ -425,7 +426,10 @@ public abstract class Boundary implements Settable, Instantiable
 				Log.out(Tier.DEBUG, "Boundary "+this.getName()+" removing "+
 							this._departureLounge.size()+" agents");
 				for( Agent a : this._departureLounge )
-					this._agents.registerRemoveAgent(a);
+				{
+					this._agents.registerRemoveAgent(a, EventType.REMOVED, 
+							"removed", null);
+				}
 				this._departureLounge.clear();
 			}
 			else
@@ -481,14 +485,18 @@ public abstract class Boundary implements Settable, Instantiable
 					{
 						this._partner.acceptInboundAgents(this._departureLounge);
 					}
+					for( Agent a : this._departureLounge )
+						this._agents.registerRemoveAgent(a, EventType.TRANSFER, "transfered", null);
+					this._departureLounge.clear();
 				}
 				else
 				{
 					Log.out(Tier.NORMAL, "no partner compartment found, removing outbound agents");
+					for( Agent a : this._departureLounge )
+						this._agents.registerRemoveAgent(a, EventType.REMOVED, "removed", null);
+					this._departureLounge.clear();
 				}
-				for( Agent a : this._departureLounge )
-					this._agents.registerRemoveAgent(a);
-				this._departureLounge.clear();
+
 			}
 			this._agents.refreshSpatialRegistry();
 		}

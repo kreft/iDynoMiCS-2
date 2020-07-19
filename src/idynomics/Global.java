@@ -153,7 +153,12 @@ public class Global extends ParameterSet
 	/**
 	 * 
 	 */
-	public static boolean output_compression = true;
+	public static boolean output_compression = false;
+	
+	/**
+	 * enable bookkeeping.
+	 */
+	public static boolean bookkeeping = true;
 	
 	/**
 	 * console font

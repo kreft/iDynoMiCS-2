@@ -318,6 +318,7 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 		 */
 		for ( Compartment c : this._compartments )
 			c.postStep();
+		
 		/*
 		 * 
 		 */
@@ -338,13 +339,13 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 		 * Reporting agents.
 		 */
 		for (Compartment c : this._compartments)
-		{
+		{	
 			if( Log.shouldWrite(Tier.NORMAL) )
 			{
 				Log.out(Tier.NORMAL, c.getName() + " contains " + 
 						c.agents.getAllAgents().size() + " agents");
 			}
-		};
+		}
 		
 	}
 	

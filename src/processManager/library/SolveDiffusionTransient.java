@@ -14,10 +14,12 @@ import java.util.Map;
 import org.w3c.dom.Element;
 
 import agent.Agent;
+import bookkeeper.KeeperEntry.EventType;
 import compartment.AgentContainer;
 import compartment.EnvironmentContainer;
 import dataIO.ObjectFactory;
 import grid.SpatialGrid;
+import idynomics.Global;
 import processManager.ProcessDiffusion;
 import processManager.ProcessMethods;
 import reaction.Reaction;
@@ -199,15 +201,19 @@ public class SolveDiffusionTransient extends ProcessDiffusion
 				for ( String productName : r.getReactantNames() )
 				{
 					productRate = r.getProductionRate(concns,productName);
+					double quantity;
 					if ( this._environment.isSoluteName(productName) )
 					{
 						solute = this._environment.getSoluteGrid(productName);
-						solute.addValueAt(PRODUCTIONRATE, coord.get(), productRate);
+						quantity = 
+								productRate * volume * this.getTimeStepSize();
+						solute.addValueAt(PRODUCTIONRATE, coord.get(), quantity);
 					}
 					else if ( newBiomass.containsKey(productName) )
 					{
+						quantity = productRate * dt * volume;
 						newBiomass.put(productName, newBiomass.get(productName)
-								+ (productRate * dt * volume));
+								+ quantity);
 					}
 					else if ( agent.isAspect(productName) )
 					{
@@ -215,17 +221,25 @@ public class SolveDiffusionTransient extends ProcessDiffusion
 						 * Check if the agent has other mass-like aspects
 						 * (e.g. EPS).
 						 */
+						quantity = productRate * dt * volume;
 						newBiomass.put(productName, agent.getDouble(productName)
-								+ (productRate * dt * volume));
+								+ quantity);
 					}
 					else
 					{
 						//TODO quick fix If not defined elsewhere add it to the map
-						newBiomass.put(productName, (productRate * dt * volume));
+						quantity = productRate * dt * volume;
+						newBiomass.put(productName, quantity);
 						System.out.println("agent reaction catched " + 
 								productName);
 						// TODO safety?
 					}
+					if( Global.bookkeeping )
+						agent.getCompartment().register(
+								EventType.REACTION, 
+								productName, 
+								String.valueOf( agent.identity() ), 
+								String.valueOf( quantity ) );
 				}
 			}
 		}

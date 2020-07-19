@@ -396,6 +396,43 @@ public class Module
 		}
 		return out;
 	}
+	
+	public String getHeader()
+	{
+		String out = "";
+
+		/* 
+		 * Attributes
+		 */
+		int i = 0;
+		for ( Attribute a : this._attributes )
+		{
+			out += a.getTag();
+			i++;
+			if (i < this._attributes.size())
+				out += ";";
+		}
+
+		return out;
+	}
+	
+	public String getCSV()
+	{
+		String out = "";
+		/* 
+		 * Attributes
+		 */
+		int i = 0;
+		for ( Attribute a : this._attributes )
+		{
+			out += a.getValue();
+			i++;
+			if (i < this._attributes.size())
+				out += ";";
+		}
+
+		return out;
+	}
 
 	/**
 	 * \brief Write a description of this ModelNode in XML format, off-setting

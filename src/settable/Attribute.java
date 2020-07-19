@@ -46,6 +46,10 @@ public class Attribute {
 	{
 		return " " + tag + "=\"" + getValue() + "\"";
 	}
+	
+	public String getTag() {
+		return tag;
+	}
 
 	public String getValue() {
 		return value;

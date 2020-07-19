@@ -6,6 +6,7 @@ import org.w3c.dom.Element;
 
 import agent.Agent;
 import agent.Body;
+import bookkeeper.KeeperEntry.EventType;
 import compartment.AgentContainer;
 import compartment.EnvironmentContainer;
 import processManager.ProcessManager;
@@ -57,7 +58,7 @@ public class AgentScraper extends ProcessManager {
 			{
 				if (p.getPosition()[1] > this._maxThickness)
 				{
-					this._agents.registerRemoveAgent( a );
+					this._agents.registerRemoveAgent( a , EventType.REMOVED, "scraped", null);
 					break;
 				}
 			}
