@@ -137,7 +137,7 @@ public class ChemostatSolver extends ProcessManager
 						EventType.ODE, 
 						this._solutes[i], 
 						null, 
-						String.valueOf(yODE[i]));
+						String.valueOf(yODE[i]-y.get(i)));
 		
 		/* convert solute mass rate to concentration rate to 
 		 * concentration rates 
