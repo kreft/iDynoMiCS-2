@@ -14,6 +14,7 @@ public class KeeperEntry implements Settable
 		
 		REMOVED( 101 ),
 		TRANSFER( 102 ),
+		ARRIVE( 103 ),
 		REACTION( 201 ),
 		ODE( 202 );
 		
@@ -30,15 +31,17 @@ public class KeeperEntry implements Settable
 	private String _event;
 	private String _identity;
 	private String _value;
+	private Settable _settable;
 	
 	public KeeperEntry(Settable parent, EventType eventType, String event,
-			String identity, String value)
+			String identity, String value, Settable storedSettable)
 	{
 		this._parent = parent;
 		this._type = eventType;
 		this._event = event;
 		this._identity = identity;
 		this._value = value;
+		this._settable = storedSettable;
 	}
 	
 	@Override
@@ -59,6 +62,9 @@ public class KeeperEntry implements Settable
 		
 		modelNode.add( new Attribute(XmlRef.valueAttribute, 
 				String.valueOf( this._value ), null, true ) );
+		
+		if( this._settable != null )
+			modelNode.add( this._settable.getModule() );
 		
 		return modelNode;	
 	}

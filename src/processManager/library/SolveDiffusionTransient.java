@@ -235,11 +235,11 @@ public class SolveDiffusionTransient extends ProcessDiffusion
 						// TODO safety?
 					}
 					if( Global.bookkeeping )
-						agent.getCompartment().register(
+						agent.getCompartment().registerBook(
 								EventType.REACTION, 
 								productName, 
 								String.valueOf( agent.identity() ), 
-								String.valueOf( quantity ) );
+								String.valueOf( quantity ) , null );
 				}
 			}
 		}

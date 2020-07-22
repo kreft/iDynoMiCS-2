@@ -133,11 +133,11 @@ public class ChemostatSolver extends ProcessManager
 		/* register changes to bookkeeper */
 		if( Global.bookkeeping )
 			for ( int i = 0; i < this._n; i++ )
-				this._agents._compartment.register(
+				this._agents._compartment.registerBook(
 						EventType.ODE, 
 						this._solutes[i], 
 						null, 
-						String.valueOf(yODE[i]-y.get(i)));
+						String.valueOf(yODE[i]-y.get(i)), null);
 		
 		/* convert solute mass rate to concentration rate to 
 		 * concentration rates 

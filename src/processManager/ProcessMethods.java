@@ -45,11 +45,11 @@ public class ProcessMethods {
 				agent.getAspectType( AspectRef.agentMass ) == Aspect.AspectClass.PRIMARY)
 		{
 			if( Global.bookkeeping )
-				agent.getCompartment().register(
+				agent.getCompartment().registerBook(
 						EventType.ODE, 
 						AspectRef.agentMass, 
 						String.valueOf(agent.identity()), 
-						String.valueOf(biomass.get(AspectRef.agentMass)));
+						String.valueOf(biomass.get(AspectRef.agentMass)), null);
 			/**
 			 * NOTE map.remove returns the current associated value and removes
 			 * it from the map
@@ -64,11 +64,11 @@ public class ProcessMethods {
 			for ( String key : massMap.keySet() )
 			{
 				if( Global.bookkeeping )
-					agent.getCompartment().register(
+					agent.getCompartment().registerBook(
 							EventType.ODE, 
 							key, 
 							String.valueOf(agent.identity()), 
-							String.valueOf(biomass.get(key)));
+							String.valueOf(biomass.get(key)), null);
 				massMap.put(key, biomass.remove(key));
 			}			
 			agent.set(AspectRef.agentMassMap, massMap);
@@ -80,11 +80,11 @@ public class ProcessMethods {
 		for ( String key : biomass.keySet() )
 		{
 			if( Global.bookkeeping )
-				agent.getCompartment().register(
+				agent.getCompartment().registerBook(
 						EventType.ODE, 
 						key, 
 						String.valueOf(agent.identity()), 
-						String.valueOf(biomass.get(key)));
+						String.valueOf(biomass.get(key)), null);
 			if ( agent.isAspect(key) )
 			{
 				agent.set(key, biomass.get(key));

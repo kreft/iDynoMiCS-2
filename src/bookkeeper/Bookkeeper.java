@@ -24,10 +24,10 @@ public class Bookkeeper implements Settable
 	}
 	
 	public void register(EventType eventType, String event,
-			String identity, String value)
+			String identity, String value, Settable storedSettable)
 	{
 		this._entries.add(new KeeperEntry(this, eventType, event,
-			identity, value));
+			identity, value, storedSettable));
 	}
 	
 	public void toFile(String compartmentPrefix)

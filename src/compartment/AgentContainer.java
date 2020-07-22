@@ -19,6 +19,7 @@ import boundary.SpatialBoundary;
 import dataIO.Log;
 import dataIO.Log.Tier;
 import gereralPredicates.IsSame;
+import idynomics.Global;
 import linearAlgebra.Vector;
 import physicalObject.PhysicalObject;
 import referenceLibrary.AspectRef;
@@ -591,6 +592,8 @@ public class AgentContainer implements Settable
 	}
 
 	/**
+	 * FIXME when this comes in use, this method needs to be update to register-
+	 * remove agents
 	 * @return A randomly chosen {@code Agent}, who is removed from this
 	 * container.
 	 * @see #chooseRandomAgent()
@@ -629,8 +632,9 @@ public class AgentContainer implements Settable
 	public void registerRemoveAgent(Agent anAgent, EventType eventType, 
 			String event, String value)
 	{
-		this._compartment.register(	eventType, event, 
-				String.valueOf( anAgent.identity() ), value);
+		if( Global.bookkeeping )
+			this._compartment.registerBook(	eventType, event, 
+					String.valueOf( anAgent.identity() ), value, anAgent);
 		if ( IsLocated.isLocated(anAgent) )
 		{
 			this._locatedAgentList.remove(anAgent);

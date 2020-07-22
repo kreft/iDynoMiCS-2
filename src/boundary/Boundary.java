@@ -21,6 +21,7 @@ import compartment.EnvironmentContainer;
 import dataIO.Log;
 import dataIO.Log.Tier;
 import dataIO.XmlHandler;
+import idynomics.Global;
 import idynomics.Idynomics;
 import instantiable.Instantiable;
 import referenceLibrary.AspectRef;
@@ -529,10 +530,12 @@ public abstract class Boundary implements Settable, Instantiable
 	public void agentsArrive()
 	{
 		for ( Agent anAgent : this._arrivalsLounge )
+		{
 			//FIXME The agent MUST be registered to the new compartment otherwise offsrping will end up in the old
 			//compartment, this is a really ugly work around but the only way to actually get there.
 			//This design should be reconsidered [Bas 13-04-2018]
 			((Compartment)this._agents.getParent()).addAgent(anAgent);
+		}
 		this.clearArrivalsLounge();
 	}
 

@@ -270,8 +270,8 @@ public abstract class ProcessDiffusion extends ProcessManager
 				/* NOTE we should rewrite how to access the compartment because 
 				 * this is pretty inefficient.	 */
 				Idynomics.simulator.getCompartment(this._compartmentName).
-						register(EventType.REACTION, t, "ENIVIRONMENT", 
-						String.valueOf( totals.get(t) ) );
+						registerBook(EventType.REACTION, t, "ENIVIRONMENT", 
+						String.valueOf( totals.get(t) ), null );
 	}
 	
 
