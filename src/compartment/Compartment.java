@@ -11,6 +11,8 @@ import java.util.TreeMap;
 import org.w3c.dom.Element;
 
 import agent.Agent;
+import bookkeeper.Bookkeeper;
+import bookkeeper.KeeperEntry.EventType;
 import boundary.Boundary;
 import boundary.SpatialBoundary;
 import compartment.agentStaging.Spawner;
@@ -19,6 +21,7 @@ import dataIO.Log.Tier;
 import dataIO.XmlHandler;
 import generalInterfaces.CanPrelaunchCheck;
 import grid.SpatialGrid;
+import idynomics.Global;
 import idynomics.Idynomics;
 import instantiable.Instance;
 import instantiable.Instantiable;
@@ -105,6 +108,11 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable, C
 	 * ProcessComparator orders Process Managers by their time priority.
 	 */
 	protected ProcessComparator _procComp = new ProcessComparator();
+	
+	/**
+	 * 
+	 */
+	private Bookkeeper _bookKeeper = new Bookkeeper();
 	/**
 	 * Local time should always be between {@code Timer.getCurrentTime()} and
 	 * {@code Timer.getEndOfCurrentTime()}.
@@ -161,7 +169,7 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable, C
 					"\" taking shape \""+aShape.getName()+"\"");
 		this._shape = aShape;
 		this.environment = new EnvironmentContainer(this._shape);
-		this.agents = new AgentContainer(this._shape);
+		this.agents = new AgentContainer(this);
 	}
 	/**
 	 * \brief Initialise this {@code Compartment} from an XML node. 
@@ -401,9 +409,11 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable, C
 	 */
 	public void addAgent(Agent agent)
 	{
-		
 		this.agents.addAgent(agent);
 		agent.setCompartment(this);
+		if( Global.bookkeeping )
+			registerBook(EventType.ARRIVE, "Arrive", 
+					String.valueOf(agent.identity()), null, agent);
 	}
 	
 	public void addPhysicalObject(PhysicalObject p)
@@ -421,6 +431,13 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable, C
 		this.environment.addSolute(solute);
 	}
 	
+	public void registerBook(EventType eventType, String event,
+			String identity, String value, Settable storedSettable)
+	{
+		this._bookKeeper.register(eventType, event,
+			identity, value, storedSettable);
+	}
+	
 	/**
 	 * \brief Remove the given agent from this compartment, registering its
 	 * removal.
@@ -432,8 +449,9 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable, C
 	 */
 	public void registerRemoveAgent(Agent agent)
 	{
+		// !!!! method only used from gui
 		agent.setCompartment(null);
-		this.agents.registerRemoveAgent(agent);
+		this.agents.registerRemoveAgent(agent, EventType.REMOVED, "gui remove", null);
 	}
 	
 	/**
@@ -497,6 +515,7 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable, C
 	 */
 	public void preStep()
 	{
+		this._bookKeeper.clear();
 		/*
 		 * Ask all Agents waiting in boundary arrivals lounges to enter the
 		 * compartment now.
@@ -565,6 +584,9 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable, C
 		 * Tell all agents queued to leave the compartment to move now.
 		 */
 		this.agents.agentsDepart();
+		
+		if( Global.csv_bookkeeping)
+			this.writeEventLog();
 	}
 	
 	/* ***********************************************************************
@@ -613,6 +635,11 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable, C
 		return out;
 	}
 	
+	public void writeEventLog()
+	{
+		this._bookKeeper.toFile(this.getName());
+	}
+	
 	/* ***********************************************************************
 	 * Model Node factory
 	 * **********************************************************************/
@@ -646,6 +673,10 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable, C
 		modelNode.add( this.getProcessNode() );
 		
 		modelNode.add( getObjectNode() );
+		
+		/* FIXME performs slow, investigate, opted for csv export for now */
+		if( Global.xml_bookkeeping )
+			modelNode.add( this._bookKeeper.getModule() );
 		
 		/* spatial registry NOTE we are handling this here since the agent
 		 * container does not have the proper init infrastructure */

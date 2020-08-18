@@ -623,4 +623,12 @@ public class XmlRef
 	public static final String objects = "objects";
 
 	public static final String processSkips = "skips";
+	
+	public static final String bookkeeper = "bookkeeper";
+	
+	public static final String keeperEntry = "entry";
+
+	public static final String eventID = "eventType";
+
+	public static final String event = "event";
 }

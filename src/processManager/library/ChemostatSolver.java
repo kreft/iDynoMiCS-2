@@ -8,11 +8,13 @@ import java.util.Map;
 import org.w3c.dom.Element;
 
 import agent.Agent;
+import bookkeeper.KeeperEntry.EventType;
 import boundary.Boundary;
 import compartment.AgentContainer;
 import compartment.EnvironmentContainer;
 import dataIO.Log;
 import dataIO.Log.Tier;
+import idynomics.Global;
 import linearAlgebra.Vector;
 import processManager.ProcessManager;
 import processManager.ProcessMethods;
@@ -128,8 +130,21 @@ public class ChemostatSolver extends ProcessManager
 			e.printStackTrace();
 		}
 		
+		/* register changes to bookkeeper */
+		if( Global.bookkeeping )
+			for ( int i = 0; i < this._n; i++ )
+				this._agents._compartment.registerBook(
+						EventType.ODE, 
+						this._solutes[i], 
+						null, 
+						String.valueOf(yODE[i]-y.get(i)), null);
+		
 		/* convert solute mass rate to concentration rate to 
-		 * concentration rates */
+		 * concentration rates 
+		 * 
+		 * NOTE this description says rate though we are looking at y not dydt
+		 * thus for now I assume the description is wrong, check and update
+		 * description. */
 		for ( int i = 0; i < _n; i++ )
 		{
 			yODE[i] /= yODE[ _n ];

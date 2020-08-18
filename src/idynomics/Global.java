@@ -156,6 +156,22 @@ public class Global extends ParameterSet
 	public static boolean output_compression = true;
 	
 	/**
+	 * enable bookkeeping.
+	 */
+	public static boolean bookkeeping = false;
+	
+	/**
+	 * enable csv bookkeeping
+	 */
+	public static boolean csv_bookkeeping = false;
+	
+	/**
+	 * enable xml bookkeeping (also logging complete agent xml)
+	 * Warning: very slow
+	 */
+	public static boolean xml_bookkeeping = false;
+	
+	/**
 	 * console font
 	 */
 	public static String console_font = "consolas";

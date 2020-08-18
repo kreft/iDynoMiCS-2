@@ -14,6 +14,7 @@ import org.w3c.dom.Element;
 
 import agent.Agent;
 import agent.Body;
+import bookkeeper.KeeperEntry.EventType;
 import boundary.Boundary;
 import compartment.AgentContainer;
 import compartment.EnvironmentContainer;
@@ -21,6 +22,7 @@ import dataIO.Log;
 import dataIO.Log.Tier;
 import grid.SpatialGrid;
 import idynomics.Global;
+import idynomics.Idynomics;
 import linearAlgebra.Vector;
 import reaction.Reaction;
 import reaction.RegularReaction;
@@ -262,6 +264,14 @@ public abstract class ProcessDiffusion extends ProcessManager
 						}
 			}
 		}
+		
+		if( Global.bookkeeping )
+			for (String t : totals.keySet())
+				/* NOTE we should rewrite how to access the compartment because 
+				 * this is pretty inefficient.	 */
+				Idynomics.simulator.getCompartment(this._compartmentName).
+						registerBook(EventType.REACTION, t, "ENIVIRONMENT", 
+						String.valueOf( totals.get(t) ), null );
 	}
 	
 

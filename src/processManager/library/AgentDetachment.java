@@ -7,6 +7,7 @@ import org.w3c.dom.Element;
 
 import agent.Agent;
 import analysis.quantitative.Raster;
+import bookkeeper.KeeperEntry.EventType;
 import compartment.AgentContainer;
 import compartment.EnvironmentContainer;
 import processManager.ProcessManager;
@@ -92,7 +93,7 @@ public class AgentDetachment extends ProcessManager
 						if( ExtraMath.getUniRandDbl() > e )
 						{
 							/* FIXME DEPARTURE! */
-							this._agents.registerRemoveAgent( a );
+							this._agents.registerRemoveAgent( a , EventType.REMOVED, "detach", null);
 						}
 					}
 						
