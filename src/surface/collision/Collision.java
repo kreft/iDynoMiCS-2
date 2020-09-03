@@ -438,6 +438,7 @@ public class Collision
 		case SPHERE:
 			return this.sphereSphere(sphere, (Ball) otherSurface, var);
 		case ROD:
+			var.flip = true;
 			return this.rodSphere((Rod) otherSurface, sphere, var);
 		case PLANE:
 			var.flip = false;
