@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
+import dataIO.Log;
+import dataIO.Log.Tier;
 import expression.Expression;
 import idynomics.Idynomics;
 import utility.ExtraMath;
@@ -1161,7 +1163,11 @@ public final class Vector
 	public static void addTo(double[] destination, double[] a, double[] b)
 	{
 		for ( int i = 0; i < a.length; i++ ) 
+		{
 			destination[i] = a[i] + b[i];
+			if (Double.isNaN(destination[i]))
+				Log.out(Tier.CRITICAL,"encountered NAN in vector addition");
+		}
 	}
 	
 	/**
@@ -2979,6 +2985,10 @@ public final class Vector
 		double oldNorm = normEuclid(vector);
 		if ( oldNorm != 0.0 )
 			timesEquals(vector, newNorm/oldNorm);
+		else 
+		{
+			Log.out("zero division");
+		}
 	}
 	
 	/**
