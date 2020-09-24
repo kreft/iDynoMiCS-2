@@ -741,6 +741,27 @@ public abstract class Shape implements
 	{
 		this.getGlobalLocationTo(local, local);
 	}
+	
+	/**
+	 * 
+	 */
+	public double[] getVerifiedLocation(double[] loc)
+	{
+		if( isInside(loc))
+			return loc;
+		else
+		{
+			for( double[] d : getCyclicPoints(loc))
+				if( isInside(d))
+					return d;
+			/* if no inside point is found there is an illegal boundary 
+			 * intersection. */
+			Log.out(Tier.CRITICAL, "invalid location lookup in " + 
+					this.getClass().getSimpleName());
+			return loc;
+		}
+				
+	}
 
 	/**
 	 * \brief Check if a given location is inside this shape.

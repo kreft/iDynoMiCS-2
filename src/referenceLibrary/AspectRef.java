@@ -580,4 +580,6 @@ public class AspectRef
 	public static final String decompressionCellLength = "decompressionCellLength";
 
 	public static final String decompressionThreshold = "decompressionThreshold";
+
+	public static final String disableBulkDynamics = "disableBulkDynamics";
 }

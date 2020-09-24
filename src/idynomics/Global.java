@@ -271,7 +271,7 @@ public class Global extends ParameterSet
 	 */
 	public static boolean fastAgentDistribution = true;
 
-	public static String agentDistribution = DistributionMethod.COLLISION.toString();
+	public static String agentDistribution = DistributionMethod.MIDPOINT.toString();
 	/**
 	 * dynamic viscosity of the medium
 	 */
