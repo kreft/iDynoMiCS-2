@@ -128,7 +128,7 @@ public class AspectRef
 	/**
 	 * TODO
 	 */
-	public final static String agentMassMap = "massMap";
+//	public final static String agentMassMap = "massMap";
 	
 	/**
 	 * Agent mass that should trigger division.

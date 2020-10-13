@@ -153,7 +153,7 @@ public class Global extends ParameterSet
 	/**
 	 * 
 	 */
-	public static boolean output_compression = true;
+	public static boolean output_compression = false;
 	
 	/**
 	 * enable bookkeeping.
@@ -231,7 +231,7 @@ public class Global extends ParameterSet
 	/**
 	 * Skip writing xml output for this number of global time steps
 	 */
-	public int outputskip = 0;
+	public int outputskip = 100;
 	
 	/**
 	 * The exit command is passed to kernel once the simulation is finished

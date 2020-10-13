@@ -362,6 +362,8 @@ public class SolveDiffusionSteadyState extends ProcessDiffusion
 						newBiomass.put(productName, newBiomass.get(productName)
 								+ quantity );
 					}
+					/* FIXME this can create conflicts if users try to mix mass-
+					 * maps and simple mass aspects	 */
 					else if ( agent.isAspect(productName) )
 					{
 						/*

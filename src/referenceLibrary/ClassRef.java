@@ -171,12 +171,6 @@ public class ClassRef
 	/**
 	 * 
 	 */
-	public final static String wetWeight = 
-			aspect.calculated.WetWeight.class.getName();
-	
-	/**
-	 * 
-	 */
 	public final static String densityScaled = 
 			aspect.calculated.DensityScaled.class.getName();
 	
