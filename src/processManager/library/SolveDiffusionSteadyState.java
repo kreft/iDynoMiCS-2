@@ -60,7 +60,11 @@ public class SolveDiffusionSteadyState extends ProcessDiffusion
 		double relTol = (double) this.getOr(REL_TOLERANCE, 1.0e-18);
 
 		// TODO Let the user choose which ODEsolver to use.
-		this._solver = new PDEmultigrid();
+		this._solver = new PDEmultigrid(
+				(int) this.getOr(AspectRef.vCycles, 0), 
+				(int) this.getOr(AspectRef.preSteps, 0), 
+				(int) this.getOr(AspectRef.coarseSteps, 0), 
+				(int) this.getOr(AspectRef.postSteps, 0));
 
 		this._solver.setUpdater(this);
 		

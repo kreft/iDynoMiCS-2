@@ -127,9 +127,48 @@ public class PDEmultigrid extends PDEsolver
 	private boolean _reachedStopCondition = false;
 
 	/* ***********************************************************************
+	 * Constructors
+	 * **********************************************************************/
+	/**
+	 * Constructor for multigrid solver at default settings
+	 */
+	public PDEmultigrid()
+	{
+
+	}
+	
+	/**
+	 * Constructor for multigrid solver at user suplied settings
+	 * @param cycles
+	 * @param pre
+	 * @param coarse
+	 * @param post
+	 */
+	public PDEmultigrid(int cycles, int pre, int coarse, int post)
+	{
+		if (cycles != 0)
+			this._numVCycles = cycles;
+		/**
+		 * maximum number of pre-steps
+		 */
+		if (pre != 0)
+			this._numPreSteps = pre;
+		/**
+		 * maximum number of coarse steps
+		 */
+		if (coarse != 0)
+			this._numCoarseStep = coarse;
+		/**
+		 * maximum number of post steps
+		 */
+		if (post != 0)
+			this._numPostSteps = post; // 1 -> 1000, 0.5 -> 2500 seems to work
+	}
+	
+	/* ***********************************************************************
 	 * SOLVER METHODS
 	 * **********************************************************************/
-	
+
 	@Override
 	public Collection<Shape> getShapesForAgentMassDistributionMaps(
 			SpatialGrid commonGrid)

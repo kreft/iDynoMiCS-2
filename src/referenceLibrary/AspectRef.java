@@ -580,4 +580,15 @@ public class AspectRef
 	public static final String decompressionCellLength = "decompressionCellLength";
 
 	public static final String decompressionThreshold = "decompressionThreshold";
+
+	public static final String traversingFraction = "traversingFraction";
+
+	public static final String vCycles = "vCycles";
+
+	public static final String preSteps = "preSteps";
+
+	public static final String coarseSteps = "coarseSteps";
+
+	public static final String postSteps = "postSteps";
+
 }

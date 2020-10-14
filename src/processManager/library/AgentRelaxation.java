@@ -266,7 +266,8 @@ public class AgentRelaxation extends ProcessManager
 					Helper.setIfNone(this.getDouble(DECOMPRESSION_CELL_LENGTH), //possibly change to must set since very depended on case.
 					2.0 ), Helper.setIfNone(this.getDouble(DECOMPRESSION_THRESHOLD), 
 					this._stressThreshold ), 
-					this._agents.getShape().getIsCyclicNaturalOrderIncludingVirtual());
+					this._agents.getShape().getIsCyclicNaturalOrderIncludingVirtual(),
+					(double) this.getOr(AspectRef.traversingFraction, 0.0));
 		
 	}
 
