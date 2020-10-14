@@ -223,7 +223,7 @@ public class Collision
 		 * If pull distance is greater than zero, then there may be attraction
 		 * between the two surfaces.
 		 */
-		else if ( var.pullRange > 0.0 )
+		else if ( var.margin > 0.0 )
 		{
 			if ( var.flip )
 				 Vector.reverseEquals(var.interactionVector);
@@ -255,7 +255,7 @@ public class Collision
 			Collection<Surface> allB, AspectInterface second, double 
 			pullDistance)
 	{
-		_variables.setPullRange(pullDistance);
+		_variables.setMargin(pullDistance);
 		for ( Surface a : allA )
 		{
 			for ( Surface b : allB )
@@ -276,7 +276,7 @@ public class Collision
 			Collection<Surface> allB, AspectInterface second, 
 			double pullDistance)
 	{
-		_variables.setPullRange(pullDistance);
+		_variables.setMargin(pullDistance);
 		for ( Surface b : allB )
 		{ 
 			this.collision( a, first, b, second, this._variables );
@@ -337,7 +337,7 @@ public class Collision
 	 */
 	public double distance(Surface a, Surface b)
 	{
-		_variables.setPullRange( 0.0 );
+		_variables.setMargin( 0.0 );
 		CollisionVariables var = this.distance( a, b, _variables );
 		return var.distance;
 	}
@@ -396,7 +396,7 @@ public class Collision
 	 */
 	public double distance(Surface a, double[] p)
 	{
-		_variables.setPullRange(0.0);
+		_variables.setMargin(0.0);
 		switch ( a.type() )
 		{
 		case SPHERE :
@@ -559,10 +559,7 @@ public class Collision
 	 */
 	public boolean intersect(Surface a, Surface b, double margin)
 	{
-		if( margin != 0.0 )
-			Log.out(Tier.CRITICAL, "Margin is not fully implemented for "
-					+ "intersect method.");
-		_variables.setPullRange( margin );
+		_variables.setMargin( margin );
 		switch( a.type() ) 
 		{
 		case SPHERE:
@@ -600,13 +597,13 @@ public class Collision
 		{
 		case SPHERE:
 			this.rodSphere(rod, (Ball) otherSurface, var);
-			return var.distance < var.pullRange;
+			return var.distance < var.margin;
 		case ROD:
 			this.rodRod(rod, (Rod) otherSurface, var);
-			return var.distance < var.pullRange;
+			return var.distance < var.margin;
 		case PLANE:
 			this.planeRod((Plane) otherSurface, rod, var);
-			return var.distance < var.pullRange;
+			return var.distance < var.margin;
 		case VOXEL:
 			return this.voxelRodIntersection(rod, (Voxel) otherSurface, var);
 		default:
@@ -631,7 +628,7 @@ public class Collision
 		{
 		case SPHERE:
 			this.voxelSphere(vox, (Ball) otherSurface, var);
-			return var.distance < var.pullRange;
+			return var.distance < var.margin;
 		case ROD:
 			return this.voxelRodIntersection((Rod) otherSurface, vox, var);
 		default:
@@ -1145,7 +1142,7 @@ public class Collision
 		/* Compute the AABB resulting from expanding b by sphere radius r */
 		double[] emin = voxel.getLower();
 		double[] emax = voxel.getHigher();
-		double r = rod.getRadius();
+		double r = rod.getRadius() + var.margin;
 		double[] p0 = this._shape.getNearestShadowPoint(
 				rod._points[0].getPosition(), voxel.getLower());
 		double[] p1 = this._shape.getNearestShadowPoint(
@@ -1303,10 +1300,10 @@ public class Collision
 	{
 		/* checking caps */
 		var = linesegPoint( sa, sb, p, var );
-		if(var.distance < r + var.pullRange)
+		if(var.distance < r + var.margin)
 			return true;
 		var = linesegPoint( sa, sb, q, var );
-		if(var.distance < r + var.pullRange)
+		if(var.distance < r + var.margin)
 			return true;
 		/* checking cylinder */
 		return intersectSegmentCylinder( sa, sb, p, q, r, var );
