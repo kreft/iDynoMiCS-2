@@ -37,8 +37,6 @@
 				<aspect name="volume" class="SimpleVolumeState" />
 				<aspect name="radius" class="CoccoidRadius" />
 				<aspect name="divide" class="CoccoidDivision"	/>
-				<aspect name="mass" class="WetWeight"  />
-				<aspect name="WetDryRatio" class="Double"  value="1.0" />
 				<aspect name="updateBody" class="UpdateBody" />
 				<aspect name="evaluatePull" class="ResolveInteractionDistance" 	 />
 				<aspect name="searchDist" class="Double" value="0.0"  />
@@ -96,7 +94,7 @@
 				<agent>
 					<aspect name="species" type="PRIMARY" class="String" value="Consumer" />
 					<aspect name="#isLocated" type="PRIMARY" class="Boolean" value="true" />
-					<aspect name="massMap" class="InstantiableMap">
+					<aspect name="mass" class="InstantiableMap">
 						<map entryClass="Double" keyType="String">
 							<item key="bioMass" value="0.15"  />
 						</map>

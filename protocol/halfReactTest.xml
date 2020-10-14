@@ -14,8 +14,6 @@
 			<species name="A">
 				<aspect name="density" type="PRIMARY" class="Double" value="1" />
 				<aspect name="divide" 			type="EVENT" 		class="CoccoidDivision"	/>
-				<aspect name="mass" type="CALCULATED" class="WetWeight"  />
-				<aspect name="WetDryRatio" class="Double"  value="4.0" />
 				<aspect name="divisionMass" type="PRIMARY" class="Double" value="0.01" />
 				
 				

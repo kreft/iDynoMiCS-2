@@ -23,9 +23,6 @@
 			</species>
 			
 			<species name="bacterium">
-				<!-- required when mapping biomass -->
-				<aspect name="mass" type="CALCULATED" class="WetWeight"  />
-				<aspect name="WetDryRatio" class="Double"  value="1.0" />
 			</species>
 			
 			<species name="inert">
@@ -81,7 +78,7 @@
 					<aspect name="species" type="PRIMARY" class="String" value="EColi" />
 					<aspect name="#isLocated" type="PRIMARY" class="Boolean" value="true" />
 					<!-- pg -->
-					<aspect name="massMap" class="InstantiableMap">
+					<aspect name="mass" class="InstantiableMap">
 						<map entryClass="Double" keyType="String">
 							<item key="bioMass" value="0.4"  />
 						</map>
@@ -109,7 +106,7 @@
 					<aspect name="includeHeader" type="PRIMARY" class="Boolean" value="TRUE" />
 					<aspect name="fileName" type="PRIMARY" class="String" value="bioflm" />
 					<aspect name="tableSpecification" type="PRIMARY" class="String"
-					value="bioMass@massMap ? species == EColi | %oxygen | %glucose" />
+					value="bioMass@mass ? species == EColi | %oxygen | %glucose" />
 					<aspect name="fileName" type="PRIMARY" class="String" value="data" />
 				</process>
 				<process name="svgWriter" class="GraphicalOutput"  priority="-3"
@@ -153,7 +150,7 @@
 					<aspect name="includeHeader" type="PRIMARY" class="Boolean" value="TRUE" />
 					<aspect name="fileName" type="PRIMARY" class="String" value="chemostat" />
 					<aspect name="tableSpecification" type="PRIMARY" class="String"
-					value="bioMass@massMap ? species == EColi | %oxygen | %glucose" />
+					value="bioMass@mass ? species == EColi | %oxygen | %glucose" />
 					<aspect name="fileName" type="PRIMARY" class="String" value="data" />
 				</process>
 			</processManagers>

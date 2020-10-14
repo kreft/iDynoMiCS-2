@@ -20,7 +20,7 @@
 			</species>
 			<species name="rod">
 				<aspect name="surfaces"			type="CALCULATED"	class="AgentSurfaces"	  />
-				<aspect name="volume" 			type="CALCULATED" 	class="StateExpression" 		input="mass/density" />
+				<aspect name="volume" 		type="CALCULATED" 	class="SimpleVolumeState" 	/>
 				<aspect name="radius" 			type="PRIMARY" 		class="Double" 					value="0.23" />
 				<aspect name="divide" 			type="EVENT" 		class="RodDivision"		 />
 				<aspect name="#isLocated" 		type="PRIMARY" 		class="Boolean" value="true" />

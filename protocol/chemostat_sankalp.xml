@@ -13,7 +13,6 @@
 			<species name="species1">
 				<aspect name="pigment" type="PRIMARY" class="String" value="RED" />
 				<speciesModule name="coccoid" />
-				<!-- <speciesModule name="stochasticMover" /> -->
 				<speciesModule name="producer" />
 				<aspect name="reactions" type="PRIMARY"  class="InstantiableList"> 
 					<list class="RegularReaction" nodeLabel="reaction" entryClass="RegularReaction" keyClass="String" keyLabel="name">

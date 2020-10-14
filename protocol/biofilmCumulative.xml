@@ -14,7 +14,6 @@
 			<species name="species1">
 				<aspect name="pigment" class="String" value="RED" />
 				<speciesModule name="coccoid" />
-				<!-- <speciesModule name="stochasticMover" /> -->
 				<speciesModule name="producer" />
 				<aspect name="reactions"  class="InstantiableList"> 
 					<list class="RegularReaction" nodeLabel="reaction" entryClass="RegularReaction" keyClass="String" keyLabel="name">
@@ -56,8 +55,6 @@
 				<aspect name="volume" class="SimpleVolumeState" />
 				<aspect name="radius" class="CoccoidRadius" />
 				<aspect name="divide" class="CoccoidDivision"	/>
-				<aspect name="mass" class="WetWeight"  />
-				<aspect name="WetDryRatio" class="Double"  value="4.0" />
 				<aspect name="updateBody" class="UpdateBody" />
 				<aspect name="evaluatePull" class="ResolveInteractionDistance" 	 />
 				<aspect name="searchDist" class="Double" value="0.0"  />
@@ -105,7 +102,7 @@
 			<agents>
 				<agent>
 					<aspect name="species" class="String" value="species1" />
-					<aspect name="massMap" class="InstantiableMap">
+					<aspect name="mass" class="InstantiableMap">
 						<map entryClass="Double" keyType="String">
 							<item key="bioMass" value="0.2"  />
 						</map>
@@ -115,7 +112,7 @@
 				
 				<agent>
 					<aspect name="species" class="String" value="species2" />
-					<aspect name="massMap" class="InstantiableMap">
+					<aspect name="mass" class="InstantiableMap">
 						<map entryClass="Double" keyType="String">
 							<item key="bioMass" value="0.2"  />
 						</map>
