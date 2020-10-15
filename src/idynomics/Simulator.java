@@ -330,7 +330,7 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 		else
 		{
 			this._xmlOut.writeFile();
-			this._outputTicker = 0;
+			this._outputTicker = 1;
 		}
 
 		/*
