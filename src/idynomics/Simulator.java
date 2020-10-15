@@ -347,6 +347,7 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 			}
 		}
 		
+		Log.step();
 	}
 	
 	public void run()

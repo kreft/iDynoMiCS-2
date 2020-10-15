@@ -260,4 +260,9 @@ public class Log
 				System.out.println(message);
 		}
 	}
+	
+	public static void step()
+	{
+		GuiConsole.scroll();
+	}
 }
