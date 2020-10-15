@@ -199,8 +199,6 @@ public class Decompress {
 		if( range[1] == stop && value > thresholdLow)
 			range[1] = location[dimension];
 
-		System.out.print(dimension + " ");
-		System.out.println(Vector.toString(range));
 		return range;
 	}
 }
