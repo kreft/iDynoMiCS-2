@@ -186,6 +186,10 @@ public abstract class ProcessDiffusion extends ProcessManager
 	protected void postStep()
 	{
 		/*
+		 * Ask all boundaries to update their solute concentrations.
+		 */
+		this._environment.updateSoluteBoundaries();
+		/*
 		 * Clear agent mass distribution maps.
 		 */
 		this.removeAgentDistibutionMaps();

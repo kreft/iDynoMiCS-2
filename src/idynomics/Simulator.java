@@ -305,8 +305,6 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 		 */
 		for ( Compartment c : this._compartments )
 		{
-
-			c.environment.updateSoluteBoundaries();
 			c.step();
 			if(this.interupt)
 				return;
@@ -362,7 +360,10 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 		double tic = System.currentTimeMillis();
 		/* Check if any boundary connections need to be made. */
 		for ( Compartment c : this._compartments )
+		{
 			c.checkBoundaryConnections(this._compartments);
+			c.environment.updateSoluteBoundaries();
+		}
 		
 		/* Run the simulation. */
 		while ( this.timer.isRunning() && !this.interupt )

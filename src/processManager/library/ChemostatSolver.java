@@ -359,7 +359,10 @@ public class ChemostatSolver extends ProcessManager
 	
 	protected void postStep()
 	{
-
+		/*
+		 * Ask all boundaries to update their solute concentrations.
+		 */
+		this._environment.updateSoluteBoundaries();
 		/**
 		 * act upon new agent situations
 		 */

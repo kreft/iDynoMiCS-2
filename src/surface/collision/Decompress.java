@@ -15,6 +15,7 @@ public class Decompress {
 	public int[] maxima;
 	public boolean[] _periodicDimensions;
 	public double traversingFraction = Global.traversing_fraction;
+	public double[] _pows;
 	
 	public Decompress(double[] max, double targetResolution, double threshold,
 			boolean[] periodicDimensions, double traversingFraction)
@@ -44,6 +45,9 @@ public class Decompress {
 				[maxima[0]]
 				[maxima[1]]
 				[maxima[2]];
+		this._pows = new double[Vector.max(maxima)];
+		for( int i = 0; i < Vector.max(maxima); i++)
+			_pows[i] = Math.pow(0.9, i);
 		
 		//TODO make them individually settable.
 		this.thresholdHigh = threshold*2.0;
@@ -118,12 +122,12 @@ public class Decompress {
 					for( int m = range[0]; m < location[dim]; m++)
 					{
 						directionAdd( dim, m, location, 
-								-pressure[i][j][k]);
+								-pressure[i][j][k] * this._pows[location[dim]-m]);
 					}
 					for( int m = range[1]; m > location[dim]; m--)
 					{
 						directionAdd( dim, m, location, 
-								pressure[i][j][k]);
+								pressure[i][j][k] * this._pows[m-location[dim]]);
 					}
 				}
 		}
