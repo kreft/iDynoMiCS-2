@@ -51,11 +51,11 @@ public class ConstantConcentrationToChemostat extends Boundary
 				 */
 				if ( childElem.getParentNode() != xmlElement )
 					continue;
-				
+
 				this.setConcentration( 
 						childElem.getAttribute( XmlRef.nameAttribute ), 
-						Double.valueOf( childElem.getAttribute( 
-						XmlRef.concentration ) ) );
+						XmlHandler.gatherDouble( childElem, 
+								XmlRef.concentration) );
 			}
 		}
 	}
