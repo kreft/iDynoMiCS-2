@@ -48,7 +48,9 @@ public class ChemostatSolver extends ProcessManager
 	public static String REACTIONS = AspectRef.agentReactions;
 	public static String SOLUTES = AspectRef.soluteNames;
 	public static String AGENT_VOLUME = AspectRef.agentVolume;
-	public String DIVIDE = AspectRef.agentDivision;
+	public static String DIVIDE = AspectRef.agentDivision;
+
+	public static String DISABLE_BULK_DYNAMICS = AspectRef.disableBulkDynamics;
 	/**
 	 * The ODE solver to use when updating solute concentrations. 
 	 */
@@ -61,6 +63,8 @@ public class ChemostatSolver extends ProcessManager
 	 * number of solutes
 	 */
 	protected int _n;
+	
+	protected boolean diableBulk = false;
 	
 	/* ***********************************************************************
 	 * CONSTRUCTORS
@@ -76,6 +80,8 @@ public class ChemostatSolver extends ProcessManager
 				environment.getSoluteNames()));
 		this._solutes = soluteNames;
 		this._n = this._solutes == null ? 0 : this._solutes.length;
+		if (this.isAspect(DISABLE_BULK_DYNAMICS))
+			this.diableBulk = this.getBoolean(DISABLE_BULK_DYNAMICS);
 	}
 	
 	/* ***********************************************************************
@@ -153,11 +159,14 @@ public class ChemostatSolver extends ProcessManager
 		/*
 		 * Update the environment
 		 */
-		for ( int i = 0; i < this._n; i++ )
-			this._environment.setAllConcentration( this._solutes[i], yODE[i]);
-		this._environment.getShape().setTotalVolume( yODE[ _n ] );
-		if( Log.shouldWrite(Tier.DEBUG) )
-			Log.out(Tier.DEBUG, "new volume: " + yODE[ _n ] );
+		if( !this.diableBulk )
+		{
+			for ( int i = 0; i < this._n; i++ )
+				this._environment.setAllConcentration( this._solutes[i], yODE[i]);
+			this._environment.getShape().setTotalVolume( yODE[ _n ] );
+			if( Log.shouldWrite(Tier.DEBUG) )
+				Log.out(Tier.DEBUG, "new volume: " + yODE[ _n ] );
+			}
 		
 		/* 
 		 * Update the agents 

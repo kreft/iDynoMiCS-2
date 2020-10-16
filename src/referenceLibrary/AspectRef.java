@@ -124,12 +124,7 @@ public class AspectRef
 	 * TODO
 	 */
 	public final static String agentMass = "mass";
-	
-	/**
-	 * TODO
-	 */
-//	public final static String agentMassMap = "massMap";
-	
+
 	/**
 	 * Agent mass that should trigger division.
 	 */
@@ -591,4 +586,5 @@ public class AspectRef
 
 	public static final String postSteps = "postSteps";
 
+	public static final String disableBulkDynamics = "disableBulkDynamics";
 }

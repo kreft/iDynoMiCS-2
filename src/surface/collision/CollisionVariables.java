@@ -19,6 +19,8 @@ public class CollisionVariables
 	{
 		this.margin = margin;
 	}
+	
+	
 	/*
 	 * Vector that represents the direction and scale between: 
 	 * point-point, line-point segment and line segment-line segment.

@@ -142,7 +142,7 @@ public class CoccoidDivision extends Event
 		/*
 		 * Find the threshold that triggers division.
 		 */
-		double threshold = 0.2;
+		double threshold = Double.MAX_VALUE;
 		if ( anAgent.isAspect(this.THRESHOLD_MASS) )
 			threshold = anAgent.getDouble(this.THRESHOLD_MASS);
 		/*
