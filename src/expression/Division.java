@@ -19,7 +19,7 @@ public class Division extends ComponentDouble
 	 * @param a One of the two sub-components.
 	 * @param b The other sub-component.
 	 */
-	public Division(Component a, Component b)
+	public Division(ComponentNumerical a, ComponentNumerical b)
 	{
 		super(a, b);
 		this._expr = "/";
@@ -35,7 +35,7 @@ public class Division extends ComponentDouble
 	}
 	
 	@Override
-	public Component differentiate(String withRespectTo)
+	public ComponentNumerical differentiate(String withRespectTo)
 	{
 		Multiplication aDb = Arithmetic.multiply(this._a, 
 									this._b.differentiate(withRespectTo));
@@ -54,7 +54,7 @@ public class Division extends ComponentDouble
 	 * 
 	 * @return Numerator component.
 	 */
-	public Component getNumerator()
+	public ComponentNumerical getNumerator()
 	{
 		return this._a;
 	}
@@ -65,7 +65,7 @@ public class Division extends ComponentDouble
 	 * 
 	 * @return Denominator component.
 	 */
-	public Component getDenominator()
+	public ComponentNumerical getDenominator()
 	{
 		return this._b;
 	}

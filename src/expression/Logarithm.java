@@ -22,7 +22,7 @@ public class Logarithm extends ComponentDouble
 	 * @param a The sub-component inside the brackets.
 	 * @param b The base of the logarithm.
 	 */
-	public Logarithm(Component a, Component b)
+	public Logarithm(ComponentNumerical a, ComponentNumerical b)
 	{
 		super(a, b);
 		double B = this._b.getValue(null);
@@ -62,9 +62,9 @@ public class Logarithm extends ComponentDouble
 	 * TODO this is no longer correct!
 	 */
 	@Override
-	public Component differentiate(String withRespectTo)
+	public ComponentNumerical differentiate(String withRespectTo)
 	{
-		Component out;
+		ComponentNumerical out;
 		if ( this._b instanceof Constant )
 		{
 			double b = this._b.getValue(null);
@@ -83,9 +83,9 @@ public class Logarithm extends ComponentDouble
 		else
 		{
 			out = new LogNatural(this._b);
-			Component da = Arithmetic.multiply(this._a, out);
+			ComponentNumerical da = Arithmetic.multiply(this._a, out);
 			da = new Division(this._a.differentiate(withRespectTo), da);
-			Component db = new LogNatural(this._a);
+			ComponentNumerical db = new LogNatural(this._a);
 			db = Arithmetic.multiply(db, this._b.differentiate(withRespectTo));
 			db = new Division(db, Arithmetic.multiply(this._b, 
 											new Power(out, Arithmetic.two())));

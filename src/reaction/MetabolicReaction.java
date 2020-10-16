@@ -8,7 +8,7 @@ import java.util.Map;
 import org.w3c.dom.Element;
 
 import dataIO.XmlHandler;
-import expression.Component;
+import expression.ComponentNumerical;
 import expression.Expression;
 import generalInterfaces.Copyable;
 import idynomics.Idynomics;
@@ -45,7 +45,7 @@ public class MetabolicReaction
 	 * The mathematical expression describing the rate at which this reaction
 	 * proceeds.
 	 */
-	private Component _kinetic;
+	private ComponentNumerical _kinetic;
 
 	private Settable _parentNode;
 	

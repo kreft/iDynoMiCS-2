@@ -11,7 +11,7 @@ import org.w3c.dom.Node;
 import compartment.EnvironmentContainer;
 import dataIO.ObjectFactory;
 import dataIO.XmlHandler;
-import expression.Component;
+import expression.ComponentNumerical;
 import expression.Expression;
 import generalInterfaces.Copyable;
 import instantiable.Instantiable;
@@ -63,14 +63,14 @@ public class RegularReaction
 	 * The mathematical expression describing the rate at which this reaction
 	 * proceeds.
 	 */
-	private Component _kinetic;
+	private ComponentNumerical _kinetic;
 	/**
 	 * Dictionary of mathematical expressions describing the differentiation
 	 * of {@code this._kinetic} with respect to variables, whose names are
 	 * stored as {@code Strings}.
 	 */
 	// TODO consider deletion
-	private HashMap<String, Component> _diffKinetics;
+	private HashMap<String, ComponentNumerical> _diffKinetics;
 
 	private ArrayList<String> _constituents;
 	
@@ -109,7 +109,7 @@ public class RegularReaction
 	 * @param name Name of the reaction.
 	 */
 	public RegularReaction(
-			Map<String,Double> stoichiometry, Component kinetic, String name)
+			Map<String,Double> stoichiometry, ComponentNumerical kinetic, String name)
 	{
 		this._name = name;
 		this._stoichiometry.putAll(stoichiometry);
@@ -328,7 +328,7 @@ public class RegularReaction
 		 * If this is the first time we've tried to do this, make the HashMap.
 		 */
 		if ( this._diffKinetics == null )
-			this._diffKinetics = new HashMap<String, Component>();
+			this._diffKinetics = new HashMap<String, ComponentNumerical>();
 		/*
 		 * If we haven't tried differentiating w.r.t. this variable, do so now.
 		 */

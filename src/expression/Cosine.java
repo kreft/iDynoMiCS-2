@@ -19,7 +19,7 @@ public class Cosine extends ComponentSingle
 	 * 
 	 * @param a {@code Component} whose cosine will be evaluated.
 	 */
-	public Cosine(Component a)
+	public Cosine(ComponentNumerical a)
 	{
 		super(a);
 		this._expr = "cos";
@@ -35,9 +35,9 @@ public class Cosine extends ComponentSingle
 	}
 	
 	@Override
-	protected Component getDifferential(String withRespectTo)
+	protected ComponentNumerical getDifferential(String withRespectTo)
 	{
-		Component dV = this._a.differentiate(withRespectTo);
+		ComponentNumerical dV = this._a.differentiate(withRespectTo);
 		if ( Arithmetic.isConstantWithValue(dV, 0.0) )
 			return dV;
 		Sine dU = new Sine(this._a);

@@ -1,4 +1,4 @@
-package gereralPredicates;
+package analysis.logic.predicates;
 
 import java.util.function.Predicate;
 

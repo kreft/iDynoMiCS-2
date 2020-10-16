@@ -74,17 +74,6 @@ public abstract class Component
 	protected abstract double calculateValue(Map<String, Double> variables);
 	
 	/**
-	 * \brief Differentiate this mathematical expression with respect to the
-	 * given component, be it a variable or a constant.
-	 * 
-	 * @param withRespectTo {@code String} name of the component that this
-	 * mathematical expression should be differentiated with respect to.
-	 * @return New {@code Component} describing the differential of this
-	 * mathematical expression with respect to the given component name.
-	 */
-	public abstract Component differentiate(String withRespectTo);
-	
-	/**
 	 * \brief Check if this should be evaluated with the opposite sign to that
 	 * expected.
 	 * 

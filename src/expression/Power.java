@@ -19,7 +19,7 @@ public class Power extends ComponentDouble
 	 * @param a The main number.
 	 * @param b The exponent.
 	 */
-	public Power(Component a, Component b)
+	public Power(ComponentNumerical a, ComponentNumerical b)
 	{
 		super(a, b);
 		this._expr = "^";
@@ -50,7 +50,7 @@ public class Power extends ComponentDouble
 	}
 	
 	@Override
-	public Component differentiate(String withRespectTo)
+	public ComponentNumerical differentiate(String withRespectTo)
 	{
 		if ( this._b instanceof Constant )
 		{
@@ -59,7 +59,7 @@ public class Power extends ComponentDouble
 			if ( this._b.getValue(null) == 0.0 )
 				return new Constant("0", 0.0);
 		}
-		Component newIndex = new Subtraction(this._b, Arithmetic.one());
+		ComponentNumerical newIndex = new Subtraction(this._b, Arithmetic.one());
 		return Arithmetic.multiply(this._b, new Power(this._a, newIndex));
 	}
 }

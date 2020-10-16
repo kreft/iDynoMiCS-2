@@ -19,7 +19,7 @@ public class LogNatural extends ComponentSingle
 	 * 
 	 * @param a {@code Component} whose cosine will be evaluated.
 	 */
-	public LogNatural(Component a)
+	public LogNatural(ComponentNumerical a)
 	{
 		super(a);
 		this._expr = "ln";
@@ -32,7 +32,7 @@ public class LogNatural extends ComponentSingle
 	}
 	
 	@Override
-	protected Component getDifferential(String withRespectTo)
+	protected ComponentNumerical getDifferential(String withRespectTo)
 	{
 		return new Division(this._a.differentiate(withRespectTo), this._a);
 	}

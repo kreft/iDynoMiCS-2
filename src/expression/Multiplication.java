@@ -20,7 +20,7 @@ public class Multiplication extends ComponentMultiple
 	 * 
 	 * @param a List of sub-components to multiply.
 	 */
-	public Multiplication(ArrayList<Component> a)
+	public Multiplication(ArrayList<ComponentNumerical> a)
 	{
 		super(a);
 		this._expr = "*";
@@ -33,7 +33,7 @@ public class Multiplication extends ComponentMultiple
 	 * @param a One of the two sub-components.
 	 * @param b The other sub-component.
 	 */
-	public Multiplication(Component a, Component b)
+	public Multiplication(ComponentNumerical a, ComponentNumerical b)
 	{
 		super(a, b);
 		this._expr = "*";
@@ -43,23 +43,23 @@ public class Multiplication extends ComponentMultiple
 	public double calculateValue(Map<String, Double> variables)
 	{
 		double out = 1.0;
-		for ( Component c : this._components )
+		for ( ComponentNumerical c : this._components )
 			out *= c.getValue(variables);
 		return out;
 	}
 	
 	@Override
-	public Component differentiate(String withRespectTo)
+	public ComponentNumerical differentiate(String withRespectTo)
 	{
-		ArrayList<Component> out = new ArrayList<Component>();
-		ArrayList<Component> temp;
-		Component c;
+		ArrayList<ComponentNumerical> out = new ArrayList<ComponentNumerical>();
+		ArrayList<ComponentNumerical> temp;
+		ComponentNumerical c;
 		for ( int i = 0; i < out.size(); i++ )
 		{
 			c = this._components.get(i);
 			if ( c instanceof Constant )
 				continue;
-			temp = new ArrayList<Component>();
+			temp = new ArrayList<ComponentNumerical>();
 			temp.addAll(this._components);
 			temp.set(i, c.differentiate(withRespectTo));
 			out.add(new Multiplication(temp));
