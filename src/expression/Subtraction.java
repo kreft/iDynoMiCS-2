@@ -19,7 +19,7 @@ public class Subtraction extends ComponentDouble
 	 * @param a One of the two sub-components.
 	 * @param b The other sub-component.
 	 */
-	public Subtraction(ComponentNumerical a, ComponentNumerical b)
+	public Subtraction(Component a, Component b)
 	{
 		super(a, b);
 		this._expr = "-";
@@ -32,10 +32,10 @@ public class Subtraction extends ComponentDouble
 	}
 
 	@Override
-	public ComponentNumerical differentiate(String withRespectTo)
+	public Component differentiate(String withRespectTo)
 	{
-		ComponentNumerical da = this._a.differentiate(withRespectTo);
-		ComponentNumerical db = this._b.differentiate(withRespectTo);
+		Component da = this._a.differentiate(withRespectTo);
+		Component db = this._b.differentiate(withRespectTo);
 		if ( this._a instanceof Constant )
 			return db;
 		if ( this._b instanceof Constant )

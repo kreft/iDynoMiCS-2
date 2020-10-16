@@ -9,9 +9,9 @@ public abstract class ComponentBoolean extends Component {
 
 	protected String _expr;
 
-	protected ComponentNumerical _a, _b;
+	protected Component _a, _b;
 
-	public ComponentBoolean(ComponentNumerical a, ComponentNumerical b)
+	public ComponentBoolean(Component a, Component b)
 	{
 		this._a = a;
 		this._b = b;
@@ -20,8 +20,7 @@ public abstract class ComponentBoolean extends Component {
 	@Override
 	public String getName()
 	{
-		return ( isNegative() ? "-(" : "(") + this._a.getName() + this._expr + 
-				this._b.getName() + ")";
+		return "("+ this._a.getName() + this._expr + this._b.getName() + ")";
 	}
 	
 	@Override
@@ -29,7 +28,7 @@ public abstract class ComponentBoolean extends Component {
 	{
 		String out = this._a.reportEvaluation(variables) + this._expr +
 											this._b.reportEvaluation(variables);
-		return ( isNegative() ) ? "-("+out+")" : out;
+		return out;
 	}
 	
 	@Override

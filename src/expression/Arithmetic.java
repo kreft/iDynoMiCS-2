@@ -16,7 +16,7 @@ public final class Arithmetic
 	 * CONSTANTS
 	 ************************************************************************/
 	
-	public static boolean isConstantWithValue(ComponentNumerical c, double value)
+	public static boolean isConstantWithValue(Component c, double value)
 	{
 		if ( c instanceof Constant )
 			if ( ((Constant) c).getValue(null) == value )
@@ -72,12 +72,12 @@ public final class Arithmetic
 	 * @param b
 	 * @return
 	 */
-	public static Addition add(ComponentNumerical a, ComponentNumerical b)
+	public static Addition add(Component a, Component b)
 	{
 		if ( a instanceof Addition)
 		{
 			if ( b instanceof Addition )
-				for ( ComponentNumerical c : ((Addition) b).getAllComponents() )
+				for ( Component c : ((Addition) b).getAllComponents() )
 					((Addition) a).appendComponent(c);
 			else
 				((Addition) a).appendComponent(b);
@@ -90,7 +90,7 @@ public final class Arithmetic
 		}
 		else
 		{
-			ArrayList<ComponentNumerical> list = new ArrayList<ComponentNumerical>();
+			ArrayList<Component> list = new ArrayList<Component>();
 			list.add(a);
 			list.add(b);
 			return new Addition(list);
@@ -106,12 +106,12 @@ public final class Arithmetic
 	 * @param b
 	 * @return
 	 */
-	public static Multiplication multiply(ComponentNumerical a, ComponentNumerical b)
+	public static Multiplication multiply(Component a, Component b)
 	{
 		if ( a instanceof Multiplication)
 		{
 			if ( b instanceof Multiplication )
-				for ( ComponentNumerical c : ((Multiplication) b).getAllComponents() )
+				for ( Component c : ((Multiplication) b).getAllComponents() )
 					((Multiplication) a).appendComponent(c);
 			else
 				((Multiplication) a).appendComponent(b);
@@ -124,7 +124,7 @@ public final class Arithmetic
 		}
 		else
 		{
-			ArrayList<ComponentNumerical> list = new ArrayList<ComponentNumerical>();
+			ArrayList<Component> list = new ArrayList<Component>();
 			list.add(a);
 			list.add(b);
 			return new Multiplication(list);
@@ -140,10 +140,10 @@ public final class Arithmetic
 	 * @param b
 	 * @return
 	 */
-	public static Division divide(ComponentNumerical a, ComponentNumerical b)
+	public static Division divide(Component a, Component b)
 	{
-		ComponentNumerical top = a;
-		ComponentNumerical bottom = b;
+		Component top = a;
+		Component bottom = b;
 		if ( a instanceof Division )
 		{
 			if ( b instanceof Division )

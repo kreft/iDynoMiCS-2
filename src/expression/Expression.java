@@ -627,7 +627,7 @@ public class Expression extends Component implements Settable
 		return new Constant("ERROR!",1.0);
 	}
 	
-	private static Component flipSign(ComponentNumerical component)
+	private static Component flipSign(Component component)
 	{
 		return new Multiplication(component, new Constant("-1",-1.0));
 	}
@@ -734,6 +734,11 @@ public class Expression extends Component implements Settable
 	public double format( Map<SI,GenericTrio<SI, String, Double>> unitSystem )
 	{
 		return this.format(new HashMap<String,Double>(), unitSystem );
+	}
+
+	@Override
+	public Component differentiate(String withRespectTo) {
+		return this._a.differentiate(withRespectTo);
 	}
 	
 	public void appendVariablesNames(Collection<String> names)

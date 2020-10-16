@@ -9,7 +9,7 @@ import java.util.Map;
  * 
  * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
-public abstract class ComponentSingle extends ComponentNumerical
+public abstract class ComponentSingle extends Component
 {
 	/**
 	 * {@code String} description of the function used. 
@@ -18,7 +18,7 @@ public abstract class ComponentSingle extends ComponentNumerical
 	/**
 	 * The sub-component.
 	 */
-	protected ComponentNumerical _a;
+	protected Component _a;
 	
 	/**
 	 * \brief Construct a component of a mathematical expression from a single
@@ -26,7 +26,7 @@ public abstract class ComponentSingle extends ComponentNumerical
 	 * 
 	 * @param a The sub-component.
 	 */
-	public ComponentSingle(ComponentNumerical a)
+	public ComponentSingle(Component a)
 	{
 		this._a = a;
 	}
@@ -46,14 +46,14 @@ public abstract class ComponentSingle extends ComponentNumerical
 	}
 	
 	@Override
-	public ComponentNumerical differentiate(String withRespectTo)
+	public Component differentiate(String withRespectTo)
 	{
 		if ( this._a instanceof Constant )
 			return Arithmetic.zero();
 		return this.getDifferential(withRespectTo);
 	}
 	
-	protected abstract ComponentNumerical getDifferential(String withRespectTo);
+	protected abstract Component getDifferential(String withRespectTo);
 	
 	public void appendVariablesNames(Collection<String> names)
 	{

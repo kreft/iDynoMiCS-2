@@ -10,7 +10,7 @@ import java.util.Map;
  * 
  * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
-public abstract class ComponentSimple extends ComponentNumerical
+public abstract class ComponentSimple extends Component
 {
 	/**
 	 * Name of this component: used both for reporting and for evaluation of

@@ -43,7 +43,7 @@ public class Variable extends ComponentSimple
 	}
 	
 	@Override
-	public ComponentNumerical differentiate(String withRespectTo)
+	public Component differentiate(String withRespectTo)
 	{
 		if ( withRespectTo.equals(this._name) )
 			return Arithmetic.one();

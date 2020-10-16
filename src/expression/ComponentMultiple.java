@@ -13,7 +13,7 @@ import java.util.Map;
  * 
  * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
-public abstract class ComponentMultiple extends ComponentNumerical
+public abstract class ComponentMultiple extends Component
 {
 	/**
 	 * {@code String} description of the expression 
@@ -22,7 +22,7 @@ public abstract class ComponentMultiple extends ComponentNumerical
 	/**
 	 * List of all sub-components.
 	 */
-	protected ArrayList<ComponentNumerical> _components; 
+	protected ArrayList<Component> _components; 
 	
 	/**
 	 * \brief Construct a component of a mathematical expression from a list of
@@ -30,7 +30,7 @@ public abstract class ComponentMultiple extends ComponentNumerical
 	 * 
 	 * @param components List of sub-components.
 	 */
-	public ComponentMultiple(ArrayList<ComponentNumerical> components)
+	public ComponentMultiple(ArrayList<Component> components)
 	{
 		this._components = components;
 	}
@@ -42,9 +42,9 @@ public abstract class ComponentMultiple extends ComponentNumerical
 	 * @param a One of the two sub-components.
 	 * @param b The other sub-component.
 	 */
-	public ComponentMultiple(ComponentNumerical a, ComponentNumerical b)
+	public ComponentMultiple(Component a, Component b)
 	{
-		this._components = new ArrayList<ComponentNumerical>();
+		this._components = new ArrayList<Component>();
 		this.appendComponent(a);
 		this.appendComponent(b);
 	}
@@ -76,7 +76,7 @@ public abstract class ComponentMultiple extends ComponentNumerical
 	 * 
 	 * @param component Sub-component to add.
 	 */
-	protected void prependComponent(ComponentNumerical component)
+	protected void prependComponent(Component component)
 	{
 		this._components.add(0, component);
 	}
@@ -87,7 +87,7 @@ public abstract class ComponentMultiple extends ComponentNumerical
 	 * 
 	 * @param component Sub-component to add.
 	 */
-	protected void appendComponent(ComponentNumerical component)
+	protected void appendComponent(Component component)
 	{
 		this._components.add(component);
 	}
@@ -98,7 +98,7 @@ public abstract class ComponentMultiple extends ComponentNumerical
 	 * 
 	 * @return List of {@code Component}s.
 	 */
-	public ArrayList<ComponentNumerical> getAllComponents()
+	public ArrayList<Component> getAllComponents()
 	{
 		return this._components;
 	}
@@ -106,7 +106,7 @@ public abstract class ComponentMultiple extends ComponentNumerical
 	@Override
 	public void appendVariablesNames(Collection<String> names)
 	{
-		for ( ComponentNumerical c : this._components )
+		for ( Component c : this._components )
 			if( c != null )
 				c.appendVariablesNames(names);
 	}

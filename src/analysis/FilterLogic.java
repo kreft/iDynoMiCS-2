@@ -7,11 +7,11 @@ import analysis.filter.SoluteFilter;
 import analysis.filter.SpecificationFilter;
 import analysis.filter.TimerFilter;
 import analysis.filter.ValueFilter;
-import analysis.logic.predicates.IsEquals;
-import analysis.logic.predicates.IsLarger;
-import analysis.logic.predicates.IsSmaller;
 import compartment.Compartment;
+import gereralPredicates.IsEquals;
+import gereralPredicates.IsLarger;
 import gereralPredicates.IsSame;
+import gereralPredicates.IsSmaller;
 
 /**
  * Identify and create Filters based on their operators.

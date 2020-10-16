@@ -19,7 +19,7 @@ public class Sign extends ComponentSingle
 	 * 
 	 * @param a Component to perform signum function on
 	 */
-	public Sign(ComponentNumerical a)
+	public Sign(Component a)
 	{
 		super(a);
 		this._expr = "SIGN";
@@ -37,7 +37,7 @@ public class Sign extends ComponentSingle
 	 * FIXME: [Bas] verify this please
 	 */
 	@Override
-	protected ComponentNumerical getDifferential(String withRespectTo) {
+	protected Component getDifferential(String withRespectTo) {
 		if (this.calculateValue(null) == 0.0 )
 			return new Constant("Infinity" , Double.MAX_VALUE);
 		return Arithmetic.zero();

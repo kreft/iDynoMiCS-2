@@ -44,7 +44,7 @@ public class Constant extends ComponentSimple
 	}
 	
 	@Override
-	public ComponentNumerical differentiate(String withRespectTo)
+	public Component differentiate(String withRespectTo)
 	{
 		return ( this._name.equals(withRespectTo) ) ? 
 								Arithmetic.one() : Arithmetic.zero();

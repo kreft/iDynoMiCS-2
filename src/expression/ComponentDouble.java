@@ -13,7 +13,7 @@ import dataIO.Log;
  * 
  * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
-public abstract class ComponentDouble extends ComponentNumerical
+public abstract class ComponentDouble extends Component
 {
 	/**
 	 * {@code String} description of the expression 
@@ -23,7 +23,7 @@ public abstract class ComponentDouble extends ComponentNumerical
 	/**
 	 * One of the two sub-components.
 	 */
-	protected ComponentNumerical _a, _b;
+	protected Component _a, _b;
 	
 	/**
 	 * \brief Construct a component of a mathematical expression from two
@@ -32,7 +32,7 @@ public abstract class ComponentDouble extends ComponentNumerical
 	 * @param a One of the two sub-components.
 	 * @param b The other sub-components.
 	 */
-	public ComponentDouble(ComponentNumerical a, ComponentNumerical b)
+	public ComponentDouble(Component a, Component b)
 	{
 		this._a = a;
 		this._b = b;

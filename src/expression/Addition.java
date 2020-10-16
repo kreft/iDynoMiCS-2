@@ -20,7 +20,7 @@ public class Addition extends ComponentMultiple
 	 * 
 	 * @param a List of sub-components to add.
 	 */
-	public Addition(ArrayList<ComponentNumerical> a)
+	public Addition(ArrayList<Component> a)
 	{
 		super(a);
 		this._expr = "+";
@@ -33,7 +33,7 @@ public class Addition extends ComponentMultiple
 	 * @param a One of the two sub-components.
 	 * @param b The other sub-component.
 	 */
-	public Addition(ComponentNumerical a, ComponentNumerical b)
+	public Addition(Component a, Component b)
 	{
 		super(a, b);
 		this._expr = "+";
@@ -43,15 +43,16 @@ public class Addition extends ComponentMultiple
 	protected double calculateValue(Map<String, Double> variables)
 	{
 		double out = 0.0;
-		for ( ComponentNumerical c : this._components )
+		for ( Component c : this._components )
 			out += c.getValue(variables);
 		return out;
 	}
-
-	public ComponentNumerical differentiate(String withRespectTo)
+	
+	@Override
+	public Component differentiate(String withRespectTo)
 	{
-		ArrayList<ComponentNumerical> out = new ArrayList<ComponentNumerical>();
-		for ( ComponentNumerical c : this._components )
+		ArrayList<Component> out = new ArrayList<Component>();
+		for ( Component c : this._components )
 			if ( ! (c instanceof Constant) )
 				out.add(c.differentiate(withRespectTo));
 		return new Multiplication(out);
