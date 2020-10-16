@@ -353,4 +353,9 @@ public class Global extends ParameterSet
 	 * decompression algorithm
 	 */
 	public static double traversing_fraction = 0.02;
+	
+	/**
+	 * Default decompression parameters
+	 */
+	public static double damping_factor = 0.9;
 }

@@ -587,4 +587,6 @@ public class AspectRef
 	public static final String postSteps = "postSteps";
 
 	public static final String disableBulkDynamics = "disableBulkDynamics";
+
+	public static final String dampingFactor = "dampingFactor";
 }

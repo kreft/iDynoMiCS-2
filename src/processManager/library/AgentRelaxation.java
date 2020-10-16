@@ -262,12 +262,13 @@ public class AgentRelaxation extends ProcessManager
 
 		if ( this._decompression )
 			decompressionMatrix = new Decompress( 
-					this._agents.getShape().getDimensionLengths(), 
+					this._agents.getShape().getDimensionLengths(),
 					Helper.setIfNone(this.getDouble(DECOMPRESSION_CELL_LENGTH), //possibly change to must set since very depended on case.
-					2.0 ), Helper.setIfNone(this.getDouble(DECOMPRESSION_THRESHOLD), 
+					0.0 ), Helper.setIfNone(this.getDouble(DECOMPRESSION_THRESHOLD), 
 					this._stressThreshold ), 
 					this._agents.getShape().getIsCyclicNaturalOrderIncludingVirtual(),
-					(double) this.getOr(AspectRef.traversingFraction, 0.0));
+					(double) this.getOr(AspectRef.traversingFraction, Global.traversing_fraction),
+					(double) this.getOr(AspectRef.dampingFactor, Global.damping_factor));
 		
 	}
 

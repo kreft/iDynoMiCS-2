@@ -2,7 +2,9 @@ package surface.collision;
 
 import dataIO.Log;
 import idynomics.Global;
+import idynomics.Idynomics;
 import linearAlgebra.Vector;
+import referenceLibrary.AspectRef;
 
 public class Decompress {
 	
@@ -18,13 +20,18 @@ public class Decompress {
 	public double[] _pows;
 	
 	public Decompress(double[] max, double targetResolution, double threshold,
-			boolean[] periodicDimensions, double traversingFraction)
+			boolean[] periodicDimensions, double traversingFraction, double dampingFactor)
 	{
 		if ( traversingFraction != 0.0 )
 			this.traversingFraction = traversingFraction;
 		nDim = max.length;
 		resolution = new double[3];
 		this._periodicDimensions = periodicDimensions;
+		if( targetResolution == 0.0)
+		{
+			Idynomics.simulator.interupt("Enabled " + this.getClass().getSimpleName()
+					+ " without " + AspectRef.decompressionCellLength + " stopping.");
+		}
 		for( int i = 0; i < nDim; i++ )
 		{
 			resolution[i] = max[i] / Math.ceil(max[i] / targetResolution);
@@ -47,7 +54,7 @@ public class Decompress {
 				[maxima[2]];
 		this._pows = new double[Vector.max(maxima)];
 		for( int i = 0; i < Vector.max(maxima); i++)
-			_pows[i] = Math.pow(0.9, i);
+			_pows[i] = Math.pow(dampingFactor, i);
 		
 		//TODO make them individually settable.
 		this.thresholdHigh = threshold*2.0;
