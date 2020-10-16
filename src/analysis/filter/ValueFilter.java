@@ -25,6 +25,8 @@ public class ValueFilter implements Filter
 	public String stringValue(AspectInterface subject, String format)
 	{
 		Object obj = subject.getValue(this.property);
+		if( obj instanceof String )
+			return (String) obj;
 		return ( Helper.isNullOrEmpty(obj) ? "NONE" : String.format( screenLocale,  format, obj) );
 	}
 

@@ -202,7 +202,7 @@ public class FilteredTable {
 		
 		for (int i = 0; i < columns.size(); i++)
 		{
-			out += String.format("%35s | ",columns.get(i).header() + ( this.qualification.get(i) == null 
+			out += String.format("%45s | ",columns.get(i).header() + ( this.qualification.get(i) == null 
 					? "" : " ? " +  this.qualification.get(i).header()))
 					+ values.get( i ) + (i+1 < columns.size() ? "\n": "");
 		}
