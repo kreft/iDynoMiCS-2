@@ -1,10 +1,13 @@
 /**
  * 
  */
-package expression;
+package expression.arithmetic;
 
 import java.util.Collection;
 import java.util.Map;
+
+import expression.Component;
+import expression.ComponentSimple;
 
 /**
  * \brief A component of a mathematical expression whose value varies, and so

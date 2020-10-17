@@ -11,7 +11,16 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 import dataIO.XmlHandler;
-import expression.Unit.SI;
+import expression.arithmetic.Arithmetic;
+import expression.arithmetic.Constant;
+import expression.arithmetic.Logarithm;
+import expression.arithmetic.Multiplication;
+import expression.arithmetic.Power;
+import expression.arithmetic.Sign;
+import expression.arithmetic.Subtraction;
+import expression.arithmetic.Unit;
+import expression.arithmetic.Variable;
+import expression.arithmetic.Unit.SI;
 import idynomics.Idynomics;
 import instantiable.object.InstantiableMap;
 import referenceLibrary.XmlRef;

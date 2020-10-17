@@ -1,10 +1,13 @@
 /**
  * 
  */
-package expression;
+package expression.arithmetic;
 
 import java.util.ArrayList;
 import java.util.Map;
+
+import expression.Component;
+import expression.ComponentMultiple;
 
 /**
  * \brief A component of a mathematical expression composed of the

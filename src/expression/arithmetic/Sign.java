@@ -1,9 +1,12 @@
 /**
  * 
  */
-package expression;
+package expression.arithmetic;
 
 import java.util.Map;
+
+import expression.Component;
+import expression.ComponentSingle;
 
 /**
  * \brief Signum function return 1 for positive value, -1 for negative and 0 for

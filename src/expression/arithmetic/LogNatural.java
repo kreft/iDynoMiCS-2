@@ -1,9 +1,12 @@
 /**
  * 
  */
-package expression;
+package expression.arithmetic;
 
 import java.util.Map;
+
+import expression.Component;
+import expression.ComponentSingle;
 
 /**
  * \brief Component of a mathematical expression that is the natural logartihm

@@ -1,9 +1,11 @@
-package expression;
+package expression.arithmetic;
 
 import java.util.Map;
 
 import dataIO.Log;
 import dataIO.Log.Tier;
+import expression.Component;
+import expression.ComponentDouble;
 
 /**
  * \brief A component of a mathematical expression composed of the logarithm

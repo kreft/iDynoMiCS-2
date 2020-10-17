@@ -76,7 +76,7 @@ public abstract class ComponentMultiple extends Component
 	 * 
 	 * @param component Sub-component to add.
 	 */
-	protected void prependComponent(Component component)
+	public void prependComponent(Component component)
 	{
 		this._components.add(0, component);
 	}
@@ -87,7 +87,7 @@ public abstract class ComponentMultiple extends Component
 	 * 
 	 * @param component Sub-component to add.
 	 */
-	protected void appendComponent(Component component)
+	public void appendComponent(Component component)
 	{
 		this._components.add(component);
 	}

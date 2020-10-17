@@ -3,8 +3,8 @@ package test.other;
 import java.util.Map;
 
 import expression.Expression;
-import expression.Unit;
-import expression.Unit.SI;
+import expression.arithmetic.Unit;
+import expression.arithmetic.Unit.SI;
 import utility.GenericTrio;
 
 /**

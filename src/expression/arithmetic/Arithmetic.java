@@ -1,9 +1,11 @@
 /**
  * 
  */
-package expression;
+package expression.arithmetic;
 
 import java.util.ArrayList;
+
+import expression.Component;
 
 /**
  * \brief Set of useful components for easy reference.

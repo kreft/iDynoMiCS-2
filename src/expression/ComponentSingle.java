@@ -3,6 +3,9 @@ package expression;
 import java.util.Collection;
 import java.util.Map;
 
+import expression.arithmetic.Arithmetic;
+import expression.arithmetic.Constant;
+
 /**
  * \brief Component of a mathematical expression that is a function of one
  * other component.

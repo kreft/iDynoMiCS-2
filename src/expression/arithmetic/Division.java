@@ -1,6 +1,9 @@
-package expression;
+package expression.arithmetic;
 
 import java.util.Map;
+
+import expression.Component;
+import expression.ComponentDouble;
 
 /**
  * \brief A component of a mathematical expression composed of the division
