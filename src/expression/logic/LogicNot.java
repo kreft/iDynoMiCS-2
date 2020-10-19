@@ -4,12 +4,12 @@ import java.util.Map;
 
 import dataIO.Log;
 import dataIO.Log.Tier;
-import expression.Component;
 import expression.ComponentBoolean;
+import expression.Elemental;
 
 public class LogicNot extends ComponentBoolean {
 
-	public LogicNot(Component a) 
+	public LogicNot(Elemental a) 
 	{		
 		super(a, null);
 		this._expr = "NOT";
@@ -19,7 +19,7 @@ public class LogicNot extends ComponentBoolean {
 	}
 
 	@Override
-	public Boolean calculateBoolean(Map<String, Double> variables) 
+	public Boolean calculateBoolean(Map<String, Object> variables) 
 	{
 		return ( !this._c.calculateBoolean(variables) );
 	}	

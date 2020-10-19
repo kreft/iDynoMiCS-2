@@ -42,7 +42,14 @@ public class Variable extends ComponentSimple
 	@Override
 	protected double calculateValue(Map<String, Double> variables)
 	{
-		return variables.get(this._name); 
+		/* using 0.0 in cases were a variable is not defined is an easy default
+		 * but might result in errors if carelessly used.. TODO reflect 
+		Double out = variables.get(this._name); 
+		if ( out == null )
+			return 0.0;
+		else
+			return out; */
+		return variables.get(this._name);
 	}
 	
 	@Override

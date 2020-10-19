@@ -11,16 +11,9 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 import dataIO.XmlHandler;
-import expression.arithmetic.Arithmetic;
-import expression.arithmetic.Constant;
-import expression.arithmetic.Logarithm;
-import expression.arithmetic.Multiplication;
-import expression.arithmetic.Power;
-import expression.arithmetic.Sign;
-import expression.arithmetic.Subtraction;
-import expression.arithmetic.Unit;
-import expression.arithmetic.Variable;
+import expression.arithmetic.*;
 import expression.arithmetic.Unit.SI;
+import expression.logic.*;
 import idynomics.Idynomics;
 import instantiable.object.InstantiableMap;
 import referenceLibrary.XmlRef;
@@ -102,6 +95,15 @@ public class Expression extends Component implements Settable
 					"/", 	// division
 					"+", 	// addition
 					"-",	// negative or subtraction TODO make sure this does not cause any problems
+					"!=",		// previous .. not equal to .. following
+					"=", 		// previous .. and .. following
+					"LT", 	// previous .. less than .. following
+					"GT",	 	// previous .. greater than .. following
+					"NOT",	// inverts .. following
+					"AND", 	// previous .. and .. following
+					"OR", 	// previous .. and/or .. following
+					"XOR", 	// previous .. exclusive or .. following
+					"XNOR", 	// previous .. matches .. following
 					};	
 	/**
 	 * TODO Work out what this does.
@@ -142,6 +144,7 @@ public class Expression extends Component implements Settable
 	 */
 	public Expression(String expression, Map<String, Double> constants)
 	{
+		super(Type.omnifarious);
 		init(expression, constants);
 	}
 	
@@ -154,6 +157,7 @@ public class Expression extends Component implements Settable
 	 */
 	public Expression(String expression)
 	{
+		super(Type.omnifarious);
 		if (expression == null || expression.equals("") )
 			expression = Helper.obtainInput("", XmlRef.expression);
 		init(expression, null);
@@ -166,6 +170,7 @@ public class Expression extends Component implements Settable
 	 */
 	public Expression(Node xmlNode)
 	{
+		super(Type.omnifarious);
 		Element elem = (Element) xmlNode;
 
 		this._constants.instantiate(elem, this);
@@ -631,6 +636,24 @@ public class Expression extends Component implements Settable
 			return 	new Sign(calc.get(next));
 		case ("SIGN-"): 
 			return new Sign(flipSign(calc.get(next)));
+		case ("!="): 
+			return new LogicNotEqual(calc.get(prev), calc.get(next));
+		case ("="): 
+			return new LogicEqual(calc.get(prev), calc.get(next));
+		case ("LT"): 
+			return new LogicLessThan(calc.get(prev), calc.get(next));
+		case ("GT"): 
+			return new LogicGreaterThan(calc.get(prev), calc.get(next));
+		case ("NOT"): 
+			return new LogicNot(calc.get(next));
+		case ("AND"): 
+			return new LogicAnd(calc.get(prev), calc.get(next));
+		case ("OR"): 
+			return new LogicOr(calc.get(prev), calc.get(next));
+		case ("XOR"): 
+			return new LogicXor(calc.get(prev), calc.get(next));
+		case ("XNOR"): 
+			return new LogicXnor(calc.get(prev), calc.get(next));
 		}
 		System.err.println("ERROR: could not construnct component!");
 		return new Constant("ERROR!",1.0);
@@ -662,6 +685,14 @@ public class Expression extends Component implements Settable
 		case ("/-"): 
 		case ("^-"):
 		case ("EXP-"):
+		case ("!="): 
+		case ("="): 
+		case ("LT"): 
+		case ("GT"): 
+		case ("AND"): 
+		case ("OR"): 
+		case ("XOR"): 
+		case ("XNOR"): 
 			if ( calc.containsKey( prev ) )
 				calc.remove( prev );
 			if ( calc.containsKey( next ) )
@@ -672,6 +703,7 @@ public class Expression extends Component implements Settable
 		case ("LOG"):
 		case("SIGN"):
 		case("SIGN-"):
+		case ("NOT"): 
 			if ( calc.containsKey( next ) )
 				calc.remove( next );
 			break;

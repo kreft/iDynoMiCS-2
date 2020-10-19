@@ -6,10 +6,11 @@ import dataIO.Log;
 import dataIO.Log.Tier;
 import expression.Component;
 import expression.ComponentBoolean;
+import expression.Elemental;
 
-public class LogiXor extends ComponentBoolean {
+public class LogicXor extends ComponentBoolean {
 
-	public LogiXor(Component a, Component b) 
+	public LogicXor(Elemental a, Elemental b) 
 	{		
 		super(a, b);
 		this._expr = "XOR";
@@ -20,7 +21,7 @@ public class LogiXor extends ComponentBoolean {
 	}
 
 	@Override
-	public Boolean calculateBoolean(Map<String, Double> variables) 
+	public Boolean calculateBoolean(Map<String, Object> variables) 
 	{
 		return (this._c.calculateBoolean(variables) != 
 				this._d.calculateBoolean(variables));

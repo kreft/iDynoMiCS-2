@@ -4,12 +4,12 @@ import java.util.Map;
 
 import dataIO.Log;
 import dataIO.Log.Tier;
-import expression.Component;
 import expression.ComponentBoolean;
+import expression.Elemental;
 
 public class LogicOr extends ComponentBoolean {
 
-	public LogicOr(Component a, Component b) 
+	public LogicOr(Elemental a, Elemental b) 
 	{		
 		super(a, b);
 		this._expr = "OR";
@@ -20,7 +20,7 @@ public class LogicOr extends ComponentBoolean {
 	}
 
 	@Override
-	public Boolean calculateBoolean(Map<String, Double> variables) 
+	public Boolean calculateBoolean(Map<String, Object> variables) 
 	{
 		return (this._c.calculateBoolean(variables) || 
 				this._d.calculateBoolean(variables));

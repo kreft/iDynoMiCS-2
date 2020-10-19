@@ -1,5 +1,6 @@
 package analysis;
 
+import java.util.IllegalFormatConversionException;
 import java.util.List;
 
 import analysis.filter.CategoryFilter;
@@ -47,7 +48,7 @@ public class Counter {
 				{
 					count += Double.valueOf( filter.stringValue(a,"%g") );
 				}
-				catch (NumberFormatException e)
+				catch (NumberFormatException | IllegalFormatConversionException e)
 				{
 					i++;
 				}

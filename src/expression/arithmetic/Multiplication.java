@@ -3,11 +3,10 @@
  */
 package expression.arithmetic;
 
-import java.util.ArrayList;
 import java.util.Map;
 
 import expression.Component;
-import expression.ComponentMultiple;
+import expression.ComponentDouble;
 
 /**
  * \brief A component of a mathematical expression composed of the
@@ -15,20 +14,8 @@ import expression.ComponentMultiple;
  * 
  * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
-public class Multiplication extends ComponentMultiple
+public class Multiplication extends ComponentDouble
 {
-	/**
-	 * \brief Construct a multiplication component of a mathematical
-	 * expression from a list of sub-components.
-	 * 
-	 * @param a List of sub-components to multiply.
-	 */
-	public Multiplication(ArrayList<Component> a)
-	{
-		super(a);
-		this._expr = "*";
-	}
-	
 	/**
 	 * \brief Construct a multiplication component of a mathematical expression
 	 * from two sub-components.
@@ -45,31 +32,22 @@ public class Multiplication extends ComponentMultiple
 	@Override
 	public double calculateValue(Map<String, Double> variables)
 	{
-		double out = 1.0;
-		for ( Component c : this._components )
-			out *= c.getValue(variables);
-		return out;
+		return this._a.getValue(variables) * this._b.getValue(variables);
+
 	}
 	
 	@Override
 	public Component differentiate(String withRespectTo)
 	{
-		ArrayList<Component> out = new ArrayList<Component>();
-		ArrayList<Component> temp;
-		Component c;
-		for ( int i = 0; i < out.size(); i++ )
-		{
-			c = this._components.get(i);
-			if ( c instanceof Constant )
-				continue;
-			temp = new ArrayList<Component>();
-			temp.addAll(this._components);
-			temp.set(i, c.differentiate(withRespectTo));
-			out.add(new Multiplication(temp));
-		}
-		if ( out.size() == 1 )
-			return out.get(0);
-		else
-			return new Addition(out);
+		/* TODO verify results */
+		Multiplication aDb = Arithmetic.multiply(this._a, 
+				this._b.differentiate(withRespectTo));
+		Multiplication bDa = Arithmetic.multiply(this._b,
+						this._a.differentiate(withRespectTo));
+		if ( this._a instanceof Constant )
+		return aDb;
+		if ( this._b instanceof Constant )
+		return bDa;
+		return Arithmetic.add(aDb, bDa);
 	}
 }

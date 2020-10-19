@@ -6,18 +6,18 @@ import java.util.Map;
 import dataIO.Log;
 import dataIO.Log.Tier;
 
-public abstract class ComponentBoolean extends Component {
+public abstract class ComponentBoolean extends Elemental {
 
 	protected String _expr;
 	
-
-	protected Component _a, _b;
+	protected Elemental _a, _b;
 
 	protected ComponentBoolean _c, _d;
 	
 
-	public ComponentBoolean(Component a, Component b)
+	public ComponentBoolean(Elemental a, Elemental b)
 	{
+		super(Type.bool);
 		this._a = a;
 		this._b = b;
 		if( a instanceof ComponentBoolean )
@@ -29,50 +29,25 @@ public abstract class ComponentBoolean extends Component {
 	@Override
 	public String getName()
 	{
-		return "("+ this._c.getName() + this._expr + this._d.getName() + ")";
+		return "("+ this._a.getName() + this._expr + this._b.getName() + ")";
 	}
 	
+
 	@Override
-	public String reportEvaluation(Map<String, Double> variables)
+	public Elemental getValueEle(Map<String, Object> variables) 
 	{
-		String out = this._c.reportEvaluation(variables) + this._expr +
-											this._d.reportEvaluation(variables);
-		return out;
-	}
+		// TODO Auto-generated method stub
+		return calculateBoolean(variables);
+	}	
+
 	
 	@Override
 	public void appendVariablesNames(Collection<String> names)
 	{
-		this._c.appendVariablesNames(names);
-		this._d.appendVariablesNames(names);
+		this._a.appendVariablesNames(names);
+		this._b.appendVariablesNames(names);
 	}
 	
-	public abstract Boolean calculateBoolean(Map<String, Double> variables);
-	
-	protected double calculateValue(Map<String, Double> variables) 
-	{
-		if ( this.calculateBoolean(variables) )
-			return 1.0;
-		else
-			return 0.0;
-	}
-	
-	public Component differentiate(String withRespectTo) 
-	{
-		Log.out(Tier.CRITICAL, "Unable to differntiate logical expressions");
-		return null;
-	}
+	public abstract Boolean calculateBoolean(Map<String, Object> variables);
 
-	
-	/**
-	 * \brief Helper method for sub-classes that may encounter infinite values.
-	 * 
-	 * @param variables Dictionary of variable names with associated values
-	 * that triggered the infinite value.
-	 */
-	protected void infiniteValueWarning(Map<String, Double> variables)
-	{
-		Log.out(Log.Tier.CRITICAL,"WARNING! Infinite value: " + this.getName() + 
-									" = " + this.reportEvaluation(variables));
-	}
 }
