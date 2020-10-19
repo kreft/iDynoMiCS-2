@@ -68,9 +68,8 @@ public abstract class ComponentDouble extends Component
 	 * @param variables Dictionary of variable names with associated values
 	 * that triggered the infinite value.
 	 */
-	protected void infiniteValueWarning(Map<String, Double> variables)
+	protected void infiniteValueWarning()
 	{
-		Log.out(CRITICAL,"WARNING! Infinite value: " + this.getName() + 
-									" = " + this.reportEvaluation(variables));
+		Log.out(CRITICAL,"WARNING! Infinite value: " + this.getName());
 	}
 }

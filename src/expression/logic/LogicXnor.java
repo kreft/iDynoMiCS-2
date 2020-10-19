@@ -2,6 +2,7 @@ package expression.logic;
 
 import java.util.Map;
 
+import aspect.AspectInterface;
 import dataIO.Log;
 import dataIO.Log.Tier;
 import expression.ComponentBoolean;
@@ -20,10 +21,16 @@ public class LogicXnor extends ComponentBoolean {
 	}
 
 	@Override
-	public Boolean calculateBoolean(Map<String, Object> variables) 
+	public Boolean calculateBoolean(Map<String, Double> variables) 
 	{
 		return (this._c.calculateBoolean(variables) == 
 				this._d.calculateBoolean(variables));
 	}	
+	
+	@Override
+	public boolean booleanEvaluate(AspectInterface subject) {
+		return ( this._c.booleanEvaluate(subject) ==
+				this._d.booleanEvaluate(subject) );
+	}
 
 }

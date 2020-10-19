@@ -5,6 +5,8 @@ package expression;
 import java.util.HashMap;
 import java.util.Map;
 
+import aspect.AspectInterface;
+
 /**
  * \brief Abstract class for any component of a mathematical expression.
  * 
@@ -40,7 +42,7 @@ public abstract class Component extends Elemental
 	 * mathematical expression.
 	 */
 	public abstract String reportEvaluation(Map<String, Double> variables);
-	
+
 	/**
 	 * \brief Evaluate this mathematical expression.
 	 * 
@@ -51,15 +53,6 @@ public abstract class Component extends Elemental
 	public double getValue(Map<String, Double> variables)
 	{
 		double out = this.calculateValue(variables);
-		return ( this._isNegative ) ? -out : out;
-	}
-	
-	public Elemental getValueEle(Map<String, Object> variables)
-	{
-		Map<String, Double> temp = new HashMap<String, Double>();
-		for( String s : variables.keySet())
-			temp.put(s, (Double) variables.get(s));
-		double out = this.calculateValue(temp);
 		return ( this._isNegative ) ? -out : out;
 	}
 	

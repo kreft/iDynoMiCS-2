@@ -5,6 +5,7 @@ package expression.arithmetic;
 
 import java.util.Map;
 
+import aspect.AspectInterface;
 import expression.Component;
 import expression.ComponentSingle;
 
@@ -32,6 +33,12 @@ public class Sign extends ComponentSingle
 	public double calculateValue(Map<String, Double> variables)
 	{
 		return Math.signum(this._a.getValue(variables));
+	}
+	
+	@Override
+	public Object evaluate(AspectInterface subject) 
+	{
+		return Math.signum((double) this._a.evaluate(subject));
 	}
 	
 	/**

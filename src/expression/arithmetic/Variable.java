@@ -6,6 +6,7 @@ package expression.arithmetic;
 import java.util.Collection;
 import java.util.Map;
 
+import aspect.AspectInterface;
 import expression.Component;
 import expression.ComponentSimple;
 
@@ -50,6 +51,15 @@ public class Variable extends ComponentSimple
 		else
 			return out; */
 		return variables.get(this._name);
+	}
+	
+	@Override
+	public Object evaluate(AspectInterface subject) 
+	{
+		/* for undefined objects keep the name?
+		 * makes string comparinsons possible */
+		Object out = subject.getValue(this._name);
+		return (out == null ? this._name : out );
 	}
 	
 	@Override

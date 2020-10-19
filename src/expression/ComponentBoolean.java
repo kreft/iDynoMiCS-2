@@ -3,8 +3,7 @@ package expression;
 import java.util.Collection;
 import java.util.Map;
 
-import dataIO.Log;
-import dataIO.Log.Tier;
+import aspect.AspectInterface;
 
 public abstract class ComponentBoolean extends Elemental {
 
@@ -34,13 +33,18 @@ public abstract class ComponentBoolean extends Elemental {
 	
 
 	@Override
-	public Elemental getValueEle(Map<String, Object> variables) 
+	public double getValue(Map<String, Double> variables) 
 	{
-		// TODO Auto-generated method stub
-		return calculateBoolean(variables);
+		return (this.calculateBoolean(variables) ? 1.0 : 0.0);
 	}	
-
 	
+	public abstract boolean booleanEvaluate(AspectInterface subject);
+	
+	public Object evaluate(AspectInterface subject)
+	{
+		return (this.booleanEvaluate(subject) ? 1.0 : 0.0);
+	}
+
 	@Override
 	public void appendVariablesNames(Collection<String> names)
 	{
@@ -48,6 +52,6 @@ public abstract class ComponentBoolean extends Elemental {
 		this._b.appendVariablesNames(names);
 	}
 	
-	public abstract Boolean calculateBoolean(Map<String, Object> variables);
+	public abstract Boolean calculateBoolean(Map<String, Double> variables);
 
 }

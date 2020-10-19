@@ -2,6 +2,7 @@ package expression.arithmetic;
 
 import java.util.Map;
 
+import aspect.AspectInterface;
 import dataIO.Log;
 import dataIO.Log.Tier;
 import expression.Component;
@@ -56,7 +57,17 @@ public class Logarithm extends ComponentDouble
 		double a = this._a.getValue(variables);
 		double b = this._b.getValue(variables);
 		if ( b == 1.0 || b <= 0.0 )
-			this.infiniteValueWarning(variables);
+			this.infiniteValueWarning();
+		return Math.log(a)/Math.log(b);
+	}
+	
+	@Override
+	public Object evaluate(AspectInterface subject) 
+	{
+		double a = (double) this._a.evaluate(subject);
+		double b = (double) this._b.evaluate(subject);
+		if ( b == 1.0 || b <= 0.0 )
+			this.infiniteValueWarning();
 		return Math.log(a)/Math.log(b);
 	}
 	

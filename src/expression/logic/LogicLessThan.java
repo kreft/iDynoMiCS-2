@@ -2,7 +2,7 @@ package expression.logic;
 
 import java.util.Map;
 
-import expression.Component;
+import aspect.AspectInterface;
 import expression.ComponentBoolean;
 import expression.Elemental;
 
@@ -15,9 +15,14 @@ public class LogicLessThan extends ComponentBoolean {
 	}
 
 	@Override
-	public Boolean calculateBoolean(Map<String, Object> variables) 
+	public Boolean calculateBoolean(Map<String, Double> variables) 
 	{
-		return ( this._a.getValueEle(variables) < this._b.getValueEle(variables) );
+		return ( this._a.getValue(variables) < this._b.getValue(variables) );
 	}	
 
+	@Override
+	public boolean booleanEvaluate(AspectInterface subject) {
+		return  (double) this._a.evaluate(subject) <
+				 (double) this._b.evaluate(subject);
+	}
 }

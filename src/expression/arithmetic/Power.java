@@ -2,6 +2,7 @@ package expression.arithmetic;
 
 import java.util.Map;
 
+import aspect.AspectInterface;
 import expression.Component;
 import expression.ComponentDouble;
 
@@ -48,9 +49,21 @@ public class Power extends ComponentDouble
 		double b = this._b.getValue(variables);
 		/* Can't divide by zero! */
 		if ( a == 0.0 && b < 0.0 )
-			this.infiniteValueWarning(variables);
+			this.infiniteValueWarning();
 		return Math.pow(a, b);
 	}
+	
+	@Override
+	public Object evaluate(AspectInterface subject) 
+	{
+		double a = (double) this._a.evaluate(subject);
+		double b = (double) this._b.evaluate(subject);
+		/* Can't divide by zero! */
+		if ( a == 0.0 && b < 0.0 )
+			this.infiniteValueWarning();
+		return Math.pow(a, b);
+	}
+	
 	
 	@Override
 	public Component differentiate(String withRespectTo)

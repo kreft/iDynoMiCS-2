@@ -224,9 +224,9 @@ public abstract interface AspectInterface
 		return (Boolean[]) this.reg().getValue(this, aspect);
 	}
 
-	public default Map<String, Object> getVariables(Collection<String> variables)
+	public default Map<String, Double> getVariables(Collection<String> variables)
 	{
-		HashMap<String, Object> out = new HashMap<String, Object>();
+		HashMap<String, Double> out = new HashMap<String, Double>();
 		for( String s : variables)
 			out.put(s, this.getDouble(s));
 		return out;

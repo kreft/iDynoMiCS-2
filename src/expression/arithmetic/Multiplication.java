@@ -5,6 +5,7 @@ package expression.arithmetic;
 
 import java.util.Map;
 
+import aspect.AspectInterface;
 import expression.Component;
 import expression.ComponentDouble;
 
@@ -34,6 +35,12 @@ public class Multiplication extends ComponentDouble
 	{
 		return this._a.getValue(variables) * this._b.getValue(variables);
 
+	}
+	
+	@Override
+	public Object evaluate(AspectInterface subject) 
+	{
+		return (double) this._a.evaluate(subject) * (double) this._b.evaluate(subject);
 	}
 	
 	@Override

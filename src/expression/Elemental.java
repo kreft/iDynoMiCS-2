@@ -4,10 +4,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 
+import aspect.AspectInterface;
+
 public abstract class Elemental {
 	
-	private Comparable<?> element;
-
 	private Type _type;
 	/**
 	 * Names of all the variables used in this expression. Storing the names
@@ -29,7 +29,7 @@ public abstract class Elemental {
 	 */
 	public abstract String getName();
 	
-	public abstract Elemental getValueEle(Map<String, Object> variables);
+	public abstract double getValue(Map<String, Double> variables);
 	
 	public Elemental(Type type)
 	{
@@ -47,7 +47,8 @@ public abstract class Elemental {
 	{
 		this._type = type;
 	}
-	
+		
+	public abstract Object evaluate(AspectInterface subject);
 	
 	/**
 	 * \brief Get a list of names for all the variables in this mathematical
@@ -76,13 +77,4 @@ public abstract class Elemental {
 	 */
 	protected abstract void appendVariablesNames(Collection<String> names);
 
-
-	public Comparable<?> getObj() {
-		return element;
-	}
-
-
-	public void setObj(Comparable<?> obj) {
-		this.element = obj;
-	}
 }

@@ -5,6 +5,7 @@ package expression.arithmetic;
 
 import java.util.Map;
 
+import aspect.AspectInterface;
 import expression.Component;
 import expression.ComponentSingle;
 
@@ -32,6 +33,12 @@ public class LogNatural extends ComponentSingle
 	protected double calculateValue(Map<String, Double> variables)
 	{
 		return Math.log(this._a.getValue(variables));
+	}
+	
+	@Override
+	public Object evaluate(AspectInterface subject) 
+	{
+		return Math.log((double) this._a.evaluate(subject));
 	}
 	
 	@Override

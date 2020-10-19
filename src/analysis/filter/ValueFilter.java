@@ -31,7 +31,7 @@ public class ValueFilter implements Filter
 		else if ( obj instanceof Expression )
 		{
 			Expression ex = (Expression) obj;
-			obj = ex.getValueEle(subject.getVariables(ex.getAllVariablesNames()));
+			obj = ex.evaluate(subject);
 		}
 		return ( Helper.isNullOrEmpty(obj) ? "NONE" : String.format( screenLocale,  format, obj) );
 	}
