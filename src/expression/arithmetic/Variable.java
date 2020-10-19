@@ -57,7 +57,7 @@ public class Variable extends ComponentSimple
 	public Object evaluate(AspectInterface subject) 
 	{
 		/* for undefined objects keep the name?
-		 * makes string comparinsons possible */
+		 * makes string comparisons possible */
 		Object out = subject.getValue(this._name);
 		return (out == null ? this._name : out );
 	}

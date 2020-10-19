@@ -80,6 +80,7 @@ public class Expression extends Component implements Settable
 	public static final String[] OPERATORS = new 
 			String[]{
 					"#e",	// euler
+					"e-",	// eg 12e-5
 					"#PI", 	// pi
 					"SIGN-", // signum function minus what follows
 					"SIGN", // signum function
@@ -96,15 +97,15 @@ public class Expression extends Component implements Settable
 					"/", 	// division
 					"+", 	// addition
 					"-",	// negative or subtraction TODO make sure this does not cause any problems
-					"!=",		// previous .. not equal to .. following
-					"=", 		// previous .. and .. following
+					"!=",	// previous .. not equal to .. following
+					"=", 	// previous .. equals .. following
 					"LT", 	// previous .. less than .. following
-					"GT",	 	// previous .. greater than .. following
-					"NOT",	// inverts .. following
+					"GT",	// previous .. greater than .. following
+					"NOT",	// inverts .. following boolean
 					"AND", 	// previous .. and .. following
 					"OR", 	// previous .. and/or .. following
 					"XOR", 	// previous .. exclusive or .. following
-					"XNOR", 	// previous .. matches .. following
+					"XNOR", // previous .. matches .. following
 					};	
 	/**
 	 * TODO Work out what this does.
@@ -250,7 +251,7 @@ public class Expression extends Component implements Settable
 		{
 			this._el = calc.get(calc.firstKey());
 			if( _el instanceof Component)
-			this._a = (Component) _el;
+				this._a = (Component) _el;
 		}
 	}
 	
@@ -290,21 +291,7 @@ public class Expression extends Component implements Settable
 			c = index;
 		}
 		brackets.put(this._expression.length(), Bracket.END_OF_EXPRESSION);
-		/* Disabled Debugging message. 
-		if ( Log.shouldWrite(DEBUG) )
-		{
-			Log.out(DEBUG, this._expression);
-			String msg = "";
-			for ( int i = 0; i <= this._expression.length(); i++ )
-			{
-				if ( brackets.containsKey(i) )
-					msg += brackets.get(i).getStr();
-				else
-					msg += " ";
-			}
-			Log.out(DEBUG, msg);
-		}
-		*/
+
 		int depth = 0;
 		int start = 0;
 		for ( Integer key : brackets.keySet() )
@@ -360,7 +347,7 @@ public class Expression extends Component implements Settable
 			 */
 			// NOTE This means that any constants defined as integers (e.g. 0,
 			// 1, 2, 10, etc) will not be recognised.
-			else if ( term.contains(".") )
+			else if ( Helper.dblParseable( term ) )
 				calc.put(i, new Constant(term, Double.parseDouble(term)));
 			/*
 			 * Variables, hashmap-defined constants.
@@ -635,6 +622,8 @@ public class Expression extends Component implements Settable
 			return new Multiplication((Component) calc.get(prev), 
 				new Power(Arithmetic.ten(), (Component) calc.get(next)));
 		case ("EXP-"): 
+		case ("e-"): 
+		case ("E-"): 
 			return new Multiplication((Component) calc.get(prev), 
 				new Power(Arithmetic.ten(), flipSign((Component) calc.get(next))));
 		case ("LOG"): 
@@ -692,6 +681,8 @@ public class Expression extends Component implements Settable
 		case ("/-"): 
 		case ("^-"):
 		case ("EXP-"):
+		case ("e-"): 
+		case ("E-"): 
 		case ("!="): 
 		case ("="): 
 		case ("LT"): 
