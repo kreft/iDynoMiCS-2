@@ -7,12 +7,12 @@ import dataIO.Log.Tier;
 import expression.Component;
 import expression.ComponentBoolean;
 
-public class LogicAnd extends ComponentBoolean {
+public class LogiXor extends ComponentBoolean {
 
-	public LogicAnd(Component a, Component b) 
+	public LogiXor(Component a, Component b) 
 	{		
 		super(a, b);
-		this._expr = "AND";
+		this._expr = "XOR";
 		if( !(a instanceof ComponentBoolean) || 
 				!(b instanceof ComponentBoolean) )
 			Log.out(Tier.CRITICAL, "Must assign boolean components to " + 
@@ -22,7 +22,7 @@ public class LogicAnd extends ComponentBoolean {
 	@Override
 	public Boolean calculateBoolean(Map<String, Double> variables) 
 	{
-		return (this._c.calculateBoolean(variables) && 
+		return (this._c.calculateBoolean(variables) != 
 				this._d.calculateBoolean(variables));
 	}	
 

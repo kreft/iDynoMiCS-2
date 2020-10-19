@@ -5,18 +5,18 @@ import java.util.Map;
 import expression.Component;
 import expression.ComponentBoolean;
 
-public class LogicLessThan extends ComponentBoolean {
+public class LogicNotEqual extends ComponentBoolean {
 
-	public LogicLessThan(Component a, Component b) 
+	public LogicNotEqual(Component a, Component b) 
 	{		
 		super(a, b);
-		this._expr = "<";
+		this._expr = "!=";
 	}
 
 	@Override
 	public Boolean calculateBoolean(Map<String, Double> variables) 
 	{
-		return ( this._a.getValue(variables) < this._b.getValue(variables) );
+		return ( this._a.getValue(variables) != this._b.getValue(variables) );
 	}	
 
 }

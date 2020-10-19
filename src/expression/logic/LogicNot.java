@@ -7,14 +7,13 @@ import dataIO.Log.Tier;
 import expression.Component;
 import expression.ComponentBoolean;
 
-public class LogicAnd extends ComponentBoolean {
+public class LogicNot extends ComponentBoolean {
 
-	public LogicAnd(Component a, Component b) 
+	public LogicNot(Component a) 
 	{		
-		super(a, b);
-		this._expr = "AND";
-		if( !(a instanceof ComponentBoolean) || 
-				!(b instanceof ComponentBoolean) )
+		super(a, null);
+		this._expr = "NOT";
+		if( !(a instanceof ComponentBoolean) )
 			Log.out(Tier.CRITICAL, "Must assign boolean components to " + 
 					this._expr + " operator");
 	}
@@ -22,8 +21,7 @@ public class LogicAnd extends ComponentBoolean {
 	@Override
 	public Boolean calculateBoolean(Map<String, Double> variables) 
 	{
-		return (this._c.calculateBoolean(variables) && 
-				this._d.calculateBoolean(variables));
+		return ( !this._c.calculateBoolean(variables) );
 	}	
 
 }
