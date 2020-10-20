@@ -231,7 +231,7 @@ public class Global extends ParameterSet
 	/**
 	 * Skip writing xml output for this number of global time steps
 	 */
-	public int outputskip = 50;
+	public int outputskip = 1;
 	
 	/**
 	 * The exit command is passed to kernel once the simulation is finished

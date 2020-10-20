@@ -279,9 +279,6 @@ public class PDEmultigrid extends PDEsolver
 			// NOTE iDynoMiCS 1 uses fracOfOldValueKept of 0.5
 			for ( ArrayType type : variable.getAllArrayTypes() )
 				currentLayer.fillArrayFromFiner(type, 0.5, null);
-			/** [Bas 2019] In some cases, setting this to 0.5 also appears to
-			 * increase the total biomass production of a sim.
-			 */
 		}
 	}
 	

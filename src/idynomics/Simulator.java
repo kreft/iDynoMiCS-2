@@ -60,6 +60,7 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 	
 	public boolean interupt = false;
 	
+	public boolean stopAction = false;
 	/**
 	 * Xml output writer
 	 */
@@ -75,6 +76,7 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 	 * storing ModelNodes
 	 */
 	private Module _modelNode;
+
 
 	/* ***********************************************************************
 	 * CONSTRUCTORS
@@ -366,7 +368,7 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 		}
 		
 		/* Run the simulation. */
-		while ( this.timer.isRunning() && !this.interupt )
+		while ( this.timer.isRunning() && !this.interupt && !this.stopAction )
 			this.step();
 		
 		if ( this.interupt )

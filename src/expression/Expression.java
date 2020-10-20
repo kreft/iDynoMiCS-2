@@ -81,6 +81,7 @@ public class Expression extends Component implements Settable
 			String[]{
 					"#e",	// euler
 					"e-",	// eg 12e-5
+					"E-",	// eg 12E-5
 					"#PI", 	// pi
 					"SIGN-", // signum function minus what follows
 					"SIGN", // signum function
@@ -597,15 +598,6 @@ public class Expression extends Component implements Settable
 			return Arithmetic.divide((Component) calc.get(prev),(Component) calc.get(next));
 		case ("/-"): 
 			return Arithmetic.divide((Component) calc.get(prev),flipSign((Component) calc.get(next)));
-		case ("-"): 
-			// TODO here we should really just change the sign of next
-			// Bas [16.06.16] component.changeSign does not seem to work
-			if (prev >= 0 )
-				return new Subtraction((Component)  calc.get(prev),(Component)  calc.get(next));
-			else
-			{
-				return flipSign((Component) calc.get(next));
-			}
 		case ("^"): 
 			return new Power((Component) calc.get(prev), (Component) calc.get(next));
 		case ("^-"): 
@@ -632,6 +624,15 @@ public class Expression extends Component implements Settable
 			return 	new Sign((Component) calc.get(next));
 		case ("SIGN-"): 
 			return new Sign(flipSign((Component) calc.get(next)));
+		case ("-"): 
+			// TODO here we should really just change the sign of next
+			// Bas [16.06.16] component.changeSign does not seem to work
+			if (prev >= 0 )
+				return new Subtraction((Component)  calc.get(prev),(Component)  calc.get(next));
+			else
+			{
+				return flipSign((Component) calc.get(next));
+			}
 		case ("!="): 
 			return new LogicNotEqual(calc.get(prev), calc.get(next));
 		case ("="): 
