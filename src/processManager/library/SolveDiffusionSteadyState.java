@@ -15,6 +15,7 @@ import bookkeeper.KeeperEntry.EventType;
 import compartment.AgentContainer;
 import compartment.EnvironmentContainer;
 import dataIO.ObjectFactory;
+import debugTools.SegmentTimer;
 import grid.SpatialGrid;
 import idynomics.Global;
 import processManager.ProcessDiffusion;
@@ -133,10 +134,6 @@ public class SolveDiffusionSteadyState extends ProcessDiffusion
 		applyEnvReactions(variables);
 		for ( Agent agent : _agents.getAllLocatedAgents() )
 			applyAgentReactions(agent, variables);
-//		for (SpatialGrid s : variables)
-//		{
-//			System.out.println(s.getAverage(PRODUCTIONRATE));
-//		}
 	}
 
 	/**

@@ -566,6 +566,7 @@ public class PDEmultigrid extends PDEsolver
 				}
 			}
 //			System.out.println("r" + i);
+			/* update reaction rate matrix at current concn */
 			this._updater.prestep(currentGrids, 0.0);
 			boolean stop = true;
 			for ( SpatialGrid grid : currentGrids ) 
@@ -587,6 +588,7 @@ public class PDEmultigrid extends PDEsolver
 						this._absToleranceLevel );
 			}
 		}
+		/* update reaction rate matrix at current concn */
 		this._updater.prestep(currentGrids, 0.0);
 		
 //		boolean periodic = false;
