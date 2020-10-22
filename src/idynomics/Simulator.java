@@ -11,6 +11,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 import agent.SpeciesLib;
+import analysis.Table;
 import chemical.ChemicalLib;
 import compartment.Compartment;
 import dataIO.Log;
@@ -76,6 +77,9 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 	 * storing ModelNodes
 	 */
 	private Module _modelNode;
+	
+
+	Table testTable = new Table();
 
 
 	/* ***********************************************************************
@@ -335,6 +339,7 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 			this._outputTicker = 1;
 		}
 
+		Log.out( testTable.display() );
 		/*
 		 * Reporting agents.
 		 */
@@ -366,7 +371,7 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 			c.checkBoundaryConnections(this._compartments);
 			c.environment.updateSoluteBoundaries();
 		}
-		
+		testTable.build("species|biomass@mass|biomass@mass * 25|%ammonium", this._compartments.last());
 		/* Run the simulation. */
 		while ( this.timer.isRunning() && !this.interupt && !this.stopAction )
 			this.step();

@@ -487,12 +487,6 @@ public class AgentRelaxation extends ProcessManager
 			/* NOTE: testing purposes only */
 			if (this._gravity)
 				gravityEvaluation(agent, body);
-			
-			/*
-			 * TODO friction
-			 * FIXME here we need to selectively apply surface collision methods
-			 */
-			this._iterator.collision(this._shapeSurfs, null, agentSurfs, agent, 0.0);
 
 			if ( this._decompression )
 				for( Point p : ((Body) agent.get(BODY)).getPoints())
@@ -502,6 +496,11 @@ public class AgentRelaxation extends ProcessManager
 					p.addToForce(decompressionMatrix.getDirection(p.getPosition()));
 				}
 			
+			/*
+			 * TODO friction
+			 * FIXME here we need to selectively apply surface collision methods
+			 */
+			this._iterator.collision(this._shapeSurfs, null, agentSurfs, agent, 0.0);
 		}
 	}
 	

@@ -1,6 +1,8 @@
 package analysis.specs;
 
-public abstract class Specification {
+import aspect.AspectInterface;
+
+public abstract interface Specification {
 	
 	public enum Clasification 
 	{
@@ -9,4 +11,9 @@ public abstract class Specification {
 		factor,
 		string;
 	}
+	
+	public abstract String header();
+	
+	public abstract Object value(AspectInterface subject);
+	
 }

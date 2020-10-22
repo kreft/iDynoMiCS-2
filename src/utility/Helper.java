@@ -753,7 +753,7 @@ public final class Helper
 	{
 		try
 		{
-			new Expression( strParse ).format( Idynomics.unitSystem );
+			new Expression( strParse );
 		}
 		catch (NumberFormatException | StringIndexOutOfBoundsException
 				| NullPointerException f)

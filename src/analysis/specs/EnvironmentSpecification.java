@@ -8,7 +8,7 @@ import grid.ArrayType;
 import referenceLibrary.AspectRef;
 import referenceLibrary.XmlRef;
 
-public class EnvironmentSpecification {
+public class EnvironmentSpecification implements Specification {
 
 	private String _sol;
 	private Compartment _compartment;
@@ -35,6 +35,12 @@ public class EnvironmentSpecification {
 			return this._compartment.getSolute( 
 				this._sol ).getValueAt(ArrayType.CONCN , ((Body) 
 						subject.getValue(AspectRef.agentBody)).getCenter());
+
 		}
+	}
+
+	public String header()
+	{
+		return "%" + _sol;
 	}
 }
