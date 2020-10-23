@@ -15,7 +15,6 @@ import surface.Surface;
  */
 public interface GraphicalExporter extends Instantiable {
 	
-
 	
 	/*************************************************************************
 	 * File handling

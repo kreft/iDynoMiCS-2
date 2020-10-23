@@ -10,6 +10,7 @@ import org.w3c.dom.Element;
 
 import agent.Agent;
 import agent.Body;
+import colour.Colour;
 import compartment.AgentContainer;
 import compartment.EnvironmentContainer;
 import dataIO.GraphicalExporter;
@@ -40,6 +41,7 @@ public class GraphicalOutput extends ProcessManager
 	public static String BODY = AspectRef.agentBody;
 	public static String RADIUS = AspectRef.bodyRadius;
 	public static String PIGMENT = AspectRef.agentPigment;
+	public String PALETTE = AspectRef.colourPalette;
 	
 	public static String ARRAY_TYPE = AspectRef.gridArrayType;
 	public static String MAX_VALUE = AspectRef.visualOutMaxValue;
@@ -223,6 +225,14 @@ public class GraphicalOutput extends ProcessManager
 			}
 		}
 		/* Draw all located agents. */
+		/**
+		 * This section in Colour Manager
+		 */
+		Colour colour = new Colour(PALETTE);
+		float[] currentColour = colour.returnColour(0.2f, 0.2f, 0.2f);
+		/*
+		 * ^^
+		 */
 		for ( Agent a: _agents.getAllLocatedAgents() )
 			if ( a.isAspect(BODY) )
 			{
