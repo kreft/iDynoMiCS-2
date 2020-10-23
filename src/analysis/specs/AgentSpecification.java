@@ -4,7 +4,7 @@ import aspect.AspectInterface;
 import expression.Expression;
 import utility.Helper;
 
-public class AgentSpecification implements Specification {
+public class AgentSpecification extends Specification {
 
 	private Expression _exp;
 	private String input;

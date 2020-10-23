@@ -751,6 +751,8 @@ public final class Helper
 	
 	public static boolean expressionParseable(String strParse)
 	{
+		if(strParse == null)
+			return false;
 		try
 		{
 			new Expression( strParse );

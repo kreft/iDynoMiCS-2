@@ -78,10 +78,6 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 	 */
 	private Module _modelNode;
 	
-
-	Table testTable = new Table();
-
-
 	/* ***********************************************************************
 	 * CONSTRUCTORS
 	 * **********************************************************************/
@@ -338,8 +334,6 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 			this._xmlOut.writeFile();
 			this._outputTicker = 1;
 		}
-
-		Log.out( testTable.display() );
 		/*
 		 * Reporting agents.
 		 */
@@ -371,7 +365,7 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 			c.checkBoundaryConnections(this._compartments);
 			c.environment.updateSoluteBoundaries();
 		}
-		testTable.build("species|biomass@mass|biomass@mass * 25|%ammonium", this._compartments.last());
+		
 		/* Run the simulation. */
 		while ( this.timer.isRunning() && !this.interupt && !this.stopAction )
 			this.step();
