@@ -11,6 +11,7 @@ import org.w3c.dom.Element;
 import agent.Agent;
 import agent.Body;
 import colour.Colour;
+import colour.ColourSpecification;
 import colour.Palette;
 import compartment.AgentContainer;
 import compartment.EnvironmentContainer;
@@ -94,6 +95,8 @@ public class GraphicalOutput extends ProcessManager
 	protected Shape _shape;
 	
 	protected Palette palette;
+	
+	protected ColourSpecification colSpec;
 
 	
 	/*************************************************************************
@@ -141,9 +144,10 @@ public class GraphicalOutput extends ProcessManager
 		/* set max concentration for solute grid color gradient */
 		this._maxConcn = (double) this.getOr( MAX_VALUE, 2.0 );
 		
-
 		this.palette = new Palette( String.valueOf( 
 				this.getOr( AspectRef.colourPalette, Global.default_palette) ) );
+		/* placeholder spec */
+		 colSpec = new ColourSpecification(palette, "species");
 
 	}
 	
@@ -236,12 +240,16 @@ public class GraphicalOutput extends ProcessManager
 		/*
 		 * ^^
 		 */
+		
 		for ( Agent a: _agents.getAllLocatedAgents() )
 			if ( a.isAspect(BODY) )
 			{
 				List<Surface> surfaces = ((Body) a.getValue(BODY)).getSurfaces();
 				for( Surface s : surfaces)
-					this._graphics.draw(s, a.getValue(PIGMENT));
+//					this._graphics.draw(s, a.getValue(PIGMENT)); 
+					this._graphics.draw(s, colSpec.colorize(a)); 
+				
+					
 			}
 		/* Close the file */
 		this._graphics.closeFile();

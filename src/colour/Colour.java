@@ -103,7 +103,7 @@ public class Colour {
 	 */
 	public float[] returnColour(float[] dial)
 	{
-		float[] HSBOOut = {0.0f, 0.0f, 0.0f, this.opacity};
+		float[] HSBOOut = {0.0f, 0.0f, 0.0f};
 		for (int i = 0; i < 3; i++)
 		{
 			HSBOOut[i] = initialColour[i] + 

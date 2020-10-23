@@ -86,4 +86,11 @@ public class Palette {
 		}
 		Log.out( "Loaded " + this.unAssigned.size() + " colours from palette.");
 	}
+	
+	public Colour getNext()
+	{
+		String out = unAssigned.getFirst();
+		unAssigned.remove(out);
+		return colours.get( out );
+	}
 }
