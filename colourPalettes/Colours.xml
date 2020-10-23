@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document>
-	<colour gradient = "true" form = "HSB" opacity = "1.0">
-		<baseColour HSB = "0.5, 0.5, 0.5"/>
+	<colour baseColour="0.5, 0.5, 0.5" 
+			gradient = "true" form = "HSB" opacity = "1.0">
 		<shift hue = "0.3"/>
 		<shift brightness = "0.1" saturation = "0.3"/>
 	</colour>
-	<colour gradient = "false" form = "HSB" opacity = "1.0">
-		<baseColour HSB = "0.8, 0.1, 0.6"/>
-	</colour>
+	
+	<colour baseColour = "0.8, 0.1, 0.6" 
+			gradient = "false" form = "HSB" opacity = "1.0" />
 </document>

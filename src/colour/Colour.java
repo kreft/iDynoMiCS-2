@@ -1,75 +1,95 @@
 package colour;
 
-import java.awt.Color;
+import java.util.LinkedList;
+import java.util.List;
 
-import org.w3c.dom.Element;
+import dataIO.Log;
 
-import aspect.AspectInterface;
-import aspect.AspectReg;
-import dataIO.XmlHandler;
-
-public class Colour implements AspectInterface {
+public class Colour {
+	
+	public enum Format
+	{
+		HSB,
+		RGB;
+	}
+	
+	public final float[] zeros = new float[3];
+	
+	private Format format;
+	private String name;
 
 	/**
 	 * These colours are all in HSB coding
 	 */
 	private float[] initialColour;
-	private float[] targetColour1;
-	private float[] targetColour2;
-	private float[] targetColour3;
+	private List<float[]> gradients = new LinkedList<float[]>();
 	private float opacity = 1.0f;
 	
 	/** Dials: Numbers between 0 and 1 returned by the Colour Manager deriving
 	 *  from agent aspects. These are used to determine how far the output
 	 *  colour shifts from the initial colour to the targets.
 	 */
-	private float dial1;
-	private float dial2;
-	private float dial3;
+	private float[] dial = new float[3];
 
-	/**
-	 * This section in colourManager
-	 * @param palette
-	 */
-	public Colour(String palette)
+	public Colour(float[] baseColour, String format, String name)
 	{
-		String palettePath = "colourPalettes/" + palette;
-		this.init(palettePath);
+		this.initialColour = baseColour;
+		this.format = Format.valueOf(format);
+		this.name = name;
 	}
 	
-	/**
-	 * This section in colourManager?
-	 * @param path
-	 */
-	public void init(String path)
+	public void addGradient(float[] gradient)
 	{
-		Element palette = XmlHandler.loadDocument(path);
-		Collection <Element> colours = XmlHandler.getElements(palette, colourTag);
-		//hasChild(shift)
-		//hasChild(opacity)
-		//gather, obtain
+		if( gradients.size() >= 3)
+		{
+			Log.out("ERROR: can add a maximum of 3 gradients per colour.");
+			return;
+		}
+		this.gradients.add( gradient );
+	}
+	
+	public void addGradient(String first, String second, String third)
+	{
+		float[] out = new float[3];
+		if( first == null )
+			out[0] = 0.0f;
+		else
+			out[0] = Float.valueOf(first);
+		if( second == null )
+			out[1] = 0.0f;
+		else
+			out[1] = Float.valueOf( second );
+		if( third == null )
+			out[2] = 0.0f;
+		else
+			out[2] = Float.valueOf( third );
+		this.addGradient( out );
 	}
 	
 	/**
 	 * 
-	 * @param dial1 - variable 1
-	 * @param dial2 - variable 2
-	 * @param dial3 - variable 3
+	 * @param dial
 	 * @param opacity - given opacity
 	 * @return
 	 */
-	public float[] returnColour(float dial1, float dial2, float dial3, float opacity)
+	public float[] returnColour(float[] dial, float opacity)
 	{
 		this.opacity = opacity;
 		float[] HSBOOut = {0.0f, 0.0f, 0.0f, this.opacity};
 		for (int i = 0; i < 3; i++)
 		{
 			HSBOOut[i] = initialColour[i] + 
-					dial1*(targetColour1[i]-initialColour[i]) +
-					dial2*(targetColour2[i]-initialColour[i]) +
-					dial3*(targetColour3[i]-initialColour[i]);
+					line(0,i) +	line(1,i) +	line(2,i);
 		}
 		return HSBOOut;
+	}
+	
+	public float line(int gradient, int field)
+	{
+		float[] grad = (this.gradients.size() > gradient ?
+				this.gradients.get( gradient ) :
+				zeros );
+		return dial[gradient]*(grad[field]-initialColour[field]);
 	}
 	
 	/**
@@ -81,24 +101,19 @@ public class Colour implements AspectInterface {
 	 * object, which is 1.0 at setup unless defined in the palette).
 	 * @return
 	 */
-	public float[] returnColour(float dial1, float dial2, float dial3)
+	public float[] returnColour(float[] dial)
 	{
 		float[] HSBOOut = {0.0f, 0.0f, 0.0f, this.opacity};
 		for (int i = 0; i < 3; i++)
 		{
 			HSBOOut[i] = initialColour[i] + 
-					dial1*(targetColour1[i]-initialColour[i]) +
-					dial2*(targetColour2[i]-initialColour[i]) +
-					dial3*(targetColour3[i]-initialColour[i]);
+					line(0,i) +	line(1,i) +	line(2,i);
 		}
 		return HSBOOut;
 	}
 
-	@Override
-	public AspectReg reg() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	
-	
+	public void setOpacity(Float opacity) 
+	{
+		this.opacity = opacity;
+	}	
 }

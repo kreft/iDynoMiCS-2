@@ -11,11 +11,13 @@ import org.w3c.dom.Element;
 import agent.Agent;
 import agent.Body;
 import colour.Colour;
+import colour.Palette;
 import compartment.AgentContainer;
 import compartment.EnvironmentContainer;
 import dataIO.GraphicalExporter;
 import grid.ArrayType;
 import grid.SpatialGrid;
+import idynomics.Global;
 import instantiable.Instance;
 import linearAlgebra.Vector;
 import processManager.ProcessManager;
@@ -90,6 +92,8 @@ public class GraphicalOutput extends ProcessManager
 	 * 
 	 */
 	protected Shape _shape;
+	
+	protected Palette palette;
 
 	
 	/*************************************************************************
@@ -136,6 +140,10 @@ public class GraphicalOutput extends ProcessManager
 		
 		/* set max concentration for solute grid color gradient */
 		this._maxConcn = (double) this.getOr( MAX_VALUE, 2.0 );
+		
+
+		this.palette = new Palette( String.valueOf( 
+				this.getOr( AspectRef.colourPalette, Global.default_palette) ) );
 
 	}
 	
@@ -225,11 +233,6 @@ public class GraphicalOutput extends ProcessManager
 			}
 		}
 		/* Draw all located agents. */
-		/**
-		 * This section in Colour Manager
-		 */
-		Colour colour = new Colour(PALETTE);
-		float[] currentColour = colour.returnColour(0.2f, 0.2f, 0.2f);
 		/*
 		 * ^^
 		 */
