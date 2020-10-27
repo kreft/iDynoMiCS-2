@@ -1,0 +1,119 @@
+package surface;
+
+import java.util.HashMap;
+
+import expression.Expression;
+import linearAlgebra.Vector;
+import shape.Shape;
+
+public class TorsionSpring {
+
+	private double _restAngle;
+	private Point _a;
+	private Point _b;
+	private Point _c;
+	private Expression _springFunction;
+	HashMap<String, Double> springVars = new HashMap<String,Double>();
+	
+	public TorsionSpring(double stiffness, Point[] points, 
+			Expression springFunction, double restAngle)
+	{
+		this._springFunction = springFunction;
+		this._restAngle = restAngle;
+		this._a = points[0];
+		this._b = points[1];
+		this._c = points[2];
+		
+		springVars.put("stiffness", stiffness);
+	}
+	
+	public TorsionSpring(double stiffness, Point a, Point b, Point c, 
+			Expression springFunction, double restAngle)
+	{
+		this._springFunction = springFunction;
+		this._restAngle = restAngle;
+		this._a = a;
+		this._b = b;
+		this._c = c;
+		
+		springVars.put("stiffness", stiffness);
+	}
+	
+	public void applyForce(Shape shape)
+	{
+		double[] a = shape.getNearestShadowPoint(_a.getPosition(), 
+				_b.getPosition() );
+		double[] c = shape.getNearestShadowPoint(_c.getPosition(), 
+				_b.getPosition() );
+		
+		Vector.minusEquals(a, this._b.getPosition());
+		Vector.minusEquals(c, this._b.getPosition());
+		Vector.spherifyTo(a, a);
+		Vector.spherifyTo(c, c);
+		
+		double thetaAngle = Math.abs( a[1] - c[1] );
+		double phiAngle = 0.0;
+		if( a.length > 2)
+			phiAngle = Math.abs( a[2] - c[2] );
+		
+		double distr = ( (thetaAngle - phiAngle) / thetaAngle );
+		double totAngle = thetaAngle + phiAngle;
+		double dif = (_restAngle - totAngle) * 0.5;
+		
+		double outTheta = distr * dif;
+		if( a[1] > c[1] )
+		{
+			a[1] += outTheta;
+			c[1] -= outTheta;
+		}
+		else
+		{
+			a[1] -= outTheta;
+			c[1] += outTheta;
+		}
+		
+		double outPhi = 0.0;
+		if( a.length > 2)
+		{
+			outPhi = (1.0 - distr) * dif;
+			if( a[2] > c[2] )
+			{
+				a[2] += outPhi;
+				c[2] -= outPhi;
+			}
+			else
+			{
+				a[2] -= outPhi;
+				c[2] += outPhi;
+			}
+		}
+		
+		Vector.unspherifyEquals(a);
+		Vector.unspherifyEquals(c);
+		Vector.addEquals(a, _b.getPosition());
+		Vector.addEquals(c, _b.getPosition());
+		
+		double[] directionA = Vector.normaliseEuclid(
+				Vector.minus( a, _a.getPosition() ) );
+		double[] directionC = Vector.normaliseEuclid(
+				Vector.minus( c, _c.getPosition() ) );
+		double[] directionB = Vector.normaliseEuclid(
+				Vector.flip( Vector.add( directionA, directionC ) ) );
+		
+		Vector.normaliseEuclidTo(directionA, directionA);
+
+		springVars.put("dif", dif);
+		
+		double[] fV	= Vector.times(directionA, 
+				this._springFunction.getValue(springVars) );
+		Vector.addEquals( this._a.getForce(), fV ) ;
+
+		fV	= Vector.times(directionC, 
+				this._springFunction.getValue(springVars) );
+		Vector.addEquals( this._c.getForce(), fV ) ;
+
+		/* b receives force from both sides */
+		fV	= Vector.times(Vector.times(directionB, 2.0), 
+				this._springFunction.getValue(springVars) );
+	}
+}
