@@ -6,7 +6,7 @@ import expression.Expression;
 import linearAlgebra.Vector;
 import shape.Shape;
 
-public class TorsionSpring {
+public class TorsionSpring implements Spring {
 
 	private double _restAngle;
 	private Point _a;
@@ -39,7 +39,29 @@ public class TorsionSpring {
 		springVars.put("stiffness", stiffness);
 	}
 	
-	public void applyForce(Shape shape)
+	public boolean ready()
+	{
+		if (this._springFunction == null)
+			return false;
+		return true;
+	}
+	
+	public void setRestValue(double restAngle)
+	{
+		this._restAngle = restAngle;
+	}
+	
+	public void setSpringFunction(Expression function)
+	{
+		this._springFunction = function;
+	}
+	
+	public void setStiffness(double stiffness)
+	{
+		springVars.put("stiffness", stiffness);
+	}
+	
+	public void applyForces(Shape shape)
 	{
 		double[] a = shape.getNearestShadowPoint(_a.getPosition(), 
 				_b.getPosition() );
@@ -100,8 +122,6 @@ public class TorsionSpring {
 		double[] directionB = Vector.normaliseEuclid(
 				Vector.flip( Vector.add( directionA, directionC ) ) );
 		
-		Vector.normaliseEuclidTo(directionA, directionA);
-
 		springVars.put("dif", dif);
 		
 		double[] fV	= Vector.times(directionA, 

@@ -21,9 +21,12 @@ import physicalObject.PhysicalObject;
 import processManager.ProcessManager;
 import referenceLibrary.AspectRef;
 import shape.Shape;
+import surface.LinearSpring;
 import surface.Point;
 import surface.Rod;
+import surface.Spring;
 import surface.Surface;
+import surface.TorsionSpring;
 import surface.collision.Collision;
 import surface.collision.Decompress;
 import utility.Helper;
@@ -466,10 +469,11 @@ public class AgentRelaxation extends ProcessManager
 			Body body = (Body) agent.get(AspectRef.agentBody);
 			List<Surface> agentSurfs = body.getSurfaces();
 
-			/* surface operations */
-			for ( Surface s : agentSurfs )
-				if ( s instanceof Rod )
-					spineEvaluation(agent, s);
+			
+//			/* surface operations */
+//			for ( Surface s : agentSurfs )
+//				if ( s instanceof Rod )
+			spineEvaluation(agent, body);
 			
 			/* Look for neighbors and resolve collisions */
 			neighboorhoodEvaluation(agent, agentSurfs, agents);
@@ -554,46 +558,79 @@ public class AgentRelaxation extends ProcessManager
 	 * @param agent the vocal agent (once per step per surface of the agent)
 	 * @param s surface of the agent
 	 */
-	private void spineEvaluation(Agent agent, Surface s)
+	private void spineEvaluation(Agent agent, Body b)
 	{
-		/*
-		 * calculate rest length of rod cell spine spring
-		 * total volume - sphere volume = cylinder volume ->
-		 * cylinder length = rest length
-		 */
-		double l = ((Rod) s)._length;
-		double stiffness = Helper.setIfNone( agent.getDouble(STIFFNESS), 10.0);
-
-		/*
-		 * calculate current length of spine spring
-		 */
-		Point a = ((Rod) s)._points[0];
-		Point b = ((Rod) s)._points[1];
-		double[] diff = this._shape.getMinDifferenceVector( 
-				a.getPosition(), b.getPosition() );
-		double dn = Vector.normEuclid(diff);
+		for( Spring s : b.getSprings())
+		{
+			if( !s.ready())
+			{
+				/* possible change to set vars */
+				s.setStiffness( Helper.setIfNone( agent.getDouble(STIFFNESS), 
+						5.0));
+				if( s instanceof LinearSpring)
+				{
+					Expression spineFun;
+					if ( !Helper.isNullOrEmpty( agent.getValue(SPINE_FUNCTION)))
+						spineFun = (Expression) agent.getValue(SPINE_FUNCTION);
+					else
+						spineFun = this._spineFunction;
+					s.setSpringFunction( spineFun );
+				}
+				else if( s instanceof TorsionSpring )
+				{
+					Expression torsFun = null;
+					if ( !Helper.isNullOrEmpty( agent.getValue(AspectRef.torsionFunction)))
+						torsFun = (Expression) agent.getValue(AspectRef.torsionFunction);
+					else
+					{
+						/* TODO set default maybe? */
+						Idynomics.simulator.interupt(
+								"missing torsion spring function in agentrelax");
+					}
+					s.setSpringFunction( torsFun );
+				}
+			}
+			s.applyForces(this._shape);
+		}
 		
-		/* rod type agent spine function, replacing hard coded Hooke's law
-		 * double[] fV	= Vector.times(diff, stiffness * (dn - l));  */
-		HashMap<String, Double> springVars = new HashMap<String,Double>();
-		springVars.put("stiffness", stiffness);
-		springVars.put("dh", dn-l);
-		Expression spine;
-		
-		/* Obtain ComponentExpression from agent otherwise use the
-		 * default expression */
-		if (agent.isAspect(SPINE_FUNCTION))
-			spine = (Expression) this.getValue(SPINE_FUNCTION);
-		else
-			spine = this._spineFunction;
-		
-		double fs		= spine.getValue(springVars);
-		double[] fV		= Vector.times(diff, fs);
-	
-		/* apply forces */
-		Vector.addEquals( b.getForce(), fV ) ;
-		Vector.reverseEquals(fV);
-		Vector.addEquals( a.getForce(), fV ) ;
+//		/*
+//		 * calculate rest length of rod cell spine spring
+//		 * total volume - sphere volume = cylinder volume ->
+//		 * cylinder length = rest length
+//		 */
+//		double l = ((Rod) s)._length;
+//		double stiffness = Helper.setIfNone( agent.getDouble(STIFFNESS), 10.0);
+//
+//		/*
+//		 * calculate current length of spine spring
+//		 */
+//		Point a = ((Rod) s)._points[0];
+//		Point b = ((Rod) s)._points[1];
+//		double[] diff = this._shape.getMinDifferenceVector( 
+//				a.getPosition(), b.getPosition() );
+//		double dn = Vector.normEuclid(diff);
+//		
+//		/* rod type agent spine function, replacing hard coded Hooke's law
+//		 * double[] fV	= Vector.times(diff, stiffness * (dn - l));  */
+//		HashMap<String, Double> springVars = new HashMap<String,Double>();
+//		springVars.put("stiffness", stiffness);
+//		springVars.put("dh", dn-l);
+//		Expression spine;
+//		
+//		/* Obtain ComponentExpression from agent otherwise use the
+//		 * default expression */
+//		if (agent.isAspect(SPINE_FUNCTION))
+//			spine = (Expression) this.getValue(SPINE_FUNCTION);
+//		else
+//			spine = this._spineFunction;
+//		
+//		double fs		= spine.getValue(springVars);
+//		double[] fV		= Vector.times(diff, fs);
+//	
+//		/* apply forces */
+//		Vector.addEquals( b.getForce(), fV ) ;
+//		Vector.reverseEquals(fV);
+//		Vector.addEquals( a.getForce(), fV ) ;
 	}
 
 	/**

@@ -591,4 +591,6 @@ public class AspectRef
 	public static final String dampingFactor = "dampingFactor";
 
 	public static final String filter = "filter";
+
+	public static final String torsionFunction = "torsionFunction";
 }

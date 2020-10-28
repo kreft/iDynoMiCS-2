@@ -23,9 +23,11 @@ import settable.Settable;
 import shape.Shape;
 import surface.Ball;
 import surface.BoundingBox;
+import surface.LinearSpring;
 import surface.Link;
 import surface.Point;
 import surface.Rod;
+import surface.Spring;
 import surface.Surface;
 import utility.Helper;
 
@@ -60,11 +62,13 @@ public class Body implements Copyable, Instantiable, Settable
 	 * The surfaces describe the different segments of the agents body.
 	 */
 	protected List<Surface> _surfaces;
-
+	
 	/**
-	 * Rest angles of torsion springs for multi-segment agents
+	 * 
 	 */
-	protected double[] _angles;
+	protected List<Spring> _springs;
+	
+	protected Spring spine;
 	
 	/**
 	 * morphology
@@ -277,8 +281,13 @@ public class Body implements Copyable, Instantiable, Settable
 		case BACILLUS :
 			for(int i = 0; _points.size()-1 > i; i++)
 			{
-				this._surfaces.add(new Rod(_points.get(i), 
-						_points.get(i+1), length, radius)); 
+				this._springs = new LinkedList<Spring>();
+				Rod out = new Rod(_points.get(i), 
+						_points.get(i+1), length, radius);
+				this._surfaces.add(out); 
+				this.spine = new LinearSpring(0.0, out._points , 
+						null, length);
+				this._springs.add(spine);
 			}
 			break;
 		case CUBOID :
@@ -357,6 +366,11 @@ public class Body implements Copyable, Instantiable, Settable
 	{
 		return this._points;
 	}
+	
+	public List<Spring> getSprings()
+	{
+		return this._springs;
+	}
 
 	public int getNumberOfPoints()
 	{
@@ -374,6 +388,7 @@ public class Body implements Copyable, Instantiable, Settable
 		{
 			if (s instanceof Rod)
 			{
+				this.spine.setRestValue(spineLength);
 				((Rod) s).setLength(spineLength);
 				((Rod) s).setRadius(radius);
 			}
@@ -467,12 +482,17 @@ public class Body implements Copyable, Instantiable, Settable
 	 */
 	public Body copy()
 	{
+		Body out;
 		switch ( this._surfaces.get(0).type() )
 		{
 		case SPHERE:
-			return new Body(new Ball((Ball) this._surfaces.get(0)));
+			out = new Body(new Ball((Ball) this._surfaces.get(0)));
+			out.constructBody();
+			return out;
 		case ROD:
-			return new Body(new Rod((Rod) this._surfaces.get(0)));
+			out = new Body(new Rod((Rod) this._surfaces.get(0)));
+			out.constructBody();
+			return out;
 		default:
 			return null;
 		}
