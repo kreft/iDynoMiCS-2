@@ -14,4 +14,6 @@ public interface Spring {
 	public void setStiffness(double stiffness);
 	
 	public boolean ready();
+	
+	public void setPoint(int i, Point points);
 }

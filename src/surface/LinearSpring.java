@@ -25,6 +25,14 @@ public class LinearSpring implements Spring {
 		springVars.put("stiffness", stiffness);
 	}
 	
+	public void setPoint(int i, Point points)
+	{
+		if( i == 0 )
+			this._a = points;
+		if( i == 1 )
+			this._b = points;
+	}
+	
 	public boolean ready()
 	{
 		if (this._springFunction == null)

@@ -46,6 +46,16 @@ public class TorsionSpring implements Spring {
 		return true;
 	}
 	
+	public void setPoint(int i, Point points)
+	{
+		if( i == 0 )
+			this._a = points;
+		if( i == 1 )
+			this._b = points;
+		if( i == 2 )
+			this._c = points;
+	}
+	
 	public void setRestValue(double restAngle)
 	{
 		this._restAngle = restAngle;
@@ -120,9 +130,9 @@ public class TorsionSpring implements Spring {
 		double[] directionC = Vector.normaliseEuclid(
 				Vector.minus( c, _c.getPosition() ) );
 		double[] directionB = Vector.normaliseEuclid(
-				Vector.flip( Vector.add( directionA, directionC ) ) );
+				Vector.times( Vector.add( directionA, directionC ), -1.0 ) );
 		
-		springVars.put("dif", dif);
+		springVars.put("dif", Math.abs( dif ) );
 		
 		double[] fV	= Vector.times(directionA, 
 				this._springFunction.getValue(springVars) );
@@ -135,5 +145,6 @@ public class TorsionSpring implements Spring {
 		/* b receives force from both sides */
 		fV	= Vector.times(Vector.times(directionB, 2.0), 
 				this._springFunction.getValue(springVars) );
+		Vector.addEquals( this._b.getForce(), fV ) ;
 	}
 }

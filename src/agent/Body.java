@@ -82,7 +82,7 @@ public class Body implements Copyable, Instantiable, Settable
 	 * NOTE: this list does not contain links with this body owned by an other
 	 * body
 	 */
-	protected List<Link> _links;
+	protected List<Link> _links = new LinkedList<Link>();
 
 
 	/*************************************************************************
@@ -203,6 +203,7 @@ public class Body implements Copyable, Instantiable, Settable
 			double radius, double length)
 	{
 		this._surfaces = new LinkedList<Surface>();
+		this._springs = new LinkedList<Spring>();
 		switch (morphology)
 		{
 			case COCCOID :
@@ -273,6 +274,7 @@ public class Body implements Copyable, Instantiable, Settable
 	public void constructBody( double length, double radius )
 	{
 		this._surfaces = new LinkedList<Surface>();
+		this._springs = new LinkedList<Spring>();
 		switch (this._morphology)
 		{
 		case COCCOID :
@@ -281,7 +283,6 @@ public class Body implements Copyable, Instantiable, Settable
 		case BACILLUS :
 			for(int i = 0; _points.size()-1 > i; i++)
 			{
-				this._springs = new LinkedList<Spring>();
 				Rod out = new Rod(_points.get(i), 
 						_points.get(i+1), length, radius);
 				this._surfaces.add(out); 
@@ -369,7 +370,11 @@ public class Body implements Copyable, Instantiable, Settable
 	
 	public List<Spring> getSprings()
 	{
-		return this._springs;
+		LinkedList<Spring> out = new LinkedList<Spring>();
+		for(Link l : _links)
+			out.addAll( l.getSprings() );
+		out.addAll(this._springs);
+		return out;
 	}
 
 	public int getNumberOfPoints()
@@ -408,6 +413,21 @@ public class Body implements Copyable, Instantiable, Settable
 	public double[] getPosition(int joint)
 	{
 		return this._points.get(joint).getPosition();
+	}
+	
+	public List<Link> getLinks()
+	{
+		return this._links;
+	}
+	
+	public void addLink(Link link)
+	{
+		this._links.add(link);
+	}
+	
+	public void unLink(Link link)
+	{
+		this._links.remove(link);
 	}
 	
 	public List<Surface> getSurfaces()

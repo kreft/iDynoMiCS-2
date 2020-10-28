@@ -665,5 +665,10 @@ public class ClassRef
 
 	public static final String orientation = 
 			linearAlgebra.Orientation.class.getName();
+	
+	
+	public static final String fillialDivision = 
+			aspect.event.FillialDivision.class.getName();
+	
 
 }

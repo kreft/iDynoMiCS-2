@@ -593,4 +593,8 @@ public class AspectRef
 	public static final String filter = "filter";
 
 	public static final String torsionFunction = "torsionFunction";
+
+	public static final String linkerStifness = "linkerStifness";
+
+	public static final String directionalDivision = "directionalDivision";
 }

@@ -1,46 +1,65 @@
 package surface;
 
+import java.util.LinkedList;
+import java.util.List;
+
+import aspect.AspectInterface;
+
 /**
  * Some testing class will likely be removed or get an other form
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
 public class Link {
-	
+
+	protected List<AspectInterface> _members = new LinkedList<AspectInterface>();
 	/**
-	 * TODO
+	 * 
 	 */
-	protected Point[] _points;
-	
-	/**
-	 * TODO
-	 */
-	protected Surface[] _surfaces;
-	
+	protected List<Spring> _springs = new LinkedList<Spring>();
+
 	/**
 	 * TODO
 	 */
 	protected double _snap;
 	
-	public Link(Point[] points, Surface[] surfaces, double snapDistance)
+	public Link()
 	{
-		this._points = points;
-		this._surfaces = surfaces;
-		this._snap = snapDistance;
 	}
 	
-//	public boolean evaluate(Collision collisionDomain)
-//	{
-//		double d = collisionDomain.sphereSphere( (Ball) _surfaces[0], 
-//				(Ball) _surfaces[1]);
-//		if (d < 0)
-//			return false;
-//		else if (d > _snap)
-//			return true;
-//		else
-//		{
-//			collisionDomain.pull(_surfaces[0], _surfaces[1]);
-//			return false;
-//		}
-//	}
+	/**
+	 * Add spring at specific position in case position indexing is used
+	 * @param pos
+	 * @param spring
+	 */
+	public void addSpring( int pos, Spring spring )
+	{
+		this._springs.add(pos, spring);
+	}
+
+	public void addSpring( Spring spring )
+	{
+		this._springs.add(spring);
+	}
+	
+	public List<Spring> getSprings( )
+	{
+		return _springs;
+	}
+	
+	public void addMember(  int pos, AspectInterface member )
+	{
+		this._members.add(pos, member);
+	}
+	
+	public List<AspectInterface> getMembers()
+	{
+		return this._members;
+	}
+	
+	public void update(int pos, Point point)
+	{
+		for(Spring s : _springs)
+			s.setPoint(pos, point);
+	}
 }
