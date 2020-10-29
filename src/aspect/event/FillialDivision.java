@@ -41,6 +41,7 @@ public class FillialDivision extends DivisionMethod
 				if(l.getMembers().size() < 3)
 					link = l;
 			AspectInterface other = null;
+
 			for( AspectInterface a : link.getMembers())
 				if( a != mother)
 				{
@@ -48,9 +49,11 @@ public class FillialDivision extends DivisionMethod
 					direction = ((Body) a.getValue(AspectRef.agentBody)).
 							getPoints().get(0).getPosition();
 				}
+			
 			double[] originalPos = momBody.getPosition(0);
 			double[] shift = Vector.times(
-					Vector.minus(originalPos,direction), 0.5);
+					mother.getCompartment().getShape().getMinDifferenceVector(
+							originalPos,direction), 0.5);
 			
 			Point p = momBody.getPoints().get(0);
 			p.setPosition(Vector.add(originalPos, shift));
@@ -104,11 +107,11 @@ public class FillialDivision extends DivisionMethod
 		Body bBody = (Body) b.get(AspectRef.agentBody);
 		Body cBody = (Body) c.get(AspectRef.agentBody);
 		Double linkerStifness = (double) b.getOr( 
-				AspectRef.linkerStifness, 10000.0);
+				AspectRef.linkerStifness, 100000.0);
 		/* FIXME placeholder default function */
 		Expression springFun = (Expression) b.getOr( 
 				AspectRef.filialLinker, new Expression( 
-						"stiffness * dif * 1000" ));
+						"stiffness * dif * dif * 100000" ));
 
 		Point[] points = new Point[] { aBody.getPoints().get(0), 
 				bBody.getPoints().get(0), cBody.getPoints().get(0) };
@@ -128,7 +131,7 @@ public class FillialDivision extends DivisionMethod
 		Body momBody = (Body) mother.get(AspectRef.agentBody);
 		Body daughterBody = (Body) daughter.get(AspectRef.agentBody);
 		Double linkerStifness = (double) mother.getOr( 
-				AspectRef.linkerStifness, 10000.0);
+				AspectRef.linkerStifness, 1000.0);
 		/* FIXME placeholder default function */
 		Expression springFun = (Expression) mother.getOr( 
 				AspectRef.filialLinker, new Expression( 

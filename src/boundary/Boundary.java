@@ -422,6 +422,7 @@ public abstract class Boundary implements Settable, Instantiable
 	}
 
 	/**
+	 * FIXME large parts of this method look like it is just test code 
 	 * Push all agents in the departure lounge to the partner boundary's
 	 * arrivals lounge.
 	 */
@@ -450,6 +451,7 @@ public abstract class Boundary implements Settable, Instantiable
 				int numAgentsDepart = this._departureLounge.size();
 				String partnerCompName = this.getPartnerCompartmentName();
 				Compartment partnerComp = Idynomics.simulator.getCompartment(partnerCompName);
+				/* This looks like test code */
 				Compartment thisComp = Idynomics.simulator.getCompartment("oneDim");
 				if (partnerComp != null )
 				{

@@ -126,9 +126,9 @@ public class TorsionSpring implements Spring {
 		Vector.addEquals(c, _b.getPosition());
 		
 		double[] directionA = Vector.normaliseEuclid(
-				Vector.minus( a, _a.getPosition() ) );
+				shape.getMinDifferenceVector( a, _a.getPosition() ) );
 		double[] directionC = Vector.normaliseEuclid(
-				Vector.minus( c, _c.getPosition() ) );
+				shape.getMinDifferenceVector( c, _c.getPosition() ) );
 		double[] directionB = Vector.normaliseEuclid(
 				Vector.times( Vector.add( directionA, directionC ), -1.0 ) );
 		

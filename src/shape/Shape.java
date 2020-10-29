@@ -941,7 +941,6 @@ public abstract class Shape implements
 			if ( ++i >= a.length )
 				break;
 		}
-
 	}
 	
 	/**
