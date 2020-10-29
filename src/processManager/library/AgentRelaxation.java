@@ -388,6 +388,11 @@ public class AgentRelaxation extends ProcessManager
 			for(Agent agent : allAgents )
 				if ( agent.isAspect(STOCHASTIC_STEP) )
 					agent.event(STOCHASTIC_MOVE, dtMech);
+			
+			for ( Agent agent : allAgents )
+				for ( Point point: ( (Body) agent.get(BODY) ).getPoints() )
+					if ( Double.isNaN(point.getPosition()[0]))
+						System.out.println(point.getPosition()[0]);
 
 			/* perform the step using (method) */
 			switch ( this._method )
@@ -422,6 +427,10 @@ public class AgentRelaxation extends ProcessManager
 				tMech += dtMech;
 				break;
 			}
+			for ( Agent agent : allAgents )
+				for ( Point point: ( (Body) agent.get(BODY) ).getPoints() )
+					if ( Double.isNaN(point.getPosition()[0]))
+						System.out.println(point.getPosition()[0]);
 
 			/* NOTE that with proper boundary surfaces for any compartment
 			 * shape this should never yield any difference, it is here as a
@@ -431,11 +440,14 @@ public class AgentRelaxation extends ProcessManager
 			 * */
 			for(Agent agent : allAgents)
 				for ( Point point: ( (Body) agent.get(BODY) ).getPoints() )
-					this._shape.applyBoundaries( point.getPosition() );
+					point.setPosition( this._shape.applyBoundaries( point.getPosition() ) );
 			
 			nstep++;
 		}
-		
+		for ( Agent agent : allAgents )
+			for ( Point point: ( (Body) agent.get(BODY) ).getPoints() )
+				if ( Double.isNaN(point.getPosition()[0]))
+					System.out.println(point.getPosition()[0]);
 		/* Leave with a clean spatial tree. */
 		this._agents.refreshSpatialRegistry();
 		

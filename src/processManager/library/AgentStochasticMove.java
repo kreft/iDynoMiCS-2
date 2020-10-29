@@ -26,7 +26,7 @@ public class AgentStochasticMove extends ProcessManager
 			// FIXME still some agents seem to end up just outside
 			Body body = ((Body) agent.get(BODY));
 			for ( Point point: body.getPoints() )
-				this._agents.getShape().applyBoundaries( point.getPosition() );
+				point.setPosition( this._agents.getShape().applyBoundaries( point.getPosition() ) );
 		}
 	}
 	

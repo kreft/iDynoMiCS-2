@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.w3c.dom.Element;
 
+import aspect.AspectInterface;
 import dataIO.Log;
 import dataIO.Log.Tier;
 import dataIO.XmlHandler;
@@ -15,6 +16,7 @@ import generalInterfaces.HasBoundingBox;
 import instantiable.Instantiable;
 import linearAlgebra.Matrix;
 import linearAlgebra.Vector;
+import referenceLibrary.AspectRef;
 import referenceLibrary.XmlRef;
 import settable.Attribute;
 import settable.Module;
@@ -399,6 +401,19 @@ public class Body implements Copyable, Instantiable, Settable
 			}
 			else if (s instanceof Ball)
 			{
+				for(Link l : this._links)
+				{
+					for(Spring t : l.getSprings())
+					{
+						if(t instanceof LinearSpring)
+						{
+							double out = 0;
+							for( AspectInterface a : l.getMembers() )
+								out += a.getDouble(AspectRef.bodyRadius);
+							t.setRestValue(out);
+						}
+					}
+				}
 				((Ball) s).setRadius(radius);
 			}
 		}
@@ -547,6 +562,11 @@ public class Body implements Copyable, Instantiable, Settable
 	public Settable getParent() 
 	{
 		return this._parentNode;
+	}
+	
+	public void clearLinks() 
+	{
+		this._links.clear();
 	}
 
 }

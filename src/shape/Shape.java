@@ -1031,7 +1031,7 @@ public abstract class Shape implements
 	 * 
 	 * @param location A spatial location in global coordinates.
 	 */
-	public void applyBoundaries(double[] location)
+	public double[] applyBoundaries(double[] location)
 	{
 		double[] position = this.getLocalPosition(location);
 		int nDim = location.length;
@@ -1043,6 +1043,7 @@ public abstract class Shape implements
 				break;
 		}
 		Vector.copyTo(location, this.getGlobalLocation(position));
+		return location;
 	}
 	
 	/* ***********************************************************************

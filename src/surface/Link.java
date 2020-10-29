@@ -49,6 +49,8 @@ public class Link {
 	
 	public void addMember(  int pos, AspectInterface member )
 	{
+		if( this._members.size() > pos)
+			this._members.remove(pos);
 		this._members.add(pos, member);
 	}
 	

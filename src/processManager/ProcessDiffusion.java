@@ -206,7 +206,7 @@ public abstract class ProcessDiffusion extends ProcessManager
 			/* agents cannot access the shape aster division so we'll have to do
 			 * this here for now. */
 			for ( Point point: ( (Body) agent.get(AspectRef.agentBody) ).getPoints() )
-				this._agents.getShape().applyBoundaries( point.getPosition() );
+				point.setPosition( this._agents.getShape().applyBoundaries( point.getPosition() ) );
 			
 			agent.event(UPDATE_BODY);
 		}

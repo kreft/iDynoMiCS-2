@@ -32,6 +32,8 @@ public class FillialDivision extends DivisionMethod
 		Body momBody = (Body) mother.get(AspectRef.agentBody);
 		Body daughterBody = (Body) daughter.get(AspectRef.agentBody);
 		
+		daughterBody.clearLinks();
+		
 		if(  mother.getBoolean(AspectRef.directionalDivision) &! 
 				momBody.getLinks().isEmpty())
 		{
@@ -48,30 +50,39 @@ public class FillialDivision extends DivisionMethod
 					other = a;
 					direction = ((Body) a.getValue(AspectRef.agentBody)).
 							getPoints().get(0).getPosition();
+					continue;
 				}
+			
+			Body otherBody = (Body) other.getValue(AspectRef.agentBody);
 			
 			double[] originalPos = momBody.getPosition(0);
 			double[] shift = Vector.times(
 					mother.getCompartment().getShape().getMinDifferenceVector(
-							originalPos,direction), 0.5);
+							direction, originalPos), 0.5);
 			
 			Point p = momBody.getPoints().get(0);
-			p.setPosition(Vector.add(originalPos, shift));
+			p.setPosition(Vector.minus(originalPos, shift));
 			Point q = daughterBody.getPoints().get(0);
-			q.setPosition(Vector.minus(originalPos, shift));
+			q.setPosition(Vector.add(originalPos, shift));
 			
-			/* unlink mother and other */
-			for( AspectInterface a : link.getMembers())
-				if(link.getMembers().size() < 3 )
-					((Body) a.getValue(AspectRef.agentBody)).unLink(link);
+			for( Link l : momBody.getLinks() )
+			{
+				if(l.getMembers().size() < 3 && l.getMembers().contains(mother)
+						&& l.getMembers().contains(other))
+				{
+				momBody.unLink(link);
+				otherBody.unLink(link);
+				continue;
+				}
+			}
 			
 			link((Agent) other, daughter);
 			
-			int i;
 			/* update torsion links */
 			for( Link l : momBody.getLinks() )
 				if(l.getMembers().size() > 2)
 				{
+					int i;
 					i = l.getMembers().indexOf(other);
 					l.addMember(i, daughter);
 					l.update(i, daughterBody.getPoints().get(0));
@@ -80,6 +91,7 @@ public class FillialDivision extends DivisionMethod
 			for( Link l : ((Body) other.getValue(AspectRef.agentBody)).getLinks())
 				if(l.getMembers().size() > 2)
 				{
+					int i;
 					i = l.getMembers().indexOf(mother);
 					l.addMember(i, daughter);
 					l.update(i, daughterBody.getPoints().get(0));
@@ -111,7 +123,7 @@ public class FillialDivision extends DivisionMethod
 		/* FIXME placeholder default function */
 		Expression springFun = (Expression) b.getOr( 
 				AspectRef.filialLinker, new Expression( 
-						"stiffness * dif * dif * 100000" ));
+						"stiffness * dif * dif * 10000" ));
 
 		Point[] points = new Point[] { aBody.getPoints().get(0), 
 				bBody.getPoints().get(0), cBody.getPoints().get(0) };
@@ -131,11 +143,11 @@ public class FillialDivision extends DivisionMethod
 		Body momBody = (Body) mother.get(AspectRef.agentBody);
 		Body daughterBody = (Body) daughter.get(AspectRef.agentBody);
 		Double linkerStifness = (double) mother.getOr( 
-				AspectRef.linkerStifness, 1000.0);
+				AspectRef.linkerStifness, 100000.0);
 		/* FIXME placeholder default function */
 		Expression springFun = (Expression) mother.getOr( 
 				AspectRef.filialLinker, new Expression( 
-						"stiffness * ( dh + SIGN(dh) * dh * dh * 100.0 )" ));
+						"stiffness * dh * dh * 100.0 )" ));
 
 		Point[] points = new Point[] { momBody.getPoints().get(0), 
 				daughterBody.getPoints().get(0) };

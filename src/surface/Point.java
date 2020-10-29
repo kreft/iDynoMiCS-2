@@ -102,7 +102,7 @@ public class Point implements Copyable, Settable
 	
 	public double[] getPosition()
 	{
-		return this._p;
+		return Vector.copy(this._p);
 	}
 	
 	public double[] getPolarPosition()
@@ -146,6 +146,8 @@ public class Point implements Copyable, Settable
 	 */
 	public void addToForce(double[] forceToAdd)
 	{
+		if ( Double.isNaN(forceToAdd[0]))
+			System.out.println(forceToAdd[0]);
 		Vector.addEquals(this._f, forceToAdd);
 	}
 	
@@ -178,8 +180,17 @@ public class Point implements Copyable, Settable
 		// identical properties (in this case hydrodynamic).
 		// see pdf forces in microbial systems.
 		double[] diff = this.dxdt(radius);
+		if ( Double.isNaN(diff[0]))
+			System.out.println(diff[0]);
+		diff = this.dxdt(radius);
 		Vector.timesEquals(diff, dt);
-		Vector.addEquals(this._p, diff);
+		if ( Double.isNaN(radius))
+			System.out.println(radius);
+		if ( Double.isNaN(dt))
+			System.out.println(dt);
+		if ( Double.isNaN(this._p[0]))
+			System.out.println(_p);
+		this.setPosition(Vector.add(this._p, diff));
 		this.resetForce();
 	}
 
@@ -198,7 +209,7 @@ public class Point implements Copyable, Settable
 		this._c[1] = Vector.copy(diff);
 		/* Move the location and reset the force. */
 		Vector.timesEquals(diff, dt);
-		Vector.addEquals(this._p, diff);
+		this.setPosition(Vector.add(this._p, diff));
 		this.resetForce();
 	}
 

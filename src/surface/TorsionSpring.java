@@ -2,6 +2,7 @@ package surface;
 
 import java.util.HashMap;
 
+import dataIO.Log;
 import expression.Expression;
 import linearAlgebra.Vector;
 import shape.Shape;
@@ -86,13 +87,11 @@ public class TorsionSpring implements Spring {
 		double thetaAngle = Math.abs( a[1] - c[1] );
 		double phiAngle = 0.0;
 		if( a.length > 2)
-			phiAngle = Math.abs( a[2] - c[2] );
+			phiAngle =  (a[2]-0.5*Math.PI) + (c[2]-0.5*Math.PI);
 		
-		double distr = ( (thetaAngle - phiAngle) / thetaAngle );
-		double totAngle = thetaAngle + phiAngle;
-		double dif = (_restAngle - totAngle) * 0.5;
-		
-		double outTheta = distr * dif;
+//		Log.out(a[2] + " " +  c[2] + " " + phiAngle);
+			
+		double outTheta = (_restAngle - thetaAngle) * 0.5;
 		if( a[1] > c[1] )
 		{
 			a[1] += outTheta;
@@ -104,11 +103,10 @@ public class TorsionSpring implements Spring {
 			c[1] += outTheta;
 		}
 		
-		double outPhi = 0.0;
-		if( a.length > 2)
+		double outPhi = phiAngle * 0.5;
+		if( a.length < 2)
 		{
-			outPhi = (1.0 - distr) * dif;
-			if( a[2] > c[2] )
+			if( a[2] < c[2] )
 			{
 				a[2] += outPhi;
 				c[2] -= outPhi;
@@ -124,7 +122,7 @@ public class TorsionSpring implements Spring {
 		Vector.unspherifyEquals(c);
 		Vector.addEquals(a, _b.getPosition());
 		Vector.addEquals(c, _b.getPosition());
-		
+
 		double[] directionA = Vector.normaliseEuclid(
 				shape.getMinDifferenceVector( a, _a.getPosition() ) );
 		double[] directionC = Vector.normaliseEuclid(
@@ -132,19 +130,22 @@ public class TorsionSpring implements Spring {
 		double[] directionB = Vector.normaliseEuclid(
 				Vector.times( Vector.add( directionA, directionC ), -1.0 ) );
 		
-		springVars.put("dif", Math.abs( dif ) );
+		springVars.put("dif", Math.abs( outTheta + phiAngle ) );
 		
 		double[] fV	= Vector.times(directionA, 
 				this._springFunction.getValue(springVars) );
+
 		Vector.addEquals( this._a.getForce(), fV ) ;
 
 		fV	= Vector.times(directionC, 
 				this._springFunction.getValue(springVars) );
+
 		Vector.addEquals( this._c.getForce(), fV ) ;
 
 		/* b receives force from both sides */
 		fV	= Vector.times(Vector.times(directionB, 2.0), 
 				this._springFunction.getValue(springVars) );
+
 		Vector.addEquals( this._b.getForce(), fV ) ;
 	}
 }

@@ -63,10 +63,14 @@ public class LinearSpring implements Spring {
 		springVars.put("dh", dn-this._restLength);
 		double[] fV	= Vector.times(diff, 
 				this._springFunction.getValue(springVars) );
+		if ( Double.isNaN(fV[0]))
+			System.out.println(fV[0]);
 		
 		/* apply forces */
 		Vector.addEquals( this._b.getForce(), fV ) ;
 		Vector.reverseEquals(fV);
+		if ( Double.isNaN(fV[0]))
+			System.out.println(fV[0]);
 		Vector.addEquals( this._a.getForce(), fV ) ;
 	}
 }

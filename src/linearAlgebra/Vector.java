@@ -3190,8 +3190,8 @@ public final class Vector
 			double theta = Math.atan2(cartesian[1], cartesian[0]);
 			double phi = Math.acos(cartesian[2]/radius);
 			destination[0] = radius;
-			destination[1] = phi;
-			destination[2] = theta;
+			destination[2] = phi;
+			destination[1] = theta;
 		}
 		}
 	}
@@ -3269,8 +3269,8 @@ public final class Vector
 		case 3 :
 		{
 			double radius = spherical[0];
-			double phi = spherical[1];
-			double theta = spherical[2];
+			double phi = spherical[2];
+			double theta = spherical[1];
 			destination[0] = radius * Math.cos(theta) * Math.sin(phi);
 			destination[1] = radius * Math.sin(theta) * Math.sin(phi);
 			destination[2] = radius * Math.cos(phi);
