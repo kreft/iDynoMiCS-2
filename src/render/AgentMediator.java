@@ -115,6 +115,7 @@ public class AgentMediator implements CommandMediator {
 
 	private float _soluteTranparancy = 0.5f;
 
+	public float x = 0f, y = 0f  , z = 0f;
 	/*
 	 * temporary variables (reused)
 	 */
@@ -223,8 +224,6 @@ public class AgentMediator implements CommandMediator {
 		
 		/* load identity matrix */
 		_gl.glLoadIdentity();
-		
-
 		
 		/*
 		 * when we want to disable depth test we draw the domain here

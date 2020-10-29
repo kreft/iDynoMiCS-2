@@ -85,9 +85,6 @@ public class TorsionSpring implements Spring {
 		Vector.spherifyTo(c, c);
 		
 		double thetaAngle = Math.abs( a[1] - c[1] );
-		double phiAngle = 0.0;
-		if( a.length > 2)
-			phiAngle =  (a[2]-0.5*Math.PI) + (c[2]-0.5*Math.PI);
 		
 //		Log.out(a[2] + " " +  c[2] + " " + phiAngle);
 			
@@ -103,20 +100,22 @@ public class TorsionSpring implements Spring {
 			c[1] += outTheta;
 		}
 		
-		double outPhi = phiAngle * 0.5;
-		if( a.length < 2)
+		double outPhi = 0;
+
+		if( a.length > 2)
 		{
-			if( a[2] < c[2] )
-			{
-				a[2] += outPhi;
-				c[2] -= outPhi;
-			}
-			else
-			{
+			double ac = a[2]-0.5*_restAngle;
+			double cc = c[2]-0.5*_restAngle;
+			
+			double phiAngle = ac + cc;
+			outPhi = phiAngle * 0.5;
+			
 				a[2] -= outPhi;
-				c[2] += outPhi;
-			}
+				c[2] -= outPhi;
 		}
+		
+		a = flippySpinny(a);
+		c = flippySpinny(c);
 		
 		Vector.unspherifyEquals(a);
 		Vector.unspherifyEquals(c);
@@ -130,7 +129,7 @@ public class TorsionSpring implements Spring {
 		double[] directionB = Vector.normaliseEuclid(
 				Vector.times( Vector.add( directionA, directionC ), -1.0 ) );
 		
-		springVars.put("dif", Math.abs( outTheta + phiAngle ) );
+		springVars.put("dif", Math.abs( outTheta + outPhi ) );
 		
 		double[] fV	= Vector.times(directionA, 
 				this._springFunction.getValue(springVars) );
@@ -147,5 +146,20 @@ public class TorsionSpring implements Spring {
 				this._springFunction.getValue(springVars) );
 
 		Vector.addEquals( this._b.getForce(), fV ) ;
+	}
+	
+	public double[] flippySpinny( double[] a)
+	{
+		if( a[2] < 0.0 )
+		{
+			a[1] += Math.PI;
+			a[2] = Math.abs(a[2]);
+		}
+		if( a[2] > Math.PI )
+		{
+			a[1] += Math.PI;
+			a[2] = 2 * Math.PI - a[2];
+		}
+		return a;
 	}
 }
