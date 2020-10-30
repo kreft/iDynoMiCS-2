@@ -184,11 +184,12 @@ public class AgentMediator implements CommandMediator {
 		this._domainMaxima = new double[] { 0.0, 0.0, 0.0 };
 		/* determine kickback for camera positioning */
 		_kickback = 0.0f;
-		
+		int i = 0;
 		for (Dimension dn : _shape.getSignificantDimensions())
 		{
+			i++;
 			float max = (float) dn.getExtreme(1);
-			_kickback  = (float) Math.max(_kickback, max);
+			_kickback = (float) Math.max(_kickback, ( i == 2 ? max * 3 : max ));
 			_domainMaxima[_shape.getDimensionIndex(dn)] = max;
 		}
 		if (this._shape instanceof CartesianShape)

@@ -102,11 +102,14 @@ public class TorsionSpring implements Spring {
 		
 		double outPhi = 0;
 
+		double ac = 0;
+		double cc = 0;
+		
 		if( a.length > 2)
 		{
 			
-			double ac = a[2]-0.5*_restAngle;
-			double cc = c[2]-0.5*_restAngle;
+			ac = a[2]-0.5*_restAngle;
+			cc = c[2]-0.5*_restAngle;
 			
 			double phiAngle = ac + cc;
 			outPhi = phiAngle*0.5;
@@ -129,8 +132,13 @@ public class TorsionSpring implements Spring {
 				shape.getMinDifferenceVector( c, _c.getPosition() ) );
 		double[] directionB = Vector.normaliseEuclid(
 				Vector.times( Vector.add( directionA, directionC ), -1.0 ) );
-		
-		springVars.put("dif", Math.abs( outTheta + outPhi ) );
+		double z = Math.abs(ac) + Math.abs(cc);
+		/* If agents are approaching alignment in the z-axis (z = Pi) the 
+		 * weight of relative x/y angles drops.
+		 * 
+		 * This might need some sine/cosine?
+		 */
+		springVars.put("dif", Math.abs( outTheta * (Math.PI - z) + outPhi ) );
 		
 		double[] fV	= Vector.times(directionA, 
 				this._springFunction.getValue(springVars) );

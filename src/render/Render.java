@@ -107,13 +107,13 @@ public class Render implements GLEventListener, Runnable {
 	 * Camera positioning
 	 */
 	private float _tilt = 0.005f, _zoom = 0.0f, _angle = 0.5f*(float) Math.PI;
-	private float _x = 0f, _y = 0f /* , z = 0f */;
+	private float _x = 0f, _y = 0f  , _z = 0f;
 
 	
 	/* 
 	 * Light sources 
 	 */
-    private float[] lightPosition = {-80.0f, -80.0f, -80.0f, 1f};
+    private float[] lightPosition = {80.0f, 80.0f, 80.0f, 1f};
     private float[] lightAmbient = {0.5f, 0.5f, 0.5f, 1f};
     private float[] LightDiffuse = {0.5f, 0.5f, 0.5f, 1f};
     
@@ -218,13 +218,13 @@ public class Render implements GLEventListener, Runnable {
 		 * adjust the camera settings to the size of the drawable and the user
 		 * defined camera setting adjustments (zoom, tilt, x, y)
 		 */
-		dist = _commandMediator.kickback() - _zoom;
+		dist = _commandMediator.kickback() - ( _commandMediator.kickback() * _zoom);
 		hDist = Math.sin(_tilt+0.0001) * dist;
 		gl.glMatrixMode(GL2.GL_PROJECTION);
 		gl.glLoadIdentity();
 		
 		/* camera perspective */
-		_glu.gluPerspective( 45.0f, _aspectRatio, 
+		_glu.gluPerspective( 25.0f, _aspectRatio, 
 				1.0, _commandMediator.kickback() + 1000.0 );
 		
 		/* 
@@ -233,10 +233,10 @@ public class Render implements GLEventListener, Runnable {
 		_glu.gluLookAt( 
 				_x + hDist * Math.cos(_angle), 		// eyeX
 				_y + hDist * Math.sin(_angle), 		// eyeY
-				Math.cos(_tilt) * dist, 			// eyeZ
+				_z + Math.cos(_tilt) * dist, 			// eyeZ
 				_x, 								// centerX
 				_y, 								// centerY
-				0, 									// centerZ
+				_z, 									// centerZ
 				Math.cos(_angle), 					// upX
 				Math.sin(_angle),					// upY
 				- dist * 10000 * ( Math.sin(_tilt) )	// upZ
@@ -316,6 +316,8 @@ public class Render implements GLEventListener, Runnable {
 		
 		this._x = (float) this._commandMediator.orientation()[0];
 		this._y = (float) this._commandMediator.orientation()[1];
+		if( this._commandMediator.orientation().length == 3 )
+			this._z = (float) this._commandMediator.orientation()[2];
 	}
 
 	/**
@@ -335,7 +337,7 @@ public class Render implements GLEventListener, Runnable {
 		gl.glLoadIdentity();
 		
 		/* adjust the camera perspective to the screen resizing */
-		_glu.gluPerspective(45.0f, _aspectRatio, 1.0,  _commandMediator.kickback() + 100.0);
+		_glu.gluPerspective(45.0f, _aspectRatio, 1.0,  _commandMediator.kickback());
 		_glu.gluLookAt(0, 0, -80, 0, 0, 0, 0, 1, 0);
 		gl.glMatrixMode(GL2.GL_MODELVIEW);
 		gl.glLoadIdentity();
@@ -575,7 +577,7 @@ public class Render implements GLEventListener, Runnable {
 			@Override
 			public void actionPerformed(ActionEvent d) {
 				System.out.println("left");
-				r._x -= 1f;
+				r._x += 1f;
 			}
 		});
 		
@@ -587,7 +589,7 @@ public class Render implements GLEventListener, Runnable {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				System.out.println("right");
-				r._x += 1f;
+				r._x -= 1f;
 			}
 		});
 		
@@ -674,7 +676,7 @@ public class Render implements GLEventListener, Runnable {
 			@Override
 			public void actionPerformed(ActionEvent g) {
 				System.out.println("out");
-				r._zoom -= 0.3f;
+				r._zoom -= 0.03f;
 			}
 		});
 		
@@ -686,7 +688,7 @@ public class Render implements GLEventListener, Runnable {
 			@Override
 			public void actionPerformed(ActionEvent g) {
 				System.out.println("in");
-				r._zoom += 0.3f;
+				r._zoom += 0.03f;
 			}
 		});
 		
