@@ -104,18 +104,19 @@ public class TorsionSpring implements Spring {
 
 		if( a.length > 2)
 		{
+			
 			double ac = a[2]-0.5*_restAngle;
 			double cc = c[2]-0.5*_restAngle;
 			
 			double phiAngle = ac + cc;
-			outPhi = phiAngle * 0.5;
+			outPhi = phiAngle*0.5;
 			
 				a[2] -= outPhi;
 				c[2] -= outPhi;
 		}
 		
-		a = flippySpinny(a);
-		c = flippySpinny(c);
+//		a = flippySpinny(a);
+//		c = flippySpinny(c);
 		
 		Vector.unspherifyEquals(a);
 		Vector.unspherifyEquals(c);

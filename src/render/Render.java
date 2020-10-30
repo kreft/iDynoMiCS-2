@@ -107,7 +107,7 @@ public class Render implements GLEventListener, Runnable {
 	 * Camera positioning
 	 */
 	private float _tilt = 0.005f, _zoom = 0.0f, _angle = 0.5f*(float) Math.PI;
-	private float _x = 0f, _y = 0f  , z = 0f;
+	private float _x = 0f, _y = 0f /* , z = 0f */;
 
 	
 	/* 
@@ -236,7 +236,7 @@ public class Render implements GLEventListener, Runnable {
 				Math.cos(_tilt) * dist, 			// eyeZ
 				_x, 								// centerX
 				_y, 								// centerY
-				80.0, 									// centerZ
+				0, 									// centerZ
 				Math.cos(_angle), 					// upX
 				Math.sin(_angle),					// upY
 				- dist * 10000 * ( Math.sin(_tilt) )	// upZ
@@ -336,7 +336,7 @@ public class Render implements GLEventListener, Runnable {
 		
 		/* adjust the camera perspective to the screen resizing */
 		_glu.gluPerspective(45.0f, _aspectRatio, 1.0,  _commandMediator.kickback() + 100.0);
-		_glu.gluLookAt(0, 0, 0, 0, 0, 0, 0, 1, 0);
+		_glu.gluLookAt(0, 0, -80, 0, 0, 0, 0, 1, 0);
 		gl.glMatrixMode(GL2.GL_MODELVIEW);
 		gl.glLoadIdentity();
 	}
@@ -588,30 +588,6 @@ public class Render implements GLEventListener, Runnable {
 			public void actionPerformed(ActionEvent e) {
 				System.out.println("right");
 				r._x += 1f;
-			}
-		});
-		
-		/* left */
-		inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_8, 0), "8");
-		actionMap.put("8", new AbstractAction(){
-			private static final long serialVersionUID = 346448974654345823L;
-			
-			@Override
-			public void actionPerformed(ActionEvent g) {
-				System.out.println("8");
-				r.z -= 1f;
-			}
-		});
-		
-		/* right */
-		inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_2, 0), "2") ;
-		actionMap.put("2", new AbstractAction(){
-			private static final long serialVersionUID = 346448974654345823L;
-			
-			@Override
-			public void actionPerformed(ActionEvent g) {
-				System.out.println("2");
-				r.z += 1f;
 			}
 		});
 		
