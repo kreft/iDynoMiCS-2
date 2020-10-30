@@ -114,6 +114,8 @@ public class AspectRef
 	 */
 	public final static String genreicSpineFunction = "genreicSpineFunction";
 	
+	public final static String agentSpineFunction = "agentSpineFunction";
+	
 	/**
 	 * list with reactions owned by the agent
 	 */

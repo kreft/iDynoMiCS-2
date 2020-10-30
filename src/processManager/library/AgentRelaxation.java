@@ -256,7 +256,7 @@ public class AgentRelaxation extends ProcessManager
 		 * ComponentExpression from process manager otherwise fall back default
 		 * is used. */
 		if ( ! Helper.isNullOrEmpty( this.getValue(SPINE_FUNCTION) ) )
-			this._spineFunction = (Expression) this.getValue(SPINE_FUNCTION);
+			this._spineFunction = new Expression((String) this.getValue(SPINE_FUNCTION));
 		
 		/* Include decompression */
 		this._decompression = Helper.setIfNone( this.getBoolean(DECOMPRESSION), 
@@ -579,8 +579,8 @@ public class AgentRelaxation extends ProcessManager
 				if( s instanceof LinearSpring)
 				{
 					Expression spineFun;
-					if ( !Helper.isNullOrEmpty( a.getValue(SPINE_FUNCTION)))
-						spineFun = (Expression) a.getValue(SPINE_FUNCTION);
+					if ( !Helper.isNullOrEmpty( a.getValue(AspectRef.agentSpineFunction)))
+						spineFun = new Expression((String) a.getValue(AspectRef.agentSpineFunction));
 					else
 						spineFun = this._spineFunction;
 					s.setSpringFunction( spineFun );

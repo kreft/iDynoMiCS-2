@@ -68,7 +68,7 @@ public class Body implements Copyable, Instantiable, Settable
 	/**
 	 * 
 	 */
-	protected List<Spring> _springs;
+	protected List<Spring> _springs = new LinkedList<Spring>();
 	
 	protected Spring spine;
 	

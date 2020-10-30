@@ -113,7 +113,7 @@ public class Render implements GLEventListener, Runnable {
 	/* 
 	 * Light sources 
 	 */
-    private float[] lightPosition = {80.0f, 80.0f, 80.0f, 1f};
+    private float[] lightPosition = {800.0f, 800.0f, 800.0f, 1f};
     private float[] lightAmbient = {0.5f, 0.5f, 0.5f, 1f};
     private float[] LightDiffuse = {0.5f, 0.5f, 0.5f, 1f};
     
@@ -652,7 +652,7 @@ public class Render implements GLEventListener, Runnable {
 			@Override
 			public void actionPerformed(ActionEvent g) {
 				System.out.println("tiltdown");
-					r._tilt += 0.05f*(float) Math.PI;
+					r._tilt += 0.01f*(float) Math.PI;
 			}
 		});
 		
@@ -664,7 +664,7 @@ public class Render implements GLEventListener, Runnable {
 			@Override
 			public void actionPerformed(ActionEvent g) {
 				System.out.println("tiltup");
-					r._tilt -= 0.05f*(float) Math.PI;
+					r._tilt -= 0.01f*(float) Math.PI;
 			}
 		});
 		
@@ -688,7 +688,8 @@ public class Render implements GLEventListener, Runnable {
 			@Override
 			public void actionPerformed(ActionEvent g) {
 				System.out.println("in");
-				r._zoom += 0.03f;
+				if( r._zoom < 0.97f )
+					r._zoom += 0.03f;
 			}
 		});
 		
@@ -700,7 +701,7 @@ public class Render implements GLEventListener, Runnable {
 			@Override
 			public void actionPerformed(ActionEvent g) {
 				System.out.println("clockwise");
-				r._angle -= 0.05f*(float) Math.PI;
+				r._angle -= 0.01f*(float) Math.PI;
 			}
 		});
 		
@@ -712,7 +713,7 @@ public class Render implements GLEventListener, Runnable {
 			@Override
 			public void actionPerformed(ActionEvent g) {
 				System.out.println("counterclockwise");
-				r._angle += 0.05f*(float) Math.PI;
+				r._angle += 0.01f*(float) Math.PI;
 			}
 		});	
 		
