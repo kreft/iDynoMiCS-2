@@ -742,6 +742,11 @@ public class Collision
 	private CollisionVariables planeLineSeg(double[] normal, double d, 
 			double[] p0, double[] p1, CollisionVariables var)
 	{
+		int i;
+		if( p0[1] > 28.0)
+		{
+			i=0;
+		}
 		this.planePoint(normal, d, p0, var);
 		double a = Double.valueOf(var.distance);
 		this.planePoint(normal, d, p1, var);

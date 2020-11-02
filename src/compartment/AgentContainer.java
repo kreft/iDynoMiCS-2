@@ -642,6 +642,7 @@ public class AgentContainer implements Settable
 		else
 			this._agentList.remove(anAgent);
 		this._agentsToRegisterRemoved.add(anAgent);
+		anAgent.set(AspectRef.removed,true);
 	}
 
 	/**

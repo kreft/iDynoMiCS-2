@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.w3c.dom.Element;
 
@@ -83,8 +84,10 @@ public class Body implements Copyable, Instantiable, Settable
 	 * Links with other agents/bodies owned by this body
 	 * NOTE: this list does not contain links with this body owned by an other
 	 * body
+	 * 
+	 * This list might be slower but thread safe, check it
 	 */
-	protected List<Link> _links = new LinkedList<Link>();
+	protected List<Link> _links = new CopyOnWriteArrayList<Link>();
 
 
 	/*************************************************************************
@@ -403,6 +406,9 @@ public class Body implements Copyable, Instantiable, Settable
 			{
 				for(Link l : this._links)
 				{
+					for( AspectInterface a : l.getMembers() )
+						if ( a.isAspect(AspectRef.removed))
+							this._links.remove(l);
 					for(Spring t : l.getSprings())
 					{
 						if(t instanceof LinearSpring)
