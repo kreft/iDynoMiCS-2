@@ -402,7 +402,7 @@ public class Body implements Copyable, Instantiable, Settable
 	 * @param radius
 	 * @param spineLength
 	 */
-	public void update(double radius, double spineLength)
+	public void update(double radius, double spineLength, AspectInterface i)
 	{
 		for(Link l : this._links)
 		{

@@ -112,9 +112,13 @@ public class Agent implements AspectInterface, Settable, Instantiable
 			String in =  XmlHandler.gatherAttribute(xmlNode, 
 					XmlRef.identity);
 			if(in != null)
+			{
+				if( Idynomics.simulator.findAgent(Integer.valueOf(in)) != null)
+					this._uid = -1;
 				this._uid = Integer.valueOf(in);
-			else if (UNIQUE_ID < _uid)
-				UNIQUE_ID = _uid;
+			}
+			if (UNIQUE_ID < _uid)
+				UNIQUE_ID = _uid+1;
 			// Place located agents
 			loadAspects(xmlNode);
 		}
@@ -312,7 +316,7 @@ public class Agent implements AspectInterface, Settable, Instantiable
 	 */
 	public int identity()
 	{
-		return this._uid;
+		return Integer.valueOf(this._uid);
 	}
 	
 	/*************************************************************************

@@ -76,7 +76,7 @@ public class FillialDivision extends DivisionMethod
 				}
 			}
 			
-			link((Agent) other, daughter);
+			Link.linLink((Agent) other, daughter);
 			
 			/* update torsion links */
 			for( Link l : momBody.getLinks() )
@@ -97,7 +97,7 @@ public class FillialDivision extends DivisionMethod
 					l.update(i, daughterBody.getPoints().get(0));
 				}
 			
-			torLink((Agent) other, daughter, mother);
+			Link.torLink((Agent) other, daughter, mother);
 		}
 		else
 		{
@@ -110,56 +110,7 @@ public class FillialDivision extends DivisionMethod
 			Point q = daughterBody.getPoints().get(0);
 			q.setPosition(Vector.minus(originalPos, shift));
 		}
-		link(mother, daughter);
+		Link.linLink(mother, daughter);
 	}
-	
-	protected void torLink(Agent a, Agent b, Agent c)
-	{
-		Body aBody = (Body) a.get(AspectRef.agentBody);
-		Body bBody = (Body) b.get(AspectRef.agentBody);
-		Body cBody = (Body) c.get(AspectRef.agentBody);
-		Double linkerStifness = (double) b.getOr( 
-				AspectRef.linkerStifness, 100000.0);
-		/* FIXME placeholder default function */
-		Expression springFun = (Expression) b.getOr( 
-				AspectRef.filialLinker, new Expression( 
-						"stiffness * dif * dif * 1000" ));
 
-		Point[] points = new Point[] { aBody.getPoints().get(0), 
-				bBody.getPoints().get(0), cBody.getPoints().get(0) };
-		
-		Link link = new Link();
-		Spring spring = new TorsionSpring(linkerStifness, points, springFun,
-				3.14159265359);
-		link.addSpring(spring);
-		link.addMember(0, a);
-		link.addMember(1, b);
-		link.addMember(2, c);
-		bBody.addLink(link);
-	}
-	
-	protected void link(Agent mother, Agent daughter)
-	{
-		Body momBody = (Body) mother.get(AspectRef.agentBody);
-		Body daughterBody = (Body) daughter.get(AspectRef.agentBody);
-		Double linkerStifness = (double) mother.getOr( 
-				AspectRef.linkerStifness, 100000.0);
-		/* FIXME placeholder default function */
-		Expression springFun = (Expression) mother.getOr( 
-				AspectRef.filialLinker, new Expression( 
-						"stiffness * dh * dh * 100.0 )" ));
-
-		Point[] points = new Point[] { momBody.getPoints().get(0), 
-				daughterBody.getPoints().get(0) };
-		
-		Link link = new Link();
-		Spring spring = new LinearSpring(linkerStifness, points, springFun,
-				mother.getDouble(AspectRef.bodyRadius) + 
-				daughter.getDouble(AspectRef.bodyRadius));
-		link.addSpring(spring);
-		link.addMember(0, mother);
-		link.addMember(1, daughter);
-		momBody.addLink(link);
-		daughterBody.addLink(link);
-	}
 }
