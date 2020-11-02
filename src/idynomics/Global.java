@@ -21,6 +21,7 @@ import utility.Helper;
  */
 public class Global extends ParameterSet
 {
+
 	/**************************************************************************
 	 * Constructing and loading
 	 *************************************************************************/
@@ -246,6 +247,8 @@ public class Global extends ParameterSet
 	/**************************************************************************
 	 * Appearance
 	 *************************************************************************/
+
+	public static String default_palette = "colours.xml";
 	
 	public static Color console_color = Helper.obtainColor( "38,45,48" );
 	
