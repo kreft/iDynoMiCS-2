@@ -525,6 +525,27 @@ public class AgentContainer implements Settable
 		this._locatedAgentList.add(anAgent);
 		this.treeInsert(anAgent);
 	}
+	
+	protected void addAgents(List<Agent> agents)
+	{
+		for( Agent agent : agents)
+		{
+			if ( IsLocated.isLocated(agent) && 
+					this.getShape().getNumberOfDimensions() > 0 )
+			{
+				this._locatedAgentList.add(agent);
+				this.treeInsert(agent);
+			}
+			else
+				this._agentList.add(agent);
+		}
+		
+		/* must hapen after all agents have been added */
+		for( Agent agent : agents)
+			if ( IsLocated.isLocated(agent) && 
+					this.getShape().getNumberOfDimensions() > 0 )
+						agent.event(AspectRef.agentUpdateBody);
+	}
 
 		// FIXME move all aspect related methods out of general classes
 	/**

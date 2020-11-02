@@ -2,8 +2,15 @@ package surface;
 
 import java.util.HashMap;
 
+import org.w3c.dom.Element;
+
 import expression.Expression;
 import linearAlgebra.Vector;
+import referenceLibrary.XmlRef;
+import settable.Attribute;
+import settable.Module;
+import settable.Settable;
+import settable.Module.Requirements;
 import shape.Shape;
 
 public class LinearSpring implements Spring {
@@ -13,6 +20,11 @@ public class LinearSpring implements Spring {
 	private Point _b;
 	private Expression _springFunction;
 	HashMap<String, Double> springVars = new HashMap<String,Double>();
+	
+	public LinearSpring()
+	{
+	
+	}
 	
 	public LinearSpring(double stiffness, Point[] points, 
 			Expression springFunction, double restLength)
@@ -72,5 +84,26 @@ public class LinearSpring implements Spring {
 		if ( Double.isNaN(fV[0]))
 			System.out.println(fV[0]);
 		Vector.addEquals( this._a.getForce(), fV ) ;
+	}
+
+	@Override
+	public void instantiate(Element xmlElement, Settable parent) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public Module getModule() {
+		Module modelNode = new Module(XmlRef.spring, this);
+		modelNode.setRequirements(Requirements.ZERO_TO_FEW);
+		modelNode.add( new Attribute(XmlRef.typeAttribute, 
+				this.getClass().getSimpleName(), null, false));
+		return modelNode;
+	}
+
+	@Override
+	public String defaultXmlTag() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

@@ -223,7 +223,7 @@ public class SpatialGrid implements Settable, Instantiable
 
 		String conc = XmlHandler.obtainAttribute((Element) xmlElem, 
 			XmlRef.concentration, this.defaultXmlTag());
-		if( Helper.expressionParseable(conc))
+		if( Helper.formatParseable(conc))
 			this.setAllTo(ArrayType.CONCN,new Expression( conc ).format( Idynomics.unitSystem ));
 		else
 			this.setTo(ArrayType.CONCN, conc);

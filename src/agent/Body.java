@@ -14,10 +14,12 @@ import dataIO.Log.Tier;
 import dataIO.XmlHandler;
 import generalInterfaces.Copyable;
 import generalInterfaces.HasBoundingBox;
+import instantiable.Instance;
 import instantiable.Instantiable;
 import linearAlgebra.Matrix;
 import linearAlgebra.Vector;
 import referenceLibrary.AspectRef;
+import referenceLibrary.ClassRef;
 import referenceLibrary.XmlRef;
 import settable.Attribute;
 import settable.Module;
@@ -339,6 +341,14 @@ public class Body implements Copyable, Instantiable, Settable
 						point.getAttribute(XmlRef.position))));
 			}
 			this._points = pointList;
+			Collection<Element> linkers =
+			XmlHandler.getAllSubChild(xmlElem, XmlRef.link);
+			for (Element e : linkers) 
+			{
+				Link l = (Link) Instance.getNew(e, this, ClassRef.link);
+				this._links.add(l);
+			}
+			
 			
 			/* assign a body morphology */
 			String morphology = 
@@ -394,6 +404,13 @@ public class Body implements Copyable, Instantiable, Settable
 	 */
 	public void update(double radius, double spineLength)
 	{
+		for(Link l : this._links)
+		{
+			l.update();
+			for( AspectInterface a : l.getMembers() )
+				if ( a.isAspect(AspectRef.removed))
+					this._links.remove(l);
+		}
 		for ( Surface s: this._surfaces )
 		{
 			if (s instanceof Rod)
@@ -406,9 +423,6 @@ public class Body implements Copyable, Instantiable, Settable
 			{
 				for(Link l : this._links)
 				{
-					for( AspectInterface a : l.getMembers() )
-						if ( a.isAspect(AspectRef.removed))
-							this._links.remove(l);
 					for(Spring t : l.getSprings())
 					{
 						if(t instanceof LinearSpring)
@@ -548,6 +562,9 @@ public class Body implements Copyable, Instantiable, Settable
 
 		for (Point p : this.getPoints() )
 			modelNode.add(p.getModule() );
+		
+		for (Link l : this._links)
+			modelNode.add(l.getModule());
 		
 		return modelNode;
 	}

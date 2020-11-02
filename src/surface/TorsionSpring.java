@@ -2,9 +2,17 @@ package surface;
 
 import java.util.HashMap;
 
-import dataIO.Log;
+import org.w3c.dom.Element;
+
+import agent.Agent;
+import aspect.AspectInterface;
 import expression.Expression;
 import linearAlgebra.Vector;
+import referenceLibrary.XmlRef;
+import settable.Attribute;
+import settable.Module;
+import settable.Settable;
+import settable.Module.Requirements;
 import shape.Shape;
 
 public class TorsionSpring implements Spring {
@@ -15,6 +23,11 @@ public class TorsionSpring implements Spring {
 	private Point _c;
 	private Expression _springFunction;
 	HashMap<String, Double> springVars = new HashMap<String,Double>();
+	
+	public TorsionSpring()
+	{
+	
+	}
 	
 	public TorsionSpring(double stiffness, Point[] points, 
 			Expression springFunction, double restAngle)
@@ -148,5 +161,26 @@ public class TorsionSpring implements Spring {
 				this._springFunction.getValue(springVars) );
 
 		Vector.addEquals( this._b.getForce(), fV ) ;
+	}
+
+	@Override
+	public void instantiate(Element xmlElement, Settable parent) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public Module getModule() {
+		Module modelNode = new Module(XmlRef.spring, this);
+		modelNode.setRequirements(Requirements.ZERO_TO_FEW);
+		modelNode.add( new Attribute(XmlRef.typeAttribute, 
+				this.getClass().getSimpleName(), null, false));
+		return modelNode;
+	}
+
+	@Override
+	public String defaultXmlTag() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

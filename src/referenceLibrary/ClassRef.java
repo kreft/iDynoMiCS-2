@@ -6,6 +6,7 @@ import java.util.List;
 
 import dataIO.Log;
 import dataIO.Log.Tier;
+import surface.TorsionSpring;
 
 /**
  * 
@@ -669,6 +670,16 @@ public class ClassRef
 	
 	public static final String fillialDivision = 
 			aspect.event.FillialDivision.class.getName();
+	
+	public static final String torsionSPring = 
+			surface.TorsionSpring.class.getName();
+	
+	public static final String linearSpring = 
+			surface.LinearSpring.class.getName();
+
+	public static final String link = 
+			surface.Link.class.getName();
+
 	
 
 }

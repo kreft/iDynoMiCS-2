@@ -596,7 +596,7 @@ public class AgentRelaxation extends ProcessManager
 					{
 						/* TODO set default maybe? */
 						Idynomics.simulator.interupt(
-								"missing torsion spring function in relax");
+								"missing torsion spring function in relax" );
 					}
 					s.setSpringFunction( torsFun );
 				}

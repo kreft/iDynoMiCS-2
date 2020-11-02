@@ -10,6 +10,7 @@ import java.util.TreeSet;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
+import agent.Agent;
 import agent.SpeciesLib;
 import analysis.Table;
 import chemical.ChemicalLib;
@@ -23,6 +24,7 @@ import debugTools.SegmentTimer;
 import generalInterfaces.CanPrelaunchCheck;
 import instantiable.Instance;
 import instantiable.Instantiable;
+import referenceLibrary.AspectRef;
 import referenceLibrary.ClassRef;
 import referenceLibrary.XmlRef;
 import settable.Attribute;
@@ -641,6 +643,15 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 	public Settable getParent() 
 	{
 		Log.out(Tier.CRITICAL, "Simulator is root node");
+		return null;
+	}
+
+	public Agent findAgent(int identity) 
+	{
+		for( Compartment c : this._compartments)
+			for( Agent a : c.agents.getAllAgents())
+				if( a.identity() == identity)
+					return a;
 		return null;
 	}
 }

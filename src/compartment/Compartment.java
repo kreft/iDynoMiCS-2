@@ -284,8 +284,10 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable, C
 		/*
 		 * Read in agents.
 		 */
+		LinkedList<Agent> in = new LinkedList<Agent>();
 		for ( Element e : XmlHandler.getElements( xmlElem, XmlRef.agent) )
-			this.addAgent(new Agent( e, this ));
+			in.add(new Agent( e, this ));
+		this.agents.addAgents(in);
 		if( Log.shouldWrite(Tier.EXPRESSIVE))
 			Log.out(Tier.EXPRESSIVE, "Compartment "+this.name+" initialised with "+ 
 					this.agents.getNumAllAgents()+" agents");

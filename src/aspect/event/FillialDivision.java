@@ -123,7 +123,7 @@ public class FillialDivision extends DivisionMethod
 		/* FIXME placeholder default function */
 		Expression springFun = (Expression) b.getOr( 
 				AspectRef.filialLinker, new Expression( 
-						"stiffness * dif * dif * 100000" ));
+						"stiffness * dif * dif * 1000" ));
 
 		Point[] points = new Point[] { aBody.getPoints().get(0), 
 				bBody.getPoints().get(0), cBody.getPoints().get(0) };

@@ -34,9 +34,11 @@ public class Agent implements AspectInterface, Settable, Instantiable
 	/**
 	 * The uid is a unique identifier created when a new Agent is created via 
 	 * the constructor.
+	 * 
+	 * becomiming tricky consider redesign
 	 */
 	protected static int UNIQUE_ID = 0;
-	final int _uid = ++UNIQUE_ID;
+	protected int _uid = ++UNIQUE_ID;
 
 	/**
 	 * The compartment the agent is currently in
@@ -107,6 +109,12 @@ public class Agent implements AspectInterface, Settable, Instantiable
 		}
 		else
 		{
+			String in =  XmlHandler.gatherAttribute(xmlNode, 
+					XmlRef.identity);
+			if(in != null)
+				this._uid = Integer.valueOf(in);
+			else if (UNIQUE_ID < _uid)
+				UNIQUE_ID = _uid;
 			// Place located agents
 			loadAspects(xmlNode);
 		}

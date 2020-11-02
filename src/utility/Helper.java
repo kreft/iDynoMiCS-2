@@ -764,4 +764,20 @@ public final class Helper
 		}
 		return true;
 	}
+	
+	public static boolean formatParseable(String strParse)
+	{
+		if(strParse == null)
+			return false;
+		try
+		{
+			new Expression( strParse ).format( Idynomics.unitSystem );
+		}
+		catch (NumberFormatException | StringIndexOutOfBoundsException
+				| NullPointerException f)
+		{
+			return false;
+		}
+		return true;
+	}
 }
