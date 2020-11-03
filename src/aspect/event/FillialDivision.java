@@ -60,7 +60,7 @@ public class FillialDivision extends DivisionMethod
 							direction, originalPos);
 			
 			Point p = momBody.getClosePoint(otherBody.getCenter());
-			p.setPosition(Vector.minus(originalPos, shift));
+			p.setPosition(Vector.minus(originalPos, Vector.times(shift,0.4)));
 			
 			Point q = daughterBody.getClosePoint(momBody.getCenter());
 			q.setPosition(Vector.add(originalPos, Vector.times(shift,0.4)));
@@ -100,7 +100,7 @@ public class FillialDivision extends DivisionMethod
 					int i;
 					i = l.getMembers().indexOf(mother);
 					l.addMember(i, daughter);
-					l.update(i, daughterBody.getClosePoint(momBody.getCenter()));
+					l.update(i, daughterBody.getClosePoint(otherBody.getCenter()));
 				}
 			
 			Link.torLink((Agent) other, daughter, mother);
