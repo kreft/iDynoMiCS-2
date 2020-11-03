@@ -332,4 +332,16 @@ public class Point implements Copyable, Settable
 		return this._parentNode;
 	}
 
+	/* ***********************************************************************
+	 * Helper
+	 * **********************************************************************/
+	
+	public static int close(Point a, Point b, Point ref)
+	{
+		if( Vector.distanceEuclid(a.getPosition(), ref.getPosition()) < 
+				 Vector.distanceEuclid(b.getPosition(), ref.getPosition()))
+			return 0;
+		return 1;
+	}
+
 }

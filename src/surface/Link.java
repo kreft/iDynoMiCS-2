@@ -92,7 +92,7 @@ public class Link implements Instantiable, Settable  {
 	{
 //		if(a == null || b == null || c == null)
 //			return;
-//		
+
 		Body aBody = (Body) a.get(AspectRef.agentBody);
 		Body bBody = (Body) b.get(AspectRef.agentBody);
 		Body cBody = (Body) c.get(AspectRef.agentBody);
@@ -103,8 +103,29 @@ public class Link implements Instantiable, Settable  {
 				AspectRef.filialLinker, new Expression( 
 						"stiffness * dif * dif * 1000" ));
 
-		Point[] points = new Point[] { aBody.getPoints().get(0), 
-				bBody.getPoints().get(0), cBody.getPoints().get(0) };
+		Point[] points = null;
+		if( a != b && b != c)
+		{
+			/* b must be coccoid */
+		points = new Point[] { aBody.getClosePoint(bBody.getCenter()), 
+				bBody.getPoints().get(0), cBody.getClosePoint(bBody.getCenter()) };
+		}
+		else if ( a == b)
+		{
+			/* b is rod with a */
+			int clo = Point.close(aBody.getPoints().get(0), 
+					bBody.getPoints().get(0), cBody.getClosePoint(bBody.getCenter()));
+			points = new Point[] { aBody.getPoints().get(1-clo), 
+					bBody.getPoints().get(clo), cBody.getClosePoint(bBody.getCenter())};
+		}
+		else
+		{
+			/* b is rod with c */
+			int clo = Point.close(cBody.getPoints().get(0), 
+					bBody.getPoints().get(0), aBody.getClosePoint(bBody.getCenter()));
+			points = new Point[] { cBody.getPoints().get(1-clo), 
+					bBody.getPoints().get(clo), aBody.getClosePoint(bBody.getCenter()) };
+		}
 		
 		Spring spring = new TorsionSpring(linkerStifness, points, springFun,
 				3.14159265359);
@@ -117,7 +138,7 @@ public class Link implements Instantiable, Settable  {
 		Body momBody = (Body) a.get(AspectRef.agentBody);
 		Body daughterBody = (Body) b.get(AspectRef.agentBody);
 		Link link = new Link();
-		link(a, b, new Link());
+		link(a, b, link);
 		link.addMember(0, a);
 		link.addMember(1, b);
 		momBody.addLink(link);
@@ -175,13 +196,10 @@ public class Link implements Instantiable, Settable  {
 				AspectInterface m = Idynomics.simulator.findAgent( 
 						Integer.valueOf( this._arriving.get(i)) );
 				if( m != null )
-				{
 					this._members.add( i,  m);
-				}
 				else
-				{
-					Log.out("unkown agent " +i);
-				}
+					Log.out("unkown agent " +i+ " in " + 
+							this.getClass().getSimpleName());
 			}
 			if( this._members.size() == 2)
 			{
@@ -237,15 +255,7 @@ public class Link implements Instantiable, Settable  {
 	public void instantiate(Element xmlElement, Settable parent) 
 	{
 		if( !Helper.isNullOrEmpty( xmlElement ))
-		{
-//			Collection<Element> srpingNodes =
-//			XmlHandler.getAllSubChild(xmlElement, XmlRef.spring);
-//			for (Element e : srpingNodes) 
-//			{
-//				String type = e.getAttribute(XmlRef.typeAttribute);
-//				this._springs.add((Spring) Instance.getNew(type, null) );
-//			}
-			
+		{			
 			/* find member agents and add them to the member list. */
 			Collection<Element> memberNodes =
 			XmlHandler.getAllSubChild(xmlElement, XmlRef.member);

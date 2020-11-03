@@ -383,6 +383,22 @@ public class Body implements Copyable, Instantiable, Settable
 		return this._points;
 	}
 	
+	public Point getClosePoint(double[] location)
+	{
+		double old = Double.MAX_VALUE;
+		Point hold = null;
+		for( Point p : this._points)
+		{
+			double t = Vector.distanceEuclid(p.getPosition(), location);
+			if( t < old )
+			{
+				hold = p;
+				old = t;
+			}			
+		}
+		return hold;
+	}
+	
 	public List<Spring> getSprings()
 	{
 		LinkedList<Spring> out = new LinkedList<Spring>();

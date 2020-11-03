@@ -209,7 +209,6 @@ public class Collision
 			this._collisionFun.interactionForce( var, first, second );
 			if ( Double.isNaN(var.interactionVector[0]))
 				System.out.println(var.interactionVector[0] + "f");
-			this._collisionFun.interactionForce( var, first, second );
 			if( var.flip )
 			{
 				this.applyForce(b, var.interactionVector, var.s);

@@ -49,26 +49,32 @@ public class FillialDivision extends DivisionMethod
 				{
 					other = a;
 					direction = ((Body) a.getValue(AspectRef.agentBody)).
-							getPoints().get(0).getPosition();
+							getClosePoint(momBody.getCenter()).getPosition();
 					continue;
 				}
 			
 			Body otherBody = (Body) other.getValue(AspectRef.agentBody);
 			
-			double[] originalPos = momBody.getPosition(0);
-			double[] shift = Vector.times(
-					mother.getCompartment().getShape().getMinDifferenceVector(
-							direction, originalPos), 0.5);
+			double[] originalPos = momBody.getClosePoint(otherBody.getCenter()).getPosition();
+			double[] shift = mother.getCompartment().getShape().getMinDifferenceVector(
+							direction, originalPos);
 			
-			Point p = momBody.getPoints().get(0);
+			Point p = momBody.getClosePoint(otherBody.getCenter());
 			p.setPosition(Vector.minus(originalPos, shift));
-			Point q = daughterBody.getPoints().get(0);
-			q.setPosition(Vector.add(originalPos, shift));
+			
+			Point q = daughterBody.getClosePoint(momBody.getCenter());
+			q.setPosition(Vector.add(originalPos, Vector.times(shift,0.4)));
+			/* body has more points? */
+			for( Point w : daughterBody.getPoints() )
+			{
+				if(w != q)
+					q.setPosition(Vector.add(originalPos, Vector.times(shift, 0.6)));
+			}
 			
 			for( Link l : momBody.getLinks() )
 			{
-				if(l.getMembers().size() < 3 && l.getMembers().contains(mother)
-						&& l.getMembers().contains(other))
+				if( l.getMembers().size() < 3 && l.getMembers().contains(mother)
+						&& l.getMembers().contains(other) )
 				{
 				momBody.unLink(link);
 				otherBody.unLink(link);
@@ -79,22 +85,22 @@ public class FillialDivision extends DivisionMethod
 			Link.linLink((Agent) other, daughter);
 			
 			/* update torsion links */
-			for( Link l : momBody.getLinks() )
+			for(Link l : momBody.getLinks() )
 				if(l.getMembers().size() > 2)
 				{
 					int i;
 					i = l.getMembers().indexOf(other);
 					l.addMember(i, daughter);
-					l.update(i, daughterBody.getPoints().get(0));
+					l.update(i, daughterBody.getClosePoint(momBody.getCenter()));
 				}
 			
-			for( Link l : ((Body) other.getValue(AspectRef.agentBody)).getLinks())
+			for(Link l :((Body) other.getValue(AspectRef.agentBody)).getLinks())
 				if(l.getMembers().size() > 2)
 				{
 					int i;
 					i = l.getMembers().indexOf(mother);
 					l.addMember(i, daughter);
-					l.update(i, daughterBody.getPoints().get(0));
+					l.update(i, daughterBody.getClosePoint(momBody.getCenter()));
 				}
 			
 			Link.torLink((Agent) other, daughter, mother);
@@ -103,12 +109,18 @@ public class FillialDivision extends DivisionMethod
 		{
 			double[] originalPos = momBody.getPosition(0);
 			double[] shift = Vector.randomPlusMinus(originalPos.length, 
-					0.5*mother.getDouble(AspectRef.bodyRadius));
+					0.4*mother.getDouble(AspectRef.bodyRadius));
 			
 			Point p = momBody.getPoints().get(0);
 			p.setPosition(Vector.add(originalPos, shift));
 			Point q = daughterBody.getPoints().get(0);
 			q.setPosition(Vector.minus(originalPos, shift));
+			/* body has more points? */
+			for( Point w : daughterBody.getPoints() )
+			{
+				if(w != q)
+					q.setPosition(Vector.add(originalPos, Vector.times(shift, 1.2)));
+			}
 		}
 		Link.linLink(mother, daughter);
 	}
