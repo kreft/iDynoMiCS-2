@@ -206,7 +206,7 @@
 				</process>
 				<process name="tableWriter" class="TableWriter" priority="-2" >
 					<aspect name="fileName" class="String" value="table1" />
-					<aspect name="tableSpecification" class="String" value="species|biomass@mass|biomass@mass * 20|%ammonium" />
+					<aspect name="tableSpecification" class="String" value="species|biomass@mass|biomass@mass LT 1.0|biomass@mass LT 1.0 AND species = autotroph|%ammonium" />
 				</process>
 			</processManagers>
 		</compartment>
