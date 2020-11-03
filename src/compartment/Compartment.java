@@ -31,7 +31,6 @@ import physicalObject.PhysicalObject;
 import processManager.ProcessComparator;
 import processManager.ProcessManager;
 import reaction.RegularReaction;
-import referenceLibrary.AspectRef;
 import referenceLibrary.ClassRef;
 import referenceLibrary.XmlRef;
 import settable.Attribute;
@@ -285,7 +284,8 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable, C
 		/*
 		 * Read in agents.
 		 */
-		for ( Element e : XmlHandler.getElements( xmlElem, XmlRef.agent) )
+		Element agents = XmlHandler.findUniqueChild(xmlElem, XmlRef.agents);
+		for ( Element e : XmlHandler.getElements( agents, XmlRef.agent) )
 			this.addAgent(new Agent( e, this ));
 		
 		this.agents.update();

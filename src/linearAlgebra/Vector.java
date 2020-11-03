@@ -3003,7 +3003,10 @@ public final class Vector
 	public static void normaliseEuclidEqualsUnchecked(double[] vector, double newNorm)
 	{
 		if(normEuclid(vector) == 0.0)
+		{
+			Log.out("zero division not allowed in: Vector");
 			return;
+		}
 		timesEquals(vector, newNorm/normEuclid(vector));
 	}
 	

@@ -90,9 +90,9 @@ public class Link implements Instantiable, Settable  {
 	
 	public static void torLink(Agent a, Agent b, Agent c, Link link)
 	{
-		if(a == null || b == null || c == null)
-			return;
-		
+//		if(a == null || b == null || c == null)
+//			return;
+//		
 		Body aBody = (Body) a.get(AspectRef.agentBody);
 		Body bBody = (Body) b.get(AspectRef.agentBody);
 		Body cBody = (Body) c.get(AspectRef.agentBody);
@@ -148,7 +148,7 @@ public class Link implements Instantiable, Settable  {
 		/* FIXME placeholder default function */
 		Expression springFun = (Expression) a.getOr( 
 				AspectRef.filialLinker, new Expression( 
-						"stiffness * dh * dh * 100.0 )" ));
+						"stiffness * dh * dh * 1000000.0 )" ));
 
 		Point[] points = new Point[] { momBody.getPoints().get(0), 
 				daughterBody.getPoints().get(0) };
