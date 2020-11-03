@@ -323,7 +323,7 @@ public abstract class SpatialBoundary extends Boundary
 		modelNode.add(new Attribute(XmlRef.extreme, 
 				String.valueOf(this._extreme), new String[]{"0", "1"}, true));
 		/* Boundary layer thickness. */
-		if ( this.needsLayerThickness() )
+		if ( this._layerThickness != 0.0 || this.needsLayerThickness() )
 		{
 			modelNode.add(new Attribute(XmlRef.layerThickness,
 					String.valueOf(this._layerThickness), null, true));

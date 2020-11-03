@@ -3002,6 +3002,8 @@ public final class Vector
 	 */
 	public static void normaliseEuclidEqualsUnchecked(double[] vector, double newNorm)
 	{
+		if(normEuclid(vector) == 0.0)
+			return;
 		timesEquals(vector, newNorm/normEuclid(vector));
 	}
 	
@@ -3041,7 +3043,7 @@ public final class Vector
 		 * are orthogonal.
 		 */
 		double dot = dotProduct(a, b);
-		return ( dot == 0.0 ) ? 0.0 : dot/(normEuclid(a) * normEuclid(b));
+		return (dot == 0.0 ) ? 0.0 : dot/(normEuclid(a) * normEuclid(b));
 	}
 	
 	/**
@@ -3054,7 +3056,7 @@ public final class Vector
 	 */
 	public static double angle(double[] a, double[] b)
 	{
-		return Math.acos(cosAngle(a, b));
+		return Math.acos(Math.min(-1.0, Math.max(1.0, (cosAngle(a, b)))));
 	}
 	
 	/**

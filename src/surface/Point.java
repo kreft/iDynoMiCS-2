@@ -147,7 +147,7 @@ public class Point implements Copyable, Settable
 	public void addToForce(double[] forceToAdd)
 	{
 		if ( Double.isNaN(forceToAdd[0]))
-			System.out.println(forceToAdd[0]);
+			System.out.println(forceToAdd[0] + "g");
 		Vector.addEquals(this._f, forceToAdd);
 	}
 	
@@ -181,7 +181,7 @@ public class Point implements Copyable, Settable
 		// see pdf forces in microbial systems.
 		double[] diff = this.dxdt(radius);
 		if ( Double.isNaN(diff[0]))
-			System.out.println(diff[0]);
+			System.out.println(diff[0]+"p");
 		diff = this.dxdt(radius);
 		Vector.timesEquals(diff, dt);
 		if ( Double.isNaN(radius))
@@ -189,7 +189,7 @@ public class Point implements Copyable, Settable
 		if ( Double.isNaN(dt))
 			System.out.println(dt);
 		if ( Double.isNaN(this._p[0]))
-			System.out.println(_p);
+			System.out.println(_p+"q");
 		this.setPosition(Vector.add(this._p, diff));
 		this.resetForce();
 	}

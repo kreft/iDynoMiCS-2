@@ -98,7 +98,6 @@ public class TorsionSpring implements Spring {
 		double u = Math.PI - Vector.angle(a, c);
 		if( Double.isNaN(u))
 			u = 0;
-		
 		Vector.spherifyTo(a, a);
 		Vector.spherifyTo(c, c);
 		
@@ -148,18 +147,21 @@ public class TorsionSpring implements Spring {
 		
 		double[] fV	= Vector.times(directionA, 
 				this._springFunction.getValue(springVars) );
-
+		if ( Double.isNaN(fV[0]))
+			System.out.println(fV[0]+"a");
 		Vector.addEquals( this._a.getForce(), fV ) ;
 
 		fV	= Vector.times(directionC, 
 				this._springFunction.getValue(springVars) );
-
+		if ( Double.isNaN(fV[0]))
+			System.out.println(fV[0]+"'b");
 		Vector.addEquals( this._c.getForce(), fV ) ;
 
 		/* b receives force from both sides */
 		fV	= Vector.times(Vector.times(directionB, 2.0), 
 				this._springFunction.getValue(springVars) );
-
+		if ( Double.isNaN(fV[0]))
+			System.out.println(fV[0]+"c");
 		Vector.addEquals( this._b.getForce(), fV ) ;
 	}
 
