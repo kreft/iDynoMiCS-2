@@ -9,12 +9,11 @@ import org.w3c.dom.Element;
 import agent.Agent;
 import agent.Body;
 import aspect.AspectInterface;
+import dataIO.Log;
 import dataIO.XmlHandler;
 import expression.Expression;
 import idynomics.Idynomics;
-import instantiable.Instance;
 import instantiable.Instantiable;
-import linearAlgebra.Vector;
 import referenceLibrary.AspectRef;
 import referenceLibrary.XmlRef;
 import settable.Attribute;
@@ -67,7 +66,7 @@ public class Link implements Instantiable, Settable  {
 	
 	public void addMember(  int pos, AspectInterface member )
 	{
-		if( 0 > pos)
+		if( member == null )
 			System.out.print("wow");
 		if( this._members.size() > pos)
 			this._members.remove(pos);
@@ -91,6 +90,9 @@ public class Link implements Instantiable, Settable  {
 	
 	public static void torLink(Agent a, Agent b, Agent c, Link link)
 	{
+		if(a == null || b == null || c == null)
+			return;
+		
 		Body aBody = (Body) a.get(AspectRef.agentBody);
 		Body bBody = (Body) b.get(AspectRef.agentBody);
 		Body cBody = (Body) c.get(AspectRef.agentBody);
@@ -124,10 +126,25 @@ public class Link implements Instantiable, Settable  {
 	
 	public static void link(Agent a, Agent b, Link link)
 	{
+		if(a == null || b == null)
+			return;
 		Body momBody = (Body) a.get(AspectRef.agentBody);
 		Body daughterBody = (Body) b.get(AspectRef.agentBody);
+		
+//		if( !link._members.isEmpty())
+//		{
+//			for( Link l : daughterBody.getLinks() )
+//			{
+//				if( l._members.size() == 2 && l._members.contains(a) && l._members.contains(b))
+//				{
+//					daughterBody.unLink(l);
+//					daughterBody.addLink(link);
+//				}
+//			}
+//		}
+//		
 		Double linkerStifness = (double) a.getOr( 
-				AspectRef.linkerStifness, 100000.0);
+				AspectRef.linkerStifness, 10.0);
 		/* FIXME placeholder default function */
 		Expression springFun = (Expression) a.getOr( 
 				AspectRef.filialLinker, new Expression( 
@@ -155,15 +172,23 @@ public class Link implements Instantiable, Settable  {
 		{
 			for (int i = 0; i< this._arriving.size(); i++) 
 			{
-				this._members.add( Idynomics.simulator.findAgent( 
-						Integer.valueOf( this._arriving.get(i)) ) );
+				AspectInterface m = Idynomics.simulator.findAgent( 
+						Integer.valueOf( this._arriving.get(i)) );
+				if( m != null )
+				{
+					this._members.add( i,  m);
+				}
+				else
+				{
+					Log.out("unkown agent " +i);
+				}
 			}
 			if( this._members.size() == 2)
 			{
 				link((Agent) this._members.get(0), 
 						(Agent) this._members.get(1),this);
 			}
-			else
+			else if ( this._members.size() == 3)
 			{
 				torLink((Agent) this._members.get(0), 
 						(Agent) this._members.get(1),

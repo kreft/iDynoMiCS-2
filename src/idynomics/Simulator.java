@@ -61,7 +61,7 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 	 */
 	public Timer timer;
 	
-	public boolean interupt = false;
+	public boolean interupt = true;
 	
 	public boolean stopAction = false;
 	/**
@@ -71,7 +71,7 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 	
 	private long _timeSpentOnXmlOutput = 0;
 	
-	private int _outputTicker = 0;
+	private int _outputTicker = 1;
 	
 	/**
 	 * Simulator is the top node in iDynoMiCS and stores its own modelNode and 
@@ -170,8 +170,7 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 						" validating boundaries.");
 			compartment.checkBoundaryConnections(this._compartments);
 		}
-
-		
+		this.interupt = false;
 	}
 	
 	/* ***********************************************************************
@@ -336,6 +335,10 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 			this._xmlOut.writeFile();
 			this._outputTicker = 1;
 		}
+		
+		for ( Compartment c : this._compartments )
+			c._bookKeeper.clear();
+		
 		/*
 		 * Reporting agents.
 		 */
@@ -650,7 +653,7 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 	{
 		for( Compartment c : this._compartments)
 			for( Agent a : c.agents.getAllAgents())
-				if( a.identity() == identity)
+				if( Integer.valueOf(identity).equals(a.identity()))
 					return a;
 		return null;
 	}

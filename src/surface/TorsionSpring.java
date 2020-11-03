@@ -183,4 +183,12 @@ public class TorsionSpring implements Spring {
 		// TODO Auto-generated method stub
 		return null;
 	}
+	
+	
+	public String toString()
+	{
+		return "Torsion "+_restAngle+ " "+Vector.toString(_a.getPosition())+
+				" "+Vector.toString(_b.getPosition())+
+				" "+Vector.toString(_c.getPosition());
+	}
 }

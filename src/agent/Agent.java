@@ -113,9 +113,10 @@ public class Agent implements AspectInterface, Settable, Instantiable
 					XmlRef.identity);
 			if(in != null)
 			{
-				if( Idynomics.simulator.findAgent(Integer.valueOf(in)) != null)
+				if( Idynomics.simulator.findAgent(Integer.valueOf(in)) == null)
+					this._uid = Integer.valueOf(in);
+				else
 					this._uid = -1;
-				this._uid = Integer.valueOf(in);
 			}
 			if (UNIQUE_ID < _uid)
 				UNIQUE_ID = _uid+1;
@@ -316,7 +317,7 @@ public class Agent implements AspectInterface, Settable, Instantiable
 	 */
 	public int identity()
 	{
-		return Integer.valueOf(this._uid);
+		return this._uid;
 	}
 	
 	/*************************************************************************

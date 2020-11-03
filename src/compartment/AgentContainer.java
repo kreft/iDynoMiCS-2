@@ -20,6 +20,7 @@ import dataIO.Log;
 import dataIO.Log.Tier;
 import gereralPredicates.IsSame;
 import idynomics.Global;
+import idynomics.Idynomics;
 import linearAlgebra.Vector;
 import physicalObject.PhysicalObject;
 import referenceLibrary.AspectRef;
@@ -510,7 +511,9 @@ public class AgentContainer implements Settable
 		if ( IsLocated.isLocated(agent) && this.getShape().getNumberOfDimensions() > 0 )
 			this.addLocatedAgent(agent);
 		else
+		{
 			this._agentList.add(agent);
+		}
 	}
 
 	/**
@@ -521,32 +524,19 @@ public class AgentContainer implements Settable
 	 */
 	protected void addLocatedAgent(Agent anAgent)
 	{
-		anAgent.event(AspectRef.agentUpdateBody); /* hard coded should not be here */
+		if( Idynomics.simulator.active())
+			anAgent.event(AspectRef.agentUpdateBody); /* hard coded should not be here */
 		this._locatedAgentList.add(anAgent);
 		this.treeInsert(anAgent);
 	}
-	
-	protected void addAgents(List<Agent> agents)
-	{
-		for( Agent agent : agents)
+
+	public void update() {
+		for( Agent a : this.getAllAgents())
 		{
-			if ( IsLocated.isLocated(agent) && 
-					this.getShape().getNumberOfDimensions() > 0 )
-			{
-				this._locatedAgentList.add(agent);
-				this.treeInsert(agent);
-			}
-			else
-				this._agentList.add(agent);
+			a.event(AspectRef.agentUpdateBody);
 		}
 		
-		/* must hapen after all agents have been added */
-		for( Agent agent : agents)
-			if ( IsLocated.isLocated(agent) && 
-					this.getShape().getNumberOfDimensions() > 0 )
-						agent.event(AspectRef.agentUpdateBody);
 	}
-
 		// FIXME move all aspect related methods out of general classes
 	/**
 	 * \brief Insert the given agent into this container's spatial registry.

@@ -106,4 +106,10 @@ public class LinearSpring implements Spring {
 		// TODO Auto-generated method stub
 		return null;
 	}
+	
+	public String toString()
+	{
+		return "Linear "+_restLength+ " "+Vector.toString(_a.getPosition())+
+				" "+Vector.toString(_b.getPosition());
+	}
 }

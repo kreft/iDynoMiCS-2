@@ -31,6 +31,7 @@ import physicalObject.PhysicalObject;
 import processManager.ProcessComparator;
 import processManager.ProcessManager;
 import reaction.RegularReaction;
+import referenceLibrary.AspectRef;
 import referenceLibrary.ClassRef;
 import referenceLibrary.XmlRef;
 import settable.Attribute;
@@ -112,7 +113,7 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable, C
 	/**
 	 * 
 	 */
-	private Bookkeeper _bookKeeper = new Bookkeeper();
+	public Bookkeeper _bookKeeper = new Bookkeeper();
 	/**
 	 * Local time should always be between {@code Timer.getCurrentTime()} and
 	 * {@code Timer.getEndOfCurrentTime()}.
@@ -284,10 +285,11 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable, C
 		/*
 		 * Read in agents.
 		 */
-		LinkedList<Agent> in = new LinkedList<Agent>();
 		for ( Element e : XmlHandler.getElements( xmlElem, XmlRef.agent) )
-			in.add(new Agent( e, this ));
-		this.agents.addAgents(in);
+			this.addAgent(new Agent( e, this ));
+		
+		this.agents.update();
+		
 		if( Log.shouldWrite(Tier.EXPRESSIVE))
 			Log.out(Tier.EXPRESSIVE, "Compartment "+this.name+" initialised with "+ 
 					this.agents.getNumAllAgents()+" agents");
@@ -517,7 +519,6 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable, C
 	 */
 	public void preStep()
 	{
-		this._bookKeeper.clear();
 		/*
 		 * Ask all Agents waiting in boundary arrivals lounges to enter the
 		 * compartment now.

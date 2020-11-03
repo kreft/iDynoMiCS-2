@@ -408,7 +408,7 @@ public class Body implements Copyable, Instantiable, Settable
 		{
 			l.update();
 			for( AspectInterface a : l.getMembers() )
-				if ( a.isAspect(AspectRef.removed))
+				if ( a != null && a.isAspect(AspectRef.removed))
 					this._links.remove(l);
 		}
 		for ( Surface s: this._surfaces )

@@ -575,7 +575,7 @@ public class AgentRelaxation extends ProcessManager
 			{
 				/* possible change to set vars */
 				s.setStiffness( Helper.setIfNone( a.getDouble(STIFFNESS), 
-						5.0));
+						1.0));
 				if( s instanceof LinearSpring)
 				{
 					Expression spineFun;
@@ -601,7 +601,9 @@ public class AgentRelaxation extends ProcessManager
 					s.setSpringFunction( torsFun );
 				}
 			}
-			s.applyForces(this._shape);
+			if( s instanceof TorsionSpring )
+				s.applyForces(this._shape);
+			Log.out(Tier.DEBUG,s.toString());
 		}
 	}
 
