@@ -601,4 +601,6 @@ public class AspectRef
 	public static final String directionalDivision = "directionalDivision";
 
 	public static final String removed = "removed";
+
+	public static final String unlinkProbabillity = "unlinkProbabillity";
 }

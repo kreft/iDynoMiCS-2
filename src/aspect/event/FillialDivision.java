@@ -12,6 +12,7 @@ import surface.Link;
 import surface.Point;
 import surface.Spring;
 import surface.TorsionSpring;
+import utility.ExtraMath;
 
 /**
  * 
@@ -31,6 +32,9 @@ public class FillialDivision extends DivisionMethod
 	{
 		Body momBody = (Body) mother.get(AspectRef.agentBody);
 		Body daughterBody = (Body) daughter.get(AspectRef.agentBody);
+		
+		boolean unlink = ExtraMath.getUniRandDbl() < 
+				(double) mother.getOr(AspectRef.unlinkProbabillity, 0.0);
 		
 		daughterBody.clearLinks();
 		
@@ -82,7 +86,8 @@ public class FillialDivision extends DivisionMethod
 				}
 			}
 			
-			Link.linLink((Agent) other, daughter);
+			if( !unlink )
+				Link.linLink((Agent) other, daughter);
 			
 			/* update torsion links */
 			for(Link l : momBody.getLinks() )
@@ -97,13 +102,18 @@ public class FillialDivision extends DivisionMethod
 			for(Link l :((Body) other.getValue(AspectRef.agentBody)).getLinks())
 				if(l.getMembers().size() > 2)
 				{
-					int i;
-					i = l.getMembers().indexOf(mother);
-					l.addMember(i, daughter);
-					l.update(i, daughterBody.getClosePoint(otherBody.getCenter()));
+					if( !unlink )
+					{
+						int i;
+						i = l.getMembers().indexOf(mother);
+						l.addMember(i, daughter);
+						l.update(i, daughterBody.getClosePoint(otherBody.getCenter()));
+					}
+					else
+						otherBody.unLink(l);
 				}
-			
-			Link.torLink((Agent) other, daughter, mother);
+			if( !unlink )
+				Link.torLink((Agent) other, daughter, mother);
 		}
 		else
 		{
