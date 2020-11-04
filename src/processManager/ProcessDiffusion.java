@@ -33,6 +33,7 @@ import shape.subvoxel.IntegerArray;
 import shape.subvoxel.SubvoxelPoint;
 import solver.PDEsolver;
 import solver.PDEupdater;
+import surface.Point;
 import surface.Surface;
 import surface.Voxel;
 import surface.collision.Collision;
@@ -186,6 +187,10 @@ public abstract class ProcessDiffusion extends ProcessManager
 	protected void postStep()
 	{
 		/*
+		 * Ask all boundaries to update their solute concentrations.
+		 */
+		this._environment.updateSoluteBoundaries();
+		/*
 		 * Clear agent mass distribution maps.
 		 */
 		this.removeAgentDistibutionMaps();
@@ -193,12 +198,17 @@ public abstract class ProcessDiffusion extends ProcessManager
 		 * act upon new agent situations
 		 */
 		for(Agent agent: this._agents.getAllAgents()) 
-		{
 			agent.event(DIVIDE);
+		for(Agent agent: this._agents.getAllAgents()) 
+		{
 			agent.event(EXCRETE_EPS);
-			agent.event(UPDATE_BODY);
 			agent.event(DIFFERENTIATE);
+			/* agents cannot access the shape aster division so we'll have to do
+			 * this here for now. */
+			for ( Point point: ( (Body) agent.get(AspectRef.agentBody) ).getPoints() )
+				this._agents.getShape().applyBoundaries( point.getPosition() );
 			
+			agent.event(UPDATE_BODY);
 		}
 	}
 	

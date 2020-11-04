@@ -1,10 +1,13 @@
 /**
  * 
  */
-package expression;
+package expression.arithmetic;
 
-import java.util.ArrayList;
 import java.util.Map;
+
+import aspect.AspectInterface;
+import expression.Component;
+import expression.ComponentDouble;
 
 /**
  * \brief A component of a mathematical expression composed of the addition of
@@ -12,20 +15,8 @@ import java.util.Map;
  * 
  * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
-public class Addition extends ComponentMultiple
+public class Addition extends ComponentDouble
 {
-	/**
-	 * \brief Construct an addition component of a mathematical expression from
-	 * a list of sub-components.
-	 * 
-	 * @param a List of sub-components to add.
-	 */
-	public Addition(ArrayList<Component> a)
-	{
-		super(a);
-		this._expr = "+";
-	}
-	
 	/**
 	 * \brief Construct an addition component of a mathematical expression from
 	 * two sub-components.
@@ -42,19 +33,19 @@ public class Addition extends ComponentMultiple
 	@Override
 	protected double calculateValue(Map<String, Double> variables)
 	{
-		double out = 0.0;
-		for ( Component c : this._components )
-			out += c.getValue(variables);
-		return out;
+		return _a.getValue(variables) + _b.getValue(variables);
 	}
 	
 	@Override
 	public Component differentiate(String withRespectTo)
 	{
-		ArrayList<Component> out = new ArrayList<Component>();
-		for ( Component c : this._components )
-			if ( ! (c instanceof Constant) )
-				out.add(c.differentiate(withRespectTo));
-		return new Multiplication(out);
+		return new Multiplication((_a instanceof Constant ? Arithmetic.one() : _a.differentiate(withRespectTo)),
+				(_b instanceof Constant ? Arithmetic.one() : _b.differentiate(withRespectTo)));
+	}
+
+	@Override
+	public Object evaluate(AspectInterface subject) 
+	{
+		return (double) _a.evaluate(subject) + (double) _b.evaluate(subject);
 	}
 }

@@ -26,7 +26,6 @@ public class RodDivision extends Event {
 	/**
 	 * The Agent's mass.
 	 */
-	public String MASS_MAP = AspectRef.agentMassMap;
 	public String RADIUS = AspectRef.bodyRadius;
 	public String BODY = AspectRef.agentBody;
 	public String LINKED = AspectRef.agentLinks;

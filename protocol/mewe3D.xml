@@ -62,7 +62,7 @@
 			
 				<aspect name="pullDistance" type="PRIMARY" class="Double"	value="0.05" />
 				<aspect name="surfaces"			type="CALCULATED"	class="AgentSurfaces"	  />
-				<aspect name="volume" 			type="CALCULATED" 	class="StateExpression" 		input="mass/density" />
+				<aspect name="volume" 		type="CALCULATED" 	class="SimpleVolumeState" 	/>
 				<aspect name="radius" 			type="PRIMARY" 		class="Double" 					value="1.0" />
 				<aspect name="#isLocated" 		type="PRIMARY" class="Boolean" value="true" />
 				<aspect name="updateBody" 		type="EVENT" 		class="UpdateBody" 	 />
@@ -78,7 +78,7 @@
 				<aspect name="surfaces"			type="CALCULATED"	class="AgentSurfaces"	/>
 				<aspect name="morphology" 		type="PRIMARY" class="String" 		value="coccoid" />
 				<aspect name="volume" 			type="CALCULATED" 	class="StateExpression" 		input="mass/density" />
-				<aspect name="radius" 			type="CALCULATED" 	class="CoccoidRadius" />
+				<aspect name="volume" 		type="CALCULATED" 	class="SimpleVolumeState" 	/>
 				<aspect name="growth" 			type="EVENT" 		class="SimpleGrowth" />
 				<aspect name="divide" 			type="EVENT" 		class="CoccoidDivision"	/>
 				<aspect name="updateBody" 		type="EVENT" 		class="UpdateBody" />
@@ -99,7 +99,7 @@
 				<aspect name="#isLocated" type="PRIMARY" class="Boolean" value="true" />
 				<aspect name="surfaces"			type="CALCULATED"	class="AgentSurfaces"	/>
 				<aspect name="morphology" 		type="PRIMARY" class="String" 		value="coccoid" />
-				<aspect name="volume" 			type="CALCULATED" 	class="StateExpression" 		input="mass/density" />
+				<aspect name="volume" 		type="CALCULATED" 	class="SimpleVolumeState" 	/>
 				<aspect name="radius" 			type="CALCULATED" 	class="CoccoidRadius" />
 				<aspect name="updateBody" 		type="EVENT" 		class="UpdateBody" />
 				<aspect name="evaluatePull"		type="EVENT"			class="ResolveInteractionDistance" 	 />

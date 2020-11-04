@@ -15,6 +15,7 @@ import bookkeeper.KeeperEntry.EventType;
 import compartment.AgentContainer;
 import compartment.EnvironmentContainer;
 import dataIO.ObjectFactory;
+import debugTools.SegmentTimer;
 import grid.SpatialGrid;
 import idynomics.Global;
 import processManager.ProcessDiffusion;
@@ -60,7 +61,11 @@ public class SolveDiffusionSteadyState extends ProcessDiffusion
 		double relTol = (double) this.getOr(REL_TOLERANCE, 1.0e-18);
 
 		// TODO Let the user choose which ODEsolver to use.
-		this._solver = new PDEmultigrid();
+		this._solver = new PDEmultigrid(
+				(int) this.getOr(AspectRef.vCycles, 0), 
+				(int) this.getOr(AspectRef.preSteps, 0), 
+				(int) this.getOr(AspectRef.coarseSteps, 0), 
+				(int) this.getOr(AspectRef.postSteps, 0));
 
 		this._solver.setUpdater(this);
 		
@@ -129,10 +134,6 @@ public class SolveDiffusionSteadyState extends ProcessDiffusion
 		applyEnvReactions(variables);
 		for ( Agent agent : _agents.getAllLocatedAgents() )
 			applyAgentReactions(agent, variables);
-//		for (SpatialGrid s : variables)
-//		{
-//			System.out.println(s.getAverage(PRODUCTIONRATE));
-//		}
 	}
 
 	/**
@@ -362,6 +363,8 @@ public class SolveDiffusionSteadyState extends ProcessDiffusion
 						newBiomass.put(productName, newBiomass.get(productName)
 								+ quantity );
 					}
+					/* FIXME this can create conflicts if users try to mix mass-
+					 * maps and simple mass aspects	 */
 					else if ( agent.isAspect(productName) )
 					{
 						/*

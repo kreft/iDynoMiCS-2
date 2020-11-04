@@ -1,5 +1,7 @@
 package dataIO;
 
+import java.io.StringWriter;
+
 import idynomics.Idynomics;
 
 /**
@@ -106,7 +108,9 @@ public class XmlExport
 	 */
 	public void writeState()
 	{
-		this._xmlFile.write(Idynomics.simulator.getModule().getXML(1));
+		StringWriter outputWriter = new StringWriter();
+		outputWriter = Idynomics.simulator.getModule().getXML(1, outputWriter);
+		this._xmlFile.write(outputWriter.toString());
 	}
 	
 	/**

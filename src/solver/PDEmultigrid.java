@@ -127,9 +127,48 @@ public class PDEmultigrid extends PDEsolver
 	private boolean _reachedStopCondition = false;
 
 	/* ***********************************************************************
+	 * Constructors
+	 * **********************************************************************/
+	/**
+	 * Constructor for multigrid solver at default settings
+	 */
+	public PDEmultigrid()
+	{
+
+	}
+	
+	/**
+	 * Constructor for multigrid solver at user suplied settings
+	 * @param cycles
+	 * @param pre
+	 * @param coarse
+	 * @param post
+	 */
+	public PDEmultigrid(int cycles, int pre, int coarse, int post)
+	{
+		if (cycles != 0)
+			this._numVCycles = cycles;
+		/**
+		 * maximum number of pre-steps
+		 */
+		if (pre != 0)
+			this._numPreSteps = pre;
+		/**
+		 * maximum number of coarse steps
+		 */
+		if (coarse != 0)
+			this._numCoarseStep = coarse;
+		/**
+		 * maximum number of post steps
+		 */
+		if (post != 0)
+			this._numPostSteps = post; // 1 -> 1000, 0.5 -> 2500 seems to work
+	}
+	
+	/* ***********************************************************************
 	 * SOLVER METHODS
 	 * **********************************************************************/
-	
+
 	@Override
 	public Collection<Shape> getShapesForAgentMassDistributionMaps(
 			SpatialGrid commonGrid)
@@ -240,9 +279,6 @@ public class PDEmultigrid extends PDEsolver
 			// NOTE iDynoMiCS 1 uses fracOfOldValueKept of 0.5
 			for ( ArrayType type : variable.getAllArrayTypes() )
 				currentLayer.fillArrayFromFiner(type, 0.5, null);
-			/** [Bas 2019] In some cases, setting this to 0.5 also appears to
-			 * increase the total biomass production of a sim.
-			 */
 		}
 	}
 	
@@ -530,6 +566,7 @@ public class PDEmultigrid extends PDEsolver
 				}
 			}
 //			System.out.println("r" + i);
+			/* update reaction rate matrix at current concn */
 			this._updater.prestep(currentGrids, 0.0);
 			boolean stop = true;
 			for ( SpatialGrid grid : currentGrids ) 
@@ -551,6 +588,7 @@ public class PDEmultigrid extends PDEsolver
 						this._absToleranceLevel );
 			}
 		}
+		/* update reaction rate matrix at current concn */
 		this._updater.prestep(currentGrids, 0.0);
 		
 //		boolean periodic = false;

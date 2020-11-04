@@ -6,6 +6,9 @@ import java.util.LinkedList;
 import agent.Agent;
 import boundary.Boundary;
 import idynomics.Idynomics;
+import referenceLibrary.XmlRef;
+import settable.Attribute;
+import settable.Module;
 import utility.ExtraMath;
 
 /**
@@ -67,6 +70,14 @@ public abstract class ChemostatBoundary extends Boundary {
 			}
 		}
 		return removals;			
+	}
+	
+	@Override
+	public Module getModule()
+	{
+		Module mod = super.getModule();
+		mod.add( new Attribute( XmlRef.agentRemoval, String.valueOf( this._agentRemoval ), null, true ));
+		return mod;
 	}
 
 }

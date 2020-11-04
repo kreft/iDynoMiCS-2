@@ -235,11 +235,16 @@ public final class GuiConsole
   		{
   			// TODO
   		}
-  		if ( _autoScroll )
-  			_console.setCaretPosition(doc.getLength());
-
   	}
 	
+  	public static void scroll()
+  	{
+  		if ( _autoScroll )
+  		{
+  			Document doc =	_console.getDocument();
+  			_console.setCaretPosition(doc.getLength());
+  		}
+  	}
 	/**
 	 * \brief User input in the GUI text area.
 	 * 

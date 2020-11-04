@@ -154,7 +154,7 @@ public class Global extends ParameterSet
 	/**
 	 * 
 	 */
-	public static boolean output_compression = true;
+	public static boolean output_compression = false;
 	
 	/**
 	 * enable bookkeeping.
@@ -232,7 +232,7 @@ public class Global extends ParameterSet
 	/**
 	 * Skip writing xml output for this number of global time steps
 	 */
-	public int outputskip = 0;
+	public int outputskip = 1;
 	
 	/**
 	 * The exit command is passed to kernel once the simulation is finished
@@ -356,4 +356,9 @@ public class Global extends ParameterSet
 	 * decompression algorithm
 	 */
 	public static double traversing_fraction = 0.02;
+	
+	/**
+	 * Default decompression parameters
+	 */
+	public static double damping_factor = 0.9;
 }

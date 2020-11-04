@@ -185,8 +185,8 @@ public final class GuiActions
 		if ( Idynomics.simulator == null )
 			return;
 		// TODO this can probably be made a lot cleaner!
-		Idynomics.simulator.timer.setEndOfSimulation(
-				Idynomics.simulator.timer.getEndOfCurrentIteration());
+		Log.out("simulation stopping by user request...");
+		Idynomics.simulator.stopAction = true;
 	}
 	
 	/*************************************************************************

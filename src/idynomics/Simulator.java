@@ -11,6 +11,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 import agent.SpeciesLib;
+import analysis.Table;
 import chemical.ChemicalLib;
 import compartment.Compartment;
 import dataIO.Log;
@@ -60,6 +61,7 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 	
 	public boolean interupt = false;
 	
+	public boolean stopAction = false;
 	/**
 	 * Xml output writer
 	 */
@@ -75,7 +77,7 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 	 * storing ModelNodes
 	 */
 	private Module _modelNode;
-
+	
 	/* ***********************************************************************
 	 * CONSTRUCTORS
 	 * **********************************************************************/
@@ -305,8 +307,6 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 		 */
 		for ( Compartment c : this._compartments )
 		{
-
-			c.environment.updateSoluteBoundaries();
 			c.step();
 			if(this.interupt)
 				return;
@@ -332,9 +332,8 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 		else
 		{
 			this._xmlOut.writeFile();
-			this._outputTicker = 0;
+			this._outputTicker = 1;
 		}
-
 		/*
 		 * Reporting agents.
 		 */
@@ -347,6 +346,7 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 			}
 		}
 		
+		Log.step();
 	}
 	
 	public void run()
@@ -361,10 +361,13 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 		double tic = System.currentTimeMillis();
 		/* Check if any boundary connections need to be made. */
 		for ( Compartment c : this._compartments )
+		{
 			c.checkBoundaryConnections(this._compartments);
+			c.environment.updateSoluteBoundaries();
+		}
 		
 		/* Run the simulation. */
-		while ( this.timer.isRunning() && !this.interupt )
+		while ( this.timer.isRunning() && !this.interupt && !this.stopAction )
 			this.step();
 		
 		if ( this.interupt )

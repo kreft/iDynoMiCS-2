@@ -16,6 +16,8 @@ import compartment.AgentContainer;
 import compartment.EnvironmentContainer;
 import dataIO.Log;
 import dataIO.Log.Tier;
+import expression.Expression;
+import idynomics.Idynomics;
 import dataIO.ObjectFactory;
 import dataIO.XmlHandler;
 import instantiable.Instantiable;
@@ -218,24 +220,14 @@ public class SpatialGrid implements Settable, Instantiable
 		
 		/* TODO should every grid always be instantiated as CONCN grid? */
 		this.newArray(ArrayType.CONCN, 0.0);
-		
-		//Try to get concentration as one double, attempting Expression conversion
-		Double concentrationDbl = XmlHandler.gatherDouble((Element) xmlElem, 
-				XmlRef.concentration);
-		
-		// If the attribute is an array, obtain as a String, and set the grid
-		//values via Array.dblFromString
-		if (concentrationDbl == null)
-		{
-			String conc = XmlHandler.obtainAttribute((Element) xmlElem, 
-				XmlRef.concentration, this.defaultXmlTag());
-			this.setTo(ArrayType.CONCN, conc);
-		}
-		
+
+		String conc = XmlHandler.obtainAttribute((Element) xmlElem, 
+			XmlRef.concentration, this.defaultXmlTag());
+		if( Helper.expressionParseable(conc))
+			this.setAllTo(ArrayType.CONCN,new Expression( conc ).format( Idynomics.unitSystem ));
 		else
-		{
-			this.setAllTo(ArrayType.CONCN, concentrationDbl);
-		}
+			this.setTo(ArrayType.CONCN, conc);
+	
 		
 		((EnvironmentContainer) parent).addSolute(this);
 		

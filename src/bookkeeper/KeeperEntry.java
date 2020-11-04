@@ -16,7 +16,9 @@ public class KeeperEntry implements Settable
 		TRANSFER( 102 ),
 		ARRIVE( 103 ),
 		REACTION( 201 ),
-		ODE( 202 );
+		ODE( 202 ),
+		OTHER( 300 ),
+		TEST( 999 );
 		
 		public final int iD;
 		

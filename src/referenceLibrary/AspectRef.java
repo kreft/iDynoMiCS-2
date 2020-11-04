@@ -124,12 +124,7 @@ public class AspectRef
 	 * TODO
 	 */
 	public final static String agentMass = "mass";
-	
-	/**
-	 * TODO
-	 */
-	public final static String agentMassMap = "massMap";
-	
+
 	/**
 	 * Agent mass that should trigger division.
 	 */
@@ -586,5 +581,19 @@ public class AspectRef
 
 	public static final String decompressionThreshold = "decompressionThreshold";
 
+	public static final String traversingFraction = "traversingFraction";
+
+	public static final String vCycles = "vCycles";
+
+	public static final String preSteps = "preSteps";
+
+	public static final String coarseSteps = "coarseSteps";
+
+	public static final String postSteps = "postSteps";
+
 	public static final String disableBulkDynamics = "disableBulkDynamics";
+
+	public static final String dampingFactor = "dampingFactor";
+
+	public static final String filter = "filter";
 }

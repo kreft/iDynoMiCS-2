@@ -9,15 +9,15 @@ import linearAlgebra.Vector;
  */
 public class CollisionVariables
 {
-	public CollisionVariables( int nDim, double pullRange )
+	public CollisionVariables( int nDim, double margin )
 	{
 		this.interactionVector = Vector.zerosDbl(nDim);
-		this.pullRange = pullRange;
+		this.margin = margin;
 	}
 	
-	public void setPullRange(double pullRange )
+	public void setMargin(double margin )
 	{
-		this.pullRange = pullRange;
+		this.margin = margin;
 	}
 	
 	
@@ -67,7 +67,7 @@ public class CollisionVariables
 	 * <p>This is set in {@link #collision(Collection, Collection, double)}
 	 * only.</p>
 	 */
-	public double pullRange;
+	public double margin;
 	
 	/*
 	 * calculated distance between two objects.

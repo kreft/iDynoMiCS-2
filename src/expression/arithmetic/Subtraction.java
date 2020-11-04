@@ -1,6 +1,10 @@
-package expression;
+package expression.arithmetic;
 
 import java.util.Map;
+
+import aspect.AspectInterface;
+import expression.Component;
+import expression.ComponentDouble;
 
 /**
  * \brief A component of a mathematical expression composed of the subtraction
@@ -29,6 +33,12 @@ public class Subtraction extends ComponentDouble
 	protected double calculateValue(Map<String, Double> variables)
 	{
 		return this._a.getValue(variables) - this._b.getValue(variables);
+	}
+	
+	@Override
+	public Object evaluate(AspectInterface subject) 
+	{
+		return (double) this._a.evaluate(subject) - (double) this._b.evaluate(subject);
 	}
 
 	@Override

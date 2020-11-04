@@ -74,7 +74,30 @@ public class AspectReg
 	 */
 	public boolean isGlobalAspect(String key)
 	{
-		if ( this._aspects.containsKey(key) )
+
+
+		if( key.contains(DELIMITER))
+		{
+			String[] keys = key.split( DELIMITER );
+			key = keys[1];
+			String nested = keys[0];
+			Aspect a = getAspect(key);
+			if ( a == null )
+			{
+				for ( AspectInterface m : this.getSubModules() )
+					if ( m.reg().isGlobalAspect(key) )
+						return true;
+			}
+			else if( a.aspect instanceof Map<?, ?> && 
+					((Map<String, Object>) a.aspect).get(nested) != null)
+				return true;
+			else if( a.aspect instanceof List<?> && 
+					((List<Object>) a.aspect).get(Integer.valueOf(nested)) != null )
+				return true;
+			else
+				return false;
+		}
+		else if ( this._aspects.containsKey(key) )
 			return true;
 		else
 			for ( AspectInterface m : this.getSubModules() )

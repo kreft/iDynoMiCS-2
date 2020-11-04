@@ -262,11 +262,13 @@ public class AgentRelaxation extends ProcessManager
 
 		if ( this._decompression )
 			decompressionMatrix = new Decompress( 
-					this._agents.getShape().getDimensionLengths(), 
+					this._agents.getShape().getDimensionLengths(),
 					Helper.setIfNone(this.getDouble(DECOMPRESSION_CELL_LENGTH), //possibly change to must set since very depended on case.
-					2.0 ), Helper.setIfNone(this.getDouble(DECOMPRESSION_THRESHOLD), 
+					0.0 ), Helper.setIfNone(this.getDouble(DECOMPRESSION_THRESHOLD), 
 					this._stressThreshold ), 
-					this._agents.getShape().getIsCyclicNaturalOrderIncludingVirtual());
+					this._agents.getShape().getIsCyclicNaturalOrderIncludingVirtual(),
+					(double) this.getOr(AspectRef.traversingFraction, Global.traversing_fraction),
+					(double) this.getOr(AspectRef.dampingFactor, Global.damping_factor));
 		
 	}
 
@@ -435,9 +437,15 @@ public class AgentRelaxation extends ProcessManager
 		this._agents.refreshSpatialRegistry();
 		
 		/* Notify user */
-		if (nstep == this._maxIter )
-			Log.out( Tier.CRITICAL, this.getName() + " reached maximum number of "
-					+ "iterations: " + this._maxIter);
+		if( Log.shouldWrite( Tier.EXPRESSIVE ) )
+		{
+			if (nstep == this._maxIter )
+				Log.out( Tier.EXPRESSIVE, this.getName() +
+						" stop condition iterations: " + this._maxIter);
+			else
+				Log.out( Tier.EXPRESSIVE, this.getName() +
+						" stop condition stress threshold");
+		}
 		if( Log.shouldWrite( Tier.DEBUG ) )
 			Log.out( Tier.DEBUG, "Relaxed " + this._agents.getNumAllAgents() + 
 					" agents after " + nstep + " iterations" );
@@ -479,12 +487,6 @@ public class AgentRelaxation extends ProcessManager
 			/* NOTE: testing purposes only */
 			if (this._gravity)
 				gravityEvaluation(agent, body);
-			
-			/*
-			 * TODO friction
-			 * FIXME here we need to selectively apply surface collision methods
-			 */
-			this._iterator.collision(this._shapeSurfs, null, agentSurfs, agent, 0.0);
 
 			if ( this._decompression )
 				for( Point p : ((Body) agent.get(BODY)).getPoints())
@@ -494,6 +496,11 @@ public class AgentRelaxation extends ProcessManager
 					p.addToForce(decompressionMatrix.getDirection(p.getPosition()));
 				}
 			
+			/*
+			 * TODO friction
+			 * FIXME here we need to selectively apply surface collision methods
+			 */
+			this._iterator.collision(this._shapeSurfs, null, agentSurfs, agent, 0.0);
 		}
 	}
 	

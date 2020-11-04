@@ -1,5 +1,10 @@
 package aspect;
 
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.Map;
+
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -219,4 +224,11 @@ public abstract interface AspectInterface
 		return (Boolean[]) this.reg().getValue(this, aspect);
 	}
 
+	public default Map<String, Double> getVariables(Collection<String> variables)
+	{
+		HashMap<String, Double> out = new HashMap<String, Double>();
+		for( String s : variables)
+			out.put(s, this.getDouble(s));
+		return out;
+	}
 }

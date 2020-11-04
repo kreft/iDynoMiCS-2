@@ -1177,8 +1177,6 @@ public final class Vector
 		for ( int i = 0; i < a.length; i++ ) 
 		{
 			destination[i] = a[i] + b[i];
-			if (Double.isNaN(destination[i]))
-				Log.out(Tier.CRITICAL,"encountered NAN in vector addition");
 		}
 	}
 	

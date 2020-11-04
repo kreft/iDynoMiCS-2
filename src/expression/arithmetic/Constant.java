@@ -1,10 +1,14 @@
 /**
  * 
  */
-package expression;
+package expression.arithmetic;
 
 import java.util.Collection;
 import java.util.Map;
+
+import aspect.AspectInterface;
+import expression.Component;
+import expression.ComponentSimple;
 
 /**
  * \brief A component of a mathematical expression whose value is fixed.
@@ -39,6 +43,12 @@ public class Constant extends ComponentSimple
 	
 	@Override
 	protected double calculateValue(Map<String, Double> variables)
+	{
+		return this._value;
+	}
+	
+	@Override
+	public Object evaluate(AspectInterface subject) 
 	{
 		return this._value;
 	}
