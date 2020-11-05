@@ -603,4 +603,9 @@ public class AspectRef
 	public static final String removed = "removed";
 
 	public static final String unlinkProbabillity = "unlinkProbabillity";
+
+	public static final String shiftMass = "shiftMass";
+
+	public static final String transientRadius = "transientRadius";
+	
 }
