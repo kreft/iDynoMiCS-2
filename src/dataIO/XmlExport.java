@@ -2,6 +2,7 @@ package dataIO;
 
 import java.io.StringWriter;
 
+import idynomics.Global;
 import idynomics.Idynomics;
 
 /**
@@ -33,7 +34,7 @@ public class XmlExport
 	/**
 	 * The minimum number of digits allowed in a file name.
 	 */
-	private final static int NUMBER_OF_DIGITS = 4;
+	private final static int NUMBER_OF_DIGITS = Global.file_number_of_digits;
 	
 	/**
 	 * The first lines in any XML document.

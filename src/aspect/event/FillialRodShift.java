@@ -259,5 +259,4 @@ public class FillialRodShift extends DivisionMethod
 				Link.torLink((Agent) otherB, daughter, mother);
 		}
 	}
-
 }

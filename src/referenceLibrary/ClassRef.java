@@ -680,6 +680,7 @@ public class ClassRef
 	public static final String link = 
 			surface.Link.class.getName();
 
-	
+	public static final String fillialRodShift = 
+			aspect.event.FillialRodShift.class.getName();
 
 }

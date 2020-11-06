@@ -2,6 +2,7 @@ package dataIO;
 
 import org.w3c.dom.Element;
 
+import idynomics.Global;
 import idynomics.Idynomics;
 import linearAlgebra.Vector;
 import settable.Settable;
@@ -51,7 +52,7 @@ public class SvgExport implements GraphicalExporter
 	 */
 	private String DigitFilenr(int filenr) {
 		String apzero = String.valueOf(filenr);
-		for(int i = 0; i < 6-String.valueOf(filenr).length(); i++)
+		for(int i = 0; i < Global.file_number_of_digits-String.valueOf(filenr).length(); i++)
 			apzero = "0" + apzero;
 		return apzero;
 	}
