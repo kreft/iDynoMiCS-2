@@ -136,19 +136,21 @@ public abstract class DivisionMethod extends Event {
 	
 	public void updateAgents(Agent parent, Agent child)
 	{
-		child.registerBirth();
-		
+		if( child != null)
+		{
+			child.registerBirth();
+			child.event(AspectRef.agentUpdateBody);
+			/* Call the plasmid loss event 
+			 * NOTE not sure wether this is the right place to do this, posibly move
+			 * to it's own process manager? */
+			if (child.isAspect(AspectRef.agentPlasmidLoss))
+				child.event(AspectRef.agentPlasmidLoss);
+			child.event(AspectRef.agentDivide);
+		}
 		/* if either is still larger than the division size they need to divide 
 		 * again */
 		parent.event(AspectRef.agentUpdateBody);
-		child.event(AspectRef.agentUpdateBody);
-		/* Call the plasmid loss event 
-		 * NOTE not sure wether this is the right place to do this, posibly move
-		 * to it's own process manager? */
-		if (child.isAspect(AspectRef.agentPlasmidLoss))
-			child.event(AspectRef.agentPlasmidLoss);
 		parent.event(AspectRef.agentDivide);
-		child.event(AspectRef.agentDivide);
 	}
 
 	@SuppressWarnings("unchecked")
