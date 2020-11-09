@@ -80,18 +80,20 @@ public class FillialRodShift extends DivisionMethod
 	protected void shiftMorphology(Agent initiator)
 	{
 		Body momBody = (Body) initiator.get(AspectRef.agentBody);
+		Body otherBody = null;
 		Point q = null, p = null;
 		double[] originalPos, shift;
+		AspectInterface other = null;
+		Link link = null;
 		
 		if(  initiator.getBoolean(AspectRef.directionalDivision) &! 
 				momBody.getLinks().isEmpty())
 		{
 			double[] direction = null;
-			Link link = momBody.getLinks().get(0);
+			link = momBody.getLinks().get(0);
 			for( Link l : momBody.getLinks() )
 				if(l.getMembers().size() < 3)
 					link = l;
-			AspectInterface other = null;
 
 			for( AspectInterface a : link.getMembers())
 				if( a != initiator)
@@ -102,7 +104,7 @@ public class FillialRodShift extends DivisionMethod
 					continue;
 				}
 			
-			Body otherBody = (Body) other.getValue(AspectRef.agentBody);
+			otherBody = (Body) other.getValue(AspectRef.agentBody);
 			
 			originalPos = momBody.getClosePoint(otherBody.getCenter()).getPosition();
 			shift = initiator.getCompartment().getShape().getMinDifferenceVector(
@@ -110,17 +112,6 @@ public class FillialRodShift extends DivisionMethod
 			
 			p = momBody.getClosePoint(otherBody.getCenter());
 
-			
-			for( Link l : momBody.getLinks() )
-			{
-				if( l.getMembers().size() < 3 && l.getMembers().contains(initiator)
-						&& l.getMembers().contains(other) )
-				{
-				momBody.unLink(link);
-				otherBody.unLink(link);
-				continue;
-				}
-			}
 
 			/* update torsion links */
 			for(Link l : momBody.getLinks() )
@@ -141,6 +132,7 @@ public class FillialRodShift extends DivisionMethod
 		}
 		else
 		{
+		/* if we are not linked yet */
 			originalPos = momBody.getPosition(0);
 			shift = Vector.randomPlusMinus(originalPos.length, 
 					initiator.getDouble(AspectRef.bodyRadius));
@@ -158,6 +150,25 @@ public class FillialRodShift extends DivisionMethod
 		momBody.assignMorphology(Morphology.BACILLUS.name());
 		momBody.constructBody(1.0, 
 				initiator.getDouble(AspectRef.transientRadius) );
+		
+		if(  initiator.getBoolean(AspectRef.directionalDivision) &! 
+				momBody.getLinks().isEmpty())
+		{
+			for( Link l : momBody.getLinks() )
+			{
+				if( l.getMembers().size() < 3 && l.getMembers().contains(initiator)
+						&& l.getMembers().contains(other) )
+				{
+
+				momBody.unLink(link);
+				otherBody.unLink(link);
+				Link.link((Agent) initiator, (Agent) other, new Link());
+				continue;
+				}
+			}
+			
+			Link.torLink((Agent) other, initiator, initiator);
+		}
 	}
 	
 	public void shiftBodies(Agent mother, Agent daughter)
@@ -176,6 +187,8 @@ public class FillialRodShift extends DivisionMethod
 		{
 			AspectInterface otherA = null;
 			AspectInterface otherB = null;
+			Body otherBBody = null;
+			Body otherABody = null;
 			
 			for( Link l : momBody.getLinks() )
 			{
@@ -189,11 +202,16 @@ public class FillialRodShift extends DivisionMethod
 							otherB = a;
 					}
 			}
-			
-			Body otherABody = (Body) otherA.getValue(AspectRef.agentBody);
-			p = momBody.getClosePoint(otherABody.getCenter());
-			Body otherBBody = (Body) otherB.getValue(AspectRef.agentBody);
-			q = daughterBody.getClosePoint(otherBBody.getCenter());
+			if( otherA != null )
+			{
+				otherABody = (Body) otherA.getValue(AspectRef.agentBody);
+				p = momBody.getClosePoint(otherABody.getCenter());
+			}
+			if( otherB != null )
+			{
+				otherBBody = (Body) otherB.getValue(AspectRef.agentBody);
+				q = daughterBody.getClosePoint(otherBBody.getCenter());
+			}
 			
 			for( Point w : daughterBody.getPoints() )
 			{
@@ -206,28 +224,37 @@ public class FillialRodShift extends DivisionMethod
 					momBody.getPoints().remove(w);
 			}
 			
-			for( Link l : momBody.getLinks() )
+			if( otherB != null )
 			{
-				if( l.getMembers().size() < 3 && l.getMembers().contains(mother)
-						&& l.getMembers().contains(otherB) )
+				for( Link l : momBody.getLinks() )
 				{
-					momBody.unLink(l);
-					otherBBody.unLink(l);
-					continue;
+					if( l.getMembers().size() < 3 && l.getMembers().contains(mother)
+							&& l.getMembers().contains(otherB) )
+					{
+						momBody.unLink(l);
+						otherBBody.unLink(l);
+						continue;
+					}
 				}
 			}
-			for( Link l : daughterBody.getLinks() )
+			if( otherA != null )
 			{
-				if( l.getMembers().size() < 3 && l.getMembers().contains(mother)
-						&& l.getMembers().contains(otherA) )
+				for( Link l : daughterBody.getLinks() )
 				{
-					daughterBody.unLink(l);
-					otherABody.unLink(l);
-					continue;
+					if( l.getMembers().size() < 3 && l.getMembers().contains(mother)
+							&& l.getMembers().contains(otherA) )
+					{
+						daughterBody.unLink(l);
+						otherABody.unLink(l);
+						continue;
+					}
 				}
 			}
 			
-			Link.linLink((Agent) otherB, daughter);
+			if( otherB != null )
+			{
+				Link.linLink((Agent) otherB, daughter);
+			}
 			
 			/* update torsion links */
 			for(Link l : momBody.getLinks() )
@@ -240,23 +267,26 @@ public class FillialRodShift extends DivisionMethod
 					l.update(i, daughterBody.getClosePoint(momBody.getCenter()));
 				}
 			
-			for(Link l : otherBBody.getLinks())
-				if(l.getMembers().size() > 2)
-				{
-					if( !unlink )
+			if( otherB != null )
+			{
+				for(Link l : otherBBody.getLinks())
+					if(l.getMembers().size() > 2)
 					{
-						int i = 0;
-						if( l.getMembers().get(i) != mother )
-							i = 2;
-						l.addMember(i, daughter);
-						l.update(i, daughterBody.getClosePoint(otherBBody.getCenter()));
+						if( !unlink )
+						{
+							int i = 0;
+							if( l.getMembers().get(i) != mother )
+								i = 2;
+							l.addMember(i, daughter);
+							l.update(i, daughterBody.getClosePoint(otherBBody.getCenter()));
+						}
+						else
+							otherBBody.unLink(l);
 					}
-					else
-						otherBBody.unLink(l);
-				}
-			
-			if( !unlink )
-				Link.torLink((Agent) otherB, daughter, mother);
+				
+				if( !unlink )
+					Link.torLink((Agent) otherB, daughter, mother);
+			}
 		}
 		else
 		{
