@@ -286,6 +286,7 @@ public class Body implements Copyable, Instantiable, Settable
 		{
 		case COCCOID :
 			this._surfaces.add(new Ball(_points.get(0), radius));
+			this.spine = null;
 			break;
 		case BACILLUS :
 			for(int i = 0; _points.size()-1 > i; i++)

@@ -26,6 +26,14 @@ public class FillialRodShift extends DivisionMethod
 		if ( ! this.shouldChange(initiator) )
 			return;
 		
+		if ( initiator.isAspect(AspectRef.agentBody) && 
+				((Body) initiator.getValue(AspectRef.agentBody)).getMorphology()
+						!= Morphology.BACILLUS )
+		{
+			shiftMorphology((Agent) initiator);
+			updateAgents((Agent) initiator,null);
+		}
+		
 		if( this.shouldDevide(initiator) )
 		{
 			/* Make one new agent, copied from the mother.*/
@@ -35,14 +43,6 @@ public class FillialRodShift extends DivisionMethod
 			this.shiftBodies((Agent) initiator, (Agent) compliant);
 			/* The bodies of both cells may now need updating. */
 			updateAgents((Agent) initiator,(Agent) compliant);
-		}
-		else if ( initiator.isAspect(AspectRef.agentBody) && 
-				((Body) initiator.getValue(AspectRef.agentBody)).getMorphology()
-						!= Morphology.BACILLUS )
-		{
-			shiftMorphology((Agent) initiator);	
-			/* The bodies of both cells may now need updating. */
-			updateAgents((Agent) initiator,null);
 		}
 	}
 	
@@ -90,7 +90,6 @@ public class FillialRodShift extends DivisionMethod
 				momBody.getLinks().isEmpty())
 		{
 			double[] direction = null;
-			link = momBody.getLinks().get(0);
 			for( Link l : momBody.getLinks() )
 				if(l.getMembers().size() < 3)
 					link = l;
@@ -112,6 +111,7 @@ public class FillialRodShift extends DivisionMethod
 			
 			p = momBody.getClosePoint(otherBody.getCenter());
 
+			q = new Point(p);
 
 			/* update torsion links */
 			for(Link l : momBody.getLinks() )
@@ -138,11 +138,12 @@ public class FillialRodShift extends DivisionMethod
 					initiator.getDouble(AspectRef.bodyRadius));
 			
 			p = momBody.getPoints().get(0);
+			q = new Point(p);
 		}
 		
 		p.setPosition(Vector.minus(originalPos, Vector.times(shift,0.4)));
 		
-		q = new Point(Vector.add(originalPos, Vector.times(shift,0.4)));
+		q.setPosition(Vector.add(originalPos, Vector.times(shift,0.4)));
 		
 		/* reshape */
 		momBody.getPoints().add(new Point(q));
@@ -162,12 +163,12 @@ public class FillialRodShift extends DivisionMethod
 
 				momBody.unLink(link);
 				otherBody.unLink(link);
-				Link.link((Agent) initiator, (Agent) other, new Link());
+				Link.linLink((Agent) initiator, (Agent) other);
 				continue;
 				}
 			}
-			
 			Link.torLink((Agent) other, initiator, initiator);
+			Link.linLink((Agent) other, initiator);
 		}
 	}
 	
@@ -190,38 +191,36 @@ public class FillialRodShift extends DivisionMethod
 			Body otherBBody = null;
 			Body otherABody = null;
 			
+			/* this is where it goes wrong */
 			for( Link l : momBody.getLinks() )
 			{
 				if(l.getMembers().size() < 3)
 				for( AspectInterface a : l.getMembers())
 					if( a != mother)
 					{
-						if( a != otherA)
+						if( otherA == null)
 							otherA = a;
-						else
+						else if ( otherB == null && a != otherA )
 							otherB = a;
 					}
 			}
 			if( otherA != null )
 			{
+				int i = 0;
 				otherABody = (Body) otherA.getValue(AspectRef.agentBody);
 				p = momBody.getClosePoint(otherABody.getCenter());
+				q = daughterBody.getPoints().get(i);
+				if( Vector.equals( p.getPosition(), q.getPosition() ))
+				{
+					i++;
+					q = daughterBody.getPoints().get(i);
+				}
+				momBody.getPoints().remove(1-i);
+				daughterBody.getPoints().remove(i);
 			}
 			if( otherB != null )
 			{
 				otherBBody = (Body) otherB.getValue(AspectRef.agentBody);
-				q = daughterBody.getClosePoint(otherBBody.getCenter());
-			}
-			
-			for( Point w : daughterBody.getPoints() )
-			{
-				if(w != q)
-					daughterBody.getPoints().remove(w);
-			}
-			for( Point w : momBody.getPoints() )
-			{
-				if(w != p)
-					momBody.getPoints().remove(w);
 			}
 			
 			if( otherB != null )
@@ -283,22 +282,30 @@ public class FillialRodShift extends DivisionMethod
 						else
 							otherBBody.unLink(l);
 					}
-				
+			
 				if( !unlink )
+				{
 					Link.torLink((Agent) otherB, daughter, mother);
+				}
 			}
 		}
 		else
 		{
+
+		}
+
+		if(momBody.getPoints().size() > 1 )
+		{
 			momBody.getPoints().remove(1);
 			daughterBody.getPoints().remove(0);
 		}
+
 			/* reshape */
 			momBody.getSurfaces().clear();
 			momBody.assignMorphology(Morphology.COCCOID.name());
 			momBody.constructBody(1.0, 
 					mother.getDouble(AspectRef.bodyRadius) );
-			
+
 			daughterBody.getSurfaces().clear();
 			daughterBody.assignMorphology(Morphology.COCCOID.name());
 			daughterBody.constructBody(1.0, 

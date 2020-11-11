@@ -152,8 +152,8 @@ public class Link implements Instantiable, Settable  {
 		Body momBody = (Body) a.get(AspectRef.agentBody);
 		Body daughterBody = (Body) b.get(AspectRef.agentBody);
 		
-//		if( !link._members.isEmpty())
-//		{
+		if( !link._members.isEmpty())
+		{
 //			for( Link l : daughterBody.getLinks() )
 //			{
 //				if( l._members.size() == 2 && l._members.contains(a) && l._members.contains(b))
@@ -162,8 +162,8 @@ public class Link implements Instantiable, Settable  {
 //					daughterBody.addLink(link);
 //				}
 //			}
-//		}
-//		
+		}
+
 		Double linkerStifness = (double) a.getOr( 
 				AspectRef.linkerStifness, 10.0);
 		/* FIXME placeholder default function */
@@ -171,8 +171,10 @@ public class Link implements Instantiable, Settable  {
 				AspectRef.filialLinker, new Expression( 
 						"stiffness * dh * dh * 1000000.0 )" ));
 
-		Point[] points = new Point[] { momBody.getPoints().get(0), 
-				daughterBody.getPoints().get(0) };
+		Point[] points = new Point[] { momBody.getClosePoint(
+				daughterBody.getPoints().get(0).getPosition()), 
+				daughterBody.getClosePoint(
+				momBody.getPoints().get(0).getPosition()) };
 		
 		Spring spring = new LinearSpring(linkerStifness, points, springFun,
 				a.getDouble(AspectRef.bodyRadius) + 

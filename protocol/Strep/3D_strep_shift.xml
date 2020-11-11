@@ -126,7 +126,7 @@
 			</solutes>
 			<reactions>
 			</reactions>
-			<spawn class="randomSpawner" domain="250.0, 50.0, 250.0" priority="0" number="25" morphology="COCCOID">
+			<spawn class="randomSpawner" domain="250.0, 50.0, 250.0" priority="0" number="1" morphology="COCCOID">
 				<templateAgent>
 					<aspect name="species" type="PRIMARY" class="String" value="heterotroph" />
 					<aspect  name="mass" class="InstantiableMap">
