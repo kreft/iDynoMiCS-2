@@ -3004,7 +3004,7 @@ public final class Vector
 	{
 		if(normEuclid(vector) == 0.0)
 		{
-			Log.out("zero division not allowed in: Vector");
+			Log.out(Tier.CRITICAL,"zero division not allowed in: Vector");
 			return;
 		}
 		timesEquals(vector, newNorm/normEuclid(vector));

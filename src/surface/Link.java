@@ -113,18 +113,14 @@ public class Link implements Instantiable, Settable  {
 		else if ( a == b)
 		{
 			/* b is rod with a */
-			int clo = Point.close(aBody.getPoints().get(0), 
-					bBody.getPoints().get(0), cBody.getClosePoint(bBody.getCenter()));
-			points = new Point[] { aBody.getPoints().get(1-clo), 
-					bBody.getPoints().get(clo), cBody.getClosePoint(bBody.getCenter())};
+			points = new Point[] { aBody.getFurthesPoint(cBody.getCenter()), 
+					bBody.getClosePoint(cBody.getCenter()), cBody.getClosePoint(bBody.getCenter())};
 		}
 		else
 		{
 			/* b is rod with c */
-			int clo = Point.close(cBody.getPoints().get(0), 
-					bBody.getPoints().get(0), aBody.getClosePoint(bBody.getCenter()));
-			points = new Point[] { cBody.getPoints().get(1-clo), 
-					bBody.getPoints().get(clo), aBody.getClosePoint(bBody.getCenter()) };
+			points = new Point[] { aBody.getClosePoint(bBody.getCenter()), 
+					bBody.getClosePoint(aBody.getCenter()), cBody.getFurthesPoint(cBody.getCenter())};
 		}
 		
 		Spring spring = new TorsionSpring(linkerStifness, points, springFun,

@@ -6,6 +6,7 @@ import org.w3c.dom.Element;
 
 import agent.Agent;
 import aspect.AspectInterface;
+import dataIO.Log;
 import expression.Expression;
 import linearAlgebra.Vector;
 import referenceLibrary.XmlRef;
@@ -68,6 +69,9 @@ public class TorsionSpring implements Spring {
 			this._b = points;
 		if( i == 2 )
 			this._c = points;
+		
+//		if( this._a == this._b || this._b == this._c);
+//			Log.out("duplicate point");
 	}
 	
 	public void setRestValue(double restAngle)
@@ -97,7 +101,8 @@ public class TorsionSpring implements Spring {
 		
 		double u = Math.PI - Vector.angle(a, c);
 		if( Double.isNaN(u))
-			u = 0;
+			return;
+		
 		Vector.spherifyTo(a, a);
 		Vector.spherifyTo(c, c);
 		
@@ -147,15 +152,26 @@ public class TorsionSpring implements Spring {
 		
 		double[] fV	= Vector.times(directionA, 
 				this._springFunction.getValue(springVars) );
+		
+		if ( Double.isNaN(fV[1]))
+			System.out.println(fV[1]+"z");
 		Vector.addEquals( this._a.getForce(), fV ) ;
 
 		fV	= Vector.times(directionC, 
 				this._springFunction.getValue(springVars) );
+		
+		if ( Double.isNaN(fV[1]))
+			System.out.println(fV[1]+"z");
+		
 		Vector.addEquals( this._c.getForce(), fV ) ;
 
 		/* b receives force from both sides */
 		fV	= Vector.times(Vector.times(directionB, 2.0), 
 				this._springFunction.getValue(springVars) );
+		
+		if ( Double.isNaN(fV[1]))
+			System.out.println(fV[1]+"z");
+		
 		Vector.addEquals( this._b.getForce(), fV ) ;
 	}
 
