@@ -120,7 +120,7 @@ public class Link implements Instantiable, Settable  {
 		{
 			/* b is rod with c */
 			points = new Point[] { aBody.getClosePoint(bBody.getCenter()), 
-					bBody.getClosePoint(aBody.getCenter()), cBody.getFurthesPoint(cBody.getCenter())};
+					bBody.getClosePoint(aBody.getCenter()), cBody.getFurthesPoint(aBody.getCenter())};
 		}
 		
 		Spring spring = new TorsionSpring(linkerStifness, points, springFun,

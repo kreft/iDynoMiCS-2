@@ -38,7 +38,9 @@ public class TorsionSpring implements Spring {
 		this._a = points[0];
 		this._b = points[1];
 		this._c = points[2];
-		
+		if( Vector.equals( this._a.getPosition(),this._b.getPosition()) || 
+				Vector.equals( this._c.getPosition(), this._b.getPosition()) )
+			Log.out("duplicate point");
 		springVars.put("stiffness", stiffness);
 	}
 	
@@ -50,7 +52,9 @@ public class TorsionSpring implements Spring {
 		this._a = a;
 		this._b = b;
 		this._c = c;
-		
+		if( Vector.equals( this._a.getPosition(),this._b.getPosition()) || 
+				Vector.equals( this._c.getPosition(), this._b.getPosition()) )
+			Log.out("duplicate point");
 		springVars.put("stiffness", stiffness);
 	}
 	
@@ -70,8 +74,9 @@ public class TorsionSpring implements Spring {
 		if( i == 2 )
 			this._c = points;
 		
-//		if( this._a == this._b || this._b == this._c);
-//			Log.out("duplicate point");
+		if( Vector.equals( this._a.getPosition(),this._b.getPosition()) || 
+				Vector.equals( this._c.getPosition(), this._b.getPosition()) )
+			Log.out("duplicate point");
 	}
 	
 	public void setRestValue(double restAngle)
@@ -95,9 +100,13 @@ public class TorsionSpring implements Spring {
 				_b.getPosition() );
 		double[] c = shape.getNearestShadowPoint(_c.getPosition(), 
 				_b.getPosition() );
-		
+				
 		Vector.minusEquals(a, this._b.getPosition());
 		Vector.minusEquals(c, this._b.getPosition());
+		
+		if( Vector.equals( this._a.getPosition(),this._b.getPosition()) || 
+				Vector.equals( this._c.getPosition(), this._b.getPosition()) )
+			Log.out("duplicate point");
 		
 		double u = Math.PI - Vector.angle(a, c);
 		if( Double.isNaN(u))
@@ -154,14 +163,14 @@ public class TorsionSpring implements Spring {
 				this._springFunction.getValue(springVars) );
 		
 		if ( Double.isNaN(fV[1]))
-			System.out.println(fV[1]+"z");
+			System.out.println(fV[1]+" torsion");
 		Vector.addEquals( this._a.getForce(), fV ) ;
 
 		fV	= Vector.times(directionC, 
 				this._springFunction.getValue(springVars) );
 		
 		if ( Double.isNaN(fV[1]))
-			System.out.println(fV[1]+"z");
+			System.out.println(fV[1]+" torsion");
 		
 		Vector.addEquals( this._c.getForce(), fV ) ;
 
@@ -170,7 +179,7 @@ public class TorsionSpring implements Spring {
 				this._springFunction.getValue(springVars) );
 		
 		if ( Double.isNaN(fV[1]))
-			System.out.println(fV[1]+"z");
+			System.out.println(fV[1]+" torsion");
 		
 		Vector.addEquals( this._b.getForce(), fV ) ;
 	}
