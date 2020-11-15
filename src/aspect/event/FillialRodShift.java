@@ -290,10 +290,7 @@ public class FillialRodShift extends DivisionMethod
 			
 			for( Link l : momBody.getLinks() )
 			{
-				if( l.getMembers().size() > 2 )
-				{
-					momBody.unLink(l);
-				}
+				momBody.unLink(l);
 			}
 			
 			if( otherB != null &! unlink)
@@ -314,6 +311,7 @@ public class FillialRodShift extends DivisionMethod
 						continue;
 					}
 				}
+				Link.linLink((Agent) otherA, mother);
 				Link.torLink((Agent) otherA, mother, daughter);
 			}
 
@@ -333,7 +331,7 @@ public class FillialRodShift extends DivisionMethod
 							l.update(i, momBody.getPoints().get(0));
 						}
 						else
-							otherBBody.unLink(l);
+							otherABody.unLink(l);
 					}
 			}
 			
