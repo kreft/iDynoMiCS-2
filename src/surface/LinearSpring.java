@@ -73,6 +73,8 @@ public class LinearSpring implements Spring {
 				_a.getPosition(), _b.getPosition() );
 		double dn = Vector.normEuclid(diff);
 		springVars.put("dh", dn-this._restLength);
+		if( Math.abs(dn-this._restLength) > 1.0)
+			System.out.println( dn-this._restLength );
 		double[] fV	= Vector.times(diff, 
 				this._springFunction.getValue(springVars) );
 		if ( Double.isNaN(fV[1]))
@@ -83,7 +85,7 @@ public class LinearSpring implements Spring {
 		Vector.reverseEquals(fV);
 		if ( Double.isNaN(fV[1]))
 			System.out.println(fV[1]+"x");
-		Vector.addEquals( this._a.getForce(), fV ) ;
+		Vector.addEquals( this._a.getForce(), fV );
 	}
 
 	@Override

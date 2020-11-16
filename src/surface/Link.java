@@ -31,7 +31,7 @@ public class Link implements Instantiable, Settable  {
 	/**
 	 * 
 	 */
-	protected List<Spring> _springs = new LinkedList<Spring>();
+	protected Spring _spring;
 	
 	protected List<Integer> _arriving = new LinkedList<Integer>(); 
 
@@ -43,25 +43,16 @@ public class Link implements Instantiable, Settable  {
 	public Link()
 	{
 	}
-	
-	/**
-	 * Add spring at specific position in case position indexing is used
-	 * @param pos
-	 * @param spring
-	 */
-	public void addSpring( int pos, Spring spring )
-	{
-		this._springs.add(pos, spring);
-	}
 
-	public void addSpring( Spring spring )
+
+	public void setSpring( Spring spring )
 	{
-		this._springs.add(spring);
+		this._spring = spring;
 	}
 	
-	public List<Spring> getSprings( )
+	public Spring getSpring( )
 	{
-		return _springs;
+		return _spring;
 	}
 	
 	public void addMember(  int pos, AspectInterface member )
@@ -125,7 +116,7 @@ public class Link implements Instantiable, Settable  {
 		
 		Spring spring = new TorsionSpring(linkerStifness, points, springFun,
 				3.14159265359);
-		link.addSpring(spring);
+		link.setSpring(spring);
 
 	}
 	
@@ -161,28 +152,35 @@ public class Link implements Instantiable, Settable  {
 		}
 
 		Double linkerStifness = (double) a.getOr( 
-				AspectRef.linkerStifness, 10.0);
+				AspectRef.linkerStifness, 1000000.0);
 		/* FIXME placeholder default function */
 		Expression springFun = (Expression) a.getOr( 
 				AspectRef.filialLinker, new Expression( 
-						"stiffness * dh * dh * 1000000.0 )" ));
+						"stiffness * dh * 1000000.0 )" ));
 
 		Point[] points = new Point[] { momBody.getClosePoint(
 				daughterBody.getPoints().get(0).getPosition()), 
 				daughterBody.getClosePoint(
 				momBody.getPoints().get(0).getPosition()) };
 		
+		double restlength;
+		if(a != b )
+			restlength = a.getDouble(AspectRef.bodyRadius) + 
+			b.getDouble(AspectRef.bodyRadius);
+		else
+			{
+			restlength = 1;
+			}
 		Spring spring = new LinearSpring(linkerStifness, points, springFun,
-				a.getDouble(AspectRef.bodyRadius) + 
-				b.getDouble(AspectRef.bodyRadius));
-		link.addSpring(spring);
+				restlength);
+		
+		link.setSpring(spring);
 	}
 	
 	
-	public void update(int pos, Point point)
+	public void setPoint(int pos, Point point)
 	{
-		for(Spring s : _springs)
-			s.setPoint(pos, point);
+		this._spring.setPoint(pos, point);
 	}
 	
 	public void update()

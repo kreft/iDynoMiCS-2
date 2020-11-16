@@ -294,7 +294,7 @@ public class Body implements Copyable, Instantiable, Settable
 				Rod out = new Rod(_points.get(i), 
 						_points.get(i+1), length, radius);
 				this._surfaces.add(out); 
-				this.spine = new LinearSpring(0.0, out._points , 
+				this.spine = new LinearSpring(1e6, out._points , 
 						null, length);
 				this._springs.add(spine);
 			}
@@ -420,7 +420,7 @@ public class Body implements Copyable, Instantiable, Settable
 	{
 		LinkedList<Spring> out = new LinkedList<Spring>();
 		for(Link l : _links)
-			out.addAll( l.getSprings() );
+			out.add( l.getSpring() );
 		out.addAll(this._springs);
 		return out;
 	}
@@ -456,15 +456,13 @@ public class Body implements Copyable, Instantiable, Settable
 			{
 				for(Link l : this._links)
 				{
-					for(Spring t : l.getSprings())
+					Spring t = l.getSpring();
+					if(t instanceof LinearSpring)
 					{
-						if(t instanceof LinearSpring)
-						{
-							double out = 0;
-							for( AspectInterface a : l.getMembers() )
-								out += a.getDouble(AspectRef.bodyRadius);
-							t.setRestValue(out);
-						}
+						double out = 0;
+						for( AspectInterface a : l.getMembers() )
+							out += a.getDouble(AspectRef.bodyRadius);
+						t.setRestValue(out);
 					}
 				}
 				((Ball) s).setRadius(radius);

@@ -7,6 +7,7 @@ import org.w3c.dom.Element;
 import agent.Agent;
 import aspect.AspectInterface;
 import dataIO.Log;
+import dataIO.Log.Tier;
 import expression.Expression;
 import linearAlgebra.Vector;
 import referenceLibrary.XmlRef;
@@ -106,7 +107,8 @@ public class TorsionSpring implements Spring {
 		
 		if( Vector.equals( this._a.getPosition(),this._b.getPosition()) || 
 				Vector.equals( this._c.getPosition(), this._b.getPosition()) )
-			Log.out("duplicate point");
+			if( Log.shouldWrite(Tier.DEBUG))
+				Log.out(Tier.DEBUG, "duplicate point");
 		
 		double u = Math.PI - Vector.angle(a, c);
 		if( Double.isNaN(u))

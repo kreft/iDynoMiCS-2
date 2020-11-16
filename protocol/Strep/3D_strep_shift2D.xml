@@ -77,7 +77,8 @@
 				<aspect name="radius" type="CALCULATED" class="CoccoidRadius" 		/>
 				<aspect name="transientRadius" class="Double" value="3.0" />
 				<aspect name="shiftMass" type="PRIMARY" class="Double" value="2.5" />
-				<aspect name="linkerStifness" class="Double" value="1e7" />
+				<aspect name="linkerStifness" class="Double" value="1e6" />
+				<aspect name="spineStiffness" class="Double" value="1e6" />
 				<aspect name="unlinkProbabillity" class="Double" value="0.1" />
 				<aspect name="directionalDivision" class="Boolean" value="true" />
 			</species>
@@ -110,13 +111,12 @@
 			</processManagers>
 		</compartment>
 		<compartment name="first">
-			<shape class="Cuboid">
+			<shape class="Rectangle">
 				<!-- µm -->
 				<dimension name="X" isCyclic="false" 	targetResolution="25.0" max="250.0"/>
 				<dimension name="Y" isCyclic="false" 	targetResolution="25.0" max="250.0">
 					<boundary extreme="1" class="BiofilmBoundaryLayer" partnerCompartment="chemostat" layerThickness = "0.0"/>
 				</dimension>
-				<dimension name="Z" isCyclic="false" 	targetResolution="25.0" max="250.0"/>
 			</shape>
 			<solutes>
 				<!-- Initial concentrations pg / µm2 -->
@@ -126,7 +126,7 @@
 			</solutes>
 			<reactions>
 			</reactions>
-			<spawn class="randomSpawner" domain="250.0, 50.0, 250.0" priority="0" number="1" morphology="COCCOID">
+			<spawn class="randomSpawner" domain="250.0, 50.0" priority="0" number="1" morphology="COCCOID">
 				<templateAgent>
 					<aspect name="species" type="PRIMARY" class="String" value="heterotroph" />
 					<aspect  name="mass" class="InstantiableMap">
@@ -151,7 +151,7 @@
  					</body>
 				</aspect>
 			</agent> -->
-			<spawn class="randomSpawner" domain="200.0, 150.0, 200.0" priority="0" number="0" morphology="COCCOID">
+			<spawn class="randomSpawner" domain="200.0, 150.0" priority="0" number="0" morphology="COCCOID">
 				<templateAgent>
 					<aspect name="species" type="PRIMARY" class="String" value="autotroph" />
 					<aspect  name="mass" class="InstantiableMap">
@@ -168,13 +168,13 @@
 					firstStep="0.0">
 					<!-- µm -->
 					<aspect name="maxMovement" 		type="PRIMARY" class="Double" value="0.1" />
-					<aspect name="maxIterations" type="PRIMARY" class="Integer" value="100" />
+					<aspect name="maxIterations" type="PRIMARY" class="Integer" value="10000" />
 					<aspect name="relaxationMethod" type="PRIMARY" class="String" value="EULER" />
 					<aspect name="agentDecompression" type="PRIMARY" class="Boolean" value="FALSE" />
 					<aspect name="decompressionThreshold" type="PRIMARY" class="Double" value="20000000.0" />
 					<aspect name="decompressionCellLength" type="PRIMARY" class="Double" value="10.0" />
 					<aspect name="traversingFraction" class="Double" value="0.10" />
-					<aspect name="stressThreshold" type="PRIMARY" class="Double" value="1e8" />
+					<aspect name="stressThreshold" type="PRIMARY" class="Double" value="1e2" />
 				</process>
 				<!-- minute -->
 				<process name="SolveDiffusionSteadyState" class="SolveDiffusionSteadyState" priority="-1"

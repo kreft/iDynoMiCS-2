@@ -96,7 +96,7 @@ public class FillialDivision extends DivisionMethod
 					int i;
 					i = l.getMembers().indexOf(other);
 					l.addMember(i, daughter);
-					l.update(i, daughterBody.getClosePoint(momBody.getCenter()));
+					l.setPoint(i, daughterBody.getClosePoint(momBody.getCenter()));
 				}
 			
 			for(Link l :((Body) other.getValue(AspectRef.agentBody)).getLinks())
@@ -107,7 +107,7 @@ public class FillialDivision extends DivisionMethod
 						int i;
 						i = l.getMembers().indexOf(mother);
 						l.addMember(i, daughter);
-						l.update(i, daughterBody.getClosePoint(otherBody.getCenter()));
+						l.setPoint(i, daughterBody.getClosePoint(otherBody.getCenter()));
 					}
 					else
 						otherBody.unLink(l);
