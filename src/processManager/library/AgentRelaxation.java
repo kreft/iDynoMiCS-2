@@ -603,6 +603,7 @@ public class AgentRelaxation extends ProcessManager
 						s.setSpringFunction( torsFun );
 					}
 				}
+//				System.out.println(String.valueOf(a.identity()) + " " + s);
 				s.applyForces(this._shape);
 				if(Log.shouldWrite(Tier.DEBUG))
 					Log.out(Tier.DEBUG,s.toString());
