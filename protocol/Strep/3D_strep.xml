@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document>
-	<simulation name="strep" outputfolder="../results" log="EXPRESSIVE" randomSeed="12432423"
+	<simulation name="strep" outputfolder="../results" log="EXPRESSIVE" randomSeed="124324235"
 		comment="this is a file for testing purposes only.">
 		<!-- minutes -->
 		<timer stepSize="5.0" endOfSimulation="432000.0" />
@@ -76,7 +76,8 @@
 				<aspect name="updateBody" type="EVENT" class="UpdateBody" />
 				<aspect name="volume" type="CALCULATED" class="SimpleVolumeState" 	/>
 				<aspect name="radius" type="CALCULATED" class="CoccoidRadius" 		/>
-				<aspect name="linkerStifness" class="Double" value="1e6" />
+				<aspect name="linearStifness" class="Double" value="1e6" />
+				<aspect name="torsionStifness" class="Double" value="1e6" />
 				
 			</species>
 
@@ -124,7 +125,7 @@
 			</solutes>
 			<reactions>
 			</reactions>
-			<spawn class="randomSpawner" domain="250.0, 50.0, 250.0" priority="0" number="25" morphology="COCCOID">
+			<spawn class="randomSpawner" domain="250.0, 50.0, 250.0" priority="0" number="1" morphology="COCCOID">
 				<templateAgent>
 					<aspect name="species" type="PRIMARY" class="String" value="heterotroph" />
 					<aspect  name="mass" class="InstantiableMap">

@@ -22,6 +22,7 @@ import processManager.ProcessManager;
 import referenceLibrary.AspectRef;
 import shape.Shape;
 import surface.LinearSpring;
+import surface.Link;
 import surface.Point;
 import surface.Rod;
 import surface.Spring;
@@ -569,6 +570,10 @@ public class AgentRelaxation extends ProcessManager
 	 */
 	private void springEvaluation(Agent a, Body b)
 	{
+		for( Link l : b.getLinks() )
+		{
+			l.update();
+		}
 		for( Spring s : b.getSprings())
 		{
 			if( s != null)

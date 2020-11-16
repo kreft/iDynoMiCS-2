@@ -598,6 +598,10 @@ public class AspectRef
 
 	public static final String linkerStifness = "linkerStifness";
 
+	public static final String linearStifness = "linearStifness";
+
+	public static final String torsionStifness = "torsionStifness";
+
 	public static final String directionalDivision = "directionalDivision";
 
 	public static final String removed = "removed";

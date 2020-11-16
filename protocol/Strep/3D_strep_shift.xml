@@ -77,7 +77,9 @@
 				<aspect name="radius" type="CALCULATED" class="CoccoidRadius" 		/>
 				<aspect name="transientRadius" class="Double" value="3.0" />
 				<aspect name="shiftMass" type="PRIMARY" class="Double" value="2.5" />
-				<aspect name="linkerStifness" class="Double" value="1e7" />
+				<aspect name="linearStifness" class="Double" value="1e6" />
+				<aspect name="torsionStifness" class="Double" value="1e6" />
+				<aspect name="spineStiffness" class="Double" value="1e6" />
 				<aspect name="unlinkProbabillity" class="Double" value="0.1" />
 				<aspect name="directionalDivision" class="Boolean" value="true" />
 			</species>
@@ -126,7 +128,7 @@
 			</solutes>
 			<reactions>
 			</reactions>
-			<spawn class="randomSpawner" domain="250.0, 50.0, 250.0" priority="0" number="1" morphology="COCCOID">
+			<spawn class="randomSpawner" domain="250.0, 250.0, 250.0" priority="0" number="1" morphology="COCCOID">
 				<templateAgent>
 					<aspect name="species" type="PRIMARY" class="String" value="heterotroph" />
 					<aspect  name="mass" class="InstantiableMap">

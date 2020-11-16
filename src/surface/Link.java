@@ -88,7 +88,7 @@ public class Link implements Instantiable, Settable  {
 		Body bBody = (Body) b.get(AspectRef.agentBody);
 		Body cBody = (Body) c.get(AspectRef.agentBody);
 		Double linkerStifness = (double) b.getOr( 
-				AspectRef.linkerStifness, 100000.0);
+				AspectRef.torsionStifness, 100000.0);
 		/* FIXME placeholder default function */
 		Expression springFun = (Expression) b.getOr( 
 				AspectRef.filialLinker, new Expression( 
@@ -152,11 +152,11 @@ public class Link implements Instantiable, Settable  {
 		}
 
 		Double linkerStifness = (double) a.getOr( 
-				AspectRef.linkerStifness, 1000000.0);
+				AspectRef.linearStifness, 1000000.0);
 		/* FIXME placeholder default function */
 		Expression springFun = (Expression) a.getOr( 
 				AspectRef.filialLinker, new Expression( 
-						"stiffness * dh * 1000000.0 )" ));
+						"stiffness * dh * 10.0 )" ));
 
 		Point[] points = new Point[] { momBody.getClosePoint(
 				daughterBody.getCenter()), 
@@ -177,10 +177,39 @@ public class Link implements Instantiable, Settable  {
 		link.setSpring(spring);
 	}
 	
-	
-	public void setPoint(int pos, Point point)
+	public void update()
 	{
-		this._spring.setPoint(pos, point);
+		if( getMembers().size() == 2 && 
+				getMembers().get(0) != getMembers().get(1)
+				)
+		{
+			getSpring().setRestValue( getMembers().get(0).getDouble(AspectRef.bodyRadius)
+					+  getMembers().get(1).getDouble(AspectRef.bodyRadius));
+//			System.out.println("+" + String.valueOf(getMembers().get(0).getDouble(AspectRef.bodyRadius)
+//					+  getMembers().get(1).getDouble(AspectRef.bodyRadius)));
+		}
+		if( this._spring instanceof LinearSpring)
+		{
+			boolean c = false, d = false;
+			LinearSpring s = (LinearSpring) this._spring;
+			for( AspectInterface member : getMembers())
+			{
+				Body b = (Body) member.getValue(AspectRef.agentBody);
+				if ( b.getPoints().contains(s._a))
+					c = true;
+				if ( b.getPoints().contains(s._b))
+					d = true;
+			}
+			if( !c || !d)
+			{
+				System.out.println("mismatch");
+			}
+		}
+	}
+	
+	public void setPoint(int pos, Point point, boolean tempDuplicate)
+	{
+		this._spring.setPoint(pos, point, tempDuplicate);
 	}
 	
 	public void initiate()

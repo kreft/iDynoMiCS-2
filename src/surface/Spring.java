@@ -17,7 +17,7 @@ public interface Spring extends Instantiable, Settable {
 	
 	public boolean ready();
 	
-	public void setPoint(int i, Point points);
+	public void setPoint(int i, Point points, boolean tempDuplicate);
 	
 	@Override
 	public default void setParent(Settable parent) 

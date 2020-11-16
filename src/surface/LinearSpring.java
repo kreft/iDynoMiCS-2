@@ -16,8 +16,8 @@ import shape.Shape;
 public class LinearSpring implements Spring {
 
 	private double _restLength;
-	private Point _a;
-	private Point _b;
+	public Point _a;
+	public Point _b;
 	private Expression _springFunction;
 	HashMap<String, Double> springVars = new HashMap<String,Double>();
 	
@@ -37,12 +37,13 @@ public class LinearSpring implements Spring {
 		springVars.put("stiffness", stiffness);
 	}
 	
-	public void setPoint(int i, Point points)
+	public void setPoint(int i, Point points, boolean tempDuplicate)
 	{
 		if( i == 0 )
 			this._a = points;
 		if( i == 1 )
 			this._b = points;
+		/* TODO duplicate check */
 	}
 	
 	public boolean ready()
@@ -73,7 +74,7 @@ public class LinearSpring implements Spring {
 				_a.getPosition(), _b.getPosition() );
 		double dn = Vector.normEuclid(diff);
 		springVars.put("dh", dn-this._restLength);
-		if( Math.abs(dn-this._restLength) > 1.0)
+		if( Math.abs(dn-this._restLength) > 1.3)
 			System.out.println( dn-this._restLength );
 		double[] fV	= Vector.times(diff, 
 				this._springFunction.getValue(springVars) );
