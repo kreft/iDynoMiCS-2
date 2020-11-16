@@ -152,23 +152,21 @@ public class FillialRodShift extends DivisionMethod
 			if( otherA != null)
 			{
 				for(Link l : otherABody.getLinks() )
-					if(l.getMembers().size() > 2)
-					{
-						int i;
-						i = l.getMembers().indexOf(initiator);
-						l.setPoint(i, momBody.getClosePoint(otherABody.getCenter()));
-					}
+				{
+					int i;
+					i = l.getMembers().indexOf(initiator);
+					l.setPoint(i, momBody.getClosePoint(otherABody.getCenter()));
+				}
 			}
 			
 			if ( otherB != null )
 			{
 				for(Link l : otherBBody.getLinks() )
-					if(l.getMembers().size() > 2)
-					{
-						int i;
-						i = l.getMembers().indexOf(initiator);
-						l.setPoint(i, momBody.getClosePoint(otherBBody.getCenter()));
-					}
+				{
+					int i;
+					i = l.getMembers().indexOf(initiator);
+					l.setPoint(i, momBody.getClosePoint(otherBBody.getCenter()));
+				}
 			}
 		}
 		else

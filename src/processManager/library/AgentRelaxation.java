@@ -571,39 +571,42 @@ public class AgentRelaxation extends ProcessManager
 	{
 		for( Spring s : b.getSprings())
 		{
-			if( !s.ready())
+			if( s != null)
 			{
-				/* possible change to set vars */
-				s.setStiffness( Helper.setIfNone( a.getDouble(STIFFNESS), 
-						1.0));
-				if( s instanceof LinearSpring)
+				if( !s.ready())
 				{
-					Expression spineFun;
-					if ( !Helper.isNullOrEmpty( a.getValue(AspectRef.agentSpineFunction)))
-						spineFun = new Expression((String) a.getValue(AspectRef.agentSpineFunction));
-					else
-						spineFun = this._spineFunction;
-					s.setSpringFunction( spineFun );
-				}
-				else if( s instanceof TorsionSpring )
-				{
-					Expression torsFun = null;
-					if ( !Helper.isNullOrEmpty( 
-							a.getValue(AspectRef.torsionFunction)))
-						torsFun = (Expression) 
-							a.getValue(AspectRef.torsionFunction);
-					else
+					/* possible change to set vars */
+					s.setStiffness( Helper.setIfNone( a.getDouble(STIFFNESS), 
+							1.0));
+					if( s instanceof LinearSpring)
 					{
-						/* TODO set default maybe? */
-						Idynomics.simulator.interupt(
-								"missing torsion spring function in relax" );
+						Expression spineFun;
+						if ( !Helper.isNullOrEmpty( a.getValue(AspectRef.agentSpineFunction)))
+							spineFun = new Expression((String) a.getValue(AspectRef.agentSpineFunction));
+						else
+							spineFun = this._spineFunction;
+						s.setSpringFunction( spineFun );
 					}
-					s.setSpringFunction( torsFun );
+					else if( s instanceof TorsionSpring )
+					{
+						Expression torsFun = null;
+						if ( !Helper.isNullOrEmpty( 
+								a.getValue(AspectRef.torsionFunction)))
+							torsFun = (Expression) 
+								a.getValue(AspectRef.torsionFunction);
+						else
+						{
+							/* TODO set default maybe? */
+							Idynomics.simulator.interupt(
+									"missing torsion spring function in relax" );
+						}
+						s.setSpringFunction( torsFun );
+					}
 				}
+				s.applyForces(this._shape);
+				if(Log.shouldWrite(Tier.DEBUG))
+					Log.out(Tier.DEBUG,s.toString());
 			}
-			s.applyForces(this._shape);
-			if(Log.shouldWrite(Tier.DEBUG))
-				Log.out(Tier.DEBUG,s.toString());
 		}
 	}
 

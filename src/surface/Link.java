@@ -129,7 +129,7 @@ public class Link implements Instantiable, Settable  {
 		link.addMember(0, a);
 		link.addMember(1, b);
 		momBody.addLink(link);
-		daughterBody.addLink(link);
+		daughterBody.addLink(link); // to keep consistent with xml out make this a copy
 	}
 	
 	public static void link(Agent a, Agent b, Link link)
@@ -159,9 +159,9 @@ public class Link implements Instantiable, Settable  {
 						"stiffness * dh * 1000000.0 )" ));
 
 		Point[] points = new Point[] { momBody.getClosePoint(
-				daughterBody.getPoints().get(0).getPosition()), 
+				daughterBody.getCenter()), 
 				daughterBody.getClosePoint(
-				momBody.getPoints().get(0).getPosition()) };
+				momBody.getCenter()) };
 		
 		double restlength;
 		if(a != b )
@@ -183,7 +183,7 @@ public class Link implements Instantiable, Settable  {
 		this._spring.setPoint(pos, point);
 	}
 	
-	public void update()
+	public void initiate()
 	{
 		if( !this._arriving.isEmpty() )
 		{

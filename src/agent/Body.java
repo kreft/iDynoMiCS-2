@@ -68,11 +68,6 @@ public class Body implements Copyable, Instantiable, Settable
 	 */
 	protected List<Surface> _surfaces;
 	
-	/**
-	 * 
-	 */
-	protected List<Spring> _springs = new LinkedList<Spring>();
-	
 	protected Spring spine;
 	
 	/**
@@ -210,7 +205,6 @@ public class Body implements Copyable, Instantiable, Settable
 			double radius, double length)
 	{
 		this._surfaces = new LinkedList<Surface>();
-		this._springs = new LinkedList<Spring>();
 		switch (morphology)
 		{
 			case COCCOID :
@@ -281,7 +275,6 @@ public class Body implements Copyable, Instantiable, Settable
 	public void constructBody( double length, double radius )
 	{
 		this._surfaces = new LinkedList<Surface>();
-		this._springs = new LinkedList<Spring>();
 		switch (this._morphology)
 		{
 		case COCCOID :
@@ -296,7 +289,6 @@ public class Body implements Copyable, Instantiable, Settable
 				this._surfaces.add(out); 
 				this.spine = new LinearSpring(1e6, out._points , 
 						null, length);
-				this._springs.add(spine);
 			}
 			break;
 		case CUBOID :
@@ -421,7 +413,7 @@ public class Body implements Copyable, Instantiable, Settable
 		LinkedList<Spring> out = new LinkedList<Spring>();
 		for(Link l : _links)
 			out.add( l.getSpring() );
-		out.addAll(this._springs);
+		out.add(this.spine);
 		return out;
 	}
 
@@ -439,7 +431,7 @@ public class Body implements Copyable, Instantiable, Settable
 	{
 		for(Link l : this._links)
 		{
-			l.update();
+			l.initiate();
 			for( AspectInterface a : l.getMembers() )
 				if ( a != null && a.isAspect(AspectRef.removed))
 					this._links.remove(l);
@@ -454,6 +446,7 @@ public class Body implements Copyable, Instantiable, Settable
 			}
 			else if (s instanceof Ball)
 			{
+				this.spine = null;
 				for(Link l : this._links)
 				{
 					Spring t = l.getSpring();
