@@ -185,8 +185,6 @@ public class Link implements Instantiable, Settable  {
 		{
 			getSpring().setRestValue( getMembers().get(0).getDouble(AspectRef.bodyRadius)
 					+  getMembers().get(1).getDouble(AspectRef.bodyRadius));
-//			System.out.println("+" + String.valueOf(getMembers().get(0).getDouble(AspectRef.bodyRadius)
-//					+  getMembers().get(1).getDouble(AspectRef.bodyRadius)));
 		}
 		if( this._spring instanceof LinearSpring)
 		{
