@@ -588,6 +588,12 @@ public class Dimension implements CanPrelaunchCheck, Settable,
 		return this._isCyclic ||
 					(( a >= this._extreme[0] ) && ( a < this._extreme[1] ));
 	}
+	
+	public boolean isLocalInside(double a)
+	{
+		return (( a >= this._extreme[0] ) && ( a < this._extreme[1] ));
+	}
+	
 	/**
 	 * @param a Any point along this dimension, whether inside or outside.
 	 * @return <b>a</b> if it is inside the extremes, or the corresponding 

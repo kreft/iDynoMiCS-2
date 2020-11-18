@@ -8,6 +8,7 @@ import aspect.Event;
 import aspect.methods.DivisionMethod;
 import linearAlgebra.Vector;
 import referenceLibrary.AspectRef;
+import shape.Shape;
 import surface.Link;
 import surface.Point;
 import utility.ExtraMath;
@@ -79,6 +80,7 @@ public class FillialRodShift extends DivisionMethod
 	 */
 	protected void shiftMorphology(Agent initiator)
 	{
+		Shape shape = initiator.getCompartment().getShape();
 		Body momBody = (Body) initiator.get(AspectRef.agentBody);
 		Body otherABody = null;
 		Body otherBBody = null;
@@ -107,7 +109,7 @@ public class FillialRodShift extends DivisionMethod
 				{
 					otherA = a;
 					directionA = ((Body) a.getValue(AspectRef.agentBody)).
-							getClosePoint(momBody.getCenter()).getPosition();
+							getClosePoint(momBody.getCenter(shape), shape).getPosition();
 					
 					otherABody = (Body) otherA.getValue(AspectRef.agentBody);
 				}
@@ -118,17 +120,17 @@ public class FillialRodShift extends DivisionMethod
 					{
 						otherB = a;
 						directionB = ((Body) a.getValue(AspectRef.agentBody)).
-								getClosePoint(momBody.getCenter()).getPosition();
+								getClosePoint(momBody.getCenter(shape), shape).getPosition();
 	
 						otherBBody = (Body) otherB.getValue(AspectRef.agentBody);
 					}
 			
 			
-			originalPos = momBody.getClosePoint(otherABody.getCenter()).getPosition();
+			originalPos = momBody.getClosePoint(otherABody.getCenter(shape), shape).getPosition();
 			shift = initiator.getCompartment().getShape().getMinDifferenceVector(
 							directionA, originalPos);
 			
-			p = momBody.getClosePoint(otherABody.getCenter());
+			p = momBody.getClosePoint(otherABody.getCenter(shape), shape);
 			q = new Point(p);
 
 			p.setPosition(Vector.add(originalPos, Vector.times(shift,0.1)));
@@ -155,7 +157,7 @@ public class FillialRodShift extends DivisionMethod
 				{
 					int i;
 					i = l.getMembers().indexOf(initiator);
-					l.setPoint(i, momBody.getClosePoint(otherABody.getCenter()), false);
+					l.setPoint(i, momBody.getClosePoint(otherABody.getCenter(shape), shape), false);
 				}
 			}
 			
@@ -165,7 +167,7 @@ public class FillialRodShift extends DivisionMethod
 				{
 					int i;
 					i = l.getMembers().indexOf(initiator);
-					l.setPoint(i, momBody.getClosePoint(otherBBody.getCenter()), false);
+					l.setPoint(i, momBody.getClosePoint(otherBBody.getCenter(shape), shape), false);
 				}
 			}
 		}
@@ -190,37 +192,15 @@ public class FillialRodShift extends DivisionMethod
 					initiator.getDouble(AspectRef.transientRadius) );
 		}
 		
-
-		
-
-		
 		if( otherA != null)
 			Link.torLink((Agent) otherA, initiator, initiator);
 		if( otherB != null)
 			Link.torLink((Agent) otherB, initiator, initiator);
-		
-//		if(  initiator.getBoolean(AspectRef.directionalDivision) &! 
-//				momBody.getLinks().isEmpty())
-//		{
-//			for( Link l : momBody.getLinks() )
-//			{
-//				if( l.getMembers().size() < 3 && l.getMembers().contains(initiator)
-//						&& l.getMembers().contains(otherA) )
-//				{
-//
-//				momBody.unLink(linkA);
-//				otherABody.unLink(linkA);
-//				Link.linLink((Agent) initiator, (Agent) otherA);
-//				continue;
-//				}
-//			}
-//			Link.torLink((Agent) otherA, initiator, initiator);
-//		}
 	}
 	
 	public void shiftBodies(Agent mother, Agent daughter)
 	{
-
+		Shape shape = mother.getCompartment().getShape();
 		Body momBody = (Body) mother.get(AspectRef.agentBody);
 		Body daughterBody = (Body) daughter.get(AspectRef.agentBody);
 		Point p = null, q = null, ghost = null;
@@ -251,12 +231,12 @@ public class FillialRodShift extends DivisionMethod
 							otherB = a;
 					}
 			}
-			/*******************************************/
+
 			if( otherA != null )
 			{
 				int i = 0;
 				otherABody = (Body) otherA.getValue(AspectRef.agentBody);
-				p = momBody.getClosePoint(otherABody.getCenter());
+				p = momBody.getClosePoint(otherABody.getCenter(shape), shape);
 				q = daughterBody.getPoints().get(i);
 				if( Vector.equals( p.getPosition(), q.getPosition() ))
 				{
@@ -340,7 +320,7 @@ public class FillialRodShift extends DivisionMethod
 								i = 2;
 							if( l.getMembers().get(i) != otherA )
 							{
-								l.setPoint(1, otherABody.getClosePoint(momBody.getCenter()), true);
+								l.setPoint(1, otherABody.getClosePoint(momBody.getCenter(shape), shape), true);
 								l.addMember(i, mother);
 								l.setPoint(i, momBody.getPoints().get(0), false);
 							}
@@ -360,7 +340,7 @@ public class FillialRodShift extends DivisionMethod
 							i = 2;
 						if( l.getMembers().get(i) != otherB )
 						{
-							l.setPoint(1, otherBBody.getClosePoint(daughterBody.getCenter()), true);
+							l.setPoint(1, otherBBody.getClosePoint(daughterBody.getCenter(shape), shape), true);
 							l.addMember(i, daughter);
 							l.setPoint(i, daughterBody.getPoints().get(0), false);
 						}

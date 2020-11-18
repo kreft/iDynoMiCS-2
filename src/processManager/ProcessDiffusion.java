@@ -325,7 +325,7 @@ public abstract class ProcessDiffusion extends ProcessManager
 				for ( Agent a : this._agents.getAllLocatedAgents() )
 				{
 					IntegerArray coordArray = new IntegerArray( 
-							shape.getCoords(shape.getVerifiedLocation(((Body) a.get(AspectRef.agentBody)).getCenter())));
+							shape.getCoords(shape.getVerifiedLocation(((Body) a.get(AspectRef.agentBody)).getCenter(shape))));
 					mapOfMaps = (Map<Shape, HashMap<IntegerArray,Double>>) a.getValue(VD_TAG);
 					distributionMap = mapOfMaps.get(shape);
 					distributionMap.put(coordArray, 1.0);

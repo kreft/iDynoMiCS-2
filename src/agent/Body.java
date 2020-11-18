@@ -375,14 +375,37 @@ public class Body implements Copyable, Instantiable, Settable
 	{
 		return this._points;
 	}
+
+	public List<BoundingBox> getBoxes(double margin, Shape shape)
+	{
+		List<BoundingBox> boxes = new LinkedList<BoundingBox>();
+		for ( Surface s : this._surfaces )
+			boxes.add( ((HasBoundingBox) s).boundingBox(margin, shape) );
+		return boxes;
+	}
 	
-	public Point getClosePoint(double[] location)
+	public double[] getCenter(Shape shape)
+	{
+		if (this.getNumberOfPoints() == 1)
+			return this._points.get(0).getPosition();
+		double[] center = Vector.vector(this.nDim(),0.0);
+		for ( Point p : this.getPoints() )
+		{
+			Vector.addEquals(center, shape.getNearestShadowPoint(p.getPosition()
+					, this._points.get(0).getPosition()));
+		}
+		center = Vector.divideEqualsA(center, (double) this.getNumberOfPoints());
+		return shape.getVerifiedLocation(center);
+	}
+	
+	public Point getClosePoint(double[] location, Shape shape)
 	{
 		double old = Double.MAX_VALUE;
 		Point hold = null;
 		for( Point p : this._points)
 		{
-			double t = Vector.distanceEuclid(p.getPosition(), location);
+			double t = Vector.distanceEuclid( shape.getNearestShadowPoint(
+					p.getPosition(), location), location);
 			if( t < old )
 			{
 				hold = p;
@@ -392,13 +415,14 @@ public class Body implements Copyable, Instantiable, Settable
 		return hold;
 	}
 	
-	public Point getFurthesPoint(double[] location)
+	public Point getFurthesPoint(double[] location, Shape shape)
 	{
 		double old = Double.MIN_VALUE;
 		Point hold = null;
 		for( Point p : this._points)
 		{
-			double t = Vector.distanceEuclid(p.getPosition(), location);
+			double t = Vector.distanceEuclid( shape.getNearestShadowPoint(
+					p.getPosition(), location), location);
 			if( t > old )
 			{
 				hold = p;
@@ -492,26 +516,6 @@ public class Body implements Copyable, Instantiable, Settable
 	public List<Surface> getSurfaces()
 	{
 		return this._surfaces;
-	}
-
-	public List<BoundingBox> getBoxes(double margin, Shape shape)
-	{
-		List<BoundingBox> boxes = new LinkedList<BoundingBox>();
-		for ( Surface s : this._surfaces )
-			boxes.add( ((HasBoundingBox) s).boundingBox(margin, shape) );
-		return boxes;
-	}
-	
-	public double[] getCenter()
-	{
-		if (this.getNumberOfPoints() == 1)
-			return this._points.get(0).getPosition();
-		double[] center = Vector.vector(this.nDim(),0.0);
-		for ( Point p : this.getPoints() )
-		{
-			Vector.addEquals(center, p.getPosition());
-		}
-		return Vector.divideEqualsA(center, (double) this.getNumberOfPoints());
 	}
 
 	public Morphology getMorphology() 

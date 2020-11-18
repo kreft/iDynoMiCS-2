@@ -753,12 +753,12 @@ public abstract class Shape implements
 	 */
 	public double[] getVerifiedLocation(double[] loc)
 	{
-		if( isInside(loc))
+		if( isLocalInside(loc))
 			return loc;
 		else
 		{
 			for( double[] d : getCyclicPoints(loc))
-				if( isInside(d))
+				if( isLocalInside(d))
 					return d;
 			/* if no inside point is found there is an illegal boundary 
 			 * intersection. */
@@ -783,6 +783,28 @@ public abstract class Shape implements
 		for ( Dimension dim : this._dimensions.values() )
 		{
 			if ( ! dim.isInside(position[i]) )
+				return false;
+			if ( ++i >= nDim )
+				break;
+		}
+		return true;
+	}
+	
+
+	/**
+	 * \brief Check if a given location is inside this shape.
+	 * 
+	 * @param location A spatial location in local coordinates.
+	 * @return True if it is inside this shape, false if it is outside.
+	 */
+	public boolean isLocalInside(double[] location)
+	{
+		double[] position = this.getLocalPosition(location);
+		int nDim = location.length;
+		int i = 0;
+		for ( Dimension dim : this._dimensions.values() )
+		{
+			if ( !dim.isLocalInside(position[i]))
 				return false;
 			if ( ++i >= nDim )
 				break;

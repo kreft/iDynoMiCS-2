@@ -20,6 +20,7 @@ import settable.Attribute;
 import settable.Module;
 import settable.Settable;
 import settable.Module.Requirements;
+import shape.Shape;
 import utility.Helper;
 
 /**
@@ -81,8 +82,8 @@ public class Link implements Instantiable, Settable  {
 	
 	public static void torLink(Agent a, Agent b, Agent c, Link link)
 	{
-//		if(a == null || b == null || c == null)
-//			return;
+
+		Shape shape = a.getCompartment().getShape();
 
 		Body aBody = (Body) a.get(AspectRef.agentBody);
 		Body bBody = (Body) b.get(AspectRef.agentBody);
@@ -98,20 +99,20 @@ public class Link implements Instantiable, Settable  {
 		if( a != b && b != c)
 		{
 			/* b must be coccoid */
-		points = new Point[] { aBody.getClosePoint(bBody.getCenter()), 
-				bBody.getPoints().get(0), cBody.getClosePoint(bBody.getCenter()) };
+		points = new Point[] { aBody.getClosePoint(bBody.getCenter(shape), shape), 
+				bBody.getPoints().get(0), cBody.getClosePoint(bBody.getCenter(shape), shape) };
 		}
 		else if ( a == b)
 		{
 			/* b is rod with a */
-			points = new Point[] { aBody.getFurthesPoint(cBody.getCenter()), 
-					bBody.getClosePoint(cBody.getCenter()), cBody.getClosePoint(bBody.getCenter())};
+			points = new Point[] { aBody.getFurthesPoint(cBody.getCenter(shape), shape), 
+					bBody.getClosePoint(cBody.getCenter(shape), shape), cBody.getClosePoint(bBody.getCenter(shape), shape)};
 		}
 		else
 		{
 			/* b is rod with c */
-			points = new Point[] { aBody.getClosePoint(bBody.getCenter()), 
-					bBody.getClosePoint(aBody.getCenter()), cBody.getFurthesPoint(aBody.getCenter())};
+			points = new Point[] { aBody.getClosePoint(bBody.getCenter(shape), shape), 
+					bBody.getClosePoint(aBody.getCenter(shape), shape), cBody.getFurthesPoint(aBody.getCenter(shape), shape)};
 		}
 		
 		Spring spring = new TorsionSpring(linkerStifness, points, springFun,
@@ -134,6 +135,8 @@ public class Link implements Instantiable, Settable  {
 	
 	public static void link(Agent a, Agent b, Link link)
 	{
+
+		Shape shape = a.getCompartment().getShape();
 		if(a == null || b == null)
 			return;
 		Body momBody = (Body) a.get(AspectRef.agentBody);
@@ -159,9 +162,9 @@ public class Link implements Instantiable, Settable  {
 						"stiffness * dh * 10.0 )" ));
 
 		Point[] points = new Point[] { momBody.getClosePoint(
-				daughterBody.getCenter()), 
+				daughterBody.getCenter(shape), shape), 
 				daughterBody.getClosePoint(
-				momBody.getCenter()) };
+				momBody.getCenter(shape), shape) };
 		
 		double restlength;
 		if(a != b )

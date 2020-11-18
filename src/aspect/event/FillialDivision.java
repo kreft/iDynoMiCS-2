@@ -7,6 +7,7 @@ import aspect.methods.DivisionMethod;
 import expression.Expression;
 import linearAlgebra.Vector;
 import referenceLibrary.AspectRef;
+import shape.Shape;
 import surface.LinearSpring;
 import surface.Link;
 import surface.Point;
@@ -30,6 +31,8 @@ public class FillialDivision extends DivisionMethod
 	 */
 	protected void shiftBodies(Agent mother, Agent daughter)
 	{
+
+		Shape shape = mother.getCompartment().getShape();
 		Body momBody = (Body) mother.get(AspectRef.agentBody);
 		Body daughterBody = (Body) daughter.get(AspectRef.agentBody);
 		
@@ -53,20 +56,20 @@ public class FillialDivision extends DivisionMethod
 				{
 					other = a;
 					direction = ((Body) a.getValue(AspectRef.agentBody)).
-							getClosePoint(momBody.getCenter()).getPosition();
+							getClosePoint(momBody.getCenter(shape), shape).getPosition();
 					continue;
 				}
 			
 			Body otherBody = (Body) other.getValue(AspectRef.agentBody);
 			
-			double[] originalPos = momBody.getClosePoint(otherBody.getCenter()).getPosition();
+			double[] originalPos = momBody.getClosePoint(otherBody.getCenter(shape), shape).getPosition();
 			double[] shift = mother.getCompartment().getShape().getMinDifferenceVector(
 							direction, originalPos);
 			
-			Point p = momBody.getClosePoint(otherBody.getCenter());
+			Point p = momBody.getClosePoint(otherBody.getCenter(shape), shape);
 			p.setPosition(Vector.minus(originalPos, Vector.times(shift,0.4)));
 			
-			Point q = daughterBody.getClosePoint(momBody.getCenter());
+			Point q = daughterBody.getClosePoint(momBody.getCenter(shape), shape);
 			q.setPosition(Vector.add(originalPos, Vector.times(shift,0.4)));
 			/* body has more points? */
 			for( Point w : daughterBody.getPoints() )
@@ -96,7 +99,7 @@ public class FillialDivision extends DivisionMethod
 					int i;
 					i = l.getMembers().indexOf(other);
 					l.addMember(i, daughter);
-					l.setPoint(i, daughterBody.getClosePoint(momBody.getCenter()), false);
+					l.setPoint(i, daughterBody.getClosePoint(momBody.getCenter(shape), shape), false);
 				}
 			
 			for(Link l :((Body) other.getValue(AspectRef.agentBody)).getLinks())
@@ -107,7 +110,7 @@ public class FillialDivision extends DivisionMethod
 						int i;
 						i = l.getMembers().indexOf(mother);
 						l.addMember(i, daughter);
-						l.setPoint(i, daughterBody.getClosePoint(otherBody.getCenter()),false);
+						l.setPoint(i, daughterBody.getClosePoint(otherBody.getCenter(shape), shape),false);
 					}
 					else
 						otherBody.unLink(l);

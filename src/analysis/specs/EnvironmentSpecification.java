@@ -1,12 +1,14 @@
 package analysis.specs;
 
 
+import agent.Agent;
 import agent.Body;
 import aspect.AspectInterface;
 import compartment.Compartment;
 import grid.ArrayType;
 import referenceLibrary.AspectRef;
 import referenceLibrary.XmlRef;
+import shape.Shape;
 
 public class EnvironmentSpecification extends Specification {
 
@@ -32,9 +34,10 @@ public class EnvironmentSpecification extends Specification {
 					this._sol ).getAverage( ArrayType.CONCN );
 		}
 		else {
+			Shape shape = ((Agent) subject).getCompartment().getShape();
 			return this._compartment.getSolute( 
 				this._sol ).getValueAt(ArrayType.CONCN , ((Body) 
-						subject.getValue(AspectRef.agentBody)).getCenter());
+						subject.getValue(AspectRef.agentBody)).getCenter(shape));
 		}
 	}
 

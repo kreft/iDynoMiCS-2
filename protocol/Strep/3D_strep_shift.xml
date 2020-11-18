@@ -78,8 +78,8 @@
 				<aspect name="transientRadius" class="Double" value="3.0" />
 				<aspect name="shiftMass" type="PRIMARY" class="Double" value="2.5" />
 				<aspect name="linearStifness" class="Double" value="1e6" />
-				<aspect name="torsionStifness" class="Double" value="1e6" />
-				<aspect name="spineStiffness" class="Double" value="1e6" />
+				<aspect name="torsionStifness" class="Double" value="1e7" />
+				<aspect name="spineStiffness" class="Double" value="1e7" />
 				<aspect name="unlinkProbabillity" class="Double" value="0.1" />
 				<aspect name="directionalDivision" class="Boolean" value="true" />
 			</species>
@@ -114,11 +114,11 @@
 		<compartment name="first">
 			<shape class="Cuboid">
 				<!-- µm -->
-				<dimension name="X" isCyclic="false" 	targetResolution="25.0" max="250.0"/>
+				<dimension name="X" isCyclic="true" 	targetResolution="25.0" max="250.0"/>
 				<dimension name="Y" isCyclic="false" 	targetResolution="25.0" max="250.0">
 					<boundary extreme="1" class="BiofilmBoundaryLayer" partnerCompartment="chemostat" layerThickness = "0.0"/>
 				</dimension>
-				<dimension name="Z" isCyclic="false" 	targetResolution="25.0" max="250.0"/>
+				<dimension name="Z" isCyclic="true" 	targetResolution="25.0" max="250.0"/>
 			</shape>
 			<solutes>
 				<!-- Initial concentrations pg / µm2 -->
@@ -128,7 +128,7 @@
 			</solutes>
 			<reactions>
 			</reactions>
-			<spawn class="randomSpawner" domain="250.0, 250.0, 250.0" priority="0" number="1" morphology="COCCOID">
+			<spawn class="randomSpawner" domain="250.0, 15.0, 250.0" priority="0" number="25" morphology="COCCOID">
 				<templateAgent>
 					<aspect name="species" type="PRIMARY" class="String" value="heterotroph" />
 					<aspect  name="mass" class="InstantiableMap">
