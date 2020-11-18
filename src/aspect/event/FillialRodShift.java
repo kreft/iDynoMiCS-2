@@ -20,55 +20,56 @@ import utility.Helper;
  */
 public class FillialRodShift extends DivisionMethod
 {
+	private double shiftFrac = 0.3;
 	
 	public void start(AspectInterface initiator,
 			AspectInterface compliant, Double timeStep)
 	{
-		if ( ! this.shouldChange(initiator) )
+		if ( ! this.shouldChange( initiator ))
 			return;
 		
-		if ( initiator.isAspect(AspectRef.agentBody) && 
-				((Body) initiator.getValue(AspectRef.agentBody)).getMorphology()
-						!= Morphology.BACILLUS )
+		if ( initiator.isAspect( AspectRef.agentBody ) && ((Body) 
+				initiator.getValue( AspectRef.agentBody )).getMorphology()
+				!= Morphology.BACILLUS )
 		{
-			shiftMorphology((Agent) initiator);
-			updateAgents((Agent) initiator,null);
+			shiftMorphology( (Agent) initiator );
+			updateAgents( (Agent) initiator, null );
 		}
 		
-		if( this.shouldDevide(initiator) )
+		if( this.shouldDevide( initiator ))
 		{
 			/* Make one new agent, copied from the mother.*/
-			compliant = new Agent((Agent) initiator);
+			compliant = new Agent( (Agent) initiator );
 			/* Transfer an appropriate amount of mass from mother to daughter. */
-			DivisionMethod.transferMass(initiator, compliant);
-			this.shiftBodies((Agent) initiator, (Agent) compliant);
+			DivisionMethod.transferMass( initiator, compliant );
+			this.shiftBodies( (Agent) initiator, (Agent) compliant );
 			/* The bodies of both cells may now need updating. */
-			updateAgents((Agent) initiator,(Agent) compliant);
+			updateAgents( (Agent) initiator, (Agent) compliant );
 		}
 	}
 	
-	protected boolean shouldChange(AspectInterface initiator)
+	protected boolean shouldChange( AspectInterface initiator )
 	{
 		/* Find the agent-specific variable to test (mass, by default).	 */
-		Object mumMass = initiator.getValue(AspectRef.agentMass);
-		double variable = Helper.totalMass(mumMass);
+		Object iniMass = initiator.getValue( AspectRef.agentMass );
+		double variable = Helper.totalMass( iniMass );
 		/* Find the threshold that triggers division. */
 		double threshold = Double.MAX_VALUE;
-		if ( initiator.isAspect(AspectRef.shiftMass) )
-			threshold = initiator.getDouble(AspectRef.shiftMass);
+		if ( initiator.isAspect( AspectRef.shiftMass ))
+			threshold = initiator.getDouble( AspectRef.shiftMass );
 		return (variable > threshold);
 	}
 	
-	protected boolean shouldDevide(AspectInterface initiator)
+	protected boolean shouldDevide( AspectInterface initiator )
 	{
 		/* Find the agent-specific variable to test (mass, by default).	 */
-		Object mumMass = initiator.getValue(AspectRef.agentMass);
-		double variable = Helper.totalMass(mumMass);
+		Object iniMass = initiator.getValue( AspectRef.agentMass );
+		double variable = Helper.totalMass( iniMass );
 		/* Find the threshold that triggers division. */
 		double threshold = Double.MAX_VALUE;
-		if ( initiator.isAspect(AspectRef.divisionMass) )
-			threshold = initiator.getDouble(AspectRef.divisionMass);
-		return (variable > threshold);
+		if ( initiator.isAspect( AspectRef.divisionMass ))
+			threshold = initiator.getDouble( AspectRef.divisionMass );
+		return ( variable > threshold );
 	}
 	/**
 	 * \brief Shift the bodies of <b>mother</b> to <b>daughter</b> in space, so
@@ -78,20 +79,21 @@ public class FillialRodShift extends DivisionMethod
 	 * @param daughter Another agent, whose body overlaps a lot with that of
 	 * <b>mother</b>.
 	 */
-	protected void shiftMorphology(Agent initiator)
+	protected void shiftMorphology( Agent initiator )
 	{
+		double rShift = initiator.getDouble( AspectRef.bodyRadius ) * shiftFrac;
 		Shape shape = initiator.getCompartment().getShape();
-		Body momBody = (Body) initiator.get(AspectRef.agentBody);
+		Body momBody = (Body) initiator.get( AspectRef.agentBody );
 		Body otherABody = null;
 		Body otherBBody = null;
 		Point q = null, p = null;
-		double[] originalPos, shift;
+		double[] originalPos, shiftA, shiftB;
 		AspectInterface otherA = null;
 		AspectInterface otherB = null;
 		Link linkA = null;
 		Link linkB = null;
 		
-		if(  initiator.getBoolean(AspectRef.directionalDivision) &! 
+		if(  initiator.getBoolean( AspectRef.directionalDivision ) &! 
 				momBody.getLinks().isEmpty())
 		{
 			double[] directionA = null;
@@ -127,14 +129,20 @@ public class FillialRodShift extends DivisionMethod
 			
 			
 			originalPos = momBody.getClosePoint(otherABody.getCenter(shape), shape).getPosition();
-			shift = initiator.getCompartment().getShape().getMinDifferenceVector(
+			shiftA = initiator.getCompartment().getShape().getMinDifferenceVector(
 							directionA, originalPos);
+
+//			if( linkB != null )
+//				shiftB = initiator.getCompartment().getShape().getMinDifferenceVector(
+//					directionB, originalPos);
+//			else
+				shiftB = Vector.times(shiftA, -1.0);
 			
 			p = momBody.getClosePoint(otherABody.getCenter(shape), shape);
 			q = new Point(p);
 
-			p.setPosition(Vector.add(originalPos, Vector.times(shift,0.1)));
-			q.setPosition(Vector.minus(originalPos, Vector.times(shift,0.1)));
+			p.setPosition( Vector.add( originalPos, Vector.times(shiftA,0.1)));
+			q.setPosition( Vector.add( originalPos, Vector.times(shiftB,0.1)));
 			
 			/* reshape */
 			momBody.getPoints().add(new Point(q));
@@ -175,14 +183,14 @@ public class FillialRodShift extends DivisionMethod
 		{
 		/* if we are not linked yet */
 			originalPos = momBody.getPosition(0);
-			shift = Vector.randomPlusMinus(originalPos.length, 
+			shiftA = Vector.randomPlusMinus(originalPos.length, 
 					initiator.getDouble(AspectRef.bodyRadius));
 			
 			p = momBody.getPoints().get(0);
 			q = new Point(p);
 			
-			p.setPosition(Vector.add(originalPos, Vector.times(shift,0.1)));
-			q.setPosition(Vector.minus(originalPos, Vector.times(shift,0.1)));
+			p.setPosition(Vector.add(originalPos, Vector.times(shiftA,0.1)));
+			q.setPosition(Vector.minus(originalPos, Vector.times(shiftA,0.1)));
 			
 			/* reshape */
 			momBody.getPoints().add(new Point(q));
@@ -200,6 +208,8 @@ public class FillialRodShift extends DivisionMethod
 	
 	public void shiftBodies(Agent mother, Agent daughter)
 	{
+
+		double rShift = mother.getDouble( AspectRef.bodyRadius ) * shiftFrac;
 		Shape shape = mother.getCompartment().getShape();
 		Body momBody = (Body) mother.get(AspectRef.agentBody);
 		Body daughterBody = (Body) daughter.get(AspectRef.agentBody);
