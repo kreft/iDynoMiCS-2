@@ -207,6 +207,10 @@ public class Link implements Instantiable, Settable  {
 			}
 		}
 	}
+	public void setPoint(int pos, Point point)
+	{
+		this._spring.setPoint(pos, point, false);
+	}
 	
 	public void setPoint(int pos, Point point, boolean tempDuplicate)
 	{

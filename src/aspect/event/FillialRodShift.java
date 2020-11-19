@@ -20,7 +20,8 @@ import utility.Helper;
  */
 public class FillialRodShift extends DivisionMethod
 {
-	private double shiftFrac = 0.3;
+	private double shiftFrac = 0.05;
+	private boolean randomization = true;
 	
 	public void start(AspectInterface initiator,
 			AspectInterface compliant, Double timeStep)
@@ -40,20 +41,17 @@ public class FillialRodShift extends DivisionMethod
 		{
 			/* Make one new agent, copied from the mother.*/
 			compliant = new Agent( (Agent) initiator );
-			/* Transfer an appropriate amount of mass from mother to daughter. */
 			DivisionMethod.transferMass( initiator, compliant );
 			this.shiftBodies( (Agent) initiator, (Agent) compliant );
-			/* The bodies of both cells may now need updating. */
 			updateAgents( (Agent) initiator, (Agent) compliant );
 		}
 	}
 	
 	protected boolean shouldChange( AspectInterface initiator )
 	{
-		/* Find the agent-specific variable to test (mass, by default).	 */
+
 		Object iniMass = initiator.getValue( AspectRef.agentMass );
 		double variable = Helper.totalMass( iniMass );
-		/* Find the threshold that triggers division. */
 		double threshold = Double.MAX_VALUE;
 		if ( initiator.isAspect( AspectRef.shiftMass ))
 			threshold = initiator.getDouble( AspectRef.shiftMass );
@@ -62,30 +60,28 @@ public class FillialRodShift extends DivisionMethod
 	
 	protected boolean shouldDevide( AspectInterface initiator )
 	{
-		/* Find the agent-specific variable to test (mass, by default).	 */
+
 		Object iniMass = initiator.getValue( AspectRef.agentMass );
 		double variable = Helper.totalMass( iniMass );
-		/* Find the threshold that triggers division. */
 		double threshold = Double.MAX_VALUE;
 		if ( initiator.isAspect( AspectRef.divisionMass ))
 			threshold = initiator.getDouble( AspectRef.divisionMass );
 		return ( variable > threshold );
 	}
 	/**
-	 * \brief Shift the bodies of <b>mother</b> to <b>daughter</b> in space, so
-	 * that they do not overlap.
+	 * \brief change the initiator body from coccoid to rod-like and update 
+	 * filial links
 	 * 
 	 * @param initiator An agent.
-	 * @param daughter Another agent, whose body overlaps a lot with that of
 	 * <b>mother</b>.
 	 */
 	protected void shiftMorphology( Agent initiator )
 	{
-		double rShift = initiator.getDouble( AspectRef.bodyRadius ) * shiftFrac;
+		double rs = initiator.getDouble( AspectRef.bodyRadius ) * shiftFrac;
 		Shape shape = initiator.getCompartment().getShape();
-		Body momBody = (Body) initiator.get( AspectRef.agentBody );
-		Body otherABody = null;
-		Body otherBBody = null;
+		Body iniBody = (Body) initiator.get( AspectRef.agentBody );
+		Body otABody = null;
+		Body otBBody = null;
 		Point q = null, p = null;
 		double[] originalPos, shiftA, shiftB;
 		AspectInterface otherA = null;
@@ -94,12 +90,12 @@ public class FillialRodShift extends DivisionMethod
 		Link linkB = null;
 		
 		if(  initiator.getBoolean( AspectRef.directionalDivision ) &! 
-				momBody.getLinks().isEmpty())
+				iniBody.getLinks().isEmpty())
 		{
 			double[] directionA = null;
 			double[] directionB = null;
 			
-			for( Link l : momBody.getLinks() )
+			for( Link l : iniBody.getLinks() )
 				if(l.getMembers().size() < 3)
 					if( linkA == null )
 						linkA = l;
@@ -111,9 +107,10 @@ public class FillialRodShift extends DivisionMethod
 				{
 					otherA = a;
 					directionA = ((Body) a.getValue(AspectRef.agentBody)).
-							getClosePoint(momBody.getCenter(shape), shape).getPosition();
+							getClosePoint( iniBody.getCenter( shape ), shape ).
+							getPosition();
 					
-					otherABody = (Body) otherA.getValue(AspectRef.agentBody);
+					otABody = (Body) otherA.getValue( AspectRef.agentBody );
 				}
 				
 			if( linkB != null )
@@ -121,119 +118,134 @@ public class FillialRodShift extends DivisionMethod
 					if( a != initiator && otherB == null )
 					{
 						otherB = a;
-						directionB = ((Body) a.getValue(AspectRef.agentBody)).
-								getClosePoint(momBody.getCenter(shape), shape).getPosition();
+						directionB = ((Body) a.getValue( AspectRef.agentBody )).
+								getClosePoint(iniBody.getCenter(shape), shape ).
+								getPosition();
 	
-						otherBBody = (Body) otherB.getValue(AspectRef.agentBody);
+						otBBody = (Body) otherB.getValue(
+								AspectRef.agentBody );
 					}
 			
 			
-			originalPos = momBody.getClosePoint(otherABody.getCenter(shape), shape).getPosition();
-			shiftA = initiator.getCompartment().getShape().getMinDifferenceVector(
-							directionA, originalPos);
+			originalPos = iniBody.getClosePoint( otABody.getCenter( shape ), 
+					shape ).getPosition();
+			shiftA = initiator.getCompartment().getShape().
+					getMinDifferenceVector(	directionA, originalPos );
+			
+			if( randomization )
+				Vector.addEquals( shiftA, Vector.times( 
+						Vector.randomPlusMinus( directionA ) , rs ));
 
-//			if( linkB != null )
-//				shiftB = initiator.getCompartment().getShape().getMinDifferenceVector(
-//					directionB, originalPos);
-//			else
+			if( linkB != null )
+				shiftB = initiator.getCompartment().getShape().
+						getMinDifferenceVector(	directionB, originalPos);
+			else
 				shiftB = Vector.times(shiftA, -1.0);
 			
-			p = momBody.getClosePoint(otherABody.getCenter(shape), shape);
+			if( randomization )
+				Vector.addEquals( shiftB, Vector.times( 
+						Vector.randomPlusMinus( directionA ) , rs ));
+			
+			p = iniBody.getClosePoint(otABody.getCenter(shape), shape);
 			q = new Point(p);
 
-			p.setPosition( Vector.add( originalPos, Vector.times(shiftA,0.1)));
-			q.setPosition( Vector.add( originalPos, Vector.times(shiftB,0.1)));
+			p.setPosition(Vector.add( originalPos, Vector.times( shiftA, rs )));
+			q.setPosition(Vector.add( originalPos, Vector.times( shiftB, rs )));
 			
 			/* reshape */
-			momBody.getPoints().add(new Point(q));
-			momBody.getSurfaces().clear();
-			momBody.assignMorphology(Morphology.BACILLUS.name());
-			momBody.constructBody(1.0, 
-					initiator.getDouble(AspectRef.transientRadius) );
+			iniBody.getPoints().add( new Point( q ));
+			iniBody.getSurfaces().clear();
+			iniBody.assignMorphology( Morphology.BACILLUS.name() );
+			iniBody.constructBody( 1.0, 
+					initiator.getDouble( AspectRef.transientRadius ));
 			
-			for(Link l : momBody.getLinks() )
+			for(Link l : iniBody.getLinks() )
 			{
 				if(l.getMembers().size() > 2)
 				{
-					momBody.getLinks().remove(l);
+					iniBody.getLinks().remove(l);
 				}
 			}
 
 			if( otherA != null)
 			{
-				for(Link l : otherABody.getLinks() )
+				for(Link l : otABody.getLinks() )
 				{
 					int i;
 					i = l.getMembers().indexOf(initiator);
-					l.setPoint(i, momBody.getClosePoint(otherABody.getCenter(shape), shape), false);
+					l.setPoint(i, iniBody.getClosePoint( otABody.getCenter(
+							shape ), shape ));
 				}
 			}
 			
 			if ( otherB != null )
 			{
-				for(Link l : otherBBody.getLinks() )
+				for(Link l : otBBody.getLinks() )
 				{
 					int i;
 					i = l.getMembers().indexOf(initiator);
-					l.setPoint(i, momBody.getClosePoint(otherBBody.getCenter(shape), shape), false);
+					l.setPoint(i, iniBody.getClosePoint( otBBody.getCenter(
+							shape ), shape ));
 				}
 			}
 		}
 		else
 		{
 		/* if we are not linked yet */
-			originalPos = momBody.getPosition(0);
+			originalPos = iniBody.getPosition(0);
 			shiftA = Vector.randomPlusMinus(originalPos.length, 
-					initiator.getDouble(AspectRef.bodyRadius));
+					initiator.getDouble( AspectRef.bodyRadius ));
 			
-			p = momBody.getPoints().get(0);
+			if( randomization )
+				Vector.addEquals( shiftA, Vector.times( 
+						Vector.randomPlusMinus( originalPos ) , rs ));
+			
+			p = iniBody.getPoints().get(0);
 			q = new Point(p);
 			
-			p.setPosition(Vector.add(originalPos, Vector.times(shiftA,0.1)));
-			q.setPosition(Vector.minus(originalPos, Vector.times(shiftA,0.1)));
+			p.setPosition( Vector.add( originalPos, Vector.times( shiftA, rs)));
+			q.setPosition(Vector.minus(originalPos, Vector.times( shiftA, rs)));
 			
 			/* reshape */
-			momBody.getPoints().add(new Point(q));
-			momBody.getSurfaces().clear();
-			momBody.assignMorphology(Morphology.BACILLUS.name());
-			momBody.constructBody(0.1, 
-					initiator.getDouble(AspectRef.transientRadius) );
+			iniBody.getPoints().add( new Point( q ));
+			iniBody.getSurfaces().clear();
+			iniBody.assignMorphology( Morphology.BACILLUS.name() );
+			iniBody.constructBody( 0.1,
+					initiator.getDouble( AspectRef.transientRadius ));
 		}
 		
 		if( otherA != null)
-			Link.torLink((Agent) otherA, initiator, initiator);
+			Link.torLink( (Agent) otherA, initiator, initiator );
 		if( otherB != null)
-			Link.torLink((Agent) otherB, initiator, initiator);
+			Link.torLink( (Agent) otherB, initiator, initiator );
 	}
 	
-	public void shiftBodies(Agent mother, Agent daughter)
+	public void shiftBodies(Agent initiator, Agent compliant)
 	{
-
-		double rShift = mother.getDouble( AspectRef.bodyRadius ) * shiftFrac;
-		Shape shape = mother.getCompartment().getShape();
-		Body momBody = (Body) mother.get(AspectRef.agentBody);
-		Body daughterBody = (Body) daughter.get(AspectRef.agentBody);
-		Point p = null, q = null, ghost = null;
+		Shape shape = initiator.getCompartment().getShape();
+		Body iniBody = (Body) initiator.get( AspectRef.agentBody );
+		Body comBody = (Body) compliant.get( AspectRef.agentBody );
+		Point p = null, q = null;
 		boolean unlink = ExtraMath.getUniRandDbl() < 
-				(double) mother.getOr(AspectRef.unlinkProbabillity, 0.0);
+				(double) initiator.getOr( AspectRef.unlinkProbabillity, 0.0 );
 		
-		daughterBody.clearLinks();
+		comBody.clearLinks();
 		
-		if(  mother.getBoolean(AspectRef.directionalDivision) &! 
-				momBody.getLinks().isEmpty())
+		if(  initiator.getBoolean( AspectRef.directionalDivision ) &! 
+				iniBody.getLinks().isEmpty())
 		{
 			AspectInterface otherA = null;
 			AspectInterface otherB = null;
-			Body otherBBody = null;
-			Body otherABody = null;
+			Body otBBody = null;
+			Body otABody = null;
 
 			
 			/* this is where it goes wrong */
-			for( Link l : momBody.getLinks() )
+			for( Link l : iniBody.getLinks() )
 			{
-				if(l.getMembers().size() < 3)
+				if( l.getMembers().size() < 3 )
 				for( AspectInterface a : l.getMembers())
-					if( a != mother)
+					if( a != initiator)
 					{
 						if( otherA == null)
 							otherA = a;
@@ -245,144 +257,148 @@ public class FillialRodShift extends DivisionMethod
 			if( otherA != null )
 			{
 				int i = 0;
-				otherABody = (Body) otherA.getValue(AspectRef.agentBody);
-				p = momBody.getClosePoint(otherABody.getCenter(shape), shape);
-				q = daughterBody.getPoints().get(i);
+				otABody = (Body) otherA.getValue( AspectRef.agentBody );
+				p = iniBody.getClosePoint( otABody.getCenter( shape ), shape );
+				q = comBody.getPoints().get(i);
 				if( Vector.equals( p.getPosition(), q.getPosition() ))
 				{
 					i++;
-					q = daughterBody.getPoints().get(i);
+					q = comBody.getPoints().get(i);
 				}
-				ghost = momBody.getPoints().get(i);
-				momBody.getPoints().remove(i);
-				daughterBody.getPoints().remove(1-i);
+				iniBody.getPoints().remove(i);
+				comBody.getPoints().remove(1-i);
 			}
 			else
 			{
-				if(momBody.getPoints().size() > 1 )
+				if(iniBody.getPoints().size() > 1 )
 				{
-					ghost = momBody.getPoints().get(1);
-					momBody.getPoints().remove(1);
-					daughterBody.getPoints().remove(0);
+					iniBody.getPoints().remove(1);
+					comBody.getPoints().remove(0);
 				}
 			}
 
 			if( otherB != null )
 			{
-				otherBBody = (Body) otherB.getValue(AspectRef.agentBody);
-				for( Link l : momBody.getLinks() )
+				otBBody = (Body) otherB.getValue( AspectRef.agentBody );
+				for( Link l : iniBody.getLinks() )
 				{
-					if( l.getMembers().size() < 3 && l.getMembers().contains(mother)
-							&& l.getMembers().contains(otherB) )
+					if( l.getMembers().size() < 3 && 
+							l.getMembers().contains( initiator )	&& 
+							l.getMembers().contains( otherB ))
 					{
-						momBody.unLink(l);
-						otherBBody.unLink(l);
+						iniBody.unLink(l);
+						otBBody.unLink(l);
 						continue;
 					}
 				}
 			}
 			
-			momBody.clearLinks();
+			iniBody.clearLinks();
 			
 			if( otherB != null)
 			{
-				for( Link l : otherBBody.getLinks() )
+				for( Link l : otBBody.getLinks() )
 				{
-					if( l.getMembers().size() < 3 && l.getMembers().contains(mother))
+					if( l.getMembers().size() < 3 && 
+							l.getMembers().contains( initiator ))
 					{
 						/* mother already unlinked */
-						otherBBody.unLink(l);
+						otBBody.unLink(l);
 						continue;
 					}
 				}
-				Link.linLink((Agent) otherB, daughter);
-				Link.torLink((Agent) otherB, daughter, mother);
+				Link.linLink( (Agent) otherB, compliant );
+				Link.torLink( (Agent) otherB, compliant, initiator );
 			}
 			
 			if( otherA != null )
 			{
-				for( Link l : otherABody.getLinks() )
+				for( Link l : otABody.getLinks() )
 				{
-					if( l.getMembers().size() < 3 && l.getMembers().contains(mother))
+					if( l.getMembers().size() < 3 && 
+							l.getMembers().contains( initiator ))
 					{
 						/* daughter already unlinked */
-						otherABody.unLink(l);
+						otABody.unLink(l);
 						continue;
 					}
 				}
 				if( !unlink )
 				{
-					Link.linLink((Agent) otherA, mother);
-					Link.torLink((Agent) otherA, mother, daughter);
+					Link.linLink( (Agent) otherA, initiator );
+					Link.torLink( (Agent) otherA, initiator, compliant );
 				}
 			}
 
 			
 			if( otherA != null )
 			{
-				for(Link l : otherABody.getLinks())
+				for( Link l : otABody.getLinks() )
 					if(l.getMembers().size() > 2)
 					{
 						if( !unlink )
 						{
 							int i = 0;
-							if( l.getMembers().get(i) != mother || l.getMembers().get(i) == otherA )
+							if( l.getMembers().get(i) != initiator || 
+									l.getMembers().get(i) == otherA )
 								i = 2;
 							if( l.getMembers().get(i) != otherA )
 							{
-								l.setPoint(1, otherABody.getClosePoint(momBody.getCenter(shape), shape), true);
-								l.addMember(i, mother);
-								l.setPoint(i, momBody.getPoints().get(0), false);
+								l.setPoint(1, otABody.getClosePoint(
+										iniBody.getCenter(shape), shape), true);
+								l.addMember( i, initiator );
+								l.setPoint( i, iniBody.getPoints().get(0) );
 							}
 						}
 						else
-							otherABody.unLink(l);
+							otABody.unLink(l);
 					}
 			}
 			
 			if( otherB != null )
 			{
-				for(Link l : otherBBody.getLinks())
+				for(Link l : otBBody.getLinks())
 					if(l.getMembers().size() > 2)
 					{
 						int i = 0;
-						if( l.getMembers().get(i) != mother )
+						if( l.getMembers().get(i) != initiator )
 							i = 2;
 						if( l.getMembers().get(i) != otherB )
 						{
-							l.setPoint(1, otherBBody.getClosePoint(daughterBody.getCenter(shape), shape), true);
-							l.addMember(i, daughter);
-							l.setPoint(i, daughterBody.getPoints().get(0), false);
+							l.setPoint(1, otBBody.getClosePoint( 
+									comBody.getCenter( shape ), shape ), true);
+							l.addMember( i, compliant );
+							l.setPoint( i, comBody.getPoints().get(0) );
 						}
 					}
 			}
 		}
 		else
 		{
-			if(momBody.getPoints().size() > 1 )
+			if(iniBody.getPoints().size() > 1 )
 			{
-				momBody.getPoints().remove(1);
-				daughterBody.getPoints().remove(0);
+				iniBody.getPoints().remove(1);
+				comBody.getPoints().remove(0);
 			}
 		}
 
-		if(momBody.getPoints().size() > 1 )
+		if(iniBody.getPoints().size() > 1 )
 		{
-			momBody.getPoints().remove(1);
-			daughterBody.getPoints().remove(0);
+			iniBody.getPoints().remove(1);
+			comBody.getPoints().remove(0);
 		}
 
 			/* reshape */
-			momBody.getSurfaces().clear();
-			momBody.assignMorphology(Morphology.COCCOID.name());
-			momBody.constructBody(0.0, 
-					mother.getDouble(AspectRef.bodyRadius) );
+			iniBody.getSurfaces().clear();
+			iniBody.assignMorphology( Morphology.COCCOID.name() );
+			iniBody.constructBody( 0.0, 
+					initiator.getDouble( AspectRef.bodyRadius ));
 
-			daughterBody.getSurfaces().clear();
-			daughterBody.assignMorphology(Morphology.COCCOID.name());
-			daughterBody.constructBody(0.0, 
-					daughter.getDouble(AspectRef.bodyRadius) );
+			comBody.getSurfaces().clear();
+			comBody.assignMorphology( Morphology.COCCOID.name() );
+			comBody.constructBody(0.0, 
+					compliant.getDouble( AspectRef.bodyRadius ));
 
-			Link.linLink((Agent) mother, daughter);
+			Link.linLink( (Agent) initiator, compliant );
 	}
 }

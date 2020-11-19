@@ -21,25 +21,30 @@ import utility.ExtraMath;
  */
 public class FillialDivision extends DivisionMethod
 {
-	private double shiftFrac = 0.25;
+
+	private boolean randomization = true;
+	private double shiftFrac = 0.05;
 	/**
 	 * \brief Shift the bodies of <b>mother</b> to <b>daughter</b> in space, so
-	 * that they do not overlap.
+	 * that they do not overlap and assign filial links.
+	 * 
+	 * Note: class was designed for coccoid cells, rod-like cells will require
+	 * some modifications
 	 * 
 	 * @param initiator An agent.
-	 * @param complient Another agent, whose body overlaps a lot with that of
+	 * @param compliant Another agent, whose body overlaps a lot with that of
 	 * <b>mother</b>.
 	 */
-	protected void shiftBodies(Agent initiator, Agent complient)
+	protected void shiftBodies(Agent initiator, Agent compliant)
 	{
-
+		double rs = initiator.getDouble( AspectRef.bodyRadius ) * shiftFrac;
 		Shape shape = initiator.getCompartment().getShape();
 		Body iniBody = (Body) initiator.get( AspectRef.agentBody );
-		Body comBody = (Body) complient.get( AspectRef.agentBody );
-		double rShift = initiator.getDouble( AspectRef.bodyRadius ) * shiftFrac;
+		Body comBody = (Body) compliant.get( AspectRef.agentBody );
 		boolean unlink = ExtraMath.getUniRandDbl() < 
 				(double) initiator.getOr( AspectRef.unlinkProbabillity, 0.0 );
 		
+		/* links for compliant will be constructed later */
 		comBody.clearLinks();
 		
 		if(  initiator.getBoolean( AspectRef.directionalDivision ) &! 
@@ -69,18 +74,22 @@ public class FillialDivision extends DivisionMethod
 			double[] shift = initiator.getCompartment().getShape().
 					getMinDifferenceVector(	direction, oriPos );
 			
+			if( randomization )
+				Vector.addEquals( shift, Vector.times( 
+						Vector.randomPlusMinus( direction ) , rs ));
+			
 			Point p = iniBody.getClosePoint( othBody.getCenter(shape), shape);
-			p.setPosition(Vector.minus( oriPos, Vector.times( shift, rShift )));
+			p.setPosition(Vector.minus( oriPos, Vector.times( shift, rs )));
 			
 			Point q = comBody.getClosePoint( iniBody.getCenter(shape), shape);
-			q.setPosition(Vector.add( oriPos, Vector.times( shift, rShift )));
+			q.setPosition(Vector.add( oriPos, Vector.times( shift, rs )));
 			
 			/* body has more points? */
 			for( Point w : comBody.getPoints() )
 			{
 				if(w != q)
 					q.setPosition( Vector.add( oriPos, 
-							Vector.times( shift, rShift )));
+							Vector.times( shift, rs )));
 			}
 			
 			for( Link l : iniBody.getLinks() )
@@ -96,7 +105,7 @@ public class FillialDivision extends DivisionMethod
 			}
 			
 			if( !unlink )
-				Link.linLink( (Agent) other, complient );
+				Link.linLink( (Agent) other, compliant );
 			
 			/* update torsion links */
 			for( Link l : iniBody.getLinks() )
@@ -104,9 +113,9 @@ public class FillialDivision extends DivisionMethod
 				{
 					int i;
 					i = l.getMembers().indexOf( other );
-					l.addMember( i, complient );
+					l.addMember( i, compliant );
 					l.setPoint( i, comBody.getClosePoint(
-							iniBody.getCenter( shape ), shape ), false );
+							iniBody.getCenter( shape ), shape ));
 				}
 			
 			for( Link l : othBody.getLinks() )
@@ -116,22 +125,26 @@ public class FillialDivision extends DivisionMethod
 					{
 						int i;
 						i = l.getMembers().indexOf( initiator );
-						l.addMember( i, complient );
+						l.addMember( i, compliant );
 						l.setPoint(i, comBody.getClosePoint(
-								othBody.getCenter( shape ), shape ), false );
+								othBody.getCenter( shape ), shape ));
 					}
 					else
 						othBody.unLink(l);
 				}
 			
 			if( !unlink )
-				Link.torLink((Agent) other, complient, initiator);
+				Link.torLink((Agent) other, compliant, initiator);
 		}
 		else
 		{
 			double[] originalPos = iniBody.getPosition(0);
 			double[] shift = Vector.randomPlusMinus( originalPos.length, 
 					0.4*initiator.getDouble( AspectRef.bodyRadius ));
+			
+			if( randomization )
+				Vector.addEquals( shift, Vector.times( 
+						Vector.randomPlusMinus( originalPos ) , rs ));
 			
 			Point p = iniBody.getPoints().get(0);
 			p.setPosition(Vector.add(originalPos, shift));
@@ -145,6 +158,6 @@ public class FillialDivision extends DivisionMethod
 							Vector.times( shift, 1.2 )));
 			}
 		}
-		Link.linLink( initiator, complient );
+		Link.linLink( initiator, compliant );
 	}
 }
