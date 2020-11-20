@@ -144,14 +144,14 @@ public class Link implements Instantiable, Settable  {
 		
 		if( !link._members.isEmpty())
 		{
-//			for( Link l : daughterBody.getLinks() )
-//			{
-//				if( l._members.size() == 2 && l._members.contains(a) && l._members.contains(b))
-//				{
-//					daughterBody.unLink(l);
-//					daughterBody.addLink(link);
-//				}
-//			}
+			for( Link l : daughterBody.getLinks() )
+			{
+				if( l._members.size() == 2 && l._members.contains(a) && l._members.contains(b))
+				{
+					daughterBody.unLink(l);
+					daughterBody.addLink(link);
+				}
+			}
 		}
 
 		Double linkerStifness = (double) a.getOr( 
