@@ -99,6 +99,18 @@ public class InstantiableMap<K,T> extends HashMap<K,T> implements Settable,
 		this.entryClass = entryClass;
 	}
 	
+	public InstantiableMap( Class<?> keyClass, Class<?> entryClass, String dictionaryLabel )
+	{
+		this.keyLabel = XmlRef.keyAttribute;
+		this.valueLabel = XmlRef.valueAttribute;
+		
+		this.bundleMapLabel = dictionaryLabel;
+		this.nodeLabel = XmlRef.item;
+		
+		this.keyClass = keyClass;
+		this.entryClass = entryClass;
+	}
+	
 	/**
 	 * Constructor, overwriting default (xml) attribute and node labels
 	 *

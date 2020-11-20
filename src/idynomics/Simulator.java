@@ -48,7 +48,7 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 	 * 
 	 * Order is relevant, each {@code Compartment} knows its own name and priority.
 	 */
-	protected SortedSet<Compartment> _compartments = new TreeSet<Compartment>();
+	protected LinkedList<Compartment> _compartments = new LinkedList<Compartment>();
 
 	/**
 	 * Contains information about all species for this simulation.
@@ -293,7 +293,6 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 	
 	public void step()
 	{
-
 		if( Log.shouldWrite(Tier.NORMAL) )
 			this.timer.report(Tier.NORMAL);
 		/*
@@ -324,7 +323,19 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 		 * 
 		 */
 		this.timer.step();
-
+		
+		/*
+		 * Reporting agents.
+		 */
+		for (Compartment c : this._compartments)
+		{	
+			if( Log.shouldWrite(Tier.NORMAL) )
+			{
+				Log.out(Tier.NORMAL, c.getName() + " contains " + 
+						c.agents.getAllAgents().size() + " agents");
+			}
+		}
+		
 		/*
 		 * Write state to new XML file.
 		 */
@@ -339,18 +350,6 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 		for ( Compartment c : this._compartments )
 			c._bookKeeper.clear();
 		
-		/*
-		 * Reporting agents.
-		 */
-		for (Compartment c : this._compartments)
-		{	
-			if( Log.shouldWrite(Tier.NORMAL) )
-			{
-				Log.out(Tier.NORMAL, c.getName() + " contains " + 
-						c.agents.getAllAgents().size() + " agents");
-			}
-		}
-		
 		Log.step();
 	}
 	
@@ -364,12 +363,25 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 		 * Start timing just before simulation starts.
 		 */
 		double tic = System.currentTimeMillis();
+		
 		/* Check if any boundary connections need to be made. */
 		for ( Compartment c : this._compartments )
 		{
 			c.checkBoundaryConnections(this._compartments);
-			c.environment.updateSoluteBoundaries();
 		}
+		/*
+		 * Write initial state to new XML file.
+		 */
+		if( this._outputTicker < Idynomics.global.outputskip )
+			this._outputTicker++;
+		else
+		{
+			this._xmlOut.writeFile();
+			this._outputTicker = 1;
+		}
+		
+		for ( Compartment c : this._compartments )
+			c._bookKeeper.clear();
 		
 		/* Run the simulation. */
 		while ( this.timer.isRunning() && !this.interupt && !this.stopAction )
@@ -549,8 +561,8 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 		modelNode.add(chemicalLibrary.getModule());
 		
 		/* add compartment nodes */
-		for ( Compartment c : this._compartments )
-			modelNode.add(c.getModule());
+		for ( int i = 0; i < this._compartments.size(); i++ )
+			modelNode.add(this._compartments.get(i).getModule());
 		
 		/* add child constructor (adds add compartment button to gui */
 		modelNode.addChildSpec("Compartment", 

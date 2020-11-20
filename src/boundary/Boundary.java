@@ -24,6 +24,7 @@ import dataIO.XmlHandler;
 import idynomics.Global;
 import idynomics.Idynomics;
 import instantiable.Instantiable;
+import instantiable.object.InstantiableMap;
 import referenceLibrary.AspectRef;
 import referenceLibrary.XmlRef;
 import settable.Attribute;
@@ -82,7 +83,7 @@ public abstract class Boundary implements Settable, Instantiable
 	 * flow into the compartment this boundary belongs to, negative for flow
 	 * out. Map keys are solute names. Units of mass (or mole) per time.
 	 */
-	protected Map<String,Double> _massFlowRate = new HashMap<String,Double>();
+	protected InstantiableMap<String,Double> _massFlowRate = new InstantiableMap<String,Double>( String.class, Double.class , XmlRef.massFlow);
 	/**
 	 * Agents that are leaving this compartment via this boundary, and
 	 * so need to travel to the connected compartment.
@@ -105,6 +106,10 @@ public abstract class Boundary implements Settable, Instantiable
 	public void instantiate(Element xmlElement, Settable parent) 
 	{
 		this.setParent(parent);
+		
+		Element mf = XmlHandler.findUniqueChild(xmlElement, XmlRef.massFlow);
+		if( mf != null)
+			this._massFlowRate.instantiate(mf, this);
 		/* 
 		 * If this class of boundary needs a partner, find the name of the
 		 * compartment it connects to.
@@ -594,6 +599,8 @@ public abstract class Boundary implements Settable, Instantiable
 		
 		if ( this._volumeFlowRate != 0.0 )
 			modelNode.add( new Attribute( XmlRef.volumeFlowRate, String.valueOf( this._volumeFlowRate ), null, true ));
+		
+		modelNode.add( this._massFlowRate.getModule() );
 		// TODO
 		// modelNode.requirement = Requirements.?
 		return modelNode;
@@ -602,7 +609,9 @@ public abstract class Boundary implements Settable, Instantiable
 	@Override
 	public void setModule(Module node)
 	{
-		// TODO
+		
+		/* Set values for all child nodes. */
+		Settable.super.setModule(node);
 	}
 
 	// TODO ?

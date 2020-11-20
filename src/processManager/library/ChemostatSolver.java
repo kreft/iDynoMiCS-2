@@ -91,6 +91,11 @@ public class ChemostatSolver extends ProcessManager
 	@Override
 	protected void internalStep()
 	{
+		/*
+		 * Ask all boundaries to update their solute concentrations.
+		 */
+		this._environment.updateSoluteBoundaries();
+		
 		/* 
 		 * initial values
 		 */

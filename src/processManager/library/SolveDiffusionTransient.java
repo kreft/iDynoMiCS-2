@@ -61,6 +61,10 @@ public class SolveDiffusionTransient extends ProcessDiffusion
 	protected void internalStep()
 	{
 		/*
+		 * Ask all boundaries to update their solute concentrations.
+		 */
+		this._environment.updateSoluteBoundaries();
+		/*
 		 * Do the generic set up and solving.
 		 */
 		super.internalStep();
