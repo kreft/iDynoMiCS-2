@@ -4,6 +4,8 @@ import java.util.HashMap;
 
 import org.w3c.dom.Element;
 
+import dataIO.Log;
+import dataIO.Log.Tier;
 import expression.Expression;
 import linearAlgebra.Vector;
 import referenceLibrary.XmlRef;
@@ -74,18 +76,24 @@ public class LinearSpring implements Spring {
 				_a.getPosition(), _b.getPosition() );
 		double dn = Vector.normEuclid(diff);
 		springVars.put("dh", dn-this._restLength);
-		if( Math.abs(dn-this._restLength) > 1.3)
-			System.out.println( dn-this._restLength );
+		
+		if( Log.shouldWrite( Tier.DEBUG ) && 
+				Math.abs(dn-this._restLength) > 0.1)
+			Log.out( Tier.DEBUG, String.valueOf( dn-this._restLength ));
+		
 		double[] fV	= Vector.times(diff, 
 				this._springFunction.getValue(springVars) );
-		if ( Double.isNaN(fV[1]))
-			System.out.println(fV[1]+"z");
+		
+		if ( Log.shouldWrite( Tier.DEBUG ) && Double.isNaN(fV[1]))
+			Log.out( Tier.DEBUG, fV[1] + " Linear spring");
 		
 		/* apply forces */
 		Vector.addEquals( this._b.getForce(), fV ) ;
 		Vector.reverseEquals(fV);
-		if ( Double.isNaN(fV[1]))
-			System.out.println(fV[1]+"x");
+		
+		if ( Log.shouldWrite( Tier.DEBUG ) && Double.isNaN(fV[1]))
+			Log.out( Tier.DEBUG, fV[1] + " Linear spring");
+		
 		Vector.addEquals( this._a.getForce(), fV );
 	}
 

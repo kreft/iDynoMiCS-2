@@ -77,7 +77,7 @@ public class Link implements Instantiable, Settable  {
 		link.addMember(0, a);
 		link.addMember(1, b);
 		link.addMember(2, c);
-		((Body) b.get(AspectRef.agentBody)).addLink(link);
+		((Body) b.get( AspectRef.agentBody) ).addLink(link);
 	}
 	
 	public static void torLink(Agent a, Agent b, Agent c, Link link)
@@ -99,24 +99,27 @@ public class Link implements Instantiable, Settable  {
 		if( a != b && b != c)
 		{
 			/* b must be coccoid */
-		points = new Point[] { aBody.getClosePoint(bBody.getCenter(shape), shape), 
-				bBody.getPoints().get(0), cBody.getClosePoint(bBody.getCenter(shape), shape) };
+			points = new Point[] { aBody.getClosePoint( bBody.getCenter(shape), 
+					shape ), bBody.getPoints().get(0), cBody.getClosePoint(
+					bBody.getCenter(shape), shape) };
 		}
 		else if ( a == b)
 		{
 			/* b is rod with a */
-			points = new Point[] { aBody.getFurthesPoint(cBody.getCenter(shape), shape), 
-					bBody.getClosePoint(cBody.getCenter(shape), shape), cBody.getClosePoint(bBody.getCenter(shape), shape)};
+			points = new Point[] { aBody.getFurthesPoint(cBody.getCenter(shape),
+					shape), bBody.getClosePoint( cBody.getCenter(shape), shape), 
+					cBody.getClosePoint( bBody.getCenter(shape), shape) };
 		}
 		else
 		{
 			/* b is rod with c */
-			points = new Point[] { aBody.getClosePoint(bBody.getCenter(shape), shape), 
-					bBody.getClosePoint(aBody.getCenter(shape), shape), cBody.getFurthesPoint(aBody.getCenter(shape), shape)};
+			points = new Point[] { aBody.getClosePoint( bBody.getCenter(shape), 
+					shape), bBody.getClosePoint(aBody.getCenter(shape), shape), 
+					cBody.getFurthesPoint(aBody.getCenter(shape), shape) };
 		}
 		
 		Spring spring = new TorsionSpring(linkerStifness, points, springFun,
-				3.14159265359);
+				Math.PI);
 		link.setSpring(spring);
 
 	}
@@ -146,7 +149,8 @@ public class Link implements Instantiable, Settable  {
 		{
 			for( Link l : daughterBody.getLinks() )
 			{
-				if( l._members.size() == 2 && l._members.contains(a) && l._members.contains(b))
+				if( l._members.size() == 2 && l._members.contains(a) && 
+						l._members.contains(b))
 				{
 					daughterBody.unLink(l);
 					daughterBody.addLink(link);
@@ -186,24 +190,25 @@ public class Link implements Instantiable, Settable  {
 				getMembers().get(0) != getMembers().get(1)
 				)
 		{
-			getSpring().setRestValue( getMembers().get(0).getDouble(AspectRef.bodyRadius)
-					+  getMembers().get(1).getDouble(AspectRef.bodyRadius));
+			getSpring().setRestValue( 
+					getMembers().get(0).getDouble(AspectRef.bodyRadius)
+					+  getMembers().get(1).getDouble(AspectRef.bodyRadius) );
 		}
 		if( this._spring instanceof LinearSpring)
 		{
 			boolean c = false, d = false;
 			LinearSpring s = (LinearSpring) this._spring;
-			for( AspectInterface member : getMembers())
+			for( AspectInterface member : getMembers() )
 			{
 				Body b = (Body) member.getValue(AspectRef.agentBody);
-				if ( b.getPoints().contains(s._a))
+				if ( b.getPoints().contains( s._a ))
 					c = true;
-				if ( b.getPoints().contains(s._b))
+				if ( b.getPoints().contains( s._b ))
 					d = true;
 			}
 			if( !c || !d)
 			{
-				System.out.println("mismatch");
+				Log.out( this.getClass().getSimpleName() + " point mismatch" );
 			}
 		}
 	}
@@ -250,17 +255,17 @@ public class Link implements Instantiable, Settable  {
 	public Module getModule() {
 		Module modelNode = new Module(XmlRef.link, this);
 		modelNode.setRequirements(Requirements.ZERO_TO_FEW);
-//		
-//		for (Spring p : this._springs )
-//			modelNode.add(p.getModule() );
 
 		for (int i = 0; i < this._members.size(); i++)
 		{
 			Module mem = new Module(XmlRef.member, this);
-			mem.add(new Attribute(XmlRef.identity, 
-					String.valueOf(((Agent) this._members.get(i)).identity()), null, false));
+			mem.add(new Attribute(XmlRef.identity, String.valueOf((
+					(Agent) this._members.get(i)).identity()), null, false ));
 			modelNode.add(mem);
 		}
+		
+		/* NOTE springs follow from link initiation */
+		
 		return modelNode;
 	}
 

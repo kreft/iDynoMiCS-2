@@ -9,6 +9,7 @@ import aspect.AspectInterface;
 import dataIO.Log;
 import dataIO.Log.Tier;
 import expression.Expression;
+import idynomics.Idynomics;
 import linearAlgebra.Vector;
 import referenceLibrary.XmlRef;
 import settable.Attribute;
@@ -75,8 +76,9 @@ public class TorsionSpring implements Spring {
 		if( i == 2 )
 			this._c = points;
 		
-		if( !tempDuplicate && (Vector.equals( this._a.getPosition(),this._b.getPosition()) || 
-				Vector.equals( this._c.getPosition(), this._b.getPosition()) ) )
+		if( !tempDuplicate && (Vector.equals( this._a.getPosition(),
+				this._b.getPosition()) || Vector.equals( this._c.getPosition(), 
+				this._b.getPosition()) ) )
 			Log.out("duplicate point");
 	}
 	
@@ -105,25 +107,35 @@ public class TorsionSpring implements Spring {
 		Vector.minusEquals(a, this._b.getPosition());
 		Vector.minusEquals(c, this._b.getPosition());
 		
-		if( Vector.allOfValue(a, 0.0))
+		if( Log.shouldWrite(Tier.DEBUG) )
 		{
-			System.out.println("NEE");
-			return;
-		}
-		if( Vector.allOfValue(c, 0.0))
-		{
-			System.out.println("NEE");
-			return;
+			if( Vector.allOfValue(a, 0.0))
+			{
+				Log.out(Tier.DEBUG, this.getClass().getSimpleName() + " zeros");
+				Idynomics.simulator.interupt = true;
+			}
+			if( Vector.allOfValue(c, 0.0))
+			{
+				Log.out(Tier.DEBUG, this.getClass().getSimpleName() + " zeros");
+				Idynomics.simulator.interupt = true;
+			}
 		}
 		
-		if( Vector.equals( this._a.getPosition(),this._b.getPosition()) || 
-				Vector.equals( this._c.getPosition(), this._b.getPosition()) )
-			if( Log.shouldWrite(Tier.DEBUG))
+		if( Log.shouldWrite(Tier.DEBUG) )
+		{
+			if( Vector.equals( this._a.getPosition(),
+					this._b.getPosition()) || 
+					Vector.equals( this._c.getPosition(), 
+					this._b.getPosition()))
 				Log.out(Tier.DEBUG, "duplicate point");
+		}
 		
 		double u = Math.PI - Vector.angle(a, c);
-		if( Double.isNaN(u))
-			return;
+		if( Log.shouldWrite(Tier.DEBUG) )
+		{
+			if( Double.isNaN(u))
+				Idynomics.simulator.interupt = true;
+		}
 		
 		Vector.spherifyTo(a, a);
 		Vector.spherifyTo(c, c);
@@ -176,85 +188,22 @@ public class TorsionSpring implements Spring {
 		double[] fV	= Vector.times(directionA, 
 				this._springFunction.getValue(springVars) );
 		
-		if ( Double.isNaN(fV[1]))
+		if( Log.shouldWrite(Tier.DEBUG) )
 		{
-			System.out.println(fV[1]+" torsion");
-			a = shape.getNearestShadowPoint(_a.getPosition(), 
-					_b.getPosition() );
-			c = shape.getNearestShadowPoint(_c.getPosition(), 
-					_b.getPosition() );
-					
-			Vector.minusEquals(a, this._b.getPosition());
-			Vector.minusEquals(c, this._b.getPosition());
-			
-			if( Vector.equals( this._a.getPosition(),this._b.getPosition()) || 
-					Vector.equals( this._c.getPosition(), this._b.getPosition()) )
-				if( Log.shouldWrite(Tier.DEBUG))
-					Log.out(Tier.DEBUG, "duplicate point");
-			
-			u = Math.PI - Vector.angle(a, c);
-			if( Double.isNaN(u))
-				return;
-			
-			Vector.spherifyTo(a, a);
-			Vector.spherifyTo(c, c);
-			
-			thetaAngle = Math.abs( a[1] - c[1] );			
-			outTheta = (_restAngle - thetaAngle) * 0.5;
-			if( a[1] > c[1] )
-			{
-				a[1] += outTheta;
-				c[1] -= outTheta;
-			}
-			else
-			{
-				a[1] -= outTheta;
-				c[1] += outTheta;
-			}
-			
-			outPhi = 0;
-			ac = 0;
-			cc = 0;
-			if( a.length > 2)
-			{
-				ac = a[2]-0.5*_restAngle;
-				cc = c[2]-0.5*_restAngle;
-				
-				double phiAngle = ac + cc;
-				outPhi = phiAngle*0.5;
-				a[2] -= outPhi;
-				c[2] -= outPhi;
-			}
-			
-			Vector.unspherifyEquals(a);
-			Vector.unspherifyEquals(c);
-			Vector.addEquals(a, _b.getPosition());
-			Vector.addEquals(c, _b.getPosition());
-
-			directionA = Vector.normaliseEuclid(
-					shape.getMinDifferenceVector( a, _a.getPosition() ) );
-			directionC = Vector.normaliseEuclid(
-					shape.getMinDifferenceVector( c, _c.getPosition() ) );
-			directionB = Vector.normaliseEuclid(
-					Vector.times( Vector.add( directionA, directionC ), -1.0 ) );
-			
-			/* If agents are approaching alignment in the z-axis (z = Pi) the 
-			 * weight of relative x/y angles drops.
-			 * 
-			 * This might need some sine/cosine?
-			 */
-			springVars.put("dif", u );
-			
-			fV	= Vector.times(directionA, 
-					this._springFunction.getValue(springVars) );
+			if ( Double.isNaN(fV[1]))
+				Log.out(Tier.DEBUG, fV[1]+" torsion" );
 		}
+
 		Vector.addEquals( this._a.getForce(), fV ) ;
 
 		fV	= Vector.times(directionC, 
 				this._springFunction.getValue(springVars) );
 		
-		if ( Double.isNaN(fV[1]))
-			System.out.println(fV[1]+" torsion");
+		if( Log.shouldWrite(Tier.DEBUG) )
+		{
+			if ( Double.isNaN(fV[1]))
+				Log.out(Tier.DEBUG, fV[1]+" torsion");
+		}
 		
 		Vector.addEquals( this._c.getForce(), fV ) ;
 
@@ -262,8 +211,11 @@ public class TorsionSpring implements Spring {
 		fV	= Vector.times(Vector.times(directionB, 2.0), 
 				this._springFunction.getValue(springVars) );
 		
-		if ( Double.isNaN(fV[1]))
-			System.out.println(fV[1]+" torsion");
+		if( Log.shouldWrite(Tier.DEBUG) )
+		{
+			if ( Double.isNaN(fV[1]))
+				Log.out(Tier.DEBUG, fV[1]+" torsion");
+		}
 		
 		Vector.addEquals( this._b.getForce(), fV ) ;
 	}
