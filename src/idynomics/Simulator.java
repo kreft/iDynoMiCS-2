@@ -41,14 +41,17 @@ import utility.Helper;
  * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
-public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instantiable, Settable
+public strictfp class Simulator implements CanPrelaunchCheck, Runnable, 
+		Instantiable, Settable
 {
 	/**
 	 * \brief List of {@code Compartment}s in this {@code Simulator}.
 	 * 
-	 * Order is relevant, each {@code Compartment} knows its own name and priority.
+	 * Order is relevant, each {@code Compartment} knows its own name and 
+	 * priority. Note: we should ensure compartment order remains the same
 	 */
-	protected SortedSet<Compartment> _compartments = new TreeSet<Compartment>();
+	protected LinkedList<Compartment> _compartments = 
+			new LinkedList<Compartment>();
 
 	/**
 	 * Contains information about all species for this simulation.
@@ -549,8 +552,8 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 		modelNode.add(chemicalLibrary.getModule());
 		
 		/* add compartment nodes */
-		for ( Compartment c : this._compartments )
-			modelNode.add(c.getModule());
+		for ( int i = 0; i < this._compartments.size(); i++ )
+			modelNode.add(this._compartments.get(i).getModule());
 		
 		/* add child constructor (adds add compartment button to gui */
 		modelNode.addChildSpec("Compartment", 
