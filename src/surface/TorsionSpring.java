@@ -18,6 +18,11 @@ import settable.Settable;
 import settable.Module.Requirements;
 import shape.Shape;
 
+/**
+ * 
+ * @author Bastiaan
+ *
+ */
 public class TorsionSpring implements Spring {
 
 	private double _restAngle;

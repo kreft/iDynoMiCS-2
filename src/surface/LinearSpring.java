@@ -15,6 +15,11 @@ import settable.Settable;
 import settable.Module.Requirements;
 import shape.Shape;
 
+/**
+ * 
+ * @author Bastiaan
+ *
+ */
 public class LinearSpring implements Spring {
 
 	private double _restLength;
@@ -120,7 +125,7 @@ public class LinearSpring implements Spring {
 	
 	public String toString()
 	{
-		return "Linear "+_restLength+ " "+Vector.toString(_a.getPosition())+
-				" "+Vector.toString(_b.getPosition());
+		return "Linear "+_restLength+ " " + Vector.toString(_a.getPosition()) +
+				" " + Vector.toString( _b.getPosition() );
 	}
 }

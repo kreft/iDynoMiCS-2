@@ -5,6 +5,11 @@ import instantiable.Instantiable;
 import settable.Settable;
 import shape.Shape;
 
+/**
+ * 
+ * @author Bastiaan
+ *
+ */
 public interface Spring extends Instantiable, Settable {
 	
 	public void applyForces(Shape shape);

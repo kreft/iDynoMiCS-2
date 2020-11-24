@@ -394,7 +394,7 @@ public class Body implements Copyable, Instantiable, Settable
 			Vector.addEquals(center, shape.getNearestShadowPoint(p.getPosition()
 					, this._points.get(0).getPosition()));
 		}
-		center = Vector.divideEqualsA(center, (double) this.getNumberOfPoints());
+		center = Vector.divideEqualsA(center, (double)this.getNumberOfPoints());
 		return shape.getVerifiedLocation(center);
 	}
 	

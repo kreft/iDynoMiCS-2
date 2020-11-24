@@ -49,7 +49,8 @@ public class BiofilmBoundaryLayer extends WellMixedBoundary
 	 * pull distance aspect.
 	 */
 	// NOTE This is not a permanent solution.
-	public static String CURRENT_PULL_DISTANCE = AspectRef.collisionCurrentPullDistance;
+	public static String CURRENT_PULL_DISTANCE = 
+			AspectRef.collisionCurrentPullDistance;
 	/**
 	 * For the random walk after insertion, we use an arbitrary time step size.
 	 */
@@ -172,10 +173,7 @@ public class BiofilmBoundaryLayer extends WellMixedBoundary
 				}
 			coords = aShape.iteratorNext();
 			}
-			
-			
 		}
-		
 		else
 		{
 			int[] coords = aShape.resetIterator();
@@ -195,7 +193,8 @@ public class BiofilmBoundaryLayer extends WellMixedBoundary
 				box = this._gridSphere.boundingBox(this._agents.getShape());
 				neighbors = this._agents.treeSearch(box);
 				for ( Agent a : neighbors )
-					for (Surface s : (List<Surface>) ((Body) a.get(AspectRef.agentBody)).getSurfaces())
+					for (Surface s : (List<Surface>) ((Body) 
+							a.get( AspectRef.agentBody )).getSurfaces() )
 						if ( this._gridSphere.distanceTo(s) < 0.0 )
 							{
 								grid.setValueAt(WELLMIXED, coords, 
@@ -261,10 +260,12 @@ public class BiofilmBoundaryLayer extends WellMixedBoundary
 			 */
 			insertionLoop: while ( true )
 			{
-				nbhAgents = this._agents.treeSearch(anAgent, this._layerThickness);
+				nbhAgents = this._agents.treeSearch( anAgent, 
+						this._layerThickness );
 				if ( ! nbhAgents.isEmpty() )
 					break insertionLoop;
-				bndries = this._agents.boundarySearch(anAgent, this._layerThickness);
+				bndries = this._agents.boundarySearch( anAgent, 
+						this._layerThickness );
 				bndries.remove(this);
 				if ( ! bndries.isEmpty() )
 				{
@@ -305,8 +306,8 @@ public class BiofilmBoundaryLayer extends WellMixedBoundary
 					this._arrivalsLounge.add(anAgent);
 					if ( Log.shouldWrite(AGENT_ARRIVE_LEVEL) )
 					{
-						Log.out(AGENT_ARRIVE_LEVEL,
-								"Agent has returned to boundary: re-inserting later");
+						Log.out( AGENT_ARRIVE_LEVEL, "Agent has returned to "
+								+ "boundary: re-inserting later" );
 					}
 					break randomLoop;
 				}

@@ -315,8 +315,6 @@ public final class Helper
 	public static double interpretExpression(String expression)
 	{
 		return Double.parseDouble(expression);
-//		ExpressionB expres = new ExpressionB(expression);
-//		return expres.getValue();
 	}
 	
 	/**

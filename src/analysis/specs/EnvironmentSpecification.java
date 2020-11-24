@@ -1,6 +1,5 @@
 package analysis.specs;
 
-
 import agent.Agent;
 import agent.Body;
 import aspect.AspectInterface;
@@ -10,6 +9,11 @@ import referenceLibrary.AspectRef;
 import referenceLibrary.XmlRef;
 import shape.Shape;
 
+/**
+ * 
+ * @author Bastiaan
+ *
+ */
 public class EnvironmentSpecification extends Specification {
 
 	private String _sol;

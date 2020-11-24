@@ -586,8 +586,10 @@ public class AgentRelaxation extends ProcessManager
 					if( s instanceof LinearSpring)
 					{
 						Expression spineFun;
-						if ( !Helper.isNullOrEmpty( a.getValue(AspectRef.agentSpineFunction)))
-							spineFun = new Expression((String) a.getValue(AspectRef.agentSpineFunction));
+						if ( !Helper.isNullOrEmpty( a.getValue(
+								AspectRef.agentSpineFunction )))
+							spineFun = new Expression((String) 
+									a.getValue(AspectRef.agentSpineFunction ));
 						else
 							spineFun = this._spineFunction;
 						s.setSpringFunction( spineFun );
@@ -603,12 +605,11 @@ public class AgentRelaxation extends ProcessManager
 						{
 							/* TODO set default maybe? */
 							Idynomics.simulator.interupt(
-									"missing torsion spring function in relax" );
+									"missing torsion spring function in relax");
 						}
 						s.setSpringFunction( torsFun );
 					}
 				}
-//				System.out.println(String.valueOf(a.identity()) + " " + s);
 				s.applyForces(this._shape);
 				if(Log.shouldWrite(Tier.DEBUG))
 					Log.out(Tier.DEBUG,s.toString());

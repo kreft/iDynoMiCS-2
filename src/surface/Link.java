@@ -28,7 +28,8 @@ import utility.Helper;
  */
 public class Link implements Instantiable, Settable  {
 
-	protected List<AspectInterface> _members = new LinkedList<AspectInterface>();
+	protected List<AspectInterface> _members = 
+			new LinkedList<AspectInterface>();
 	/**
 	 * 
 	 */

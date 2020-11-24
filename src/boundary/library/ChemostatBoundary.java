@@ -76,7 +76,8 @@ public abstract class ChemostatBoundary extends Boundary {
 	public Module getModule()
 	{
 		Module mod = super.getModule();
-		mod.add( new Attribute( XmlRef.agentRemoval, String.valueOf( this._agentRemoval ), null, true ));
+		mod.add( new Attribute( XmlRef.agentRemoval, String.valueOf( 
+				this._agentRemoval ), null, true ));
 		return mod;
 	}
 

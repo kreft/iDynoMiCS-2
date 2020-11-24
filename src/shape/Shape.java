@@ -152,7 +152,8 @@ public abstract class Shape implements
 				this.resCal, null, false ) );
 		
 		/* orientation node */
-		if( !(Helper.isNullOrEmpty(this._orientation) || this._orientation.isNullVector()) )
+		if( !(Helper.isNullOrEmpty(this._orientation) || 
+				this._orientation.isNullVector()) )
 			modelNode.add( this._orientation.getModule() );
 		
 		/* Add the child modules */
@@ -210,8 +211,9 @@ public abstract class Shape implements
 		ResolutionCalculator rC;
 		for ( DimName dimName : this.getDimensionNames() )
 		{
-			childElem = (Element) XmlHandler.getSpecific(xmlElem, 
-					XmlRef.shapeDimension, XmlRef.nameAttribute, dimName.name());
+			childElem = (Element) XmlHandler.getSpecific( xmlElem, 
+					XmlRef.shapeDimension, XmlRef.nameAttribute, 
+					dimName.name() );
 			try
 			{
 				dim = this.getDimension(dimName);

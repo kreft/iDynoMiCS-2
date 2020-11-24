@@ -218,8 +218,10 @@ public abstract class Boundary implements Settable, Instantiable
 				out = (Boundary) bClass.newInstance();
 				this.setPartner(out);
 				out.setPartner(this);
-				/* oh dear TODO better to assign compartment name on boundary creation or just associate the compartment */
-				out._partnerCompartmentName = ((Compartment) this.getParent().getParent().getParent()).getName();
+				/* oh dear TODO better to assign compartment name on boundary 
+				 * creation or just associate the compartment */
+				out._partnerCompartmentName = ((Compartment) this.getParent().
+						getParent().getParent()).getName();
 			}
 			catch (Exception e)
 			{
@@ -593,7 +595,8 @@ public abstract class Boundary implements Settable, Instantiable
 		}
 		
 		if ( this._volumeFlowRate != 0.0 )
-			modelNode.add( new Attribute( XmlRef.volumeFlowRate, String.valueOf( this._volumeFlowRate ), null, true ));
+			modelNode.add( new Attribute( XmlRef.volumeFlowRate, 
+					String.valueOf( this._volumeFlowRate ), null, true ));
 		// TODO
 		// modelNode.requirement = Requirements.?
 		return modelNode;

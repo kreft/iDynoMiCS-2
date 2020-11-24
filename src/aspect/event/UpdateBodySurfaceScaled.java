@@ -68,7 +68,8 @@ public class UpdateBodySurfaceScaled extends Event {
 			double zLen = comp.getShape().getDimension(DimName.Z).getLength();
 			switch(body.getMorphology()) {
 			  case COCCOID:
-				  body.update( ExtraMath.radiusOfACylinder(volume, zLen), 0.0, initiator);
+				  body.update( ExtraMath.radiusOfACylinder( volume, zLen ), 
+						  0.0, initiator);
 				  break;
 			  case BACILLUS:
 				  double r = initiator.getDouble(RADIUS);

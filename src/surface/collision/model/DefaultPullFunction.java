@@ -12,6 +12,9 @@ import surface.collision.CollisionFunction;
 import surface.collision.CollisionVariables;
 
 /**
+ * 
+ * @author Bastiaan
+ *
  * default pull CollisionFunction
  */
 public class  DefaultPullFunction implements CollisionFunction
@@ -56,6 +59,8 @@ public class  DefaultPullFunction implements CollisionFunction
 		 * If distance is in the range, apply the pull force.
 		 * Otherwise, return a zero vector. A small distance is allowed to
 		 * prevent objects bouncing in equilibrium 
+		 * 
+		 * TODO magic number, set in defaults or avoid
 		 */
 		if ( var.distance > 0.001 && var.distance < var.margin ) 
 		{

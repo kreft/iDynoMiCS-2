@@ -60,7 +60,8 @@ public class ChemostatOut extends ChemostatBoundary
 	{
 		Module mod = super.getModule();
 		if( this.constantVolume)
-			mod.add( new Attribute( XmlRef.constantVolume, String.valueOf( this.constantVolume ), null, true ));
+			mod.add( new Attribute( XmlRef.constantVolume, String.valueOf( 
+					this.constantVolume ), null, true ));
 		return mod;
 	}
 	
