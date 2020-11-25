@@ -98,5 +98,11 @@ public final class ObjectRef
 	 * iDynoMiCS Body Object
 	 */
 	public static final String BODY = "Body";
+	/**
+	 * iDynoMiCS Body Expression
+	 */
+	public static final String EXPRESSION = "Expression";
+	
+	
 	
 }

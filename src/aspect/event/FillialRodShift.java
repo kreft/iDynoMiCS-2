@@ -215,9 +215,9 @@ public class FillialRodShift extends DivisionMethod
 		}
 		
 		if( otherA != null)
-			Link.torLink( (Agent) otherA, initiator, initiator );
+			Link.torsion( (Agent) otherA, initiator, initiator );
 		if( otherB != null)
-			Link.torLink( (Agent) otherB, initiator, initiator );
+			Link.torsion( (Agent) otherB, initiator, initiator );
 	}
 	
 	public void shiftBodies(Agent initiator, Agent compliant)
@@ -307,8 +307,8 @@ public class FillialRodShift extends DivisionMethod
 						continue;
 					}
 				}
-				Link.linLink( (Agent) otherB, compliant );
-				Link.torLink( (Agent) otherB, compliant, initiator );
+				Link.linear( (Agent) otherB, compliant );
+				Link.torsion( (Agent) otherB, compliant, initiator );
 			}
 			
 			if( otherA != null )
@@ -325,8 +325,8 @@ public class FillialRodShift extends DivisionMethod
 				}
 				if( !unlink )
 				{
-					Link.linLink( (Agent) otherA, initiator );
-					Link.torLink( (Agent) otherA, initiator, compliant );
+					Link.linear( (Agent) otherA, initiator );
+					Link.torsion( (Agent) otherA, initiator, compliant );
 				}
 			}
 
@@ -346,7 +346,7 @@ public class FillialRodShift extends DivisionMethod
 							{
 								l.setPoint(1, otABody.getClosePoint(
 										iniBody.getCenter(shape), shape), true);
-								l.addMember( i, initiator );
+								l.putMember( i, initiator );
 								l.setPoint( i, iniBody.getPoints().get(0) );
 							}
 						}
@@ -367,7 +367,7 @@ public class FillialRodShift extends DivisionMethod
 						{
 							l.setPoint(1, otBBody.getClosePoint( 
 									comBody.getCenter( shape ), shape ), true);
-							l.addMember( i, compliant );
+							l.putMember( i, compliant );
 							l.setPoint( i, comBody.getPoints().get(0) );
 						}
 					}
@@ -399,6 +399,6 @@ public class FillialRodShift extends DivisionMethod
 			comBody.constructBody(0.0, 
 					compliant.getDouble( AspectRef.bodyRadius ));
 
-			Link.linLink( (Agent) initiator, compliant );
+			Link.linear( (Agent) initiator, compliant );
 	}
 }

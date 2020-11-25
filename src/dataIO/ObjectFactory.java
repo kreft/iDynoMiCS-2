@@ -202,12 +202,14 @@ public class ObjectFactory
 		case ObjectRef.HASHMAP :
 			return ObjectHelper.xmlHashMap(elem);
 
+		case ObjectRef.EXPRESSION :
+				return new Expression( input(input, elem) );
+				
 		case ObjectRef.BODY :
 			if ( elem == null )
 				Body.instanceFromString( input(input, elem) );
 			else
 				return Instance.getNew(elem, null, ClassRef.body);
-			
 		default:
 			if ( Idynomics.xmlPackageLibrary.has( objectClass ) )
 				return Instance.getNew(elem, null, objectClass );

@@ -596,11 +596,11 @@ public class AspectRef
 
 	public static final String torsionFunction = "torsionFunction";
 
-	public static final String linkerStifness = "linkerStifness";
+	public static final String linkerStiffness = "linkerStiffness";
 
-	public static final String linearStifness = "linearStifness";
+	public static final String linearStiffness = "linearStiffness";
 
-	public static final String torsionStifness = "torsionStifness";
+	public static final String torsionStiffness = "torsionStiffness";
 
 	public static final String directionalDivision = "directionalDivision";
 
@@ -611,5 +611,7 @@ public class AspectRef
 	public static final String shiftMass = "shiftMass";
 
 	public static final String transientRadius = "transientRadius";
+
+	public static final String linearFunction = "linearFunction";
 	
 }

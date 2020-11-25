@@ -10,6 +10,7 @@ import agent.Agent;
 import agent.Body;
 import aspect.AspectInterface;
 import dataIO.Log;
+import dataIO.Log.Tier;
 import dataIO.XmlHandler;
 import expression.Expression;
 import idynomics.Idynomics;
@@ -25,7 +26,10 @@ import surface.Point;
 import utility.Helper;
 
 /**
+ * \brief: Link two or three points together with linear or torsion spring.
+ * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
+ * 
  */
 public class Link implements Instantiable, Settable  {
 
@@ -36,17 +40,23 @@ public class Link implements Instantiable, Settable  {
 	 */
 	protected Spring _spring;
 	
+	/**
+	 * Refers to the agents associated with this link when the simulation is
+	 * staged from XML. NOTE: some agents may not have constructed yet thus
+	 * the link can only be established after all agents have been loaded in
+	 * from XML.
+	 */
 	protected List<Integer> _arriving = new LinkedList<Integer>(); 
 
 	/**
-	 * TODO
+	 * TODO snap condition?
 	 */
 	protected double _snap;
 	
 	public Link()
 	{
+		
 	}
-
 
 	public void setSpring( Spring spring )
 	{
@@ -58,10 +68,11 @@ public class Link implements Instantiable, Settable  {
 		return _spring;
 	}
 	
-	public void addMember(  int pos, AspectInterface member )
+	public void putMember(  int pos, AspectInterface member )
 	{
 		if( member == null )
-			System.out.print("wow");
+			Log.out(Tier.CRITICAL, "attempted adding null member to Link");
+		/* replace old member on same pos if any */
 		if( this._members.size() > pos)
 			this._members.remove(pos);
 		this._members.add(pos, member);
@@ -72,17 +83,30 @@ public class Link implements Instantiable, Settable  {
 		return this._members;
 	}
 
-	public static void torLink(Agent a, Agent b, Agent c)
+	/**
+	 * Links with three agents represent torsion springs
+	 * @param a
+	 * @param b
+	 * @param c
+	 */
+	public static void torsion(Agent a, Agent b, Agent c)
 	{
 		Link link = new Link();
-		torLink(a,b,c, link);
-		link.addMember(0, a);
-		link.addMember(1, b);
-		link.addMember(2, c);
+		torsion(a,b,c, link);
+		link.putMember(0, a);
+		link.putMember(1, b);
+		link.putMember(2, c);
 		((Body) b.get( AspectRef.agentBody) ).addLink(link);
 	}
 	
-	public static void torLink(Agent a, Agent b, Agent c, Link link)
+	/**
+	 * Links with three agents represent torsion springs
+	 * @param a
+	 * @param b
+	 * @param c
+	 * @param link
+	 */
+	public static void torsion(Agent a, Agent b, Agent c, Link link)
 	{
 
 		Shape shape = a.getCompartment().getShape();
@@ -90,13 +114,18 @@ public class Link implements Instantiable, Settable  {
 		Body aBody = (Body) a.get(AspectRef.agentBody);
 		Body bBody = (Body) b.get(AspectRef.agentBody);
 		Body cBody = (Body) c.get(AspectRef.agentBody);
-		Double linkerStifness = (double) b.getOr( 
-				AspectRef.torsionStifness, 100000.0);
+		Double linkerStiffness = (double) b.getOr( 
+				AspectRef.torsionStiffness, 0.0);
+		if( Log.shouldWrite(Tier.NORMAL) && linkerStiffness == 0.0 )
+			Log.out(Tier.NORMAL, "Warning: torsion stiffness equals zero.");
 		/* FIXME placeholder default function */
-		Expression springFun = (Expression) b.getOr( 
-				AspectRef.filialLinker, new Expression( 
-						"stiffness * dif * dif * 1000" ));
 
+		Expression springFun = (Expression) b.get(
+				AspectRef.torsionFunction );
+		
+		if( springFun == null )
+			Log.out(Tier.CRITICAL, "Warning: spring function not set.");
+		
 		Point[] points = null;
 		if( a != b && b != c)
 		{
@@ -120,27 +149,27 @@ public class Link implements Instantiable, Settable  {
 					cBody.getFurthesPoint(aBody.getCenter(shape), shape) };
 		}
 		
-		Spring spring = new TorsionSpring(linkerStifness, points, springFun,
+		Spring spring = new TorsionSpring(linkerStiffness, points, springFun,
 				Math.PI);
 		link.setSpring(spring);
 
 	}
 	
-	public static void linLink(Agent a, Agent b)
+	public static void linear(Agent a, Agent b)
 	{
 		Body momBody = (Body) a.get(AspectRef.agentBody);
 		Body daughterBody = (Body) b.get(AspectRef.agentBody);
 		Link link = new Link();
-		link(a, b, link);
-		link.addMember(0, a);
-		link.addMember(1, b);
+		linear(a, b, link);
+		link.putMember(0, a);
+		link.putMember(1, b);
 		momBody.addLink(link);
-		daughterBody.addLink(link); // to keep consistent with xml out make this a copy
+		/* to keep consistent with XML out make this a copy */
+		daughterBody.addLink(link); 
 	}
 	
-	public static void link(Agent a, Agent b, Link link)
+	public static void linear(Agent a, Agent b, Link link)
 	{
-
 		Shape shape = a.getCompartment().getShape();
 		if(a == null || b == null)
 			return;
@@ -159,13 +188,17 @@ public class Link implements Instantiable, Settable  {
 				}
 			}
 		}
-
-		Double linkerStifness = (double) a.getOr( 
-				AspectRef.linearStifness, 1000000.0);
-		/* FIXME placeholder default function */
-		Expression springFun = (Expression) a.getOr( 
-				AspectRef.filialLinker, new Expression( 
-						"stiffness * dh * 10.0 )" ));
+		Double linkerStiffness = (double) b.getOr( 
+				AspectRef.linearStiffness, 0.0);
+		
+		if( Log.shouldWrite(Tier.NORMAL) && linkerStiffness == 0.0 )
+			Log.out(Tier.NORMAL, "Warning: linker stiffness equals zero. ");
+		
+		Expression springFun = (Expression) b.get(
+				AspectRef.linearFunction );
+		
+		if( springFun == null )
+			Log.out(Tier.CRITICAL, "Warning: spring function not set.");
 
 		Point[] points = new Point[] { momBody.getClosePoint(
 				daughterBody.getCenter(shape), shape), 
@@ -180,7 +213,7 @@ public class Link implements Instantiable, Settable  {
 			{
 			restlength = 1;
 			}
-		Spring spring = new LinearSpring(linkerStifness, points, springFun,
+		Spring spring = new LinearSpring(linkerStiffness, points, springFun,
 				restlength);
 		
 		link.setSpring(spring);
@@ -240,12 +273,12 @@ public class Link implements Instantiable, Settable  {
 			}
 			if( this._members.size() == 2)
 			{
-				link((Agent) this._members.get(0), 
+				linear((Agent) this._members.get(0), 
 						(Agent) this._members.get(1),this);
 			}
 			else if ( this._members.size() == 3)
 			{
-				torLink((Agent) this._members.get(0), 
+				torsion((Agent) this._members.get(0), 
 						(Agent) this._members.get(1),
 						(Agent) this._members.get(2),this);
 			}

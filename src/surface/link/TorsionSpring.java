@@ -20,6 +20,8 @@ import shape.Shape;
 import surface.Point;
 
 /**
+ * \brief: torsion springs between three points, outer points a and c rotate
+ * around b
  * 
  * @author Bastiaan
  *
@@ -46,9 +48,12 @@ public class TorsionSpring implements Spring {
 		this._a = points[0];
 		this._b = points[1];
 		this._c = points[2];
+		
+		/* check for duplicate positions */
 		if( Vector.equals( this._a.getPosition(),this._b.getPosition()) || 
 				Vector.equals( this._c.getPosition(), this._b.getPosition()) )
 			Log.out("duplicate point");
+		
 		springVars.put("stiffness", stiffness);
 	}
 	
@@ -60,12 +65,18 @@ public class TorsionSpring implements Spring {
 		this._a = a;
 		this._b = b;
 		this._c = c;
+		
+		/* check for duplicate positions */
 		if( Vector.equals( this._a.getPosition(),this._b.getPosition()) || 
 				Vector.equals( this._c.getPosition(), this._b.getPosition()) )
 			Log.out("duplicate point");
+		
 		springVars.put("stiffness", stiffness);
 	}
 	
+	/**
+	 * returns true if the spring function was created previously
+	 */
 	public boolean ready()
 	{
 		if (this._springFunction == null)
@@ -81,7 +92,8 @@ public class TorsionSpring implements Spring {
 			this._b = points;
 		if( i == 2 )
 			this._c = points;
-		
+
+		/* check for duplicate positions */
 		if( !tempDuplicate && (Vector.equals( this._a.getPosition(),
 				this._b.getPosition()) || Vector.equals( this._c.getPosition(), 
 				this._b.getPosition()) ) )
@@ -103,6 +115,15 @@ public class TorsionSpring implements Spring {
 		springVars.put("stiffness", stiffness);
 	}
 	
+	/**
+	 * Apply the forces resulting from this spring to the associated points.
+	 * The forces on a and c are reverse equals applied to b such that the net
+	 * force on the entire construct equals out. 
+	 *
+	 * note: in order to find the rest position of the outer points the system
+	 * is converted to spherical coordinates with center point b as reference 
+	 * point.
+	 */
 	public void applyForces(Shape shape)
 	{
 		double[] a = shape.getNearestShadowPoint(_a.getPosition(), 
@@ -113,20 +134,7 @@ public class TorsionSpring implements Spring {
 		Vector.minusEquals(a, this._b.getPosition());
 		Vector.minusEquals(c, this._b.getPosition());
 		
-		if( Log.shouldWrite(Tier.DEBUG) )
-		{
-			if( Vector.allOfValue(a, 0.0))
-			{
-				Log.out(Tier.DEBUG, this.getClass().getSimpleName() + " zeros");
-				Idynomics.simulator.interupt = true;
-			}
-			if( Vector.allOfValue(c, 0.0))
-			{
-				Log.out(Tier.DEBUG, this.getClass().getSimpleName() + " zeros");
-				Idynomics.simulator.interupt = true;
-			}
-		}
-		
+		/* Neither a or c should have the same position as b */
 		if( Log.shouldWrite(Tier.DEBUG) )
 		{
 			if( Vector.equals( this._a.getPosition(),
@@ -136,6 +144,8 @@ public class TorsionSpring implements Spring {
 				Log.out(Tier.DEBUG, "duplicate point");
 		}
 		
+		/* currently we only support torsion springs that relax to a linear
+		 * alignment */
 		double u = Math.PI - Vector.angle(a, c);
 		if( Log.shouldWrite(Tier.DEBUG) )
 		{
@@ -146,7 +156,9 @@ public class TorsionSpring implements Spring {
 		Vector.spherifyTo(a, a);
 		Vector.spherifyTo(c, c);
 		
-		double thetaAngle = Math.abs( a[1] - c[1] );			
+		/* the angle in the x,y plane */
+		double thetaAngle = Math.abs( a[1] - c[1] );		
+		/* we only support torsion springs that relax to a linear alignment! */
 		double outTheta = (_restAngle - thetaAngle) * 0.5;
 		if( a[1] > c[1] )
 		{
@@ -159,9 +171,15 @@ public class TorsionSpring implements Spring {
 			c[1] += outTheta;
 		}
 		
+		/* the angle in the z direction */
 		double outPhi, ac, cc = 0;
 		if( a.length > 2)
 		{
+			/* We take a vector aligned with the x,y plane to be zero. such that
+			 * the sum of the two angles cancel out as long as any angle up from
+			 * the x,y plane is balanced as long as the opposing vector is 
+			 * pointing down with the same angle.
+			 */
 			ac = a[2]-0.5*_restAngle;
 			cc = c[2]-0.5*_restAngle;
 			
@@ -171,59 +189,51 @@ public class TorsionSpring implements Spring {
 			c[2] -= outPhi;
 		}
 		
+		/* now a and c represent the closest points in polar space from the
+		 * original points that make for a linear alignment between a, b and c
+		 * and we can convert them back to the Cartesian system. */
 		Vector.unspherifyEquals(a);
 		Vector.unspherifyEquals(c);
 		Vector.addEquals(a, _b.getPosition());
 		Vector.addEquals(c, _b.getPosition());
 
-
+		/* the direction a, b and c should be pushed for alignment */
 		double[] directionA = Vector.normaliseEuclid(
 				shape.getMinDifferenceVector( a, _a.getPosition() ) );
 		double[] directionC = Vector.normaliseEuclid(
 				shape.getMinDifferenceVector( c, _c.getPosition() ) );
 		double[] directionB = Vector.normaliseEuclid(
 				Vector.times( Vector.add( directionA, directionC ), -1.0 ) );
-		
-		/* If agents are approaching alignment in the z-axis (z = Pi) the 
-		 * weight of relative x/y angles drops.
-		 * 
-		 * This might need some sine/cosine?
-		 */
+
+		/* the dif term is used in the force calculation to scale depending on
+		 * the angle between the three point. eg: a weak bend should receive
+		 * less force than a sharp bend. */
 		springVars.put("dif", u );
 		
+		/* apply force to a */
 		double[] fV	= Vector.times(directionA, 
 				this._springFunction.getValue(springVars) );
-		
 		if( Log.shouldWrite(Tier.DEBUG) )
-		{
 			if ( Double.isNaN(fV[1]))
 				Log.out(Tier.DEBUG, fV[1]+" torsion" );
-		}
-
 		Vector.addEquals( this._a.getForce(), fV ) ;
 
+		/* apply force to c */
 		fV	= Vector.times(directionC, 
 				this._springFunction.getValue(springVars) );
-		
 		if( Log.shouldWrite(Tier.DEBUG) )
-		{
 			if ( Double.isNaN(fV[1]))
 				Log.out(Tier.DEBUG, fV[1]+" torsion");
-		}
-		
 		Vector.addEquals( this._c.getForce(), fV ) ;
 
-		/* b receives force from both sides */
+		/* b receives force from both sides in opposing direction */
 		fV	= Vector.times(Vector.times(directionB, 2.0), 
 				this._springFunction.getValue(springVars) );
-		
 		if( Log.shouldWrite(Tier.DEBUG) )
-		{
 			if ( Double.isNaN(fV[1]))
 				Log.out(Tier.DEBUG, fV[1]+" torsion");
-		}
-		
 		Vector.addEquals( this._b.getForce(), fV ) ;
+		
 	}
 
 	@Override

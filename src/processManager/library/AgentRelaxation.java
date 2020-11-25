@@ -389,11 +389,6 @@ public class AgentRelaxation extends ProcessManager
 			for(Agent agent : allAgents )
 				if ( agent.isAspect(STOCHASTIC_STEP) )
 					agent.event(STOCHASTIC_MOVE, dtMech);
-			
-			for ( Agent agent : allAgents )
-				for ( Point point: ( (Body) agent.get(BODY) ).getPoints() )
-					if ( Double.isNaN(point.getPosition()[0]))
-						System.out.println(point.getPosition()[0]);
 
 			/* perform the step using (method) */
 			switch ( this._method )
@@ -445,10 +440,15 @@ public class AgentRelaxation extends ProcessManager
 			
 			nstep++;
 		}
-		for ( Agent agent : allAgents )
-			for ( Point point: ( (Body) agent.get(BODY) ).getPoints() )
-				if ( Double.isNaN(point.getPosition()[0]))
-					System.out.println(point.getPosition()[0]);
+		
+		if( Log.shouldWrite( Tier.DEBUG ))
+		{
+			for ( Agent agent : allAgents )
+				for ( Point point: ( (Body) agent.get(BODY) ).getPoints() )
+					if ( Double.isNaN(point.getPosition()[0]))
+						Log.out(Tier.DEBUG, String.valueOf( point.getPosition()[0] ));
+		}
+		
 		/* Leave with a clean spatial tree. */
 		this._agents.refreshSpatialRegistry();
 		
@@ -574,9 +574,9 @@ public class AgentRelaxation extends ProcessManager
 		{
 			l.update();
 		}
-		for( Spring s : b.getSprings())
+		for( Spring s : b.getSpringsToEvaluate())
 		{
-			if( s != null)
+			if( s != null )
 			{
 				if( !s.ready())
 				{

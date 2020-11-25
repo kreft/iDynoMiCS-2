@@ -432,11 +432,22 @@ public class Body implements Copyable, Instantiable, Settable
 		return hold;
 	}
 	
-	public List<Spring> getSprings()
+	public List<Spring> getSpringsToEvaluate()
 	{
 		LinkedList<Spring> out = new LinkedList<Spring>();
 		for(Link l : _links)
-			out.add( l.getSpring() );
+		{
+			/* avoid evaluating linear springs twice. TODO possibly we could come
+			 * up with something a bit more straightforward.  */
+			if( l.getMembers().size() == 2 )
+			{
+				for( Point p : this._points )
+					if (((LinearSpring) l.getSpring()).isLeadingPoint(p))
+						out.add( l.getSpring() );
+			}
+			else
+				out.add( l.getSpring() );
+		}
 		out.add(this.spine);
 		return out;
 	}

@@ -77,7 +77,10 @@
 				<aspect name="radius" type="CALCULATED" class="CoccoidRadius" 		/>
 				<aspect name="transientRadius" class="Double" value="3.0" />
 				<aspect name="shiftMass" type="PRIMARY" class="Double" value="2.5" />
-				<aspect name="linkerStifness" class="Double" value="1e6" />
+				<aspect name="torsionStiffness" class="Double" value="1e6" />
+				<aspect name="torsionFunction" class="Expression" value="stiffness * dif * dif * 1000"/>
+				<aspect name="linearStiffness" class="Double" value="1e6" />
+				<aspect name="linearFunction" class="Expression" value="stiffness * dh * 10.0 "/>
 				<aspect name="spineStiffness" class="Double" value="1e6" />
 				<aspect name="unlinkProbabillity" class="Double" value="0.1" />
 				<aspect name="directionalDivision" class="Boolean" value="true" />

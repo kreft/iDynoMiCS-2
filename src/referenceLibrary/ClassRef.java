@@ -683,4 +683,7 @@ public class ClassRef
 	public static final String fillialRodShift = 
 			aspect.event.FillialRodShift.class.getName();
 
+	public static final String expression = 
+			expression.Expression.class.getName();
+
 }

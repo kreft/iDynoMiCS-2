@@ -105,7 +105,7 @@ public class FillialDivision extends DivisionMethod
 			}
 			
 			if( !unlink )
-				Link.linLink( (Agent) other, compliant );
+				Link.linear( (Agent) other, compliant );
 			
 			/* update torsion links */
 			for( Link l : iniBody.getLinks() )
@@ -113,7 +113,7 @@ public class FillialDivision extends DivisionMethod
 				{
 					int i;
 					i = l.getMembers().indexOf( other );
-					l.addMember( i, compliant );
+					l.putMember( i, compliant );
 					l.setPoint( i, comBody.getClosePoint(
 							iniBody.getCenter( shape ), shape ));
 				}
@@ -125,7 +125,7 @@ public class FillialDivision extends DivisionMethod
 					{
 						int i;
 						i = l.getMembers().indexOf( initiator );
-						l.addMember( i, compliant );
+						l.putMember( i, compliant );
 						l.setPoint(i, comBody.getClosePoint(
 								othBody.getCenter( shape ), shape ));
 					}
@@ -134,7 +134,7 @@ public class FillialDivision extends DivisionMethod
 				}
 			
 			if( !unlink )
-				Link.torLink((Agent) other, compliant, initiator);
+				Link.torsion((Agent) other, compliant, initiator);
 		}
 		else
 		{
@@ -158,6 +158,6 @@ public class FillialDivision extends DivisionMethod
 							Vector.times( shift, 1.2 )));
 			}
 		}
-		Link.linLink( initiator, compliant );
+		Link.linear( initiator, compliant );
 	}
 }
