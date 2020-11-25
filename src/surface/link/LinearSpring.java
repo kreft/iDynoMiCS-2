@@ -1,4 +1,4 @@
-package surface;
+package surface.link;
 
 import java.util.HashMap;
 
@@ -14,6 +14,7 @@ import settable.Module;
 import settable.Settable;
 import settable.Module.Requirements;
 import shape.Shape;
+import surface.Point;
 
 /**
  * 

@@ -28,12 +28,12 @@ import settable.Settable;
 import shape.Shape;
 import surface.Ball;
 import surface.BoundingBox;
-import surface.LinearSpring;
-import surface.Link;
 import surface.Point;
 import surface.Rod;
-import surface.Spring;
 import surface.Surface;
+import surface.link.LinearSpring;
+import surface.link.Link;
+import surface.link.Spring;
 import utility.Helper;
 
 /**

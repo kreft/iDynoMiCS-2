@@ -21,15 +21,15 @@ import physicalObject.PhysicalObject;
 import processManager.ProcessManager;
 import referenceLibrary.AspectRef;
 import shape.Shape;
-import surface.LinearSpring;
-import surface.Link;
 import surface.Point;
 import surface.Rod;
-import surface.Spring;
 import surface.Surface;
-import surface.TorsionSpring;
 import surface.collision.Collision;
 import surface.collision.Decompress;
+import surface.link.LinearSpring;
+import surface.link.Link;
+import surface.link.Spring;
+import surface.link.TorsionSpring;
 import utility.Helper;
 
 /**

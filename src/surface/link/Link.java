@@ -1,4 +1,4 @@
-package surface;
+package surface.link;
 
 import java.util.Collection;
 import java.util.LinkedList;
@@ -21,6 +21,7 @@ import settable.Module;
 import settable.Settable;
 import settable.Module.Requirements;
 import shape.Shape;
+import surface.Point;
 import utility.Helper;
 
 /**

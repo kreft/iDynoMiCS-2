@@ -8,11 +8,11 @@ import expression.Expression;
 import linearAlgebra.Vector;
 import referenceLibrary.AspectRef;
 import shape.Shape;
-import surface.LinearSpring;
-import surface.Link;
 import surface.Point;
-import surface.Spring;
-import surface.TorsionSpring;
+import surface.link.LinearSpring;
+import surface.link.Link;
+import surface.link.Spring;
+import surface.link.TorsionSpring;
 import utility.ExtraMath;
 
 /**

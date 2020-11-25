@@ -1,9 +1,10 @@
-package surface;
+package surface.link;
 
 import expression.Expression;
 import instantiable.Instantiable;
 import settable.Settable;
 import shape.Shape;
+import surface.Point;
 
 /**
  * 

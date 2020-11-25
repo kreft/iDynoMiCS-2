@@ -9,8 +9,8 @@ import aspect.methods.DivisionMethod;
 import linearAlgebra.Vector;
 import referenceLibrary.AspectRef;
 import shape.Shape;
-import surface.Link;
 import surface.Point;
+import surface.link.Link;
 import utility.ExtraMath;
 import utility.Helper;
 
