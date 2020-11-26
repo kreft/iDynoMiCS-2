@@ -113,7 +113,10 @@ public class Agent implements AspectInterface, Settable, Instantiable
 		{
 			String in =  XmlHandler.gatherAttribute(xmlNode, 
 					XmlRef.identity);
-			this.number(Integer.valueOf(in));
+			if( in == null)
+				this.number(null);
+			else
+				this.number(Integer.valueOf(in));
 			// Place located agents
 			loadAspects(xmlNode);
 		}

@@ -26,7 +26,6 @@ import idynomics.Global;
 import idynomics.Idynomics;
 import instantiable.Instance;
 import instantiable.Instantiable;
-import instantiable.object.InstantiableList;
 import linearAlgebra.Orientation;
 import linearAlgebra.Vector;
 import physicalObject.PhysicalObject;
