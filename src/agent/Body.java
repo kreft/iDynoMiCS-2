@@ -353,7 +353,6 @@ public class Body implements Copyable, Instantiable, Settable
 			
 			constructBody();
 		}
-		
 	}
 
 	/*************************************************************************
