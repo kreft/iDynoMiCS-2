@@ -37,7 +37,6 @@
 					</list>
 				</aspect>
 			</species>
-						
 		</speciesLib>
 
 		<compartment name="biofilm" priority="1" tree="SPLITTREE">

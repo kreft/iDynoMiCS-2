@@ -528,10 +528,6 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable, C
 		this.agents.agentsArrive();
 		
 		this.agents.sortLocatedAgents();
-		/*
-		 * Ask all boundaries to update their solute concentrations.
-		 */
-		this.environment.updateSoluteBoundaries();
 	}
 	
 	/**
@@ -640,7 +636,8 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable, C
 		for ( ProcessManager pm : this._processes )
 		{
 			if (out.containsKey(pm.getName()))
-				out.put(pm.getName(), out.get(pm.getName()) + pm.getRealTimeTaken());
+				out.put(pm.getName(), out.get(pm.getName()) + 
+						pm.getRealTimeTaken());
 			else
 				out.put(pm.getName(), pm.getRealTimeTaken());
 		}
@@ -823,4 +820,3 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable, C
 			return this.name.compareTo(o.name);
 	}
 }
->>>>>>> Process
