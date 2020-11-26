@@ -11,15 +11,18 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.List;
 
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
 import dataIO.FileHandler;
+import dataIO.FolderOperations;
 import dataIO.Log;
 import idynomics.Global;
 import idynomics.Idynomics;
+import idynomics.PostProcess;
 import idynomics.Simulator;
 import render.AgentMediator;
 import render.Render;
@@ -56,6 +59,125 @@ public final class GuiActions
 			f = chooser.getSelectedFile();
 		
     	openFile(f);		
+	}
+		
+	public static File saveFile() 
+	{
+		boolean confirm = true;
+		
+		JFileChooser chooser = new JFileChooser("" +
+				System.getProperty("user.dir"));
+		File file = new File(System.getProperty("user.dir")+ "/filename");
+		chooser.setFileSelectionMode(JFileChooser.SAVE_DIALOG);
+		chooser.setCurrentDirectory(file);
+		// TODO Allow the user to select multiple files.
+		chooser.setMultiSelectionEnabled(false);
+		File f = null;	
+		if ( chooser.showSaveDialog(null) == JFileChooser.APPROVE_OPTION )
+			f = chooser.getSelectedFile();
+	    if( f.exists() ) 
+	    	confirm = Helper.confirmation("Would you like to overwrite: " + 
+	    			f.getName());
+	    if( confirm )
+	    	return f;
+	    else
+	    	return null;
+	}
+	
+	public static File chooseFile(String relPath, String description) 
+	{
+		/* Open a FileChooser window in the current directory. */
+		JFileChooser chooser = new JFileChooser("" +
+				System.getProperty("user.dir")+"/"+relPath);
+		chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+		// TODO Allow the user to select multiple files.
+		chooser.setMultiSelectionEnabled(false);
+		chooser.setToolTipText(description);
+		chooser.setDialogTitle(description);
+		File f = null;
+		if ( chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION )
+			f = chooser.getSelectedFile();
+		return f;	
+	}
+	
+	public static File chooseFolder(String description) 
+	{
+		/* Open a FileChooser window in the current directory. */
+		JFileChooser chooser = new JFileChooser("" +
+				System.getProperty("user.dir"));
+		chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+		// TODO Allow the user to select multiple files.
+		chooser.setMultiSelectionEnabled(false);
+		chooser.setToolTipText(description);
+		chooser.setDialogTitle(description);
+		File f = null;
+		if ( chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION )
+			f = chooser.getSelectedFile();
+    	return f;
+	}
+	
+	public static File[] chooseMulitple(String description) 
+	{
+		/* Open a FileChooser window in the current directory. */
+		JFileChooser chooser = new JFileChooser("" +
+				System.getProperty("user.dir"));
+		chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+		// TODO Allow the user to select multiple files.
+		chooser.setMultiSelectionEnabled(true);
+		chooser.setToolTipText(description);
+		chooser.setDialogTitle(description);
+		File[] f = null;
+		if ( chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION )
+			f = chooser.getSelectedFiles();
+		return f;
+	}
+	
+	public static File[] chooseFilesAndFolders(String description) 
+	{
+		/* Open a FileChooser window in the current directory. */
+		JFileChooser chooser = new JFileChooser("" +
+				System.getProperty("user.dir"));
+		chooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
+		// TODO Allow the user to select multiple files.
+		chooser.setMultiSelectionEnabled(true);
+		chooser.setToolTipText(description);
+		chooser.setDialogTitle(description);
+		File[] f = null;
+		if ( chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION )
+			f = chooser.getSelectedFiles();
+		return f;
+	}
+	
+	public static void postProcess()
+	{
+		File script = chooseFile( "postprocessing", 
+				"Select post-processing script" );
+		File[] files = chooseFilesAndFolders(
+				"Select simulation state files (.exi or .xml)" );
+		List<File> finalFiles = null;
+		if( FolderOperations.includesfolders(files))
+		{
+			if( Helper.obtainInput(
+					"Would you like to include sub-folders?", false) )
+				/* note do look into the first line of folders */
+				finalFiles = FolderOperations.getFiles(true, files);
+			else
+				finalFiles = FolderOperations.getFiles(files);
+		}
+		else
+		{
+			finalFiles = FolderOperations.getFiles(true, files);
+		}
+		if( Helper.obtainInput( "Would you like to continue processing " +
+				finalFiles.size() + " files?", false) )
+		{
+			Idynomics.postProcess = new PostProcess(script, finalFiles);
+			Idynomics.runPostProcess();
+		}
+		else
+		{
+			Log.out("post-processing cancelled by user");
+		}
 	}
 	
 	public static void openFile(File f) 
@@ -126,6 +248,65 @@ public final class GuiActions
 		openFile(in);
 	}
 	
+		public static void saveToFile(File f) 
+	{
+    	if ( f == null )
+    	{
+    		GuiConsole.writeOut("Saving canceled.\n");
+    	}
+    	else
+    	{
+    		Idynomics.simulator.saveSimulationState(f.getAbsolutePath(), 
+    				Helper.confirmation("Would you like to compress to exi format?"));
+    	}    		
+	}
+	
+	public static void convertFiles() 
+	{
+		File[] files = chooseFilesAndFolders(
+				"Select simulation state files (.exi or .xml)" );
+		List<File> finalFiles = null;
+		if( FolderOperations.includesfolders(files))
+		{
+			if( Helper.obtainInput(
+					"Would you like to include sub-folders?", false) )
+				/* note do look into the first line of folders */
+				finalFiles = FolderOperations.getFiles(true, files);
+			else
+				finalFiles = FolderOperations.getFiles(files);
+		}
+		else
+		{
+			finalFiles = FolderOperations.getFiles(true, files);
+		}
+		if( Helper.obtainInput( "Would you like to continue processing " +
+				finalFiles.size() + " files?", false) )
+		{
+			for( File f : finalFiles )
+			{
+				boolean exi = false;
+				String out = null;
+				String path = f.getAbsolutePath();
+				if( path.toLowerCase().contains(".xml"))
+				{
+					exi = true;
+					out = path.toLowerCase().replaceAll(".xml", "");
+				} else if( path.toLowerCase().contains(".exi"))
+				{
+					exi = false;
+					out = path.toLowerCase().replaceAll(".exi", "");
+				}
+				Idynomics.setupSimulator( f.getAbsolutePath() );
+				Idynomics.simulator.saveSimulationState(out, exi);
+				Idynomics.simulator = new Simulator();
+			}
+		}
+		else
+		{
+			Log.out("post-processing cancelled by user");
+		} 		
+	}
+	
 	public static void checkProtocol()
 	{
 		if ( Idynomics.global.protocolFile == null )
@@ -136,7 +317,7 @@ public final class GuiActions
 		{
 			Idynomics.setupSimulator(Idynomics.global.protocolFile);
 			if ( Idynomics.simulator.isReadyForLaunch() )
-				GuiConsole.writeOut("Protocol is ready to launch...\n");
+				GuiConsole.writeOut("Protocol loaded successfully.\n");
 			else
 				GuiConsole.writeErr("Problem in protocol file!\n");
 		}

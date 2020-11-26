@@ -11,6 +11,7 @@ import java.util.TreeMap;
 import org.w3c.dom.Element;
 
 import agent.Agent;
+
 import bookkeeper.Bookkeeper;
 import bookkeeper.KeeperEntry.EventType;
 import boundary.Boundary;
@@ -25,6 +26,7 @@ import idynomics.Global;
 import idynomics.Idynomics;
 import instantiable.Instance;
 import instantiable.Instantiable;
+import instantiable.object.InstantiableList;
 import linearAlgebra.Orientation;
 import linearAlgebra.Vector;
 import physicalObject.PhysicalObject;
@@ -526,6 +528,10 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable, C
 		this.agents.agentsArrive();
 		
 		this.agents.sortLocatedAgents();
+		/*
+		 * Ask all boundaries to update their solute concentrations.
+		 */
+		this.environment.updateSoluteBoundaries();
 	}
 	
 	/**
@@ -586,6 +592,13 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable, C
 		
 		if( Global.csv_bookkeeping)
 			this.writeEventLog();
+	}
+	
+	public void process(String process)
+	{
+		for ( ProcessManager p : this._processes )
+			if( p.getName().equals(process) )
+				p.step();
 	}
 	
 	/* ***********************************************************************
@@ -810,3 +823,4 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable, C
 			return this.name.compareTo(o.name);
 	}
 }
+>>>>>>> Process

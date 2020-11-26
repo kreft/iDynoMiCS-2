@@ -84,7 +84,10 @@ public class PovExport implements GraphicalExporter
 		
 	}
 	
-	
+	public void setFileNumber(Integer number)
+	{
+		this._filewriterfilenr = number;
+	}
 	
 	/**
 	 * 
@@ -183,7 +186,7 @@ public class PovExport implements GraphicalExporter
 		}
 		else
 		{
-			double[] pigmentArray = (double[]) pigment;
+			float[] pigmentArray = (float[]) pigment;
 			String rgbStatement = "color rgb < " + pigmentArray[0] + ", " + 
 				pigmentArray[1] + ", " + pigmentArray[2] + " >";
 			return rgbStatement;

@@ -15,7 +15,6 @@ import surface.Surface;
  */
 public interface GraphicalExporter extends Instantiable {
 	
-
 	
 	/*************************************************************************
 	 * File handling
@@ -43,11 +42,29 @@ public interface GraphicalExporter extends Instantiable {
 	 */
 	public default void draw(Surface surface, Object pigment)
 	{
-		String pigmentString = this.resolveColour(pigment);
+		String pigmentString = this.resolveColour( this.pigment( pigment) );
 		if (surface instanceof Ball)
 			this.draw((Ball) surface, pigmentString);
 		if (surface instanceof Rod)
 			this.draw((Rod) surface, pigmentString);
+	}
+	
+	public default Object pigment(Object pigment)
+	{
+		float[] pigmentArray = new float[3];
+		if (pigment instanceof String)
+		{
+			return (String) pigment;
+		}
+		else if (pigment instanceof double[])
+		{
+			pigmentArray = Vector.toFloat((double[]) pigment);
+		}
+		else if (pigment instanceof float[])
+		{
+			pigmentArray = (float[]) pigment;
+		}
+		return pigmentArray;
 	}
 	
 	/**
@@ -177,5 +194,7 @@ public interface GraphicalExporter extends Instantiable {
 	}
 
 	public void createCustomFile(String fileName);
+
+	public void setFileNumber(Integer number);
 	
 }

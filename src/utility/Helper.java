@@ -736,6 +736,14 @@ public final class Helper
 		return false;
 	}
 	
+	public static boolean intParseable(String strParse)
+	{
+		if (strParse.matches("\\d+")){
+		    return true;
+		}
+		return false;
+	}
+	
 	public static boolean boolParseable(String strParse)
 	{
 		for( String s : Helper.rejections)

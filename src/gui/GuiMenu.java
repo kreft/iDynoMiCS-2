@@ -80,6 +80,19 @@ public final class GuiMenu
 				"Download protocol file");
 		menu.add(menuItem);
 		
+		
+		menuItem = new JMenuItem(new GuiMenu.FileSave());
+		menuItem.setAccelerator(KeyStroke.getKeyStroke(
+				KeyEvent.VK_S, ActionEvent.CTRL_MASK));
+		menuItem.getAccessibleContext().setAccessibleDescription(
+				"Save protocol file");
+		menu.add(menuItem);
+		
+		menuItem = new JMenuItem(new GuiMenu.ConvertFiles());
+		menuItem.getAccessibleContext().setAccessibleDescription(
+				"Batch convert files");
+		menu.add(menuItem);
+		
 		/*
 		 * Add the option of rendering a compartment.
 		 */
@@ -113,6 +126,11 @@ public final class GuiMenu
 		menuItem = new JMenuItem(new GuiMenu.Sampling());
 		menuItem.getAccessibleContext().setAccessibleDescription(
 				"Sample master protocol file");
+		menu.add(menuItem);
+		
+		menuItem = new JMenuItem(new GuiMenu.PostProcess());
+		menuItem.getAccessibleContext().setAccessibleDescription(
+				"Perform post processing");
 		menu.add(menuItem);
 		
 		/*
@@ -222,6 +240,7 @@ public final class GuiMenu
 		}
 	}
 	
+	
 	public static class FileOpen extends AbstractAction
 	{
 		private static final long serialVersionUID = 2247122248926681550L;
@@ -254,9 +273,49 @@ public final class GuiMenu
 		
 	    public void actionPerformed(ActionEvent e)
 	    {
+	    	GuiActions.chooseFile();
 	    	GuiActions.downloadFile(null);
 	    }
 	}
+	
+	public static class FileSave extends AbstractAction
+	{
+
+		private static final long serialVersionUID = 1L;
+
+		/**
+		 * Action for the file open sub-menu.
+		 */
+		public FileSave()
+		{
+	        super("Save");
+		}
+		
+	    public void actionPerformed(ActionEvent e)
+	    {
+	    	GuiActions.saveToFile( GuiActions.saveFile() );
+	    }
+	}
+	
+	public static class ConvertFiles extends AbstractAction
+	{
+
+		private static final long serialVersionUID = 1L;
+
+		/**
+		 * Action for the file open sub-menu.
+		 */
+		public ConvertFiles()
+		{
+	        super("Convert Files");
+		}
+		
+	    public void actionPerformed(ActionEvent e)
+	    {
+	    	GuiActions.convertFiles();
+	    }
+	}
+	
 	
 	public static class RenderThis extends AbstractAction
 	{
@@ -275,6 +334,24 @@ public final class GuiMenu
 	    public void actionPerformed(ActionEvent e)
 	    {
 	    	GuiActions.render();
+	    }
+	}
+	
+	public static class PostProcess extends AbstractAction
+	{
+		private static final long serialVersionUID = 2247122248926681550L;
+		
+		/**
+		 * Action for the file open sub-menu.
+		 */
+		public PostProcess()
+		{
+	        super("Post-process");
+		}
+		
+	    public void actionPerformed(ActionEvent e)
+	    {
+	    	GuiActions.postProcess();
 	    }
 	}
 	

@@ -288,6 +288,18 @@ public final class Vector
 		return vector;
 	}
 	
+	public static float[] fltFromString(String vectorString)
+	{
+		vectorString = Helper.removeWhitespace(vectorString);
+		String[] fields = vectorString.split(DELIMITER);
+		float[] vector = new float[fields.length];
+		for ( int i = 0; i < fields.length; i++ )	
+		{
+			vector[i] = (float) Double.parseDouble(fields[i]);
+		}
+		return vector;
+	}
+	
 	/**
 	 * \brief Returns integer vector in string format.
 	 * 

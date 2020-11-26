@@ -392,6 +392,11 @@ public class AspectRef
 	public final static String graphicalOutputWriter = "outputWriter";
 	
 	/**
+	 * Colour palette for graphical output
+	 */
+	public final static String colourPalette = "colourPalette";
+	
+	/**
 	 * Agent can't move
 	 */
 	public final static String staticAgent = "staticAgent";
@@ -613,5 +618,6 @@ public class AspectRef
 	public static final String transientRadius = "transientRadius";
 
 	public static final String linearFunction = "linearFunction";
-	
+
+	public static final String fileNumber = "fileNumber";
 }

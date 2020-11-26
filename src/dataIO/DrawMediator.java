@@ -193,6 +193,12 @@ public class DrawMediator {
 									dimension, _pointsOnCurve, pigment);
 			}
 		}
+		
+		/*
+		 * colour magic
+		 */
+		
+		
 		/* Draw all located agents. */
 		for ( Agent a: _agents.getAllLocatedAgents() )
 			if ( a.isAspect(BODY) )

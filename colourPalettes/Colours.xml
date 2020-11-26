@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+	<colour baseColour="0.0, 1.0, 1.0" 
+			gradient = "true" form = "HSB" opacity = "1.0">
+		<shift brightness = "-0.5" saturation = "-0.5"/>
+	</colour>
+	<colour baseColour="0.7, 1.0, 1.0" 
+			gradient = "true" form = "HSB" opacity = "1.0">
+		<shift brightness = "-0.5" saturation = "-0.5"/>
+	</colour>
+	<colour baseColour="0.3, 1.0, 1.0" 
+			gradient = "true" form = "HSB" opacity = "1.0">
+		<shift brightness = "-0.5" saturation = "-0.5"/>
+	</colour>
+	<colour baseColour="1.0, 1.0, 1.0" 
+			gradient = "true" form = "HSB" opacity = "1.0">
+		<shift brightness = "-0.5" saturation = "-0.5"/>
+	</colour>
+	<colour baseColour="0.5, 1.0, 1.0" 
+			gradient = "true" form = "HSB" opacity = "1.0">
+		<shift brightness = "-0.5" saturation = "-0.5"/>
+	</colour>
+	<colour baseColour = "0.8, 0.1, 0.6" 
+			gradient = "false" form = "HSB" opacity = "1.0" />
+</document>
