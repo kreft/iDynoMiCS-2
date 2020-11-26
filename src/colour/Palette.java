@@ -7,6 +7,7 @@ import java.util.LinkedList;
 import org.w3c.dom.Element;
 
 import dataIO.Log;
+import dataIO.Log.Tier;
 import dataIO.XmlHandler;
 import linearAlgebra.Vector;
 
@@ -84,13 +85,21 @@ public class Palette {
 						c.getAttribute( Property.OPACITY.tag ) ) );
 			}
 		}
-		Log.out( "Loaded " + this.unAssigned.size() + " colours from palette.");
+		Log.out(Tier.EXPRESSIVE, "Loaded " + this.unAssigned.size() + 
+				" colours from palette.");
+	}
+	
+	public void reset()
+	{
+		this.unAssigned.clear();
+		for( String n : colours.keySet() )
+			this.unAssigned.add(n);
 	}
 	
 	public Colour getNext()
 	{
 		String out = unAssigned.getFirst();
-		unAssigned.remove(out);
+		unAssigned.remove( out );
 		return colours.get( out );
 	}
 }

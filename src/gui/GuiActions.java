@@ -20,6 +20,7 @@ import javax.swing.JOptionPane;
 import dataIO.FileHandler;
 import dataIO.FolderOperations;
 import dataIO.Log;
+import dataIO.Log.Tier;
 import idynomics.Global;
 import idynomics.Idynomics;
 import idynomics.PostProcess;
@@ -225,7 +226,7 @@ public final class GuiActions
 		try {
 			urly = new URL(url); 
 		} catch ( MalformedURLException e) {
-			e.printStackTrace();
+			Log.out(Tier.NORMAL, "unable to aquire protocol from url: " + url);
 		}
 		
 		
@@ -241,11 +242,11 @@ public final class GuiActions
 			webIS.close();
 			handler.fclose();
 			Log.out("finished Download");
-		} catch (IOException e) {
-			e.printStackTrace();
+			File in = new File(local);
+			openFile(in);
+		} catch (IOException | NullPointerException e) {
+			Log.out(Tier.NORMAL, "File download failed");
 		}
-		File in = new File(local);
-		openFile(in);
 	}
 	
 		public static void saveToFile(File f) 

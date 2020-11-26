@@ -14,10 +14,13 @@ import com.jogamp.opengl.math.Quaternion;
 import com.jogamp.opengl.util.gl2.GLUT;
 
 import agent.Agent;
+import colour.ColourSpecification;
+import colour.Palette;
 import compartment.AgentContainer;
 import compartment.Compartment;
 import grid.ArrayType;
 import grid.SpatialGrid;
+import idynomics.Global;
 import linearAlgebra.Vector;
 import referenceLibrary.AspectRef;
 import shape.CartesianShape;
@@ -137,12 +140,39 @@ public class AgentMediator implements CommandMediator {
 
 	private int j;
 
+	private Palette palette;
+
+	private ColourSpecification colSpec;
+
 	/**
 	 * used to set up the open gl camera
 	 */
 	@Override
 	public float kickback() {
 		return _kickback;
+	}
+	
+	public String currentColourSpecification()
+	{
+		return this.colSpec.toString();
+	}
+	
+	public void setColourSpecification(String filter)
+	{
+		this.colSpec = new ColourSpecification(palette, filter);
+	}
+	
+
+	public void setPalette(String palette) 
+	{
+		this.palette = new Palette( palette );
+		this.colSpec = new ColourSpecification( this.palette, 
+				currentColourSpecification() );
+	}
+
+	public void resetPalette() 
+	{
+		palette.reset();
 	}
 	
 	public double[] orientation() 
@@ -177,6 +207,13 @@ public class AgentMediator implements CommandMediator {
 			soluteColors.put("Green", (String)solutes.toArray()[1]);
 		if( solutes.size() > 2 )
 			soluteColors.put("Blue", (String)solutes.toArray()[2]);
+		
+		this.palette = new Palette( String.valueOf( Global.default_palette ));
+		
+		/* In the future we may want to change the default to "species" */
+		 this.colSpec = new ColourSpecification( palette, 
+				 Global.default_colour_specification );
+		
 		
 		this._compartment = c;
 		
@@ -240,44 +277,45 @@ public class AgentMediator implements CommandMediator {
 					AspectRef.surfaceList) ? a.get(AspectRef.surfaceList) :
 					new LinkedList<Surface>()))
 			{
-				_pigment = a.getValue("pigment");
-				_pigment = Helper.setIfNone(_pigment, "WHITE");
-				if (!(_pigment instanceof String))
-				{
-					double[] _pigmentDouble = (double[]) _pigment;
-					for (int i = 0; i < _pigmentDouble.length; i++)
-					{
-						_rgba[i] = (float) _pigmentDouble[i];
-					}
-				}
-				else
-				{
-					switch ((String) _pigment)
-					{
-					case "GREEN" :
-						_rgba = new float[] {0.0f, 1.0f, 0.0f};
-						break;
-					case "RED" :
-						_rgba = new float[] {1.0f, 0.0f, 0.0f};
-						break;
-					case "BLUE" :
-						_rgba = new float[] {0.01f, 0.0f, 1.0f};
-						break;
-					case "PURPLE" :
-						_rgba = new float[] {1.0f, 0.0f, 1.0f};
-						break;
-					case "ORANGE" :
-						_rgba = new float[] {1.0f, 0.6f, 0.1f};
-						break;
-					case "BLACK" :
-						_rgba = new float[] {0.0f, 0.0f, 0.0f};
-						break;
-					case "WHITE" :
-					default :
-						_rgba = new float[] {1.0f, 1.0f, 1.0f};
-						break;
-					}
-				}
+				_rgba = colSpec.colorize(a);
+//				_pigment = a.getValue("pigment");
+//				_pigment = Helper.setIfNone(_pigment, "WHITE");
+//				if (!(_pigment instanceof String))
+//				{
+//					double[] _pigmentDouble = (double[]) _pigment;
+//					for (int i = 0; i < _pigmentDouble.length; i++)
+//					{
+//						_rgba[i] = (float) _pigmentDouble[i];
+//					}
+//				}
+//				else
+//				{
+//					switch ((String) _pigment)
+//					{
+//					case "GREEN" :
+//						_rgba = new float[] {0.0f, 1.0f, 0.0f};
+//						break;
+//					case "RED" :
+//						_rgba = new float[] {1.0f, 0.0f, 0.0f};
+//						break;
+//					case "BLUE" :
+//						_rgba = new float[] {0.01f, 0.0f, 1.0f};
+//						break;
+//					case "PURPLE" :
+//						_rgba = new float[] {1.0f, 0.0f, 1.0f};
+//						break;
+//					case "ORANGE" :
+//						_rgba = new float[] {1.0f, 0.6f, 0.1f};
+//						break;
+//					case "BLACK" :
+//						_rgba = new float[] {0.0f, 0.0f, 0.0f};
+//						break;
+//					case "WHITE" :
+//					default :
+//						_rgba = new float[] {1.0f, 1.0f, 1.0f};
+//						break;
+//					}
+//				}
 				
 				/*
 				 * Render the appropriate surface
@@ -661,4 +699,5 @@ public class AgentMediator implements CommandMediator {
 			_soluteTranparancy += 0.05f;
 		
 	}
+
 }

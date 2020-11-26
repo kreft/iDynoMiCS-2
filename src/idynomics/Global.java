@@ -167,6 +167,12 @@ public class Global extends ParameterSet
 	public static boolean csv_bookkeeping = false;
 	
 	/**
+	 * the default color specification for graphical output, NOTE in the future
+	 * we probably want to set this to "species"
+	 */
+	public static String default_colour_specification = "pigment";
+	
+	/**
 	 * enable xml bookkeeping (also logging complete agent xml)
 	 * Warning: very slow
 	 */

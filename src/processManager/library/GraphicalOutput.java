@@ -145,8 +145,11 @@ public class GraphicalOutput extends ProcessManager
 		
 		this.palette = new Palette( String.valueOf( 
 				this.getOr( AspectRef.colourPalette, Global.default_palette) ) );
-		/* placeholder spec */
-		 colSpec = new ColourSpecification(palette, "species");
+		
+		/* In the future we may want to change the default to "species" */
+		 colSpec = new ColourSpecification(palette, (String)
+				 this.getOr( AspectRef.colourSpecification, 
+						 Global.default_colour_specification));
 
 	}
 	

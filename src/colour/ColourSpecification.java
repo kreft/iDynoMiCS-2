@@ -31,4 +31,9 @@ public class ColourSpecification {
 			this.factors.put( factor, palette.getNext() );
 		return this.factors.get( factor ).returnColourRGB( new float[3] );
 	}
+	
+	public String toString()
+	{
+		return this.filter;
+	}
 }

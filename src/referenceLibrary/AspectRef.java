@@ -620,4 +620,6 @@ public class AspectRef
 	public static final String linearFunction = "linearFunction";
 
 	public static final String fileNumber = "fileNumber";
+
+	public static final String colourSpecification = "colourSpecification";
 }

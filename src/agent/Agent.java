@@ -89,7 +89,8 @@ public class Agent implements AspectInterface, Settable, Instantiable
 			// Spawn random agents
 			for(int i = 0; i < temp.getLength(); i++)
 			{
-				/* TODO this is a cheat, make a standard method for this */
+				/* NOTE this remains here for older protocols, for newer ones we
+				 * should use the spawner classes. */
 				int n = Integer.valueOf(XmlHandler.obtainAttribute(
 						temp.item(i), XmlRef.numberOfAgents, 
 						this.defaultXmlTag() ) );
@@ -125,7 +126,6 @@ public class Agent implements AspectInterface, Settable, Instantiable
 	
 	private void number(Integer in)
 	{
-
 		if(in != null)
 		{
 			if ( UNIQUE_ID <= in )

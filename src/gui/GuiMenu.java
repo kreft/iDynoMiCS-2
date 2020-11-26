@@ -273,7 +273,6 @@ public final class GuiMenu
 		
 	    public void actionPerformed(ActionEvent e)
 	    {
-	    	GuiActions.chooseFile();
 	    	GuiActions.downloadFile(null);
 	    }
 	}

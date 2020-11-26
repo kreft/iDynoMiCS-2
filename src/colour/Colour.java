@@ -127,9 +127,9 @@ public class Colour {
 		float[] hsb = returnColourHSB(dial);
 		jColor = new Color(Color.HSBtoRGB( hsb[0], hsb[1], hsb[2] ));
 		return new float[] { 
-				jColor.getRed() / 255, 
-				jColor.getGreen() / 255, 
-				jColor.getBlue() / 255 };
+				jColor.getRed() / 255.0f, 
+				jColor.getGreen() / 255.0f, 
+				jColor.getBlue() / 255.0f };
 	}
 
 	public void setOpacity(Float opacity) 
