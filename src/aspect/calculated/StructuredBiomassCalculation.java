@@ -1,7 +1,9 @@
 package aspect.calculated;
 
+import java.util.HashMap;
 import java.util.Map;
 
+import aspect.Aspect;
 import aspect.AspectInterface;
 import aspect.Calculated;
 import expression.Expression;
@@ -17,7 +19,7 @@ import referenceLibrary.AspectRef;
  */
 public class StructuredBiomassCalculation extends Calculated {
 	
-	public String MASS_MAP = AspectRef.agentMassMap;
+	public String MASS = AspectRef.agentMass;
 	public Expression _expression;
 	
 	@Override
@@ -29,9 +31,23 @@ public class StructuredBiomassCalculation extends Calculated {
 	@Override
 	public Object get(AspectInterface aspectOwner)
 	{
-		Map<String,Double> massMap = (Map<String,Double>) 
-				aspectOwner.getValue(MASS_MAP);
+		Object mass = aspectOwner.getValue(MASS);
+		if ( mass != null && mass instanceof Map )
+		{
+		@SuppressWarnings("unchecked")
+		Map<String,Double> massMap = (Map<String,Double>) mass;
 		return this._expression.getValue(massMap);
+		}
+		else if ( mass != null && mass instanceof Double )
+		{
+			Map<String,Double> massMap = new HashMap<String,Double>();
+			massMap.put(MASS, (Double) mass);
+			return this._expression.getValue(massMap);
+		}
+		else
+		{
+			return null;
+		}
 	}
 	
 	

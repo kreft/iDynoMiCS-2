@@ -13,11 +13,13 @@ import java.util.Map;
 import agent.Agent;
 import agent.Body;
 import agent.predicate.IsLocated;
+import bookkeeper.KeeperEntry.EventType;
 import boundary.Boundary;
 import boundary.SpatialBoundary;
 import dataIO.Log;
 import dataIO.Log.Tier;
 import gereralPredicates.IsSame;
+import idynomics.Global;
 import instantiable.object.InstantiableList;
 import linearAlgebra.Vector;
 import physicalObject.PhysicalObject;
@@ -86,6 +88,8 @@ public class AgentContainer implements Settable
 	 */
 	private Settable _parentNode;
 	
+	public Compartment _compartment;
+	
 	/* NOTE removed predicates, use agent.predicate.HasAspect instad.
 
 	/**
@@ -103,9 +107,10 @@ public class AgentContainer implements Settable
 	 * 
 	 * @param aShape {@code Shape} object (see shape.ShapeLibrary).
 	 */
-	public AgentContainer(Shape aShape)
+	public AgentContainer(Compartment comp)
 	{
-		this._shape = aShape;
+		this._shape = comp.getShape();
+		this._compartment = comp;
 		this.makeAgentTree();
 	}
 
@@ -588,6 +593,8 @@ public class AgentContainer implements Settable
 	}
 
 	/**
+	 * FIXME when this comes in use, this method needs to be update to register-
+	 * remove agents
 	 * @return A randomly chosen {@code Agent}, who is removed from this
 	 * container.
 	 * @see #chooseRandomAgent()
@@ -623,8 +630,12 @@ public class AgentContainer implements Settable
 	 */
 	// TODO unify method for removing a located agent? See extractRandomAgent
 	// above
-	public void registerRemoveAgent(Agent anAgent)
+	public void registerRemoveAgent(Agent anAgent, EventType eventType, 
+			String event, String value)
 	{
+		if( Global.bookkeeping )
+			this._compartment.registerBook(	eventType, event, 
+					String.valueOf( anAgent.identity() ), value, anAgent);
 		if ( IsLocated.isLocated(anAgent) )
 		{
 			this._locatedAgentList.remove(anAgent);

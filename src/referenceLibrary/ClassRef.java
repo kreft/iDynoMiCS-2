@@ -171,12 +171,6 @@ public class ClassRef
 	/**
 	 * 
 	 */
-	public final static String wetWeight = 
-			aspect.calculated.WetWeight.class.getName();
-	
-	/**
-	 * 
-	 */
 	public final static String densityScaled = 
 			aspect.calculated.DensityScaled.class.getName();
 	
@@ -410,6 +404,12 @@ public class ClassRef
 	 */
 	public final static String agentScraper =
 			processManager.library.AgentScraper.class.getName();
+	/**
+	 * writes tables in csv
+	 */
+	public final static String tableWriter =
+			processManager.library.TableWriter.class.getName();
+	
 	/* ************************************************************************
 	 * IdynoMiCS main classes
 	 */

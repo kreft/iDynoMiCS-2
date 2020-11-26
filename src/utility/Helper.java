@@ -15,6 +15,7 @@ import java.util.regex.Pattern;
 import compartment.Compartment;
 import dataIO.Log;
 import dataIO.Log.Tier;
+import expression.Expression;
 import gui.GuiConsole;
 import idynomics.Idynomics;
 import linearAlgebra.Vector;
@@ -754,5 +755,21 @@ public final class Helper
 			if (s.equals(strParse))
 				return true;
 		return false;
+	}
+	
+	public static boolean expressionParseable(String strParse)
+	{
+		if(strParse == null)
+			return false;
+		try
+		{
+			new Expression( strParse );
+		}
+		catch (NumberFormatException | StringIndexOutOfBoundsException
+				| NullPointerException f)
+		{
+			return false;
+		}
+		return true;
 	}
 }

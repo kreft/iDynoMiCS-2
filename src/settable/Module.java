@@ -1,5 +1,6 @@
 package settable;
 
+import java.io.StringWriter;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -372,28 +373,66 @@ public class Module
 	 * @param tabs Number of tabs to offset by.
 	 * @return String description of this ModelNode in XML format.
 	 */
-	public String getXML(int tabs)
+	public StringWriter getXML(int tabs, StringWriter writer)
 	{
 		String out = "";
-		out += appendTabs(tabs) + "<" + this._tag;
-
+		appendTabs(tabs, writer);
+		writer.append('<').append(this._tag);
 		/* 
 		 * Attributes
 		 */
 		for ( Attribute a : this._attributes )
-			out += a.getXML();
+			a.getXML(writer);
 		/*
 		 * Child nodes
 		 */
 		if ( this._childModules.isEmpty() )
-			out += " />\n ";
+			writer.append(" />\n ");
 		else
 		{
-			out += " >\n";
+			writer.append(" >\n");
 			for ( Module n : this._childModules )
-				out += n.getXML(tabs+1);
-			out += appendTabs(tabs) + "</" + this._tag + ">\n";
+				n.getXML(tabs+1, writer);
+			appendTabs(tabs, writer);
+			writer.append("</").append(this._tag).append(">\n");
 		}
+		return writer;
+	}
+	
+	public String getHeader()
+	{
+		String out = "";
+
+		/* 
+		 * Attributes
+		 */
+		int i = 0;
+		for ( Attribute a : this._attributes )
+		{
+			out += a.getTag();
+			i++;
+			if (i < this._attributes.size())
+				out += ";";
+		}
+
+		return out;
+	}
+	
+	public String getCSV()
+	{
+		String out = "";
+		/* 
+		 * Attributes
+		 */
+		int i = 0;
+		for ( Attribute a : this._attributes )
+		{
+			out += a.getValue();
+			i++;
+			if (i < this._attributes.size())
+				out += ";";
+		}
+
 		return out;
 	}
 
@@ -405,7 +444,9 @@ public class Module
 	 */
 	public String getXML()
 	{
-		return this.getXML(0);
+		StringWriter outputWriter = new StringWriter();
+		outputWriter = this.getXML(0, outputWriter);
+		return outputWriter.toString();
 	}
 
 	/**
@@ -414,12 +455,11 @@ public class Module
 	 * @param tabs Number of tabs.
 	 * @return String for that many tabs.
 	 */
-	private static String appendTabs(int tabs)
+	private static StringWriter appendTabs(int tabs, StringWriter writer)
 	{
-		String out = "";
 		for( int i = 1; i < tabs; i++ )
-			out += "\t";
-		return out;
+			writer.append('\t');
+		return writer;
 	}
 
 	public void delete(String specifier) 

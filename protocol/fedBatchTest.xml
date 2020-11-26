@@ -42,8 +42,6 @@
 						</reaction> 
 					</list>
 				</aspect>
-				<aspect name="mass" type="CALCULATED" class="WetWeight"  />
-				<aspect name="WetDryRatio" class="Double"  value="4.0" />
 			</species>
 			
 			<species name="CanonicalNOB">
@@ -80,8 +78,6 @@
 						</reaction> 
 					</list>
 				</aspect>
-				<aspect name="mass" type="CALCULATED" class="WetWeight"  />
-				<aspect name="WetDryRatio" class="Double"  value="4.0" />
 			</species>
 			
 		</speciesLib>
@@ -107,7 +103,7 @@
 				<agent>
 					<aspect name="species" type="PRIMARY" class="String" value="CanonicalAOB" />
 					<!-- pg -->
-					<aspect name="massMap" class="InstantiableMap">
+					<aspect name="mass" class="InstantiableMap">
 						<map entryClass="Double" keyType="String">
 							<item key="bioMass" value="0.2E10"  />
 						</map>
@@ -116,7 +112,7 @@
 				<agent>
 					<aspect name="species" type="PRIMARY" class="String" value="CanonicalNOB" />
 					<!-- pg -->
-					<aspect name="massMap" class="InstantiableMap">
+					<aspect name="mass" class="InstantiableMap">
 						<map entryClass="Double" keyType="String">
 							<item key="bioMass" value="0.2E10"  />
 						</map>

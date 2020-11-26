@@ -1,9 +1,13 @@
 /**
  * 
  */
-package expression;
+package expression.arithmetic;
 
 import java.util.Map;
+
+import aspect.AspectInterface;
+import expression.Component;
+import expression.ComponentSingle;
 
 /**
  * \brief Component of a mathematical expression that is the sine of another
@@ -35,6 +39,12 @@ public class Sine extends ComponentSingle
 	protected double calculateValue(Map<String, Double> variables)
 	{
 		return Math.sin(this._a.getValue(variables));
+	}
+	
+	@Override
+	public Object evaluate(AspectInterface subject) 
+	{
+		return Math.sin((double) this._a.evaluate(subject));
 	}
 	
 	@Override

@@ -1,9 +1,11 @@
 /**
  * 
  */
-package expression;
+package expression.arithmetic;
 
 import java.util.ArrayList;
+
+import expression.Component;
 
 /**
  * \brief Set of useful components for easy reference.
@@ -74,27 +76,10 @@ public final class Arithmetic
 	 */
 	public static Addition add(Component a, Component b)
 	{
-		if ( a instanceof Addition)
-		{
-			if ( b instanceof Addition )
-				for ( Component c : ((Addition) b).getAllComponents() )
-					((Addition) a).appendComponent(c);
-			else
-				((Addition) a).appendComponent(b);
-			return ((Addition) a);
-		}
-		else if ( b instanceof Addition )
-		{
-			((Addition) b).prependComponent(a);
-			return ((Addition) b);
-		}
-		else
-		{
 			ArrayList<Component> list = new ArrayList<Component>();
 			list.add(a);
 			list.add(b);
-			return new Addition(list);
-		}
+			return new Addition(a,b);
 	}
 	
 	/**
@@ -108,27 +93,10 @@ public final class Arithmetic
 	 */
 	public static Multiplication multiply(Component a, Component b)
 	{
-		if ( a instanceof Multiplication)
-		{
-			if ( b instanceof Multiplication )
-				for ( Component c : ((Multiplication) b).getAllComponents() )
-					((Multiplication) a).appendComponent(c);
-			else
-				((Multiplication) a).appendComponent(b);
-			return ((Multiplication) a);
-		}
-		else if ( b instanceof Multiplication )
-		{
-			((Multiplication) b).prependComponent(a);
-			return ((Multiplication) b);
-		}
-		else
-		{
 			ArrayList<Component> list = new ArrayList<Component>();
 			list.add(a);
 			list.add(b);
-			return new Multiplication(list);
-		}
+			return new Multiplication(a,b);
 	}
 	
 	/**

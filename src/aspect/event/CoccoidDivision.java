@@ -32,11 +32,6 @@ public class CoccoidDivision extends Event
 	public static String MASS = AspectRef.agentMass;
 	
 	/**
-	 * The Agent's mass.
-	 */
-	public static String MASS_MAP = AspectRef.agentMassMap;
-	
-	/**
 	 * If the Agent's mass is above this value, trigger division.
 	 */
 	public static String THRESHOLD_MASS = AspectRef.divisionMass;
@@ -147,7 +142,7 @@ public class CoccoidDivision extends Event
 		/*
 		 * Find the threshold that triggers division.
 		 */
-		double threshold = 0.2;
+		double threshold = Double.MAX_VALUE;
 		if ( anAgent.isAspect(this.THRESHOLD_MASS) )
 			threshold = anAgent.getDouble(this.THRESHOLD_MASS);
 		/*
@@ -194,29 +189,26 @@ public class CoccoidDivision extends Event
 			motherMass = (Double) mumMass;
 			mother.set(MASS, motherMass * mumMassFrac);
 			daughter.set(MASS, motherMass * (1.0 - mumMassFrac));
-		}
-		Object massMap = mother.get(MASS_MAP);
-		String ref = null;
-		if (massMap != null && massMap instanceof Map )
-			ref = MASS_MAP;
-		else if ( mumMass != null && mumMass instanceof Map )
-			ref = MASS;
-		if ( ref != null )
+		} else 	if ( mumMass instanceof Map )
 		{
-			@SuppressWarnings("unchecked")
-			Map<String,Double> mumProducts = 
-					(Map<String,Double>) mother.get(ref);
-			@SuppressWarnings("unchecked")
-			Map<String,Double> daughterProducts = 
-					(Map<String,Double>) daughter.get(ref);
-			for ( String key : mumProducts.keySet() )
+			String ref = MASS;
+			if ( ref != null )
 			{
-				product = mumProducts.get(key);
-				daughterProducts.put(key, product * (1.0-mumMassFrac) );
-				mumProducts.put(key, product * mumMassFrac);
+				@SuppressWarnings("unchecked")
+				Map<String,Double> mumProducts = 
+						(Map<String,Double>) mother.get(ref);
+				@SuppressWarnings("unchecked")
+				Map<String,Double> daughterProducts = 
+						(Map<String,Double>) daughter.get(ref);
+				for ( String key : mumProducts.keySet() )
+				{
+					product = mumProducts.get(key);
+					daughterProducts.put(key, product * (1.0-mumMassFrac) );
+					mumProducts.put(key, product * mumMassFrac);
+				}
+				mother.set(ref, mumProducts);
+				daughter.set(ref, daughterProducts);
 			}
-			mother.set(ref, mumProducts);
-			daughter.set(ref, daughterProducts);
 		}
 		if ( motherMass == null && product == null )
 		{

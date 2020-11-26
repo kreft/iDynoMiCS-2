@@ -34,6 +34,11 @@ public class AspectReg
 	protected String _identity;
 	
 	/**
+	 * nested value delimiter
+	 */
+	protected String DELIMITER = "@";
+	
+	/**
 	 * The _aspects HashMap stores all aspects (primary, secondary states and 
 	 * events).
 	 */
@@ -69,7 +74,30 @@ public class AspectReg
 	 */
 	public boolean isGlobalAspect(String key)
 	{
-		if ( this._aspects.containsKey(key) )
+
+
+		if( key.contains(DELIMITER))
+		{
+			String[] keys = key.split( DELIMITER );
+			key = keys[1];
+			String nested = keys[0];
+			Aspect a = getAspect(key);
+			if ( a == null )
+			{
+				for ( AspectInterface m : this.getSubModules() )
+					if ( m.reg().isGlobalAspect(key) )
+						return true;
+			}
+			else if( a.aspect instanceof Map<?, ?> && 
+					((Map<String, Object>) a.aspect).get(nested) != null)
+				return true;
+			else if( a.aspect instanceof List<?> && 
+					((List<Object>) a.aspect).get(Integer.valueOf(nested)) != null )
+				return true;
+			else
+				return false;
+		}
+		else if ( this._aspects.containsKey(key) )
 			return true;
 		else
 			for ( AspectInterface m : this.getSubModules() )
@@ -227,12 +255,31 @@ public class AspectReg
 	/**
 	 * get value if the aspect is a primary or calculated state
 	 */
+	@SuppressWarnings("unchecked")
 	public Object getValue( AspectInterface rootRegistry, String key )
 	{
+		/*
+		 * NOTE will result in crash for Maps with non-string keys
+		 */
+		if( key.contains(DELIMITER))
+		{
+			String[] keys = key.split( DELIMITER );
+			key = keys[1];
+			String nested = keys[0];
+			Aspect a = getAspect(key);
+			if ( a == null )
+				return null;
+			if( a.aspect instanceof Map<?, ?> )
+				return ((Map<String, Object>) a.aspect).get(nested);
+			else if( a.aspect instanceof List<?> )
+				return ((List<Object>) a.aspect).get(Integer.valueOf(nested));
+			return null;
+		}
+		
 		Aspect a = getAspect(key);
-
 		if ( a == null )
 			return null;
+
 		switch (a.type)
 		{
 		case PRIMARY: return a.aspect;

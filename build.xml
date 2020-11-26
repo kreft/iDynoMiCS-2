@@ -11,9 +11,9 @@
   <property name="classes.dir" value="${build.dir}/classes"/>
   <property name="jar.dir" location="${build.dir}/jar"/>
   <property name="lib.dir" location="./src/lib"/>
-  <property name="general.dir" location="./src/general"/>
+  <property name="general.dir" location="./config"/>
   <property name="jar.file" location="iDynoMiCS.jar"/>
-  <property name="main-class" location="idynomics.GuiLaunch"/>
+  <property name="main-class" location="idynomics.Idynomics"/>
 	
 	<path id="project-classpath">
 		<fileset dir="web/WEB-INF/lib" includes="*.jar" />
@@ -22,18 +22,15 @@
 		<fileset dir="${iDynoMiCS-2}/server/lib" includes="*.jar" />
 	</path>
 	
+
 	<path id="libraries.path">    
         <fileset dir="${lib.dir}">
-            <include name="*.jar"/>
-        	<include name="/jogl/*.jar"/>
-        	<include name="/JUnit/*.jar"/>
+            <include name="**/*.jar"/>
         </fileset>
     </path>
 	
 	<path id="general.path">    
-        <fileset dir="${general.dir}">
-            <include name="*.xml"/>
-        </fileset>
+
     </path>
 
   <target name="init">
@@ -51,7 +48,7 @@
   	  </path>
   	
   	<path id="gen.path.ref">
-  	    <fileset dir="general" includes="*.xml"/>
+  	    <fileset dir="general" includes="*.cfg"/>
   	  </path>
   		
     <!-- Compile the java code from ${src} into ${build} -->
@@ -74,10 +71,13 @@
 	 <target name="jar" depends="compile">
 	        <mkdir dir="${jar.dir}"/>
 	 	
+	 		<mkdir dir="${classes.dir}/lib"/>
+	 		<copy todir="${classes.dir}/lib" flatten="false">
+	 		   <path refid="libraries.path"/>
+	 		</copy>
 
-
-	 		<mkdir dir="${classes.dir}/general"/>
-	 		<copy todir="${classes.dir}/general" flatten="true">
+	 		<mkdir dir="${classes.dir}/config"/>
+	 		<copy todir="${classes.dir}/config" flatten="false">
 	 		   <path refid="general.path"/>
 	 		</copy>
 
@@ -88,14 +88,20 @@
 
 	        <jar destfile="${jar.dir}/${ant.project.name}.jar" basedir="${classes.dir}">
 	            <manifest>
-	            	<attribute name="Main-Class" value="idynomics.GuiLaunch"/>
+	            	<attribute name="Main-Class" value="idynomics.Idynomics"/>
 	                <attribute name="Class-Path" value="${manifest.classpath}"/>
 	            </manifest>
 	        </jar>  
 	    </target>
 
 	    <target name="run" depends="jar">
-	        <java jar="${jar.dir}/${ant.project.name}.jar" fork="true"/>
+	        <java fork="true" classname="${Main-Class}">
+	            <classpath>
+	                <path refid="${manifest.classpath}"/>
+	                <path location="${jar.dir}/${ant.project.name}.jar"/>
+	            </classpath>
+	    	</java>
+	        	
 	    </target>
 	
   <target name="clean"

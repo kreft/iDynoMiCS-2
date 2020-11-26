@@ -20,9 +20,9 @@ import org.w3c.dom.Element;
 
 import dataIO.Log;
 import dataIO.Log.Tier;
+import expression.arithmetic.Unit;
+import expression.arithmetic.Unit.SI;
 import dataIO.XmlHandler;
-import expression.Unit;
-import expression.Unit.SI;
 import idynomics.launchable.ConsoleLaunch;
 import idynomics.launchable.ExitCommand;
 import idynomics.launchable.GeneticAlgorithmLaunch;

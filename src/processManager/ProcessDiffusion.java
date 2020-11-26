@@ -14,6 +14,7 @@ import org.w3c.dom.Element;
 
 import agent.Agent;
 import agent.Body;
+import bookkeeper.KeeperEntry.EventType;
 import boundary.Boundary;
 import compartment.AgentContainer;
 import compartment.EnvironmentContainer;
@@ -21,6 +22,7 @@ import dataIO.Log;
 import dataIO.Log.Tier;
 import grid.SpatialGrid;
 import idynomics.Global;
+import idynomics.Idynomics;
 import linearAlgebra.Vector;
 import reaction.Reaction;
 import reaction.RegularReaction;
@@ -31,6 +33,7 @@ import shape.subvoxel.IntegerArray;
 import shape.subvoxel.SubvoxelPoint;
 import solver.PDEsolver;
 import solver.PDEupdater;
+import surface.Point;
 import surface.Surface;
 import surface.Voxel;
 import surface.collision.Collision;
@@ -184,6 +187,10 @@ public abstract class ProcessDiffusion extends ProcessManager
 	protected void postStep()
 	{
 		/*
+		 * Ask all boundaries to update their solute concentrations.
+		 */
+		this._environment.updateSoluteBoundaries();
+		/*
 		 * Clear agent mass distribution maps.
 		 */
 		this.removeAgentDistibutionMaps();
@@ -191,12 +198,17 @@ public abstract class ProcessDiffusion extends ProcessManager
 		 * act upon new agent situations
 		 */
 		for(Agent agent: this._agents.getAllAgents()) 
-		{
 			agent.event(DIVIDE);
+		for(Agent agent: this._agents.getAllAgents()) 
+		{
 			agent.event(EXCRETE_EPS);
-			agent.event(UPDATE_BODY);
 			agent.event(DIFFERENTIATE);
+			/* agents cannot access the shape aster division so we'll have to do
+			 * this here for now. */
+			for ( Point point: ( (Body) agent.get(AspectRef.agentBody) ).getPoints() )
+				this._agents.getShape().applyBoundaries( point.getPosition() );
 			
+			agent.event(UPDATE_BODY);
 		}
 	}
 	
@@ -262,6 +274,14 @@ public abstract class ProcessDiffusion extends ProcessManager
 						}
 			}
 		}
+		
+		if( Global.bookkeeping )
+			for (String t : totals.keySet())
+				/* NOTE we should rewrite how to access the compartment because 
+				 * this is pretty inefficient.	 */
+				Idynomics.simulator.getCompartment(this._compartmentName).
+						registerBook(EventType.REACTION, t, "ENIVIRONMENT", 
+						String.valueOf( totals.get(t) ), null );
 	}
 	
 
@@ -305,7 +325,7 @@ public abstract class ProcessDiffusion extends ProcessManager
 				for ( Agent a : this._agents.getAllLocatedAgents() )
 				{
 					IntegerArray coordArray = new IntegerArray( 
-							shape.getCoords(((Body) a.get(AspectRef.agentBody)).getCenter()));
+							shape.getCoords(shape.getVerifiedLocation(((Body) a.get(AspectRef.agentBody)).getCenter())));
 					mapOfMaps = (Map<Shape, HashMap<IntegerArray,Double>>) a.getValue(VD_TAG);
 					distributionMap = mapOfMaps.get(shape);
 					distributionMap.put(coordArray, 1.0);

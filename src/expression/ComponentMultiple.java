@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 
+import expression.Elemental.Type;
+
 /**
  * \brief A component of a mathematical expression composed of two or more
  * sub-components.
@@ -32,6 +34,7 @@ public abstract class ComponentMultiple extends Component
 	 */
 	public ComponentMultiple(ArrayList<Component> components)
 	{
+		super(Type.numeric);
 		this._components = components;
 	}
 	
@@ -44,6 +47,7 @@ public abstract class ComponentMultiple extends Component
 	 */
 	public ComponentMultiple(Component a, Component b)
 	{
+		super(Type.numeric);
 		this._components = new ArrayList<Component>();
 		this.appendComponent(a);
 		this.appendComponent(b);
@@ -76,7 +80,7 @@ public abstract class ComponentMultiple extends Component
 	 * 
 	 * @param component Sub-component to add.
 	 */
-	protected void prependComponent(Component component)
+	public void prependComponent(Component component)
 	{
 		this._components.add(0, component);
 	}
@@ -87,7 +91,7 @@ public abstract class ComponentMultiple extends Component
 	 * 
 	 * @param component Sub-component to add.
 	 */
-	protected void appendComponent(Component component)
+	public void appendComponent(Component component)
 	{
 		this._components.add(component);
 	}

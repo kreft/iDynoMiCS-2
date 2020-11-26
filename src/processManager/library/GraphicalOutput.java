@@ -10,11 +10,15 @@ import org.w3c.dom.Element;
 
 import agent.Agent;
 import agent.Body;
+import colour.Colour;
+import colour.ColourSpecification;
+import colour.Palette;
 import compartment.AgentContainer;
 import compartment.EnvironmentContainer;
 import dataIO.GraphicalExporter;
 import grid.ArrayType;
 import grid.SpatialGrid;
+import idynomics.Global;
 import instantiable.Instance;
 import linearAlgebra.Vector;
 import processManager.ProcessManager;
@@ -40,6 +44,7 @@ public class GraphicalOutput extends ProcessManager
 	public static String BODY = AspectRef.agentBody;
 	public static String RADIUS = AspectRef.bodyRadius;
 	public static String PIGMENT = AspectRef.agentPigment;
+	public String PALETTE = AspectRef.colourPalette;
 	
 	public static String ARRAY_TYPE = AspectRef.gridArrayType;
 	public static String MAX_VALUE = AspectRef.visualOutMaxValue;
@@ -88,6 +93,10 @@ public class GraphicalOutput extends ProcessManager
 	 * 
 	 */
 	protected Shape _shape;
+	
+	protected Palette palette;
+	
+	protected ColourSpecification colSpec;
 
 	
 	/*************************************************************************
@@ -133,6 +142,11 @@ public class GraphicalOutput extends ProcessManager
 		
 		/* set max concentration for solute grid color gradient */
 		this._maxConcn = (double) this.getOr( MAX_VALUE, 2.0 );
+		
+		this.palette = new Palette( String.valueOf( 
+				this.getOr( AspectRef.colourPalette, Global.default_palette) ) );
+		/* placeholder spec */
+		 colSpec = new ColourSpecification(palette, "species");
 
 	}
 	
@@ -224,12 +238,19 @@ public class GraphicalOutput extends ProcessManager
 			}
 		}
 		/* Draw all located agents. */
+		/*
+		 * ^^
+		 */
+		
 		for ( Agent a: _agents.getAllLocatedAgents() )
 			if ( a.isAspect(BODY) )
 			{
 				List<Surface> surfaces = ((Body) a.getValue(BODY)).getSurfaces();
 				for( Surface s : surfaces)
-					this._graphics.draw(s, a.getValue(PIGMENT));
+//					this._graphics.draw(s, a.getValue(PIGMENT)); 
+					this._graphics.draw(s, colSpec.colorize(a)); 
+				
+					
 			}
 		/* Close the file */
 		this._graphics.closeFile();

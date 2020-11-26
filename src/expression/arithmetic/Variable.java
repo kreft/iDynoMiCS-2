@@ -1,10 +1,14 @@
 /**
  * 
  */
-package expression;
+package expression.arithmetic;
 
 import java.util.Collection;
 import java.util.Map;
+
+import aspect.AspectInterface;
+import expression.Component;
+import expression.ComponentSimple;
 
 /**
  * \brief A component of a mathematical expression whose value varies, and so
@@ -39,7 +43,23 @@ public class Variable extends ComponentSimple
 	@Override
 	protected double calculateValue(Map<String, Double> variables)
 	{
-		return variables.get(this._name); 
+		/* using 0.0 in cases were a variable is not defined is an easy default
+		 * but might result in errors if carelessly used.. TODO reflect 
+		Double out = variables.get(this._name); 
+		if ( out == null )
+			return 0.0;
+		else
+			return out; */
+		return variables.get(this._name);
+	}
+	
+	@Override
+	public Object evaluate(AspectInterface subject) 
+	{
+		/* for undefined objects keep the name?
+		 * makes string comparisons possible */
+		Object out = subject.getValue(this._name);
+		return (out == null ? this._name : out );
 	}
 	
 	@Override

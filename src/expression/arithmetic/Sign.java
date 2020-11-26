@@ -1,9 +1,13 @@
 /**
  * 
  */
-package expression;
+package expression.arithmetic;
 
 import java.util.Map;
+
+import aspect.AspectInterface;
+import expression.Component;
+import expression.ComponentSingle;
 
 /**
  * \brief Signum function return 1 for positive value, -1 for negative and 0 for
@@ -29,6 +33,12 @@ public class Sign extends ComponentSingle
 	public double calculateValue(Map<String, Double> variables)
 	{
 		return Math.signum(this._a.getValue(variables));
+	}
+	
+	@Override
+	public Object evaluate(AspectInterface subject) 
+	{
+		return Math.signum((double) this._a.evaluate(subject));
 	}
 	
 	/**

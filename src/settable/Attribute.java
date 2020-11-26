@@ -1,5 +1,7 @@
 package settable;
 
+import java.io.StringWriter;
+
 public class Attribute {
 	
 	/**
@@ -42,9 +44,15 @@ public class Attribute {
 	 * String value of attribute's Xml line
 	 * @return
 	 */
-	public String getXML()
+	public StringWriter getXML(StringWriter writer)
 	{
-		return " " + tag + "=\"" + getValue() + "\"";
+		writer.append(' ').append(tag).append("=\"").append(getValue())
+				.append("\"");
+		return writer;
+	}
+	
+	public String getTag() {
+		return tag;
 	}
 
 	public String getValue() {

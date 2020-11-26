@@ -57,7 +57,7 @@ public class  DefaultPullFunction implements CollisionFunction
 		 * Otherwise, return a zero vector. A small distance is allowed to
 		 * prevent objects bouncing in equilibrium 
 		 */
-		if ( var.distance > 0.001 && var.distance < var.pullRange ) 
+		if ( var.distance > 0.001 && var.distance < var.margin ) 
 		{
 			/* Linear. */
 			double c = Math.abs(this._forceScalar * var.distance);

@@ -2,36 +2,29 @@
  * 
  */
 package expression;
-
-import java.util.ArrayList;
-import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
+
+import aspect.AspectInterface;
 
 /**
  * \brief Abstract class for any component of a mathematical expression.
  * 
  * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
-public abstract class Component
+public abstract class Component extends Elemental
 {
+	
+	public Component(Type type) {
+		super(type);
+	}
+
 	/**
 	 * Making a component negative is a convenient shorthand for subtracting it
 	 * from zero. 
 	 */
 	private boolean _isNegative;
-	/**
-	 * Names of all the variables used in this expression. Storing the names
-	 * saves re-collection them every time they are needed.
-	 */
-	private Collection<String> _varNames = null;
-	
-	/**
-	 * \brief Get the name of this component.
-	 * 
-	 * @return {@code String} name of this component.
-	 */
-	public abstract String getName();
-	
+
 	/**
 	 * \brief Report the evaluation of this mathematical expression as a
 	 * {@code String}. 
@@ -49,7 +42,7 @@ public abstract class Component
 	 * mathematical expression.
 	 */
 	public abstract String reportEvaluation(Map<String, Double> variables);
-	
+
 	/**
 	 * \brief Evaluate this mathematical expression.
 	 * 
@@ -103,31 +96,4 @@ public abstract class Component
 	{
 		this._isNegative = ! this._isNegative;
 	}
-	
-	/**
-	 * \brief Get a list of names for all the variables in this mathematical
-	 * expression.
-	 * 
-	 * @return List of names of variables. Order is irrelevant.
-	 */
-	public Collection<String> getAllVariablesNames()
-	{
-		if ( this._varNames == null )
-		{
-			this._varNames = new ArrayList<String>();
-			this.appendVariablesNames(this._varNames);
-		}
-		return this._varNames;
-	}
-	
-	/**
-	 * \brief Helper method for {@link #getAllVariableNames()}. 
-	 * 
-	 * <p>Gets sub-components to add their variable names to the list given to
-	 * them.</p>
-	 * 
-	 * @param names List of names of variables so far found in this
-	 * {@code Component}.
-	 */
-	protected abstract void appendVariablesNames(Collection<String> names);
 }

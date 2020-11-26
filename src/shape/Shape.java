@@ -160,6 +160,12 @@ public abstract class Shape implements
 			if ( dim._isSignificant )
 				modelNode.add( dim.getModule() );
 		
+		/* Add boundaries that are not asociated with a dimension */
+		for ( Boundary bound : this._otherBoundaries)
+		{
+			if ( !bound.assistingBoundary() )
+				modelNode.add( bound.getModule());
+		}
 		
 		/* NOTE: no constructible child modules for this class thus no 
 		 * addChildSpec */
@@ -740,6 +746,27 @@ public abstract class Shape implements
 	public void getGlobalLocationEquals(double[] local)
 	{
 		this.getGlobalLocationTo(local, local);
+	}
+	
+	/**
+	 * 
+	 */
+	public double[] getVerifiedLocation(double[] loc)
+	{
+		if( isInside(loc))
+			return loc;
+		else
+		{
+			for( double[] d : getCyclicPoints(loc))
+				if( isInside(d))
+					return d;
+			/* if no inside point is found there is an illegal boundary 
+			 * intersection. */
+			Log.out(Tier.CRITICAL, "invalid location lookup in " + 
+					this.getClass().getSimpleName());
+			return loc;
+		}
+				
 	}
 
 	/**

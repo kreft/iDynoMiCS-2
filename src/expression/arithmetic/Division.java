@@ -1,6 +1,10 @@
-package expression;
+package expression.arithmetic;
 
 import java.util.Map;
+
+import aspect.AspectInterface;
+import expression.Component;
+import expression.ComponentDouble;
 
 /**
  * \brief A component of a mathematical expression composed of the division
@@ -30,8 +34,18 @@ public class Division extends ComponentDouble
 	{
 		double b = this._b.getValue(variables);
 		if ( b == 0.0 )
-			this.infiniteValueWarning(variables);
+			this.infiniteValueWarning();
 		return this._a.getValue(variables) / b;
+	}
+	
+
+	@Override
+	public Object evaluate(AspectInterface subject) 
+	{
+		double b = (double) this._b.evaluate(subject);
+		if ( b == 0.0 )
+			this.infiniteValueWarning();
+		return (double) this._a.evaluate(subject) / b;
 	}
 	
 	@Override

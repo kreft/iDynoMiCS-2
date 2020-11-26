@@ -3,6 +3,10 @@ package expression;
 import java.util.Collection;
 import java.util.Map;
 
+import expression.Elemental.Type;
+import expression.arithmetic.Arithmetic;
+import expression.arithmetic.Constant;
+
 /**
  * \brief Component of a mathematical expression that is a function of one
  * other component.
@@ -28,6 +32,7 @@ public abstract class ComponentSingle extends Component
 	 */
 	public ComponentSingle(Component a)
 	{
+		super(Type.numeric);
 		this._a = a;
 	}
 

@@ -6,6 +6,8 @@ import java.util.Map;
 import agent.Agent;
 import aspect.Aspect;
 import aspect.Aspect.AspectClass;
+import bookkeeper.KeeperEntry.EventType;
+import idynomics.Global;
 import referenceLibrary.AspectRef;
 
 /**
@@ -37,11 +39,16 @@ public class ProcessMethods {
 		 * see what is left (if anything).
 		 */
 		Object mass = agent.get(AspectRef.agentMass);
-		Object massMapAspect = agent.get(AspectRef.agentMassMap);
 		
 		if ( mass != null && mass instanceof Double && 
 				agent.getAspectType( AspectRef.agentMass ) == Aspect.AspectClass.PRIMARY)
 		{
+			if( Global.bookkeeping )
+				agent.getCompartment().registerBook(
+						EventType.OTHER, 
+						AspectRef.agentMass, 
+						String.valueOf(agent.identity()), 
+						String.valueOf(biomass.get(AspectRef.agentMass) - (double) mass), null);
 			/**
 			 * NOTE map.remove returns the current associated value and removes
 			 * it from the map
@@ -49,22 +56,39 @@ public class ProcessMethods {
 			agent.set(AspectRef.agentMass, biomass.remove(AspectRef.agentMass));
 		}
 		
-		if ( massMapAspect != null && massMapAspect instanceof Map )
+		if ( mass != null && mass instanceof Map )
 		{
 			@SuppressWarnings("unchecked")
-			Map<String,Double> massMap = (Map<String,Double>) massMapAspect;
+			Map<String,Double> massMap = (Map<String,Double>) mass;
 			for ( String key : massMap.keySet() )
 			{
+				if( Global.bookkeeping )
+					agent.getCompartment().registerBook(
+							EventType.OTHER, 
+							key, 
+							String.valueOf(agent.identity()), 
+							String.valueOf(biomass.get(key) - massMap.get(key)), null);
 				massMap.put(key, biomass.remove(key));
 			}			
-			agent.set(AspectRef.agentMassMap, massMap);
+			agent.set(AspectRef.agentMass, massMap);
 		}
 
 		/*
+		 * FIXME This places all newly produced products (not already in map) as 
+		 * separate aspects rather than as part of the mass map (if in use). 
+		 * This should be handled different for mass as aspect and mass as map
+		 * scenarios.
+		 * 
 		 * Now check if any other aspects were added to biomass (e.g. EPS).
 		 */
 		for ( String key : biomass.keySet() )
 		{
+			if( Global.bookkeeping )
+				agent.getCompartment().registerBook(
+						EventType.TEST, 
+						key, 
+						String.valueOf(agent.identity()), 
+						String.valueOf(biomass.get(key)), null);
 			if ( agent.isAspect(key) )
 			{
 				agent.set(key, biomass.get(key));
@@ -94,17 +118,16 @@ public class ProcessMethods {
 	{
 		Map<String,Double> out = new HashMap<String,Double>();
 		Object mass = agent.get(AspectRef.agentMass);
-		Object massMapAspect = agent.get(AspectRef.agentMassMap);
 		if ( mass != null && mass instanceof Double && 
 				agent.getAspectType(AspectRef.agentMass) == AspectClass.PRIMARY)
 		{
 			out.put(AspectRef.agentMass, ((double) mass));
 		}
-		if ( massMapAspect != null && massMapAspect instanceof Map)
+		else if ( mass != null && mass instanceof Map)
 		{
 			/* If the mass object is already a map, then just copy it. */
 			@SuppressWarnings("unchecked")
-			Map<String,Double> massMap = (Map<String,Double>) massMapAspect;
+			Map<String,Double> massMap = (Map<String,Double>) mass;
 			out.putAll(massMap);
 		}
 		return out;

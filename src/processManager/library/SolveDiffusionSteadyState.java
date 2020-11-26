@@ -11,10 +11,13 @@ import java.util.Map;
 import org.w3c.dom.Element;
 
 import agent.Agent;
+import bookkeeper.KeeperEntry.EventType;
 import compartment.AgentContainer;
 import compartment.EnvironmentContainer;
 import dataIO.ObjectFactory;
+import debugTools.SegmentTimer;
 import grid.SpatialGrid;
+import idynomics.Global;
 import processManager.ProcessDiffusion;
 import processManager.ProcessMethods;
 import reaction.Reaction;
@@ -58,7 +61,11 @@ public class SolveDiffusionSteadyState extends ProcessDiffusion
 		double relTol = (double) this.getOr(REL_TOLERANCE, 1.0e-18);
 
 		// TODO Let the user choose which ODEsolver to use.
-		this._solver = new PDEmultigrid();
+		this._solver = new PDEmultigrid(
+				(int) this.getOr(AspectRef.vCycles, 0), 
+				(int) this.getOr(AspectRef.preSteps, 0), 
+				(int) this.getOr(AspectRef.coarseSteps, 0), 
+				(int) this.getOr(AspectRef.postSteps, 0));
 
 		this._solver.setUpdater(this);
 		
@@ -127,10 +134,6 @@ public class SolveDiffusionSteadyState extends ProcessDiffusion
 		applyEnvReactions(variables);
 		for ( Agent agent : _agents.getAllLocatedAgents() )
 			applyAgentReactions(agent, variables);
-//		for (SpatialGrid s : variables)
-//		{
-//			System.out.println(s.getAverage(PRODUCTIONRATE));
-//		}
 	}
 
 	/**
@@ -335,38 +338,61 @@ public class SolveDiffusionSteadyState extends ProcessDiffusion
 				 * stoichiometry may not be the same as those in the reaction
 				 * variables (although there is likely to be a large overlap).
 				 */
+				
 				for ( String productName : r.getReactantNames() )
 				{
-					productRate = r.getProductionRate(concns,productName);					
+					/* FIXME: it is probably faster if we get the reaction rate
+					 * once and then calculate the rate per product from that
+					 * for each individual product
+					 */
+					productRate = r.getProductionRate(concns,productName);
+					double quantity;
+					
 					if ( this._environment.isSoluteName(productName) )
 					{
 						solute = this._environment.getSoluteGrid(productName);
-						solute.addValueAt(PRODUCTIONRATE, coord.get(), 
-								productRate * volume * this.getTimeStepSize());
+						quantity = 
+								productRate * volume * this.getTimeStepSize();
+						solute.addValueAt(PRODUCTIONRATE, coord.get(), quantity
+								);
 					}
 					else if ( newBiomass.containsKey(productName) )
 					{
+						quantity = 
+								productRate * this.getTimeStepSize() * volume;
 						newBiomass.put(productName, newBiomass.get(productName)
-								+ (productRate * this.getTimeStepSize() * volume));
+								+ quantity );
 					}
+					/* FIXME this can create conflicts if users try to mix mass-
+					 * maps and simple mass aspects	 */
 					else if ( agent.isAspect(productName) )
 					{
 						/*
 						 * Check if the agent has other mass-like aspects
 						 * (e.g. EPS).
 						 */
+						quantity = 
+								productRate * this.getTimeStepSize() * volume;
 						newBiomass.put(productName, agent.getDouble(productName)
-								+ (productRate * this.getTimeStepSize() * volume));
+								+ quantity);
 					}
 					else
 					{
+						quantity = 
+								productRate * this.getTimeStepSize() * volume;
 						//TODO quick fix If not defined elsewhere add it to the map
-						newBiomass.put(productName, (productRate * this.getTimeStepSize() * volume));
+						newBiomass.put(productName, quantity);
 						System.out.println("agent reaction catched " + 
 								productName);
 						// TODO safety?
 
 					}
+					if( Global.bookkeeping )
+						agent.getCompartment().registerBook(
+								EventType.REACTION, 
+								productName, 
+								String.valueOf( agent.identity() ), 
+								String.valueOf( quantity ), null );
 				}
 			}
 		}

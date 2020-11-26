@@ -11,6 +11,7 @@ import java.util.Random;
 import org.w3c.dom.Element;
 
 import agent.Agent;
+import bookkeeper.KeeperEntry.EventType;
 import boundary.library.ChemostatBoundary;
 import boundary.library.ChemostatToBoundaryLayer;
 import boundary.spatialLibrary.BiofilmBoundaryLayer;
@@ -20,6 +21,7 @@ import compartment.EnvironmentContainer;
 import dataIO.Log;
 import dataIO.Log.Tier;
 import dataIO.XmlHandler;
+import idynomics.Global;
 import idynomics.Idynomics;
 import instantiable.Instantiable;
 import referenceLibrary.AspectRef;
@@ -186,6 +188,11 @@ public abstract class Boundary implements Settable, Instantiable
 				( this._partner != null );
 	}
 	
+	public boolean assistingBoundary()
+	{
+		return ( this.checkPartner() &! this._dominant);
+	}
+	
 	/**
 	 * @return The name of the compartment this boundary should have a partner
 	 * boundary with.
@@ -211,6 +218,8 @@ public abstract class Boundary implements Settable, Instantiable
 				out = (Boundary) bClass.newInstance();
 				this.setPartner(out);
 				out.setPartner(this);
+				/* oh dear TODO better to assign compartment name on boundary creation or just associate the compartment */
+				out._partnerCompartmentName = ((Compartment) this.getParent().getParent().getParent()).getName();
 			}
 			catch (Exception e)
 			{
@@ -425,7 +434,10 @@ public abstract class Boundary implements Settable, Instantiable
 				Log.out(Tier.DEBUG, "Boundary "+this.getName()+" removing "+
 							this._departureLounge.size()+" agents");
 				for( Agent a : this._departureLounge )
-					this._agents.registerRemoveAgent(a);
+				{
+					this._agents.registerRemoveAgent(a, EventType.REMOVED, 
+							"removed", null);
+				}
 				this._departureLounge.clear();
 			}
 			else
@@ -481,14 +493,18 @@ public abstract class Boundary implements Settable, Instantiable
 					{
 						this._partner.acceptInboundAgents(this._departureLounge);
 					}
+					for( Agent a : this._departureLounge )
+						this._agents.registerRemoveAgent(a, EventType.TRANSFER, "transfered", null);
+					this._departureLounge.clear();
 				}
 				else
 				{
 					Log.out(Tier.NORMAL, "no partner compartment found, removing outbound agents");
+					for( Agent a : this._departureLounge )
+						this._agents.registerRemoveAgent(a, EventType.REMOVED, "removed", null);
+					this._departureLounge.clear();
 				}
-				for( Agent a : this._departureLounge )
-					this._agents.registerRemoveAgent(a);
-				this._departureLounge.clear();
+
 			}
 			this._agents.refreshSpatialRegistry();
 		}
@@ -521,10 +537,12 @@ public abstract class Boundary implements Settable, Instantiable
 	public void agentsArrive()
 	{
 		for ( Agent anAgent : this._arrivalsLounge )
+		{
 			//FIXME The agent MUST be registered to the new compartment otherwise offsrping will end up in the old
 			//compartment, this is a really ugly work around but the only way to actually get there.
 			//This design should be reconsidered [Bas 13-04-2018]
 			((Compartment)this._agents.getParent()).addAgent(anAgent);
+		}
 		this.clearArrivalsLounge();
 	}
 
@@ -571,6 +589,9 @@ public abstract class Boundary implements Settable, Instantiable
 					cArray,
 					true));
 		}
+		
+		if ( this._volumeFlowRate != 0.0 )
+			modelNode.add( new Attribute( XmlRef.volumeFlowRate, String.valueOf( this._volumeFlowRate ), null, true ));
 		// TODO
 		// modelNode.requirement = Requirements.?
 		return modelNode;

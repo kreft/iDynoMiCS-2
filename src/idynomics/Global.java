@@ -21,6 +21,7 @@ import utility.Helper;
  */
 public class Global extends ParameterSet
 {
+
 	/**************************************************************************
 	 * Constructing and loading
 	 *************************************************************************/
@@ -153,7 +154,23 @@ public class Global extends ParameterSet
 	/**
 	 * 
 	 */
-	public static boolean output_compression = true;
+	public static boolean output_compression = false;
+	
+	/**
+	 * enable bookkeeping.
+	 */
+	public static boolean bookkeeping = false;
+	
+	/**
+	 * enable csv bookkeeping
+	 */
+	public static boolean csv_bookkeeping = false;
+	
+	/**
+	 * enable xml bookkeeping (also logging complete agent xml)
+	 * Warning: very slow
+	 */
+	public static boolean xml_bookkeeping = false;
 	
 	/**
 	 * console font
@@ -215,7 +232,7 @@ public class Global extends ParameterSet
 	/**
 	 * Skip writing xml output for this number of global time steps
 	 */
-	public int outputskip = 0;
+	public int outputskip = 1;
 	
 	/**
 	 * The exit command is passed to kernel once the simulation is finished
@@ -230,6 +247,8 @@ public class Global extends ParameterSet
 	/**************************************************************************
 	 * Appearance
 	 *************************************************************************/
+
+	public static String default_palette = "colours.xml";
 	
 	public static Color console_color = Helper.obtainColor( "38,45,48" );
 	
@@ -255,7 +274,7 @@ public class Global extends ParameterSet
 	 */
 	public static boolean fastAgentDistribution = true;
 
-	public static String agentDistribution = DistributionMethod.COLLISION.toString();
+	public static String agentDistribution = DistributionMethod.MIDPOINT.toString();
 	/**
 	 * dynamic viscosity of the medium
 	 */
@@ -337,4 +356,9 @@ public class Global extends ParameterSet
 	 * decompression algorithm
 	 */
 	public static double traversing_fraction = 0.02;
+	
+	/**
+	 * Default decompression parameters
+	 */
+	public static double damping_factor = 0.9;
 }

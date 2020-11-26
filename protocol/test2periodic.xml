@@ -27,15 +27,13 @@
 					</list>
 				</aspect>
 				<aspect name="pigment" type="PRIMARY" class="String" value="GREEN" />
-				<aspect name="mass" type="CALCULATED" class="WetWeight"  />
-				<aspect name="WetDryRatio" class="Double"  value="4.0" />
 				<speciesModule name="coccoid" />
 			</species>
 			<species name="coccoid">
 				<aspect name="surfaces"		type="CALCULATED"	class="AgentSurfaces" />
 				<aspect name="morphology" 	type="PRIMARY" 		class="String" 		value="coccoid" />
 				<!-- NOTE for testing purposes as stateExpression -->
-				<aspect name="volume" 		type="CALCULATED" 	class="StateExpression" 	input="mass/density" />
+				<aspect name="volume" 		type="CALCULATED" 	class="SimpleVolumeState" 	/>
 				<aspect name="radius"		type="CALCULATED"	class="CoccoidRadius" 	/>
 				<aspect name="divide" 		type="EVENT" 		class="CoccoidDivision"			 />
 				<aspect name="#isLocated" 	type="PRIMARY" 		class="Boolean" value="true" />
@@ -75,7 +73,7 @@
 					<aspect name="h_map_test" type="PRIMARY" class="HashMap">
 						<item type="PRIMARY" class="String[]" value="test" key="test_key" keyType="String" />
 					</aspect>
-					<aspect name="massMap" class="InstantiableMap">
+					<aspect name="mass" class="InstantiableMap">
 						<map entryClass="Double" keyType="String">
 							<item key="bioMass" value="0.2"  />
 						</map>
@@ -88,7 +86,7 @@
 				</agent>
 				<agent>
 					<aspect name="species" type="PRIMARY" class="String" value="AOB" />
-					<aspect  name="massMap" class="InstantiableMap">
+					<aspect  name="mass" class="InstantiableMap">
 						<map entryClass="Double" keyType="String">
 							<item key="bioMass" value="0.2"  />
 						</map>
@@ -101,7 +99,7 @@
 				</agent>
 				<agent>
 					<aspect name="species" type="PRIMARY" class="String" value="AOB" />
-					<aspect name="massMap" class="InstantiableMap">
+					<aspect name="mass" class="InstantiableMap">
 						<map entryClass="Double" keyType="String">
 							<item key="bioMass" value="0.2"  />
 						</map>

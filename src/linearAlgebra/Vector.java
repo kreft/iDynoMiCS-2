@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
+import dataIO.Log;
+import dataIO.Log.Tier;
 import expression.Expression;
 import idynomics.Idynomics;
 import utility.ExtraMath;
@@ -282,6 +284,18 @@ public final class Vector
 				vector[i] = 
 					new Expression( fields[i] ).format( Idynomics.unitSystem );
 			}
+		}
+		return vector;
+	}
+	
+	public static float[] fltFromString(String vectorString)
+	{
+		vectorString = Helper.removeWhitespace(vectorString);
+		String[] fields = vectorString.split(DELIMITER);
+		float[] vector = new float[fields.length];
+		for ( int i = 0; i < fields.length; i++ )	
+		{
+			vector[i] = (float) Double.parseDouble(fields[i]);
 		}
 		return vector;
 	}
@@ -1161,7 +1175,9 @@ public final class Vector
 	public static void addTo(double[] destination, double[] a, double[] b)
 	{
 		for ( int i = 0; i < a.length; i++ ) 
+		{
 			destination[i] = a[i] + b[i];
+		}
 	}
 	
 	/**
@@ -2979,6 +2995,10 @@ public final class Vector
 		double oldNorm = normEuclid(vector);
 		if ( oldNorm != 0.0 )
 			timesEquals(vector, newNorm/oldNorm);
+		else 
+		{
+			Log.out("zero division");
+		}
 	}
 	
 	/**

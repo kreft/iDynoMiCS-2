@@ -158,7 +158,7 @@ public class FilteredTable {
 				{
 					if( this.qualification.get(i) == null || 
 							this.qualification.get(i).match( ( a ) ) )
-						out += columns.get(i).stringValue(a, "") 
+						out += columns.get(i).stringValue(a, "%s") 
 								+ (i < columns.size()-1 ? "\t, " : "\n" );
 				}
 			}
@@ -202,7 +202,7 @@ public class FilteredTable {
 		
 		for (int i = 0; i < columns.size(); i++)
 		{
-			out += String.format("%35s | ",columns.get(i).header() + ( this.qualification.get(i) == null 
+			out += String.format("%45s | ",columns.get(i).header() + ( this.qualification.get(i) == null 
 					? "" : " ? " +  this.qualification.get(i).header()))
 					+ values.get( i ) + (i+1 < columns.size() ? "\n": "");
 		}
@@ -273,11 +273,15 @@ public class FilteredTable {
 				out += columns.get(i).header()
 						+ (i < columns.size()-1 ? delimiter : "");
 			}
-			else
-			{				
-				out += columns.get(i).header() + " " + 
-						qualification.get(i).header() +
-						(i < columns.size()-1 ? delimiter : "" );
+			else 
+			{			
+				if( qualification != null )
+					out += columns.get(i).header() + " " + 
+							(i < columns.size()-1 ? delimiter : "" );
+				else
+					out += columns.get(i).header() + " " + 
+							qualification.get(i).header() +
+							(i < columns.size()-1 ? delimiter : "" );
 			}
 		}
 		return out;

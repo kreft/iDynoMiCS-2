@@ -106,8 +106,6 @@
 			<species name="coccoid">
 				<aspect class="Double" name="density" type="PRIMARY" value="1"/>
 				<aspect class="CoccoidDivision" name="divide" type="EVENT"/>
-				<aspect class="WetWeight" name="mass" type="CALCULATED"/>
-				<aspect class="Double" name="WetDryRatio" value="4.0"/>
 				<aspect class="Double" name="divisionMass" type="PRIMARY" value="1e8"/>
 			</species>
 			

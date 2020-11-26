@@ -60,7 +60,7 @@ public final class GuiActions
 		
     	openFile(f);		
 	}
-	
+		
 	public static File saveFile() 
 	{
 		boolean confirm = true;
@@ -248,7 +248,7 @@ public final class GuiActions
 		openFile(in);
 	}
 	
-	public static void saveToFile(File f) 
+		public static void saveToFile(File f) 
 	{
     	if ( f == null )
     	{
@@ -366,8 +366,8 @@ public final class GuiActions
 		if ( Idynomics.simulator == null )
 			return;
 		// TODO this can probably be made a lot cleaner!
-		Idynomics.simulator.timer.setEndOfSimulation(
-				Idynomics.simulator.timer.getEndOfCurrentIteration());
+		Log.out("simulation stopping by user request...");
+		Idynomics.simulator.stopAction = true;
 	}
 	
 	/*************************************************************************

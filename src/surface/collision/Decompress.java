@@ -1,7 +1,10 @@
 package surface.collision;
 
+import dataIO.Log;
 import idynomics.Global;
+import idynomics.Idynomics;
 import linearAlgebra.Vector;
+import referenceLibrary.AspectRef;
 
 public class Decompress {
 	
@@ -14,13 +17,21 @@ public class Decompress {
 	public int[] maxima;
 	public boolean[] _periodicDimensions;
 	public double traversingFraction = Global.traversing_fraction;
+	public double[] _pows;
 	
 	public Decompress(double[] max, double targetResolution, double threshold,
-			boolean[] periodicDimensions)
+			boolean[] periodicDimensions, double traversingFraction, double dampingFactor)
 	{
+		if ( traversingFraction != 0.0 )
+			this.traversingFraction = traversingFraction;
 		nDim = max.length;
 		resolution = new double[3];
 		this._periodicDimensions = periodicDimensions;
+		if( targetResolution == 0.0)
+		{
+			Idynomics.simulator.interupt("Enabled " + this.getClass().getSimpleName()
+					+ " without " + AspectRef.decompressionCellLength + " stopping.");
+		}
 		for( int i = 0; i < nDim; i++ )
 		{
 			resolution[i] = max[i] / Math.ceil(max[i] / targetResolution);
@@ -31,7 +42,6 @@ public class Decompress {
 				(int) (max[1] / resolution[1]),
 				(max.length == 3 ? (int) (max[2] / resolution[2]) : 1)
 				};
-		
 		pressure = new double
 				[maxima[0]]
 				[maxima[1]]
@@ -42,6 +52,9 @@ public class Decompress {
 				[maxima[0]]
 				[maxima[1]]
 				[maxima[2]];
+		this._pows = new double[Vector.max(maxima)];
+		for( int i = 0; i < Vector.max(maxima); i++)
+			_pows[i] = Math.pow(dampingFactor, i);
 		
 		//TODO make them individually settable.
 		this.thresholdHigh = threshold*2.0;
@@ -53,8 +66,18 @@ public class Decompress {
 		int out[] = new int[3];
 		for(int i = 0; i < resolution.length; i++)
 			if( i < location.length)
+			{
 				// FIXME here we need to safe some agents out of the domain, but this is double work since they shouldn't be
-				out[i] = (int) Math.min(Math.max(Math.floor(location[i]/resolution[i]), 0.0), maxima[i]-1);
+				out[i] = (int) (location[i]/resolution[i]);
+				if(out[i] == maxima[i])
+				{
+					out[i] = 0;
+				}
+				if(out[i] == -1)
+				{
+					out[i] = maxima[i]-1;
+				}
+			}
 			else
 				out[i] = 0;
 		return out;
@@ -75,10 +98,12 @@ public class Decompress {
 	public double[] getDirection(double[] location)
 	{
 		int[] loc = translate(location, resolution);
-		return new double[] { 
+		// FIXME dimensions appear to be swapped investigate
+		double[] out = new double[] { 
 				shift[0][loc[0]][loc[1]][loc[2]],
 				shift[1][loc[0]][loc[1]][loc[2]],
 				shift[2][loc[0]][loc[1]][loc[2]] };
+		return out;
 	}
 	
 	public void buildDirectionMatrix()
@@ -99,16 +124,17 @@ public class Decompress {
 			if( pressure[i][j][k] > thresholdHigh)	
 				for( int l = 0; l < resolution.length; l++)
 				{
-					int range[] = shiftRange(location, l);
-					for( int m = range[0]; m < location[l]; m++)
+					int dim = l;
+					int range[] = shiftRange(location, dim);
+					for( int m = range[0]; m < location[dim]; m++)
 					{
-						directionAdd( l, m, location, 
-								-pressure[i][j][k]);
+						directionAdd( dim, m, location, 
+								-pressure[i][j][k] * this._pows[location[dim]-m]);
 					}
-					for( int m = range[1]; m > location[l]; m--)
+					for( int m = range[1]; m > location[dim]; m--)
 					{
-						directionAdd( l, m, location, 
-								pressure[i][j][k]);
+						directionAdd( dim, m, location, 
+								pressure[i][j][k] * this._pows[m-location[dim]]);
 					}
 				}
 		}
@@ -150,6 +176,8 @@ public class Decompress {
 		double value = Double.MAX_VALUE;
 		if( this._periodicDimensions[dimension] )
 			stop = 0-location[dimension];
+		else
+			stop = 0;
 		
 		while( value > thresholdLow && range[0] > stop )
 		{
@@ -161,12 +189,14 @@ public class Decompress {
 			temp[dimension] = cursor;
 			value = pressure[temp[0]][temp[1]][temp[2]];
 		}
-		if( range[0] == 0 && value > thresholdLow)
+		if( range[0] == stop && value > thresholdLow)
 			range[0] = location[dimension];
 		
 		value = Double.MAX_VALUE;
 		if( this._periodicDimensions[dimension] )
 			stop = maxima[dimension]-1+location[dimension];
+		else
+			stop = maxima[dimension]-1;
 		while( value > thresholdLow && range[1] < stop )
 		{
 			range[1]++;
@@ -177,10 +207,9 @@ public class Decompress {
 			temp[dimension] = cursor;
 			value = pressure[temp[0]][temp[1]][temp[2]];
 		}
-		if( range[1] == maxima[dimension]-1 && value > thresholdLow)
+		if( range[1] == stop && value > thresholdLow)
 			range[1] = location[dimension];
-		
-//		System.out.println(Vector.toString(range));
+
 		return range;
 	}
 }

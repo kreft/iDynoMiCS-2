@@ -335,7 +335,8 @@ public class EnvironmentContainer implements CanPrelaunchCheck, Settable
 
 			String partnerCompName = b.getPartnerCompartmentName();
 			Compartment partnerComp = Idynomics.simulator.getCompartment(partnerCompName);
-			double scFac = thisComp.getScalingFactor() / partnerComp.getScalingFactor();
+			double scFac = ( partnerComp == null ? 1.0 : 
+				thisComp.getScalingFactor() / partnerComp.getScalingFactor());
 			for ( SpatialGrid solute : this._solutes )
 			{
 				double solMassFlow = -solute.getWellMixedMassFlow();

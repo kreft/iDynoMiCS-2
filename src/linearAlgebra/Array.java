@@ -35,6 +35,8 @@ public final class Array
 	// This can change, but check it works with testJUnit.LinearAlgebraTest
 	public final static String DELIMITER = "%";
 
+	public final static String PRINT_DELIMITER = "% \n";
+
 	/*************************************************************************
 	 * STANDARD NEW ARRAYS
 	 ************************************************************************/
@@ -1985,7 +1987,7 @@ public final class Array
 		for ( int i = 0; i < n; i++ )
 		{
 			Matrix.toString(array[i], buffer);
-			buffer.append(DELIMITER);
+			buffer.append(PRINT_DELIMITER);
 		}
 		Matrix.toString(array[n], buffer);
 	}
@@ -2003,7 +2005,7 @@ public final class Array
 		for ( int i = 0; i < n; i++ )
 		{
 			Matrix.toString(array[i], buffer);
-			buffer.append(DELIMITER);
+			buffer.append(PRINT_DELIMITER);
 		}
 		Matrix.toString(array[n], buffer);
 	}

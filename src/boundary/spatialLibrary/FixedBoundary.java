@@ -22,19 +22,17 @@ import settable.Settable;
  * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
  */
-public class FixedBoundary extends SpatialBoundary implements Instantiable
+public class FixedBoundary extends BiofilmBoundaryLayer implements Instantiable
 {
-	/**
-	 * Solute concentrations.
-	 */
-	protected Map<String,Double> _concns = new HashMap<String,Double>();
 	
 	/* ***********************************************************************
 	 * CONSTRUCTORS
 	 * **********************************************************************/
 	
 	public FixedBoundary()
-	{ }
+	{ 
+		super(); 
+	}
 	
 	public void instantiate(Element xmlElement, Settable parent)
 	{
@@ -51,17 +49,6 @@ public class FixedBoundary extends SpatialBoundary implements Instantiable
 			this.setConcentration(name, XmlHandler.obtainDouble(e, 
 					XmlRef.concentration, XmlRef.concentration));
 		}
-	}
-	
-
-	/* ***********************************************************************
-	 * BASIC SETTERS & GETTERS
-	 * **********************************************************************/
-
-	@Override
-	protected boolean needsLayerThickness()
-	{
-		return false;
 	}
 
 	/* ***********************************************************************
@@ -87,25 +74,6 @@ public class FixedBoundary extends SpatialBoundary implements Instantiable
 	public void setConcentration(String name, double concn)
 	{
 		this._concns.put(name, concn);
-	}
-	
-	@Override
-	protected double calcDiffusiveFlow(SpatialGrid grid)
-	{
-		Tier level = Tier.DEBUG;
-		Double concn = this._concns.get(grid.getName());
-		if (concn == null)
-		{	if (Log.shouldWrite(level))
-				Log.out(level, "WARNING: unset fixed boundary concn");
-			return 0.0;
-		}
-		return this.calcDiffusiveFlowFixed(grid, concn);
-	}
-	
-	@Override
-	public void updateWellMixedArray()
-	{
-		this.setWellMixedByDistance();
 	}
 
 	@Override

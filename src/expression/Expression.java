@@ -10,8 +10,11 @@ import java.util.TreeMap;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
+import aspect.AspectInterface;
 import dataIO.XmlHandler;
-import expression.Unit.SI;
+import expression.arithmetic.*;
+import expression.arithmetic.Unit.SI;
+import expression.logic.*;
 import idynomics.Idynomics;
 import instantiable.object.InstantiableMap;
 import referenceLibrary.XmlRef;
@@ -77,6 +80,8 @@ public class Expression extends Component implements Settable
 	public static final String[] OPERATORS = new 
 			String[]{
 					"#e",	// euler
+					"e-",	// eg 12e-5
+					"E-",	// eg 12E-5
 					"#PI", 	// pi
 					"SIGN-", // signum function minus what follows
 					"SIGN", // signum function
@@ -93,6 +98,15 @@ public class Expression extends Component implements Settable
 					"/", 	// division
 					"+", 	// addition
 					"-",	// negative or subtraction TODO make sure this does not cause any problems
+					"!=",	// previous .. not equal to .. following
+					"=", 	// previous .. equals .. following
+					"LT", 	// previous .. less than .. following
+					"GT",	// previous .. greater than .. following
+					"NOT",	// inverts .. following boolean
+					"AND", 	// previous .. and .. following
+					"OR", 	// previous .. and/or .. following
+					"XOR", 	// previous .. exclusive or .. following
+					"XNOR", // previous .. matches .. following
 					};	
 	/**
 	 * TODO Work out what this does.
@@ -110,6 +124,8 @@ public class Expression extends Component implements Settable
 	 * Names of variables in this expression.
 	 */
 	private List<String> _variables = new LinkedList<String>();
+	
+	protected Elemental _el;
 	
 	/**
 	 * The component object.
@@ -133,6 +149,7 @@ public class Expression extends Component implements Settable
 	 */
 	public Expression(String expression, Map<String, Double> constants)
 	{
+		super(Type.omnifarious);
 		init(expression, constants);
 	}
 	
@@ -145,6 +162,7 @@ public class Expression extends Component implements Settable
 	 */
 	public Expression(String expression)
 	{
+		super(Type.omnifarious);
 		if (expression == null || expression.equals("") )
 			expression = Helper.obtainInput("", XmlRef.expression);
 		init(expression, null);
@@ -157,6 +175,7 @@ public class Expression extends Component implements Settable
 	 */
 	public Expression(Node xmlNode)
 	{
+		super(Type.omnifarious);
 		Element elem = (Element) xmlNode;
 
 		this._constants.instantiate(elem, this);
@@ -213,7 +232,7 @@ public class Expression extends Component implements Settable
 		/* Evaluation tree (strings). */
 		TreeMap<Integer, String> eval =  new TreeMap<Integer, String>();
 		/* Construction tree (components). */
-		TreeMap<Integer, Component> calc = new TreeMap<Integer, Component>();
+		TreeMap<Integer, Elemental> calc = new TreeMap<Integer, Elemental>();
 		/* Subexpressions (braces) embedded in this expression. */
 		TreeMap<Integer, Expression> subs = new TreeMap<Integer, Expression>();
 		/* 
@@ -230,7 +249,11 @@ public class Expression extends Component implements Settable
 			System.err.println("ERROR: unfinished expression root element!");
 		}
 		else
-			this._a = calc.get(calc.firstKey());
+		{
+			this._el = calc.get(calc.firstKey());
+			if( _el instanceof Component)
+				this._a = (Component) _el;
+		}
 	}
 	
 	/**
@@ -241,7 +264,7 @@ public class Expression extends Component implements Settable
 	 * @param subs Subexpressions (braces) embedded in {@link #_expression}.
 	 */
 	private void constructTreeMaps(TreeMap<Integer, String> eval, 
-			TreeMap<Integer, Component> calc, 
+			TreeMap<Integer, Elemental> calc, 
 			TreeMap<Integer, Expression> subs)
 	{
 		/*
@@ -269,21 +292,7 @@ public class Expression extends Component implements Settable
 			c = index;
 		}
 		brackets.put(this._expression.length(), Bracket.END_OF_EXPRESSION);
-		/* Disabled Debugging message. 
-		if ( Log.shouldWrite(DEBUG) )
-		{
-			Log.out(DEBUG, this._expression);
-			String msg = "";
-			for ( int i = 0; i <= this._expression.length(); i++ )
-			{
-				if ( brackets.containsKey(i) )
-					msg += brackets.get(i).getStr();
-				else
-					msg += " ";
-			}
-			Log.out(DEBUG, msg);
-		}
-		*/
+
 		int depth = 0;
 		int start = 0;
 		for ( Integer key : brackets.keySet() )
@@ -339,7 +348,7 @@ public class Expression extends Component implements Settable
 			 */
 			// NOTE This means that any constants defined as integers (e.g. 0,
 			// 1, 2, 10, etc) will not be recognised.
-			else if ( term.contains(".") )
+			else if ( Helper.dblParseable( term ) )
 				calc.put(i, new Constant(term, Double.parseDouble(term)));
 			/*
 			 * Variables, hashmap-defined constants.
@@ -533,7 +542,7 @@ public class Expression extends Component implements Settable
 		/* Evaluation tree (strings). */
 		TreeMap<Integer, String> eval =  new TreeMap<Integer, String>();
 		/* Construction tree (components). */
-		TreeMap<Integer, Component> calc = new TreeMap<Integer, Component>();
+		TreeMap<Integer, Elemental> calc = new TreeMap<Integer, Elemental>();
 		/* Subexpressions (braces) embedded in this expression. */
 		TreeMap<Integer, Expression> subs = new TreeMap<Integer, Expression>();
 		/*
@@ -569,8 +578,8 @@ public class Expression extends Component implements Settable
 	 * the original {@link #_expression} string.
 	 * @return New component combining the previous and next components.
 	 */
-	private static Component constructComponent(String operator,
-			int here, TreeMap<Integer,Component> calc)
+	private static Elemental constructComponent(String operator,
+			int here, TreeMap<Integer,Elemental> calc)
 	{
 		int prev = (calc.floorKey( here-1 ) == null ? 
 				-1 : calc.floorKey( here-1 ) );
@@ -579,49 +588,69 @@ public class Expression extends Component implements Settable
 		switch (operator)
 		{
 		case ("+"): 
-			return Arithmetic.add(calc.get(prev),calc.get(next));
+			return Arithmetic.add((Component) calc.get(prev),(Component) calc.get(next));
 		case ("*"): 
-			return Arithmetic.multiply(calc.get(prev),calc.get(next));
+			return Arithmetic.multiply((Component) calc.get(prev),(Component) calc.get(next));
 		case ("*-"): 
 			
-			return Arithmetic.multiply(calc.get(prev),flipSign(calc.get(next)));
+			return Arithmetic.multiply((Component) calc.get(prev),flipSign((Component) calc.get(next)));
 		case ("/"): 
-			return Arithmetic.divide(calc.get(prev),calc.get(next));
+			return Arithmetic.divide((Component) calc.get(prev),(Component) calc.get(next));
 		case ("/-"): 
-			return Arithmetic.divide(calc.get(prev),flipSign(calc.get(next)));
-		case ("-"): 
-			// TODO here we should really just change the sign of next
-			// Bas [16.06.16] component.changeSign does not seem to work
-			if (prev >= 0 )
-				return new Subtraction( calc.get(prev), calc.get(next));
-			else
-			{
-				return flipSign(calc.get(next));
-			}
+			return Arithmetic.divide((Component) calc.get(prev),flipSign((Component) calc.get(next)));
 		case ("^"): 
-			return new Power(calc.get(prev), calc.get(next));
+			return new Power((Component) calc.get(prev), (Component) calc.get(next));
 		case ("^-"): 
-			return new Power(calc.get(prev), flipSign(calc.get(next)));
+			return new Power((Component) calc.get(prev), flipSign((Component) calc.get(next)));
 		case ("SQRT"): 
-			return new Power(calc.get(next), new Constant("0.5",0.5));
+			return new Power((Component) calc.get(next), new Constant("0.5",0.5));
 		case ("SQRT-"): 
-			return new Power(flipSign(calc.get(next)), new Constant("0.5",0.5));
+			return new Power(flipSign((Component) calc.get(next)), new Constant("0.5",0.5));
 		case ("#e"): 
 			return Arithmetic.euler();
 		case ("#PI"): 
 			return Arithmetic.pi();
 		case ("EXP"): 
-			return new Multiplication(calc.get(prev), 
-				new Power(Arithmetic.ten(), calc.get(next)));
+			return new Multiplication((Component) calc.get(prev), 
+				new Power(Arithmetic.ten(), (Component) calc.get(next)));
 		case ("EXP-"): 
-			return new Multiplication(calc.get(prev), 
-				new Power(Arithmetic.ten(), flipSign(calc.get(next))));
+		case ("e-"): 
+		case ("E-"): 
+			return new Multiplication((Component) calc.get(prev), 
+				new Power(Arithmetic.ten(), flipSign((Component) calc.get(next))));
 		case ("LOG"): 
-			return new Logarithm(calc.get(next),Arithmetic.ten());
+			return new Logarithm((Component) calc.get(next),Arithmetic.ten());
 		case ("SIGN"): 
-			return 	new Sign(calc.get(next));
+			return 	new Sign((Component) calc.get(next));
 		case ("SIGN-"): 
-			return new Sign(flipSign(calc.get(next)));
+			return new Sign(flipSign((Component) calc.get(next)));
+		case ("-"): 
+			// TODO here we should really just change the sign of next
+			// Bas [16.06.16] component.changeSign does not seem to work
+			if (prev >= 0 )
+				return new Subtraction((Component)  calc.get(prev),(Component)  calc.get(next));
+			else
+			{
+				return flipSign((Component) calc.get(next));
+			}
+		case ("!="): 
+			return new LogicNotEqual(calc.get(prev), calc.get(next));
+		case ("="): 
+			return new LogicEqual(calc.get(prev), calc.get(next));
+		case ("LT"): 
+			return new LogicLessThan(calc.get(prev), calc.get(next));
+		case ("GT"): 
+			return new LogicGreaterThan(calc.get(prev), calc.get(next));
+		case ("NOT"): 
+			return new LogicNot(calc.get(next));
+		case ("AND"): 
+			return new LogicAnd(calc.get(prev), calc.get(next));
+		case ("OR"): 
+			return new LogicOr(calc.get(prev), calc.get(next));
+		case ("XOR"): 
+			return new LogicXor(calc.get(prev), calc.get(next));
+		case ("XNOR"): 
+			return new LogicXnor(calc.get(prev), calc.get(next));
 		}
 		System.err.println("ERROR: could not construnct component!");
 		return new Constant("ERROR!",1.0);
@@ -636,7 +665,7 @@ public class Expression extends Component implements Settable
 	 * Truncate calc tree after the operation has completed.
 	 */
 	private static void postOperatorTruncate(String operator,
-			int here, TreeMap<Integer,Component> calc)
+			int here, TreeMap<Integer,Elemental> calc)
 	{
 		int prev = (calc.floorKey( here-1 ) == null ? 
 				-1 : calc.floorKey( here-1 ) );
@@ -653,6 +682,16 @@ public class Expression extends Component implements Settable
 		case ("/-"): 
 		case ("^-"):
 		case ("EXP-"):
+		case ("e-"): 
+		case ("E-"): 
+		case ("!="): 
+		case ("="): 
+		case ("LT"): 
+		case ("GT"): 
+		case ("AND"): 
+		case ("OR"): 
+		case ("XOR"): 
+		case ("XNOR"): 
 			if ( calc.containsKey( prev ) )
 				calc.remove( prev );
 			if ( calc.containsKey( next ) )
@@ -663,6 +702,7 @@ public class Expression extends Component implements Settable
 		case ("LOG"):
 		case("SIGN"):
 		case("SIGN-"):
+		case ("NOT"): 
 			if ( calc.containsKey( next ) )
 				calc.remove( next );
 			break;
@@ -704,6 +744,11 @@ public class Expression extends Component implements Settable
 	protected double calculateValue(Map<String, Double> variables) 
 	{
 		return this._a.getValue(variables);
+	}
+
+	@Override
+	public Object evaluate(AspectInterface subject) {
+		return this._el.evaluate(subject);
 	}
 	
 	/**

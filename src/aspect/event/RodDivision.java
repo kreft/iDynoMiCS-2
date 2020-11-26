@@ -26,7 +26,6 @@ public class RodDivision extends Event {
 	/**
 	 * The Agent's mass.
 	 */
-	public String MASS_MAP = AspectRef.agentMassMap;
 	public String RADIUS = AspectRef.bodyRadius;
 	public String BODY = AspectRef.agentBody;
 	public String LINKED = AspectRef.agentLinks;
@@ -139,7 +138,7 @@ public class RodDivision extends Event {
 		/*
 		 * Find the threshold that triggers division.
 		 */
-		double threshold = 0.2;
+		double threshold = Double.MAX_VALUE;
 		if ( anAgent.isAspect(this.THRESHOLD_MASS) )
 			threshold = anAgent.getDouble(this.THRESHOLD_MASS);
 		/*

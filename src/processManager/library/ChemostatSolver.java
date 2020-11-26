@@ -8,11 +8,13 @@ import java.util.Map;
 import org.w3c.dom.Element;
 
 import agent.Agent;
+import bookkeeper.KeeperEntry.EventType;
 import boundary.Boundary;
 import compartment.AgentContainer;
 import compartment.EnvironmentContainer;
 import dataIO.Log;
 import dataIO.Log.Tier;
+import idynomics.Global;
 import linearAlgebra.Vector;
 import processManager.ProcessManager;
 import processManager.ProcessMethods;
@@ -46,7 +48,9 @@ public class ChemostatSolver extends ProcessManager
 	public static String REACTIONS = AspectRef.agentReactions;
 	public static String SOLUTES = AspectRef.soluteNames;
 	public static String AGENT_VOLUME = AspectRef.agentVolume;
-	public String DIVIDE = AspectRef.agentDivision;
+	public static String DIVIDE = AspectRef.agentDivision;
+
+	public static String DISABLE_BULK_DYNAMICS = AspectRef.disableBulkDynamics;
 	/**
 	 * The ODE solver to use when updating solute concentrations. 
 	 */
@@ -59,6 +63,8 @@ public class ChemostatSolver extends ProcessManager
 	 * number of solutes
 	 */
 	protected int _n;
+	
+	protected boolean diableBulk = false;
 	
 	/* ***********************************************************************
 	 * CONSTRUCTORS
@@ -74,6 +80,8 @@ public class ChemostatSolver extends ProcessManager
 				environment.getSoluteNames()));
 		this._solutes = soluteNames;
 		this._n = this._solutes == null ? 0 : this._solutes.length;
+		if (this.isAspect(DISABLE_BULK_DYNAMICS))
+			this.diableBulk = this.getBoolean(DISABLE_BULK_DYNAMICS);
 	}
 	
 	/* ***********************************************************************
@@ -128,8 +136,21 @@ public class ChemostatSolver extends ProcessManager
 			e.printStackTrace();
 		}
 		
+		/* register changes to bookkeeper */
+		if( Global.bookkeeping )
+			for ( int i = 0; i < this._n; i++ )
+				this._agents._compartment.registerBook(
+						EventType.ODE, 
+						this._solutes[i], 
+						null, 
+						String.valueOf(yODE[i]-y.get(i)), null);
+		
 		/* convert solute mass rate to concentration rate to 
-		 * concentration rates */
+		 * concentration rates 
+		 * 
+		 * NOTE this description says rate though we are looking at y not dydt
+		 * thus for now I assume the description is wrong, check and update
+		 * description. */
 		for ( int i = 0; i < _n; i++ )
 		{
 			yODE[i] /= yODE[ _n ];
@@ -138,11 +159,14 @@ public class ChemostatSolver extends ProcessManager
 		/*
 		 * Update the environment
 		 */
-		for ( int i = 0; i < this._n; i++ )
-			this._environment.setAllConcentration( this._solutes[i], yODE[i]);
-		this._environment.getShape().setTotalVolume( yODE[ _n ] );
-		if( Log.shouldWrite(Tier.DEBUG) )
-			Log.out(Tier.DEBUG, "new volume: " + yODE[ _n ] );
+		if( !this.diableBulk )
+		{
+			for ( int i = 0; i < this._n; i++ )
+				this._environment.setAllConcentration( this._solutes[i], yODE[i]);
+			this._environment.getShape().setTotalVolume( yODE[ _n ] );
+			if( Log.shouldWrite(Tier.DEBUG) )
+				Log.out(Tier.DEBUG, "new volume: " + yODE[ _n ] );
+			}
 		
 		/* 
 		 * Update the agents 
@@ -344,7 +368,10 @@ public class ChemostatSolver extends ProcessManager
 	
 	protected void postStep()
 	{
-
+		/*
+		 * Ask all boundaries to update their solute concentrations.
+		 */
+		this._environment.updateSoluteBoundaries();
 		/**
 		 * act upon new agent situations
 		 */
