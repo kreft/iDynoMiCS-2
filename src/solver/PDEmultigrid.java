@@ -73,7 +73,7 @@ public class PDEmultigrid extends PDEsolver
 	/**
 	 * maximum number of pre-steps
 	 */
-	private int _numPreSteps = 150;
+	private int _numPreSteps = 1500;
 	/**
 	 * maximum number of coarse steps
 	 */
@@ -81,7 +81,7 @@ public class PDEmultigrid extends PDEsolver
 	/**
 	 * maximum number of post steps
 	 */
-	private int _numPostSteps = 150; // 1 -> 1000, 0.5 -> 2500 seems to work
+	private int _numPostSteps = 1500; // 1 -> 1000, 0.5 -> 2500 seems to work
 	
 	/**
 	 * Absolute threshold of the residual value at which relaxation is 
@@ -100,7 +100,7 @@ public class PDEmultigrid extends PDEsolver
 	/**
 	 * Enable stopping relaxation when stop conditions are met
 	 */
-	private boolean _enableEarlyStop = false;
+	private boolean _enableEarlyStop = true;
 	/**
 	 * Warn for large differences between Vcycle residuals (Debugging tool)
 	 */
@@ -113,6 +113,8 @@ public class PDEmultigrid extends PDEsolver
 	 * Stored old residual (Debugging tool internal use)
 	 */
 	private double tempRes[];
+	
+	private double tempRel[];
 	/**
 	 * Stored layer number (Debugging tool internal use)
 	 */
@@ -499,6 +501,8 @@ public class PDEmultigrid extends PDEsolver
 		currentCommon = this._commonMultigrid.getGrid();
 		if( tempRes == null)
 			tempRes = new double[variables.size()];
+		if( tempRel == null)
+			tempRel = new double[variables.size()];
 		int i = 0;
 
 		for ( SpatialGrid variable : variables )
@@ -529,9 +533,6 @@ public class PDEmultigrid extends PDEsolver
 				this.num = 0;
 			}
 			
-			this.tempRes[i] = residual;
-			i++;
-			
 			continueVCycle = (continueVCycle || residual > truncationError);
 			if ( continueVCycle && Log.shouldWrite(Tier.DEBUG) )
 				Log.out(Tier.DEBUG, "residual " + residual+ " > truncation"
@@ -552,6 +553,9 @@ public class PDEmultigrid extends PDEsolver
 			currentGrids.add(layer.getGrid());
 		SpatialGrid currentCommon = this._commonMultigrid.getGrid();
 		
+		tempRes = new double[this._variableNames.length];
+		tempRel = new double[this._variableNames.length];
+		
 		int nGrid = currentGrids.size();
 		double[][] validate = new double[nGrid][3];
 		
@@ -571,21 +575,30 @@ public class PDEmultigrid extends PDEsolver
 			boolean stop = true;
 			for ( SpatialGrid grid : currentGrids ) 
 			{
-				tempRes = new double[this._variableNames.length];
 				this.relax(grid, currentCommon);
 				if ( !this._reachedStopCondition )
 					stop = false;
 			}
 			if ( stop ) {
 //				if( Log.shouldWrite(Tier.DEBUG) )
-					Log.out("Breaking early: "+ i +" of "
+					Log.out("Met stop conditions at: "+ i+1 +" of "
 							+ numRepetitions );
 				break relaxLoops;
 			}
-			if( i+1 >= numRepetitions && Log.shouldWrite(Tier.DEBUG) )
+			if( i+1 >= numRepetitions && Log.shouldWrite(Tier.NORMAL) )
 			{
-				Log.out(Tier.DEBUG, i + " " + Vector.max(this.tempRes) + " > " +
-						this._absToleranceLevel );
+				if( Vector.max(this.tempRes) > this._absToleranceLevel )
+				{
+					Log.out(Tier.NORMAL, i+1 + " " + Vector.max(this.tempRes) + 
+							" > " +	this._absToleranceLevel );
+					Log.out(Vector.toString(tempRes));
+				}
+				else
+				{
+					Log.out(Tier.NORMAL, i+1 + " " + Vector.max(this.tempRel) + 
+							" > " +	this._relToleranceLevel );
+					Log.out(Vector.toString(tempRel));
+				}
 			}
 		}
 		/* update reaction rate matrix at current concn */
@@ -727,6 +740,13 @@ public class PDEmultigrid extends PDEsolver
 			residual = (lop - rhs) / totalNhbWeight;
 			this.tempRes[pos] = Math.max(this.tempRes[pos], Math.abs(residual));
 			double relChange = residual / concn;
+			if( concn <= 0.0 )
+			{
+				relChange = 0.0;
+				if( residual < 0.0 ) /* seriously? */
+					residual = 0.0;
+			}
+			this.tempRel[pos] = Math.max(this.tempRel[pos], Math.abs(relChange));
 			/* Prepare to update the local concentration. */
 			concn += residual;
 			if (Math.abs(residual) > this._absToleranceLevel &&
@@ -871,6 +891,13 @@ public class PDEmultigrid extends PDEsolver
 		if ( this._enableEarlyStop  )
 			this._reachedStopCondition = true;
 		
+		int pos = 0;
+		for (int i = 0; i < this._variableNames.length; i++)
+		{
+			if( variable.getName().equals(this._variableNames[i]))
+				pos = i;
+		}
+		
 		/* FIXME: inverting the order we iterate the grid changes the result
 		 * I don't think the method should be sensitive to the direction of
 		 * evaluation! Bas [09.12.2019]
@@ -959,18 +986,8 @@ public class PDEmultigrid extends PDEsolver
 			 * TODO
 			 */
 			residual = (lop - rhs) / totalNhbWeight;
-			double relChange = residual / concn;
-			/* Prepare to update the local concentration. */
 			concn += residual;
-			if (Math.abs(residual) > this._absToleranceLevel &&
-					Math.abs(relChange) > this._relToleranceLevel) 
-			{
-				this._reachedStopCondition = false;
-			} else {
-				if( Log.shouldWrite(Tier.DEBUG) )
-					Log.out(Tier.DEBUG, "residual = "+residual+" relChange = "+
-							relChange );
-			}
+
 			/* Check if we need to remain non-negative. */
 			if ( (!this._allowNegatives) && (concn < 0.0) )
 				concn = 0.0;
