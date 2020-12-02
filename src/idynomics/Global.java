@@ -170,7 +170,7 @@ public class Global extends ParameterSet
 	 * the default color specification for graphical output, NOTE in the future
 	 * we probably want to set this to "species"
 	 */
-	public static String default_colour_specification = "pigment";
+	public static String default_colour_specification = "species";
 	
 	/**
 	 * enable xml bookkeeping (also logging complete agent xml)

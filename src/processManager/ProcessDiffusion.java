@@ -275,13 +275,14 @@ public abstract class ProcessDiffusion extends ProcessManager
 			}
 		}
 		
-		if( Global.bookkeeping )
-			for (String t : totals.keySet())
-				/* NOTE we should rewrite how to access the compartment because 
-				 * this is pretty inefficient.	 */
-				Idynomics.simulator.getCompartment(this._compartmentName).
-						registerBook(EventType.REACTION, t, "ENIVIRONMENT", 
-						String.valueOf( totals.get(t) ), null );
+		// this class should only calculate, but values may not be final
+//		if( Global.bookkeeping )
+//			for (String t : totals.keySet())
+//				/* NOTE we should rewrite how to access the compartment because 
+//				 * this is pretty inefficient.	 */
+//				Idynomics.simulator.getCompartment(this._compartmentName).
+//						registerBook(EventType.REACTION, t, "ENIVIRONMENT", 
+//						String.valueOf( totals.get(t) ), null );
 	}
 	
 

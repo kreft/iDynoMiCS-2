@@ -3,7 +3,7 @@
 	<simulation name="Eco Ego" outputfolder="../results" log="EXPRESSIVE" randomSeed="124324235"
 		comment="this is a file for testing purposes only.">
 		<!-- minutes -->
-		<timer stepSize="15.0" endOfSimulation="21 [d]" />
+		<timer stepSize="60.0" endOfSimulation="21 [d]" />
 		<speciesLib>
 			<!-- in g N per L -->
 			<species name="Eco">
@@ -47,13 +47,13 @@
 			</species>
 
 			<species name="coccoid">
-				<aspect name="density" type="PRIMARY" class="Double" value="0.15" />
+				<aspect name="density" type="PRIMARY" class="Double" value="0.29" />
 				<aspect name="surfaces" type="CALCULATED" class="AgentSurfaces" />
-				<aspect name="divisionMass" type="PRIMARY" class="Double" value="0.5" />
+				<aspect name="divisionMass" type="PRIMARY" class="Double" value="0.16184390412" />
 				<aspect name="divide" type="EVENT" class="CoccoidDivision"	/>
 				<aspect name="updateBody" type="EVENT" class="UpdateBody" />
 				<aspect name="volume" type="CALCULATED" class="SimpleVolumeState" 	/>
-				<aspect name="radius" type="CALCULATED" class="CoccoidRadius" 		/>
+				<aspect name="radius" type="CALCULATED" class="CylinderRadius" 		/>
 			</species>
 
 		</speciesLib>
@@ -82,7 +82,7 @@
 			</processManagers>
 		</compartment>
 		<compartment name="first">
-			<shape class="Rectangle">
+			<shape class="Rectangle" resolutionCalculator="MultigridResolution"> 
 				<!-- µm -->
 				<dimension name="X" isCyclic="true" 	targetResolution="4.0" max="200.0"/>
 				<dimension name="Y" isCyclic="false" 	targetResolution="4.0" max="200.0">
@@ -134,11 +134,13 @@
 					<aspect name="decompressionThreshold" type="PRIMARY" class="Double" value="20000000.0" />
 					<aspect name="decompressionCellLength" type="PRIMARY" class="Double" value="10.0" />
 					<aspect name="traversingFraction" class="Double" value="0.10" />
-					<aspect name="stressThreshold" type="PRIMARY" class="Double" value="1e8" />
+					<aspect name="stressThreshold" type="PRIMARY" class="Double" value="1e3" />
 				</process>
 				<!-- minute -->
-				<process name="SolveDiffusionSteadyState" class="SolveDiffusionSteadyState" priority="-1"
+				<process name="SolveDiffusionSteadyState" class="SolveDiffusionSteadyState" priority="1"
 					firstStep="0.0">	
+					<aspect name="absoluteTolerance" type="PRIMARY" class="Double" value="1.0e-9" />
+					<aspect name="relativeTolerance" type="PRIMARY" class="Double" value="1.0e-6" />
 					<aspect name="vCycles" class="Integer" value="1" />
 					<aspect name="preSteps" class="Integer" value="1500" />
 					<aspect name="coarseSteps" class="Integer" value="1500" />
