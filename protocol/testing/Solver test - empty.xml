@@ -84,8 +84,8 @@
 		<compartment name="first">
 			<shape class="Rectangle">
 				<!-- µm -->
-				<dimension name="X" isCyclic="true" 	targetResolution="1.0" max="9.0"/>
-				<dimension name="Y" isCyclic="false" 	targetResolution="1.0" max="9.0">
+				<dimension name="X" isCyclic="true" 	targetResolution="1.0" max="5.0"/>
+				<dimension name="Y" isCyclic="false" 	targetResolution="1.0" max="5.0">
 					<boundary extreme="1" class="BiofilmBoundaryLayer" partnerCompartment="chemostat" layerThickness = "3.0"/>
 					<!--  <boundary extreme="1" class="FixedBoundary" layerThickness = "40.0">
 						<solute name="ammonium"  concentration="6e-6"/>
@@ -101,7 +101,7 @@
 			<reactions>
 			</reactions>
 			<spawn class="distributedSpawner" domain="2.0, 1.0" priority="0"
-			number="1" morphology="COCCOID">
+			number="0" morphology="COCCOID">
 				<aspect  name="spacing" class="Double[]" value="2.0, 0.0" />
 				<aspect  name="orient" class="Double[]" value="2.25, 0.25" />
 			<templateAgent>
@@ -114,7 +114,7 @@
 				</templateAgent>
 			</spawn>
 			<spawn class="distributedSpawner" domain="2.0, 1.0" priority="0"
-			number="1" morphology="COCCOID">
+			number="0" morphology="COCCOID">
 				<aspect  name="spacing" class="Double[]" value="2.0, 0.0" />
 				<aspect  name="orient" class="Double[]" value="3.25, 0.25" />
 			<templateAgent>

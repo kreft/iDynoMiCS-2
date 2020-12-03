@@ -13,6 +13,8 @@ package solver.mgFas;
 
 import java.io.Serializable;
 
+import solver.mgFas.utils.ContinuousVector;
+import solver.mgFas.utils.DiscreteVector;
 import utility.ExtraMath;
 import linearAlgebra.Array;
 import linearAlgebra.Vector;
@@ -222,7 +224,22 @@ public class SolverGrid implements Serializable
 		Vector.timesEquals(temp, _reso);
 		return temp;
 	}
-	
+
+	/**
+	 * \brief Transform a position, expressed as a discrete vector into a
+	 * continuous location on the basis of the resolution of the grid.
+	 *
+	 * @param coord	DiscreteVector to be transformed.
+	 * @return	ContinuousVector created from this discrete position.
+	 */
+	public ContinuousVector getContinuousCoordinates(DiscreteVector coord)
+	{
+		ContinuousVector out = new ContinuousVector();
+		out.setToVoxelCenter(coord, _reso);
+		return out;
+	}
+
+
 	/**
 	 * \brief Return the maximum value on this grid (padding included).
 	 * 

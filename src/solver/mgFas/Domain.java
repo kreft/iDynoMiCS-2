@@ -15,6 +15,9 @@ import compartment.EnvironmentContainer;
 import grid.ArrayType;
 import linearAlgebra.Array;
 import shape.Shape;
+import solver.mgFas.utils.AllBC;
+import solver.mgFas.utils.ContinuousVector;
+import solver.mgFas.utils.DiscreteVector;
 import utility.ExtraMath;
 
 /**
@@ -122,6 +125,11 @@ public class Domain
 	 * 	Diffusivity of solutes in each area of this domain
 	 */
 	protected SoluteGrid _diffusivityGrid;
+
+	/**
+	 * List of all boundaries defined on this computation domain.
+	 */
+	private LinkedList<AllBC> _boundaryList = new LinkedList<AllBC>();
 	
 	/**
 	 * Array to hold the X position that is the top of the boundary layer in
@@ -216,7 +224,39 @@ public class Domain
 		// array will work in the same way - thus we will be ignoring space at
 		// either end (_nJ and _nK=0 and _nJ+2 and _nK+2).  
 		_topOfBoundaryLayer = new int[_nJ+2][_nK+2];
-		
+
+
+		// Now comes the definition of the behavior at the boundaries.
+		// In general, there are 6 boundaries that must be addressed: y0z, yNz,
+		// x0z, xNz, x0y, xNy. These represent the edges of the domain along
+		// the non-named direction (i.e. y0z is the face at x=0, and yNz is the
+		// face at x=N). (For 2D simulations the x0y and xNy directions are
+		// included, but are made periodic.) Each <boundaryCondition> also
+		// includes a <shape> mark-up to define the shape of the boundary.
+		// The below call combines all boundary conditions in the XML file,
+		// then processes each.
+
+		/** Building
+		for (XMLParser aBCMarkUp : cdRoot.getChildrenParsers("boundaryCondition"))
+			AllBC.staticBuilder(aBCMarkUp, aSim, this);
+		**/
+
+		// Note the above has added all the boundaries to the array _boundaryList
+		// Now apply these boundaries
+
+		// Build the domain grid : 0 outside, 1 inside, -1 carrier
+
+		applyAllBoundary();
+		// KA May 2013
+		// Now we're going to initialise all these grids.
+		// Note this wasn't previously done, but with self attachment we need
+		// to know where the boundary layer is before any agents are added. The
+		// function below was part of the refreshBioFilmGrids method - this now
+		// exists independently and is called whenever these grids need to be
+		// refreshed.
+		calculateComputationDomainGrids();
+		// Now we can initialise the top of the boundary layer
+		this.calculateTopOfBoundaryLayer();
 	}
 	
 	/**
@@ -251,36 +291,36 @@ public class Domain
 	public void applyAllBoundary()
 	{
 		/* TODO do boundaries */
-//		DiscreteVector dC = new DiscreteVector();
-//		ContinuousVector cC;
-//		
-//		// Reset all the computational domain to "inside";
-//		_domainGrid.setAllValueAt( 1.0 );
-//		
-//		for (int i = 0; i < _domainGrid.getGridTotalSize(1); i++)
-//			for (int j = 0; j < _domainGrid.getGridTotalSize(2); j++)
-//				loop:
-//					for (int k = 0; k < _domainGrid.getGridTotalSize(3); k++)
-//				{
-//					dC.set(i-1, j-1, k-1);
-//					cC = _domainGrid.getContinuousCoordinates(dC);
-//					for (AllBC aBC : _boundaryList)
-//					{
-//						// skip if this gridCell has already been updated
-//						if ( _domainGrid.getValueAt(i, j, k) == -1.0 )
-//							continue loop;
-//						// Test if this grid cell is seen outside
-//						if ( aBC.isOutside(dC, _domainGrid) )
-//						{
-//							_domainGrid.setValueAt(-1.0, i, j, k);
-//							continue loop;
-//						}
-//						// label carrier part of the domain
-//						if ( aBC.isSupport() &&
-//											aBC.getDistance(cC) < _resolution )
-//							_domainGrid.setValueAt(0.0, i, j, k);
-//					}
-//				}
+		DiscreteVector dC = new DiscreteVector();
+		ContinuousVector cC;
+
+		// Reset all the computational domain to "inside";
+		_domainGrid.setAllValueAt( 1.0 );
+
+		for (int i = 0; i < _domainGrid.getGridTotalSize(1); i++)
+			for (int j = 0; j < _domainGrid.getGridTotalSize(2); j++)
+				loop:
+					for (int k = 0; k < _domainGrid.getGridTotalSize(3); k++)
+				{
+					dC.set(i-1, j-1, k-1);
+					cC = _domainGrid.getContinuousCoordinates(dC);
+					for (AllBC aBC : _boundaryList)
+					{
+						// skip if this gridCell has already been updated
+						if ( _domainGrid.getValueAt(i, j, k) == -1.0 )
+							continue loop;
+						// Test if this grid cell is seen outside
+						if ( aBC.isOutside(dC, _domainGrid) )
+						{
+							_domainGrid.setValueAt(-1.0, i, j, k);
+							continue loop;
+						}
+						// label carrier part of the domain
+						if ( aBC.isSupport() &&
+											aBC.getDistance(cC) < _resolution )
+							_domainGrid.setValueAt(0.0, i, j, k);
+					}
+				}
 	}
 	
 	/* _______________________ LOCATED AGENTS ______________________________ */
