@@ -87,6 +87,10 @@
 				<dimension name="X" isCyclic="true" 	targetResolution="4.0" max="200.0"/>
 				<dimension name="Y" isCyclic="false" 	targetResolution="4.0" max="200.0">
 					<boundary extreme="1" class="BiofilmBoundaryLayer" partnerCompartment="chemostat" layerThickness = "40.0"/>
+					<!--  <boundary extreme="1" class="FixedBoundary" layerThickness = "40.0">
+						<solute name="ammonium"  concentration="6e-6"/>
+						<solute name="oxygen" 	concentration="1e-5"/>
+					</boundary> -->
 				</dimension>
 			</shape>
 			<solutes>

@@ -66,7 +66,7 @@ import utility.Helper;
  */
 // TODO remove the last three sections by incorporation into Node construction.
 public abstract class Shape implements
-					CanPrelaunchCheck, Instantiable, Settable
+					CanPrelaunchCheck, Instantiable, Settable, Domain
 {
 	/**
 	 * Ordered dictionary of dimensions for this shape.

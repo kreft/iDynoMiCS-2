@@ -638,6 +638,12 @@ public final class Matrix
 			Vector.copyTo(destination[i], matrix[i]);
 	}
 	
+	public static void copyTo(Double[][] destination, Double[][] matrix)
+	{
+		for ( int i = 0; i < matrix.length; i++ )
+			Vector.copyTo(destination[i], matrix[i]);
+	}
+	
 	/**
 	 * \brief Make a deep copy of the given <b>matrix</b>, placing the result
 	 * into a new double[][].

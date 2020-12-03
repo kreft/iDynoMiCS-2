@@ -410,6 +410,12 @@ public final class Vector
 			destination[i] = source[i];
 	}
 	
+	public static void copyTo(Double[] destination, Double[] source)
+	{
+		for ( int i = 0; i < destination.length; i++ )
+			destination[i] = source[i];
+	}
+	
 	/**
 	 * \brief Copy the <b>vector</b> given to a new int[] array.
 	 * 

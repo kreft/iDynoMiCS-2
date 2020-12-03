@@ -676,6 +676,9 @@ public class PDEmultigrid extends PDEsolver
 					/*
 					 * If this is a boundary that does not contribute (e.g. a
 					 * solid boundary) then do not include it in the weighting.
+					 * 
+					 * FIXME this might not be properly implemented for every
+					 * boundary type
 					 */
 					bndryFlow = shape.nbhIteratorOutside()
 							.getDiffusiveFlow(variable);

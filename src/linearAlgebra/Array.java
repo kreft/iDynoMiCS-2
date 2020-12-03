@@ -114,6 +114,11 @@ public final class Array
 		double[][][] out = new double[ni][nj][nk];
 		return setAll(out, value);
 	}
+	
+	public static Double[][][] arrayDouble(int ni, int nj, int nk)
+	{
+		return new Double[ni][nj][nk];
+	}
 
 	/**
 	 * \brief A new cubic array of {@code double}s.
@@ -283,6 +288,12 @@ public final class Array
 	 * @param array 3D array of {@code double}s (preserved).
 	 */
 	public static void copyTo(double[][][] destination, double[][][] array)
+	{
+		for ( int i = 0 ; i < array.length; i++ )
+			Matrix.copyTo(destination[i], array[i]);
+	}
+	
+	public static void copyTo(Double[][][] destination, Double[][][] array)
 	{
 		for ( int i = 0 ; i < array.length; i++ )
 			Matrix.copyTo(destination[i], array[i]);

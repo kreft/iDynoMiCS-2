@@ -241,7 +241,7 @@ public final class ExtraMath
 	 * @param x The double to take the logarithm of.
 	 * @return double value of the logarithm (base 2) of <b>x</b>.
 	 */
-	public static final double log2(double x)
+	public static final Double log2(double x)
 	{
 		return StrictMath.log(x) / StrictMath.log(2.0);
 	}
