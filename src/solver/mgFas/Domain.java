@@ -161,11 +161,7 @@ public class Domain
 	 * The definition within the computationDomain markup of the protocol file
 	 * notes how these regions are set up. This constructor sets up each
 	 * computation domain that is specified in the protocol file.
-	 * 
-	 * @param aSim The simulation object upon which the scenario specified in
-	 * the protocol file is being run.
-	 * @param cdRoot The XML tag objects that sub-nodes of the 'Bulk' tag in
-	 * the protocol file.
+	 *
 	 */
 	public Domain(Shape shape) 
 	{

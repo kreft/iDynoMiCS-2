@@ -85,11 +85,7 @@ public abstract class DiffusionSolver
 	 * 
 	 * This method takes a solver specification from the XML file (as a set of
 	 * XML tags) and initialises a solver object.
-	 * 
-	 * @param aSim	The simulation object used to simulate the conditions
-	 * specified in the protocol file.
-	 * @param xmlRoot	The XML object containing the definition of one solver
-	 * in the protocol file.
+	 *
 	 */
 	public void init(Domain domain) 
 	{
