@@ -12,9 +12,13 @@
  */
 package solver.mgFas;
 
+import compartment.AgentContainer;
 import compartment.EnvironmentContainer;
+import grid.ArrayType;
 import grid.SpatialGrid;
 import idynomics.Idynomics;
+import processManager.ProcessDiffusion;
+import processManager.ProcessManager;
 import settable.Settable;
 
 import java.util.ArrayList;
@@ -119,15 +123,23 @@ public class Multigrid
 	 * V-cycle. Set in the protocol file.
 	 */
 	protected int nPostSteps;
-	
+
+	protected ProcessDiffusion _manager;
+
+	protected EnvironmentContainer _environment;
 	/**
 	 * 
 	 */
 	public void init(Domain domain, EnvironmentContainer environment,
+					 AgentContainer agents, ProcessDiffusion manager,
 					 int vCycles, int preSteps, int coarseSteps, int postSteps)
 	{
 		/* Get the computational domain that this solver is associated with. */
 		myDomain = domain;
+
+		this._manager = manager;
+
+		this._environment = environment;
 
 		/* Reference all the solutes declared in this system. */
 		_soluteList = new LinkedList<SoluteGrid>();
@@ -444,6 +456,21 @@ public class Multigrid
 //		for (int iReac = 0; iReac<_reactions.size(); iReac++)
 //			_reactions.get(iReac).applyReaction(allSolute, allReac,
 //								allDiffReac, _biomass[iReac]._conc[resOrder]);
+		/*
+		 *  computes uptake rate per solute ( mass*_specRate*this._soluteYield[iSolute]; )
+		 *  reactionGrid += uptakeRateGrid
+		 *   diffReactionGrid += diffUptakeRate ( no diffusion mediated by agents)
+		 */
+		this._manager.prestep( this._environment.getSolutes(), 0.0 );
+
+		/* TODO flash current concentration to iDyno 2 concentration grids */
+
+		for( MultigridSolute s : _solute )
+		{
+			/* set the net production to the finest grid */
+			s._reac[ 0 ] = new SoluteGrid(this.myDomain, s.soluteName,
+					ArrayType.PRODUCTIONRATE, this._environment.getSoluteGrid( s.soluteName ) );
+		}
 	}
 
 }

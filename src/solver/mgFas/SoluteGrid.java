@@ -112,6 +112,42 @@ public class SoluteGrid extends SolverGrid
 
 		grid.getArray(ArrayType.CONCN);
 	}
+
+	public SoluteGrid(Domain domain, String name, ArrayType type, SpatialGrid grid)
+	{
+		/*
+		 * Name the grid
+		 */
+		gridName = name;
+		/*
+		 * All solute names are stored in a simulation dictionary. Get the
+		 * position of this solute in this list.
+		 */
+//		soluteIndex = aSim.getSoluteIndex(gridName);
+		/*
+		 * Get the computation domain in which this solute exists and store
+		 * locally.
+		 */
+		_domain = domain;
+		/*
+		 * Now to set the resolution and create the grid. First check whether
+		 * a specific resolution has been set for this grid.
+		 */
+		useDomaingrid();
+
+		/*
+		 * Set the diffusivity - if specified in the XML file
+		 */
+
+		/*
+		 * copy from iDyno 2 grid.
+		 */
+		this.grid = grid.getArray(type);
+		/*
+		 * Now initialise the grid - setting the grid to the required size
+		 */
+		initGrids();
+	}
 	
 	/**
 	 * \brief Constructor used to establish a solute grid when creating
