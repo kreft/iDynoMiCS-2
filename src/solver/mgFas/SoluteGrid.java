@@ -14,7 +14,6 @@ package solver.mgFas;
 import grid.ArrayType;
 import grid.SpatialGrid;
 import settable.Settable;
-import shape.Domain;
 import shape.Shape;
 
 /**
@@ -70,12 +69,8 @@ public class SoluteGrid extends SolverGrid
 	 * createSolutes (in the Simulator class) to create the grids for each
 	 * solute. Once created, the grid is populated with the initial
 	 * concentration value of this solute.
-	 * 
-	 * @param aSim	The simulator object in which the conditions specified in
-	 * the protocol file are being created.
-	 * @param xmlRoot	The solute XML element being processed.
 	 */
-	public SoluteGrid(Shape shape, String name, SpatialGrid grid, Settable parent) 
+	public SoluteGrid(Domain domain, String name, SpatialGrid grid, Settable parent)
 	{
 		/*
 		 * Name the grid
@@ -90,7 +85,7 @@ public class SoluteGrid extends SolverGrid
 		 * Get the computation domain in which this solute exists and store
 		 * locally.
 		 */
-		_domain = shape;
+		_domain = domain;
 		/*
 		 * Now to set the resolution and create the grid. First check whether
 		 * a specific resolution has been set for this grid.
@@ -221,7 +216,7 @@ public class SoluteGrid extends SolverGrid
 	 */
 	public void useDomaingrid() 
 	{
-		double[] lengths = ((Shape) _domain).getRealLengths();
+		double[] lengths = _domain.getShape().getRealLengths();
 		
 		_reso = getRes();
 		_nI = (int) Math.ceil(lengths[0]/_reso[0]);
@@ -232,9 +227,9 @@ public class SoluteGrid extends SolverGrid
 	public double[] getRes() 
 	{
 		return new double[] {
-				((Shape) _domain).getResolutionCalculator(null, 0).getResolution(),
-				((Shape) _domain).getResolutionCalculator(null, 1).getResolution(),
-				((Shape) _domain).getResolutionCalculator(null, 2).getResolution() };
+				_domain.getShape().getResolutionCalculator(null, 0).getResolution(),
+				_domain.getShape().getResolutionCalculator(null, 1).getResolution(),
+				_domain.getShape().getResolutionCalculator(null, 2).getResolution() };
 	}
 	
 	/*************************************************************************

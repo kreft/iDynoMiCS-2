@@ -219,8 +219,7 @@ public abstract class ProcessDiffusion extends ProcessManager
 	/**
 	 * \brief Iterate over all solute grids, applying any reactions that occur
 	 * in the environment to the grids' {@code PRODUCTIONRATE} arrays.
-	 * 
-	 * @param environment The environment container of a {@code Compartment}.
+	 *
 	 */
 	protected void applyEnvReactions(Collection<SpatialGrid> solutes)
 	{
@@ -552,8 +551,8 @@ public abstract class ProcessDiffusion extends ProcessManager
 	 * distribution maps.
 	 * 
 	 * <p>This prevents unneeded clutter in XML output.</p>
-	 * 
-	 * @see #setupAgentDistributionMaps()
+	 *
+	 * @see #setupAgentDistributionMaps(Shape)
 	 */
 	public void removeAgentDistibutionMaps()
 	{

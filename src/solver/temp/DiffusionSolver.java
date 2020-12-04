@@ -10,7 +10,9 @@
  * terms of the CeCILL license as circulated by CEA, CNRS and INRIA at the
  * following URL  "http://www.cecill.info".
  */
-package solver.mgFas;
+package solver.temp;
+
+import solver.mgFas.Domain;
 
 import java.util.*;
 
@@ -35,44 +37,7 @@ import java.util.*;
  */
 public abstract class DiffusionSolver
 {
-	/**
-	 * A name assigned to this solver. Specified in the XML protocol file.
-	 */
-	public String	solverName;
-	
-	/**
-	 * The position of this solver in the simulation dictionary.
-	 */
-	public int	solverIndex;
-		
-	/**
-	 * The computational domain that this solver is associated with. Specified
-	 * in the XML protocol file.
-	 */
-	public Domain myDomain;
-	
-	/**
-	 * Local copy of the array of solute grids - one for each solute specified
-	 * in the simulation protocol file. Taken from simulator object.
-	 */
-	protected SoluteGrid[]        _soluteList;
-	
-	/**
-	 * List of solutes that are used by THIS solver.
-	 */
-	protected ArrayList<Integer>  _soluteIndex = new ArrayList<Integer>();
-	
-	protected Double	internTimeStep;
-	
-	protected Double	minimalTimeStep;
-	
-	protected int	internalIteration;
-	
-	/**
-	 * Boolean flag that determines whether this solver will actually be used.
-	 * Specified in XML protocol file.
-	 */
-	protected Boolean			_active = false;
+
 	
 	
 	/*************************************************************************
@@ -85,29 +50,12 @@ public abstract class DiffusionSolver
 	 * 
 	 * This method takes a solver specification from the XML file (as a set of
 	 * XML tags) and initialises a solver object.
-	 * 
-	 * @param aSim	The simulation object used to simulate the conditions
-	 * specified in the protocol file.
-	 * @param xmlRoot	The XML object containing the definition of one solver
-	 * in the protocol file.
+	 *
 	 */
-	public void init(Domain domain) 
+	public void init(Domain domain)
 	{
 		
-		// Get the computational domain that this solver is associated with.
-		myDomain = domain;
-		
-		// Reference all the solutes declared in this system.
-		_soluteList = null;
-		
-		/* Now for each solver, reactions are specified. Add these reactions
-		 * and list the solutes that these modify.
-		 */
-		
-		// TODO handle idyno 2 reactions
-		
-//		for (String aReacName : xmlRoot.getChildrenNames("reaction"))
-//			addReactionWithSolutes(aSim.getReaction(aReacName));
+
 	}
 	
 	/**
