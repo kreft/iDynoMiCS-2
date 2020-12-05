@@ -36,15 +36,8 @@ public class FillialRodShift extends DivisionMethod
 			shiftMorphology( (Agent) initiator );
 			updateAgents( (Agent) initiator, null );
 		}
-		
-		if( this.shouldDevide( initiator ))
-		{
-			/* Make one new agent, copied from the mother.*/
-			compliant = new Agent( (Agent) initiator );
-			DivisionMethod.transferMass( initiator, compliant );
-			this.shiftBodies( (Agent) initiator, (Agent) compliant );
-			updateAgents( (Agent) initiator, (Agent) compliant );
-		}
+
+		super.start(initiator, compliant, timeStep);
 	}
 	
 	protected boolean shouldChange( AspectInterface initiator )
