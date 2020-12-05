@@ -62,6 +62,8 @@ public class MultigridSolute
 	
 	/**
 	 * Concentration of this solute.
+	 *
+	 * Grids stored from finest [0] to coarsest [length]
 	 */
 	public SoluteGrid[] _conc;
 	
@@ -481,7 +483,8 @@ public class MultigridSolute
 		int nI = res[order].getGridSizeI();
 		int nJ = res[order].getGridSizeJ();
 		int nK = res[order].getGridSizeK();
-		
+
+		/* TODO I haven't yet got a grasp of this reference system / index */
 		Double h = _referenceSystemSide/referenceIndex(nI,nJ,nK);
 		Double h2i = 0.5f/(h*h);
 		Double lop; // temporary variable for L-operator

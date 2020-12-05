@@ -135,9 +135,17 @@ public class SolverGrid implements Serializable
 	 */
 	protected void initGrids() 
 	{
-		_is3D = ! ( _nK == 1 );
-		grid = Array.array(_nI+2, _nJ+2, _nK+2, 0.0);
-		
+		if( grid == null ) {
+			grid = Array.array(_nI + 2, _nJ + 2, _nK + 2, 0.0);
+		}
+		else
+		{
+			/* if we already flashed the grid in set I, J, K, accordingly. */
+			_nI = grid.length;
+			_nJ = grid[0].length;
+			_nK = grid[0][0].length;
+		}
+		_is3D = !(_nK == 1);
 	}
 
 	/**
@@ -517,7 +525,7 @@ public class SolverGrid implements Serializable
 	 * \brief Return the value on the padded grid at a given position
 	 * (the coordinates are NOT corrected).
 	 * 
-	 * @param dV	DiscreteVector containing the location of the grid
+	 * @param dc	DiscreteVector containing the location of the grid
 	 * whose value should be returned.
 	 * @return The double value at that location.
 	 */

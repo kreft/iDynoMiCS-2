@@ -58,8 +58,8 @@
 
 		</speciesLib>
 		<compartment name="chemostat">
-			<shape class="Dimensionless" volume="1e9">
-				<boundary  class="constantConcentrationToChemostat" volumeFlowRate="1.1e7">
+			<shape class="Dimensionless" volume="1e21">
+				<boundary  class="constantConcentrationToChemostat" volumeFlowRate="1.0e20">
 				<solute name="ammonium" concentration="1.0E-06"  />
 				<solute name="oxygen" 	concentration="5.6E-5"  />
 				</boundary>

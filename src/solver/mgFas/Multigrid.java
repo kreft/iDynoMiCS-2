@@ -12,7 +12,17 @@
  */
 package solver.mgFas;
 
+import compartment.AgentContainer;
+import compartment.EnvironmentContainer;
+import grid.ArrayType;
+import grid.SpatialGrid;
 import idynomics.Idynomics;
+import processManager.ProcessDiffusion;
+import processManager.ProcessManager;
+import settable.Settable;
+
+import java.util.ArrayList;
+import java.util.LinkedList;
 
 /**
  * 
@@ -22,8 +32,47 @@ import idynomics.Idynomics;
  * @author Brian Merkey (brim@env.dtu.dk, bvm@northwestern.edu), Department of
  * Engineering Sciences and Applied Mathematics, Northwestern University (USA)
  */
-public class Solver_multigrid extends DiffusionSolver
+public class Multigrid
 {
+	/**
+	 * A name assigned to this solver. Specified in the XML protocol file.
+	 */
+	public String	solverName;
+
+	/**
+	 * The position of this solver in the simulation dictionary.
+	 */
+	public int	solverIndex;
+
+	/**
+	 * The computational domain that this solver is associated with. Specified
+	 * in the XML protocol file.
+	 */
+	public Domain myDomain;
+
+	/**
+	 * Local copy of the array of solute grids - one for each solute specified
+	 * in the simulation protocol file. Taken from simulator object.
+	 */
+	protected LinkedList<SoluteGrid> _soluteList;
+
+	/**
+	 * List of solutes that are used by THIS solver.
+	 */
+	protected ArrayList<Integer> _soluteIndex = new ArrayList<Integer>();
+
+	protected Double	internTimeStep;
+
+	protected Double	minimalTimeStep;
+
+	protected int	internalIteration;
+
+	/**
+	 * Boolean flag that determines whether this solver will actually be used.
+	 * Specified in XML protocol file.
+	 */
+	protected Boolean			_active = false;
+
 	protected MultigridSolute _bLayer;
 	
 	protected MultigridSolute	_diffusivity;
@@ -45,7 +94,7 @@ public class Solver_multigrid extends DiffusionSolver
 	/**
 	 * Number of solutes SOLVED by THIS solver
 	 */
-	protected int				nSolute;
+	protected int nSolute;
 	
 	/**
 	 * 
@@ -55,73 +104,110 @@ public class Solver_multigrid extends DiffusionSolver
 	/**
 	 * Number of times to relax the coarsest grid. Set in the protocol file. 
 	 */
-	protected int               nCoarseStep;
+	protected int nCoarseStep;
 	
 	/**
 	 * Number of V-cycles to perform during each time step. Set in the
 	 * protocol file.
 	 */
-	protected int				vCycles;
+	protected int _vCycles;
 	
 	/**
 	 * Number of times to relax each multigrid during the downward stroke of a
 	 * V-cycle. Set in the protocol file.
 	 */
-	protected int				nPreSteps;
+	protected int nPreSteps;
 	
 	/**
 	 * Number of times to relax each multigrid during the upward stroke of a
 	 * V-cycle. Set in the protocol file.
 	 */
-	protected int				nPostSteps;
-	
+	protected int nPostSteps;
+
+	protected ProcessDiffusion _manager;
+
+	protected EnvironmentContainer _environment;
 	/**
 	 * 
 	 */
-	@Override
-	public void init(Domain domain)
+	public void init(Domain domain, EnvironmentContainer environment,
+					 AgentContainer agents, ProcessDiffusion manager,
+					 int vCycles, int preSteps, int coarseSteps, int postSteps)
 	{
-		super.init(domain);
+		/* Get the computational domain that this solver is associated with. */
+		myDomain = domain;
+
+		this._manager = manager;
+
+		this._environment = environment;
+
+		/* Reference all the solutes declared in this system. */
+		_soluteList = new LinkedList<SoluteGrid>();
+
+		/* TODO paradigm for if we only want to solve for a subset of solutes
+		*  TODO did iDyno 1 store other things in the solute list? It seems
+		*   that there are multiple lists all representing solutes..
+		*/
+		for ( SpatialGrid s : environment.getSolutes() )
+			_soluteList.add( new SoluteGrid(domain, s.getName(), s, null ));
+
+		/* Now for each solver, reactions are specified. Add these reactions
+		 * and list the solutes that these modify.
+		 */
+
+		// TODO handle idyno 2 reactions
+
+//		for (String aReacName : xmlRoot.getChildrenNames("reaction"))
+//			addReactionWithSolutes(aSim.getReaction(aReacName));
 		
-		nCoarseStep = 500;
-		vCycles = 5;
-		nPreSteps = 100;
-		nPostSteps = 100;
-		
-		/* TODO get solutes */
-		_soluteList = null;
+		nCoarseStep = coarseSteps;
+		_vCycles = vCycles;
+		nPreSteps = preSteps;
+		nPostSteps = postSteps;
+
 		// Create the table of solute grids
-		nSolute = _soluteList.length;
+		nSolute = _soluteList.size();
 		_solute = new MultigridSolute[nSolute];
 		allSolute = new SoluteGrid[nSolute];
 //		allReac = new SoluteGrid[nSolute];
 		allDiffReac = new SoluteGrid[nSolute];
-		
-		_bLayer = new MultigridSolute(_soluteList[0], "boundary layer");
+
+		/* TODO both soluteList entry 0, eh? */
+		_bLayer = new MultigridSolute(_soluteList.get(0), "boundary layer");
 		_diffusivity = 
-				new MultigridSolute(_soluteList[0], "relative diffusivity");
+				new MultigridSolute(_soluteList.get(0), "relative diffusivity");
 		
 		Double sBulk;
 		for (int i = 0; i < nSolute; i++)
 		{
-			if (_soluteIndex.contains(i))
-			{
+//			if (_soluteIndex.contains(i))
+//			{
 				sBulk = 0.0; // initial value
-				_solute[i] = new MultigridSolute(_soluteList[i],
+				_solute[i] = new MultigridSolute(_soluteList.get(i),
 												_diffusivity, _bLayer, sBulk);
-			}
-			else
-				_solute[i] = null;
+//			}
+//			else
+//				_solute[i] = null;
 		}
+
 		/* From this moment, nSolute is the number of solutes SOLVED by THIS
 		 * solver.
+		 *
+		 * TODO aha! this is actually useful so we may set different tolerances
+		 *  for low vs high concentration solutes, implement..
 		 */
+
 		nSolute = _soluteIndex.size();
 //		nReaction = _reactions.size();
-		maxOrder = _solute[_soluteIndex.get(0)]._conc.length;
+		maxOrder = _solute[ _soluteIndex.get(0) ]._conc.length;
 		
-		// NOTE idyno 2 reaction handling
-		// Initialize array of reactive biomasses.
+		/* TODO idyno 2 reaction handling
+		 * TODO we do want a biomass grid to determine diffusivity regimes but
+		 *  we don't want them for their reactions as this will be handled the
+		 * 	new way.
+		 *
+		 * Initialize array of reactive biomasses.
+		 */
 //		_biomass = new MultigridSolute[nReaction];
 //		for (int i = 0; i < nReaction; i++)
 //		{
@@ -130,8 +216,17 @@ public class Solver_multigrid extends DiffusionSolver
 //			_biomass[i].resetMultigridCopies(0.0);
 //		}
 	}
-	
-	@Override
+
+	/**
+	 * \brief Create the solver, initialise the concentration fields, and
+	 * solve the diffusion reaction equations.
+	 */
+	public void initAndSolve()
+	{
+		initializeConcentrationFields();
+		solveDiffusionReaction();
+	}
+
 	public void initializeConcentrationFields()
 	{
 		minimalTimeStep = 0.1*Idynomics.simulator.timer.getTimeStepSize();
@@ -140,8 +235,8 @@ public class Solver_multigrid extends DiffusionSolver
 		// NOTE not using Biofilm grids
 //		myDomain.refreshBioFilmGrids();
 		
-		// TODO eh?
-		_bLayer.setFinest(myDomain.getBoundaryLayer());
+		// TODO this is the region in which diffusion is solved?
+		_bLayer.setFinest( myDomain.getBoundaryLayer() );
 		_bLayer.restrictToCoarsest();
 		
 		// TODO this should be per solute no?
@@ -149,7 +244,7 @@ public class Solver_multigrid extends DiffusionSolver
 		_diffusivity.restrictToCoarsest();
 		
 		/* TODO we don't need to prepare anything here for the idyno 2
-		   implementation do we? */
+		 *  implementation do we? */
 		// Prepare a soluteGrid with catalyst CONCENTRATION.
 //		for (int i = 0; i<_biomass.length; i++)
 //		{
@@ -172,7 +267,6 @@ public class Solver_multigrid extends DiffusionSolver
 	/**
 	 * Solve by iterative relaxation.
 	 */
-	@Override
 	public void solveDiffusionReaction()
 	{
 		Double timeToSolve = Idynomics.simulator.timer.getTimeStepSize();
@@ -214,6 +308,8 @@ public class Solver_multigrid extends DiffusionSolver
 		// Solve chemical concentrations on coarsest grid.
 		solveCoarsest();
 
+		/* TODO order / outer representing finer and coarse grid for
+		*   the active V-cycle. */
 		// Nested iteration loop.
 		for (int outer = 1; outer < maxOrder; outer++)
 		{
@@ -222,7 +318,7 @@ public class Solver_multigrid extends DiffusionSolver
 				_solute[iSolute].initLoop(order);
 
 			// V-cycle loop.
-			for (int v = 0; v < vCycles; v++)
+			for (int v = 0; v < _vCycles; v++)
 			{
 				// Downward stroke of V.
 				while ( order > 0 )
@@ -275,6 +371,8 @@ public class Solver_multigrid extends DiffusionSolver
 
 	/**
 	 * \brief Update concentration in the reactor.
+	 *
+	 * TODO boundaries update
 	 */
 	public void updateBulk()
 	{
@@ -358,6 +456,21 @@ public class Solver_multigrid extends DiffusionSolver
 //		for (int iReac = 0; iReac<_reactions.size(); iReac++)
 //			_reactions.get(iReac).applyReaction(allSolute, allReac,
 //								allDiffReac, _biomass[iReac]._conc[resOrder]);
+		/*
+		 *  computes uptake rate per solute ( mass*_specRate*this._soluteYield[iSolute]; )
+		 *  reactionGrid += uptakeRateGrid
+		 *   diffReactionGrid += diffUptakeRate ( no diffusion mediated by agents)
+		 */
+		this._manager.prestep( this._environment.getSolutes(), 0.0 );
+
+		/* TODO flash current concentration to iDyno 2 concentration grids */
+
+		for( MultigridSolute s : _solute )
+		{
+			/* set the net production to the finest grid */
+			s._reac[ 0 ] = new SoluteGrid(this.myDomain, s.soluteName,
+					ArrayType.PRODUCTIONRATE, this._environment.getSoluteGrid( s.soluteName ) );
+		}
 	}
 
 }

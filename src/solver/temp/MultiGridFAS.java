@@ -1,4 +1,4 @@
-package solver.mgFas;
+package solver.temp;
 
 import grid.SpatialGrid;
 import linearAlgebra.Array;
