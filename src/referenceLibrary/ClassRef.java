@@ -378,6 +378,13 @@ public class ClassRef
 	 */
 	public final static String solveDiffusionSteadyState =
 			processManager.library.SolveDiffusionSteadyState.class.getName();
+
+	/**
+	 * solve steady state diffusion process manager
+	 */
+	public final static String PDEWrapper =
+			processManager.library.PDEWrapper.class.getName();
+
 	/**
 	 * solve chemostat process manager
 	 */

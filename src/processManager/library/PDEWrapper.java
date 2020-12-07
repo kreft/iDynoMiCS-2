@@ -20,9 +20,11 @@ import referenceLibrary.AspectRef;
 import referenceLibrary.XmlRef;
 import shape.Shape;
 import shape.subvoxel.IntegerArray;
+import solver.PDEexplicit;
 import solver.PDEmultigrid;
 import solver.mgFas.Domain;
 import solver.mgFas.Multigrid;
+import utility.Helper;
 
 /**
  * \brief wraps and runs PDE solver
@@ -55,16 +57,34 @@ public class PDEWrapper extends ProcessDiffusion
         int coarseSteps = (int) this.getOr(AspectRef.coarseSteps, 100);
         int postSteps = (int) this.getOr(AspectRef.postSteps, 100);
 
+        /* TODO initial diffusivity */
+
+        /* gets specific solutes from process manager aspect registry if they
+         * are defined, if not, solve for all solutes.
+         */
+        this._soluteNames = (String[]) this.getOr(SOLUTES,
+                Helper.collectionToArray(this._environment.getSoluteNames()));
+        /*
+         * Set up the relevant arrays in each of our solute grids: diffusivity
+         * & well-mixed need only be done once each process manager time step,
+         * but production rate must be reset every time the PDE updater method
+         * is called.
+         */
+        for ( String soluteName : this._soluteNames )
+        {
+            SpatialGrid solute = this._environment.getSoluteGrid(soluteName);
+            solute.updateDiffusivity(this._environment, this._agents);
+        }
+
         Domain domain = new Domain(environment.getShape());
         Multigrid multigrid = new Multigrid();
         multigrid.init(domain, environment, agents, this,
                 vCycles, preSteps, coarseSteps, postSteps);
 
-        this._solver.setUpdater(this);
+        super.init(xmlElem, environment, agents, compartmentName);
 
-        this._solver.setAbsoluteTolerance(absTol);
+        // TODO Let the user choose which ODEsolver to use.
 
-        this._solver.setRelativeTolerance(relTol);
 
     }
 
@@ -78,7 +98,9 @@ public class PDEWrapper extends ProcessDiffusion
         /*
          * Do the generic set up and solving.
          */
-        super.internalStep();
+//        super.internalStep();
+
+        prestep(this._environment.getSolutes(), 0.0);
 
         for ( SpatialGrid var : this._environment.getSolutes() )
         {
@@ -123,6 +145,9 @@ public class PDEWrapper extends ProcessDiffusion
         for ( SpatialGrid var : variables )
             var.newArray(PRODUCTIONRATE);
         applyEnvReactions(variables);
+
+        setupAgentDistributionMaps(this._agents.getShape());
+
         for ( Agent agent : _agents.getAllLocatedAgents() )
             applyAgentReactions(agent, variables);
     }

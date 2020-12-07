@@ -185,6 +185,7 @@ public class Multigrid
 				sBulk = 0.0; // initial value
 				_solute[i] = new MultigridSolute(_soluteList.get(i),
 												_diffusivity, _bLayer, sBulk);
+				_soluteIndex.add(i); //TODO figure out how solute index was used, adding it here to help program run
 //			}
 //			else
 //				_solute[i] = null;
