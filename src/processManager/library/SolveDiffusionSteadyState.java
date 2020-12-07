@@ -166,8 +166,10 @@ public class SolveDiffusionSteadyState extends ProcessDiffusion
 		 */
 		Shape shape = variables.iterator().next().getShape();
 		@SuppressWarnings("unchecked")
-		Map<Shape, HashMap<IntegerArray,Double>> mapOfMaps = (Map<Shape, HashMap<IntegerArray,Double>>)
-						agent.getValue(VOLUME_DISTRIBUTION_MAP);
+		Map<Shape, HashMap<IntegerArray,Double>> mapOfMaps = 
+				(Map<Shape, HashMap<IntegerArray,Double>>)
+				agent.getValue(VOLUME_DISTRIBUTION_MAP);
+		
 		HashMap<IntegerArray,Double> distributionMap = mapOfMaps.get(shape);
 		/*
 		 * Get the agent biomass kinds as a map. Copy it now so that we can
@@ -233,7 +235,8 @@ public class SolveDiffusionSteadyState extends ProcessDiffusion
 					if ( solute != null )
 					{
 						productRate = r.getProductionRate(concns, productName);
-						solute.addValueAt(PRODUCTIONRATE, coord.get(), volume * productRate);
+						solute.addValueAt( PRODUCTIONRATE, coord.get(), volume * 
+								productRate );
 					}
 					/* 
 					 * Unlike in a transient solver, we do not update the agent
@@ -271,8 +274,9 @@ public class SolveDiffusionSteadyState extends ProcessDiffusion
 		 * one.
 		 */
 		@SuppressWarnings("unchecked")
-		Map<Shape, HashMap<IntegerArray,Double>> mapOfMaps = (Map<Shape, HashMap<IntegerArray,Double>>)
-						agent.getValue(VOLUME_DISTRIBUTION_MAP);
+		Map<Shape, HashMap<IntegerArray,Double>> mapOfMaps = 
+				( Map<Shape, HashMap<IntegerArray,Double>> )
+				agent.getValue(VOLUME_DISTRIBUTION_MAP);
 		HashMap<IntegerArray,Double> distributionMap = 
 				mapOfMaps.get(agent.getCompartment().getShape());
 		/*
@@ -291,8 +295,8 @@ public class SolveDiffusionSteadyState extends ProcessDiffusion
 		double concn, productRate, volume, perVolume;
 		for ( IntegerArray coord : distributionMap.keySet() )
 		{
-			volume = this._agents.getShape().getVoxelVolume(coord.get());
-			perVolume = 1.0/volume;
+			volume = this._agents.getShape().getVoxelVolume( coord.get() );
+			perVolume = 1.0 / volume;
 			for ( Reaction r : reactions )
 			{
 				/* 
@@ -305,25 +309,25 @@ public class SolveDiffusionSteadyState extends ProcessDiffusion
 				concns.clear();
 				for ( String varName : r.getConstituentNames() )
 				{
-					if ( this._environment.isSoluteName(varName) )
+					if ( this._environment.isSoluteName( varName ) )
 					{
-						solute = this._environment.getSoluteGrid(varName);
-						concn = solute.getValueAt(CONCN, coord.get());
+						solute = this._environment.getSoluteGrid( varName );
+						concn = solute.getValueAt( CONCN, coord.get() );
 					}
-					else if ( biomass.containsKey(varName) )
+					else if ( biomass.containsKey( varName ) )
 					{
-						concn = biomass.get(varName) * 
-								distributionMap.get(coord) * perVolume;
+						concn = biomass.get( varName ) * 
+								distributionMap.get( coord ) * perVolume;
 
 					}
-					else if ( agent.isAspect(varName) )
+					else if ( agent.isAspect( varName ) )
 					{
 						/*
 						 * Check if the agent has other mass-like aspects
 						 * (e.g. EPS).
 						 */
-						concn = agent.getDouble(varName) * 
-								distributionMap.get(coord) * perVolume;
+						concn = agent.getDouble( varName ) * 
+								distributionMap.get( coord ) * perVolume;
 					}
 					else
 					{
@@ -396,9 +400,6 @@ public class SolveDiffusionSteadyState extends ProcessDiffusion
 				}
 			}
 		}
-		/* debugging */
-//		Log.out( " ## " +
-//		this._environment.getSoluteGrid("glucose").getAverage(PRODUCTIONRATE));
 		ProcessMethods.updateAgentMass(agent, newBiomass);
 	}
 }

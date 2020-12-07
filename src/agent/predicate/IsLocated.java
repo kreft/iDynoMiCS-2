@@ -31,8 +31,8 @@ public class IsLocated  implements Predicate<Agent> {
 	 */
 	public static boolean isLocated(Agent agent)
 	{
-		return ( agent.get(AspectRef.isLocated) != null ) && 
-				( agent.getBoolean(AspectRef.isLocated) );
+		return ( agent.get(AspectRef.agentBody) != null );
+//				( agent.getBoolean(AspectRef.isLocated) );
 	}
 	/**
 	 * \brief return minimal description of the predicate

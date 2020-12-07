@@ -3014,6 +3014,11 @@ public final class Vector
 	 */
 	public static void normaliseEuclidEqualsUnchecked(double[] vector, double newNorm)
 	{
+		if(normEuclid(vector) == 0.0)
+		{
+			Log.out(Tier.CRITICAL,"zero division not allowed in: Vector");
+			return;
+		}
 		timesEquals(vector, newNorm/normEuclid(vector));
 	}
 	
@@ -3202,8 +3207,8 @@ public final class Vector
 			double theta = Math.atan2(cartesian[1], cartesian[0]);
 			double phi = Math.acos(cartesian[2]/radius);
 			destination[0] = radius;
-			destination[1] = phi;
-			destination[2] = theta;
+			destination[2] = phi;
+			destination[1] = theta;
 		}
 		}
 	}
@@ -3281,8 +3286,8 @@ public final class Vector
 		case 3 :
 		{
 			double radius = spherical[0];
-			double phi = spherical[1];
-			double theta = spherical[2];
+			double phi = spherical[2];
+			double theta = spherical[1];
 			destination[0] = radius * Math.cos(theta) * Math.sin(phi);
 			destination[1] = radius * Math.sin(theta) * Math.sin(phi);
 			destination[2] = radius * Math.cos(phi);
@@ -3492,6 +3497,15 @@ public final class Vector
 			else
 				out[i] = 0;
 		return out;
+	}
+
+	public static boolean equals(double[] a, double[] b) {
+		if(a.length != b.length)
+			return false;
+		for( int i = 0; i < a.length; i++)
+			if( a[i] != b[i] )
+				return false;
+		return true;
 	}
 
 

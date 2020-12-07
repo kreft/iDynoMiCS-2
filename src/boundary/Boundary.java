@@ -218,8 +218,10 @@ public abstract class Boundary implements Settable, Instantiable
 				out = (Boundary) bClass.newInstance();
 				this.setPartner(out);
 				out.setPartner(this);
-				/* oh dear TODO better to assign compartment name on boundary creation or just associate the compartment */
-				out._partnerCompartmentName = ((Compartment) this.getParent().getParent().getParent()).getName();
+				/* oh dear TODO better to assign compartment name on boundary 
+				 * creation or just associate the compartment */
+				out._partnerCompartmentName = ((Compartment) this.getParent().
+						getParent().getParent()).getName();
 			}
 			catch (Exception e)
 			{
@@ -422,6 +424,7 @@ public abstract class Boundary implements Settable, Instantiable
 	}
 
 	/**
+	 * FIXME large parts of this method look like it is just test code 
 	 * Push all agents in the departure lounge to the partner boundary's
 	 * arrivals lounge.
 	 */
@@ -450,7 +453,8 @@ public abstract class Boundary implements Settable, Instantiable
 				int numAgentsDepart = this._departureLounge.size();
 				String partnerCompName = this.getPartnerCompartmentName();
 				Compartment partnerComp = Idynomics.simulator.getCompartment(partnerCompName);
-				Compartment thisComp = Idynomics.simulator.getCompartment("oneDim");
+				/* TODO patched some obvious test code here, check this method/class */
+				Compartment thisComp = this._agents._compartment;
 				if (partnerComp != null )
 				{
 					double scFac = thisComp.getScalingFactor() / partnerComp.getScalingFactor();
@@ -591,7 +595,8 @@ public abstract class Boundary implements Settable, Instantiable
 		}
 		
 		if ( this._volumeFlowRate != 0.0 )
-			modelNode.add( new Attribute( XmlRef.volumeFlowRate, String.valueOf( this._volumeFlowRate ), null, true ));
+			modelNode.add( new Attribute( XmlRef.volumeFlowRate, 
+					String.valueOf( this._volumeFlowRate ), null, true ));
 		// TODO
 		// modelNode.requirement = Requirements.?
 		return modelNode;

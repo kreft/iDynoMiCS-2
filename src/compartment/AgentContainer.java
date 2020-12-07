@@ -20,6 +20,7 @@ import dataIO.Log;
 import dataIO.Log.Tier;
 import gereralPredicates.IsSame;
 import idynomics.Global;
+import idynomics.Idynomics;
 import linearAlgebra.Vector;
 import physicalObject.PhysicalObject;
 import referenceLibrary.AspectRef;
@@ -521,11 +522,17 @@ public class AgentContainer implements Settable
 	 */
 	protected void addLocatedAgent(Agent anAgent)
 	{
-		anAgent.event(AspectRef.agentUpdateBody); /* hard coded should not be here */
+		if( Idynomics.simulator.active())
+			anAgent.event(AspectRef.agentUpdateBody); /* hard coded should not be here */
 		this._locatedAgentList.add(anAgent);
 		this.treeInsert(anAgent);
 	}
 
+	public void update() 
+	{
+		for( Agent a : this.getAllAgents())
+			a.event(AspectRef.agentUpdateBody);
+	}
 		// FIXME move all aspect related methods out of general classes
 	/**
 	 * \brief Insert the given agent into this container's spatial registry.
@@ -642,6 +649,7 @@ public class AgentContainer implements Settable
 		else
 			this._agentList.remove(anAgent);
 		this._agentsToRegisterRemoved.add(anAgent);
+		anAgent.set(AspectRef.removed,true);
 	}
 
 	/**

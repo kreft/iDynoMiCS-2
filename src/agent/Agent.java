@@ -10,6 +10,8 @@ import aspect.Aspect.AspectClass;
 import aspect.AspectInterface;
 import aspect.AspectReg;
 import compartment.Compartment;
+import dataIO.Log;
+import dataIO.Log.Tier;
 import dataIO.XmlHandler;
 import idynomics.Idynomics;
 import instantiable.Instantiable;
@@ -34,9 +36,11 @@ public class Agent implements AspectInterface, Settable, Instantiable
 	/**
 	 * The uid is a unique identifier created when a new Agent is created via 
 	 * the constructor.
+	 * 
+	 * becomiming tricky consider redesign
 	 */
 	protected static int UNIQUE_ID = 0;
-	final int _uid = ++UNIQUE_ID;
+	protected int _uid;
 
 	/**
 	 * The compartment the agent is currently in
@@ -107,12 +111,34 @@ public class Agent implements AspectInterface, Settable, Instantiable
 		}
 		else
 		{
+			String in =  XmlHandler.gatherAttribute(xmlNode, 
+					XmlRef.identity);
+			this.number(Integer.valueOf(in));
 			// Place located agents
 			loadAspects(xmlNode);
 		}
 		this.init();
 	}
 	
+	private void number(Integer in)
+	{
+
+		if(in != null)
+		{
+			if ( UNIQUE_ID <= in )
+				UNIQUE_ID++;
+			if( Idynomics.simulator.findAgent(Integer.valueOf(in)) == null)
+				this._uid = Integer.valueOf(in);
+			else
+			{
+				Log.out(Tier.NORMAL, "attempted to assign pre-existing agent"+
+						" identity, assigning next instead");
+				number(null);
+			}
+		}
+		else
+			number( UNIQUE_ID );
+	}
 	
 	/**
 	 * Assign the correct species from the species library
@@ -120,6 +146,8 @@ public class Agent implements AspectInterface, Settable, Instantiable
 	public void init()
 	{
 		String species;
+		if( this._uid == 0)
+			this.number(null);
 		
 		species = this.getString(XmlRef.species);
 		this._aspectRegistry.addModule( (Species) 

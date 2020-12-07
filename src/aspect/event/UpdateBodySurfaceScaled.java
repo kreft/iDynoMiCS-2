@@ -60,7 +60,7 @@ public class UpdateBodySurfaceScaled extends Event {
 						ExtraMath.volumeOfASphere( r );
 				l = ExtraMath.lengthOfACylinder( v, r );
 			}
-			body.update( initiator.getDouble(RADIUS), l);
+			body.update( initiator.getDouble(RADIUS), l, initiator);
 			this.warned = true;
 		}
 		else
@@ -68,12 +68,13 @@ public class UpdateBodySurfaceScaled extends Event {
 			double zLen = comp.getShape().getDimension(DimName.Z).getLength();
 			switch(body.getMorphology()) {
 			  case COCCOID:
-				  body.update( ExtraMath.radiusOfACylinder(volume, zLen), 0.0 );
+				  body.update( ExtraMath.radiusOfACylinder( volume, zLen ), 
+						  0.0, initiator);
 				  break;
 			  case BACILLUS:
 				  double r = initiator.getDouble(RADIUS);
 				  body.update(r, (volume - ExtraMath.volumeOfACylinder(r, zLen)) 
-						  /	(zLen * r ) );
+						  /	(zLen * r ) , initiator);
 				  break;
 			  default:
 				  Log.out(Tier.CRITICAL, this.getClass().getSimpleName()

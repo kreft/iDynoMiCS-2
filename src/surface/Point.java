@@ -1,5 +1,7 @@
 package surface;
 
+import dataIO.Log;
+import dataIO.Log.Tier;
 import generalInterfaces.Copyable;
 import linearAlgebra.Vector;
 import referenceLibrary.XmlRef;
@@ -102,7 +104,7 @@ public class Point implements Copyable, Settable
 	
 	public double[] getPosition()
 	{
-		return this._p;
+		return Vector.copy(this._p);
 	}
 	
 	public double[] getPolarPosition()
@@ -112,16 +114,16 @@ public class Point implements Copyable, Settable
 
 	public void setPosition(double[] position)
 	{
-		if ( Double.isNaN(position[0]))
-			System.out.println(_p);
+		if ( Log.shouldWrite( Tier.DEBUG ) && Double.isNaN( position[0] ))
+			Log.out( Tier.DEBUG, "NaN point " + _p );
 		this._p = position;
 	}
 	
 	public void setPolarPosition(double[] position)
 	{
-		if ( Double.isNaN(position[0]))
-			System.out.println(_p);
-		this._p = Vector.spherify(position);
+		if ( Log.shouldWrite( Tier.DEBUG ) && Double.isNaN( position[0] ))
+			Log.out( Tier.DEBUG, "NaN point " + _p );
+		this._p = Vector.spherify( position );
 	}
 	
 	public double[] getForce()
@@ -131,6 +133,8 @@ public class Point implements Copyable, Settable
 
 	public void setForce(double[] force)
 	{
+		if ( Log.shouldWrite( Tier.DEBUG ) && Double.isNaN( force[0] ))
+			Log.out( Tier.DEBUG, "NaN point force" + force );
 		this._f = force;
 	}
 
@@ -144,9 +148,11 @@ public class Point implements Copyable, Settable
 	 * 
 	 * @param forceToAdd
 	 */
-	public void addToForce(double[] forceToAdd)
+	public void addToForce(double[] force)
 	{
-		Vector.addEquals(this._f, forceToAdd);
+		if ( Log.shouldWrite( Tier.DEBUG ) && Double.isNaN( force[0] ))
+			Log.out( Tier.DEBUG, "NaN point force" + force );
+		Vector.addEquals( this._f, force );
 	}
 	
 	/* ***********************************************************************
@@ -177,9 +183,10 @@ public class Point implements Copyable, Settable
 		// particle is equal to a diameter of a spherical particle that exhibits 
 		// identical properties (in this case hydrodynamic).
 		// see pdf forces in microbial systems.
-		double[] diff = this.dxdt(radius);
-		Vector.timesEquals(diff, dt);
-		Vector.addEquals(this._p, diff);
+		double[] diff = this.dxdt( radius );
+		diff = this.dxdt( radius );
+		Vector.timesEquals( diff, dt );
+		this.setPosition( Vector.add( this._p, diff ));
 		this.resetForce();
 	}
 
@@ -191,14 +198,14 @@ public class Point implements Copyable, Settable
 	 */
 	public void heun1(double dt, double radius)
 	{
-		double[] diff = this.dxdt(radius);
+		double[] diff = this.dxdt( radius );
 		/* Store the old position and velocity. */
 		// TODO consider using copyTo for setting c[0] and c[1]
-		this._c[0] = Vector.copy(this._p);
-		this._c[1] = Vector.copy(diff);
+		this._c[0] = Vector.copy( this._p );
+		this._c[1] = Vector.copy( diff );
 		/* Move the location and reset the force. */
-		Vector.timesEquals(diff, dt);
-		Vector.addEquals(this._p, diff);
+		Vector.timesEquals( diff, dt );
+		this.setPosition( Vector.add( this._p, diff ));
 		this.resetForce();
 	}
 
@@ -215,9 +222,9 @@ public class Point implements Copyable, Settable
 		 * -> c0 is the old position
 		 * -> c1 is the old velocity
 		 */
-		Vector.addTo(this._p, this.dxdt(radius), this._c[1]);
-		Vector.timesEquals(this._p, dt * 0.5);
-		Vector.addEquals(this._p, this._c[0]);
+		Vector.addTo( this._p, this.dxdt( radius ), this._c[1] );
+		Vector.timesEquals( this._p, dt * 0.5 );
+		Vector.addEquals( this._p, this._c[0] );
 		this.resetForce();
 	}
 
@@ -235,10 +242,10 @@ public class Point implements Copyable, Settable
 	 */
 	// TODO consider making a _dxdt variable that is updated by this method,
 	// rather than creating a new vector every time.
-	public double[] dxdt(double radius)
+	public double[] dxdt( double radius )
 	{
-		return Vector.times(this.getForce(), 
-				1.0/Drag.dragOnSphere(radius, VISCOSITY));
+		return Vector.times( this.getForce(), 
+				1.0 / Drag.dragOnSphere( radius, VISCOSITY ));
 	}
 
 	/**
@@ -255,7 +262,7 @@ public class Point implements Copyable, Settable
 		/*
 		 * No point shoving if there's no force.
 		 */
-		if ( Vector.isZero(this.getForce()) )
+		if ( Vector.isZero( this.getForce() ))
 			return;
 		/*
 		 * Scale the force.
@@ -267,7 +274,7 @@ public class Point implements Copyable, Settable
 		 * the force was sufficiently small) 
 		 * TODO, make these things settable from xml.
 		 */
-		if ( Vector.normEuclid(this.getForce()) < 0.2 )
+		if ( Vector.normEuclid( this.getForce()) < 0.2 )
 		{
 			/* Anti deadlock. */
 			scalar *= 2.0;
@@ -319,6 +326,18 @@ public class Point implements Copyable, Settable
 	public Settable getParent() 
 	{
 		return this._parentNode;
+	}
+
+	/* ***********************************************************************
+	 * Helper
+	 * **********************************************************************/
+	
+	public static int close(Point a, Point b, Point ref)
+	{
+		if( Vector.distanceEuclid(a.getPosition(), ref.getPosition()) < 
+				 Vector.distanceEuclid(b.getPosition(), ref.getPosition()))
+			return 0;
+		return 1;
 	}
 
 }

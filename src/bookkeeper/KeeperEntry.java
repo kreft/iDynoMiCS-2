@@ -65,8 +65,9 @@ public class KeeperEntry implements Settable
 		modelNode.add( new Attribute(XmlRef.valueAttribute, 
 				String.valueOf( this._value ), null, true ) );
 		
-		if( this._settable != null )
-			modelNode.add( this._settable.getModule() );
+		// this will create issues
+//		if( this._settable != null )
+//			modelNode.add( this._settable.getModule() );
 		
 		return modelNode;	
 	}

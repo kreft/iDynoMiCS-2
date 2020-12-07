@@ -115,6 +115,7 @@ public class AgentMediator implements CommandMediator {
 
 	private float _soluteTranparancy = 0.5f;
 
+	public float x = 0f, y = 0f  , z = 0f;
 	/*
 	 * temporary variables (reused)
 	 */
@@ -183,11 +184,12 @@ public class AgentMediator implements CommandMediator {
 		this._domainMaxima = new double[] { 0.0, 0.0, 0.0 };
 		/* determine kickback for camera positioning */
 		_kickback = 0.0f;
-		
+		int i = 0;
 		for (Dimension dn : _shape.getSignificantDimensions())
 		{
+			i++;
 			float max = (float) dn.getExtreme(1);
-			_kickback  = (float) Math.max(_kickback, max);
+			_kickback = (float) Math.max(_kickback, ( i == 2 ? max * 3 : max ));
 			_domainMaxima[_shape.getDimensionIndex(dn)] = max;
 		}
 		if (this._shape instanceof CartesianShape)
@@ -223,8 +225,6 @@ public class AgentMediator implements CommandMediator {
 		
 		/* load identity matrix */
 		_gl.glLoadIdentity();
-		
-
 		
 		/*
 		 * when we want to disable depth test we draw the domain here

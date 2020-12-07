@@ -10,9 +10,15 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 import boundary.Boundary;
+import dataIO.ObjectFactory;
 import dataIO.XmlHandler;
+import grid.ArrayType;
+import referenceLibrary.ClassRef;
 import referenceLibrary.XmlRef;
+import settable.Attribute;
+import settable.Module;
 import settable.Settable;
+import settable.Module.Requirements;
 
 /**
  * \brief set chemostat inflow at a constant concentration
@@ -59,6 +65,27 @@ public class ConstantConcentrationToChemostat extends Boundary
 			}
 		}
 	}
+	
+	@Override
+	public Module getModule()
+	{
+		Module modelNode = super.getModule();
+		
+		for ( String sol : this._concns.keySet() )
+		{
+			Module soluteNode = new Module(XmlRef.solute, this);
+			soluteNode.setRequirements(Requirements.ZERO_TO_MANY);
+			
+			soluteNode.add(new Attribute(XmlRef.nameAttribute, 
+					sol, null, true ));
+			
+			soluteNode.add(new Attribute(XmlRef.concentration, 
+				String.valueOf( this._concns.get(sol) ), null, true ));
+			modelNode.add(soluteNode);
+		}
+		return modelNode;
+	}
+	
 	
 	@Override
 	public Class<?> getPartnerClass()

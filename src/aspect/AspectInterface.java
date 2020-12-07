@@ -9,6 +9,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import aspect.Aspect.AspectClass;
 import dataIO.ObjectFactory;
 import referenceLibrary.XmlRef;
 
@@ -76,6 +77,16 @@ public abstract interface AspectInterface
 	default boolean isAspect(String aspect)
 	{
 		return this.reg().isGlobalAspect(aspect);
+	}
+	
+	/**
+	 * 
+	 * @param aspect
+	 * @return
+	 */
+	default AspectClass getType(String aspect)
+	{
+		return reg().getType(this, aspect);
 	}
 	
 	/**
@@ -210,7 +221,10 @@ public abstract interface AspectInterface
 	 */
 	public default Boolean getBoolean(String aspect)
 	{
-		return (Boolean) this.reg().getValue(this, aspect);
+		Boolean out = (Boolean) this.reg().getValue(this, aspect);
+		if( out == null )
+			return false;
+		return out;
 	}
 	
 	/**

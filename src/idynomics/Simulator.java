@@ -10,6 +10,7 @@ import java.util.TreeSet;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
+import agent.Agent;
 import agent.SpeciesLib;
 import analysis.Table;
 import chemical.ChemicalLib;
@@ -23,6 +24,7 @@ import debugTools.SegmentTimer;
 import generalInterfaces.CanPrelaunchCheck;
 import instantiable.Instance;
 import instantiable.Instantiable;
+import referenceLibrary.AspectRef;
 import referenceLibrary.ClassRef;
 import referenceLibrary.XmlRef;
 import settable.Attribute;
@@ -39,14 +41,17 @@ import utility.Helper;
  * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
-public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instantiable, Settable
+public strictfp class Simulator implements CanPrelaunchCheck, Runnable, 
+		Instantiable, Settable
 {
 	/**
 	 * \brief List of {@code Compartment}s in this {@code Simulator}.
 	 * 
-	 * Order is relevant, each {@code Compartment} knows its own name and priority.
+	 * Order is relevant, each {@code Compartment} knows its own name and 
+	 * priority. Note: we should ensure compartment order remains the same
 	 */
-	protected SortedSet<Compartment> _compartments = new TreeSet<Compartment>();
+	protected LinkedList<Compartment> _compartments = 
+			new LinkedList<Compartment>();
 
 	/**
 	 * Contains information about all species for this simulation.
@@ -59,7 +64,7 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 	 */
 	public Timer timer;
 	
-	public boolean interupt = false;
+	public boolean interupt = true;
 	
 	public boolean stopAction = false;
 	/**
@@ -69,7 +74,7 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 	
 	private long _timeSpentOnXmlOutput = 0;
 	
-	private int _outputTicker = 0;
+	private int _outputTicker = 1;
 	
 	/**
 	 * Simulator is the top node in iDynoMiCS and stores its own modelNode and 
@@ -168,8 +173,7 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 						" validating boundaries.");
 			compartment.checkBoundaryConnections(this._compartments);
 		}
-
-		
+		this.interupt = false;
 	}
 	
 	/* ***********************************************************************
@@ -334,6 +338,10 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 			this._xmlOut.writeFile();
 			this._outputTicker = 1;
 		}
+		
+		for ( Compartment c : this._compartments )
+			c._bookKeeper.clear();
+		
 		/*
 		 * Reporting agents.
 		 */
@@ -544,8 +552,8 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 		modelNode.add(chemicalLibrary.getModule());
 		
 		/* add compartment nodes */
-		for ( Compartment c : this._compartments )
-			modelNode.add(c.getModule());
+		for ( int i = 0; i < this._compartments.size(); i++ )
+			modelNode.add(this._compartments.get(i).getModule());
 		
 		/* add child constructor (adds add compartment button to gui */
 		modelNode.addChildSpec("Compartment", 
@@ -641,6 +649,15 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 	public Settable getParent() 
 	{
 		Log.out(Tier.CRITICAL, "Simulator is root node");
+		return null;
+	}
+
+	public Agent findAgent(int identity) 
+	{
+		for( Compartment c : this._compartments)
+			for( Agent a : c.agents.getAllAgents())
+				if( Integer.valueOf(identity).equals(a.identity()))
+					return a;
 		return null;
 	}
 }

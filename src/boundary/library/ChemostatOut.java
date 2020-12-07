@@ -10,6 +10,8 @@ import org.w3c.dom.Element;
 import boundary.Boundary;
 import dataIO.XmlHandler;
 import referenceLibrary.XmlRef;
+import settable.Attribute;
+import settable.Module;
 import settable.Settable;
 import utility.Helper;
 
@@ -51,6 +53,16 @@ public class ChemostatOut extends ChemostatBoundary
 		this._agentRemoval = Helper.setIfNone( Boolean.valueOf( 
 				XmlHandler.gatherAttribute( xmlElement, XmlRef.agentRemoval ) ), 
 				false);
+	}
+	
+	@Override
+	public Module getModule()
+	{
+		Module mod = super.getModule();
+		if( this.constantVolume)
+			mod.add( new Attribute( XmlRef.constantVolume, String.valueOf( 
+					this.constantVolume ), null, true ));
+		return mod;
 	}
 	
 	/**

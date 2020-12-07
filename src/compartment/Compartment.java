@@ -112,7 +112,7 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable, C
 	/**
 	 * 
 	 */
-	private Bookkeeper _bookKeeper = new Bookkeeper();
+	public Bookkeeper _bookKeeper = new Bookkeeper();
 	/**
 	 * Local time should always be between {@code Timer.getCurrentTime()} and
 	 * {@code Timer.getEndOfCurrentTime()}.
@@ -284,8 +284,12 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable, C
 		/*
 		 * Read in agents.
 		 */
-		for ( Element e : XmlHandler.getElements( xmlElem, XmlRef.agent) )
+		Element agents = XmlHandler.findUniqueChild(xmlElem, XmlRef.agents);
+		for ( Element e : XmlHandler.getElements( agents, XmlRef.agent) )
 			this.addAgent(new Agent( e, this ));
+		
+		this.agents.update();
+		
 		if( Log.shouldWrite(Tier.EXPRESSIVE))
 			Log.out(Tier.EXPRESSIVE, "Compartment "+this.name+" initialised with "+ 
 					this.agents.getNumAllAgents()+" agents");
@@ -515,7 +519,6 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable, C
 	 */
 	public void preStep()
 	{
-		this._bookKeeper.clear();
 		/*
 		 * Ask all Agents waiting in boundary arrivals lounges to enter the
 		 * compartment now.

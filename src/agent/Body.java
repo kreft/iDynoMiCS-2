@@ -4,17 +4,22 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.w3c.dom.Element;
 
+import aspect.AspectInterface;
 import dataIO.Log;
 import dataIO.Log.Tier;
 import dataIO.XmlHandler;
 import generalInterfaces.Copyable;
 import generalInterfaces.HasBoundingBox;
+import instantiable.Instance;
 import instantiable.Instantiable;
 import linearAlgebra.Matrix;
 import linearAlgebra.Vector;
+import referenceLibrary.AspectRef;
+import referenceLibrary.ClassRef;
 import referenceLibrary.XmlRef;
 import settable.Attribute;
 import settable.Module;
@@ -23,10 +28,12 @@ import settable.Settable;
 import shape.Shape;
 import surface.Ball;
 import surface.BoundingBox;
-import surface.Link;
 import surface.Point;
 import surface.Rod;
 import surface.Surface;
+import surface.link.LinearSpring;
+import surface.link.Link;
+import surface.link.Spring;
 import utility.Helper;
 
 /**
@@ -60,11 +67,8 @@ public class Body implements Copyable, Instantiable, Settable
 	 * The surfaces describe the different segments of the agents body.
 	 */
 	protected List<Surface> _surfaces;
-
-	/**
-	 * Rest angles of torsion springs for multi-segment agents
-	 */
-	protected double[] _angles;
+	
+	protected Spring spine;
 	
 	/**
 	 * morphology
@@ -77,8 +81,10 @@ public class Body implements Copyable, Instantiable, Settable
 	 * Links with other agents/bodies owned by this body
 	 * NOTE: this list does not contain links with this body owned by an other
 	 * body
+	 * 
+	 * This list might be slower but thread safe, check it
 	 */
-	protected List<Link> _links;
+	protected List<Link> _links = new CopyOnWriteArrayList<Link>();
 
 
 	/*************************************************************************
@@ -273,12 +279,16 @@ public class Body implements Copyable, Instantiable, Settable
 		{
 		case COCCOID :
 			this._surfaces.add(new Ball(_points.get(0), radius));
+			this.spine = null;
 			break;
 		case BACILLUS :
 			for(int i = 0; _points.size()-1 > i; i++)
 			{
-				this._surfaces.add(new Rod(_points.get(i), 
-						_points.get(i+1), length, radius)); 
+				Rod out = new Rod(_points.get(i), 
+						_points.get(i+1), length, radius);
+				this._surfaces.add(out); 
+				this.spine = new LinearSpring(1e6, out._points , 
+						null, length);
 			}
 			break;
 		case CUBOID :
@@ -324,6 +334,14 @@ public class Body implements Copyable, Instantiable, Settable
 						point.getAttribute(XmlRef.position))));
 			}
 			this._points = pointList;
+			Collection<Element> linkers =
+			XmlHandler.getAllSubChild(xmlElem, XmlRef.link);
+			for (Element e : linkers) 
+			{
+				Link l = (Link) Instance.getNew(e, this, ClassRef.link);
+				this._links.add(l);
+			}
+			
 			
 			/* assign a body morphology */
 			String morphology = 
@@ -358,6 +376,82 @@ public class Body implements Copyable, Instantiable, Settable
 		return this._points;
 	}
 
+	public List<BoundingBox> getBoxes(double margin, Shape shape)
+	{
+		List<BoundingBox> boxes = new LinkedList<BoundingBox>();
+		for ( Surface s : this._surfaces )
+			boxes.add( ((HasBoundingBox) s).boundingBox(margin, shape) );
+		return boxes;
+	}
+	
+	public double[] getCenter(Shape shape)
+	{
+		if (this.getNumberOfPoints() == 1)
+			return this._points.get(0).getPosition();
+		double[] center = Vector.vector(this.nDim(),0.0);
+		for ( Point p : this.getPoints() )
+		{
+			Vector.addEquals(center, shape.getNearestShadowPoint(p.getPosition()
+					, this._points.get(0).getPosition()));
+		}
+		center = Vector.divideEqualsA(center, (double)this.getNumberOfPoints());
+		return shape.getVerifiedLocation(center);
+	}
+	
+	public Point getClosePoint(double[] location, Shape shape)
+	{
+		double old = Double.MAX_VALUE;
+		Point hold = null;
+		for( Point p : this._points)
+		{
+			double t = Vector.distanceEuclid( shape.getNearestShadowPoint(
+					p.getPosition(), location), location);
+			if( t < old )
+			{
+				hold = p;
+				old = t;
+			}			
+		}
+		return hold;
+	}
+	
+	public Point getFurthesPoint(double[] location, Shape shape)
+	{
+		double old = Double.MIN_VALUE;
+		Point hold = null;
+		for( Point p : this._points)
+		{
+			double t = Vector.distanceEuclid( shape.getNearestShadowPoint(
+					p.getPosition(), location), location);
+			if( t > old )
+			{
+				hold = p;
+				old = t;
+			}			
+		}
+		return hold;
+	}
+	
+	public List<Spring> getSpringsToEvaluate()
+	{
+		LinkedList<Spring> out = new LinkedList<Spring>();
+		for(Link l : _links)
+		{
+			/* avoid evaluating linear springs twice. TODO possibly we could come
+			 * up with something a bit more straightforward.  */
+			if( l.getMembers().size() == 2 )
+			{
+				for( Point p : this._points )
+					if (((LinearSpring) l.getSpring()).isLeadingPoint(p))
+						out.add( l.getSpring() );
+			}
+			else
+				out.add( l.getSpring() );
+		}
+		out.add(this.spine);
+		return out;
+	}
+
 	public int getNumberOfPoints()
 	{
 		return this._points.size();
@@ -368,17 +462,37 @@ public class Body implements Copyable, Instantiable, Settable
 	 * @param radius
 	 * @param spineLength
 	 */
-	public void update(double radius, double spineLength)
+	public void update(double radius, double spineLength, AspectInterface i)
 	{
+		for(Link l : this._links)
+		{
+			l.initiate();
+			for( AspectInterface a : l.getMembers() )
+				if ( a != null && a.isAspect(AspectRef.removed))
+					this._links.remove(l);
+		}
 		for ( Surface s: this._surfaces )
 		{
 			if (s instanceof Rod)
 			{
+				this.spine.setRestValue(spineLength);
 				((Rod) s).setLength(spineLength);
 				((Rod) s).setRadius(radius);
 			}
 			else if (s instanceof Ball)
 			{
+				this.spine = null;
+				for(Link l : this._links)
+				{
+					Spring t = l.getSpring();
+					if(t instanceof LinearSpring)
+					{
+						double out = 0;
+						for( AspectInterface a : l.getMembers() )
+							out += a.getDouble(AspectRef.bodyRadius);
+						t.setRestValue(out);
+					}
+				}
 				((Ball) s).setRadius(radius);
 			}
 		}
@@ -395,29 +509,24 @@ public class Body implements Copyable, Instantiable, Settable
 		return this._points.get(joint).getPosition();
 	}
 	
+	public List<Link> getLinks()
+	{
+		return this._links;
+	}
+	
+	public void addLink(Link link)
+	{
+		this._links.add(link);
+	}
+	
+	public void unLink(Link link)
+	{
+		this._links.remove(link);
+	}
+	
 	public List<Surface> getSurfaces()
 	{
 		return this._surfaces;
-	}
-
-	public List<BoundingBox> getBoxes(double margin, Shape shape)
-	{
-		List<BoundingBox> boxes = new LinkedList<BoundingBox>();
-		for ( Surface s : this._surfaces )
-			boxes.add( ((HasBoundingBox) s).boundingBox(margin, shape) );
-		return boxes;
-	}
-	
-	public double[] getCenter()
-	{
-		if (this.getNumberOfPoints() == 1)
-			return this._points.get(0).getPosition();
-		double[] center = Vector.vector(this.nDim(),0.0);
-		for ( Point p : this.getPoints() )
-		{
-			Vector.addEquals(center, p.getPosition());
-		}
-		return Vector.divideEqualsA(center, (double) this.getNumberOfPoints());
 	}
 
 	public Morphology getMorphology() 
@@ -467,12 +576,17 @@ public class Body implements Copyable, Instantiable, Settable
 	 */
 	public Body copy()
 	{
+		Body out;
 		switch ( this._surfaces.get(0).type() )
 		{
 		case SPHERE:
-			return new Body(new Ball((Ball) this._surfaces.get(0)));
+			out = new Body(new Ball((Ball) this._surfaces.get(0)));
+			out.constructBody();
+			return out;
 		case ROD:
-			return new Body(new Rod((Rod) this._surfaces.get(0)));
+			out = new Body(new Rod((Rod) this._surfaces.get(0)));
+			out.constructBody();
+			return out;
 		default:
 			return null;
 		}
@@ -487,6 +601,9 @@ public class Body implements Copyable, Instantiable, Settable
 
 		for (Point p : this.getPoints() )
 			modelNode.add(p.getModule() );
+		
+		for (Link l : this._links)
+			modelNode.add(l.getModule());
 		
 		return modelNode;
 	}
@@ -507,6 +624,11 @@ public class Body implements Copyable, Instantiable, Settable
 	public Settable getParent() 
 	{
 		return this._parentNode;
+	}
+	
+	public void clearLinks() 
+	{
+		this._links.clear();
 	}
 
 }

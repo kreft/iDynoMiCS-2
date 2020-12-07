@@ -199,13 +199,16 @@ public class Collision
 	{
 		this.distance(a, b, var);
 		
+		if ( Double.isNaN(var.interactionVector[0]))
+			System.out.println(var.interactionVector[0] + "f0");
 		/* 
 		 * If the two surfaces overlap, then they should push each other away.
 		 */
 		if ( var.distance < 0.0 )
 		{
 			this._collisionFun.interactionForce( var, first, second );
-	
+			if ( Double.isNaN(var.interactionVector[0]))
+				System.out.println(var.interactionVector[0] + "f");
 			if( var.flip )
 			{
 				this.applyForce(b, var.interactionVector, var.s);
@@ -292,6 +295,8 @@ public class Collision
 	 */
 	private void applyForce(Surface surf, double[] force, double intersect)
 	{
+		if ( Double.isNaN(force[0]))
+			System.out.println(force[0] + "h");
 		switch ( surf.type() )
 		{
 		case SPHERE:
@@ -742,6 +747,11 @@ public class Collision
 	private CollisionVariables planeLineSeg(double[] normal, double d, 
 			double[] p0, double[] p1, CollisionVariables var)
 	{
+		int i;
+		if( p0[1] > 28.0)
+		{
+			i=0;
+		}
 		this.planePoint(normal, d, p0, var);
 		double a = Double.valueOf(var.distance);
 		this.planePoint(normal, d, p1, var);
