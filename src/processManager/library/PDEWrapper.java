@@ -37,6 +37,8 @@ public class PDEWrapper extends ProcessDiffusion
 
     public static String REL_TOLERANCE = AspectRef.solverRelTolerance;
 
+    private Multigrid multigrid;
+
 //    private AgentContainer _agents;
     /**
      *
@@ -77,7 +79,7 @@ public class PDEWrapper extends ProcessDiffusion
         }
 
         Domain domain = new Domain(environment.getShape());
-        Multigrid multigrid = new Multigrid();
+        this.multigrid = new Multigrid();
         multigrid.init(domain, environment, agents, this,
                 vCycles, preSteps, coarseSteps, postSteps);
 
@@ -106,6 +108,9 @@ public class PDEWrapper extends ProcessDiffusion
         {
             var.reset(PRODUCTIONRATE);
         }
+
+        multigrid.initAndSolve();
+
         /*
          * Estimate agent growth based on the steady-state solute
          * concentrations.

@@ -82,11 +82,11 @@
 			</processManagers>
 		</compartment>
 		<compartment name="first">
-			<shape class="Rectangle" resolutionCalculator="MultigridResolution"> 
+			<shape class="Rectangle">
 				<!-- µm -->
-				<dimension name="X" isCyclic="true" 	targetResolution="4.0" max="200.0"/>
-				<dimension name="Y" isCyclic="false" 	targetResolution="4.0" max="200.0">
-					<boundary extreme="1" class="BiofilmBoundaryLayer" partnerCompartment="chemostat" layerThickness = "40.0"/>
+				<dimension name="X" isCyclic="true" 	targetResolution="1.0" max="2.0"/>
+				<dimension name="Y" isCyclic="false" 	targetResolution="1.0" max="2.0">
+					<boundary extreme="1" class="BiofilmBoundaryLayer" partnerCompartment="chemostat" layerThickness = "2.0"/>
 					<!--  <boundary extreme="1" class="FixedBoundary" layerThickness = "40.0">
 						<solute name="ammonium"  concentration="6e-6"/>
 						<solute name="oxygen" 	concentration="1e-5"/>
@@ -100,9 +100,9 @@
 			</solutes>
 			<reactions>
 			</reactions>
-			<spawn class="distributedSpawner" domain="200.0, 2.0" priority="0" 
-			number="10" morphology="COCCOID">
-				<aspect  name="spacing" class="Double[]" value="20.0, 0.0" />
+			<spawn class="distributedSpawner" domain="2.0, 1.0" priority="0"
+			number="1" morphology="COCCOID">
+				<aspect  name="spacing" class="Double[]" value="2.0, 0.0" />
 				<aspect  name="orient" class="Double[]" value="0.0, 0.0" />
 			<templateAgent>
 					<aspect name="species" type="PRIMARY" class="String" value="Eco" />
@@ -113,10 +113,10 @@
 					</aspect>
 				</templateAgent>
 			</spawn>
-			<spawn class="distributedSpawner" domain="200.0, 2.0" priority="0" 
-			number="10" morphology="COCCOID">
-				<aspect  name="spacing" class="Double[]" value="20.0, 0.0" />
-				<aspect  name="orient" class="Double[]" value="10.0, 0.0" />
+			<spawn class="distributedSpawner" domain="2.0, 1.0" priority="0"
+			number="1" morphology="COCCOID">
+				<aspect  name="spacing" class="Double[]" value="2.0, 0.0" />
+				<aspect  name="orient" class="Double[]" value="1.0, 0.0" />
 			<templateAgent>
 					<aspect name="species" type="PRIMARY" class="String" value="Ego" />
 					<aspect  name="mass" class="InstantiableMap">

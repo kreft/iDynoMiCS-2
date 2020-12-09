@@ -160,7 +160,7 @@ public class SoluteGrid extends SolverGrid
 	 * @param nK	Number of grid elements in Z direction of grid.
 	 * @param res	The width of each grid element (in micrometres).
 	 */
-	public SoluteGrid(int nI, int nJ, int nK, double[] res) 
+	public SoluteGrid(int nI, int nJ, int nK, double res)
 	{
 		super(nI, nJ, nK, res);
 	}
@@ -179,7 +179,7 @@ public class SoluteGrid extends SolverGrid
 	 * @param aName	The type of grid being created (e.g. domainGrid).
 	 * @param aDomain	The computation domain to which this grid is part of.
 	 */
-	public SoluteGrid(int nI, int nJ, int nK, double[] res, String aName,
+	public SoluteGrid(int nI, int nJ, int nK, double res, String aName,
 															   Domain aDomain)
 	{
 		super(nI, nJ, nK, res);
@@ -197,7 +197,7 @@ public class SoluteGrid extends SolverGrid
 	 * @param res	The width of each grid element (in micrometres).
 	 * @param aSolG	The solute grid to use to create this grid.
 	 */
-	public SoluteGrid(int nI, int nJ, int nK, double[] res, SoluteGrid aSolG)
+	public SoluteGrid(int nI, int nJ, int nK, double res, SoluteGrid aSolG)
 	{
 		super(nI, nJ, nK, res);
 		useExternalSoluteGrid(aSolG);
@@ -255,17 +255,18 @@ public class SoluteGrid extends SolverGrid
 		double[] lengths = _domain.getShape().getRealLengths();
 		
 		_reso = getRes();
-		_nI = (int) Math.ceil(lengths[0]/_reso[0]);
-		_nJ = (int) Math.ceil(lengths[1]/_reso[1]);
-		_nK = (int) Math.ceil(lengths[1]/_reso[2]);
+		_nI = (int) Math.ceil(lengths[0]/_reso);
+		_nJ = (int) Math.ceil(lengths[1]/_reso);
+		_nK = (int) Math.ceil(lengths[1]/_reso);
 	}
 	
-	public double[] getRes() 
+	public double getRes()
 	{
-		return new double[] {
-				_domain.getShape().getResolutionCalculator(null, 0).getResolution(),
-				_domain.getShape().getResolutionCalculator(null, 1).getResolution(),
-				_domain.getShape().getResolutionCalculator(null, 2).getResolution() };
+		/* TODO now taking the smallest, but actually we should check wether they match together. */
+		return
+				Math.min( Math.min(_domain.getShape().getResolutionCalculator(null, 0).getResolution(),
+				_domain.getShape().getResolutionCalculator(null, 1).getResolution() ),
+				_domain.getShape().getResolutionCalculator(null, 2).getResolution() );
 	}
 	
 	/*************************************************************************

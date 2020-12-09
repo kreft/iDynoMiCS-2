@@ -17,6 +17,7 @@ import compartment.EnvironmentContainer;
 import grid.ArrayType;
 import grid.SpatialGrid;
 import idynomics.Idynomics;
+import linearAlgebra.Array;
 import processManager.ProcessDiffusion;
 import processManager.ProcessManager;
 import settable.Settable;
@@ -234,15 +235,15 @@ public class Multigrid
 		
 		// Refresh, then insert, the boundary layer and the diffusivity grid.
 		// NOTE not using Biofilm grids
-//		myDomain.refreshBioFilmGrids();
-		
+		myDomain.refreshBioFilmGrids();
+
 		// TODO this is the region in which diffusion is solved?
-		_bLayer.setFinest( myDomain.getBoundaryLayer() );
-		_bLayer.restrictToCoarsest();
-		
+//		_bLayer.setFinest( myDomain.getBoundaryLayer() );
+//		_bLayer.restrictToCoarsest();
+
 		// TODO this should be per solute no?
-		_diffusivity.setFinest(myDomain.getDiffusivity());
-		_diffusivity.restrictToCoarsest();
+//		_diffusivity.setFinest(myDomain.getDiffusivity());
+//		_diffusivity.restrictToCoarsest();
 		
 		/* TODO we don't need to prepare anything here for the idyno 2
 		 *  implementation do we? */
@@ -368,6 +369,10 @@ public class Multigrid
 					break;
 			}
 		}
+
+		for (int iSolute : _soluteIndex)
+			Array.toString(_solute[iSolute].getFinest().getGrid());
+
 	}
 
 	/**

@@ -103,7 +103,7 @@ public class Domain
 	/**
 	 * Width of each side of the grid element (in micrometres).
 	 */
-	public double[] _resolution;
+	public double _resolution;
 	
 	/**
 	 * The solute grid that is a component of this computation domain.
@@ -135,7 +135,7 @@ public class Domain
 	 * Band between the boundary and bulk, capturing change in diffusivity and
 	 * solute levels.
 	 */
-	protected Double _dilationBand;
+	protected Double _dilationBand = 0.0; //I've set this default to 0 for now
 	
 	/**
 	 * The ratio between the carrier surface (the substratum on which the
@@ -167,23 +167,23 @@ public class Domain
 	{
 		this._shape = shape;
 		// Now determine if this computation domain is 2D or 3D
-		is3D = shape.getNumberOfDimensions() == 3;
-		_resolution = new double[] { 
+		is3D = shape.getSignificantDimensions().size() == 3;
+		_resolution = Math.min( Math.min(
 				shape.getResolutionCalculator(null, 0).getResolution(),
-				shape.getResolutionCalculator(null, 1).getResolution(),
-				shape.getResolutionCalculator(null, 2).getResolution() };
+				shape.getResolutionCalculator(null, 1).getResolution()),
+				shape.getResolutionCalculator(null, 2).getResolution() );
 		
 		double[] lengths = (shape.getRealLengths());
 		
 
-		_nI = (int) Math.ceil(lengths[0]/_resolution[0]);
-		_nJ = (int) Math.ceil(lengths[1]/_resolution[1]);
-		_nK = (is3D) ? (int) Math.ceil(lengths[1]/_resolution[2]) : 1;
+		_nI = (int) Math.ceil(lengths[0]/_resolution) + 1;
+		_nJ = (int) Math.ceil(lengths[1]/_resolution) + 1;
+		_nK = (is3D) ? (int) Math.ceil(lengths[1]/_resolution) + 1 : 1;
 		
 		// Now calculate the length of the grid in micrometres.
-		length_X = _nI * _resolution[0];
-		length_Y = _nJ * _resolution[1];
-		length_Z = _nK * _resolution[2];
+		length_X = _nI * _resolution;
+		length_Y = _nJ * _resolution;
+		length_Z = _nK * _resolution;
 		
 		// Create and initialise the domain grid.
 		_domainGrid = new SoluteGrid(_nI, _nJ, _nK, _resolution);
@@ -436,23 +436,21 @@ public class Domain
 		// Build a grid with the concentration of agents skip the the
 		// refreshment of the position of the agents relative to the
 		// boundary layers.
-//		_biomassGrid.setAllValueAt(0.0);
-//		currentSim.agentGrid.fitAgentMassOnGrid( _biomassGrid );
-//		if ( ! Simulator.isChemostat )
-//		{
-//			// Reset the grid
-//			_boundaryLayer.setAllValueAt(0.0);
-//			
-//			// calculate the values in each of the grids
-//			calculateComputationDomainGrids();
-//			
-//			_boundaryLayer.refreshBoundary();
-//			
-//			// Now calculate the positions that are at the top of the boundary layer
-//			calculateTopOfBoundaryLayer();
-//			_diffusivityGrid.refreshBoundary();
-//			_biomassGrid.refreshBoundary();
-//		}
+		_biomassGrid.setAllValueAt(0.0);
+
+			// Reset the grid
+			_boundaryLayer.setAllValueAt(0.0);
+
+			// calculate the values in each of the grids
+			calculateComputationDomainGrids();
+
+			_boundaryLayer.refreshBoundary();
+
+			// Now calculate the positions that are at the top of the boundary layer
+			calculateTopOfBoundaryLayer();
+			_diffusivityGrid.refreshBoundary();
+			_biomassGrid.refreshBoundary();
+
 	}
 	
 	/**
@@ -624,12 +622,12 @@ public class Domain
 			// volume top and bottom boundaries
 			if ( (n+i >= 0) && (n+i < _nI) )
 			{
-				deltaN = i*_resolution[0];
+				deltaN = i*_resolution;
 				// This calculates the range in the j direction based on a right triangle
 				// with hypotenuse equal to the sphere's radius, so that the total area
 				// checked is a sphere
 				dilationRadiusM = ExtraMath.triangleSide(_dilationBand, deltaN);
-				mInterval = (int) Math.floor(dilationRadiusM/_resolution[0]);
+				mInterval = (int) Math.floor(dilationRadiusM/_resolution);
 				
 				for (int j = -mInterval; j <= mInterval; j++) {
 				if ( _nK == 1)
@@ -644,12 +642,12 @@ public class Domain
 				else
 				{
 						// 3D case
-						deltaM = j*_resolution[1];
+						deltaM = j*_resolution;
 						// This calculates the range in the k direction based on
 						// a right triangle with hypotenuse equal to the sphere's
 						// radius, so that the total area checked is a sphere
 						dilationRadiusL = ExtraMath.triangleSide(_dilationBand, deltaN, deltaM);
-						lInterval = (int) Math.floor(dilationRadiusL/_resolution[1]);
+						lInterval = (int) Math.floor(dilationRadiusL/_resolution);
 
 						for (int k = -lInterval; k <= lInterval; k++)
 							if ( (i != 0) || (j != 0) || (k != 0) )
@@ -714,7 +712,7 @@ public class Domain
 	 * 
 	 * @return	Double value stating the resolution of this domain.
 	 */
-	public double[] getResolution()
+	public double getResolution()
 	{
 		return _resolution;
 	}

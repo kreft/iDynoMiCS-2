@@ -69,7 +69,7 @@ public class SolverGrid implements Serializable
 	/**
 	 * Grid resolution = side length of a voxel
 	 */
-	protected double[]          _reso;
+	protected double          _reso;
 
 	/**
 	 * Boolean noting whether this grid is 3D (true) or 2D (false)
@@ -96,7 +96,7 @@ public class SolverGrid implements Serializable
 	 * @param nK	The number of grid locations in the K direction.
 	 * @param resolution The grid resolution.
 	 */
-	public SolverGrid(int nI, int nJ, int nK, double[] resolution)
+	public SolverGrid(int nI, int nJ, int nK, double resolution)
 	{
 		_nI = nI;
 		_nJ = nJ;
@@ -116,7 +116,7 @@ public class SolverGrid implements Serializable
 	 * @param nJ	The number of grid locations in the J direction
 	 * @param resolution the grid resolution
 	 */
-	public SolverGrid(int nI, int nJ, double[] resolution)
+	public SolverGrid(int nI, int nJ, double resolution)
 	{
 
 		_nI = nI;
@@ -135,17 +135,8 @@ public class SolverGrid implements Serializable
 	 */
 	protected void initGrids() 
 	{
-		if( grid == null ) {
-			grid = Array.array(_nI + 2, _nJ + 2, _nK + 2, 0.0);
-		}
-		else
-		{
-			/* if we already flashed the grid in set I, J, K, accordingly. */
-			_nI = grid.length;
-			_nJ = grid[0].length;
-			_nK = grid[0][0].length;
-		}
-		_is3D = !(_nK == 1);
+		_is3D = ! ( _nK == 1 );
+		grid = Array.array(_nI+2, _nJ+2, _nK+2, 0.0);
 	}
 
 	/**
@@ -208,9 +199,9 @@ public class SolverGrid implements Serializable
 	 */
 	public int[] getDiscreteCoordinates(double[] cC)
 	{
-		int i = (int) Math.floor(cC[0]/_reso[0]);
-		int j = (int) Math.floor(cC[1]/_reso[1]);
-		int k = (int) Math.floor(cC[2]/_reso[2]);
+		int i = (int) Math.floor(cC[0]/_reso);
+		int j = (int) Math.floor(cC[1]/_reso);
+		int k = (int) Math.floor(cC[2]/_reso);
 		return new int[] {i, j, k};
 	}
 
@@ -312,7 +303,7 @@ public class SolverGrid implements Serializable
 	public Double diff2X(int i, int j, int k)
 	{
 		Double value = grid[i+1][j][k] + grid[i-1][j][k] - 2*grid[i][j][k];
-		value /= ExtraMath.sq(_reso[0]);
+		value /= ExtraMath.sq(_reso);
 		return Double.isFinite(value) ? value : 0.0;
 	}
 
@@ -339,7 +330,7 @@ public class SolverGrid implements Serializable
 	 */
 	public Double diffX(int i, int j, int k)
 	{
-		Double value = (grid[i+1][j][k] - grid[i-1][j][k])/(2 * _reso[0]);		
+		Double value = (grid[i+1][j][k] - grid[i-1][j][k])/(2 * _reso);
 		return Double.isFinite(value) ? value : 0.0;
 	}
 
@@ -367,7 +358,7 @@ public class SolverGrid implements Serializable
 	public Double diff2Y(int i, int j, int k)
 	{
 		Double value = grid[i][j+1][k] + grid[i][j-1][k] - 2*grid[i][j][k];
-		value /= ExtraMath.sq(_reso[1]);
+		value /= ExtraMath.sq(_reso);
 		return Double.isFinite(value) ? value : 0.0;
 	}
 
@@ -394,7 +385,7 @@ public class SolverGrid implements Serializable
 	 */
 	public Double diffY(int i, int j, int k)
 	{
-		Double value = (grid[i][j+1][k] - grid[i][j-1][k])/(2 * _reso[1]);		
+		Double value = (grid[i][j+1][k] - grid[i][j-1][k])/(2 * _reso);
 		return Double.isFinite(value) ? value : 0.0;
 	}
 
@@ -422,7 +413,7 @@ public class SolverGrid implements Serializable
 	public Double diff2Z(int i, int j, int k)
 	{
 		Double value = grid[i][j][k+1] + grid[i][j][k-1] - 2*grid[i][j][k];
-		value /= ExtraMath.sq(_reso[2]);
+		value /= ExtraMath.sq(_reso);
 		return Double.isFinite(value) ? value : 0.0;
 	}
 
@@ -449,7 +440,7 @@ public class SolverGrid implements Serializable
 	 */
 	public Double diffZ(int i, int j, int k)
 	{
-		Double value = (grid[i][j][k+1] - grid[i][j][k-1])/(2 * _reso[2]);		
+		Double value = (grid[i][j][k+1] - grid[i][j][k-1])/(2 * _reso);
 		return Double.isFinite(value) ? value : 0.0;
 	}
 
@@ -493,9 +484,9 @@ public class SolverGrid implements Serializable
 	 */
 	public double[] getGradient(double[] cC)
 	{
-		int[] dV = new int[] { (int) Math.ceil(cC[0]/_reso[0]),
-				 (int) Math.ceil(cC[0]/_reso[1]),
-				 (int) Math.ceil(cC[0]/_reso[2])};
+		int[] dV = new int[] { (int) Math.ceil(cC[0]/_reso),
+				 (int) Math.ceil(cC[0]/_reso),
+				 (int) Math.ceil(cC[0]/_reso)};
 		return new double[] { diffX(dV), diffY(dV), diffZ(dV)};
 	}
 
@@ -514,9 +505,9 @@ public class SolverGrid implements Serializable
 	 */
 	public double[] getGradient2D(double[] cC) 
 	{
-		int[] dV = new int[] { (int) Math.ceil(cC[0]/_reso[0]),
-				 (int) Math.ceil(cC[0]/_reso[1]),
-				 (int) Math.ceil(cC[0]/_reso[2])};
+		int[] dV = new int[] { (int) Math.ceil(cC[0]/_reso),
+				 (int) Math.ceil(cC[0]/_reso),
+				 (int) Math.ceil(cC[0]/_reso)};
 		return new double[] { diffX(dV), diffY(dV), diffY(dV)};
 	}
 	
@@ -772,11 +763,11 @@ public class SolverGrid implements Serializable
 		switch (axeCode)
 		{
 		case 1:
-			return _nI*_reso[0];
+			return _nI*_reso;
 		case 2:
-			return _nJ*_reso[1];
+			return _nJ*_reso;
 		case 3:
-			return _nK*_reso[2];
+			return _nK*_reso;
 		default:
 			return 0.0;
 		}
@@ -790,7 +781,7 @@ public class SolverGrid implements Serializable
 	 */
 	public Double getVoxelVolume()
 	{
-		return Vector.normEuclid(_reso);
+		return Math.pow(_reso,3.0);
 	}
 
 	/**
@@ -819,7 +810,7 @@ public class SolverGrid implements Serializable
 	 * @return	Double value stating the resolution (in micrometers) of this
 	 * grid.
 	 */
-	public double[] getResolution() 
+	public double getResolution()
 	{
 		return _reso;
 	}
