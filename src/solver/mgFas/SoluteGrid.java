@@ -13,6 +13,7 @@ package solver.mgFas;
 
 import grid.ArrayType;
 import grid.SpatialGrid;
+import linearAlgebra.Array;
 import settable.Settable;
 import shape.Shape;
 
@@ -102,15 +103,15 @@ public class SoluteGrid extends SolverGrid
 //		///////////////////////////
 //		// TODO set diffusivity
 //		grid.getArray(ArrayType.DIFFUSIVITY);
-//
-//		/*
-//		 * Set the initial concentration.
-//		 */
-//
+		diffusivity = 1.0;
+		/*
+		 * Set the initial concentration.
+		 */
+
 //		///////////////////////////
 //		// TODO set concentration
 //
-//		grid.getArray(ArrayType.CONCN);
+		Array.addEquals(this.grid, grid.getArray(ArrayType.CONCN)[0][0][0]);
 	}
 
 	public SoluteGrid(Domain domain, String name, ArrayType type, SpatialGrid grid)

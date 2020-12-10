@@ -742,5 +742,6 @@ public class MultigridSolute
 			return;
 		}
 		*/
+		sBulk = 0.001; // testing with constant bulk value
 	}
 }

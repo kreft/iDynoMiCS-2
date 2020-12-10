@@ -187,7 +187,7 @@ public class Multigrid
 		{
 //			if (_soluteIndex.contains(i))
 //			{
-				sBulk = 0.0; // initial value
+				sBulk = 1.0E-3; // this is what the conc grid is set when first solved
 				_solute[i] = new MultigridSolute(_soluteList.get(i),
 												_diffusivity, _bLayer, sBulk);
 				_soluteIndex.add(i); //TODO figure out how solute index was used, adding it here to help program run
