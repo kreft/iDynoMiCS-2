@@ -1312,6 +1312,28 @@ public abstract class Shape implements
 		}
 		return coord;
 	}
+
+	public int[] getCoords(double[] loc, double[] inside, double[] resolution)
+	{
+		int[] coord = new int[3];
+		ResolutionCalculator rC;
+		for ( int dim = 0; dim < 3; dim++ )
+		{
+			rC = this.getResolutionCalculator(coord, dim);
+			/* if the location comes from a 1D or 2D system set the coordinate
+			 * index for additional dimensions to 0. */
+			if( loc.length < dim+1)
+				coord[dim] = 0;
+			else
+				coord[dim] = rC.getVoxelIndex(loc[dim], resolution[dim]);
+			if ( inside != null )
+			{
+				inside[dim] = loc[dim] -
+						rC.getCumulativeResolution(coord[dim] - 1, resolution[dim]);
+			}
+		}
+		return coord;
+	}
 	
 	/**
 	 * \brief For a voxel given by its coordinates, find the global location

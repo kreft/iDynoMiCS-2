@@ -74,8 +74,15 @@ public class DistributedSpawner extends Spawner {
 			}
 			locations = (LinkedList<double[]>) temp.clone();
 		}
+		int i = 0;
 		for ( double[] loc : locations )
+		{
+			/* break if the target number is reached */
+			if( i >= this._numberOfAgents)
+				break;
 			this.spawnAgent(loc);
+			i++;
+		}
 	}
 	
 	/**

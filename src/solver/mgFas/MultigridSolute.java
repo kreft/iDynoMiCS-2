@@ -675,7 +675,7 @@ public class MultigridSolute
 		maxOrder = ExtraMath.log2(_referenceSystemSide).intValue();
 		_referenceSystemSide -= 1;
 		// FIXME ??
-//		_referenceSystemSide *= realGrid.getResolution();
+		_referenceSystemSide *= realGrid.getResolution();
 	}
 	
 	/**

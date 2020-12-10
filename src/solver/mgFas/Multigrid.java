@@ -12,14 +12,18 @@
  */
 package solver.mgFas;
 
+import agent.Agent;
 import compartment.AgentContainer;
 import compartment.EnvironmentContainer;
+import dataIO.Log;
 import grid.ArrayType;
 import grid.SpatialGrid;
 import idynomics.Idynomics;
 import linearAlgebra.Array;
+import linearAlgebra.Vector;
 import processManager.ProcessDiffusion;
 import processManager.ProcessManager;
+import processManager.library.PDEWrapper;
 import settable.Settable;
 
 import java.util.ArrayList;
@@ -83,7 +87,7 @@ public class Multigrid
 
 	protected SoluteGrid[]      allSolute;
 	
-//	protected SoluteGrid[]		allReac;
+	protected SoluteGrid[]		allReac;
 	
 	protected SoluteGrid[]		allDiffReac;
 
@@ -170,7 +174,7 @@ public class Multigrid
 		nSolute = _soluteList.size();
 		_solute = new MultigridSolute[nSolute];
 		allSolute = new SoluteGrid[nSolute];
-//		allReac = new SoluteGrid[nSolute];
+		allReac = new SoluteGrid[nSolute];
 		allDiffReac = new SoluteGrid[nSolute];
 
 		/* TODO both soluteList entry 0, eh? */
@@ -238,12 +242,12 @@ public class Multigrid
 		myDomain.refreshBioFilmGrids();
 
 		// TODO this is the region in which diffusion is solved?
-//		_bLayer.setFinest( myDomain.getBoundaryLayer() );
-//		_bLayer.restrictToCoarsest();
+		_bLayer.setFinest( myDomain.getBoundaryLayer() );
+		_bLayer.restrictToCoarsest();
 
 		// TODO this should be per solute no?
-//		_diffusivity.setFinest(myDomain.getDiffusivity());
-//		_diffusivity.restrictToCoarsest();
+		_diffusivity.setFinest(myDomain.getDiffusivity());
+		_diffusivity.restrictToCoarsest();
 		
 		/* TODO we don't need to prepare anything here for the idyno 2
 		 *  implementation do we? */
@@ -453,30 +457,77 @@ public class Multigrid
 			allSolute[iSolute] = _solute[iSolute]._conc[resOrder];
 			
 			// TODO reactions
-//			allReac[iSolute] = _solute[iSolute]._reac[resOrder];
+			allReac[iSolute] = _solute[iSolute]._reac[resOrder];
 			allDiffReac[iSolute] = _solute[iSolute]._diffReac[resOrder];
 		}
 
 		// TODO agent and environment reaction rate
-//		// Calls the agents of the guild and sums their uptake-rate
+		// Calls the agents of the guild and sums their uptake-rate
 //		for (int iReac = 0; iReac<_reactions.size(); iReac++)
 //			_reactions.get(iReac).applyReaction(allSolute, allReac,
 //								allDiffReac, _biomass[iReac]._conc[resOrder]);
+		applyReaction();
 		/*
 		 *  computes uptake rate per solute ( mass*_specRate*this._soluteYield[iSolute]; )
 		 *  reactionGrid += uptakeRateGrid
 		 *   diffReactionGrid += diffUptakeRate ( no diffusion mediated by agents)
 		 */
-		this._manager.prestep( this._environment.getSolutes(), 0.0 );
+//		this._manager.prestep( this._environment.getSolutes(), 0.0 );
 
 		/* TODO flash current concentration to iDyno 2 concentration grids */
+	}
 
-		for( MultigridSolute s : _solute )
-		{
-			/* set the net production to the finest grid */
-			s._reac[ 0 ] = new SoluteGrid(this.myDomain, s.soluteName,
-					ArrayType.PRODUCTIONRATE, this._environment.getSoluteGrid( s.soluteName ) );
-		}
+	/**
+	 * method original comming from reaction
+	 * @param concGrid
+	 * @param reacGrid
+	 * @param diffReacGrid
+	 * @param biomassGrid
+	 */
+	public void applyReaction(SolverGrid[] concGrid, SolverGrid[] reacGrid,
+							  SolverGrid[] diffReacGrid, SolverGrid biomassGrid)
+	{
+		nSolute = concGrid.length;
+		double[] s = Vector.zerosDbl(nSolute);
+		int _nI, _nJ, _nK;
+		_nI = biomassGrid.getGridSizeI();
+		_nJ = biomassGrid.getGridSizeJ();
+		_nK = biomassGrid.getGridSizeK();
+		//globalReactionRate = 0;
+		for (int i = 1; i<_nI+1; i++)
+			for (int j = 1; j<_nJ+1; j++)
+				for (int k = 1; k<_nK+1; k++)
+				{
+					// If there is no biomass, go to the next grid element
+//					if  (biomassGrid.grid[i][j][k].equals(0.0) )
+//						continue;
+					// Read local solute concentration
+					for (int iGrid : this._soluteIndex)
+						s[iGrid] = concGrid[iGrid].grid[i][j][k];
+					// First compute local uptake-rates in g.h-1
+//					computeUptakeRate(s, biomassGrid.grid[i][j][k], 0.0);
+
+					// Now add them on the received grids
+					for (int iGrid : this._soluteIndex)
+					{
+//						reacGrid[iGrid].grid[i][j][k] += _uptakeRate[iGrid];
+						// appears to always be 0.0 for typical monod or first order reactions
+//						diffReacGrid[iGrid].grid[i][j][k] += _diffUptakeRate[iGrid];
+						if (Double.isNaN(reacGrid[iGrid].grid[i][j][k]))
+							Log.out("Warning: NaN generated in Reaction");
+					}
+				}
+	}
+
+	/**
+	 * TODO done at different depths?
+	 */
+	public void applyReaction()
+	{
+		double[] temp = new double[(allSolute[0]._is3D ? 3 : 2)];
+		Vector.addEquals(temp, allSolute[0]._reso );
+		((PDEWrapper) this._manager).applyReactions(allSolute, allReac,	temp,
+				Math.pow( allSolute[0]._reso, 3.0 ));
 	}
 
 }

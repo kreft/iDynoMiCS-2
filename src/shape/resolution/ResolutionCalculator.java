@@ -105,6 +105,16 @@ public abstract class ResolutionCalculator implements Copyable, Instantiable
 			return min;
 		return min + this._resolution * (voxelIndex + 1);
 	}
+
+	public double getCumulativeResolution(int voxelIndex, double resolution)
+	{
+		if ( voxelIndex >= this._nVoxel )
+			throw new IllegalArgumentException("Voxel index out of range");
+		double min = this._dimension.getExtreme(0);
+		if ( voxelIndex < 0 )
+			return min;
+		return min + resolution * (voxelIndex + 1);
+	}
 	
 	/**
 	 * \brief TODO
@@ -137,6 +147,17 @@ public abstract class ResolutionCalculator implements Copyable, Instantiable
 		}
 		return (int) ((location - this._dimension.getExtreme(0))
 						/ this._resolution);
+	}
+
+	public int getVoxelIndex(double location, double resolution)
+	{
+		if ( location < this._dimension.getExtreme(0) ||
+				location >= this._dimension.getExtreme(1) )
+		{
+			throw new IllegalArgumentException("Location out of range");
+		}
+		return (int) ((location - this._dimension.getExtreme(0))
+				/ resolution);
 	}
 	
 	public Object copy()

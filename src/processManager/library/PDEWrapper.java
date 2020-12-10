@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 import agent.Agent;
+import agent.Body;
 import org.w3c.dom.Element;
 
 import compartment.AgentContainer;
@@ -24,6 +25,7 @@ import solver.PDEexplicit;
 import solver.PDEmultigrid;
 import solver.mgFas.Domain;
 import solver.mgFas.Multigrid;
+import solver.mgFas.SolverGrid;
 import utility.Helper;
 
 /**
@@ -153,8 +155,15 @@ public class PDEWrapper extends ProcessDiffusion
 
         setupAgentDistributionMaps(this._agents.getShape());
 
-        for ( Agent agent : _agents.getAllLocatedAgents() )
-            applyAgentReactions(agent, variables);
+//        for ( Agent agent : _agents.getAllLocatedAgents() )
+//            applyAgentReactions(agent, variables);
+    }
+
+    public void applyReactions(SolverGrid[] concGrid, SolverGrid[] reacGrid, double[] resolution,
+                               double voxelVolume)
+    {
+        for( Agent agent : this._agents.getAllAgents() )
+            applyAgentReactions(agent, concGrid, reacGrid, resolution, voxelVolume);
     }
 
     /**
@@ -167,10 +176,10 @@ public class PDEWrapper extends ProcessDiffusion
      *
      * @param agent Agent assumed to have reactions (biomass will not be
      * altered by this method).
-     * @param variables Collection of spatial grids assumed to be the solutes.
      */
     private void applyAgentReactions(
-            Agent agent, Collection<SpatialGrid> variables)
+            Agent agent, SolverGrid[] concGrid, SolverGrid[] reacGrid, double[] resolution,
+            double voxelVolume)
     {
         /*
          * Get the agent's reactions: if it has none, then there is nothing
@@ -185,13 +194,8 @@ public class PDEWrapper extends ProcessDiffusion
          * Get the distribution map and scale it so that its contents sum up to
          * one.
          */
-        Shape shape = variables.iterator().next().getShape();
-        @SuppressWarnings("unchecked")
-        Map<Shape, HashMap<IntegerArray,Double>> mapOfMaps =
-                (Map<Shape, HashMap<IntegerArray,Double>>)
-                        agent.getValue(VOLUME_DISTRIBUTION_MAP);
+        Shape shape = this._agents.getShape();
 
-        HashMap<IntegerArray,Double> distributionMap = mapOfMaps.get(shape);
         /*
          * Get the agent biomass kinds as a map. Copy it now so that we can
          * use this copy to store the changes.
@@ -201,68 +205,69 @@ public class PDEWrapper extends ProcessDiffusion
          * Now look at all the voxels this agent covers.
          */
         Map<String,Double> concns = new HashMap<String,Double>();
-        SpatialGrid solute;
+        SolverGrid solute;
         double concn, productRate, volume, perVolume;
-        for ( IntegerArray coord : distributionMap.keySet() )
-        {
-            volume = shape.getVoxelVolume(coord.get());
-            perVolume = 1.0/volume;
-            for ( Reaction r : reactions )
-            {
-                /*
-                 * Build the dictionary of variable values. Note that these
-                 * will likely overlap with the names in the reaction
-                 * stoichiometry (handled after the reaction rate), but will
-                 * not always be the same. Here we are interested in those that
-                 * affect the reaction, and not those that are affected by it.
-                 */
-                concns.clear();
-                for ( String varName : r.getConstituentNames() )
-                {
-                    solute = FindGrid(variables, varName);
-                    if ( solute != null )
-                        concn = solute.getValueAt(CONCN, coord.get());
-                    else if ( biomass.containsKey(varName) )
-                    {
-                        concn = biomass.get(varName) *
-                                distributionMap.get(coord) * perVolume;
-                    }
-                    else if ( agent.isAspect(varName) )
-                    {
-                        /*
-                         * Check if the agent has other mass-like aspects
-                         * (e.g. EPS).
-                         */
-                        concn = agent.getDouble(varName) *
-                                distributionMap.get(coord) * perVolume;
-                    }
-                    else
-                    {
-                        // TODO safety?
-                        concn = 0.0;
-                    }
-                    concns.put(varName, concn);
-                }
-                /*
-                 * Now that we have the reaction rate, we can distribute the
-                 * effects of the reaction. Note again that the names in the
-                 * stoichiometry may not be the same as those in the reaction
-                 * variables (although there is likely to be a large overlap).
-                 */
 
-                for ( String productName : r.getReactantNames() )
+
+
+
+        double[] center = ((Body) agent.get(AspectRef.agentBody)).getCenter(shape);
+
+        IntegerArray coord = new IntegerArray(
+                shape.getCoords( center, null, resolution ));
+
+
+
+        volume = voxelVolume;
+        perVolume = 1.0/volume;
+        for ( Reaction r : reactions )
+        {
+            /*
+             * Build the dictionary of variable values. Note that these
+             * will likely overlap with the names in the reaction
+             * stoichiometry (handled after the reaction rate), but will
+             * not always be the same. Here we are interested in those that
+             * affect the reaction, and not those that are affected by it.
+             */
+            concns.clear();
+            for ( String varName : r.getConstituentNames() )
+            {
+                solute = FindGrid(concGrid, varName);
+                if ( solute != null )
+                    concn = solute.getValueAt( coord.get() );
+                else if ( biomass.containsKey(varName) )
                 {
-                    solute = FindGrid(variables, productName);
-                    if ( solute != null )
-                    {
-                        productRate = r.getProductionRate(concns, productName);
-                        solute.addValueAt( PRODUCTIONRATE, coord.get(), volume *
-                                productRate );
-                    }
+                    concn = biomass.get(varName) * perVolume;
+                }
+                else if ( agent.isAspect(varName) )
+                {
                     /*
-                     * Unlike in a transient solver, we do not update the agent
-                     * mass here.
+                     * Check if the agent has other mass-like aspects
+                     * (e.g. EPS).
                      */
+                    concn = agent.getDouble(varName) * perVolume;
+                }
+                else
+                {
+                    // TODO safety?
+                    concn = 0.0;
+                }
+                concns.put(varName, concn);
+            }
+            /*
+             * Now that we have the reaction rate, we can distribute the
+             * effects of the reaction. Note again that the names in the
+             * stoichiometry may not be the same as those in the reaction
+             * variables (although there is likely to be a large overlap).
+             */
+
+            for ( String productName : r.getReactantNames() )
+            {
+                solute = FindGrid(reacGrid, productName);
+                if ( solute != null )
+                {
+                    productRate = r.getProductionRate(concns, productName);
+                    solute.addValueAt( volume * productRate, coord.get() );
                 }
             }
         }
@@ -271,10 +276,10 @@ public class PDEWrapper extends ProcessDiffusion
 //		this._environment.getSoluteGrid("glucose").getAverage(PRODUCTIONRATE));
     }
 
-    private SpatialGrid FindGrid(Collection<SpatialGrid> grids, String name)
+    private SolverGrid FindGrid(SolverGrid[] grids, String name)
     {
-        for ( SpatialGrid grid : grids )
-            if ( grid.getName().equals(name) )
+        for ( SolverGrid grid : grids )
+            if ( grid.gridName.equals(name) )
                 return grid;
         return null;
     }

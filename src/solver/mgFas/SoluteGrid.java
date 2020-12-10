@@ -99,18 +99,18 @@ public class SoluteGrid extends SolverGrid
 		 * Set the diffusivity - if specified in the XML file
 		 */
 
-		///////////////////////////
-		// TODO set diffusivity
-		grid.getArray(ArrayType.DIFFUSIVITY);
-		
-		/*
-		 * Set the initial concentration.
-		 */
-		
-		///////////////////////////
-		// TODO set concentration
-
-		grid.getArray(ArrayType.CONCN);
+//		///////////////////////////
+//		// TODO set diffusivity
+//		grid.getArray(ArrayType.DIFFUSIVITY);
+//
+//		/*
+//		 * Set the initial concentration.
+//		 */
+//
+//		///////////////////////////
+//		// TODO set concentration
+//
+//		grid.getArray(ArrayType.CONCN);
 	}
 
 	public SoluteGrid(Domain domain, String name, ArrayType type, SpatialGrid grid)
@@ -139,10 +139,6 @@ public class SoluteGrid extends SolverGrid
 		 * Set the diffusivity - if specified in the XML file
 		 */
 
-		/*
-		 * copy from iDyno 2 grid.
-		 */
-		this.grid = grid.getArray(type);
 		/*
 		 * Now initialise the grid - setting the grid to the required size
 		 */
@@ -252,12 +248,10 @@ public class SoluteGrid extends SolverGrid
 	 */
 	public void useDomaingrid() 
 	{
-		double[] lengths = _domain.getShape().getRealLengths();
-		
-		_reso = getRes();
-		_nI = (int) Math.ceil(lengths[0]/_reso);
-		_nJ = (int) Math.ceil(lengths[1]/_reso);
-		_nK = (int) Math.ceil(lengths[1]/_reso);
+		_reso = _domain.getGrid().getResolution();
+		_nI = _domain.getGrid().getGridSizeI();
+		_nJ = _domain.getGrid().getGridSizeJ();
+		_nK = _domain.getGrid().getGridSizeK();
 	}
 	
 	public double getRes()
