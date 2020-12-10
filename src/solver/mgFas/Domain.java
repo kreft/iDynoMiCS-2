@@ -11,6 +11,8 @@ package solver.mgFas;
 
 import java.util.*;
 
+import compartment.EnvironmentContainer;
+import grid.ArrayType;
 import shape.Shape;
 import utility.ExtraMath;
 
@@ -149,7 +151,9 @@ public class Domain
 	 * Multiplicative factor applied to the diffusivity in water.
 	 */
 	protected double _biofilmDiffusivity = 1.0;
-	
+
+	private EnvironmentContainer _environment;
+
 	/*************************************************************************
 	 * CLASS METHODS 
 	 ************************************************************************/
@@ -163,7 +167,7 @@ public class Domain
 	 * computation domain that is specified in the protocol file.
 	 *
 	 */
-	public Domain(Shape shape) 
+	public Domain(Shape shape, EnvironmentContainer environment)
 	{
 		this._shape = shape;
 		// Now determine if this computation domain is 2D or 3D
@@ -174,7 +178,8 @@ public class Domain
 				shape.getResolutionCalculator(null, 2).getResolution() );
 		
 		double[] lengths = (shape.getRealLengths());
-		
+
+		this._environment = environment;
 
 		_nI = (int) Math.ceil(lengths[0]/_resolution) + 1;
 		_nJ = (int) Math.ceil(lengths[1]/_resolution) + 1;
@@ -409,19 +414,19 @@ public class Domain
 	public void calculateTopOfBoundaryLayer()
 	{
 		/* TODO idyno 2 well mixed */
-//		for(int k = 1; k <= _boundaryLayer.getGridSizeK(); k++)
-//			for(int j = 1; j <= _boundaryLayer.getGridSizeJ(); j++)
-//			{
-//				int i=1;
-//				while(i <= _boundaryLayer.getGridSizeI() &&
-//						 _boundaryLayer.getValueAt(i, j, k) > 0.0 )
-//					i++;
-//				// Assume now we've reached the point where 'i' has become 0,
-//				// and thus we are out of the boundary layer. Subtract 1 such
-//				// that the top of the layer is noted, not the outside of the
-//				// layer.
-//				_topOfBoundaryLayer[j][k] = i - 1;
-//			}
+		for(int k = 1; k <= _boundaryLayer.getGridSizeK(); k++)
+			for(int j = 1; j <= _boundaryLayer.getGridSizeJ(); j++)
+			{
+				int i=1;
+				while(i <= _boundaryLayer.getGridSizeI() &&
+						 _boundaryLayer.getValueAt(i, j, k) > 0.0 )
+					i++;
+				// Assume now we've reached the point where 'i' has become 0,
+				// and thus we are out of the boundary layer. Subtract 1 such
+				// that the top of the layer is noted, not the outside of the
+				// layer.
+				_topOfBoundaryLayer[j][k] = i - 1;
+			}
 	}
 	
 	/**
@@ -441,9 +446,13 @@ public class Domain
 			// Reset the grid
 			_boundaryLayer.setAllValueAt(0.0);
 
-			// calculate the values in each of the grids
-			calculateComputationDomainGrids();
+			//
 
+
+			// calculate the values in each of the grids
+			calculateComputationDomainGrids2();
+
+			/* TODO this is where the boundary padding should be updated */
 			_boundaryLayer.refreshBoundary();
 
 			// Now calculate the positions that are at the top of the boundary layer
@@ -482,11 +491,42 @@ public class Domain
 						 * within the boundary layer.
 						 */
 						_boundaryLayer.grid[i][j][k] = checkDilationRadius(i, j, k);
+
 						//LogFile.writeLog("_boundaryLayer["+i+"]["+j+"]["+k+"] = "+_boundaryLayer.grid[i][j][k]);
 						if ( _domainGrid.grid[i][j][k] == -1.0 )
 							_diffusivityGrid.grid[i][j][k] = Double.MIN_VALUE;
 						else
 							_diffusivityGrid.grid[i][j][k] = 1.0;
+					}
+	}
+
+	public void calculateComputationDomainGrids2()
+	{
+		this._environment.updateWellMixed();
+		double[][][] wellMixed = this._environment.getCommonGrid().getArray( ArrayType.WELLMIXED );
+		for (int i = 1; i <= _nI; i++)
+			for (int j = 1; j <= _nJ; j++)
+				for (int k = 1; k <= _nK; k++)
+					// TODO is this correct? assuming well mixed in the margins (no biomass)
+					if ( (i != _nI) || !(j != _nJ) || !((_nK > 1) && k != _nK) || !( wellMixed[i-1][j-1][k-1] > 0.0 ) ) {
+						/*
+						 * This is biomass.
+						 */
+						_boundaryLayer.grid[i][j][k] = 1.0;
+						_diffusivityGrid.grid[i][j][k] = _biofilmDiffusivity;
+					} else {
+						/*
+						 * This is liquid, check dilation sphere for biomass:
+						 * checkDilationRadius will set the value to 1 if it is
+						 * within the boundary layer.
+						 */
+						_boundaryLayer.grid[i][j][k] = checkDilationRadius(i, j, k);
+						//LogFile.writeLog("_boundaryLayer["+i+"]["+j+"]["+k+"] = "+_boundaryLayer.grid[i][j][k]);
+						if (_domainGrid.grid[i][j][k] == -1.0)
+							_diffusivityGrid.grid[i][j][k] = Double.MIN_VALUE;
+						else
+							_diffusivityGrid.grid[i][j][k] = 1.0;
+
 					}
 	}
 

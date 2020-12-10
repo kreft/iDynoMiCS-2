@@ -80,7 +80,7 @@ public class PDEWrapper extends ProcessDiffusion
             solute.updateDiffusivity(this._environment, this._agents);
         }
 
-        Domain domain = new Domain(environment.getShape());
+        Domain domain = new Domain(environment.getShape(), this._environment);
         this.multigrid = new Multigrid();
         multigrid.init(domain, environment, agents, this,
                 vCycles, preSteps, coarseSteps, postSteps);

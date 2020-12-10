@@ -187,7 +187,7 @@ public class Multigrid
 		{
 //			if (_soluteIndex.contains(i))
 //			{
-				sBulk = 1.0E-3; // this is what the conc grid is set when first solved
+				sBulk = 1.0; // this is what the conc grid is set when first solved
 				_solute[i] = new MultigridSolute(_soluteList.get(i),
 												_diffusivity, _bLayer, sBulk);
 				_soluteIndex.add(i); //TODO figure out how solute index was used, adding it here to help program run
@@ -284,8 +284,8 @@ public class Multigrid
 		 * value of internTimeStep used above; we leave the loop as-is though
 		 * to allow future use of iterates if needed.
 		 */
-		while ( timeToSolve > 0 )
-		{
+//		while ( timeToSolve > 0 )
+//		{
 			// Compute new equilibrium concentrations.
 			stepSolveDiffusionReaction();
 			
@@ -295,11 +295,15 @@ public class Multigrid
 			// Manage iterations.
 			internalIteration += 1;
 			timeToSolve -= internTimeStep;
-		}
+//		}
 
 		// Apply results on solute grids
 		for (int iSolute : _soluteIndex)
 			_solute[iSolute].applyComputation();
+
+
+		for (int iSolute : _soluteIndex)
+			Log.out(Array.toString(_solute[iSolute].realGrid.getGrid()));
 
 	}
 
@@ -373,10 +377,6 @@ public class Multigrid
 					break;
 			}
 		}
-
-		for (int iSolute : _soluteIndex)
-			Array.toString(_solute[iSolute].getFinest().getGrid());
-
 	}
 
 	/**
