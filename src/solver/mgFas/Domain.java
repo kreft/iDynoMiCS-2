@@ -504,12 +504,13 @@ public class Domain
 	public void calculateComputationDomainGrids2()
 	{
 		this._environment.updateWellMixed();
-		double[][][] wellMixed = this._environment.getCommonGrid().getArray( ArrayType.WELLMIXED );
+		double[][][] temp = this._environment.getCommonGrid().getArray( ArrayType.WELLMIXED );
+		double[][][] wellMixed = MultigridUtils.translateIn(temp);
 		for (int i = 1; i <= _nI; i++)
 			for (int j = 1; j <= _nJ; j++)
 				for (int k = 1; k <= _nK; k++)
 					// TODO is this correct? assuming well mixed in the margins (no biomass)
-					if ( (i != _nI) || !(j != _nJ) || !((_nK > 1) && k != _nK) || !( wellMixed[i-1][j-1][k-1] > 0.0 ) ) {
+					if ( (i != _nI) || !(j != _nJ) || !((_nK > 1) && k != _nK) || !( wellMixed[i][j][k] > 0.0 ) ) {
 						/*
 						 * This is biomass.
 						 */

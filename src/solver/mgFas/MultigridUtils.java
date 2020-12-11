@@ -13,6 +13,9 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+
+import grid.ArrayType;
+import linearAlgebra.Array;
 import utility.ExtraMath;
 
 public abstract class MultigridUtils {
@@ -455,6 +458,34 @@ public abstract class MultigridUtils {
 				for (int k = 1; k<a[i][j].length-1; k++)
 					norm += ExtraMath.sq(a[i][j][k]);
 		return Math.sqrt(norm);
+	}
+
+	/**
+	 * translates idyno 1 padded grid to idyno 2 non-padded
+	 * @param in
+	 * @return
+	 */
+	public static double[][][] translateOut(double[][][] in)
+	{
+		double[][][] temp = Array.subarray(in,
+				1, in.length-3 ,
+				1, in[0].length-3 ,
+				1, Math.max(in[0][0].length-3,1) );
+		return Array.rotate(temp, 1, 0, 2);
+	}
+
+	/**
+	 * translates idyno 2 non-padded grid to idyno 1 padded
+	 * @param out
+	 * @return
+	 */
+	public static double[][][] translateIn(double[][][] out)
+	{
+		double[][][] temp = Array.superarray(out,
+				-1, out.length+1,
+				-1, out[0].length+1,
+				-1, out[0][0].length+1);
+		return Array.rotate(temp, 1, 0, 2);
 	}
 
 	/**

@@ -301,6 +301,14 @@ public class Multigrid
 		for (int iSolute : _soluteIndex)
 			_solute[iSolute].applyComputation();
 
+		for(int iSolute: _soluteIndex)
+		{
+			this._environment.getSoluteGrid( this._solute[iSolute].soluteName ).
+					setTo(ArrayType.CONCN, MultigridUtils.translateOut(
+					_solute[iSolute].realGrid.grid ));
+
+		}
+
 
 		for (int iSolute : _soluteIndex)
 			Log.out(Array.toString(_solute[iSolute].realGrid.getGrid()));
@@ -318,7 +326,7 @@ public class Multigrid
 		// Solve chemical concentrations on coarsest grid.
 		solveCoarsest();
 
-		/* TODO order / outer representing finer and coarse grid for
+		/* order / outer representing finer and coarse grid for
 		*   the active V-cycle. */
 		// Nested iteration loop.
 		for (int outer = 1; outer < maxOrder; outer++)
@@ -390,7 +398,7 @@ public class Multigrid
 		 * This yields solute change rates in fg.L-1.hr-1
 		 */
 		updateReacRateAndDiffRate(maxOrder-1);
-		
+
 		// TODO update boundaries?
 		// Find the connected bulks and agars and update their concentration.
 //		for (AllBC aBC : myDomain.getAllBoundaries())
@@ -455,7 +463,6 @@ public class Multigrid
 		{
 			_solute[iSolute].resetReaction(resOrder);
 			allSolute[iSolute] = _solute[iSolute]._conc[resOrder];
-			
 			// TODO reactions
 			allReac[iSolute] = _solute[iSolute]._reac[resOrder];
 			allDiffReac[iSolute] = _solute[iSolute]._diffReac[resOrder];
@@ -524,10 +531,21 @@ public class Multigrid
 	 */
 	public void applyReaction()
 	{
+
+//		for (int iSolute : _soluteIndex)
+//		{
+//			allSolute[iSolute].grid = MultigridUtils.translateOut(allSolute[iSolute].grid);
+//			allReac[iSolute].grid = MultigridUtils.translateOut(allReac[iSolute].grid);
+//		}
 		double[] temp = new double[(allSolute[0]._is3D ? 3 : 2)];
 		Vector.addEquals(temp, allSolute[0]._reso );
 		((PDEWrapper) this._manager).applyReactions(allSolute, allReac,	temp,
 				Math.pow( allSolute[0]._reso, 3.0 ));
+//		for (int iSolute : _soluteIndex)
+//		{
+//			allSolute[iSolute].grid = MultigridUtils.translateIn(allSolute[iSolute].grid);
+//			allReac[iSolute].grid = MultigridUtils.translateIn(allReac[iSolute].grid);
+//		}
 	}
 
 }

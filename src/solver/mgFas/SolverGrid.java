@@ -524,6 +524,14 @@ public class SolverGrid implements Serializable
 	{
 		return grid[dc[0]+1][dc[1]+1][dc[2]+1];
 	}
+
+	public Double getValueAt(int[] dc, boolean padded)
+	{
+		if( padded )
+			return getValueAt(dc);
+		else
+			return grid[dc[0]][dc[1]][dc[2]];
+	}
 	
 	/**
 	 * \brief Return the value stored at the location given by the stated
@@ -585,6 +593,15 @@ public class SolverGrid implements Serializable
 		grid[dC[0]+1][dC[1]+1][dC[2]+1] = value;
 	}
 
+	public void setValueAt(Double value, int[] dC, boolean padded)
+	{
+		if( padded )
+			setValueAt(value, dC );
+		else
+			grid[dC[0]][dC[1]][dC[2]] = value;
+	}
+
+
 	/**
 	 * \brief Set a grid location to a specified value.
 	 * 
@@ -628,6 +645,14 @@ public class SolverGrid implements Serializable
 	public void addValueAt(Double value, int[] dC)
 	{
 		grid[dC[0]+1][dC[1]+1][dC[2]+1] += value;
+	}
+
+	public void addValueAt(Double value, int[] dC, boolean padded)
+	{
+		if( padded )
+			addValueAt(value, dC);
+		else
+			grid[dC[0]][dC[1]][dC[2]] += value;
 	}
 
 	/**

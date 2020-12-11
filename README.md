@@ -1,4 +1,4 @@
-#iDynoMiCS 2 readme
+# iDynoMiCS 2 readme
 
 ## Licence
 

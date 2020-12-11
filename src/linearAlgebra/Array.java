@@ -1454,6 +1454,36 @@ public final class Array
 					out[i - iStart][j - jStart][k - kStart] = array[i][j][k];
 		return out;
 	}
+
+	public static double[][][] rotate(double[][][] array, int i, int j, int k)
+	{
+		int[] old = new int[] { array.length, array[0].length, array[0][0].length };
+		int[] size = new int[] { old[i], old[j], old[k]};
+		double[][][] out = Array.array(size, 0.0);
+
+		int[] pos;
+		for ( int l = 0; l < old[0]; l++ )
+			for ( int m = 0; m < old[1]; m++ )
+				for ( int n = 0; n < old[2]; n++ )
+				{
+					pos = new int[] { l, m, n };
+					out[pos[i]][pos[j]][pos[k]] = array[l][m][n];
+				}
+		return out;
+	}
+
+	public static double[][][] superarray(double[][][] array,
+										  int iStart, int iStop,
+										  int jStart, int jStop,
+										  int kStart, int kStop)
+	{
+		double[][][] out = new double[iStop+1 - iStart][jStop+1 - jStart][kStop+1 - kStart];
+		for ( int i = Math.max(0, iStart); i < Math.min(iStop-iStart, array.length); i++ )
+			for ( int j = Math.max(0, jStart); j < Math.min(jStop-jStart, array[0].length); j++ )
+				for ( int k = Math.max(0, kStart); k < Math.min(kStop-kStart, array[0][0].length); k++ )
+					out[i-iStart][j-jStart][k-kStart] =	array[i][j][k];
+		return out;
+	}
 	/*************************************************************************
 	 * SCALARS FROM ARRAYS
 	 * Any input arrays should be unaffected.

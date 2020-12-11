@@ -57,7 +57,9 @@ public class SoluteGrid extends SolverGrid
 	 * of diffusion, carrier, and bulk domains for this solute.
 	 */
 	private Domain _domain;
-	
+
+
+	public double bulk = 0.0;
 	/*************************************************************************
 	 * CLASS METHODS 
 	 ************************************************************************/
@@ -273,7 +275,7 @@ public class SoluteGrid extends SolverGrid
 	 * \brief Examines all objects at the boundary of the grid, and adjusts
 	 * them as specified by the boundary condition rules.
 	 */
-	public void refreshBoundary() 
+	public void refreshBoundary()
 	{
 		/*
 		 * TODO refresh boundaries
@@ -306,7 +308,7 @@ public class SoluteGrid extends SolverGrid
 		while( out[1] < this._nJ )
 		{
 			// set to bulk
-			setValueAt(1.0, out);
+			setValueAt(bulk, out);
 			Vector.addEquals(out,step);
 			Vector.addEquals(in,step);
 		}
@@ -346,5 +348,10 @@ public class SoluteGrid extends SolverGrid
 	public Domain getDomain() 
 	{
 		return _domain;
+	}
+
+	public void updateBulk(double bulk)
+	{
+		this.bulk = bulk;
 	}
 }

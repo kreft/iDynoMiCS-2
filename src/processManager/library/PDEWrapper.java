@@ -234,7 +234,7 @@ public class PDEWrapper extends ProcessDiffusion
             {
                 solute = FindGrid(concGrid, varName);
                 if ( solute != null )
-                    concn = solute.getValueAt( coord.get() );
+                    concn = solute.getValueAt( coord.get() , false );
                 else if ( biomass.containsKey(varName) )
                 {
                     concn = biomass.get(varName) * perVolume;
@@ -267,7 +267,7 @@ public class PDEWrapper extends ProcessDiffusion
                 if ( solute != null )
                 {
                     productRate = r.getProductionRate(concns, productName);
-                    solute.addValueAt( volume * productRate, coord.get() );
+                    solute.addValueAt( volume * productRate, coord.get() , false );
                 }
             }
         }
