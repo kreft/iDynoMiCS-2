@@ -14,6 +14,7 @@ package solver.mgFas;
 import grid.ArrayType;
 import grid.SpatialGrid;
 import linearAlgebra.Array;
+import linearAlgebra.Vector;
 import settable.Settable;
 import shape.Shape;
 
@@ -280,6 +281,35 @@ public class SoluteGrid extends SolverGrid
 				aBC.refreshBoundary(this);
 				
 		*/
+
+		/*  FIXME hard coded test code,
+
+		     solid boundary
+		 */
+		int[] out = new int[] { -1 , 0, 0 };
+		int[] in = new int[] { 0, 0, 0 };
+
+		int[] step = new int[] { 0, 1, 0 };
+		while( out[1] < this._nJ )
+		{
+			setValueAt(getValueAt(in), out);
+			Vector.addEquals(out,step);
+			Vector.addEquals(in,step);
+		}
+
+		/*
+			bulk boundary
+		 */
+		out = new int[] { this._nI , 0, 0 };
+		in = new int[] { this._nI-1, 0, 0 };
+
+		while( out[1] < this._nJ )
+		{
+			// set to bulk
+			setValueAt(1.0, out);
+			Vector.addEquals(out,step);
+			Vector.addEquals(in,step);
+		}
 	}
 	
 	/**

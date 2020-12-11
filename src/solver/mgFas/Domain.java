@@ -13,6 +13,7 @@ import java.util.*;
 
 import compartment.EnvironmentContainer;
 import grid.ArrayType;
+import linearAlgebra.Array;
 import shape.Shape;
 import utility.ExtraMath;
 
@@ -520,7 +521,7 @@ public class Domain
 						 * checkDilationRadius will set the value to 1 if it is
 						 * within the boundary layer.
 						 */
-						_boundaryLayer.grid[i][j][k] = checkDilationRadius(i, j, k);
+//						_boundaryLayer.grid[i][j][k] = checkDilationRadius(i, j, k);
 						//LogFile.writeLog("_boundaryLayer["+i+"]["+j+"]["+k+"] = "+_boundaryLayer.grid[i][j][k]);
 						if (_domainGrid.grid[i][j][k] == -1.0)
 							_diffusivityGrid.grid[i][j][k] = Double.MIN_VALUE;
