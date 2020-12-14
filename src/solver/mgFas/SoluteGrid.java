@@ -289,11 +289,11 @@ public class SoluteGrid extends SolverGrid
 			like this or flipped?
 		    solid boundary
 		 */
-		int[] out = new int[] { this._nI , 0, 0 };
-		int[] in = new int[] { this._nI-1, 0, 0 };
+		int[] out = new int[] {0 , -1, 0 };
+		int[] in = new int[] {0, 0, 0 };
 
-		int[] step = new int[] { 0, 1, 0 };
-		while( out[1] < this._nJ )
+		int[] step = new int[] {1 , 0, 0 };
+		while( out[0] < this._nJ )
 		{
 			setValueAt(getValueAt(in), out);
 			Vector.addEquals(out,step);
@@ -303,10 +303,10 @@ public class SoluteGrid extends SolverGrid
 		/*
 			bulk boundary
 		 */
-		out = new int[] { -1 , 0, 0 };
-		in = new int[] { 0, 0, 0 };
+		out = new int[] { 0 , this._nJ, 0  };
+		in = new int[] { 0,  this._nJ-1, 0 };
 
-		while( out[1] < this._nJ )
+		while( out[0] < this._nJ )
 		{
 			// set to bulk
 			setValueAt(bulk, out);
