@@ -159,7 +159,7 @@ public class PDEWrapper extends ProcessDiffusion
 //            applyAgentReactions(agent, variables);
     }
 
-    public void applyReactions(Map<String,double[][][]> concGrid, Map<String,double[][][]> reacGrid, double[] resolution,
+    public void applyReactions(SolverGrid[] concGrid, SolverGrid[] reacGrid, double[] resolution,
                                double voxelVolume)
     {
         for( Agent agent : this._agents.getAllAgents() )
@@ -178,7 +178,7 @@ public class PDEWrapper extends ProcessDiffusion
      * altered by this method).
      */
     private void applyAgentReactions(
-            Agent agent, Map<String,double[][][]> concGrid, Map<String,double[][][]> reacGrid, double[] resolution,
+            Agent agent, SolverGrid[] concGrid, SolverGrid[] reacGrid, double[] resolution,
             double voxelVolume)
     {
         /*
@@ -205,7 +205,7 @@ public class PDEWrapper extends ProcessDiffusion
          * Now look at all the voxels this agent covers.
          */
         Map<String,Double> concns = new HashMap<String,Double>();
-        double[][][] solute;
+        SolverGrid solute;
         double concn, productRate, volume, perVolume;
 
 
@@ -232,9 +232,9 @@ public class PDEWrapper extends ProcessDiffusion
             concns.clear();
             for ( String varName : r.getConstituentNames() )
             {
-                solute = concGrid.get(varName);
+                solute = FindGrid(concGrid, varName);
                 if ( solute != null )
-                    concn = solute[coord.get(0)][coord.get(1)][coord.get(2)];
+                    concn = solute.getValueAt( coord.get() , false );
                 else if ( biomass.containsKey(varName) )
                 {
                     concn = biomass.get(varName) * perVolume;
@@ -263,17 +263,24 @@ public class PDEWrapper extends ProcessDiffusion
 
             for ( String productName : r.getReactantNames() )
             {
-                solute = reacGrid.get(productName);
+                solute = FindGrid(reacGrid, productName);
                 if ( solute != null )
                 {
                     productRate = r.getProductionRate(concns, productName);
-                    solute[coord.get(0)][coord.get(1)][coord.get(2)] +=
-                            volume * productRate;
+                    solute.addValueAt( volume * productRate, coord.get() , false );
                 }
             }
         }
         /* debugging */
 //		Log.out(Tier.NORMAL , " -- " +
 //		this._environment.getSoluteGrid("glucose").getAverage(PRODUCTIONRATE));
+    }
+
+    private SolverGrid FindGrid(SolverGrid[] grids, String name)
+    {
+        for ( SolverGrid grid : grids )
+            if ( grid.gridName.equals(name) )
+                return grid;
+        return null;
     }
 }

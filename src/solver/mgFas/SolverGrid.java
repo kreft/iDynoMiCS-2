@@ -530,7 +530,7 @@ public class SolverGrid implements Serializable
 		if( padded )
 			return getValueAt(dc);
 		else
-			return grid[dc[0]][dc[1]][dc[2]];
+			return grid[dc[1]][dc[0]][dc[2]];
 	}
 	
 	/**
@@ -652,7 +652,7 @@ public class SolverGrid implements Serializable
 		if( padded )
 			addValueAt(value, dC);
 		else
-			grid[dC[0]][dC[1]][dC[2]] += value;
+			grid[dC[1]][dC[0]][dC[2]] += value;
 	}
 
 	/**

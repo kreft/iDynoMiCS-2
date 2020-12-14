@@ -471,8 +471,8 @@ public abstract class MultigridUtils {
 				1, in.length-2 ,
 				1, in[0].length-2 ,
 				1, Math.max(in[0][0].length-2,1) );
-		return temp;
-//		return Array.rotate(temp, 1, 0, 2);
+//		return temp;
+		return Array.rotate(temp, 1, 0, 2);
 	}
 
 	/**
@@ -486,8 +486,8 @@ public abstract class MultigridUtils {
 				-1, out.length+1,
 				-1, out[0].length+1,
 				-1, out[0][0].length+1);
-		return temp;
-//		return Array.rotate(temp, 1, 0, 2);
+//		return temp;
+		return Array.rotate(temp, 1, 0, 2);
 	}
 
 

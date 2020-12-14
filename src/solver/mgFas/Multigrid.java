@@ -27,9 +27,7 @@ import processManager.library.PDEWrapper;
 import settable.Settable;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.Map;
 
 /**
  * 
@@ -464,19 +462,13 @@ public class Multigrid
 	 */
 	public void updateReacRateAndDiffRate(int resOrder)
 	{
-		HashMap<String, double[][][]> solutes = new HashMap<String, double[][][]>();
-		HashMap<String, double[][][]> diffReac = new HashMap<String, double[][][]>();
 		// Reset rates and derivative rates grids.
 		for (int iSolute : _soluteIndex)
 		{
 			_solute[iSolute].resetReaction(resOrder);
-			solutes.put(_solute[iSolute].soluteName,
-					MultigridUtils.translateOut( _solute[iSolute]._conc[resOrder].grid) );
 			allSolute[iSolute] = _solute[iSolute]._conc[resOrder];
 			// TODO reactions
 			allReac[iSolute] = _solute[iSolute]._reac[resOrder];
-			diffReac.put(_solute[iSolute].soluteName,
-					MultigridUtils.translateOut( _solute[iSolute]._diffReac[resOrder].grid) );
 			allDiffReac[iSolute] = _solute[iSolute]._diffReac[resOrder];
 		}
 
@@ -485,7 +477,7 @@ public class Multigrid
 //		for (int iReac = 0; iReac<_reactions.size(); iReac++)
 //			_reactions.get(iReac).applyReaction(allSolute, allReac,
 //								allDiffReac, _biomass[iReac]._conc[resOrder]);
-		applyReaction(solutes, diffReac, _solute[0]._conc[resOrder]._reso);
+		applyReaction();
 		/*
 		 *  computes uptake rate per solute ( mass*_specRate*this._soluteYield[iSolute]; )
 		 *  reactionGrid += uptakeRateGrid
@@ -541,7 +533,7 @@ public class Multigrid
 	/**
 	 * TODO done at different depths?
 	 */
-	public void applyReaction(Map<String,double[][][]> concGrid, Map<String,double[][][]> reacGrid, double res)
+	public void applyReaction()
 	{
 
 //		for (int iSolute : _soluteIndex)
@@ -549,16 +541,15 @@ public class Multigrid
 //			allSolute[iSolute].grid = MultigridUtils.translateOut(allSolute[iSolute].grid);
 //			allReac[iSolute].grid = MultigridUtils.translateOut(allReac[iSolute].grid);
 //		}
-		double[] temp = new double[(myDomain.is3D() ? 3 : 2)];
-		Vector.addEquals(temp, res );
-		((PDEWrapper) this._manager).applyReactions(concGrid, reacGrid,	temp,
-				Math.pow( res, 3.0 ));
-
-		for (int iSolute : _soluteIndex)
-		{
-			allSolute[iSolute].grid = MultigridUtils.translateIn(concGrid.get(allSolute[iSolute].gridName));
-			allReac[iSolute].grid = MultigridUtils.translateIn(reacGrid.get(allReac[iSolute].gridName));
-		}
+		double[] temp = new double[(allSolute[0]._is3D ? 3 : 2)];
+		Vector.addEquals(temp, allSolute[0]._reso );
+		((PDEWrapper) this._manager).applyReactions(allSolute, allReac,	temp,
+				Math.pow( allSolute[0]._reso, 3.0 ));
+//		for (int iSolute : _soluteIndex)
+//		{
+//			allSolute[iSolute].grid = MultigridUtils.translateIn(allSolute[iSolute].grid);
+//			allReac[iSolute].grid = MultigridUtils.translateIn(allReac[iSolute].grid);
+//		}
 	}
 
 }
