@@ -120,21 +120,21 @@ public class PDEWrapper extends ProcessDiffusion
 //        for ( Agent agent : this._agents.getAllLocatedAgents() )
 //            this.applyAgentGrowth(agent);
 
-        for ( SpatialGrid var : this._environment.getSolutes() )
-        {
-            double massMove = var.getTotal(PRODUCTIONRATE);
-            var.increaseWellMixedMassFlow(massMove);
-        }
+//        for ( SpatialGrid var : this._environment.getSolutes() )
+//        {
+//            double massMove = var.getTotal(PRODUCTIONRATE);
+//            var.increaseWellMixedMassFlow(massMove);
+//        }
         /*
          * Estimate the steady-state mass flows in or out of the well-mixed
          * region, and distribute it among the relevant boundaries.
          */
-        this._environment.distributeWellMixedFlows(this._timeStepSize);
+//        this._environment.distributeWellMixedFlows(this._timeStepSize);
 
 
         /* perform final clean-up and update agents to represent updated
          * situation. */
-        this.postStep();
+//        this.postStep();
     }
 
     /**
@@ -159,7 +159,7 @@ public class PDEWrapper extends ProcessDiffusion
 //            applyAgentReactions(agent, variables);
     }
 
-    public void applyReactions(SolverGrid[] concGrid, SolverGrid[] reacGrid, double[] resolution,
+    public void applyReactions(Map<String,double[][][]> concGrid, Map<String,double[][][]> reacGrid, double[] resolution,
                                double voxelVolume)
     {
         for( Agent agent : this._agents.getAllAgents() )
@@ -178,7 +178,7 @@ public class PDEWrapper extends ProcessDiffusion
      * altered by this method).
      */
     private void applyAgentReactions(
-            Agent agent, SolverGrid[] concGrid, SolverGrid[] reacGrid, double[] resolution,
+            Agent agent, Map<String,double[][][]> concGrid, Map<String,double[][][]> reacGrid, double[] resolution,
             double voxelVolume)
     {
         /*
@@ -205,7 +205,7 @@ public class PDEWrapper extends ProcessDiffusion
          * Now look at all the voxels this agent covers.
          */
         Map<String,Double> concns = new HashMap<String,Double>();
-        SolverGrid solute;
+        double[][][] solute;
         double concn, productRate, volume, perVolume;
 
 
@@ -232,9 +232,9 @@ public class PDEWrapper extends ProcessDiffusion
             concns.clear();
             for ( String varName : r.getConstituentNames() )
             {
-                solute = FindGrid(concGrid, varName);
+                solute = concGrid.get(varName);
                 if ( solute != null )
-                    concn = solute.getValueAt( coord.get() , false );
+                    concn = solute[coord.get(0)][coord.get(1)][coord.get(2)];
                 else if ( biomass.containsKey(varName) )
                 {
                     concn = biomass.get(varName) * perVolume;
@@ -263,24 +263,17 @@ public class PDEWrapper extends ProcessDiffusion
 
             for ( String productName : r.getReactantNames() )
             {
-                solute = FindGrid(reacGrid, productName);
+                solute = reacGrid.get(productName);
                 if ( solute != null )
                 {
                     productRate = r.getProductionRate(concns, productName);
-                    solute.addValueAt( volume * productRate, coord.get() , false );
+                    solute[coord.get(0)][coord.get(1)][coord.get(2)] +=
+                            volume * productRate;
                 }
             }
         }
         /* debugging */
 //		Log.out(Tier.NORMAL , " -- " +
 //		this._environment.getSoluteGrid("glucose").getAverage(PRODUCTIONRATE));
-    }
-
-    private SolverGrid FindGrid(SolverGrid[] grids, String name)
-    {
-        for ( SolverGrid grid : grids )
-            if ( grid.gridName.equals(name) )
-                return grid;
-        return null;
     }
 }

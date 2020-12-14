@@ -86,7 +86,7 @@
 				<!-- µm -->
 				<dimension name="X" isCyclic="true" 	targetResolution="1.0" max="4.0"/>
 				<dimension name="Y" isCyclic="false" 	targetResolution="1.0" max="4.0">
-					<boundary extreme="1" class="BiofilmBoundaryLayer" partnerCompartment="chemostat" layerThickness = "0.0"/>
+					<boundary extreme="1" class="BiofilmBoundaryLayer" partnerCompartment="chemostat" layerThickness = "3.0"/>
 					<!--  <boundary extreme="1" class="FixedBoundary" layerThickness = "40.0">
 						<solute name="ammonium"  concentration="6e-6"/>
 						<solute name="oxygen" 	concentration="1e-5"/>
@@ -95,20 +95,20 @@
 			</shape>
 			<solutes>
 				<!-- Initial concentrations pg / µm2 -->
-				<solute name="ammonium"  concentration="6e-6" defaultDiffusivity="118055.556"/>
-				<solute name="oxygen" 	concentration="1e-5" defaultDiffusivity="138888.889"/>
+				<solute name="ammonium"  concentration="6e-6" defaultDiffusivity="118055"/>
+				<solute name="oxygen" 	concentration="1e-5" defaultDiffusivity="138888"/>
 			</solutes>
 			<reactions>
 			</reactions>
 			<spawn class="distributedSpawner" domain="2.0, 1.0" priority="0"
 			number="1" morphology="COCCOID">
 				<aspect  name="spacing" class="Double[]" value="2.0, 0.0" />
-				<aspect  name="orient" class="Double[]" value="0.0, 0.25" />
+				<aspect  name="orient" class="Double[]" value="2.25, 0.25" />
 			<templateAgent>
 					<aspect name="species" type="PRIMARY" class="String" value="Eco" />
 					<aspect  name="mass" class="InstantiableMap">
 						<map entryClass="Double" keyType="String">
-							<item key="biomass" value="0.05"  />
+							<item key="biomass" value="0.005"  />
 						</map>
 					</aspect>
 				</templateAgent>
@@ -116,12 +116,12 @@
 			<spawn class="distributedSpawner" domain="2.0, 1.0" priority="0"
 			number="1" morphology="COCCOID">
 				<aspect  name="spacing" class="Double[]" value="2.0, 0.0" />
-				<aspect  name="orient" class="Double[]" value="1.0, 0.25" />
+				<aspect  name="orient" class="Double[]" value="3.25, 0.25" />
 			<templateAgent>
 					<aspect name="species" type="PRIMARY" class="String" value="Ego" />
 					<aspect  name="mass" class="InstantiableMap">
 						<map entryClass="Double" keyType="String">
-							<item key="biomass" value="0.05"  />
+							<item key="biomass" value="0.005"  />
 						</map>
 					</aspect>
 				</templateAgent>

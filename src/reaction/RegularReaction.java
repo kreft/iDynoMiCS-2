@@ -320,7 +320,6 @@ public class RegularReaction
 	 * @param withRespectTo
 	 * @return
 	 */
-	// TODO never used, consider deletion
 	public double getDiffRate(HashMap<String, Double> concentrations, 
 														String withRespectTo)
 	{

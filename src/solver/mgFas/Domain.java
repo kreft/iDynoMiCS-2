@@ -182,9 +182,9 @@ public class Domain
 
 		this._environment = environment;
 
-		_nI = (int) Math.ceil(lengths[0]/_resolution) + 1;
-		_nJ = (int) Math.ceil(lengths[1]/_resolution) + 1;
-		_nK = (is3D) ? (int) Math.ceil(lengths[1]/_resolution) + 1 : 1;
+		_nI = (int) Math.ceil(lengths[0]/_resolution);
+		_nJ = (int) Math.ceil(lengths[1]/_resolution);
+		_nK = (is3D) ? (int) Math.ceil(lengths[1]/_resolution) : 1;
 		
 		// Now calculate the length of the grid in micrometres.
 		length_X = _nI * _resolution;

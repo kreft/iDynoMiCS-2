@@ -468,6 +468,9 @@ public class AgentMediator implements CommandMediator {
 							conc = (float)grid.getValueAt(ArrayType.CONCN, 
 									it.iteratorCurrent()) / max[j];
 							col[j++] = conc;
+
+//							System.out.println( (float)grid.getValueAt(ArrayType.CONCN,
+//									it.iteratorCurrent()) );
 						}
 					}
 					else
@@ -484,7 +487,6 @@ public class AgentMediator implements CommandMediator {
 							j++;
 						}
 					}
-					
 					_rgba=col;
 					applyCurrentColor(_soluteTranparancy);
 				}

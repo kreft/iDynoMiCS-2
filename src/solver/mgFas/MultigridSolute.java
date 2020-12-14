@@ -732,8 +732,10 @@ public class MultigridSolute
 	 */
 	public void readBulk()
 	{
+
+//		sBulk = 1.0; // testing with constant bulk value
 		for( SoluteGrid s : this._conc)
-			s.updateBulk(1.0);
+			s.updateBulk(sBulk);
 
 		/*
 		 * obtain the bulk concentration
@@ -744,6 +746,5 @@ public class MultigridSolute
 			return;
 		}
 		*/
-		sBulk = 1.0; // testing with constant bulk value
 	}
 }

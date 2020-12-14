@@ -468,10 +468,11 @@ public abstract class MultigridUtils {
 	public static double[][][] translateOut(double[][][] in)
 	{
 		double[][][] temp = Array.subarray(in,
-				1, in.length-3 ,
-				1, in[0].length-3 ,
-				1, Math.max(in[0][0].length-3,1) );
-		return Array.rotate(temp, 1, 0, 2);
+				1, in.length-2 ,
+				1, in[0].length-2 ,
+				1, Math.max(in[0][0].length-2,1) );
+		return temp;
+//		return Array.rotate(temp, 1, 0, 2);
 	}
 
 	/**
@@ -485,8 +486,10 @@ public abstract class MultigridUtils {
 				-1, out.length+1,
 				-1, out[0].length+1,
 				-1, out[0][0].length+1);
-		return Array.rotate(temp, 1, 0, 2);
+		return temp;
+//		return Array.rotate(temp, 1, 0, 2);
 	}
+
 
 	/**
 	 * Return values in a matrix (excluding boundaries) as a formatted string

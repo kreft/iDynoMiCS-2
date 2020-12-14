@@ -87,22 +87,15 @@ public class AgentDetachment extends ProcessManager
 						this._detachmentRate*_regionDepth / regionMap.get( vox ) ) ); 
 				for ( Agent a : agentList )
 				{
-					if( !handledAgents.contains( a ) )
-					{
-						handledAgents.add( a );
-						if( ExtraMath.getUniRandDbl() > e )
-						{
+					if( !handledAgents.contains( a ) ) {
+						handledAgents.add(a);
+						if (ExtraMath.getUniRandDbl() > e) {
 							/* FIXME DEPARTURE! */
-							this._agents.registerRemoveAgent( a , EventType.REMOVED, "detach", null);
+							this._agents.registerRemoveAgent(a, EventType.REMOVED, "detach", null);
 						}
 					}
-						
 				}
 			}
 		}
-		
-		
-		
 	}
-
 }
