@@ -7,6 +7,7 @@ import settable.Attribute;
 import settable.Module;
 import settable.Module.Requirements;
 import settable.Settable;
+import utility.Helper;
 
 /**
  * \brief TODO needs spring cleaning.. keep Point as a minimal object
@@ -112,8 +113,6 @@ public class Point implements Copyable, Settable
 
 	public void setPosition(double[] position)
 	{
-		if ( Double.isNaN(position[0]))
-			System.out.println(_p);
 		this._p = position;
 	}
 	

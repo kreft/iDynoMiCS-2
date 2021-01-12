@@ -237,6 +237,7 @@ public final class GuiConsole
   		}
   	}
 	
+  	//TODO this causes crash when running from command prompt
   	public static void scroll()
   	{
   		if ( _autoScroll )

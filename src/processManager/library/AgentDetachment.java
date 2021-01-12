@@ -1,15 +1,16 @@
 package processManager.library;
 
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
-
 import org.w3c.dom.Element;
-
 import agent.Agent;
 import analysis.quantitative.Raster;
 import bookkeeper.KeeperEntry.EventType;
+import boundary.Boundary;
 import compartment.AgentContainer;
 import compartment.EnvironmentContainer;
+import idynomics.Idynomics;
 import processManager.ProcessManager;
 import referenceLibrary.AspectRef;
 import spatialRegistry.SpatialMap;
@@ -30,12 +31,20 @@ public class AgentDetachment extends ProcessManager
 	private String RASTER_SCALE = AspectRef.rasterScale;
 	private String VERBOSE = AspectRef.verbose;
 	private String REGION_DEPTH = AspectRef.regionDepth;
+	private String ASSOC_BOUNDARY = AspectRef.assocBoundary;
 	
 	private boolean _verbose = false;
 	private Raster _raster;
 	private double _detachmentRate;
 	private double _rasterScale;
 	private int _regionDepth;
+	
+	/**
+	 * The boundary at which agents leave the compartment. If no boundary is
+	 * set in the protocol file, agents will be removed from the compartment
+	 * and permanently deleted.
+	 */
+	private Boundary _associatedBoundary;
 	
 	@Override
 	public void init( Element xmlElem, EnvironmentContainer environment, 
@@ -55,6 +64,25 @@ public class AgentDetachment extends ProcessManager
 		
 		this._regionDepth = Helper.setIfNone( 
 				this.getInt( REGION_DEPTH ), 10 );
+		
+		String assocBoundary = this.getString(ASSOC_BOUNDARY);
+		
+		if (!Helper.isNullOrEmpty(assocBoundary))
+		{
+			Collection<Boundary> boundaries = 
+				Idynomics.simulator.getCompartment(_compartmentName).getShape().
+				getAllBoundaries();
+			for (Boundary boundary: boundaries)
+			{
+				if (boundary.getName().
+						contentEquals(assocBoundary))
+				{
+					this._associatedBoundary = boundary;
+				}
+			}
+		}
+		
+		
 	}
 	
 	/**
@@ -93,16 +121,21 @@ public class AgentDetachment extends ProcessManager
 						if( ExtraMath.getUniRandDbl() > e )
 						{
 							/* FIXME DEPARTURE! */
-							this._agents.registerRemoveAgent( a , EventType.REMOVED, "detach", null);
+							
+							if (Helper.isNullOrEmpty(_associatedBoundary))
+							{
+								this._agents.registerRemoveAgent(
+										a , EventType.REMOVED, "detach", null);
+							}
+							
+							else
+							{
+								_associatedBoundary.addOutboundAgent(a);
+							}
 						}
 					}
-						
 				}
 			}
 		}
-		
-		
-		
 	}
-
 }

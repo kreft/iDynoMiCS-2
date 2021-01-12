@@ -511,6 +511,26 @@ public class AspectRef
 	public static final String attachmentRate = "attachmentRate";
 	
 	/**
+	 * AGENT TRANSFER
+	 */
+	
+	/**
+	 * Instantiable map of destination arrival processes (keys), along with
+	 * proportions of agents (values) going to each destination.
+	 */
+	public static final String destinations = "destinations";
+	
+	/**
+	 * Boundary associated with an agent detachment or attachment process
+	 */
+	public static final String assocBoundary = "associatedBoundary";
+	
+	/**
+	 * 
+	 */
+	public static final String partnerCompartment = "partnerCompartment";
+	
+	/**
 	 * 
 	 */
 	public static final String rasterScale = "rasterScale";

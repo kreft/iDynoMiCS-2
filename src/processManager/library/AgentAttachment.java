@@ -1,14 +1,14 @@
 package processManager.library;
 
-import java.util.List;
-
+import java.util.Collection;
 import org.w3c.dom.Element;
-
 import agent.Agent;
 import agent.Body;
 import analysis.quantitative.Raster;
+import boundary.Boundary;
 import compartment.AgentContainer;
 import compartment.EnvironmentContainer;
+import idynomics.Idynomics;
 import linearAlgebra.Vector;
 import processManager.ProcessManager;
 import referenceLibrary.AspectRef;
@@ -32,6 +32,7 @@ public class AgentAttachment extends ProcessManager
 	private String RASTER_SCALE = AspectRef.rasterScale;
 	private String VERBOSE = AspectRef.verbose;
 	private String REGION_DEPTH = AspectRef.regionDepth;
+	private String ASSOC_BOUNDARY = AspectRef.assocBoundary;
 	/** 
 	 * verbose raster output for debuggin purposes 
 	 */
@@ -50,6 +51,11 @@ public class AgentAttachment extends ProcessManager
 	 */
 	private int _regionDepth;
 	
+	/**
+	 * The boundary that receives agents for attachment
+	 */
+	private Boundary _associatedBoundary;
+	
 	@Override
 	public void init( Element xmlElem, EnvironmentContainer environment, 
 				AgentContainer agents, String compartmentName)
@@ -64,6 +70,23 @@ public class AgentAttachment extends ProcessManager
 		
 		this._regionDepth = Helper.setIfNone( 
 				this.getInt( REGION_DEPTH ), 10 );
+		
+		String assocBoundary = this.getString(ASSOC_BOUNDARY);
+		
+		if (!Helper.isNullOrEmpty(assocBoundary))
+		{
+			Collection<Boundary> boundaries = 
+				Idynomics.simulator.getCompartment(_compartmentName).getShape().
+				getAllBoundaries();
+			for (Boundary boundary: boundaries)
+			{
+				if (boundary.getName().
+						contentEquals(assocBoundary))
+				{
+					this._associatedBoundary = boundary;
+				}
+			}
+		}
 	}
 	
 	@Override
@@ -73,7 +96,8 @@ public class AgentAttachment extends ProcessManager
  		this._raster.rasterize( _rasterScale );
  		
  		/* TODO receive incoming agents */
- 		List<Agent> attachers = null;
+ 		Collection<Agent> attachers = this._associatedBoundary.
+ 				getAllInboundAgents();
 		
  		/* setup agent distance map and the region distance map */
 		SpatialMap<Integer> agentDistMap = this._raster.agentDistanceMap();

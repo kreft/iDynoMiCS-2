@@ -39,7 +39,7 @@ import utility.Helper;
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
  */
 public abstract class Boundary implements Settable, Instantiable
-{
+{	
 	/**
 	 * Reference to the environment of the compartment this process belongs to.
 	 * Contains a reference to the compartment shape.
@@ -105,6 +105,7 @@ public abstract class Boundary implements Settable, Instantiable
 	public void instantiate(Element xmlElement, Settable parent) 
 	{
 		this.setParent(parent);
+		
 		/* 
 		 * If this class of boundary needs a partner, find the name of the
 		 * compartment it connects to.
@@ -219,7 +220,8 @@ public abstract class Boundary implements Settable, Instantiable
 				this.setPartner(out);
 				out.setPartner(this);
 				/* oh dear TODO better to assign compartment name on boundary creation or just associate the compartment */
-				out._partnerCompartmentName = ((Compartment) this.getParent().getParent().getParent()).getName();
+				out._partnerCompartmentName = ((Compartment) this.getParent().	
+						getParent().getParent()).getName();
 			}
 			catch (Exception e)
 			{
@@ -386,6 +388,8 @@ public abstract class Boundary implements Settable, Instantiable
 	 */
 	public abstract void additionalPartnerUpdate();
 
+	
+	//TODO - delete whole section after rewriting methods that call these
 	/* ***********************************************************************
 	 * AGENT TRANSFERS
 	 * **********************************************************************/
@@ -446,11 +450,10 @@ public abstract class Boundary implements Settable, Instantiable
 							this._departureLounge.size()+" agents to partner");
 				Random randomSelector = new Random();
 				Collection<Agent> acceptanceLounge = new LinkedList<Agent>();
-				//Agent[] departureArray = (Agent[]) this._departureLounge.toArray();
 				int numAgentsDepart = this._departureLounge.size();
 				String partnerCompName = this.getPartnerCompartmentName();
 				Compartment partnerComp = Idynomics.simulator.getCompartment(partnerCompName);
-				Compartment thisComp = Idynomics.simulator.getCompartment("oneDim");
+				Compartment thisComp = this._agents._compartment;
 				if (partnerComp != null )
 				{
 					double scFac = thisComp.getScalingFactor() / partnerComp.getScalingFactor();

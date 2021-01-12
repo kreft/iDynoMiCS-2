@@ -130,6 +130,12 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable, C
 	 * 
 	 */
 	private int _priority = Integer.MAX_VALUE;
+	
+	/**
+	 * Collection of arrival nodes
+	 */
+	private LinkedList<ArrivalsLounge> _arrivals = 
+			new LinkedList<ArrivalsLounge>();
 		
 	/* ***********************************************************************
 	 * CONSTRUCTORS
@@ -335,6 +341,15 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable, C
 			this.getShape().setOrientation(  (Orientation) Instance.getNew( elem, 
 					this, Orientation.class.getName() ) );
 		}
+		
+		/**
+		 * Add the arrivals lounge(s)
+		 */
+		for ( Element e : XmlHandler.getElements( xmlElem, XmlRef.arrivalsLounge) )
+		{
+			ArrivalsLounge a = new ArrivalsLounge(e, this);
+			this._arrivals.add(a);
+		}
 	}
 	
 		
@@ -467,6 +482,64 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable, C
 	}
 	
 	/* ***********************************************************************
+	 * AGENT TRANSFER
+	 * **********************************************************************/
+	
+	/**
+	 * This method accepts new agents into the arrival lounge. It is called by a
+	 * departure method.
+	 * @param agents
+	 */
+	public void acceptAgents(String origin, LinkedList<Agent> agents)
+	{
+		//Loop through existing arrivals lounges. If a matching one is found,
+		//agents will be added and the method will return.
+		for (ArrivalsLounge a : this._arrivals)
+		{
+			if (a.getOrigin().contentEquals(origin))
+			{
+				a.addAgents(agents);
+				return;
+			}
+		}
+
+		//If the above loop found no arrivals lounge matching the origin string,
+		//create a new one.
+		ArrivalsLounge a = new ArrivalsLounge(origin, this);
+		this._arrivals.add(a);
+		a.addAgents(agents);
+	}
+	
+	/**
+	 * This method gets a list of arriving agents that originated in a
+	 * particular compartment. It is typically called by arrival processes.
+	 * @param originatingCompartment
+	 * @return
+	 */
+	public LinkedList<Agent> getArrivals (String origin)
+	{
+		LinkedList<Agent> arrivals = new LinkedList<Agent>();
+		for (ArrivalsLounge a : this._arrivals)
+		{
+			if (a.getOrigin().contentEquals(origin))
+			{
+				arrivals.addAll(a.getAgents());
+				a.clear();
+				return arrivals;
+			}
+		}
+		
+
+		if (Log.shouldWrite(Tier.CRITICAL))
+			Log.out(Tier.CRITICAL, "Arrival process requested agents from '"
+					+ origin + "'. Returning empty list.");
+		return arrivals;
+		
+	}
+	
+	
+	
+	/* ***********************************************************************
 	 * STEPPING
 	 * **********************************************************************/
 	
@@ -575,7 +648,7 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable, C
 		 * Boundaries grab the agents they want, settling any conflicts between
 		 * boundaries.
 		 */
-		this.agents.boundariesGrabAgents();
+		//this.agents.boundariesGrabAgents();
 		/*
 		 * Tell all agents queued to leave the compartment to move now.
 		 */
@@ -665,6 +738,14 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable, C
 		modelNode.add( this.environment.getModule() );
 		/* Add the Agents node. */
 		modelNode.add( this.agents.getModule() );
+		/* Add the arrivals lounge(s) */
+		if (!this._arrivals.isEmpty())
+		{
+			for (ArrivalsLounge a : this._arrivals)
+			{
+				modelNode.add( a.getModule() );
+			}
+		}
 		/* Add the process managers node. */
 		modelNode.add( this.getProcessNode() );
 		

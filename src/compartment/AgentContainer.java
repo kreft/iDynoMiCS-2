@@ -643,6 +643,24 @@ public class AgentContainer implements Settable
 			this._agentList.remove(anAgent);
 		this._agentsToRegisterRemoved.add(anAgent);
 	}
+	
+	/**
+	 * Register to remove a whole list of agents. These agents must all be
+	 * leaving due to the same kind of event.
+	 * @param agents
+	 * @param eventType
+	 * @param event
+	 * @param value
+	 */
+	public void registerRemoveAgents (LinkedList<Agent> agents, EventType 
+			eventType, String event, String value)
+	{
+		for (Agent a : agents)
+		{
+			this.registerRemoveAgent(a, eventType, event, value);
+		}
+	}
+	
 
 	/**
 	 * \brief Loop over all boundaries, asking any agents waiting in their
@@ -725,6 +743,7 @@ public class AgentContainer implements Settable
 		}
 	}
 	
+	//TODO - rewrite
 	/**
 	 * \brief Loop over all boundaries, asking any agents waiting in their
 	 * departure lounges to leave the compartment.

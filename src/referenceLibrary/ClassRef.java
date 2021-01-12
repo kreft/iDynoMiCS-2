@@ -404,11 +404,21 @@ public class ClassRef
 	 */
 	public final static String agentScraper =
 			processManager.library.AgentScraper.class.getName();
+	
+	/**
+	 * 
+	 */
+	public final static String agentsLeavePartnerChemostat = 
+			processManager.library.AgentsLeaveChemostat.class.getName();
 	/**
 	 * writes tables in csv
 	 */
 	public final static String tableWriter =
 			processManager.library.TableWriter.class.getName();
+	
+	
+	public final static String agentsArriveInChemostat = 
+			processManager.library.AgentsArriveInChemostat.class.getName();
 	
 	/* ************************************************************************
 	 * IdynoMiCS main classes
