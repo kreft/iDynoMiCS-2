@@ -10,6 +10,7 @@ import agent.Body;
 import bookkeeper.KeeperEntry.EventType;
 import compartment.AgentContainer;
 import compartment.EnvironmentContainer;
+import processManager.ProcessDeparture;
 import processManager.ProcessManager;
 import referenceLibrary.AspectRef;
 import surface.Point;
@@ -25,7 +26,7 @@ import utility.Helper;
  */
 
 
-public class AgentScraper extends DepartureProcess {
+public class AgentScraper extends ProcessDeparture {
 	
 	private String MAX_THICKNESS = AspectRef.maxThickness;
 	

@@ -159,12 +159,12 @@ public class Global extends ParameterSet
 	/**
 	 * enable bookkeeping.
 	 */
-	public static boolean bookkeeping = false;
+	public static boolean bookkeeping = true;
 	
 	/**
 	 * enable csv bookkeeping
 	 */
-	public static boolean csv_bookkeeping = false;
+	public static boolean csv_bookkeeping = true;
 	
 	/**
 	 * enable xml bookkeeping (also logging complete agent xml)

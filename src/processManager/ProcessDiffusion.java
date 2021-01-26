@@ -324,6 +324,17 @@ public abstract class ProcessDiffusion extends ProcessManager
 			case MIDPOINT:
 				for ( Agent a : this._agents.getAllLocatedAgents() )
 				{
+					
+					Body agentBody = (Body) a.get(AspectRef.agentBody);
+					List<Point> points = agentBody.getPoints();
+					for (Point p : points)
+					{
+						if (!a.getCompartment().getShape().isInside(p.getPosition()))
+						{
+							int b;
+							b = 2;
+						}
+					}
 					IntegerArray coordArray = new IntegerArray( 
 							shape.getCoords(shape.getVerifiedLocation(((Body) a.get(AspectRef.agentBody)).getCenter())));
 					mapOfMaps = (Map<Shape, HashMap<IntegerArray,Double>>) a.getValue(VD_TAG);

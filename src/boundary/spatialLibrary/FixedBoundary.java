@@ -78,20 +78,4 @@ public class FixedBoundary extends BiofilmBoundaryLayer implements Instantiable
 
 	@Override
 	public void additionalPartnerUpdate() {}
-
-	/* ***********************************************************************
-	 * AGENT TRANSFERS
-	 * **********************************************************************/
-	
-	@Override
-	public void agentsArrive()
-	{
-		if ( ! this._arrivalsLounge.isEmpty() )
-		{
-			Log.out(Tier.NORMAL,
-					"Unexpected: agents arriving at a fixed boundary!");
-		}
-		this.placeAgentsRandom();
-		this.clearArrivalsLounge();
-	}
 }

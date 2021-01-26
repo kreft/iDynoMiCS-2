@@ -217,6 +217,7 @@ public class Dimension implements CanPrelaunchCheck, Settable,
 		
 		// FIXME investigate and clean
 		/* Set the boundary, if given (not always necessary). */
+		/* TODO - create solid boundaries if a dimension is not cyclic?*/
 		bndNodes = XmlHandler.getAll(elem, XmlRef.dimensionBoundary);
 		if ( ! Helper.isNullOrEmpty(bndNodes) )
 		{

@@ -6,12 +6,20 @@ import org.w3c.dom.Element;
 import agent.Agent;
 import compartment.AgentContainer;
 import compartment.EnvironmentContainer;
+import processManager.ProcessDeparture;
 import referenceLibrary.AspectRef;
 import utility.ExtraMath;
 import utility.Helper;
 
+/**
+ * Probability-based removal process for dimensionless compartments. User should
+ * provide a detachment rate (Agents per minute).
+ * 
+ * @author Tim
+ *
+ */
 
-public class AgentsLeaveChemostat extends DepartureProcess
+public class AgentsLeaveChemostat extends ProcessDeparture
 {
 	
 	private String DETACHMENT_RATE = AspectRef.detachmentRate;

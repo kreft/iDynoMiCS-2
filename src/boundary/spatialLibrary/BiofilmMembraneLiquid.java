@@ -59,20 +59,4 @@ public class BiofilmMembraneLiquid extends SpatialBoundary
 
 	@Override
 	public void additionalPartnerUpdate() {}
-
-	/* ***********************************************************************
-	 * AGENT TRANSFERS
-	 * **********************************************************************/
-
-	@Override
-	public void agentsArrive()
-	{
-		if ( ! this._arrivalsLounge.isEmpty() )
-		{
-			Log.out(Tier.NORMAL,
-					"Unexpected: agents arriving at a membrane!");
-		}
-		this.placeAgentsRandom();
-		this.clearArrivalsLounge();
-	}
 }

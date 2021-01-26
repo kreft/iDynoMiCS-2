@@ -3,8 +3,16 @@ package processManager.library;
 import java.util.LinkedList;
 
 import agent.Agent;
+import processManager.ProcessArrival;
 
-public class AgentsArriveInChemostat extends ArrivalProcess {
+/**
+ * Simple arrival process for dimensionless compartments.
+ * 
+ * @author Tim Foster - trf896@student.bham.ac.uk
+ *
+ */
+
+public class AgentsArriveInChemostat extends ProcessArrival {
 
 	@Override
 	public void agentsArrive(LinkedList<Agent> arrivals)

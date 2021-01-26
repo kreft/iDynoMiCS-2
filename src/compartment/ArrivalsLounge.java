@@ -13,6 +13,16 @@ import settable.Module;
 import settable.Settable;
 import settable.Module.Requirements;
 
+/**
+ * The arrivals lounge contains newly arrived agents that have come from other
+ * compartments. Agents should arrive in an arrivals lounge during a global 
+ * post-step and be removed by an arrival process during the next global 
+ * pre-step. Users should ensure compartments that are the destinations of 
+ * departure processes have corresponding arrivals processes.
+ * 
+ * @author Tim Foster - trf896@student.bham.ac.uk
+ */
+
 public class ArrivalsLounge implements Instantiable, Settable {
 
 	private Settable _parentNode;
@@ -46,6 +56,11 @@ public class ArrivalsLounge implements Instantiable, Settable {
 		}
 	}
 	
+	/**
+	 * An agent held in this arrivals lounge is inserted into the main agent
+	 * container and leaves the arrivals lounge.
+	 * @param agent
+	 */
 	public void addAgent(Agent agent)
 	{
 		this._agents.add(agent);

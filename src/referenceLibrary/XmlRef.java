@@ -214,9 +214,20 @@ public class XmlRef
 	public final static String environment = "environment";
 	
 	/**
-	 * Encapsulates all process managers for one compartment.
+	 * Encapsulates all process managers for one compartment, except arrival
+	 * and departure processes.
 	 */
 	public final static String processManagers = "processManagers";
+	
+	/**
+	 * Process managers that run arrival processes
+	 */
+	public static final String arrivalProcesses = "arrivalProcesses";
+	
+	/**
+	 * Process managers that run departure processes
+	 */
+	public static final String departureProcesses = "departureProcesses";
 	
 	/**
 	 * Arrivals lounge is an instantiable map containing the agents arriving in

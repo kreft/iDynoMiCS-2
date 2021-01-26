@@ -28,6 +28,8 @@ import instantiable.Instantiable;
 import linearAlgebra.Orientation;
 import linearAlgebra.Vector;
 import physicalObject.PhysicalObject;
+import processManager.ProcessArrival;
+import processManager.ProcessDeparture;
 import processManager.ProcessComparator;
 import processManager.ProcessManager;
 import reaction.RegularReaction;
@@ -104,6 +106,21 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable, C
 	 */
 	protected LinkedList<ProcessManager> _processes = 
 											new LinkedList<ProcessManager>();
+	
+	/**
+	 * List of arrival processes, to be carried out of the beginning of a
+	 * global timestep.
+	 */
+	protected LinkedList<ProcessManager> _arrivalProcesses = 
+			new LinkedList<ProcessManager>();
+	
+	/**
+	 * List of departure processes, to be carried out at the end of a global
+	 * timestep.
+	 */
+	protected LinkedList<ProcessManager> _departureProcesses = 
+			new LinkedList<ProcessManager>();
+	
 	/**
 	 * ProcessComparator orders Process Managers by their time priority.
 	 */
@@ -324,6 +341,20 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable, C
 					(ProcessManager) Instance.getNew(e, this, (String[])null));
 		}
 		
+		for ( Element e : XmlHandler.getElements( 
+				xmlElem, XmlRef.arrivalProcesses) )
+		{
+			this.addProcessManager(
+					(ProcessManager) Instance.getNew(e, this, (String[])null));
+		}
+		
+		for ( Element e : XmlHandler.getElements( 
+				xmlElem, XmlRef.departureProcesses) )
+		{
+			this.addProcessManager(
+					(ProcessManager) Instance.getNew(e, this, (String[])null));
+		}
+		
 		for ( Element e : XmlHandler.getElements(xmlElem,XmlRef.physicalObject))
 		{
 			this.addPhysicalObject( (PhysicalObject) Instance.getNew(e, this, 
@@ -411,10 +442,23 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable, C
 	 */
 	public void addProcessManager(ProcessManager aProcessManager)
 	{
-		this._processes.add(aProcessManager);
+		if (aProcessManager instanceof ProcessArrival)
+		{
+			this._arrivalProcesses.add((ProcessArrival) aProcessManager);
+			Collections.sort(this._arrivalProcesses, this._procComp);
+		}
+		else if (aProcessManager instanceof ProcessDeparture)
+		{
+			this._departureProcesses.add((ProcessDeparture) aProcessManager);
+			Collections.sort(this._departureProcesses, this._procComp);
+		}
+		else
+		{
+			this._processes.add(aProcessManager);
+			Collections.sort(this._processes, this._procComp);
+		}
 		// TODO Rob [18Apr2016]: Check if the process's next time step is 
 		// earlier than the current time.
-		Collections.sort(this._processes, this._procComp);
 	}
 	
 	/**
@@ -486,7 +530,7 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable, C
 	 * **********************************************************************/
 	
 	/**
-	 * This method accepts new agents into the arrival lounge. It is called by a
+	 * This method accepts new agents into an arrival lounge. It is called by a
 	 * departure method.
 	 * @param agents
 	 */
@@ -529,10 +573,8 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable, C
 			}
 		}
 		
-
-		if (Log.shouldWrite(Tier.CRITICAL))
-			Log.out(Tier.CRITICAL, "Arrival process requested agents from '"
-					+ origin + "'. Returning empty list.");
+		//Return empty list if no departures have been received from the origin
+		//in the last timestep.
 		return arrivals;
 		
 	}
@@ -542,6 +584,34 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable, C
 	/* ***********************************************************************
 	 * STEPPING
 	 * **********************************************************************/
+	
+	public void runProcesses(LinkedList<ProcessManager> processes)
+	{
+		ProcessManager currentProcess = processes.getFirst();
+		while ( (this._localTime = currentProcess.getTimeForNextStep() ) 
+					< Idynomics.simulator.timer.getEndOfCurrentIteration() &&
+					Idynomics.simulator.active() )
+		{
+			if( Log.shouldWrite(Tier.DEBUG) )
+				Log.out(Tier.DEBUG, "Compartment "+this.name+
+									" running process "+currentProcess.getName()+
+									" at local time "+this._localTime);
+			
+			/*
+			 * First process on the list does its thing. This should then
+			 * increase its next step time.
+			 */
+			currentProcess.step();
+			/*
+			 * Reinsert this process at the appropriate position in the list.
+			 */
+			Collections.sort(processes, this._procComp);
+			/*
+			 * Choose the new first process for the next iteration.
+			 */
+			currentProcess = processes.getFirst();
+		}
+	}
 	
 	/**
 	 * \brief Connects any disconnected boundaries to a new partner boundary on 
@@ -589,11 +659,17 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable, C
 	public void preStep()
 	{
 		this._bookKeeper.clear();
-		/*
-		 * Ask all Agents waiting in boundary arrivals lounges to enter the
-		 * compartment now.
-		 */
-		this.agents.agentsArrive();
+		
+		this._localTime = Idynomics.simulator.timer.getCurrentTime();
+		
+		if( Log.shouldWrite(Tier.DEBUG) )
+		{
+			Log.out(Tier.DEBUG, "Compartment "+this.name+
+					" at local time "+this._localTime);
+		}
+		
+		if ( !this._arrivalProcesses.isEmpty() )
+			this.runProcesses(this._arrivalProcesses); 
 		
 		this.agents.sortLocatedAgents();
 	}
@@ -605,38 +681,10 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable, C
 	public void step()
 	{
 		this._localTime = Idynomics.simulator.timer.getCurrentTime();
-		if( Log.shouldWrite(Tier.DEBUG) )
-		{
-			Log.out(Tier.DEBUG, "Compartment "+this.name+
-					" at local time "+this._localTime);
-		}
 		
-		if ( this._processes.isEmpty() )
-			return;
-		ProcessManager currentProcess = this._processes.getFirst();
-		while ( (this._localTime = currentProcess.getTimeForNextStep() ) 
-					< Idynomics.simulator.timer.getEndOfCurrentIteration() &&
-					Idynomics.simulator.active() )
-		{
-			if( Log.shouldWrite(Tier.DEBUG) )
-				Log.out(Tier.DEBUG, "Compartment "+this.name+
-									" running process "+currentProcess.getName()+
-									" at local time "+this._localTime);
-			
-			/*
-			 * First process on the list does its thing. This should then
-			 * increase its next step time.
-			 */
-			currentProcess.step();
-			/*
-			 * Reinsert this process at the appropriate position in the list.
-			 */
-			Collections.sort(this._processes, this._procComp);
-			/*
-			 * Choose the new first process for the next iteration.
-			 */
-			currentProcess = this._processes.getFirst();
-		}
+		
+		if (! this._processes.isEmpty() )
+			this.runProcesses(this._processes);
 	}
 	
 	/**
@@ -645,14 +693,10 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable, C
 	public void postStep()
 	{
 		/*
-		 * Boundaries grab the agents they want, settling any conflicts between
-		 * boundaries.
-		 */
-		//this.agents.boundariesGrabAgents();
-		/*
 		 * Tell all agents queued to leave the compartment to move now.
 		 */
-		this.agents.agentsDepart();
+		if (!this._departureProcesses.isEmpty())
+			this.runProcesses(this._departureProcesses);
 		
 		if( Global.csv_bookkeeping)
 			this.writeEventLog();
@@ -746,8 +790,9 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable, C
 				modelNode.add( a.getModule() );
 			}
 		}
-		/* Add the process managers node. */
-		modelNode.add( this.getProcessNode() );
+		/* Add the process managers nodes. */
+		for (Module m : this.getProcessNodes())
+			modelNode.add(m);
 		
 		modelNode.add( getObjectNode() );
 		
@@ -767,25 +812,49 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable, C
 	/**
 	 * \brief Helper method for {@link #getModule()}.
 	 * 
-	 * @return Model node for the <b>process managers</b>.
+	 * @return Model nodes for the <b>process managers</b>.
 	 */
-	private Module getProcessNode()
+	private LinkedList<Module> getProcessNodes()
 	{
 		/* The process managers node. */
-		Module modelNode = new Module( XmlRef.processManagers, this );
-		modelNode.setRequirements( Requirements.EXACTLY_ONE );
+		Module processNode = new Module( XmlRef.processManagers, this );
+		processNode.setRequirements( Requirements.EXACTLY_ONE );
+		
+		Module arrivalNode = new Module( XmlRef.arrivalProcesses, this );
+		arrivalNode.setRequirements( Requirements.EXACTLY_ONE );
+		
+		Module departureNode = new Module( XmlRef.departureProcesses, this );
+		departureNode.setRequirements( Requirements.EXACTLY_ONE );
 		/* 
 		 * Work around: we need an object in order to call the newBlank method
 		 * from TODO investigate a cleaner way of doing this  
 		 */
-		modelNode.addChildSpec( ClassRef.processManager, 
+		processNode.addChildSpec( ClassRef.processManager, 
+				Helper.collectionToArray( ProcessManager.getAllOptions() ), 
+				Module.Requirements.ZERO_TO_MANY );
+		
+		arrivalNode.addChildSpec( ClassRef.processArrival, 
+				Helper.collectionToArray( ProcessManager.getAllOptions() ), 
+				Module.Requirements.ZERO_TO_MANY );
+		
+		departureNode.addChildSpec( ClassRef.processDeparture, 
 				Helper.collectionToArray( ProcessManager.getAllOptions() ), 
 				Module.Requirements.ZERO_TO_MANY );
 		
 		/* Add existing process managers as child nodes. */
-		for ( ProcessManager p : this._processes )
-			modelNode.add( p.getModule() );
-		return modelNode;
+		for (ProcessManager p : this._arrivalProcesses)
+			arrivalNode.add( p.getModule() );
+		for (ProcessManager p : this._departureProcesses)
+			departureNode.add(p.getModule());
+		for (ProcessManager p : this._processes)
+			processNode.add(p.getModule());
+		
+		LinkedList<Module> modules = new LinkedList<Module>();
+		modules.add(processNode);
+		modules.add(arrivalNode);
+		modules.add(departureNode);
+		
+		return modules;
 	}
 	
 	/**

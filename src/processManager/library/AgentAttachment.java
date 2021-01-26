@@ -1,16 +1,18 @@
 package processManager.library;
 
-import java.util.Collection;
+import java.util.LinkedList;
+
 import org.w3c.dom.Element;
 import agent.Agent;
 import agent.Body;
 import analysis.quantitative.Raster;
-import boundary.Boundary;
 import compartment.AgentContainer;
 import compartment.EnvironmentContainer;
+import dataIO.Log;
+import dataIO.Log.Tier;
 import idynomics.Idynomics;
 import linearAlgebra.Vector;
-import processManager.ProcessManager;
+import processManager.ProcessArrival;
 import referenceLibrary.AspectRef;
 import spatialRegistry.SpatialMap;
 import surface.Point;
@@ -27,12 +29,11 @@ import utility.Helper;
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
  *
  */
-public class AgentAttachment extends ProcessManager
+public class AgentAttachment extends ProcessArrival
 {
 	private String RASTER_SCALE = AspectRef.rasterScale;
 	private String VERBOSE = AspectRef.verbose;
 	private String REGION_DEPTH = AspectRef.regionDepth;
-	private String ASSOC_BOUNDARY = AspectRef.assocBoundary;
 	/** 
 	 * verbose raster output for debuggin purposes 
 	 */
@@ -51,11 +52,6 @@ public class AgentAttachment extends ProcessManager
 	 */
 	private int _regionDepth;
 	
-	/**
-	 * The boundary that receives agents for attachment
-	 */
-	private Boundary _associatedBoundary;
-	
 	@Override
 	public void init( Element xmlElem, EnvironmentContainer environment, 
 				AgentContainer agents, String compartmentName)
@@ -70,36 +66,18 @@ public class AgentAttachment extends ProcessManager
 		
 		this._regionDepth = Helper.setIfNone( 
 				this.getInt( REGION_DEPTH ), 10 );
-		
-		String assocBoundary = this.getString(ASSOC_BOUNDARY);
-		
-		if (!Helper.isNullOrEmpty(assocBoundary))
-		{
-			Collection<Boundary> boundaries = 
-				Idynomics.simulator.getCompartment(_compartmentName).getShape().
-				getAllBoundaries();
-			for (Boundary boundary: boundaries)
-			{
-				if (boundary.getName().
-						contentEquals(assocBoundary))
-				{
-					this._associatedBoundary = boundary;
-				}
-			}
-		}
 	}
 	
 	@Override
-	protected void internalStep()
+	protected void agentsArrive(LinkedList<Agent> attachers)
 	{
 		/* generate a raster */
  		this._raster.rasterize( _rasterScale );
  		
- 		/* TODO receive incoming agents */
- 		Collection<Agent> attachers = this._associatedBoundary.
- 				getAllInboundAgents();
 		
  		/* setup agent distance map and the region distance map */
+ 		/* Error occurs when agentDistMap is array of only integer
+ 		 * max value. Investigate how this happens.*/
 		SpatialMap<Integer> agentDistMap = this._raster.agentDistanceMap();
 		SpatialMap<Double> regionMap = 
 				this._raster.regionMap( this._regionDepth );
@@ -136,6 +114,12 @@ public class AgentAttachment extends ProcessManager
 			
 			/* iterate over all voxels until the randomly chosen raster voxel is
 			 * encountered. */
+			if (Helper.isNullOrEmpty(likeleyhoodMap))
+			{
+				Idynomics.simulator.interupt("No biofilm edge found by " +
+						this._name + "in " + this._compartmentName + ". "
+						+ "AgentAttachment failed. Ending simulation.");
+			}
 			for( int[] vox : likeleyhoodMap.keySetNumeric() )
 			{
 				/* center position of voxel */
@@ -156,6 +140,9 @@ public class AgentAttachment extends ProcessManager
 					}
 					/* add the agent to the compartment */
 					this._agents.addAgent( a );
+					
+					//Refresh spatial registry?
+					
 					/* once we have added break the for loop and continue to the
 					 * next agent. */
 					break;

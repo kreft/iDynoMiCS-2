@@ -521,16 +521,6 @@ public class AspectRef
 	public static final String destinations = "destinations";
 	
 	/**
-	 * Boundary associated with an agent detachment or attachment process
-	 */
-	public static final String assocBoundary = "associatedBoundary";
-	
-	/**
-	 * 
-	 */
-	public static final String partnerCompartment = "partnerCompartment";
-	
-	/**
 	 * 
 	 */
 	public static final String rasterScale = "rasterScale";
@@ -547,6 +537,27 @@ public class AspectRef
 	 */
 	public static final String regionDepth = "regionDepth";
 
+	
+	/**
+	 * The name of a dimension (X, Y or Z)
+	 */
+	public static final String dimensionName = "dimensionName";
+	
+	/**
+	 * The extreme of a dimension (0 or 1)
+	 */
+	public static final String dimensionExtreme = "extreme";
+	
+	/**
+	 * The size of a random walk step
+	 */
+	public static final String stepSize = "stepSize";
+	
+	/**
+	 * Thicknes of a biofilm boundary layer
+	 */
+	public static final String boundaryLayerThickness = "boundaryLayerThickness";
+	
 	/**
 	 * Maximum thickness of a biofilm.
 	 * 
