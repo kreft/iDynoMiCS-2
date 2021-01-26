@@ -518,14 +518,6 @@ public class AgentContainer implements Settable
 		
 		Body agentBody = (Body) agent.get(AspectRef.agentBody);
 		List<Point> points = agentBody.getPoints();
-		for (Point p : points)
-		{
-			if (!this._shape.isInside(p.getPosition()))
-			{
-				int a;
-				a = 2;
-			}
-		}
 	}
 
 	/**
