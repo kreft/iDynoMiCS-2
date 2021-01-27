@@ -2,19 +2,14 @@ package boundary.spatialLibrary;
 
 import static grid.ArrayType.WELLMIXED;
 
-import java.util.Collection;
-import java.util.LinkedList;
 import java.util.List;
 
 import agent.Agent;
 import agent.Body;
-import boundary.SpatialBoundary;
 import boundary.WellMixedBoundary;
 import boundary.library.ChemostatToBoundaryLayer;
 import compartment.AgentContainer;
 import compartment.EnvironmentContainer;
-import dataIO.Log;
-import dataIO.Log.Tier;
 import grid.SpatialGrid;
 import grid.WellMixedConstants;
 import linearAlgebra.Vector;
@@ -49,20 +44,13 @@ public class BiofilmBoundaryLayer extends WellMixedBoundary
 	 * pull distance aspect.
 	 */
 	// NOTE This is not a permanent solution.
-	public static String CURRENT_PULL_DISTANCE = AspectRef.collisionCurrentPullDistance;
+	public static String CURRENT_PULL_DISTANCE = 
+			AspectRef.collisionCurrentPullDistance;
 	/**
 	 * For the random walk after insertion, we use an arbitrary time step size.
 	 */
 	// NOTE This is not a permanent solution.
 	public static double MOVE_TSTEP = 1.0;
-	
-	/**
-	 * \brief Log file verbosity level used for debugging agent arrival.
-	 * 
-	 * <ul><li>Set to {@code BULK} for normal simulations</li>
-	 * <li>Set to {@code DEBUG} when trying to debug an issue</li></ul>
-	 */
-	private static final Tier AGENT_ARRIVE_LEVEL = Tier.DEBUG;
 	
 	/* ***********************************************************************
 	 * CONSTRUCTOR
@@ -172,10 +160,7 @@ public class BiofilmBoundaryLayer extends WellMixedBoundary
 				}
 			coords = aShape.iteratorNext();
 			}
-			
-			
 		}
-		
 		else
 		{
 			int[] coords = aShape.resetIterator();
@@ -195,7 +180,8 @@ public class BiofilmBoundaryLayer extends WellMixedBoundary
 				box = this._gridSphere.boundingBox(this._agents.getShape());
 				neighbors = this._agents.treeSearch(box);
 				for ( Agent a : neighbors )
-					for (Surface s : (List<Surface>) ((Body) a.get(AspectRef.agentBody)).getSurfaces())
+					for (Surface s : (List<Surface>) ((Body) 
+							a.get( AspectRef.agentBody )).getSurfaces() )
 						if ( this._gridSphere.distanceTo(s) < 0.0 )
 							{
 								grid.setValueAt(WELLMIXED, coords, 

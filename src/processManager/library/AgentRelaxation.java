@@ -26,6 +26,10 @@ import surface.Rod;
 import surface.Surface;
 import surface.collision.Collision;
 import surface.collision.Decompress;
+import surface.link.LinearSpring;
+import surface.link.Link;
+import surface.link.Spring;
+import surface.link.TorsionSpring;
 import utility.Helper;
 
 /**
@@ -253,7 +257,7 @@ public class AgentRelaxation extends ProcessManager
 		 * ComponentExpression from process manager otherwise fall back default
 		 * is used. */
 		if ( ! Helper.isNullOrEmpty( this.getValue(SPINE_FUNCTION) ) )
-			this._spineFunction = (Expression) this.getValue(SPINE_FUNCTION);
+			this._spineFunction = new Expression((String) this.getValue(SPINE_FUNCTION));
 		
 		/* Include decompression */
 		this._decompression = Helper.setIfNone( this.getBoolean(DECOMPRESSION), 
@@ -420,6 +424,14 @@ public class AgentRelaxation extends ProcessManager
 				break;
 			}
 
+			if( Log.shouldWrite(Tier.DEBUG) )
+			{
+				for (Agent agent : allAgents)
+					for (Point point : ((Body) agent.get(BODY)).getPoints())
+						if (Double.isNaN(point.getPosition()[0]))
+							Log.out(Tier.DEBUG, "encountered NaN in agent Relaxation.");
+			}
+
 			/* NOTE that with proper boundary surfaces for any compartment
 			 * shape this should never yield any difference, it is here as a
 			 * fail safe 
@@ -428,9 +440,17 @@ public class AgentRelaxation extends ProcessManager
 			 * */
 			for(Agent agent : allAgents)
 				for ( Point point: ( (Body) agent.get(BODY) ).getPoints() )
-					this._shape.applyBoundaries( point.getPosition() );
+					point.setPosition( this._shape.applyBoundaries( point.getPosition() ) );
 			
 			nstep++;
+		}
+		
+		if( Log.shouldWrite( Tier.DEBUG ))
+		{
+			for ( Agent agent : allAgents )
+				for ( Point point: ( (Body) agent.get(BODY) ).getPoints() )
+					if ( Double.isNaN(point.getPosition()[0]))
+						Log.out(Tier.DEBUG, String.valueOf( point.getPosition()[0] ));
 		}
 		
 		/* Leave with a clean spatial tree. */
@@ -465,11 +485,9 @@ public class AgentRelaxation extends ProcessManager
 		{
 			Body body = (Body) agent.get(AspectRef.agentBody);
 			List<Surface> agentSurfs = body.getSurfaces();
-
-			/* surface operations */
-			for ( Surface s : agentSurfs )
-				if ( s instanceof Rod )
-					spineEvaluation(agent, s);
+			
+			/* spring operations */
+			springEvaluation(agent, body);
 			
 			/* Look for neighbors and resolve collisions */
 			neighboorhoodEvaluation(agent, agentSurfs, agents);
@@ -551,49 +569,56 @@ public class AgentRelaxation extends ProcessManager
 	 *\brief update the forces currently acting upon the mass points due to the
 	 * connecting spinal spring of rod type agents.
 	 * 
-	 * @param agent the vocal agent (once per step per surface of the agent)
+	 * @param a the vocal agent (once per step per surface of the agent)
 	 * @param s surface of the agent
 	 */
-	private void spineEvaluation(Agent agent, Surface s)
+	private void springEvaluation(Agent a, Body b)
 	{
-		/*
-		 * calculate rest length of rod cell spine spring
-		 * total volume - sphere volume = cylinder volume ->
-		 * cylinder length = rest length
-		 */
-		double l = ((Rod) s)._length;
-		double stiffness = Helper.setIfNone( agent.getDouble(STIFFNESS), 10.0);
-
-		/*
-		 * calculate current length of spine spring
-		 */
-		Point a = ((Rod) s)._points[0];
-		Point b = ((Rod) s)._points[1];
-		double[] diff = this._shape.getMinDifferenceVector( 
-				a.getPosition(), b.getPosition() );
-		double dn = Vector.normEuclid(diff);
-		
-		/* rod type agent spine function, replacing hard coded Hooke's law
-		 * double[] fV	= Vector.times(diff, stiffness * (dn - l));  */
-		HashMap<String, Double> springVars = new HashMap<String,Double>();
-		springVars.put("stiffness", stiffness);
-		springVars.put("dh", dn-l);
-		Expression spine;
-		
-		/* Obtain ComponentExpression from agent otherwise use the
-		 * default expression */
-		if (agent.isAspect(SPINE_FUNCTION))
-			spine = (Expression) this.getValue(SPINE_FUNCTION);
-		else
-			spine = this._spineFunction;
-		
-		double fs		= spine.getValue(springVars);
-		double[] fV		= Vector.times(diff, fs);
-	
-		/* apply forces */
-		Vector.addEquals( b.getForce(), fV ) ;
-		Vector.reverseEquals(fV);
-		Vector.addEquals( a.getForce(), fV ) ;
+		for( Link l : b.getLinks() )
+		{
+			l.update();
+		}
+		for( Spring s : b.getSpringsToEvaluate())
+		{
+			if( s != null )
+			{
+				if( !s.ready())
+				{
+					/* possible change to set vars */
+					s.setStiffness( Helper.setIfNone( a.getDouble(STIFFNESS), 
+							1.0));
+					if( s instanceof LinearSpring)
+					{
+						Expression spineFun;
+						if ( !Helper.isNullOrEmpty( a.getValue(
+								AspectRef.agentSpineFunction )))
+							spineFun = new Expression((String) 
+									a.getValue(AspectRef.agentSpineFunction ));
+						else
+							spineFun = this._spineFunction;
+						s.setSpringFunction( spineFun );
+					}
+					else if( s instanceof TorsionSpring )
+					{
+						Expression torsFun = null;
+						if ( !Helper.isNullOrEmpty( 
+								a.getValue(AspectRef.torsionFunction)))
+							torsFun = (Expression) 
+								a.getValue(AspectRef.torsionFunction);
+						else
+						{
+							/* TODO set default maybe? */
+							Idynomics.simulator.interupt(
+									"missing torsion spring function in relax");
+						}
+						s.setSpringFunction( torsFun );
+					}
+				}
+				s.applyForces(this._shape);
+				if(Log.shouldWrite(Tier.DEBUG))
+					Log.out(Tier.DEBUG,s.toString());
+			}
+		}
 	}
 
 	/**

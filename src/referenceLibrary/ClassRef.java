@@ -6,6 +6,7 @@ import java.util.List;
 
 import dataIO.Log;
 import dataIO.Log.Tier;
+import surface.link.TorsionSpring;
 
 /**
  * 
@@ -707,5 +708,24 @@ public class ClassRef
 
 	public static final String orientation = 
 			linearAlgebra.Orientation.class.getName();
+	
+	
+	public static final String fillialDivision = 
+			aspect.event.FillialDivision.class.getName();
+	
+	public static final String torsionSPring = 
+			surface.link.TorsionSpring.class.getName();
+	
+	public static final String linearSpring = 
+			surface.link.LinearSpring.class.getName();
+
+	public static final String link = 
+			surface.link.Link.class.getName();
+
+	public static final String fillialRodShift = 
+			aspect.event.FillialRodShift.class.getName();
+
+	public static final String expression = 
+			expression.Expression.class.getName();
 
 }

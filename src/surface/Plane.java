@@ -121,8 +121,8 @@ public class Plane extends Surface implements HasBoundingBox
 			 */
 			if (_normal.getPosition()[i] == 0.0 )
 			{
-				lower[i] = -Math.sqrt(Double.MAX_VALUE);
-				upper[i] = Math.sqrt(Double.MAX_VALUE);
+				lower[i] = -Double.MAX_VALUE;
+				upper[i] = Double.MAX_VALUE;
 			}
 			/*
 			 * if the infinite plane's normal is not right angled on two 
@@ -132,8 +132,8 @@ public class Plane extends Surface implements HasBoundingBox
 			else if ( n > 0 )
 			{
 				return boundingBox.get(
-						Vector.setAll(lower, -Math.sqrt(Double.MAX_VALUE)),
-						Vector.setAll(upper, Math.sqrt(Double.MAX_VALUE)));
+						Vector.setAll(lower, -Double.MAX_VALUE),
+						Vector.setAll(upper, Double.MAX_VALUE));
 			}
 			/*
 			 * if the plane's normal is pointing in a single dimension we can

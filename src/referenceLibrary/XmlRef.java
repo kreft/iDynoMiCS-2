@@ -665,4 +665,10 @@ public class XmlRef
 	public static final String eventID = "eventType";
 
 	public static final String event = "event";
+
+	public static final String link = "link";
+
+	public static final String spring = "spring";
+
+	public static final String member = "member";
 }

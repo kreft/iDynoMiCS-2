@@ -2,8 +2,6 @@ package boundary.spatialLibrary;
 
 import boundary.SpatialBoundary;
 import boundary.library.GasToMembrane;
-import dataIO.Log;
-import dataIO.Log.Tier;
 import grid.SpatialGrid;
 
 /**

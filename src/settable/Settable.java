@@ -28,7 +28,12 @@ public interface Settable
 		/* By default if the module has no attributes to be set continue and
 		 * set the attributes of all child modules */
 		for ( Module n : node.getAllChildModules() )
+		{
+			if( n.settableObject == null)
+				n.settableObject = null;
 			n.settableObject.setModule(n);
+		}
+
 	}
 	
 	/**

@@ -1,28 +1,17 @@
 package boundary;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 
 import org.w3c.dom.Element;
 
-import agent.Agent;
-import bookkeeper.KeeperEntry.EventType;
-import boundary.library.ChemostatToBoundaryLayer;
-import boundary.spatialLibrary.BiofilmBoundaryLayer;
 import compartment.AgentContainer;
 import compartment.Compartment;
 import compartment.EnvironmentContainer;
-import dataIO.Log;
-import dataIO.Log.Tier;
 import dataIO.XmlHandler;
 import idynomics.Idynomics;
 import instantiable.Instantiable;
-import referenceLibrary.AspectRef;
 import referenceLibrary.XmlRef;
 import settable.Attribute;
 import settable.Module;

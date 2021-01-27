@@ -315,8 +315,6 @@ public final class Helper
 	public static double interpretExpression(String expression)
 	{
 		return Double.parseDouble(expression);
-//		ExpressionB expres = new ExpressionB(expression);
-//		return expres.getValue();
 	}
 	
 	/**
@@ -756,6 +754,22 @@ public final class Helper
 		try
 		{
 			new Expression( strParse );
+		}
+		catch (NumberFormatException | StringIndexOutOfBoundsException
+				| NullPointerException f)
+		{
+			return false;
+		}
+		return true;
+	}
+	
+	public static boolean formatParseable(String strParse)
+	{
+		if(strParse == null)
+			return false;
+		try
+		{
+			new Expression( strParse ).format( Idynomics.unitSystem );
 		}
 		catch (NumberFormatException | StringIndexOutOfBoundsException
 				| NullPointerException f)

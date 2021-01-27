@@ -13,7 +13,10 @@ import surface.collision.CollisionVariables;
 
 /**
  * default push CollisionFunction
- * FIXME currently not settable from xml yet
+ * FIXME currently not settable from xml yet, only trough config
+ * 
+ * @author Bastiaan
+ *
  */
 public class DefaultPushFunction implements CollisionFunction
 {
@@ -63,7 +66,6 @@ public class DefaultPushFunction implements CollisionFunction
 			/* Linear. */
 			double c = Math.abs( this._forceScalar * var.distance );
 			/* two component, better force scaling for low vs high overlap */
-//			double c = this._forceScalar * (  Math.abs( var.distance ) + var.distance * var.distance * 1e2 );
 			/* dP is overwritten here. */
 			Vector.normaliseEuclidEquals( var.interactionVector, c );
 			return var;

@@ -91,6 +91,10 @@ public class Area implements Predicate<Area> {
 	
 	public boolean periodic(Area area, int dim)
 	{
+		/* Bounding box infinite in this dimension */
+		if( area.high[dim] == Double.MAX_VALUE)
+			return false;
+		
 		/* if this is not passing a periodic boundary in this dimension */
 		if ( !this.periodic[dim] ) 
 		{

@@ -361,4 +361,6 @@ public class Global extends ParameterSet
 	 * Default decompression parameters
 	 */
 	public static double damping_factor = 0.9;
+	
+	public static int file_number_of_digits = 5;
 }
