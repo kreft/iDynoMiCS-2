@@ -2,8 +2,6 @@ package boundary.spatialLibrary;
 
 import boundary.SpatialBoundary;
 import boundary.library.ChemostatToMembrane;
-import dataIO.Log;
-import dataIO.Log.Tier;
 import grid.SpatialGrid;
 
 /**
@@ -59,4 +57,9 @@ public class BiofilmMembraneLiquid extends SpatialBoundary
 
 	@Override
 	public void additionalPartnerUpdate() {}
+	
+	public boolean isSolid()
+	{
+		return true;
+	}
 }

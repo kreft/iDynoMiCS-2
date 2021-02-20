@@ -6,7 +6,6 @@ import java.util.List;
 
 import dataIO.Log;
 import dataIO.Log.Tier;
-import surface.link.TorsionSpring;
 
 /**
  * 
@@ -441,6 +440,20 @@ public class ClassRef
 	 */
 	public final static String agentsLeaveChemostat = 
 			processManager.library.AgentsLeaveChemostat.class.getName();
+	
+	/**
+	 * 
+	 */
+	public final static String agentsOutsideDomainDepart = 
+			processManager.library.AgentsOutsideDomainDepart.class.getName();
+	
+	/**
+	 * Removal of floating groups of unattached agents from a biofilm
+	 * compartment.
+	 */
+	public final static String floatingAgentRemoval = 
+			processManager.library.FloatingAgentRemoval.class.getName();
+	
 	/**
 	 * writes tables in csv
 	 */

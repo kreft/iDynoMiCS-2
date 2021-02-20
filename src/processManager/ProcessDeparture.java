@@ -1,5 +1,6 @@
 package processManager;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -7,7 +8,9 @@ import java.util.LinkedList;
 import org.w3c.dom.Element;
 
 import agent.Agent;
+import agent.Body;
 import bookkeeper.KeeperEntry.EventType;
+import boundary.SpatialBoundary;
 import compartment.AgentContainer;
 import compartment.Compartment;
 import compartment.EnvironmentContainer;
@@ -15,7 +18,10 @@ import dataIO.Log;
 import dataIO.Log.Tier;
 import idynomics.Idynomics;
 import instantiable.object.InstantiableMap;
+import referenceLibrary.AspectRef;
 import referenceLibrary.XmlRef;
+import shape.Shape;
+import surface.Point;
 import utility.ExtraMath;
 import utility.Helper;
 
@@ -39,6 +45,8 @@ public abstract class ProcessDeparture extends ProcessManager {
 	
 	private LinkedList<Agent> _departureLounge;
 	
+	protected Shape _shape;
+	
 	private enum DepartureType
 	{
 		REMOVAL,
@@ -50,6 +58,8 @@ public abstract class ProcessDeparture extends ProcessManager {
 			AgentContainer agents, String compartmentName)
 	{
 		super.init(xmlElem, environment, agents, compartmentName);
+		
+		this._shape = this._agents.getShape();
 		
 		if (this.isLocalAspect(XmlRef.destinationNames))
 		{
@@ -91,7 +101,8 @@ public abstract class ProcessDeparture extends ProcessManager {
 			this._departureLounge = this.agentsDepart();
 			this._agents.registerRemoveAgents(this._departureLounge, 
 					EventType.REMOVED, "Removed from simulation by departure "
-						+ "process", "??");
+						+ "process", null);
+			this._departureLounge.clear();
 			break;
 		}
 	
@@ -176,12 +187,11 @@ public abstract class ProcessDeparture extends ProcessManager {
 					
 					//Remove departing agents from this compartment's 
 					//AgentContainer.
-					//TODO - ask Bas what parameters event and value are for.
 					this._agents.registerRemoveAgents(departingAgents, 
 						EventType.TRANSFER, "Transferred from compartment " + 
 								this._compartmentName + "to new compartment, " +
 								destinations.get(i).getName() + " by "
-								+ "departure process" + this._name, "??");
+								+ "departure process" + this._name, null);
 					
 					//Send departing agents to their destination
 					destinations.get(i).acceptAgents(
@@ -200,21 +210,19 @@ public abstract class ProcessDeparture extends ProcessManager {
 					//TODO - ask Bas what parameters event and value are for.
 					this._agents.registerRemoveAgents(this._departureLounge, 
 						EventType.TRANSFER, "Transferred from compartment " + 
-							this._compartmentName + "to new compartment, " +
+							this._compartmentName + " to new compartment, " +
 							destinations.get(destinations.size()-1).getName()
-							+ " by departure process" + this._name, "??");
+							+ " by departure process " + this._name, null);
 					
 					//Send departing agents to their destination
 					destinations.get(destinations.size()-1).acceptAgents(
 							this._compartmentName, this._departureLounge);
 					
-					//Clear departure lounge. Not strictly necessary, because
-					//_departureLounge will be reassigned in the next timestep.
 					this._departureLounge.clear();
 				}
 				
 				//Refresh the spatial registry of the agent container that the
-				//agents have just departed. Do we need this?
+				//agents have just departed.
 				this._agents.refreshSpatialRegistry();
 			}
 		}
@@ -227,4 +235,48 @@ public abstract class ProcessDeparture extends ProcessManager {
 	 */
 	protected abstract LinkedList<Agent> agentsDepart();
 	
+	protected LinkedList<Agent> agentsLeavingDomain()
+	{
+		LinkedList<Agent> agentsToDepart = new LinkedList<Agent>();
+		
+		if (this._shape.getNumberOfDimensions() > 0)
+		{
+			for (Agent a : this._agents.getAllAgents())
+			{
+				
+				/*
+				 * Find agents that are outside the computational domain.
+				 */
+				Body body = (Body) a.get(AspectRef.agentBody);
+				
+				for (Point p : body.getPoints())
+				{
+					this._shape.applyBoundaries(p.getPosition());
+					
+					if (!this._shape.isInside(p.getPosition()))
+					{
+						agentsToDepart.add(a);
+					}
+				}
+				
+				/*
+				 * Find agents colliding with spatial boundaries that are not
+				 * solid.
+				 */
+				Collection<SpatialBoundary> collidingBoundaries = 
+						this._agents.boundarySearch(a, 0.0);
+				
+				for (SpatialBoundary boundary : collidingBoundaries)
+				{
+					if (!boundary.isSolid())
+					{
+						agentsToDepart.add(a);
+					}
+				}
+				
+			}
+		}
+		
+		return agentsToDepart;
+	}
 }

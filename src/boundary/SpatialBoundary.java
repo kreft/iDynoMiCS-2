@@ -292,4 +292,6 @@ public abstract class SpatialBoundary extends Boundary
 		Dimension dimension = (Dimension) parent;
 		this._dim = dimension.getName();
 	}
+	
+	public abstract boolean isSolid();
 }

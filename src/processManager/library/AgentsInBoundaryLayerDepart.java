@@ -7,7 +7,6 @@ import boundary.Boundary;
 import boundary.spatialLibrary.BiofilmBoundaryLayer;
 import dataIO.Log;
 import dataIO.Log.Tier;
-import idynomics.Idynomics;
 import processManager.ProcessDeparture;
 import utility.Helper;
 
@@ -32,8 +31,7 @@ public class AgentsInBoundaryLayerDepart extends ProcessDeparture {
 		
 		if (Helper.isNullOrEmpty(this._boundary))
 		{
-			for (Boundary b : Idynomics.simulator.getCompartment(
-					this._compartmentName).getShape().getAllBoundaries())
+			for (Boundary b : this._shape.getAllBoundaries())
 			{
 				if (b instanceof BiofilmBoundaryLayer)
 				{
@@ -53,16 +51,24 @@ public class AgentsInBoundaryLayerDepart extends ProcessDeparture {
 		}
 		
 		/*
-		 * Find all agents who are less than layerThickness away.
+		 * Find all agents who are less than layerThickness away from the top
+		 * of the domain.
 		 */
 		out.addAll(this._agents.treeSearch(
 				this._boundary, this._boundary.getLayerThickness()));
-		/*
-		 * Find all agents who are unattached to others or to a boundary,
-		 * and who are on this side of the biofilm (in, e.g., the case of a
-		 * floating granule).
-		 */
-		// TODO
+		
+		LinkedList<Agent> outsideAgents = super.agentsLeavingDomain();
+		
+		if (!outsideAgents.isEmpty())
+		{
+			if (Log.shouldWrite(Tier.NORMAL))
+				Log.out(Tier.NORMAL, "Departure process " + this._name +
+						" encountered agents leaving the computational "
+						+ "domain. Adding to departure lounge.");
+			
+			out.addAll(outsideAgents);
+		}
+		
 		return out;
 
 		

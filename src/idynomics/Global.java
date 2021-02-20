@@ -170,7 +170,7 @@ public class Global extends ParameterSet
 	 * enable xml bookkeeping (also logging complete agent xml)
 	 * Warning: very slow
 	 */
-	public static boolean xml_bookkeeping = false;
+	public static boolean xml_bookkeeping = true;
 	
 	/**
 	 * console font
@@ -289,6 +289,11 @@ public class Global extends ParameterSet
 	 * 
 	 */
 	public static double pull_scalar = 0.0;
+	
+	/**
+	 * 
+	 */
+	public static double default_attachment_pull_distance = 0.2;
 	
 	/**
 	 * 

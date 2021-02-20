@@ -591,6 +591,7 @@ public class Body implements Copyable, Instantiable, Settable
 	{
 		for (int i = 0; i < this.nDim(); i++)
 		{
+			//Can save min as a vector, then cycle over each point just once
 			double min = this._points.get(0).getPosition()[i];
 			for (Point p : this._points)
 			{
@@ -599,7 +600,7 @@ public class Body implements Copyable, Instantiable, Settable
 			}
 			for (Point p : this._points)
 			{
-				double[] position = p.getPosition().clone();
+				double[] position = Vector.copy(p.getPosition());
 				double newCoordinate =  position[i] - min;
 				position[i] = newCoordinate;
 				p.setPosition(position);

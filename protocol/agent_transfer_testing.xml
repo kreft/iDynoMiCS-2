@@ -94,7 +94,7 @@
 				<aspect name="radius" 		type="CALCULATED" 	class="CoccoidRadius" 		/>
 				<aspect name="divide" 		type="EVENT" 		class="CoccoidDivision"		/>
 				<!-- Dry division mass (pg) -->
-				<aspect name="divisionMass"	class="Double"		value="5.0" 				/>
+				<aspect name="divisionMass"	class="Double"		value="2.0" 				/>
 				<aspect name="updateBody" 	type="EVENT" 		class="UpdateBody" 			/>
 				<aspect name="evaluatePull"	type="EVENT"		class="ResolveInteractionDistance" 	 />
 				<!-- µm -->
@@ -118,13 +118,6 @@
 				<solute name="COD" 	concentration="3.0E-5" defaultDiffusivity="69444.444"  />
 			</solutes>
 			<processManagers>
-				<process name="solveChemostat" class="ChemostatSolver" priority="0"
-					firstStep="0.0"  timerStepSize="6.0">
-					<aspect name="soluteNames" type="PRIMARY" class="String[]" value="ammonium,oxygen,COD" />
-					<aspect name="hMax" type="PRIMARY" class="Double" value="60.0" />
-					<aspect name="solver" type="PRIMARY" class="String" value="heun" />
-					<aspect name="tolerance" class="Double" value="1.0E-6" />
-				</process>
 				<process name="arrival" class="AgentsArriveInChemostat" priority="-1"
 				firstStep="0.0">
 				<aspect name="originNames" type="PRIMARY" class="InstantiableList">
@@ -162,8 +155,8 @@
 		<compartment name="biofilm">
 			<shape class="Rectangle">
 				<!-- µm -->
-				<dimension name="X" isCyclic="true" 	targetResolution="2.0" max="32.0"/>
-				<dimension name="Y" isCyclic="false" 	targetResolution="2.0" max="64.0">
+				<dimension name="X" isCyclic="true" 	targetResolution="2.0" max="256.0"/>
+				<dimension name="Y" isCyclic="false" 	targetResolution="2.0" max="256.0">
 					<boundary extreme="1" class="BiofilmBoundaryLayer" partnerCompartment="chemostat" layerThickness = "4.0"/>
 				</dimension>
 			</shape>
@@ -175,23 +168,12 @@
 			</solutes>
 			<reactions>
 			</reactions>
-			<spawn class="randomSpawner" domain="32.0, 4.0" priority="0" number="5" morphology="COCCOID">
+			<spawn class="randomSpawner" domain="0.0, 32.0; 256.0, 64.0" priority="0" number="200" morphology="COCCOID">
 				<templateAgent>
 					<aspect name="species" type="PRIMARY" class="String" value="heterotroph" />
 					<aspect  name="mass" class="InstantiableMap">
 						<map entryClass="Double" keyType="String">
-							<item key="biomass" value="2.5"  />
-							<item key="inert" value="0.0"  />
-						</map>
-					</aspect>
-				</templateAgent>
-			</spawn>
-			<spawn class="randomSpawner" domain="32.0, 4.0" priority="0" number="5" morphology="COCCOID">
-				<templateAgent>
-					<aspect name="species" type="PRIMARY" class="String" value="autotroph" />
-					<aspect  name="mass" class="InstantiableMap">
-						<map entryClass="Double" keyType="String">
-							<item key="biomass" value="2.5"  />
+							<item key="biomass" value="1.0"  />
 							<item key="inert" value="0.0"  />
 						</map>
 					</aspect>
@@ -206,13 +188,6 @@
 					<aspect name="relaxationMethod" type="PRIMARY" class="String" value="EULER" />
 					<aspect name="stressThreshold" type="PRIMARY" class="Double" value="1000.0" />
 				</process>
-				<!-- minute -->
-				<process name="SolveDiffusionSteadyState" class="SolveDiffusionSteadyState" priority="-1"
-					firstStep="0.0"  timerStepSize="6.0">	
-					<!-- In principle they are not all the same but all in the 
-					same order of magnitude ~ 2.0e-4 m2.day-1 values here in 
-					µm^2/ minute-->
-				</process>
 				<process name="svgWriter" class="GraphicalOutput"  priority="-3"
 					firstStep="0.0"  timerStepSize="1440.0">
 					<aspect name="solute" type="PRIMARY" class="String" value="oxygen" />
@@ -223,8 +198,18 @@
 					firstStep="0.0"  timerStepSize="6.0">
 					<aspect name="rasterScale" type="PRIMARY" class="Double" value="1.0" />
 					<aspect name="regionDepth" type="PRIMARY" class="Integer" value="4" />
-					<aspect name="detachmentRate" type="PRIMARY" class="Double" value="0.05" />
+					<aspect name="detachmentRate" type="PRIMARY" class="Double" value="0.0005" />
 					<aspect name="verbose" type="PRIMARY" class="Boolean" value="false" />
+					<aspect name="destinationNames" type="PRIMARY" class="InstantiableMap" >
+						<map entryClass="Double" keyType="String">
+							<item key="chemostat" value="1.0"/>
+							<item key="bin" value="0.5"/>
+						</map>
+					</aspect>
+				</process>
+				<process name="departure2" class="FloatingAgentRemoval" priority="3"
+					firstStep="6.0"  timerStepSize="6.0">
+					<aspect name="searchDist" type="PRIMARY" class="Double" value="1.5" />
 					<aspect name="destinationNames" type="PRIMARY" class="InstantiableMap" >
 						<map entryClass="Double" keyType="String">
 							<item key="chemostat" value="1.0"/>
@@ -235,7 +220,7 @@
 				<process name="arrival" class="AgentAttachmentRandomWalk" priority = "0" >
 					<aspect name="dimensionName" type="PRIMARY" class="String" value="Y" />
 					<aspect name="extreme" type="PRIMARY" class="Integer" value="1" />
-					<aspect name="stepSize" type="PRIMARY" class="Double" value="0.2" />
+					<aspect name="stepSize" type="PRIMARY" class="Double" value="0.1" />
 					<aspect name="originNames" type="PRIMARY" class="InstantiableList">
 					<list class="InstantiableList" nodeLabel="origin" entryClass="String" keyClass="String" keyLabel="name">
 						<origin name="origin" value="chemostat"/>

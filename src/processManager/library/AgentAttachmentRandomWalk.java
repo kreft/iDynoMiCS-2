@@ -11,7 +11,6 @@ import agent.Body;
 import boundary.Boundary;
 import boundary.SpatialBoundary;
 import boundary.spatialLibrary.BiofilmBoundaryLayer;
-import boundary.spatialLibrary.SolidBoundary;
 import compartment.AgentContainer;
 import compartment.EnvironmentContainer;
 import dataIO.Log;
@@ -125,10 +124,12 @@ public class AgentAttachmentRandomWalk extends ProcessArrival {
 			for (Boundary b : this._shape.getAllBoundaries())
 			{
 				if (b instanceof BiofilmBoundaryLayer)
+				{
 					this.reg().add(BL_THICKNESS, 
-							((BiofilmBoundaryLayer) b).getLayerThickness());
-				this._layerThickness = ((BiofilmBoundaryLayer) b).
+						((BiofilmBoundaryLayer) b).getLayerThickness());
+					this._layerThickness = ((BiofilmBoundaryLayer) b).
 						getLayerThickness();
+				}
 			}
 		}
 		
@@ -153,25 +154,109 @@ public class AgentAttachmentRandomWalk extends ProcessArrival {
 			 * the agent at a random location at the extreme opposite to where
 			 * agents arrive.
 			 */
+			
+			Body agentBody = (Body) agent.get(BODY);
+			List<Point> points = agentBody.getPoints();
+			
 			if (this._agents.getAllLocatedAgents().isEmpty())
 			{
-				if (this._extreme == 0)
-				{
-					double[] newLocation = this._shape.
-							getRandomLocationOnBoundary(
-							this._dim, 1);
-				}
 				
-				else
+				double[] newLocation;
+				
+				int dimIndex = this._shape.getDimensionIndex(this._dim);
+				
+				switch (this._extreme)
 				{
-					double[] newLocation = this._shape.
+				
+				/*
+				 * case 1 - The agents enter at the "top" of the domain.
+				 * Agents to be placed at the bottom of the domain.
+				 */
+				case 1:
+				{
+					//Find the agent's lowest point in this dimension
+					Point lowestPoint = points.get(0);
+					
+					for (Point p : points)
+					{
+						if (p.getPosition()[dimIndex] < 
+								lowestPoint.getPosition()[dimIndex] )
+						{
+							lowestPoint = p;
+						}
+					}
+					
+					newLocation = this._shape.
 							getRandomLocationOnBoundary(
 							this._dim, 0);
+					
+					/*
+					 * This is the vector that needs to be ADDED to the lowest
+					 * point to get the new position
+					 */
+					double[] difference = new double[newLocation.length];
+					
+					Vector.minusTo(
+							difference, newLocation, lowestPoint.getPosition());
+					
+					for (Point p : points)
+					{
+						double[] newPosition = new double[difference.length];
+						
+						Vector.addTo(newPosition, p.getPosition(), difference);
+						
+						p.setPosition(newPosition);
+					}
+					
+					break;
+				}
+				
+				/*
+				 * Case 0 - Agents enter at the "bottom" of the domain
+				 * and are placed at the "top"
+				 */
+				case 0:
+				{
+					//Find the agent's highest point in the dimension
+					Point highestPoint = points.get(0);
+					
+					for (Point p : points)
+					{
+						if (p.getPosition()[dimIndex] > 
+								highestPoint.getPosition()[dimIndex] )
+						{
+							highestPoint = p;
+						}
+					}
+					
+					newLocation = this._shape.
+							getRandomLocationOnBoundary(
+							this._dim, 1);
+					
+					/*
+					 * This is the vector that needs to be ADDED to the highest
+					 * point to get the new position
+					 */
+					double[] difference = new double[newLocation.length];
+					
+					Vector.minusTo(
+							difference, newLocation, highestPoint.getPosition());
+					
+					for (Point p : points)
+					{
+						double[] newPosition = new double[difference.length];
+						
+						Vector.addTo(newPosition, p.getPosition(), difference);
+						
+						p.setPosition(newPosition);
+					}
+					
+					break;
+				}
+				
 				}
 				
 				this._agents.addAgent( agent );
-				
-				this._agents.refreshSpatialRegistry();
 			}
 			
 			//If the compartment is not empty...
@@ -184,9 +269,6 @@ public class AgentAttachmentRandomWalk extends ProcessArrival {
 				//used
 				else
 					this._pull = Math.abs(this._stepSize);
-				
-				Body agentBody = (Body) agent.get(BODY);
-				List<Point> points = agentBody.getPoints();
 				
 				this.relocateAgent(agent, points);
 			}
@@ -277,9 +359,9 @@ public class AgentAttachmentRandomWalk extends ProcessArrival {
 				
 				if (!boundaries.isEmpty())
 				{
-					for (Boundary b : boundaries)
+					for (SpatialBoundary b : boundaries)
 					{
-						if (b instanceof SolidBoundary)
+						if (b.isSolid())
 						{
 							//If agent has hit a solid boundary, continue to 
 							//random walk and insertion
@@ -335,14 +417,11 @@ public class AgentAttachmentRandomWalk extends ProcessArrival {
 			{
 				for (Boundary b : boundaries)
 				{
-					if (b instanceof SolidBoundary)
+					if (((SpatialBoundary) b).isSolid())
 					{
-						//If agent has hit a solid boundary, add it to
+						//If agent has hit a solid spatial boundary, add it to
 						//the compartment.
 						this._agents.addAgent( agent );
-						
-						this._agents.refreshSpatialRegistry();
-						//Refresh spatial registry?
 						
 						break attachmentLoop;
 					}
@@ -372,12 +451,11 @@ public class AgentAttachmentRandomWalk extends ProcessArrival {
 			 * If this agent has neighbours within the pull distance, add it 
 			 * to the agent container.
 			 */
-			if ( this.hasNeighbours(agent, this._pull))
+			Collection<Agent> neighbours = 
+					this._agents.treeSearch(agent, this._pull);
+			if (neighbours.size() > 1)
 			{
 				this._agents.addAgent( agent );
-				
-				this._agents.refreshSpatialRegistry();
-				//Refresh spatial registry?
 				break attachmentLoop;
 			}
 			

@@ -7,11 +7,11 @@ import org.w3c.dom.Element;
 
 import agent.Agent;
 import agent.Body;
-import bookkeeper.KeeperEntry.EventType;
 import compartment.AgentContainer;
 import compartment.EnvironmentContainer;
+import dataIO.Log;
+import dataIO.Log.Tier;
 import processManager.ProcessDeparture;
-import processManager.ProcessManager;
 import referenceLibrary.AspectRef;
 import surface.Point;
 import utility.Helper;
@@ -62,6 +62,19 @@ public class AgentScraper extends ProcessDeparture {
 				}
 			}
 		}
+		
+		LinkedList<Agent> outsideAgents = super.agentsLeavingDomain();
+		
+		if (!outsideAgents.isEmpty())
+		{
+			if (Log.shouldWrite(Tier.NORMAL))
+				Log.out(Tier.NORMAL, "Departure process " + this._name +
+						" encountered agents leaving the computational "
+						+ "domain. Adding to departure lounge.");
+			
+			departures.addAll(outsideAgents);
+		}
+		
 		return departures;
 	}
 	

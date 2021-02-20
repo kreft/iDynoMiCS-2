@@ -57,4 +57,9 @@ public class SolidBoundary extends SpatialBoundary
 
 	@Override
 	public void additionalPartnerUpdate() {}
+	
+	public boolean isSolid()
+	{
+		return true;
+	}
 }

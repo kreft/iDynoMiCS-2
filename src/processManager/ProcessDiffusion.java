@@ -5,7 +5,6 @@ import static grid.ArrayType.PRODUCTIONRATE;
 
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
@@ -32,7 +31,6 @@ import shape.Shape;
 import shape.subvoxel.IntegerArray;
 import shape.subvoxel.SubvoxelPoint;
 import solver.PDEsolver;
-import solver.PDEupdater;
 import surface.Point;
 import surface.Surface;
 import surface.Voxel;
@@ -325,8 +323,6 @@ public abstract class ProcessDiffusion extends ProcessManager
 				for ( Agent a : this._agents.getAllLocatedAgents() )
 				{
 					
-					Body agentBody = (Body) a.get(AspectRef.agentBody);
-					List<Point> points = agentBody.getPoints();
 					IntegerArray coordArray = new IntegerArray( 
 							shape.getCoords(shape.getVerifiedLocation(((Body) a.get(AspectRef.agentBody)).getCenter(shape))));
 					mapOfMaps = (Map<Shape, HashMap<IntegerArray,Double>>) a.getValue(VD_TAG);

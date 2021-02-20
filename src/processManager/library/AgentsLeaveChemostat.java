@@ -62,6 +62,9 @@ public class AgentsLeaveChemostat extends ProcessDeparture
 				departures.add(a);
 			}
 		}
+		
+		LinkedList<Agent> outsideAgents = super.agentsLeavingDomain();
+		
 		return departures;
 	}
 }

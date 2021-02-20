@@ -33,6 +33,7 @@ import processManager.ProcessDeparture;
 import processManager.ProcessComparator;
 import processManager.ProcessManager;
 import reaction.RegularReaction;
+import referenceLibrary.AspectRef;
 import referenceLibrary.ClassRef;
 import referenceLibrary.XmlRef;
 import settable.Attribute;
@@ -654,6 +655,30 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable, C
 						comp.getName());
 			Boundary partner = b.makePartnerBoundary();
 			comp.addBoundary(partner);
+		}
+	}
+	
+	public void checkAgentDeparture()
+	{
+		if (this._shape.getNumberOfDimensions() > 0)
+		{
+			if (this._departureProcesses.isEmpty())
+			{
+				ProcessDeparture defaultDepartureProcess = (ProcessDeparture) 
+						Instance.getNew("floatingAgentRemoval", null);
+				defaultDepartureProcess.set(
+						AspectRef.collisionSearchDistance, 
+						Global.default_attachment_pull_distance);
+				LinkedList<Integer> priorities = new LinkedList<Integer>();
+				for (ProcessManager departure : this._departureProcesses)
+				{
+					priorities.add(departure.getPriority());
+				}
+				defaultDepartureProcess.setPriority(
+						Collections.max(priorities) + 1);
+				
+				this._departureProcesses.add(defaultDepartureProcess);
+			}
 		}
 	}
 	
