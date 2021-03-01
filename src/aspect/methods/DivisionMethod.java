@@ -20,19 +20,15 @@ public abstract class DivisionMethod extends Event {
 	{
 		if ( ! this.shouldDivide(initiator) )
 			return;
-		
+
 		/* Make one new agent, copied from the mother.*/
 		compliant = new Agent((Agent) initiator);
 		/* Transfer an appropriate amount of mass from mother to daughter. */
 		DivisionMethod.transferMass(initiator, compliant);
 		/* Update their bodies, if they have them. */
-		if ( initiator.isAspect(AspectRef.agentBody) && 
+		if ( initiator.isAspect(AspectRef.agentBody) &&
 				initiator.isAspect(AspectRef.bodyRadius) )
 			shiftBodies((Agent) initiator,(Agent) compliant);
-		
-		/* Update filial links, if appropriate. */
-		if ( initiator.isAspect(AspectRef.linkerDistance) )
-			updateLinkers((Agent) initiator,(Agent) compliant);
 
 		/* The bodies of both cells may now need updating. */
 		updateAgents((Agent) initiator,(Agent) compliant);
@@ -57,13 +53,12 @@ public abstract class DivisionMethod extends Event {
 	protected boolean shouldDivide(AspectInterface initiator)
 	{
 		/* Find the agent-specific variable to test (mass, by default).	 */
-		Object mumMass = initiator.getValue(AspectRef.agentMass);
-		double variable = Helper.totalMass(mumMass);
-		/* Find the threshold that triggers division. */
+		Object iniMass = initiator.getValue( AspectRef.agentMass );
+		double variable = Helper.totalMass( iniMass );
 		double threshold = Double.MAX_VALUE;
-		if ( initiator.isAspect(AspectRef.divisionMass) )
-			threshold = initiator.getDouble(AspectRef.divisionMass);
-		return (variable > threshold);
+		if ( initiator.isAspect( AspectRef.divisionMass ))
+			threshold = initiator.getDouble( AspectRef.divisionMass );
+		return ( variable > threshold );
 	}
 	
 	/**
@@ -151,24 +146,5 @@ public abstract class DivisionMethod extends Event {
 		 * again */
 		parent.event(AspectRef.agentUpdateBody);
 		parent.event(AspectRef.agentDivide);
-	}
-
-	@SuppressWarnings("unchecked")
-	public void updateLinkers(Agent mother, Agent daughter)
-	{
-		/*
-		 * If this mother can link, add the daughter to her list of
-		 * links and update.
-		 */
-		LinkedList<Integer> linkers;
-		if ( mother.isAspect(AspectRef.agentLinks) )
-			linkers = (LinkedList<Integer>) mother.getValue(AspectRef.agentLinks);
-		else
-			linkers = new LinkedList<Integer>();
-		linkers.add(daughter.identity());
-		// TODO add the mother to the daughter's links?
-		// TODO presumably, the daughter's linkers were copied directly
-		// from the mother... is this appropriate?
-		mother.set(AspectRef.agentLinks, linkers);
 	}
 }

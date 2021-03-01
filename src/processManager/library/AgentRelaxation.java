@@ -423,10 +423,14 @@ public class AgentRelaxation extends ProcessManager
 				tMech += dtMech;
 				break;
 			}
-			for ( Agent agent : allAgents )
-				for ( Point point: ( (Body) agent.get(BODY) ).getPoints() )
-					if ( Double.isNaN(point.getPosition()[0]))
-						System.out.println(point.getPosition()[0]);
+
+			if( Log.shouldWrite(Tier.DEBUG) )
+			{
+				for (Agent agent : allAgents)
+					for (Point point : ((Body) agent.get(BODY)).getPoints())
+						if (Double.isNaN(point.getPosition()[0]))
+							Log.out(Tier.DEBUG, "encountered NaN in agent Relaxation.");
+			}
 
 			/* NOTE that with proper boundary surfaces for any compartment
 			 * shape this should never yield any difference, it is here as a
