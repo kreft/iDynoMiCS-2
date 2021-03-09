@@ -47,7 +47,7 @@ public abstract class ProcessDeparture extends ProcessManager {
 	
 	protected Shape _shape;
 	
-	private enum DepartureType
+	public enum DepartureType
 	{
 		REMOVAL,
 		
@@ -279,4 +279,16 @@ public abstract class ProcessDeparture extends ProcessManager {
 		
 		return agentsToDepart;
 	}
+	
+	
+	public void setDepartureType(DepartureType dt)
+	{
+		this._departureType = dt;
+	}
+	
+	public void setShape (Shape shape)
+	{
+		this._shape = shape;
+	}
+	
 }

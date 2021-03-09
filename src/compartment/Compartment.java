@@ -665,18 +665,17 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable, C
 			if (this._departureProcesses.isEmpty())
 			{
 				ProcessDeparture defaultDepartureProcess = (ProcessDeparture) 
-						Instance.getNew("floatingAgentRemoval", null);
+						Instance.getNew(ClassRef.floatingAgentRemoval, null);
 				defaultDepartureProcess.set(
 						AspectRef.collisionSearchDistance, 
 						Global.default_attachment_pull_distance);
-				LinkedList<Integer> priorities = new LinkedList<Integer>();
-				for (ProcessManager departure : this._departureProcesses)
-				{
-					priorities.add(departure.getPriority());
-				}
-				defaultDepartureProcess.setPriority(
-						Collections.max(priorities) + 1);
-				
+				defaultDepartureProcess.setPriority(0);
+				defaultDepartureProcess.setDepartureType(
+						ProcessDeparture.DepartureType.REMOVAL);
+				defaultDepartureProcess.setShape(this._shape);
+				defaultDepartureProcess.setAgentContainer(this.agents);
+				defaultDepartureProcess.setTimeStep(
+						Idynomics.simulator.timer.getTimeStepSize());
 				this._departureProcesses.add(defaultDepartureProcess);
 			}
 		}
