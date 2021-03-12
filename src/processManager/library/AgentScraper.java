@@ -9,8 +9,6 @@ import agent.Agent;
 import agent.Body;
 import compartment.AgentContainer;
 import compartment.EnvironmentContainer;
-import dataIO.Log;
-import dataIO.Log.Tier;
 import processManager.ProcessDeparture;
 import referenceLibrary.AspectRef;
 import surface.Point;
@@ -61,18 +59,6 @@ public class AgentScraper extends ProcessDeparture {
 					break;
 				}
 			}
-		}
-		
-		LinkedList<Agent> outsideAgents = super.agentsLeavingDomain();
-		
-		if (!outsideAgents.isEmpty())
-		{
-			if (Log.shouldWrite(Tier.NORMAL))
-				Log.out(Tier.NORMAL, "Departure process " + this._name +
-						" encountered agents leaving the computational "
-						+ "domain. Adding to departure lounge.");
-			
-			departures.addAll(outsideAgents);
 		}
 		
 		return departures;

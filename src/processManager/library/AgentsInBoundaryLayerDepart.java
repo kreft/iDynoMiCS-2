@@ -57,18 +57,6 @@ public class AgentsInBoundaryLayerDepart extends ProcessDeparture {
 		out.addAll(this._agents.treeSearch(
 				this._boundary, this._boundary.getLayerThickness()));
 		
-		LinkedList<Agent> outsideAgents = super.agentsLeavingDomain();
-		
-		if (!outsideAgents.isEmpty())
-		{
-			if (Log.shouldWrite(Tier.NORMAL))
-				Log.out(Tier.NORMAL, "Departure process " + this._name +
-						" encountered agents leaving the computational "
-						+ "domain. Adding to departure lounge.");
-			
-			out.addAll(outsideAgents);
-		}
-		
 		return out;
 
 		

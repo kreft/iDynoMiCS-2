@@ -18,6 +18,7 @@ import dataIO.Log;
 import dataIO.Log.Tier;
 import idynomics.Idynomics;
 import instantiable.object.InstantiableMap;
+import processManager.library.AgentsOutsideDomainDepart;
 import referenceLibrary.AspectRef;
 import referenceLibrary.XmlRef;
 import shape.Shape;
@@ -99,6 +100,21 @@ public abstract class ProcessDeparture extends ProcessManager {
 		case REMOVAL:
 		{
 			this._departureLounge = this.agentsDepart();
+			
+			LinkedList<Agent> agentsOutsideOrLeaving = 
+					this.agentsOutsideOrLeavingDomain();
+			
+			if (!agentsOutsideOrLeaving.isEmpty() && 
+					!(this instanceof AgentsOutsideDomainDepart))
+			{
+				if (Log.shouldWrite(Tier.NORMAL))
+					Log.out(Tier.NORMAL, "Departure process " + this._name +
+							" encountered agents leaving the computational "
+							+ "domain. Adding to departure lounge.");
+			}
+			
+			this._departureLounge.addAll(agentsOutsideOrLeaving);
+			
 			this._agents.registerRemoveAgents(this._departureLounge, 
 					EventType.REMOVED, "Removed from simulation by departure "
 						+ "process", null);
@@ -140,6 +156,20 @@ public abstract class ProcessDeparture extends ProcessManager {
 			//Carry out process-specific agent departure mechanism, which fills
 			//the departure lounge
 			this._departureLounge = this.agentsDepart();
+			
+			LinkedList<Agent> agentsOutsideOrLeaving = 
+					this.agentsOutsideOrLeavingDomain();
+			
+			if (!agentsOutsideOrLeaving.isEmpty() && 
+					!(this instanceof AgentsOutsideDomainDepart))
+			{
+				if (Log.shouldWrite(Tier.NORMAL))
+					Log.out(Tier.NORMAL, "Departure process " + this._name +
+							" encountered agents leaving the computational "
+							+ "domain. Adding to departure lounge.");
+			}
+			
+			this._departureLounge.addAll(agentsOutsideOrLeaving);
 			
 			
 			if (!this._departureLounge.isEmpty())
@@ -235,7 +265,7 @@ public abstract class ProcessDeparture extends ProcessManager {
 	 */
 	protected abstract LinkedList<Agent> agentsDepart();
 	
-	protected LinkedList<Agent> agentsLeavingDomain()
+	protected LinkedList<Agent> agentsOutsideOrLeavingDomain()
 	{
 		LinkedList<Agent> agentsToDepart = new LinkedList<Agent>();
 		

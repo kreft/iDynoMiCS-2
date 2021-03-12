@@ -442,7 +442,8 @@ public class ClassRef
 			processManager.library.AgentsLeaveChemostat.class.getName();
 	
 	/**
-	 * 
+	 * Removes agents that are outside the computational domain or colliding
+	 * with non-solid boundaries
 	 */
 	public final static String agentsOutsideDomainDepart = 
 			processManager.library.AgentsOutsideDomainDepart.class.getName();
@@ -451,8 +452,8 @@ public class ClassRef
 	 * Removal of floating groups of unattached agents from a biofilm
 	 * compartment.
 	 */
-	public final static String floatingAgentRemoval = 
-			processManager.library.FloatingAgentRemoval.class.getName();
+	public final static String floatingAgentDeparture = 
+			processManager.library.FloatingAgentDeparture.class.getName();
 	
 	/**
 	 * writes tables in csv

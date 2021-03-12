@@ -12,19 +12,24 @@ import agent.Body;
 import boundary.SpatialBoundary;
 import compartment.AgentContainer;
 import compartment.EnvironmentContainer;
-import dataIO.Log;
-import dataIO.Log.Tier;
 import processManager.ProcessDeparture;
 import referenceLibrary.AspectRef;
 import surface.Surface;
 import surface.collision.Collision;
 
-public class FloatingAgentRemoval extends ProcessDeparture {
+/**
+ * This process manager removes groups of floating agents from a spatial
+ * compartment. Groups of agents are identified by doing a neighbour search for
+ * each agent, with a radius determined by _searchDistance. Then any groups or
+ * individual agents that are not in contact with a solid boundary are 
+ * considered to be floating and removed.
+ * @author Tim
+ *
+ */
+public class FloatingAgentDeparture extends ProcessDeparture {
 
 	public static String SEARCH_DISTANCE = 
 			AspectRef.collisionSearchDistance;
-	
-	private Collection<Surface> _compartmentSurfaces;
 	
 	private double _searchDistance;
 	
@@ -32,7 +37,6 @@ public class FloatingAgentRemoval extends ProcessDeparture {
 			AgentContainer agents, String compartmentName)
 	{
 		super.init(xmlElem, environment, agents, compartmentName);
-		this._compartmentSurfaces = this._shape.getSurfaces();
 		this._searchDistance = this.getDouble(SEARCH_DISTANCE);
 	}
 	
@@ -303,18 +307,6 @@ public class FloatingAgentRemoval extends ProcessDeparture {
 		for (LinkedList<Agent> bin : unattachedBins)
 		{
 			agentsToRemove.addAll(bin);
-		}
-		
-		LinkedList<Agent> outsideAgents = super.agentsLeavingDomain();
-		
-		if (!outsideAgents.isEmpty())
-		{
-			if (Log.shouldWrite(Tier.NORMAL))
-				Log.out(Tier.NORMAL, "Departure process " + this._name +
-						" encountered agents leaving the computational "
-						+ "domain. Adding to departure lounge.");
-			
-			agentsToRemove.addAll(outsideAgents);
 		}
 		
 		return agentsToRemove;

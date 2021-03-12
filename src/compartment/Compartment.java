@@ -665,7 +665,7 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable, C
 			if (this._departureProcesses.isEmpty())
 			{
 				ProcessDeparture defaultDepartureProcess = (ProcessDeparture) 
-						Instance.getNew(ClassRef.floatingAgentRemoval, null);
+						Instance.getNew(ClassRef.floatingAgentDeparture, null);
 				defaultDepartureProcess.set(
 						AspectRef.collisionSearchDistance, 
 						Global.default_attachment_pull_distance);

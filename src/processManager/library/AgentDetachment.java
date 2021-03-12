@@ -7,8 +7,6 @@ import agent.Agent;
 import analysis.quantitative.Raster;
 import compartment.AgentContainer;
 import compartment.EnvironmentContainer;
-import dataIO.Log;
-import dataIO.Log.Tier;
 import processManager.ProcessDeparture;
 import referenceLibrary.AspectRef;
 import spatialRegistry.SpatialMap;
@@ -98,18 +96,6 @@ public class AgentDetachment extends ProcessDeparture
 					}
 				}
 			}
-		}
-		
-		LinkedList<Agent> outsideAgents = super.agentsLeavingDomain();
-		
-		if (!outsideAgents.isEmpty())
-		{
-			if (Log.shouldWrite(Tier.NORMAL))
-				Log.out(Tier.NORMAL, "Departure process " + this._name +
-						" encountered agents leaving the computational "
-						+ "domain. Adding to departure lounge.");
-			
-			departingAgents.addAll(outsideAgents);
 		}
 		
 		return departingAgents;
