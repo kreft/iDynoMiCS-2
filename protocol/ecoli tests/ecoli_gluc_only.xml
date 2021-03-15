@@ -147,6 +147,14 @@
 					value="mass ? species == EColi | %glucose" />
 					<aspect name="fileName" type="PRIMARY" class="String" value="data" />
 				</process>
+				<process name="biofilmBoundaryDeparture"
+					class="AgentsInBoundaryLayerDepart" priority = "1">
+					<aspect name="destinationNames" type="PRIMARY" class="InstantiableMap" >
+						<map entryClass="Double" keyType="String">
+							<item key="chemostat" value="1.0"/>
+						</map>
+					</aspect>
+				</process>
 			</processManagers>
 		</compartment>
 	</simulation>

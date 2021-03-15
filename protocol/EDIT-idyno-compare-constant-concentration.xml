@@ -108,6 +108,14 @@
 					<aspect name="maxIterations" type="PRIMARY" class="Integer" value="10000" />
 					<aspect name="gravity_testing" type="PRIMARY" class="Boolean" value="FALSE" />
 				</process>
+				<process name="biofilmBoundaryDeparture"
+					class="AgentsInBoundaryLayerDepart" priority = "1">
+					<aspect name="destinationNames" type="PRIMARY" class="InstantiableMap" >
+						<map entryClass="Double" keyType="String">
+							<item key="chemostat" value="1.0"/>
+						</map>
+					</aspect>
+				</process>
 			</processManagers>
 		</compartment>
 		<compartment name="chemostat" priority="2" >

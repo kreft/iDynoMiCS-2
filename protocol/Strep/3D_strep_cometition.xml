@@ -219,6 +219,14 @@
 					same order of magnitude ~ 2.0e-4 m2.day-1 values here in 
 					µm^2/ minute-->
 				</process>
+				<process name="biofilmBoundaryDeparture"
+					class="AgentsInBoundaryLayerDepart" priority = "1">
+					<aspect name="destinationNames" type="PRIMARY" class="InstantiableMap" >
+						<map entryClass="Double" keyType="String">
+							<item key="chemostat" value="1.0"/>
+						</map>
+					</aspect>
+				</process>
 			</processManagers>
 		</compartment>
 	</simulation>

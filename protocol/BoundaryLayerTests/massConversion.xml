@@ -48,6 +48,9 @@
 					<aspect name="soluteNames" type="PRIMARY" class="String[]" value="hydrogen,solute2" /> 
 					<!-- µm^2 ms^-1-->
 				</process>
+				<process name="agentsOutsideDomainDepart" 
+					class="AgentsOutsideDomainDepart" priority = "1">
+				</process>
 			</processManagers>
 		</compartment>
 	</simulation>

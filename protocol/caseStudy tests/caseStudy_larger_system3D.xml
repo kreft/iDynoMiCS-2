@@ -222,7 +222,9 @@
 					<aspect name="tableSpecification" type="PRIMARY" class="String" 
 					value="0 ? mass > 1.1E-4 ~ mass | species = CanonicalNOB, species = CanonicalAOB, species = CommamoxAOB" />
 				</process>
-				
+				<process name="agentsOutsideDomainDepart" 
+					class="AgentsOutsideDomainDepart" priority = "1">
+				</process>
 			</processManagers>
 		</compartment>
 	</simulation>

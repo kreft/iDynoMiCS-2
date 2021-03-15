@@ -92,7 +92,14 @@
 					<aspect name="soluteNames" type="PRIMARY" class="String[]" value="hydrogen" /> 
 					<!-- µm^2 ms^-1-->
 				</process>
-				
+				<process name="biofilmBoundaryDeparture"
+					class="AgentsInBoundaryLayerDepart" priority = "1">
+					<aspect name="destinationNames" type="PRIMARY" class="InstantiableMap" >
+						<map entryClass="Double" keyType="String">
+							<item key="chemostat" value="1.0"/>
+						</map>
+					</aspect>
+				</process>
 			</processManagers>
 		</compartment>
 	</simulation>
