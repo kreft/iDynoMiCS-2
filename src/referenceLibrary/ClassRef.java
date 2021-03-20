@@ -456,6 +456,12 @@ public class ClassRef
 			processManager.library.FloatingAgentDeparture.class.getName();
 	
 	/**
+	 * Removal of agents from a chemostat by a given proportion
+	 */
+	public final static String departureByFlow = 
+			processManager.library.DepartureByFlow.class.getName();
+	
+	/**
 	 * writes tables in csv
 	 */
 	public final static String tableWriter =

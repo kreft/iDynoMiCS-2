@@ -117,7 +117,7 @@ public abstract class ProcessDeparture extends ProcessManager {
 			
 			this._agents.registerRemoveAgents(this._departureLounge, 
 					EventType.REMOVED, "Removed from simulation by departure "
-						+ "process", null);
+						+ "process" + this.getName(), null);
 			this._departureLounge.clear();
 			break;
 		}
