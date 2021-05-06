@@ -8,8 +8,6 @@ import agent.Body;
 import analysis.quantitative.Raster;
 import compartment.AgentContainer;
 import compartment.EnvironmentContainer;
-import dataIO.Log;
-import dataIO.Log.Tier;
 import idynomics.Idynomics;
 import linearAlgebra.Vector;
 import processManager.ProcessArrival;
@@ -140,8 +138,6 @@ public class AgentAttachment extends ProcessArrival
 					}
 					/* add the agent to the compartment */
 					this._agents.addAgent( a );
-					
-					//Refresh spatial registry?
 					
 					/* once we have added break the for loop and continue to the
 					 * next agent. */

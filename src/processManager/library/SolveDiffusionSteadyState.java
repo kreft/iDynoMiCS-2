@@ -15,7 +15,6 @@ import bookkeeper.KeeperEntry.EventType;
 import compartment.AgentContainer;
 import compartment.EnvironmentContainer;
 import dataIO.ObjectFactory;
-import debugTools.SegmentTimer;
 import grid.SpatialGrid;
 import idynomics.Global;
 import processManager.ProcessDiffusion;
