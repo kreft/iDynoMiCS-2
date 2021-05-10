@@ -207,7 +207,7 @@
 						</map>
 					</aspect>
 				</process>
-				<process name="departure2" class="FloatingAgentRemoval" priority="3"
+				<process name="departure2" class="FloatingAgentDeparture" priority="3"
 					firstStep="6.0"  timerStepSize="6.0">
 					<aspect name="searchDist" type="PRIMARY" class="Double" value="1.5" />
 					<aspect name="destinationNames" type="PRIMARY" class="InstantiableMap" >
