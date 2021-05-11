@@ -159,6 +159,10 @@
 					<aspect class="String" name="tableSpecification" type="PRIMARY" value="0 ~ mass ? species == ComammoxAOB | mass  ? species == CanonicalAOB | mass ?  species == CanonicalNOB | %oxygen | %ammonium | %nitrite | %nitrate"/>
 					<aspect class="String" name="fileName" type="PRIMARY" value="data"/>
 				</process>
+				<process name="flowDeparture"
+					class="DepartureByFlow" priority = "1" 
+					volumeFlowRate="-1.0535263157894736E14">
+				</process>
 			</processManagers>
 		</compartment>
 	</simulation>

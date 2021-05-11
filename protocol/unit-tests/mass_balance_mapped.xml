@@ -122,6 +122,14 @@
 					<aspect name="maxConcentration" type="PRIMARY" class="Double" value="8.74E-6" />
 					<aspect name="outputWriter" type="PRIMARY" class="String" value="SvgExport" />
 				</process>
+				<process name="biofilmBoundaryDeparture"
+					class="AgentsInBoundaryLayerDepart" priority = "1">
+					<aspect name="destinationNames" type="PRIMARY" class="InstantiableMap" >
+						<map entryClass="Double" keyType="String">
+							<item key="chemostat" value="1.0"/>
+						</map>
+					</aspect>
+				</process>
 			</processManagers>
 		</compartment>
 		<compartment name="chemostat" priority="2" >

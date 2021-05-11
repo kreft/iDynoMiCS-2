@@ -204,6 +204,9 @@
 					be in µm^2/ minute. Using wrong 1.0 instead to be able to 
 					run	the rest with the explicit solver-->
 				</process>
+				<process name="agentsOutsideDomainDepart" 
+					class="AgentsOutsideDomainDepart" priority = "1">
+				</process>
 			</processManagers>
 		</compartment>
 	</simulation>

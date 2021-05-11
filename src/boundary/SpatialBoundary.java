@@ -5,17 +5,12 @@ import static grid.ArrayType.WELLMIXED;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-import agent.Agent;
-import agent.Body;
-import agent.predicate.IsLocated;
 import dataIO.Log;
 import dataIO.Log.Tier;
 import dataIO.XmlHandler;
 import grid.ArrayType;
 import grid.SpatialGrid;
 import grid.WellMixedConstants;
-import linearAlgebra.Vector;
-import referenceLibrary.AspectRef;
 import referenceLibrary.XmlRef;
 import settable.Attribute;
 import settable.Module;
@@ -261,48 +256,6 @@ public abstract class SpatialBoundary extends Boundary
 		}
 	}
 	
-	/* ***********************************************************************
-	 * AGENT TRANSFERS
-	 * **********************************************************************/
-	
-	/**
-	 * \brief Helper method for placing agents in the arrivals lounge at random
-	 * locations along the boundary surface.
-	 * 
-	 * <p>Non-located agents are added to the agent container and removed from
-	 * the arrivals lounge, so that all remaining agents are located.</p>
-	 * 
-	 * @param agentCont The {@code AgentContainer} that should accept the 
-	 * {@code Agent}s.
-	 */
-	protected void placeAgentsRandom()
-	{
-		Tier level = Tier.DEBUG;
-		Shape aShape = this._agents.getShape();
-		double[] newLoc;
-		Body body;
-		for ( Agent anAgent : this._arrivalsLounge )
-		{
-			if ( IsLocated.isLocated(anAgent) )
-			{
-				newLoc = aShape.getRandomLocationOnBoundary(
-						this._dim, this._extreme);
-				if ( Log.shouldWrite(level) )
-				{
-					Log.out(level, "Placing agent (UID: "+anAgent.identity()+
-							") at random location: "+Vector.toString(newLoc));
-				}
-				body = (Body) anAgent.get(AspectRef.agentBody);
-				body.relocate(newLoc);
-			}
-			else
-			{
-				this._arrivalsLounge.remove(anAgent);
-			}
-			this._agents.addAgent(anAgent);
-		}
-	}
-	
 	/* ************************************************************************
 	 * MODEL NODE
 	 * ***********************************************************************/
@@ -339,4 +292,6 @@ public abstract class SpatialBoundary extends Boundary
 		Dimension dimension = (Dimension) parent;
 		this._dim = dimension.getName();
 	}
+	
+	public abstract boolean isSolid();
 }

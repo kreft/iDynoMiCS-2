@@ -2,8 +2,6 @@ package boundary.spatialLibrary;
 
 import boundary.SpatialBoundary;
 import boundary.library.GasToMembrane;
-import dataIO.Log;
-import dataIO.Log.Tier;
 import grid.SpatialGrid;
 
 /**
@@ -55,20 +53,9 @@ public class BiofilmMembraneGas extends SpatialBoundary
 
 	@Override
 	public void additionalPartnerUpdate() {}
-
-	/* ***********************************************************************
-	 * AGENT TRANSFERS
-	 * **********************************************************************/
-
-	@Override
-	public void agentsArrive()
+	
+	public boolean isSolid()
 	{
-		if ( ! this._arrivalsLounge.isEmpty() )
-		{
-			Log.out(Tier.NORMAL,
-					"Unexpected: agents arriving at a membrane!");
-		}
-		this.placeAgentsRandom();
-		this.clearArrivalsLounge();
+		return true;
 	}
 }

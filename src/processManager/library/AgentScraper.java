@@ -1,15 +1,15 @@
 package processManager.library;
 
+import java.util.LinkedList;
 import java.util.List;
 
 import org.w3c.dom.Element;
 
 import agent.Agent;
 import agent.Body;
-import bookkeeper.KeeperEntry.EventType;
 import compartment.AgentContainer;
 import compartment.EnvironmentContainer;
-import processManager.ProcessManager;
+import processManager.ProcessDeparture;
 import referenceLibrary.AspectRef;
 import surface.Point;
 import utility.Helper;
@@ -24,13 +24,11 @@ import utility.Helper;
  */
 
 
-public class AgentScraper extends ProcessManager {
+public class AgentScraper extends ProcessDeparture {
 	
 	private String MAX_THICKNESS = AspectRef.maxThickness;
 	
 	private double _maxThickness;
-	
-	private AgentContainer _agents;
 	
 	public void init( Element xmlElem, EnvironmentContainer environment, 
 			AgentContainer agents, String compartmentName)
@@ -40,14 +38,13 @@ public class AgentScraper extends ProcessManager {
 		this._maxThickness = Helper.setIfNone( 
 				this.getDouble( MAX_THICKNESS ),
 				agents.getShape().getDimensionLengths()[1] );
-		
-		this._agents = agents;
-	
 	}
 	
 	@Override
-	protected void internalStep()
+	public LinkedList<Agent> agentsDepart()
 	{
+		LinkedList<Agent> departures = new LinkedList<Agent>();
+		
 		List <Agent> allAgents = this._agents.getAllAgents();
 		
 		for ( Agent a : allAgents )
@@ -58,11 +55,13 @@ public class AgentScraper extends ProcessManager {
 			{
 				if (p.getPosition()[1] > this._maxThickness)
 				{
-					this._agents.registerRemoveAgent( a , EventType.REMOVED, "scraped", null);
+					departures.add(a);
 					break;
 				}
 			}
 		}
+		
+		return departures;
 	}
 	
 	

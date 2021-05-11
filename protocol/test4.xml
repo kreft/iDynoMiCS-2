@@ -123,6 +123,9 @@
 				<process name="agentMove" class="AgentStochasticMove"
 					priority="0" firstStep="0.0"  timerStepSize="0.1" >
 				</process>
+				<process name="agentsOutsideDomainDepart" 
+					class="AgentsOutsideDomainDepart" priority = "1">
+				</process>
 			</processManagers>
 		</compartment>
 	</simulation>

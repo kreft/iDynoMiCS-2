@@ -360,6 +360,15 @@ public class Body implements Copyable, Instantiable, Settable
 	 * BASIC SETTERS & GETTERS
 	 ************************************************************************/
 
+	public void setPoints(List<Point> points)
+	{
+		for (int i = 0; i < points.size(); i++)
+		{
+			this._points.get(i).setPosition(points.get(i).getPosition());
+		}
+		
+	}
+	
 	/**
 	 * @return Number of dimensions represented in the (first) point.
 	 */
@@ -566,6 +575,36 @@ public class Body implements Copyable, Instantiable, Settable
 			vector = relDiffs.get(p);
 			Vector.addEquals(vector, p.getPosition());
 			p.setPosition(vector);
+		}
+	}
+	
+	
+	/**
+	 * Simplify location - Body points are reduced by the minimum value in each
+	 * dimension, in order to maintain relative distances, but simplify the
+	 * location. This is used when agents move into a non-spatial compartment,
+	 * in order to make clear that they do not retain their locations from
+	 * spatial compartments, but to preserve morphology and distances between
+	 * points
+	 */
+	public void simplifyLocation()
+	{
+		for (int i = 0; i < this.nDim(); i++)
+		{
+			//Can save min as a vector, then cycle over each point just once
+			double min = this._points.get(0).getPosition()[i];
+			for (Point p : this._points)
+			{
+				if (p.getPosition()[i] < min)
+					min = p.getPosition()[i];
+			}
+			for (Point p : this._points)
+			{
+				double[] position = Vector.copy(p.getPosition());
+				double newCoordinate =  position[i] - min;
+				position[i] = newCoordinate;
+				p.setPosition(position);
+			}
 		}
 	}
 	

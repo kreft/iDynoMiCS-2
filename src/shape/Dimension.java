@@ -4,9 +4,11 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 import boundary.SpatialBoundary;
+import boundary.spatialLibrary.SolidBoundary;
 import dataIO.XmlHandler;
 import generalInterfaces.CanPrelaunchCheck;
 import instantiable.Instance;
+import referenceLibrary.ClassRef;
 import referenceLibrary.XmlRef;
 import settable.Attribute;
 import settable.Module;
@@ -229,6 +231,23 @@ public class Dimension implements CanPrelaunchCheck, Settable,
 				this.setBoundary(aBoundary, index);	
 			}
 		}
+		
+		/*
+		 * Create default solid boundaries if dimension is not cyclic
+		 */
+		if (!this._isCyclic)
+		{
+			for (int extreme = 0 ; extreme < 2; extreme++)
+			{
+				if (!this.isBoundaryDefined(extreme))
+				{
+					SolidBoundary solidBoundary = (SolidBoundary) 
+							Instance.getNew(ClassRef.solidBoundary , null);
+					this.setBoundary(solidBoundary, extreme);
+				}
+			}
+		}
+		
 	}
 	
 	/* ************************************************************************

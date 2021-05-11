@@ -1,30 +1,17 @@
 package boundary;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 
 import org.w3c.dom.Element;
 
-import agent.Agent;
-import bookkeeper.KeeperEntry.EventType;
-import boundary.library.ChemostatBoundary;
-import boundary.library.ChemostatToBoundaryLayer;
-import boundary.spatialLibrary.BiofilmBoundaryLayer;
 import compartment.AgentContainer;
 import compartment.Compartment;
 import compartment.EnvironmentContainer;
-import dataIO.Log;
-import dataIO.Log.Tier;
 import dataIO.XmlHandler;
-import idynomics.Global;
 import idynomics.Idynomics;
 import instantiable.Instantiable;
-import referenceLibrary.AspectRef;
 import referenceLibrary.XmlRef;
 import settable.Attribute;
 import settable.Module;
@@ -39,7 +26,7 @@ import utility.Helper;
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
  */
 public abstract class Boundary implements Settable, Instantiable
-{
+{	
 	/**
 	 * Reference to the environment of the compartment this process belongs to.
 	 * Contains a reference to the compartment shape.
@@ -84,16 +71,6 @@ public abstract class Boundary implements Settable, Instantiable
 	 */
 	protected Map<String,Double> _massFlowRate = new HashMap<String,Double>();
 	/**
-	 * Agents that are leaving this compartment via this boundary, and
-	 * so need to travel to the connected compartment.
-	 */
-	protected Collection<Agent> _departureLounge = new LinkedList<Agent>();
-	/**
-	 * Agents that have travelled here from the connected compartment
-	 * and need to be entered into this compartment.
-	 */
-	protected Collection<Agent> _arrivalsLounge = new LinkedList<Agent>();
-	/**
 	 * TODO
 	 */
 	private Settable _parentNode;
@@ -105,6 +82,7 @@ public abstract class Boundary implements Settable, Instantiable
 	public void instantiate(Element xmlElement, Settable parent) 
 	{
 		this.setParent(parent);
+		
 		/* 
 		 * If this class of boundary needs a partner, find the name of the
 		 * compartment it connects to.
@@ -218,9 +196,8 @@ public abstract class Boundary implements Settable, Instantiable
 				out = (Boundary) bClass.newInstance();
 				this.setPartner(out);
 				out.setPartner(this);
-				/* oh dear TODO better to assign compartment name on boundary 
-				 * creation or just associate the compartment */
-				out._partnerCompartmentName = ((Compartment) this.getParent().
+				/* oh dear TODO better to assign compartment name on boundary creation or just associate the compartment */
+				out._partnerCompartmentName = ((Compartment) this.getParent().	
 						getParent().getParent()).getName();
 			}
 			catch (Exception e)
@@ -388,180 +365,6 @@ public abstract class Boundary implements Settable, Instantiable
 	 */
 	public abstract void additionalPartnerUpdate();
 
-	/* ***********************************************************************
-	 * AGENT TRANSFERS
-	 * **********************************************************************/
-
-	/**
-	 * \brief Put the given agent into the departure lounge.
-	 * 
-	 * @param agent Agent to leave the compartment via this boundary.
-	 */
-	public void addOutboundAgent(Agent anAgent)
-	{
-		this._departureLounge.add(anAgent);
-	}
-
-	/**
-	 * \brief Put the given agent into the arrivals lounge.
-	 * 
-	 * @param anAgent Agent to enter the compartment via this boundary.
-	 */
-	public void acceptInboundAgent(Agent anAgent)
-	{
-		this._arrivalsLounge.add(anAgent);
-	}
-
-	/**
-	 * \brief Put the given agents into the arrivals lounge.
-	 * 
-	 * @param agents List of agents to enter the compartment via this boundary.
-	 */
-	public void acceptInboundAgents(Collection<Agent> agents)
-	{
-		for ( Agent anAgent : agents )
-			this.acceptInboundAgent(anAgent);
-	}
-
-	/**
-	 * FIXME large parts of this method look like it is just test code 
-	 * Push all agents in the departure lounge to the partner boundary's
-	 * arrivals lounge.
-	 */
-	public void pushAllOutboundAgents()
-	{
-		if ( ! this._departureLounge.isEmpty() )
-		{
-			if ( this._partner == null )
-			{
-				Log.out(Tier.DEBUG, "Boundary "+this.getName()+" removing "+
-							this._departureLounge.size()+" agents");
-				for( Agent a : this._departureLounge )
-				{
-					this._agents.registerRemoveAgent(a, EventType.REMOVED, 
-							"removed", null);
-				}
-				this._departureLounge.clear();
-			}
-			else
-			{
-				Log.out(Tier.DEBUG, "Boundary "+this.getName()+" pushing "+
-							this._departureLounge.size()+" agents to partner");
-				Random randomSelector = new Random();
-				Collection<Agent> acceptanceLounge = new LinkedList<Agent>();
-				//Agent[] departureArray = (Agent[]) this._departureLounge.toArray();
-				int numAgentsDepart = this._departureLounge.size();
-				String partnerCompName = this.getPartnerCompartmentName();
-				Compartment partnerComp = Idynomics.simulator.getCompartment(partnerCompName);
-				/* TODO patched some obvious test code here, check this method/class */
-				Compartment thisComp = this._agents._compartment;
-				if (partnerComp != null )
-				{
-					double scFac = thisComp.getScalingFactor() / partnerComp.getScalingFactor();
-					int numAgentsToAccept = (int) Math.ceil(numAgentsDepart * scFac);
-					if (numAgentsToAccept < numAgentsDepart)
-					{
-						List<Integer> acceptedIndices = new ArrayList<Integer>();
-						for (int i = 0; i < numAgentsToAccept; i++)
-						{
-							int agentIndex = randomSelector.nextInt(numAgentsDepart);
-							while (acceptedIndices.contains(agentIndex))
-								agentIndex = randomSelector.nextInt(numAgentsDepart);
-							acceptedIndices.add(agentIndex);
-							Agent accepted = (Agent) this._departureLounge.toArray()[agentIndex];
-							Agent acceptedCopy = new Agent(accepted);
-							if (this.getPartnerClass() == BiofilmBoundaryLayer.class)
-								acceptedCopy.set(AspectRef.isLocated, true);
-							if (this.getPartnerClass() == ChemostatToBoundaryLayer.class)
-								acceptedCopy.set(AspectRef.isLocated, false);
-							acceptanceLounge.add(acceptedCopy);
-						}
-						this._partner.acceptInboundAgents(acceptanceLounge);
-					}
-					else if (numAgentsToAccept > numAgentsDepart)
-					{
-						for (int i = 0; i < numAgentsToAccept; i++)
-						{
-							int agentIndex = i - (numAgentsDepart * (i/numAgentsDepart));
-							Agent accepted = (Agent) this._departureLounge.toArray()[agentIndex];
-							Agent acceptedCopy = new Agent(accepted);
-							if (this.getPartnerClass() == BiofilmBoundaryLayer.class)
-								acceptedCopy.set(AspectRef.isLocated, true);
-							if (this.getPartnerClass() == ChemostatToBoundaryLayer.class)
-								acceptedCopy.set(AspectRef.isLocated, false);
-							acceptanceLounge.add(acceptedCopy);
-						}
-						this._partner.acceptInboundAgents(acceptanceLounge);
-					}
-					else
-					{
-						this._partner.acceptInboundAgents(this._departureLounge);
-					}
-					for( Agent a : this._departureLounge )
-						this._agents.registerRemoveAgent(a, EventType.TRANSFER, "transfered", null);
-					this._departureLounge.clear();
-				}
-				else
-				{
-					Log.out(Tier.NORMAL, "no partner compartment found, removing outbound agents");
-					for( Agent a : this._departureLounge )
-						this._agents.registerRemoveAgent(a, EventType.REMOVED, "removed", null);
-					this._departureLounge.clear();
-				}
-
-			}
-			this._agents.refreshSpatialRegistry();
-		}
-	}
-
-	// TODO delete once boundary gets full control of agent transfers
-	public Collection<Agent> getAllInboundAgents()
-	{
-		return this._arrivalsLounge;
-	}
-
-	/**
-	 * Take all agents out from the arrivals lounge.
-	 */
-	protected void clearArrivalsLounge()
-	{
-		this._arrivalsLounge.clear();
-	}
-
-	/**
-	 * \brief Enter the {@code Agent}s waiting in the arrivals lounge to the
-	 * {@code AgentContainer}.
-	 * 
-	 * <p>This method will be overwritten by many sub-classes of Boundary,
-	 * especially those that are sub-classes of SpatialBoundary.</p>
-	 * 
-	 * @param agentCont The {@code AgentContainer} that should accept the 
-	 * {@code Agent}s.
-	 */
-	public void agentsArrive()
-	{
-		for ( Agent anAgent : this._arrivalsLounge )
-		{
-			//FIXME The agent MUST be registered to the new compartment otherwise offsrping will end up in the old
-			//compartment, this is a really ugly work around but the only way to actually get there.
-			//This design should be reconsidered [Bas 13-04-2018]
-			((Compartment)this._agents.getParent()).addAgent(anAgent);
-		}
-		this.clearArrivalsLounge();
-	}
-
-	/**
-	 * \brief Compile a list of the agents that this boundary wants to remove
-	 * from the compartment and put into its departures lounge.
-	 * 
-	 * @param agentCont The {@code AgentContainer} that contains the 
-	 * {@code Agent}s for selection.
-	 * @return List of agents for removal.
-	 */
-	public Collection<Agent> agentsToGrab()
-	{
-		return new LinkedList<Agent>();
-	}
 
 	/* ***********************************************************************
 	 * NODE CONTRUCTION
@@ -595,8 +398,7 @@ public abstract class Boundary implements Settable, Instantiable
 		}
 		
 		if ( this._volumeFlowRate != 0.0 )
-			modelNode.add( new Attribute( XmlRef.volumeFlowRate, 
-					String.valueOf( this._volumeFlowRate ), null, true ));
+			modelNode.add( new Attribute( XmlRef.volumeFlowRate, String.valueOf( this._volumeFlowRate ), null, true ));
 		// TODO
 		// modelNode.requirement = Requirements.?
 		return modelNode;

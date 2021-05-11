@@ -208,6 +208,14 @@
 					<aspect name="fileName" class="String" value="table1" />
 					<aspect name="tableSpecification" class="String" value="species|biomass@mass|biomass@mass LT 1.0|biomass@mass LT 1.0 AND species = autotroph|%ammonium" />
 				</process>
+				<process name="biofilmBoundaryDeparture"
+					class="AgentsInBoundaryLayerDepart" priority = "1">
+					<aspect name="destinationNames" type="PRIMARY" class="InstantiableMap" >
+						<map entryClass="Double" keyType="String">
+							<item key="chemostat" value="1.0"/>
+						</map>
+					</aspect>
+				</process>
 			</processManagers>
 		</compartment>
 	</simulation>

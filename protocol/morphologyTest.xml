@@ -175,6 +175,9 @@
 					<aspect name="relaxationMethod" type="PRIMARY" class="String" value="EULER" />
 					<aspect name="gravity_testing" class="Boolean" value="false" />
 				</process>
+				<process name="agentsOutsideDomainDepart" 
+					class="AgentsOutsideDomainDepart" priority = "1">
+				</process>
 			</processManagers>
 		</compartment>
 	</simulation>

@@ -425,6 +425,16 @@ public abstract class ProcessManager implements Instantiable, AspectInterface,
 		this._parentNode = parent;
 	}
 	
+	public void setAgentContainer(AgentContainer ac)
+	{
+		this._agents = ac;
+	}
+	
+	public void setTimeStep(double timeStep)
+	{
+		this._timeStepSize = timeStep;
+	}
+	
 	@Override
 	public Settable getParent() 
 	{

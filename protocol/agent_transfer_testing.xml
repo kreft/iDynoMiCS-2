@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+	<simulation name="agent_transfer" outputfolder="../results" log="EXPRESSIVE"
+		comment="this is a file for testing purposes only.">
+		<!-- minutes -->
+		<timer stepSize="6.0" endOfSimulation="600.0" />
+		<speciesLib>
+			<species name="heterotroph">
+				<speciesModule name="coccoid" />
+				<aspect name="reactions" type="PRIMARY"  class="InstantiableList"> 
+					<list class="RegularReaction" nodeLabel="reaction" 
+					entryClass="RegularReaction" keyClass="String" keyLabel="name">
+						<reaction name="hetGrowth">
+							<expression value="biomass * mumax * 
+									( COD / ( COD + KS ) ) * 
+									( ( oxygen / ( oxygen + Kox ) )">
+								<!-- pg/µm3 --> 
+								<constant name="KS" 	value="4.0e-6" /> 
+								<constant name="Kox" 	value="2.0e-7" />
+								<!-- per minute -->
+								<constant name="mumax" 	value="0.004167" />
+							</expression>
+							<stoichiometric component="biomass" coefficient="1.0" />
+							<stoichiometric component="COD" 	coefficient="-1.5873" />
+							<stoichiometric component="oxygen" 	coefficient="-0.5873" />
+						</reaction> 
+						<reaction name="hetInactivation">
+							<expression value="inactivationRate * biomass">
+							<!-- per minute -->
+								<constant name="inactivationRate" 	value="5.556e-5" /> 
+							</expression>
+							<stoichiometric component="biomass" coefficient="-1.0" />
+							<stoichiometric component="inert" 	coefficient="1.0" />
+						</reaction>
+						<reaction name="hetRespiration">
+							<expression value="biomass * respirationRate * (oxygen / (oxygen + Kox))">
+								<!-- pg/µm3 --> 
+								<constant name="respirationRate" 	value="2.222e-4" />
+								<constant name="Kox" 				value="2.0e-7" />
+							</expression>
+							<stoichiometric component="biomass" coefficient="-1.0" />
+							<stoichiometric component="oxygen" 	coefficient="-1.0" />
+						</reaction>
+					</list>
+				</aspect>
+			</species>
+			
+			<species name="autotroph">
+				<speciesModule name="coccoid" />
+				<aspect name="reactions" type="PRIMARY"  class="InstantiableList"> 
+					<list class="RegularReaction" nodeLabel="reaction" 
+					entryClass="RegularReaction" keyClass="String" keyLabel="name">
+						<reaction name="autGrowth">
+							<expression value="biomass * mumax * 
+									( ammonium / ( ammonium + KN ) ) * 
+									( ( oxygen / ( oxygen + Kox ) )">
+								<!-- pg/µm3 --> 
+								<constant name="KN" 	value="1.0e-6" /> 
+								<constant name="Kox" 	value="5.0e-7" />
+								<!-- per minute -->
+								<constant name="mumax" 	value="6.95e-4" />  
+							</expression>
+							<stoichiometric component="biomass" 	 coefficient="1.0" />
+							<stoichiometric component="oxygen" 	 coefficient="-18.0417" />
+							<stoichiometric component="ammonium" coefficient="-4.1667" />
+						</reaction> 
+						<reaction name="autInactivation">
+							<expression value="inactivationRate * biomass">
+								<!-- per minute --> 
+								<constant name="inactivationRate" 	value="2.083e-5" /> 
+							</expression>
+							<stoichiometric component="biomass"	coefficient="-1.0" />
+							<stoichiometric component="inert" 	coefficient="1.0" />
+						</reaction>
+						<reaction name="autRespiration">
+							<expression value="biomass * respirationRate * (oxygen / (oxygen + Kox))">
+								<!-- pg/µm3 --> 
+								<constant name="respirationRate" 	value="8.333e-5" />
+								<constant name="Kox" 				value="5.0e-7" />
+							</expression>
+							<stoichiometric component="biomass" coefficient="-1.0" />
+							<stoichiometric component="oxygen" 	coefficient="-1.0" />
+						</reaction>
+					</list>
+				</aspect>
+			</species>
+
+			<species name="coccoid">
+				<!-- pg / µm^3-->
+				<aspect name="density" 		type="PRIMARY" 		class="Double" 				value="1.5e-2" />
+				<aspect name="#isLocated" 	type="PRIMARY" 		class="Boolean" 			value="true" />
+				<aspect name="surfaces"		type="CALCULATED"	class="AgentSurfaces"		/>
+				<aspect name="volume" 		type="CALCULATED" 	class="SimpleVolumeState" 	/>
+				<aspect name="radius" 		type="CALCULATED" 	class="CoccoidRadius" 		/>
+				<aspect name="divide" 		type="EVENT" 		class="CoccoidDivision"		/>
+				<!-- Dry division mass (pg) -->
+				<aspect name="divisionMass"	class="Double"		value="2.0" 				/>
+				<aspect name="updateBody" 	type="EVENT" 		class="UpdateBody" 			/>
+				<aspect name="evaluatePull"	type="EVENT"		class="ResolveInteractionDistance" 	 />
+				<!-- µm -->
+				<aspect name="searchDist"	type="PRIMARY"		class="Double"				value="0.0"  />
+			</species>
+		</speciesLib>
+		<compartment name="chemostat">
+			<shape class="Dimensionless" volume="8.5e6">
+				<boundary  class="constantConcentrationToChemostat" volumeFlowRate="9.444E5">
+				<solute name="ammonium" concentration="6.00E-06"/>
+				<solute name="oxygen" 	concentration="1.0E-5"/>
+				<solute name="COD" 	concentration="3.0E-5" />
+				</boundary>
+				<boundary  class="chemostatOut" volumeFlowRate="9.444E5" agentRemoval="false" >
+				</boundary> 
+			</shape>
+			<solutes>
+				<!-- pg / µm3 -->
+				<solute name="ammonium" concentration="6.0E-06" defaultDiffusivity="118055.556"  />
+				<solute name="oxygen" 	concentration="1.0E-5" defaultDiffusivity="138888.889"  />
+				<solute name="COD" 	concentration="3.0E-5" defaultDiffusivity="69444.444"  />
+			</solutes>
+			<processManagers>
+				<process name="arrival" class="AgentsArriveInChemostat" priority="-1"
+				firstStep="0.0">
+				<aspect name="originNames" type="PRIMARY" class="InstantiableList">
+					<list class="InstantiableList" nodeLabel="origin" entryClass="String" keyClass="String" keyLabel="name">
+						<origin name="origin" value="biofilm"/>
+					</list>
+				</aspect>
+				</process>
+				<process name="departure" class="AgentsLeaveChemostat" priority = "0"
+					firstStep="0.0">
+					<aspect name="detachmentRate" type="PRIMARY" class="Double" value="0.1"/>
+					<aspect name="destinationNames" type="PRIMARY" class="InstantiableMap" >
+						<map entryClass="Double" keyType="String">
+							<item key="biofilm" value="0.9"/>
+							<item key="bin" value="0.1"/>
+						</map>
+					</aspect>
+				</process>
+			</processManagers>
+		</compartment>
+		<compartment name="bin">
+			<shape class="Dimensionless" volume="8.5e6"/>
+			<processManagers>
+				<process name="arrival" class="AgentsArriveInChemostat" priority="-1"
+				firstStep="0.0">
+				<aspect name="originNames" type="PRIMARY" class="InstantiableList">
+					<list class="String" nodeLabel="origin" entryClass="String" keyClass="String" keyLabel="name">
+						<origin value="biofilm"/>
+						<origin value="chemostat"/>
+					</list>
+				</aspect>
+				</process>
+			</processManagers>
+		</compartment>
+		<compartment name="biofilm">
+			<shape class="Rectangle">
+				<!-- µm -->
+				<dimension name="X" isCyclic="true" 	targetResolution="2.0" max="256.0"/>
+				<dimension name="Y" isCyclic="false" 	targetResolution="2.0" max="256.0">
+					<boundary extreme="1" class="BiofilmBoundaryLayer" partnerCompartment="chemostat" layerThickness = "4.0"/>
+				</dimension>
+			</shape>
+			<solutes>
+				<!-- Initial concentrations pg / µm2 -->
+				<solute name="COD"  	concentration="3e-5" defaultDiffusivity="69444.444" />
+				<solute name="ammonium"  concentration="6e-6" defaultDiffusivity="118055.556"/>
+				<solute name="oxygen" 	concentration="1e-5" defaultDiffusivity="138888.889"/>
+			</solutes>
+			<reactions>
+			</reactions>
+			<spawn class="randomSpawner" domain="0.0, 32.0; 256.0, 64.0" priority="0" number="200" morphology="COCCOID">
+				<templateAgent>
+					<aspect name="species" type="PRIMARY" class="String" value="heterotroph" />
+					<aspect  name="mass" class="InstantiableMap">
+						<map entryClass="Double" keyType="String">
+							<item key="biomass" value="1.0"  />
+							<item key="inert" value="0.0"  />
+						</map>
+					</aspect>
+				</templateAgent>
+			</spawn>
+			<processManagers>
+				<!-- minute -->
+				<process name="agentRelax"	class="AgentRelaxation" priority="0"
+					firstStep="0.0"  		timerStepSize="6.0">
+					<!-- µm -->
+					<aspect name="maxMovement" 		type="PRIMARY" class="Double" value="0.5" />
+					<aspect name="relaxationMethod" type="PRIMARY" class="String" value="EULER" />
+					<aspect name="stressThreshold" type="PRIMARY" class="Double" value="1000.0" />
+				</process>
+				<process name="svgWriter" class="GraphicalOutput"  priority="-3"
+					firstStep="0.0"  timerStepSize="1440.0">
+					<aspect name="solute" type="PRIMARY" class="String" value="oxygen" />
+					<aspect name="maxConcentration" type="PRIMARY" class="Double" value="1e-5" />
+					<aspect name="outputWriter" type="PRIMARY" class="String" value="SvgExport" />
+				</process>
+				<process name="departure" class="AgentDetachment" priority="2"
+					firstStep="0.0"  timerStepSize="6.0">
+					<aspect name="rasterScale" type="PRIMARY" class="Double" value="1.0" />
+					<aspect name="regionDepth" type="PRIMARY" class="Integer" value="4" />
+					<aspect name="detachmentRate" type="PRIMARY" class="Double" value="0.0005" />
+					<aspect name="verbose" type="PRIMARY" class="Boolean" value="false" />
+					<aspect name="destinationNames" type="PRIMARY" class="InstantiableMap" >
+						<map entryClass="Double" keyType="String">
+							<item key="chemostat" value="1.0"/>
+							<item key="bin" value="0.5"/>
+						</map>
+					</aspect>
+				</process>
+				<process name="departure2" class="FloatingAgentDeparture" priority="3"
+					firstStep="6.0"  timerStepSize="6.0">
+					<aspect name="searchDist" type="PRIMARY" class="Double" value="1.5" />
+					<aspect name="destinationNames" type="PRIMARY" class="InstantiableMap" >
+						<map entryClass="Double" keyType="String">
+							<item key="chemostat" value="1.0"/>
+							<item key="bin" value="0.5"/>
+						</map>
+					</aspect>
+				</process>
+				<process name="arrival" class="AgentAttachmentRandomWalk" priority = "0" >
+					<aspect name="dimensionName" type="PRIMARY" class="String" value="Y" />
+					<aspect name="extreme" type="PRIMARY" class="Integer" value="1" />
+					<aspect name="stepSize" type="PRIMARY" class="Double" value="0.1" />
+					<aspect name="originNames" type="PRIMARY" class="InstantiableList">
+					<list class="InstantiableList" nodeLabel="origin" entryClass="String" keyClass="String" keyLabel="name">
+						<origin name="origin" value="chemostat"/>
+					</list>
+				</aspect>
+				</process>
+			</processManagers>
+		</compartment>
+	</simulation>
+</document>

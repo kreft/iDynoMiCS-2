@@ -197,7 +197,7 @@
 					µm^2/ minute-->
 				</process>
 				
-								<process name="svgWriter" class="GraphicalOutput"  priority="-3"
+				<process name="svgWriter" class="GraphicalOutput"  priority="-3"
 					firstStep="0.0"  timerStepSize="60.0">
 					<aspect name="solute" type="PRIMARY" class="String" value="oxygen" />
 					<aspect name="maxConcentration" type="PRIMARY" class="Double" value="6e-4" />
@@ -221,7 +221,9 @@
 					<aspect name="maxConcentration" type="PRIMARY" class="Double" value="6e-4" />
 					<aspect name="outputWriter" type="PRIMARY" class="String" value="SvgExport" />
 				</process>
-				
+				<process name="agentsOutsideDomainDepart" 
+					class="AgentsOutsideDomainDepart" priority = "1">
+				</process>
 			</processManagers>
 		</compartment>
 	</simulation>

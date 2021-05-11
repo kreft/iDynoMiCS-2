@@ -38,6 +38,7 @@ import spatialRegistry.SpatialRegistry;
 import spatialRegistry.TreeType;
 import spatialRegistry.splitTree.SplitTree;
 import surface.BoundingBox;
+import surface.Point;
 import surface.Surface;
 import surface.collision.Collision;
 import surface.predicate.IsNotColliding;
@@ -511,7 +512,13 @@ public class AgentContainer implements Settable
 		if ( IsLocated.isLocated(agent) && this.getShape().getNumberOfDimensions() > 0 )
 			this.addLocatedAgent(agent);
 		else
+		{
 			this._agentList.add(agent);
+			agent.simplifyLocation();
+		}
+		
+		Body agentBody = (Body) agent.get(AspectRef.agentBody);
+		List<Point> points = agentBody.getPoints();
 	}
 
 	/**
@@ -651,113 +658,24 @@ public class AgentContainer implements Settable
 		this._agentsToRegisterRemoved.add(anAgent);
 		anAgent.set(AspectRef.removed,true);
 	}
-
+	
 	/**
-	 * \brief Loop over all boundaries, asking any agents waiting in their
-	 * arrivals lounges to enter the compartment.
+	 * Register to remove a whole list of agents. These agents must all be
+	 * leaving due to the same kind of event.
+	 * @param agents
+	 * @param eventType
+	 * @param event
+	 * @param value
 	 */
-
-	public void agentsArrive()
+	public void registerRemoveAgents (LinkedList<Agent> agents, EventType 
+			eventType, String event, String value)
 	{
-		Dimension dim;
-		for ( DimName dimN : this._shape.getDimensionNames() )
+		for (Agent a : agents)
 		{
-			dim = this._shape.getDimension(dimN);
-			if ( dim.isCyclic() )
-			{
-				continue;
-			}
-			if ( ! dim.isSignificant() )
-			{
-				continue;
-			}
-			for ( int extreme = 0; extreme < 2; extreme++ )
-			{
-				if ( ! dim.isBoundaryDefined(extreme) )
-				{
-					continue;
-				}
-				dim.getBoundary(extreme).agentsArrive();
-			}
-		}
-		for ( Boundary bndry : this._shape.getNonSpatialBoundaries() )
-		{
-			bndry.agentsArrive();
-		}
-	}
-
-	/**
-	 * 
-	 * \brief Loop through all boundaries on this shape, try to transfer agents
-	 * over the boundaries
-	 * 
-	 * <p>If multiple boundaries want to transfer the same agent, choose one of
-	 * these by random.</p>
-	 */
-	public void boundariesGrabAgents()
-	{
-		Map<Agent,List<Boundary>> toTransfer = 
-				new HashMap<Agent,List<Boundary>>();
-		/*
-		 * Ask each boundary which agents it wants to grab. Since more than one
-		 * boundary may want the same agent, compile a list for each agent.
-		 */
-		for ( Boundary b : this._shape.getAllBoundaries() )
-		{
-			Collection<Agent> boundaryDepartures = b.agentsToGrab();
-			for ( Agent wishAgent : boundaryDepartures )
-			{
-				if ( ! toTransfer.containsKey( wishAgent ) )
-					toTransfer.put(wishAgent, new LinkedList<Boundary>());
-				toTransfer.get(wishAgent).add(b);
-			}
-		}
-		/*
-		 * For each of the leaving agents, see how many boundaries tried to
-		 * remove it. If only one, then simply depart through this boundary.
-		 * If more than one, then pick one at random.
-		 */
-		for ( Agent grabbedAgent : toTransfer.keySet() )
-		{
-			List<Boundary> destinations = toTransfer.get(grabbedAgent);
-			if ( destinations.size() == 1 )
-				/* add out-bound agent to departures list, agents are added to 
-				 * the the arrivals list of the partner boundary when the agents
-				 * are pushed */
-				destinations.get(0).addOutboundAgent( grabbedAgent );
-			else
-			{
-				int i = ExtraMath.getUniRandInt(destinations.size());
-				destinations.get(i).addOutboundAgent(grabbedAgent);
-			}
+			this.registerRemoveAgent(a, eventType, event, value);
 		}
 	}
 	
-	/**
-	 * \brief Loop over all boundaries, asking any agents waiting in their
-	 * departure lounges to leave the compartment.
-	 */
-	public void agentsDepart()
-	{
-		Dimension dim;
-		for ( DimName dimN : this._shape.getDimensionNames() )
-		{
-			dim = this._shape.getDimension(dimN);
-			if ( dim.isCyclic() )
-				continue;
-			if ( ! dim.isSignificant() )
-				continue;
-			for ( int extreme = 0; extreme < 2; extreme++ )
-			{
-				if ( ! dim.isBoundaryDefined(extreme) )
-					continue;
-				dim.getBoundary(extreme).pushAllOutboundAgents();
-			}
-		}
-		for ( Boundary bndry : this._shape.getNonSpatialBoundaries() )
-			bndry.pushAllOutboundAgents();
-	}
-
 	/**
 	 * @return {@code true} is this has any agents to report and destroy.
 	 */

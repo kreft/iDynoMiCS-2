@@ -4,15 +4,12 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.SortedSet;
-import java.util.TreeSet;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 import agent.Agent;
 import agent.SpeciesLib;
-import analysis.Table;
 import chemical.ChemicalLib;
 import compartment.Compartment;
 import dataIO.Log;
@@ -24,7 +21,6 @@ import debugTools.SegmentTimer;
 import generalInterfaces.CanPrelaunchCheck;
 import instantiable.Instance;
 import instantiable.Instantiable;
-import referenceLibrary.AspectRef;
 import referenceLibrary.ClassRef;
 import referenceLibrary.XmlRef;
 import settable.Attribute;
@@ -172,6 +168,7 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable,
 				Log.out(Tier.EXPRESSIVE, compartment.getName() + 
 						" validating boundaries.");
 			compartment.checkBoundaryConnections(this._compartments);
+			compartment.checkAgentDeparture();
 		}
 		this.interupt = false;
 	}

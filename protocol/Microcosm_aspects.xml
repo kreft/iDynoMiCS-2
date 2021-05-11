@@ -104,6 +104,9 @@
 					value="0 ~ mass ? pigment == RED | mass  ? pigment == GREEN" />
 					<aspect name="fileName" type="PRIMARY" class="String" value="data" />
 				</process>
+				<process name="agentsOutsideDomainDepart" 
+					class="AgentsOutsideDomainDepart" priority = "1">
+				</process>
 			</processManagers>
 		</compartment>
 	</simulation>

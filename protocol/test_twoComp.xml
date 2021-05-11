@@ -239,6 +239,9 @@
 					<diffusivitySetter solute="solute1" class="ScaledIfBiomassPresent" defaultDiffusivity="1.0" biofilmDiffusivity="0.5" />
 					<diffusivitySetter solute="solute2" class="AllSameDiffuse" defaultDiffusivity="0.8"/>
 				</process>
+				<process name="agentsOutsideDomainDepart" 
+					class="AgentsOutsideDomainDepart" priority = "1">
+				</process>
 			</processManagers>
 		</compartment>
 	</simulation>

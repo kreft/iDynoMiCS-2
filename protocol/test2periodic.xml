@@ -160,6 +160,9 @@
 					<aspect name="tableSpecification" type="PRIMARY" class="String" 
 					value="0 ~ mass | mass > 0.2, mass > 0.15, mass > 0.1, mass > 0.0 | species = AOB | pigment = RED, pigment = BLUE, pigment = GREEN" />
 				</process>
+				<process name="agentsOutsideDomainDepart" 
+					class="AgentsOutsideDomainDepart" priority = "1">
+				</process>
 			</processManagers>
 		</compartment>
 	</simulation>

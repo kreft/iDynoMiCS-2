@@ -2,15 +2,12 @@ package processManager.library;
 
 import java.util.LinkedList;
 import java.util.List;
-
 import org.w3c.dom.Element;
-
 import agent.Agent;
 import analysis.quantitative.Raster;
-import bookkeeper.KeeperEntry.EventType;
 import compartment.AgentContainer;
 import compartment.EnvironmentContainer;
-import processManager.ProcessManager;
+import processManager.ProcessDeparture;
 import referenceLibrary.AspectRef;
 import spatialRegistry.SpatialMap;
 import utility.ExtraMath;
@@ -23,7 +20,7 @@ import utility.Helper;
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
  *
  */
-public class AgentDetachment extends ProcessManager
+public class AgentDetachment extends ProcessDeparture
 {
 	
 	private String DETACHMENT_RATE = AspectRef.detachmentRate;
@@ -54,7 +51,7 @@ public class AgentDetachment extends ProcessManager
 				this.getDouble( RASTER_SCALE ), 0.2 );
 		
 		this._regionDepth = Helper.setIfNone( 
-				this.getInt( REGION_DEPTH ), 10 );
+				this.getInt( REGION_DEPTH ), 10 );		
 	}
 	
 	/**
@@ -66,9 +63,10 @@ public class AgentDetachment extends ProcessManager
 	 * 
 	 * We only consider removal from the biofilm surface and refer to this as 
 	 * detachment.
+	 * @return 
 	 */
 	@Override
-	protected void internalStep()
+	protected LinkedList<Agent> agentsDepart()
 	{
  		this._raster.rasterize( _rasterScale );
 		
@@ -78,6 +76,7 @@ public class AgentDetachment extends ProcessManager
 		
 		List<Agent> agentList;
 		LinkedList<Agent> handledAgents = new LinkedList<Agent>();
+		LinkedList<Agent> departingAgents = new LinkedList<Agent>();
 		for( int[] vox : agentDistMap.keySetNumeric() )
 		{
 			if (agentDistMap.get( vox ).equals( 1 ) )
@@ -92,17 +91,13 @@ public class AgentDetachment extends ProcessManager
 						handledAgents.add( a );
 						if( ExtraMath.getUniRandDbl() > e )
 						{
-							/* FIXME DEPARTURE! */
-							this._agents.registerRemoveAgent( a , EventType.REMOVED, "detach", null);
+							departingAgents.add(a);
 						}
 					}
-						
 				}
 			}
 		}
 		
-		
-		
+		return departingAgents;
 	}
-
 }

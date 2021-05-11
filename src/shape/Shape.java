@@ -784,7 +784,7 @@ public abstract class Shape implements
 		int i = 0;
 		for ( Dimension dim : this._dimensions.values() )
 		{
-			if ( ! dim.isInside(position[i]) )
+			if ( ! dim.isInside(position[i]))
 				return false;
 			if ( ++i >= nDim )
 				break;

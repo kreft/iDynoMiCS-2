@@ -113,13 +113,16 @@
 				<process name="agentRelax" class="AgentRelaxation"  priority="-2"
 					firstStep="0.0"  timerStepSize="0.1">
 					<aspect name="maxMovement" type="PRIMARY" class="Double" value="0.05" />
-					<aapwxr name="stressThreshold" type="PRIMARY" class="Double" value="10000.0" />
+					<aspect name="stressThreshold" type="PRIMARY" class="Double" value="10000.0" />
 					<aspect name="relaxationMethod" type="PRIMARY" class="String" value="EULER" />
 					<aspect name="gravity_testing" class="Boolean" value="true" />
 				</process>
 				<process name="solveDiffusionTransient" class="SolveDiffusionTransient"  priority="-1"
 					firstStep="0.0" timerStepSize="0.1">
 					<aspect name="soluteNames" type="PRIMARY" class="String[]" value="solute1,solute2" /> 
+				</process>
+				<process name="agentsOutsideDomainDepart" 
+					class="AgentsOutsideDomainDepart" priority = "1">
 				</process>
 			</processManagers>
 		</compartment>

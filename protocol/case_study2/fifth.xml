@@ -258,6 +258,9 @@
 					value="mass ? species == ComammoxAOB | mass  ? species == CanonicalAOB | mass ?  species == CanonicalNOB | %oxygen | %ammonium | %nitrite | %nitrate" />
 					<aspect name="fileName" type="PRIMARY" class="String" value="data" />
 				</process>
+				<process name="biofilmBoundaryDeparture"
+					class="AgentsInBoundaryLayerDepart" priority = "1">
+				</process>
 			</processManagers>
 		</compartment>
 	</simulation>
