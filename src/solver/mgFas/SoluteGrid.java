@@ -17,6 +17,7 @@ import linearAlgebra.Array;
 import linearAlgebra.Vector;
 import settable.Settable;
 import shape.Shape;
+import solver.mgFas.boundaries.CartesianPadding;
 
 /**
  * \brief Class for containing chemical solutes, that are represented by a
@@ -285,34 +286,66 @@ public class SoluteGrid extends SolverGrid
 		*/
 
 		/*  FIXME hard coded test code,
-
-			like this or flipped?
-		    solid boundary
 		 */
-		int[] out = new int[] {0 , -1, 0 };
-		int[] in = new int[] {0, 0, 0 };
+		CartesianPadding pad = new CartesianPadding(_nI, _nJ, _nK );
 
-		int[] step = new int[] {1 , 0, 0 };
-		while( out[0] < this._nJ )
-		{
-			setValueAt(getValueAt(in), out);
-			Vector.addEquals(out,step);
-			Vector.addEquals(in,step);
-		}
+		/* solid bound */
+		pad.zeroFlux( this, 1, false);
 
-		/*
-			bulk boundary
-		 */
-		out = new int[] { 0 , this._nJ, 0  };
-		in = new int[] { 0,  this._nJ-1, 0 };
+		/*	bulk boundary */
+		pad.constantConcentration( this, 1, true, bulk);
 
-		while( out[0] < this._nJ )
-		{
-			// set to bulk
-			setValueAt(bulk, out);
-			Vector.addEquals(out,step);
-			Vector.addEquals(in,step);
-		}
+		/* cyclic bound 1 */
+		pad.cyclic( this, 0, false);
+
+		/* cyclic bound 2 */
+		pad.cyclic( this, 0, true);
+
+//		int s = -1;
+//		int[] out = new int[] {s , -1, 0 };
+//		int[] in = new int[] {s, 0, 0 };
+//
+//		int[] step = new int[] {1 , 0, 0 };
+//		while( out[0] < this._nI )
+//		{
+//			setValueAt(getValueAt(in), out);
+//			Vector.addEquals(out,step);
+//			Vector.addEquals(in,step);
+//		}
+
+
+//		out = new int[] { s , this._nJ, 0  };
+//		in = new int[] { s,  this._nJ-1, 0 };
+//
+//		while( out[0] < this._nI )
+//		{
+//			// set to bulk
+//			setValueAt(bulk, out);
+//			Vector.addEquals(out,step);
+//			Vector.addEquals(in,step);
+//		}
+
+//		out = new int[] {this._nI, s, 0 };
+//		in = new int[] {0, s, 0 };
+//
+//		step = new int[] {0 , 1, 0 };
+//		while( out[1] < this._nJ )
+//		{
+//			setValueAt(getValueAt(in), out);
+//			Vector.addEquals(out,step);
+//			Vector.addEquals(in,step);
+//		}
+
+//		out = new int[] { -1, s, 0  };
+//		in = new int[] { this._nI-1, s,  0 };
+//
+//		while( out[1] < this._nJ )
+//		{
+//			// set to bulk
+//			setValueAt(getValueAt(in), out);
+//			Vector.addEquals(out,step);
+//			Vector.addEquals(in,step);
+//		}
 	}
 	
 	/**

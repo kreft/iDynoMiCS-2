@@ -9,13 +9,15 @@
  * CeCILL license as circulated by CEA, CNRS and INRIA at the following URL 
  * "http://www.cecill.info".
  */
-package solver.mgFas.utils;
+package solver.mgFas.boundaries;
 
 import java.util.LinkedList;
 
 import shape.Shape;
 import solver.mgFas.SoluteGrid;
 import solver.mgFas.SolverGrid;
+import solver.mgFas.utils.ContinuousVector;
+import solver.mgFas.utils.DiscreteVector;
 
 /**
  * \brief Group all methods expected by the interface but common to most of

@@ -13,9 +13,8 @@ import java.util.*;
 
 import compartment.EnvironmentContainer;
 import grid.ArrayType;
-import linearAlgebra.Array;
 import shape.Shape;
-import solver.mgFas.utils.AllBC;
+import solver.mgFas.boundaries.AllBC;
 import solver.mgFas.utils.ContinuousVector;
 import solver.mgFas.utils.DiscreteVector;
 import utility.ExtraMath;
@@ -399,10 +398,10 @@ public class Domain
 	 * 
 	 * @param aBC Boundary condition to add to the list of boundaries.
 	 */
-//	public void addBoundary(AllBC aBC) 
-//	{
-//		_boundaryList.add(aBC);
-//	}
+	public void addBoundary(AllBC aBC)
+	{
+		_boundaryList.add(aBC);
+	}
 	
 //	@Override
 //	public LinkedList<AllBC> getAllBoundaries() 

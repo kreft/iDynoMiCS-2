@@ -177,7 +177,7 @@ public class Multigrid
 		allReac = new SoluteGrid[nSolute];
 		allDiffReac = new SoluteGrid[nSolute];
 
-		/* TODO both soluteList entry 0, eh? */
+		/* TODO this confuses me: both are soluteList entry 0? */
 		_bLayer = new MultigridSolute(_soluteList.get(0), "boundary layer");
 		_diffusivity = 
 				new MultigridSolute(_soluteList.get(0), "relative diffusivity");
@@ -187,7 +187,7 @@ public class Multigrid
 		{
 //			if (_soluteIndex.contains(i))
 //			{
-			/* FIXME taking initial as permanent bulk */
+			/* FIXME taking initial as fixed boundary concentration bulk */
 				sBulk = environment.getAverageConcentration(_soluteList.get(i).gridName); // this is what the conc grid is set when first solved
 				_solute[i] = new MultigridSolute(_soluteList.get(i),
 												_diffusivity, _bLayer, sBulk);
@@ -246,7 +246,7 @@ public class Multigrid
 		_bLayer.setFinest( myDomain.getBoundaryLayer() );
 		_bLayer.restrictToCoarsest();
 
-		// TODO this should be per solute no?
+		// TODO this should be per solute in the future?
 		_diffusivity.setFinest(myDomain.getDiffusivity());
 		_diffusivity.restrictToCoarsest();
 		
@@ -284,9 +284,9 @@ public class Multigrid
 		 * This iterative loop is only passed through once because of the
 		 * value of internTimeStep used above; we leave the loop as-is though
 		 * to allow future use of iterates if needed.
+		 *
+		while ( timeToSolve > 0 ) {
 		 */
-//		while ( timeToSolve > 0 )
-//		{
 			// Compute new equilibrium concentrations.
 			stepSolveDiffusionReaction();
 			
@@ -302,6 +302,8 @@ public class Multigrid
 		for (int iSolute : _soluteIndex)
 			_solute[iSolute].applyComputation();
 
+
+		/* flash current concentration to iDyno 2 concentration grids */
 		for(int iSolute: _soluteIndex)
 		{
 			double[][][] out = MultigridUtils.translateOut(
@@ -310,9 +312,9 @@ public class Multigrid
 					setTo(ArrayType.CONCN, out );
 
 			Log.out(Array.toString(out));
-
 		}
 
+//		((PDEWrapper) this._manager).flashConcentrations(allSolute);
 //
 //		for (int iSolute : _soluteIndex)
 //			Log.out(Array.toString(_solute[iSolute].realGrid.getGrid()));
@@ -403,7 +405,7 @@ public class Multigrid
 		 */
 		updateReacRateAndDiffRate(maxOrder-1);
 
-		// TODO update boundaries?
+		// TODO update bulk boundary, we currently work with fixed concentration only
 		// Find the connected bulks and agars and update their concentration.
 //		for (AllBC aBC : myDomain.getAllBoundaries())
 //		{
@@ -467,7 +469,7 @@ public class Multigrid
 		{
 			_solute[iSolute].resetReaction(resOrder);
 			allSolute[iSolute] = _solute[iSolute]._conc[resOrder];
-			// TODO reactions
+			// TODO  environment reactions
 			allReac[iSolute] = _solute[iSolute]._reac[resOrder];
 			allDiffReac[iSolute] = _solute[iSolute]._diffReac[resOrder];
 		}
@@ -477,7 +479,9 @@ public class Multigrid
 //		for (int iReac = 0; iReac<_reactions.size(); iReac++)
 //			_reactions.get(iReac).applyReaction(allSolute, allReac,
 //								allDiffReac, _biomass[iReac]._conc[resOrder]);
-		applyReaction();
+
+		// TODO is this method asuming finest grid or correctly using resOrder?
+		applyReaction(resOrder);
 		/*
 		 *  computes uptake rate per solute ( mass*_specRate*this._soluteYield[iSolute]; )
 		 *  reactionGrid += uptakeRateGrid
@@ -485,7 +489,10 @@ public class Multigrid
 		 */
 //		this._manager.prestep( this._environment.getSolutes(), 0.0 );
 
-		/* TODO flash current concentration to iDyno 2 concentration grids */
+		/* flash current concentration to iDyno 2 concentration grids
+		Note This hapens after the solver has finished, during solver
+		we use temporary grids with applyReaction()
+		((PDEWrapper) this._manager).flashConcentrations(allSolute); */
 	}
 
 	/**
@@ -533,23 +540,12 @@ public class Multigrid
 	/**
 	 * TODO done at different depths?
 	 */
-	public void applyReaction()
+	public void applyReaction(int resorder)
 	{
-
-//		for (int iSolute : _soluteIndex)
-//		{
-//			allSolute[iSolute].grid = MultigridUtils.translateOut(allSolute[iSolute].grid);
-//			allReac[iSolute].grid = MultigridUtils.translateOut(allReac[iSolute].grid);
-//		}
 		double[] temp = new double[(allSolute[0]._is3D ? 3 : 2)];
 		Vector.addEquals(temp, allSolute[0]._reso );
 		((PDEWrapper) this._manager).applyReactions(allSolute, allReac,	temp,
 				Math.pow( allSolute[0]._reso, 3.0 ));
-//		for (int iSolute : _soluteIndex)
-//		{
-//			allSolute[iSolute].grid = MultigridUtils.translateIn(allSolute[iSolute].grid);
-//			allReac[iSolute].grid = MultigridUtils.translateIn(allReac[iSolute].grid);
-//		}
 	}
 
 }
