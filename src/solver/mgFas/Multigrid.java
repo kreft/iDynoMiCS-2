@@ -16,6 +16,7 @@ import agent.Agent;
 import compartment.AgentContainer;
 import compartment.EnvironmentContainer;
 import dataIO.Log;
+import debugTools.QuickCSV;
 import grid.ArrayType;
 import grid.SpatialGrid;
 import idynomics.Idynomics;
@@ -160,8 +161,7 @@ public class Multigrid
 		 * and list the solutes that these modify.
 		 */
 
-		// TODO handle idyno 2 reactions
-
+		/* reaction handling done with iDyno 2 classes */
 //		for (String aReacName : xmlRoot.getChildrenNames("reaction"))
 //			addReactionWithSolutes(aSim.getReaction(aReacName));
 		
@@ -177,7 +177,8 @@ public class Multigrid
 		allReac = new SoluteGrid[nSolute];
 		allDiffReac = new SoluteGrid[nSolute];
 
-		/* TODO this confuses me: both are soluteList entry 0? */
+		/* TODO: here both bLayer and diffusivity initiate from the same grid like in iDyno 1
+		*  but both construct a new conc-grid. */
 		_bLayer = new MultigridSolute(_soluteList.get(0), "boundary layer");
 		_diffusivity = 
 				new MultigridSolute(_soluteList.get(0), "relative diffusivity");
@@ -185,16 +186,11 @@ public class Multigrid
 		Double sBulk;
 		for (int i = 0; i < nSolute; i++)
 		{
-//			if (_soluteIndex.contains(i))
-//			{
 			/* FIXME taking initial as fixed boundary concentration bulk */
 				sBulk = environment.getAverageConcentration(_soluteList.get(i).gridName); // this is what the conc grid is set when first solved
 				_solute[i] = new MultigridSolute(_soluteList.get(i),
 												_diffusivity, _bLayer, sBulk);
 				_soluteIndex.add(i); //TODO figure out how solute index was used, adding it here to help program run
-//			}
-//			else
-//				_solute[i] = null;
 		}
 
 		/* From this moment, nSolute is the number of solutes SOLVED by THIS
@@ -207,21 +203,6 @@ public class Multigrid
 		nSolute = _soluteIndex.size();
 //		nReaction = _reactions.size();
 		maxOrder = _solute[ _soluteIndex.get(0) ]._conc.length;
-		
-		/* TODO idyno 2 reaction handling
-		 * TODO we do want a biomass grid to determine diffusivity regimes but
-		 *  we don't want them for their reactions as this will be handled the
-		 * 	new way.
-		 *
-		 * Initialize array of reactive biomasses.
-		 */
-//		_biomass = new MultigridSolute[nReaction];
-//		for (int i = 0; i < nReaction; i++)
-//		{
-//			_biomass[i] = new MultigridSolute(_soluteList[0],
-//											_reactions.get(i).reactionName);
-//			_biomass[i].resetMultigridCopies(0.0);
-//		}
 	}
 
 	/**
@@ -302,7 +283,6 @@ public class Multigrid
 		for (int iSolute : _soluteIndex)
 			_solute[iSolute].applyComputation();
 
-
 		/* flash current concentration to iDyno 2 concentration grids */
 		for(int iSolute: _soluteIndex)
 		{
@@ -311,7 +291,7 @@ public class Multigrid
 			this._environment.getSoluteGrid( this._solute[iSolute].soluteName ).
 					setTo(ArrayType.CONCN, out );
 
-			Log.out(Array.toString(out));
+			QuickCSV.write( "solute" + iSolute, Array.slice( _solute[iSolute].realGrid.grid, 2, 1 ) );
 		}
 
 //		((PDEWrapper) this._manager).flashConcentrations(allSolute);

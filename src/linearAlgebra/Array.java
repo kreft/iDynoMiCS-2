@@ -1433,6 +1433,38 @@ public final class Array
 					out[i - iStart][j - jStart][k - kStart] = array[i][j][k];
 		return out;
 	}
+
+	public static double[][] slice(double[][][] array, int dim, int num )
+	{
+		int a = 0, b = 0, c = 0;
+		int d = height(array);
+		int e = width(array);
+		int f = depth(array);
+		double[][] out;
+
+		if( dim == 0 )
+		{
+			out = new double[e][f];
+				for ( int j = b; j < e; j++ )
+					for ( int k = c; k < f; k++ )
+						out[j][k] = array[num][j][k];
+		}
+		else if ( dim == 1 )
+		{
+			out = new double[d][f];
+			for ( int i = a; i < d; i++ )
+					for ( int k = c; k < f; k++ )
+						out[i][k] = array[i][num][k];
+		}
+		else
+		{
+			out = new double[d][e];
+			for ( int i = a; i < d; i++ )
+				for ( int j = b; j < e; j++ )
+						out[i][j] = array[i][j][num];
+		}
+		return out;
+	}
 	
 	/**
 	 * \brief TODO

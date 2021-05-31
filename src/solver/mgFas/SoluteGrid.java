@@ -107,7 +107,7 @@ public class SoluteGrid extends SolverGrid
 //		///////////////////////////
 //		// TODO set diffusivity
 //		grid.getArray(ArrayType.DIFFUSIVITY);
-		diffusivity = 1.0e6;
+		diffusivity = 1.0e5;
 		/*
 		 * Set the initial concentration.
 		 */
@@ -288,6 +288,10 @@ public class SoluteGrid extends SolverGrid
 		/*  FIXME hard coded test code,
 		 */
 		CartesianPadding pad = new CartesianPadding(_nI, _nJ, _nK );
+
+		/* virtual z dimension (Thanks Tim!) */
+		pad.zeroFlux( this, 2, false);
+		pad.zeroFlux( this, 2, true);
 
 		/* solid bound */
 		pad.zeroFlux( this, 1, false);

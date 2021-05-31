@@ -180,6 +180,8 @@ public class Domain
 		this._shape = shape;
 		// Now determine if this computation domain is 2D or 3D
 		is3D = shape.getSignificantDimensions().size() == 3;
+
+		/* FIXME enforce all dimensions to be of the same resolution. */
 		_resolution = Math.min( Math.min(
 				shape.getResolutionCalculator(null, 0).getResolution(),
 				shape.getResolutionCalculator(null, 1).getResolution()),
@@ -191,7 +193,7 @@ public class Domain
 
 		_nI = (int) Math.ceil(lengths[0]/_resolution);
 		_nJ = (int) Math.ceil(lengths[1]/_resolution);
-		_nK = (is3D) ? (int) Math.ceil(lengths[1]/_resolution) : 1;
+		_nK = (is3D) ? (int) Math.ceil(lengths[2]/_resolution) : 1;
 		
 		// Now calculate the length of the grid in micrometres.
 		length_X = _nI * _resolution;
@@ -216,15 +218,6 @@ public class Domain
 		_biofilmDiffusivity = 1.0;
 		_diffusivityGrid = createGrid( "diffusivityGrid", 1);
 		
-		// Create the grid that is going to hold the top of the boundary layer.
-		// Note that the boundary layer is initialised with padding, then
-		// ignores it (and never calculates the padding).
-		// For consistency (for the moment), the top of the boundary layer
-		// array will work in the same way - thus we will be ignoring space at
-		// either end (_nJ and _nK=0 and _nJ+2 and _nK+2).  
-		_topOfBoundaryLayer = new int[_nJ+2][_nK+2];
-
-
 		// Now comes the definition of the behavior at the boundaries.
 		// In general, there are 6 boundaries that must be addressed: y0z, yNz,
 		// x0z, xNz, x0y, xNy. These represent the edges of the domain along
@@ -253,9 +246,6 @@ public class Domain
 		// function below was part of the refreshBioFilmGrids method - this now
 		// exists independently and is called whenever these grids need to be
 		// refreshed.
-		calculateComputationDomainGrids();
-		// Now we can initialise the top of the boundary layer
-		this.calculateTopOfBoundaryLayer();
 	}
 	
 	/**
@@ -442,34 +432,6 @@ public class Domain
 //	}
 	
 	/**
-	 * \brief Creates an array list containing the 'i' coordinate of the
-	 * computation domain that is the top of the boundary layer.
-	 * 
-	 * Creates an array list containing the 'i' coordinate of the computation
-	 * domain that is the top of the boundary layer. Note that this is in the
-	 * resolution specified by the 'resolution' parameter in the computation
-	 * domain section of the protocol file, and this may need to be adjusted 
-	 * if being used in calculations where the resolution differs.
-	 */
-	public void calculateTopOfBoundaryLayer()
-	{
-		/* TODO idyno 2 well mixed */
-		for(int k = 1; k <= _boundaryLayer.getGridSizeK(); k++)
-			for(int j = 1; j <= _boundaryLayer.getGridSizeJ(); j++)
-			{
-				int i=1;
-				while(i <= _boundaryLayer.getGridSizeI() &&
-						 _boundaryLayer.getValueAt(i, j, k) > 0.0 )
-					i++;
-				// Assume now we've reached the point where 'i' has become 0,
-				// and thus we are out of the boundary layer. Subtract 1 such
-				// that the top of the layer is noted, not the outside of the
-				// layer.
-				_topOfBoundaryLayer[j][k] = i - 1;
-			}
-	}
-	
-	/**
 	 * \brief Refresh relative diffusivity and boundary layer grids to ensure
 	 * biomass updated this step is included.
 	 * 
@@ -495,8 +457,6 @@ public class Domain
 			/* TODO this is where the boundary padding should be updated */
 			_boundaryLayer.refreshBoundary();
 
-			// Now calculate the positions that are at the top of the boundary layer
-			calculateTopOfBoundaryLayer();
 			_diffusivityGrid.refreshBoundary();
 			_biomassGrid.refreshBoundary();
 
@@ -504,6 +464,8 @@ public class Domain
 	
 	/**
 	 * \brief Calculates the diffusivity and boundary layer grid levels.
+	 *
+	 * FIXME check this with debugger
 	 * 
 	 * In previous versions of iDynoMiCS this method could be found within
 	 * refreshBioFilmGrids. This has been moved here as, with the addition of
@@ -540,6 +502,9 @@ public class Domain
 					}
 	}
 
+	/**
+	 * work in progress method, updated to use updateWellMixed
+	 */
 	public void calculateComputationDomainGrids2()
 	{
 		this._environment.updateWellMixed();
@@ -548,7 +513,7 @@ public class Domain
 		for (int i = 1; i <= _nI; i++)
 			for (int j = 1; j <= _nJ; j++)
 				for (int k = 1; k <= _nK; k++)
-					// TODO is this correct? assuming well mixed in the margins (no biomass)
+					// Note padding will be updated when .refreshBoundaryLayer() method is called.
 					if ( (i != _nI) || !(j != _nJ) || !((_nK > 1) && k != _nK) || !( wellMixed[i][j][k] > 0.0 ) ) {
 						/*
 						 * This is biomass.
@@ -692,8 +657,7 @@ public class Domain
 		int jIndex, kIndex;
 		Double deltaN, deltaM;
 		Double dilationRadiusM, dilationRadiusL;
-		
-		/* FIXME what is the dilationBand exactly? */
+
 //		nInterval = (int) Math.floor(_dilationBand/_resolution);
 		nInterval = 1;
 		
@@ -846,23 +810,6 @@ public class Domain
 	public SoluteGrid getBiomass()
 	{
 		return _biomassGrid;
-	}
-	
-	/**
-	 * \brief Used in testing to check the top of the boundary layer was calculated correctly
-	 * 
-	 * @author KA 210513
-	 */
-	public void printTopOfBoundaryLayerArray()
-	{
-		for(int k = 1; k <= _nK; k++)
-		{
-			for(int j = 1; j <= _nJ; j++)
-			{
-				System.out.print(_topOfBoundaryLayer[j][k]+" ");
-			}
-			System.out.println();
-		}
 	}
 	
 	/**

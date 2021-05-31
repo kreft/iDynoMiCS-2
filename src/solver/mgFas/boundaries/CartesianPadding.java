@@ -154,7 +154,10 @@ public class CartesianPadding {
             {
                 step[iterate[0]]++;
                 if( !twoD )
+                {
+                    step[iterate[1]] = 0;
                     b = -1;
+                }
             }
             return step;
         }
