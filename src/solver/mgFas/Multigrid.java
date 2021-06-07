@@ -291,7 +291,7 @@ public class Multigrid
 			this._environment.getSoluteGrid( this._solute[iSolute].soluteName ).
 					setTo(ArrayType.CONCN, out );
 
-			QuickCSV.write( "solute" + iSolute, Array.slice( _solute[iSolute].realGrid.grid, 2, 1 ) );
+			//QuickCSV.write( "solute" + iSolute, Array.slice( _solute[iSolute].realGrid.grid, 2, 1 ) );
 		}
 
 //		((PDEWrapper) this._manager).flashConcentrations(allSolute);
@@ -414,8 +414,8 @@ public class Multigrid
 	{
 		order = 0;
 		// Reset coarsest grid to bulk concentration.
-		for (int iSolute : _soluteIndex)
-			_solute[iSolute].setSoluteGridToBulk(order);
+		//for (int iSolute : _soluteIndex)
+		//	_solute[iSolute].setSoluteGridToBulk(order);
 
 		// Relax NSOLVE times.
 		relax(nCoarseStep);
@@ -432,7 +432,11 @@ public class Multigrid
 		{
 			updateReacRateAndDiffRate(order);
 			for (int iSolute : _soluteIndex)
+			{
 				_solute[iSolute].relax(order);
+				QuickCSV.write( "solute" + iSolute +"_" + order, Array.slice(
+						_solute[iSolute]._conc[order].grid, 2, 1 ) );
+			}
 		}
 	}
 
