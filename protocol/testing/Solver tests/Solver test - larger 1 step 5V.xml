@@ -3,7 +3,7 @@
 	<simulation name="Eco Ego" outputfolder="../results" log="EXPRESSIVE" randomSeed="124324235"
 		comment="this is a file for testing purposes only.">
 		<!-- minutes -->
-		<timer stepSize="60.0" endOfSimulation="21 [d]" />
+		<timer stepSize="60.0" endOfSimulation="42 [d]" />
 		<speciesLib>
 			<!-- in g N per L -->
 			<species name="Eco">
@@ -18,7 +18,7 @@
 								<constant name="Kox" 	value="0.0003" />
 								<constant name="mumax" 	value="1.0" />  
 							</expression>
-							<stoichiometric component="biomass" 	coefficient="0.001367982" />
+							<stoichiometric component="biomass" 	coefficient="0.01367982" />
 							<stoichiometric component="ammonium" 	coefficient="-0.147" />
 							<stoichiometric component="oxygen" 		coefficient="-0.046" />
 						</reaction> 
@@ -49,7 +49,7 @@
 			<species name="coccoid">
 				<aspect name="density" type="PRIMARY" class="Double" value="0.29" />
 				<aspect name="surfaces" type="CALCULATED" class="AgentSurfaces" />
-				<aspect name="divisionMass" type="PRIMARY" class="Double" value="0.16184390412" />
+				<aspect name="divisionMass" type="PRIMARY" class="Double" value="0.06" />
 				<aspect name="divide" type="EVENT" class="CoccoidDivision"	/>
 				<aspect name="updateBody" type="EVENT" class="UpdateBody" />
 				<aspect name="volume" type="CALCULATED" class="SimpleVolumeState" 	/>
@@ -60,16 +60,16 @@
 		<compartment name="chemostat">
 			<shape class="Dimensionless" volume="1e22">
 				<boundary  class="constantConcentrationToChemostat" volumeFlowRate="1.0e20">
-				<solute name="ammonium" concentration="1.0E-06"  />
-				<solute name="oxygen" 	concentration="5.6E-5"  />
+					<solute name="ammonium"  concentration="6e-6" defaultDiffusivity="118055"/>
+					<solute name="oxygen" 	concentration="1e-5" defaultDiffusivity="138888"/>
 				</boundary>
 				<boundary  class="chemostatOut" agentRemoval="false" constantVolume="true" >
 				</boundary> 
 			</shape>
 			<solutes>
 				<!-- pg / µm3 -->
-				<solute name="ammonium" concentration="1.0E-06" defaultDiffusivity="111600"  />
-				<solute name="oxygen" 	concentration="5.6E-5" defaultDiffusivity="120000"  />
+				<solute name="ammonium"  concentration="6e-6" defaultDiffusivity="118055"/>
+				<solute name="oxygen" 	concentration="1e-5" defaultDiffusivity="138888"/>
 			</solutes>
 			<processManagers>
 				<process name="solveChemostat" class="ChemostatSolver" priority="0"
@@ -84,8 +84,8 @@
 		<compartment name="first">
 			<shape class="Rectangle">
 				<!-- µm -->
-				<dimension name="X" isCyclic="true" 	targetResolution="1.0" max="9.0"/>
-				<dimension name="Y" isCyclic="false" 	targetResolution="1.0" max="9.0">
+				<dimension name="X" isCyclic="true" 	targetResolution="1.0" max="33.0"/>
+				<dimension name="Y" isCyclic="false" 	targetResolution="1.0" max="33.0">
 					<boundary extreme="1" class="BiofilmBoundaryLayer" partnerCompartment="chemostat" layerThickness = "3.0"/>
 					<!--  <boundary extreme="1" class="FixedBoundary" layerThickness = "40.0">
 						<solute name="ammonium"  concentration="6e-6"/>
@@ -108,7 +108,7 @@
 					<aspect name="species" type="PRIMARY" class="String" value="Eco" />
 					<aspect  name="mass" class="InstantiableMap">
 						<map entryClass="Double" keyType="String">
-							<item key="biomass" value="0.005"  />
+							<item key="biomass" value="0.03"  />
 						</map>
 					</aspect>
 				</templateAgent>
@@ -132,10 +132,10 @@
 					firstStep="0.0">	
 					<aspect name="absoluteTolerance" type="PRIMARY" class="Double" value="1.0e-8" />
 					<aspect name="relativeTolerance" type="PRIMARY" class="Double" value="1.0e-6" />
-					<aspect name="vCycles" class="Integer" value="1" />
-					<aspect name="preSteps" class="Integer" value="1500" />
-					<aspect name="coarseSteps" class="Integer" value="1500" />
-					<aspect name="postSteps" class="Integer" value="1500" />
+					<aspect name="vCycles" class="Integer" value="5" />
+					<aspect name="preSteps" class="Integer" value="1" />
+					<aspect name="coarseSteps" class="Integer" value="1" />
+					<aspect name="postSteps" class="Integer" value="1" />
 					<!-- In principle they are not all the same but all in the 
 					same order of magnitude ~ 2.0e-4 m2.day-1 values here in 
 					µm^2/ minute-->

@@ -482,9 +482,9 @@ public abstract class MultigridUtils {
 	public static double[][][] translateIn(double[][][] out)
 	{
 		double[][][] temp = Array.superarray(out,
-				-1, out.length+1,
-				-1, out[0].length+1,
-				-1, out[0][0].length+1);
+				-1, out.length,
+				-1, out[0].length,
+				-1, out[0][0].length);
 		return temp;
 	}
 

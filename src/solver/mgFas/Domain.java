@@ -13,6 +13,7 @@ import java.util.*;
 
 import compartment.EnvironmentContainer;
 import grid.ArrayType;
+import linearAlgebra.Array;
 import shape.Shape;
 import solver.mgFas.boundaries.AllBC;
 import solver.mgFas.utils.ContinuousVector;
@@ -504,23 +505,29 @@ public class Domain
 
 	/**
 	 * work in progress method, updated to use updateWellMixed
+	 *
+	 * Todo: segregation between different diffusivity zones (biomass & fluid), efficiency, cleanup
 	 */
 	public void calculateComputationDomainGrids2()
 	{
 		this._environment.updateWellMixed();
 		double[][][] temp = this._environment.getCommonGrid().getArray( ArrayType.WELLMIXED );
-		double[][][] wellMixed = MultigridUtils.translateIn(temp);
+		/* bLayer is the opposite part of wellMixed */
+		temp = Array.minus( Array.add( Array.zeros(temp), 1.0 ) , temp);
+		/* add padding, padding will be filled by refreshBoundary */
+		double[][][] bLayer = MultigridUtils.translateIn(temp);
 		for (int i = 1; i <= _nI; i++)
 			for (int j = 1; j <= _nJ; j++)
 				for (int k = 1; k <= _nK; k++)
 					// Note padding will be updated when .refreshBoundaryLayer() method is called.
-					if ( (i != _nI) || !(j != _nJ) || !((_nK > 1) && k != _nK) || !( wellMixed[i][j][k] > 0.0 ) ) {
+					if ( ( bLayer[i][j][k] > 0.0 ) ) {
 						/*
 						 * This is biomass.
 						 */
 						_boundaryLayer.grid[i][j][k] = 1.0;
 						_diffusivityGrid.grid[i][j][k] = _biofilmDiffusivity;
 					} else {
+//						_boundaryLayer.grid[i][j][k] = 1.0;
 						/*
 						 * This is liquid, check dilation sphere for biomass:
 						 * checkDilationRadius will set the value to 1 if it is
@@ -543,25 +550,24 @@ public class Domain
 	 * 
 	 * @return LinkedList of DiscreteVectors with the limit of the boundary layer.
 	 */
-//	@Override
-//	public LinkedList<DiscreteVector> getBorder()
-//	{
-//		Double v;
-//		LinkedList<DiscreteVector> border = new LinkedList<DiscreteVector>();
-//		for (_i = 1; _i<_nI+1; _i++)
-//			for (_j = 1; _j<_nJ+1; _j++)
-//				for (_k = 1; _k<_nK+1; _k++)
-//				{
-//					v = _boundaryLayer.grid[_i][_j][_k];
-//					if ( v.equals(1.0) && bdryHasFreeNbh() )
-//					{
-//						// add the location if it has biomass or is in the boundary layer (v==1) and
-//						// if the neighboring points are free (not biomass or bdry layer)
-//						border.addLast(new DiscreteVector(_i, _j, _k));
-//					}
-//				}
-//		return border;
-//	}
+	public LinkedList<DiscreteVector> getBorder()
+	{
+		Double v;
+		LinkedList<DiscreteVector> border = new LinkedList<DiscreteVector>();
+		for (_i = 1; _i<_nI+1; _i++)
+			for (_j = 1; _j<_nJ+1; _j++)
+				for (_k = 1; _k<_nK+1; _k++)
+				{
+					v = _boundaryLayer.grid[_i][_j][_k];
+					if ( v.equals(1.0) && bdryHasFreeNbh() )
+					{
+						// add the location if it has biomass or is in the boundary layer (v==1) and
+						// if the neighboring points are free (not biomass or bdry layer)
+						border.addLast(new DiscreteVector(_i, _j, _k));
+					}
+				}
+		return border;
+	}
 	
 	/**
 	 * \brief Creates a list of doubles with the heights of the biofilm/liquid

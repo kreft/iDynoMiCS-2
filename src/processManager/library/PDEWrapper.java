@@ -28,10 +28,7 @@ import shape.Shape;
 import shape.subvoxel.IntegerArray;
 import solver.PDEexplicit;
 import solver.PDEmultigrid;
-import solver.mgFas.Domain;
-import solver.mgFas.Multigrid;
-import solver.mgFas.MultigridUtils;
-import solver.mgFas.SolverGrid;
+import solver.mgFas.*;
 import utility.Helper;
 
 /**
@@ -151,7 +148,7 @@ public class PDEWrapper extends ProcessDiffusion
 
         /* perform final clean-up and update agents to represent updated
          * situation. */
-//        this.postStep();
+        this.postStep();
     }
 
     /**
@@ -176,11 +173,18 @@ public class PDEWrapper extends ProcessDiffusion
 //            applyAgentReactions(agent, variables);
     }
 
-    public void applyReactions(SolverGrid[] concGrid, SolverGrid[] reacGrid, double[] resolution,
+//    public void applyReactions(SolverGrid[] concGrid, SolverGrid[] reacGrid, double[] resolution,
+//                               double voxelVolume)
+//    {
+//        for( Agent agent : this._agents.getAllAgents() )
+//            applyAgentReactions(agent, concGrid, reacGrid, resolution, voxelVolume);
+//    }
+
+    public void applyReactions(MultigridSolute[] sols, int resorder, SolverGrid[] reacGrid, double[] resolution,
                                double voxelVolume)
     {
         for( Agent agent : this._agents.getAllAgents() )
-            applyAgentReactions(agent, concGrid, reacGrid, resolution, voxelVolume);
+            applyAgentReactions(agent, sols, resorder, reacGrid, resolution, voxelVolume);
     }
 
 
@@ -208,7 +212,7 @@ public class PDEWrapper extends ProcessDiffusion
      * altered by this method).
      */
     private void applyAgentReactions(
-            Agent agent, SolverGrid[] concGrid, SolverGrid[] reacGrid, double[] resolution,
+            Agent agent, MultigridSolute[] concGrid, int resorder, SolverGrid[] reacGrid, double[] resolution,
             double voxelVolume)
     {
         /*
@@ -236,6 +240,7 @@ public class PDEWrapper extends ProcessDiffusion
          */
         Map<String,Double> concns = new HashMap<String,Double>();
         SolverGrid solute;
+        MultigridSolute mGrid;
         double concn, productRate, volume, perVolume;
 
 
@@ -262,9 +267,11 @@ public class PDEWrapper extends ProcessDiffusion
             concns.clear();
             for ( String varName : r.getConstituentNames() )
             {
-                solute = FindGrid(concGrid, varName);
-                if ( solute != null )
-                    concn = solute.getValueAt( coord.get() , true );
+                mGrid = FindGrid(concGrid, varName);
+                if ( mGrid != null ) {
+                    solute = mGrid._conc[resorder];
+                    concn = solute.getValueAt(coord.get(), true);
+                }
                 else if ( biomass.containsKey(varName) )
                 {
                     concn = biomass.get(varName) * perVolume;
@@ -294,9 +301,10 @@ public class PDEWrapper extends ProcessDiffusion
 
             for ( String productName : r.getReactantNames() )
             {
-                solute = FindGrid(reacGrid, productName);
-                if ( solute != null )
+                mGrid = FindGrid(concGrid, productName);
+                if ( mGrid != null )
                 {
+                    solute = mGrid._reac[resorder];
                     productRate = r.getProductionRate(concns, productName);
                     solute.addValueAt( volume * productRate, coord.get() , true );
                 }
@@ -452,10 +460,10 @@ public class PDEWrapper extends ProcessDiffusion
         }
         ProcessMethods.updateAgentMass(agent, newBiomass);
     }
-    private SolverGrid FindGrid(SolverGrid[] grids, String name)
+    private MultigridSolute FindGrid(MultigridSolute[] grids, String name)
     {
-        for ( SolverGrid grid : grids )
-            if ( grid.gridName.equals(name) ) {
+        for ( MultigridSolute grid : grids )
+            if ( grid.soluteName.equals(name) ) {
 //                Quick debug check to see which grid (coarse/fine) we are handling
 //                System.out.println( grid.getVoxelVolume() );
                 return grid;

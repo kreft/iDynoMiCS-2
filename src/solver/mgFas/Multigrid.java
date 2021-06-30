@@ -291,7 +291,7 @@ public class Multigrid
 			this._environment.getSoluteGrid( this._solute[iSolute].soluteName ).
 					setTo(ArrayType.CONCN, out );
 
-			QuickCSV.write( "solute" + iSolute, Array.slice( _solute[iSolute].realGrid.grid, 2, 1 ) );
+//			QuickCSV.write( "solute" + iSolute, Array.slice( _solute[iSolute].realGrid.grid, 2, 1 ) );
 		}
 
 //		((PDEWrapper) this._manager).flashConcentrations(allSolute);
@@ -310,7 +310,18 @@ public class Multigrid
 			_solute[iSolute].resetMultigridCopies();
 
 		// Solve chemical concentrations on coarsest grid.
-		solveCoarsest();
+		solveCoarsest(); // coarsest order = 0
+
+		/*
+
+		The outer loop is getting finer (starting from coarsest + 1
+		The inner loop is getting coarser and then finer
+
+		        /\    /
+		   /\  /  \  /
+		/\/  \/    \/
+
+		 */
 
 		/* order / outer representing finer and coarse grid for
 		*   the active V-cycle. */
@@ -363,7 +374,8 @@ public class Multigrid
 				 */
 				boolean breakVCycle = true;
 
-				updateReacRateAndDiffRate(order);
+				/* TODO validate (this one seems to be unnecessary) */
+//				updateReacRateAndDiffRate(order);
 				for (int iSolute : _soluteIndex)
 					breakVCycle &= _solute[iSolute].breakVCycle(order, v);
 
@@ -412,10 +424,11 @@ public class Multigrid
 	 */
 	public void solveCoarsest()
 	{
+		// NOTE disabled reset to bulk, previous solution should be better
 		order = 0;
 		// Reset coarsest grid to bulk concentration.
-		for (int iSolute : _soluteIndex)
-			_solute[iSolute].setSoluteGridToBulk(order);
+//		for (int iSolute : _soluteIndex)
+//			_solute[iSolute].setSoluteGridToBulk(order);
 
 		// Relax NSOLVE times.
 		relax(nCoarseStep);
@@ -460,7 +473,7 @@ public class Multigrid
 //			_reactions.get(iReac).applyReaction(allSolute, allReac,
 //								allDiffReac, _biomass[iReac]._conc[resOrder]);
 
-		// TODO is this method asuming finest grid or correctly using resOrder?
+		// TODO is this method assuming finest grid or correctly using resOrder?
 		applyReaction(resOrder);
 		/*
 		 *  computes uptake rate per solute ( mass*_specRate*this._soluteYield[iSolute]; )
@@ -523,9 +536,9 @@ public class Multigrid
 	public void applyReaction(int resorder)
 	{
 		double[] temp = new double[(allSolute[0]._is3D ? 3 : 2)];
-		Vector.addEquals(temp, allSolute[0]._reso );
-		((PDEWrapper) this._manager).applyReactions(allSolute, allReac,	temp,
-				Math.pow( allSolute[0]._reso, 3.0 ));
+		Vector.addEquals(temp, this._solute[0]._conc[resorder]._reso );
+		((PDEWrapper) this._manager).applyReactions(this._solute, resorder, allReac,	temp,
+				Math.pow( this._solute[0]._conc[resorder]._reso, 3.0 ));
 	}
 
 }

@@ -31,13 +31,13 @@ public class CartesianPadding {
         int[] out = {0, 0, 0};
         if( extreme )
         {
-            in[dim] = extremes[dim]-1;
-            out[dim] = extremes[dim];
+            in[dim] = extremes[dim];
+            out[dim] = extremes[dim]+1;
         }
         else
-            out[dim] = -1;
+            in[dim] = 1;
 
-        int[] step = new int[3];
+        int[] step = new int[] {-1, -1, -1};
 
         while( step.length > 1 )
         {
@@ -73,15 +73,15 @@ public class CartesianPadding {
         int[] out = {0, 0, 0};
         if( extreme )
         {
-            in[dim] = extremes[dim]-1;
-            out[dim] = -1;
+            in[dim] = extremes[dim];
         }
         else
         {
-            out[dim] = extremes[dim];
+            in[dim] = 1;
+            out[dim] = extremes[dim]+1;
         }
 
-        int[] step = new int[3];
+        int[] step = new int[] {-1, -1, -1};
 
         while( step.length > 1 )
         {
@@ -104,11 +104,11 @@ public class CartesianPadding {
     {
         int[] out = {0, 0, 0};
         if( extreme )
-            out[dim] = extremes[dim];
+            out[dim] = extremes[dim]+1;
         else
-        out[dim] = -1;
+        out[dim] = 0;
 
-        int[] step = new int[3];
+        int[] step = new int[] {-1, -1, -1};
 
         while( step.length > 1 )
         {
@@ -130,34 +130,26 @@ public class CartesianPadding {
         int b = -1;
         int[] iterate = other(dim);
 
-        boolean twoD = false;
-
-        /* if 2D */
-        if ( iterate[1] == 2 && extremes[iterate[1]] == 1 )
-        {
-            b = 0;
-            twoD = true;
-        }
         if ( step != null )
         {
             a = step[iterate[0]];
             b = step[iterate[1]];
         }
 
-        if ( a < extremes[iterate[0]] )
+        if ( a <= extremes[iterate[0]] )
         {
-            if ( !twoD && b < extremes[iterate[1]])
+            if ( b < extremes[iterate[1]])
             {
                 step[iterate[1]]++;
+            }
+            else if ( a == extremes[iterate[0]] )
+            {
+                return new int[1];
             }
             else
             {
                 step[iterate[0]]++;
-                if( !twoD )
-                {
-                    step[iterate[1]] = 0;
-                    b = -1;
-                }
+                step[iterate[1]] = b = -1;
             }
             return step;
         }

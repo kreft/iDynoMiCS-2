@@ -367,6 +367,8 @@ public class MultigridSolute
 		
 		// Apply an eventual modification of the local diffusivity for THIS
 		// solute around the boundaries
+		// NOTE: method currently dissabled because the relative
+		// diffusivity is currently not dependent on the biomass concentration.
 		refreshDiffBoundaries(order);
 		
 		Double totalRes = 0.0;
@@ -481,7 +483,7 @@ public class MultigridSolute
 		int nJ = res[order].getGridSizeJ();
 		int nK = res[order].getGridSizeK();
 
-		/* TODO I haven't yet got a grasp of this reference system / index */
+		// h = gridsize
 		Double h = _referenceSystemSide/referenceIndex(nI,nJ,nK);
 		Double h2i = 0.5f/(h*h);
 		Double lop; // temporary variable for L-operator
@@ -512,10 +514,7 @@ public class MultigridSolute
 	}
 	
 	/**
-	 * 
-	 * TODO Why are we only doing this to concentrations in the boundary
-	 * layer? 
-	 * 
+	 *
 	 * @param order
 	 */
 	public void truncateConcToZero(int order)
@@ -551,11 +550,15 @@ public class MultigridSolute
 	{
 		for (int order = 0; order < maxOrder; order++)
 		{
+			// TODO Test whether changes lead to issues
+			// NOTE: the solution of the previous timestep should be a better starting point than
+			// the bulk concentrations!
+			// NOTE: removing this breaks the solver
 			setSoluteGridToBulk(order);
 			_itau[order].resetToZero();
 			_itemp[order].resetToZero();
-			_reac[order].resetToZero();
-			_diffReac[order].resetToZero();
+			 _reac[order].resetToZero();
+			 _diffReac[order].resetToZero();
 			_rhs[order].resetToZero();
 		}
 	}
