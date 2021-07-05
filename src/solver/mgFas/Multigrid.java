@@ -29,6 +29,7 @@ import settable.Settable;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.Map;
 
 /**
  * 
@@ -133,6 +134,8 @@ public class Multigrid
 	protected ProcessDiffusion _manager;
 
 	protected EnvironmentContainer _environment;
+	
+	protected Map<String, Integer> _recordMap;
 	/**
 	 * 
 	 */
@@ -144,6 +147,8 @@ public class Multigrid
 		myDomain = domain;
 
 		this._manager = manager;
+		
+		this._recordMap = manager.getRecordMap();
 
 		this._environment = environment;
 
@@ -203,6 +208,18 @@ public class Multigrid
 		nSolute = _soluteIndex.size();
 //		nReaction = _reactions.size();
 		maxOrder = _solute[ _soluteIndex.get(0) ]._conc.length;
+//		for (int h = 0; h < this._recordMap.size(); h++)
+//		{
+//			for (int i = 0; i < _solute.length; i++)
+//			{
+//				for (int j = 0; j < _solute[ _soluteIndex.get(0) ]._conc.length; j++)
+//				{
+//					_solute[i]._conc[j].setRecordKeeper((String)
+//							this._recordMap.keySet().toArray()[h],
+//							(Integer)this._recordMap.keySet().toArray()[h]);
+//				}
+//			}
+//		}
 	}
 
 	/**
@@ -371,6 +388,13 @@ public class Multigrid
 					break;
 			}
 		}
+		for (int iSolute : _soluteIndex)
+		{
+			for (int i = 0; i < maxOrder; i++)
+			{
+//				_solute[iSolute]._conc[i]._recordKeeper.flush();
+			}
+		}
 	}
 
 	/**
@@ -414,8 +438,8 @@ public class Multigrid
 	{
 		order = 0;
 		// Reset coarsest grid to bulk concentration.
-		//for (int iSolute : _soluteIndex)
-		//	_solute[iSolute].setSoluteGridToBulk(order);
+		for (int iSolute : _soluteIndex)
+			_solute[iSolute].setSoluteGridToBulk(order);
 
 		// Relax NSOLVE times.
 		relax(nCoarseStep);
@@ -434,8 +458,8 @@ public class Multigrid
 			for (int iSolute : _soluteIndex)
 			{
 				_solute[iSolute].relax(order);
-				QuickCSV.write( "solute" + iSolute +"_" + order, Array.slice(
-						_solute[iSolute]._conc[order].grid, 2, 1 ) );
+				//QuickCSV.write( "solute" + iSolute +"_" + order, Array.slice(
+				//		_solute[iSolute]._conc[order].grid, 2, 1 ) );
 			}
 		}
 	}

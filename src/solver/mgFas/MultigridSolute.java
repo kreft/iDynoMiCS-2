@@ -10,6 +10,7 @@
 package solver.mgFas;
 
 import utility.ExtraMath;
+import debugTools.QuickCSV;
 import linearAlgebra.Array;
 
 /**
@@ -359,6 +360,7 @@ public class MultigridSolute
 		// iterate through system
 		// isw, jsw and ksw alternate between values 1 and 2
 		
+		double[][][] original_conc = Array.copy(_conc[order].grid);
 		u = _conc[order].grid;
 		bl = _bLayer[order].grid;
 		rd = _relDiff[order].grid;
@@ -416,8 +418,23 @@ public class MultigridSolute
 			}
 			// refresh the padding elements to enforce
 			// boundary conditions for all solutes
-			_conc[order].refreshBoundary();
+			_conc[order].refreshBoundary();	
 		}
+		
+		double[][][] difference = new double[nI][nJ][nK];
+		for (int i = 0; i < nI; i++)
+		{
+			for (int j = 0; j < nJ; j++)
+			{
+				for (int k = 0; k < nK; k++)
+				{
+					difference[i][j][k] = 
+							Math.abs(_conc[order].grid[i+1][j+1][k+1] - original_conc[i+1][j+1][k+1]);
+				}
+			}
+		}
+		QuickCSV.write( "solute_" + soluteName + "_order_" + order, Array.slice( difference, 2, 0 ) );
+//		_conc[order]._recordKeeper.step(u, order);
 		return totalRes;
 	}
 	

@@ -92,6 +92,9 @@ public abstract class ProcessDiffusion extends ProcessManager
 	 * voxels a located {@code Agent} covers.
 	 */
 	private static final String VD_TAG = AspectRef.agentVolumeDistributionMap;
+	
+	public static String RECORD = AspectRef.record;
+
 	/**
 	 * When choosing an appropriate sub-voxel resolution for building agents'
 	 * {@code coordinateMap}s, the smallest agent radius is multiplied by this
@@ -99,6 +102,8 @@ public abstract class ProcessDiffusion extends ProcessManager
 	 */
 	// NOTE the value of a quarter is chosen arbitrarily
 	private static double SUBGRID_FACTOR = 0.25; //TODO set from aspect?
+
+    private Map<String, Integer> _recordMap;
 	
 	public enum DistributionMethod {
 		MIDPOINT,
@@ -118,6 +123,12 @@ public abstract class ProcessDiffusion extends ProcessManager
 			AgentContainer agents, String compartmentName)
 	{
 		super.init(xmlElem, environment, agents, compartmentName);
+		
+//		Object record = this.getValue(RECORD);
+//		if ( record != null && record instanceof Map )
+//		{
+//			_recordMap = (Map<String,Integer>) record;
+//		}
 	}
 	
 	/* ***********************************************************************
@@ -559,4 +570,10 @@ public abstract class ProcessDiffusion extends ProcessManager
 		for ( Agent a : this._agents.getAllLocatedAgents() )
 			a.reg().remove(VD_TAG);
 	}
+	
+	public Map<String, Integer> getRecordMap()
+	{
+		return this._recordMap;
+	}
+	
 }

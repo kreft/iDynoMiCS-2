@@ -58,6 +58,9 @@ public class SoluteGrid extends SolverGrid
 	 * of diffusion, carrier, and bulk domains for this solute.
 	 */
 	private Domain _domain;
+	
+	protected RecordKeeper _recordKeeper;
+
 
 
 	public double bulk = 0.0;
@@ -391,5 +394,10 @@ public class SoluteGrid extends SolverGrid
 	public void updateBulk(double bulk)
 	{
 		this.bulk = bulk;
+	}
+	
+	public void setRecordKeeper(String key, Integer interval)
+	{
+		this._recordKeeper = new RecordKeeper(key, interval, this);
 	}
 }

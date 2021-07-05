@@ -26,8 +26,6 @@ import referenceLibrary.AspectRef;
 import referenceLibrary.XmlRef;
 import shape.Shape;
 import shape.subvoxel.IntegerArray;
-import solver.PDEexplicit;
-import solver.PDEmultigrid;
 import solver.mgFas.Domain;
 import solver.mgFas.Multigrid;
 import solver.mgFas.MultigridUtils;
@@ -44,8 +42,9 @@ public class PDEWrapper extends ProcessDiffusion
     public static String ABS_TOLERANCE = AspectRef.solverAbsTolerance;
 
     public static String REL_TOLERANCE = AspectRef.solverRelTolerance;
-
+    
     private Multigrid multigrid;
+    
 
 //    private AgentContainer _agents;
     /**
@@ -94,7 +93,6 @@ public class PDEWrapper extends ProcessDiffusion
         super.init(xmlElem, environment, agents, compartmentName);
 
         // TODO Let the user choose which ODEsolver to use.
-
 
     }
 

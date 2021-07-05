@@ -592,6 +592,8 @@ public class AspectRef
 	public static final String coarseSteps = "coarseSteps";
 
 	public static final String postSteps = "postSteps";
+	
+	public static final String record = "record";
 
 	public static final String disableBulkDynamics = "disableBulkDynamics";
 
