@@ -19,20 +19,24 @@ import boundary.Boundary;
 import compartment.AgentContainer;
 import compartment.EnvironmentContainer;
 import dataIO.Log;
+import dataIO.XmlHandler;
 import dataIO.Log.Tier;
 import grid.SpatialGrid;
 import idynomics.Global;
 import idynomics.Idynomics;
+import instantiable.Instance;
 import linearAlgebra.Vector;
 import reaction.Reaction;
 import reaction.RegularReaction;
 import referenceLibrary.AspectRef;
+import referenceLibrary.XmlRef;
 import shape.CartesianShape;
 import shape.Shape;
 import shape.subvoxel.IntegerArray;
 import shape.subvoxel.SubvoxelPoint;
 import solver.PDEsolver;
 import solver.PDEupdater;
+import solver.mgFas.RecordKeeper;
 import surface.Point;
 import surface.Surface;
 import surface.Voxel;
@@ -93,7 +97,8 @@ public abstract class ProcessDiffusion extends ProcessManager
 	 */
 	private static final String VD_TAG = AspectRef.agentVolumeDistributionMap;
 	
-	public static String RECORD = AspectRef.record;
+	public LinkedList<RecordKeeper> _recordKeepers = 
+			new LinkedList<RecordKeeper>();
 
 	/**
 	 * When choosing an appropriate sub-voxel resolution for building agents'
@@ -102,8 +107,6 @@ public abstract class ProcessDiffusion extends ProcessManager
 	 */
 	// NOTE the value of a quarter is chosen arbitrarily
 	private static double SUBGRID_FACTOR = 0.25; //TODO set from aspect?
-
-    private Map<String, Integer> _recordMap;
 	
 	public enum DistributionMethod {
 		MIDPOINT,
@@ -123,12 +126,11 @@ public abstract class ProcessDiffusion extends ProcessManager
 			AgentContainer agents, String compartmentName)
 	{
 		super.init(xmlElem, environment, agents, compartmentName);
-		
-//		Object record = this.getValue(RECORD);
-//		if ( record != null && record instanceof Map )
-//		{
-//			_recordMap = (Map<String,Integer>) record;
-//		}
+		for ( Element e : XmlHandler.getElements( xmlElem, XmlRef.record) )
+		{
+			this._recordKeepers.add(
+					(RecordKeeper) Instance.getNew(e, this, (String[])null));
+		}
 	}
 	
 	/* ***********************************************************************
@@ -571,9 +573,8 @@ public abstract class ProcessDiffusion extends ProcessManager
 			a.reg().remove(VD_TAG);
 	}
 	
-	public Map<String, Integer> getRecordMap()
+	public LinkedList<RecordKeeper> getRecordKeepers()
 	{
-		return this._recordMap;
+		return this._recordKeepers;
 	}
-	
 }

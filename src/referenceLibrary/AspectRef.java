@@ -624,4 +624,14 @@ public class AspectRef
 	public static final String fileNumber = "fileNumber";
 
 	public static final String colourSpecification = "colourSpecification";
+	
+	public static final String order = "order";
+	
+	public static final String solute = "solute";
+	
+	public static final String recordType = "type";
+	
+	public static final String interval = "interval";
+	
+	public static final String difference = "difference";
 }

@@ -410,6 +410,14 @@ public final class Vector
 			destination[i] = source[i];
 	}
 	
+	public static void copyTo(double[][][] destination, double[][][] source)
+	{
+		for ( int i = 0; i < destination.length; i++ )
+			for ( int j = 0; j < destination[0].length; j++ )
+				for ( int k = 0; k < destination[0][0].length; k++ )
+					destination[i][j][k] = source[i][j][k];
+	}
+	
 	public static void copyTo(Double[] destination, Double[] source)
 	{
 		for ( int i = 0; i < destination.length; i++ )
@@ -446,6 +454,14 @@ public final class Vector
 	public static double[] copy(double[] vector)
 	{
 		double[] out = new double[vector.length];
+		copyTo(out, vector);
+		return out;
+	}
+	
+	public static double[][][] copy(double[][][] vector)
+	{
+		double[][][] out = 
+			new double[vector.length][vector[0].length][vector[0][0].length];
 		copyTo(out, vector);
 		return out;
 	}

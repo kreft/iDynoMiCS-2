@@ -459,6 +459,16 @@ public abstract class MultigridUtils {
 					norm += ExtraMath.sq(a[i][j][k]);
 		return Math.sqrt(norm);
 	}
+	
+	public static Double computeNormUnpaddedMatrix(double[][][] a)
+	{
+		Double norm = 0.0;
+		for (int i = 0; i<a.length; i++)
+			for (int j = 0; j<a[i].length; j++)
+				for (int k = 0; k<a[i][j].length; k++)
+					norm += ExtraMath.sq(a[i][j][k]);
+		return Math.sqrt(norm);
+	}
 
 	/**
 	 * translates idyno 1 padded grid to idyno 2 non-padded

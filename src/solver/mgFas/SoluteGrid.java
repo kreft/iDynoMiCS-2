@@ -396,8 +396,8 @@ public class SoluteGrid extends SolverGrid
 		this.bulk = bulk;
 	}
 	
-	public void setRecordKeeper(String key, Integer interval)
+	public void setRecordKeeper(RecordKeeper r)
 	{
-		this._recordKeeper = new RecordKeeper(key, interval, this);
+		this._recordKeeper = r;
 	}
 }

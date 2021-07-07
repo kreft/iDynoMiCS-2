@@ -135,7 +135,7 @@ public class Multigrid
 
 	protected EnvironmentContainer _environment;
 	
-	protected Map<String, Integer> _recordMap;
+	protected LinkedList<RecordKeeper> _recordKeepers;
 	/**
 	 * 
 	 */
@@ -148,7 +148,7 @@ public class Multigrid
 
 		this._manager = manager;
 		
-		this._recordMap = manager.getRecordMap();
+		this._recordKeepers = manager.getRecordKeepers();
 
 		this._environment = environment;
 
@@ -208,18 +208,18 @@ public class Multigrid
 		nSolute = _soluteIndex.size();
 //		nReaction = _reactions.size();
 		maxOrder = _solute[ _soluteIndex.get(0) ]._conc.length;
-//		for (int h = 0; h < this._recordMap.size(); h++)
-//		{
-//			for (int i = 0; i < _solute.length; i++)
-//			{
-//				for (int j = 0; j < _solute[ _soluteIndex.get(0) ]._conc.length; j++)
-//				{
-//					_solute[i]._conc[j].setRecordKeeper((String)
-//							this._recordMap.keySet().toArray()[h],
-//							(Integer)this._recordMap.keySet().toArray()[h]);
-//				}
-//			}
-//		}
+		for (RecordKeeper r : this._recordKeepers)
+		{
+			String soluteName = r.getSoluteName();
+			for (int i = 0; i < _solute.length; i++)
+			{
+				if (_solute[i].soluteName.contentEquals(soluteName))
+				{
+					Integer order = r.getOrder();
+					_solute[i]._conc[order].setRecordKeeper(r);
+				}
+			}
+		}
 	}
 
 	/**
@@ -392,7 +392,8 @@ public class Multigrid
 		{
 			for (int i = 0; i < maxOrder; i++)
 			{
-//				_solute[iSolute]._conc[i]._recordKeeper.flush();
+				if (_solute[iSolute]._conc[i]._recordKeeper != null)
+					_solute[iSolute]._conc[i]._recordKeeper.flush();
 			}
 		}
 	}

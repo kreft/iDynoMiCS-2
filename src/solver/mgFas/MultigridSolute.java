@@ -433,8 +433,9 @@ public class MultigridSolute
 				}
 			}
 		}
-		QuickCSV.write( "solute_" + soluteName + "_order_" + order, Array.slice( difference, 2, 0 ) );
-//		_conc[order]._recordKeeper.step(u, order);
+		//QuickCSV.write( "solute_" + soluteName + "_order_" + order, Array.slice( difference, 2, 0 ) );
+		if (_conc[order]._recordKeeper != null)
+			_conc[order]._recordKeeper.step(u, order, this.soluteName);
 		return totalRes;
 	}
 	
