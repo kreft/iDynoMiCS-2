@@ -19,20 +19,24 @@ import boundary.Boundary;
 import compartment.AgentContainer;
 import compartment.EnvironmentContainer;
 import dataIO.Log;
+import dataIO.XmlHandler;
 import dataIO.Log.Tier;
 import grid.SpatialGrid;
 import idynomics.Global;
 import idynomics.Idynomics;
+import instantiable.Instance;
 import linearAlgebra.Vector;
 import reaction.Reaction;
 import reaction.RegularReaction;
 import referenceLibrary.AspectRef;
+import referenceLibrary.XmlRef;
 import shape.CartesianShape;
 import shape.Shape;
 import shape.subvoxel.IntegerArray;
 import shape.subvoxel.SubvoxelPoint;
 import solver.PDEsolver;
 import solver.PDEupdater;
+import solver.mgFas.RecordKeeper;
 import surface.Point;
 import surface.Surface;
 import surface.Voxel;
@@ -92,6 +96,10 @@ public abstract class ProcessDiffusion extends ProcessManager
 	 * voxels a located {@code Agent} covers.
 	 */
 	private static final String VD_TAG = AspectRef.agentVolumeDistributionMap;
+	
+	public LinkedList<RecordKeeper> _recordKeepers = 
+			new LinkedList<RecordKeeper>();
+
 	/**
 	 * When choosing an appropriate sub-voxel resolution for building agents'
 	 * {@code coordinateMap}s, the smallest agent radius is multiplied by this
@@ -118,6 +126,11 @@ public abstract class ProcessDiffusion extends ProcessManager
 			AgentContainer agents, String compartmentName)
 	{
 		super.init(xmlElem, environment, agents, compartmentName);
+		for ( Element e : XmlHandler.getElements( xmlElem, XmlRef.record) )
+		{
+			this._recordKeepers.add(
+					(RecordKeeper) Instance.getNew(e, this, (String[])null));
+		}
 	}
 	
 	/* ***********************************************************************
@@ -558,5 +571,10 @@ public abstract class ProcessDiffusion extends ProcessManager
 	{
 		for ( Agent a : this._agents.getAllLocatedAgents() )
 			a.reg().remove(VD_TAG);
+	}
+	
+	public LinkedList<RecordKeeper> getRecordKeepers()
+	{
+		return this._recordKeepers;
 	}
 }

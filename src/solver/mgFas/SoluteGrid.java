@@ -11,6 +11,8 @@
  */
 package solver.mgFas;
 
+import java.util.LinkedList;
+
 import grid.ArrayType;
 import grid.SpatialGrid;
 import linearAlgebra.Array;
@@ -58,6 +60,9 @@ public class SoluteGrid extends SolverGrid
 	 * of diffusion, carrier, and bulk domains for this solute.
 	 */
 	private Domain _domain;
+	
+	protected LinkedList<RecordKeeper> _recordKeeper = new LinkedList<RecordKeeper>();
+
 
 
 	public double bulk = 0.0;
@@ -349,5 +354,10 @@ public class SoluteGrid extends SolverGrid
 	public void updateBulk(double bulk)
 	{
 		this.bulk = bulk;
+	}
+	
+	public void setRecordKeeper(RecordKeeper r)
+	{
+		this._recordKeeper.add(r);
 	}
 }

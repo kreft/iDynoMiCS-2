@@ -28,7 +28,9 @@ import processManager.library.PDEWrapper;
 import settable.Settable;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map;
 
 /**
  * 
@@ -133,6 +135,8 @@ public class Multigrid
 	protected ProcessDiffusion _manager;
 
 	protected EnvironmentContainer _environment;
+	
+	protected LinkedList<RecordKeeper> _recordKeepers;
 	/**
 	 * 
 	 */
@@ -144,6 +148,8 @@ public class Multigrid
 		myDomain = domain;
 
 		this._manager = manager;
+		
+		this._recordKeepers = manager.getRecordKeepers();
 
 		this._environment = environment;
 
@@ -203,6 +209,18 @@ public class Multigrid
 		nSolute = _soluteIndex.size();
 //		nReaction = _reactions.size();
 		maxOrder = _solute[ _soluteIndex.get(0) ]._conc.length;
+		for (RecordKeeper r : this._recordKeepers)
+		{
+			String soluteName = r.getSoluteName();
+			for (int i = 0; i < _solute.length; i++)
+			{
+				if (_solute[i].soluteName.contentEquals(soluteName))
+				{
+					Integer order = r.getOrder();
+					_solute[i]._conc[order].setRecordKeeper(r);
+				}
+			}
+		}
 	}
 
 	/**
@@ -290,8 +308,6 @@ public class Multigrid
 					_solute[iSolute].realGrid.grid );
 			this._environment.getSoluteGrid( this._solute[iSolute].soluteName ).
 					setTo(ArrayType.CONCN, out );
-
-//			QuickCSV.write( "solute" + iSolute, Array.slice( _solute[iSolute].realGrid.grid, 2, 1 ) );
 		}
 
 //		((PDEWrapper) this._manager).flashConcentrations(allSolute);
@@ -383,6 +399,15 @@ public class Multigrid
 					break;
 			}
 		}
+		for (int iSolute : _soluteIndex)
+		{
+			for (int i = 0; i < maxOrder; i++)
+			{
+				if (!_solute[iSolute]._conc[i]._recordKeeper.isEmpty())
+					for (RecordKeeper r : _solute[iSolute]._conc[i]._recordKeeper)
+						r.flush();
+			}
+		}
 	}
 
 	/**
@@ -436,17 +461,38 @@ public class Multigrid
 
 	/**
 	 * Apply nIter relaxations to the grid at the current resolution.
+	 * Check here whether to continue with further post-steps?
 	 * 
 	 * @param nIter
 	 */
 	public void relax(int nIter)
 	{
-		for (int j = 0; j < nIter; j++)
+		HashMap<String, Boolean> relaxationMap = new HashMap<String, Boolean>();
+		
+		for (int iSolute : _soluteIndex)
 		{
-			updateReacRateAndDiffRate(order);
-			for (int iSolute : _soluteIndex)
-				_solute[iSolute].relax(order);
+			relaxationMap.put(_solute[iSolute].soluteName, false);
 		}
+		
+		//while (relaxationMap.entrySet().contains(false))
+		//{
+		
+			for (int j = 0; j < nIter; j++)
+			{
+				updateReacRateAndDiffRate(order);
+				
+				for (int iSolute : _soluteIndex)
+				{
+					if (!relaxationMap.get(_solute[iSolute].soluteName))
+					{
+						double[][][] difference = _solute[iSolute].relax(order);
+						
+						if (Array.max(difference) < ((PDEWrapper)this._manager).absTol)
+							relaxationMap.put(_solute[iSolute].soluteName, true);
+					}
+				}
+			}
+		//}
 	}
 
 	/**

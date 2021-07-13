@@ -27,6 +27,10 @@ import referenceLibrary.AspectRef;
 import referenceLibrary.XmlRef;
 import shape.Shape;
 import shape.subvoxel.IntegerArray;
+import solver.mgFas.Domain;
+import solver.mgFas.Multigrid;
+import solver.mgFas.MultigridUtils;
+import solver.mgFas.SolverGrid;
 import solver.PDEexplicit;
 import solver.PDEmultigrid;
 import solver.mgFas.*;
@@ -42,8 +46,13 @@ public class PDEWrapper extends ProcessDiffusion
     public static String ABS_TOLERANCE = AspectRef.solverAbsTolerance;
 
     public static String REL_TOLERANCE = AspectRef.solverRelTolerance;
-
+    
     private Multigrid multigrid;
+    
+    public double absTol;
+    
+    public double relTol;
+    
 
     public double absTol;
     public double relTol;
@@ -96,6 +105,7 @@ public class PDEWrapper extends ProcessDiffusion
         super.init(xmlElem, environment, agents, compartmentName);
 
         // TODO Let the user choose which ODEsolver to use.
+
 
     }
 
@@ -176,22 +186,13 @@ public class PDEWrapper extends ProcessDiffusion
      */
     public void prestep(Collection<SpatialGrid> variables, double dt)
     {
+    /* TODO should env reactions be aplied here? */
         for ( SpatialGrid var : variables )
             var.newArray(PRODUCTIONRATE);
         applyEnvReactions(variables);
 
         setupAgentDistributionMaps(this._agents.getShape());
-
-//        for ( Agent agent : _agents.getAllLocatedAgents() )
-//            applyAgentReactions(agent, variables);
     }
-
-//    public void applyReactions(SolverGrid[] concGrid, SolverGrid[] reacGrid, double[] resolution,
-//                               double voxelVolume)
-//    {
-//        for( Agent agent : this._agents.getAllAgents() )
-//            applyAgentReactions(agent, concGrid, reacGrid, resolution, voxelVolume);
-//    }
 
     public void applyReactions(MultigridSolute[] sols, int resorder, SolverGrid[] reacGrid, double[] resolution,
                                double voxelVolume)

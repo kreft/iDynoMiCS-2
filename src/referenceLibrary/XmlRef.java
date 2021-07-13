@@ -637,4 +637,6 @@ public class XmlRef
 	public static final String spring = "spring";
 
 	public static final String member = "member";
+	
+	public static final String record = "record";
 }
