@@ -9,6 +9,7 @@
  */
 package solver.mgFas;
 
+import processManager.library.PDEWrapper;
 import utility.ExtraMath;
 import linearAlgebra.Array;
 
@@ -154,6 +155,8 @@ public class MultigridSolute
 	 * Size of original solute grid in K direction
 	 */
 	private static int _nK;
+
+	private PDEWrapper manager;
 	
 	/**
 	 * \brief Create a Multigrid solute for each solute being processed by a
@@ -166,7 +169,7 @@ public class MultigridSolute
 	 * @param sBulk	Max level of this solute in the bulk.
 	 */
 	public MultigridSolute(SoluteGrid aSolute, MultigridSolute relDiff,
-										MultigridSolute bLayer, Double sBulk)
+										MultigridSolute bLayer, Double sBulk, PDEWrapper wrap)
 	{
 		realGrid = aSolute;
 		soluteName = realGrid.gridName;
@@ -176,6 +179,8 @@ public class MultigridSolute
 		_nK = realGrid.getGridSizeK();
 
 		setReferenceSide();
+
+		this.manager = wrap;
 
 		this.sBulkMax = sBulk;
 		this.sBulk = sBulk;
@@ -214,10 +219,12 @@ public class MultigridSolute
 	 * @param aSolute	SoluteGrid to be used by the Multigrid
 	 * @param gridName	Name of the solute grid
 	 */
-	public MultigridSolute(SoluteGrid aSolute, String gridName)
+	public MultigridSolute(SoluteGrid aSolute, String gridName, PDEWrapper wrap)
 	{
 		soluteName = gridName;
 		realGrid = aSolute;
+
+		this.manager = wrap;
 
 		_nI = aSolute.getGridSizeI();
 		_nJ = aSolute.getGridSizeJ();
@@ -339,7 +346,8 @@ public class MultigridSolute
 		/*
 		 *  Confirm that criterion is met for each solute.
 		 */
-		return ( res <= truncationError );
+		/* TODO can we just hook into the res to stop at absTol? */
+		return ( res <= truncationError || res <= manager.absTol );
 	}
 	
 	/**
@@ -364,13 +372,6 @@ public class MultigridSolute
 		rd = _relDiff[order].grid;
 		
 		Double lop, dlop, res;
-		
-		// Apply an eventual modification of the local diffusivity for THIS
-		// solute around the boundaries
-		// NOTE: method currently dissabled because the relative
-		// diffusivity is currently not dependent on the biomass concentration.
-		refreshDiffBoundaries(order);
-		
 		Double totalRes = 0.0;
 		
 		// bvm 22.12.09: now allows red-black for 2d AND 3d
@@ -609,22 +610,6 @@ public class MultigridSolute
 						_conc[order].grid[_i][_j][_k] = sBulkMax;
 					}
 				}
-		/*
-		DiscreteVectorIterator dvIter = new DiscreteVectorIterator(
-											1, _conc[order].getGridSizeI(),
-											1, _conc[order].getGridSizeJ(),
-											1, _conc[order].getGridSizeK()); 
-		while ( true )
-		{
-			if ( _bLayer[order].getValueAt(dvIter) <= BLTHRESH )
-				// Outside the boundary layer (will not be solved).
-				_conc[order].setValueAt(sBulk, dvIter);
-			else
-				// Inside the biofilm (value is not really important now).
-				_conc[order].setValueAt(sBulkMax, dvIter);
-			if ( ! dvIter.setNext() )
-				break;
-		}*/
 	}
 	
 	/**
@@ -701,19 +686,6 @@ public class MultigridSolute
 	/**
 	 * 
 	 */
-	public void refreshDiffBoundaries(int order)
-	{
-		/*
-		 * refresh boundaries
-
-		for ( AllBC boundary : _domain.getAllBoundaries() )
-			boundary.refreshDiffBoundary(_relDiff[order], realGrid);
-		 */
-	}
-	
-	/**
-	 * 
-	 */
 	public void applyComputation()
 	{
 		Array.copyTo(realGrid.grid, _conc[maxOrder-1].grid);
@@ -729,25 +701,11 @@ public class MultigridSolute
 	
 	/**
 	 * Update bulk concentration.
-	 * 
-	 * TODO Rob 13Mar2015: This just gets one of the bulk values, ignoring the
-	 * case where there may be more than one bulk.
 	 */
 	public void readBulk()
 	{
-
-//		sBulk = 1.0; // testing with constant bulk value
 		for( SoluteGrid s : this._conc)
-			s.updateBulk(sBulk);
+			s.updateBulk(manager.fetchBulk(this.soluteName));
 
-		/*
-		 * obtain the bulk concentration
-		 *
-		for ( ConnectedBoundary aBC : _domain.getAllConnectedBoundaries() )
-		{
-			sBulk = aBC.getBulkValue(realGrid.soluteIndex);
-			return;
-		}
-		*/
 	}
 }

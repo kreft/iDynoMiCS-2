@@ -11,6 +11,7 @@ import agent.Agent;
 import agent.Body;
 import bookkeeper.KeeperEntry;
 import boundary.Boundary;
+import boundary.WellMixedBoundary;
 import dataIO.ObjectFactory;
 import idynomics.Global;
 import org.w3c.dom.Element;
@@ -44,6 +45,9 @@ public class PDEWrapper extends ProcessDiffusion
 
     private Multigrid multigrid;
 
+    public double absTol;
+    public double relTol;
+
 //    private AgentContainer _agents;
     /**
      *
@@ -56,8 +60,9 @@ public class PDEWrapper extends ProcessDiffusion
     {
         super.init(xmlElem, environment, agents, compartmentName);
 
-        double absTol = (double) this.getOr(ABS_TOLERANCE, 1.0e-9);
-        double relTol = (double) this.getOr(REL_TOLERANCE, 1.0e-3);
+        /* TODO move values to global defaults */
+        this.absTol = (double) this.getOr(ABS_TOLERANCE, 1.0e-12);
+        this.relTol = (double) this.getOr(REL_TOLERANCE, 1.0e-6);
 
         int vCycles = (int) this.getOr(AspectRef.vCycles, 5);
         int preSteps = (int) this.getOr(AspectRef.preSteps, 100);
@@ -92,7 +97,16 @@ public class PDEWrapper extends ProcessDiffusion
 
         // TODO Let the user choose which ODEsolver to use.
 
+    }
 
+    public double fetchBulk(String solute)
+    {
+        for( Boundary b : this._environment.getShape().getAllBoundaries() )
+        {
+            if (b instanceof WellMixedBoundary )
+                return ((WellMixedBoundary) b).getConcentration(solute);
+        }
+        return 0.0;
     }
 
     /* ***********************************************************************
@@ -145,7 +159,6 @@ public class PDEWrapper extends ProcessDiffusion
          */
         this._environment.distributeWellMixedFlows(this._timeStepSize);
 
-
         /* perform final clean-up and update agents to represent updated
          * situation. */
         this.postStep();
@@ -187,7 +200,6 @@ public class PDEWrapper extends ProcessDiffusion
             applyAgentReactions(agent, sols, resorder, reacGrid, resolution, voxelVolume);
     }
 
-
     public void flashConcentrations(SolverGrid[] concGrid)
     {
         Shape shape = this._environment.getShape();
@@ -195,9 +207,7 @@ public class PDEWrapper extends ProcessDiffusion
         {
             SpatialGrid spatGrid = this._environment.getSoluteGrid( g.gridName );
             double[][][] paddedGrid = g.getGrid();
-
             spatGrid.setTo(CONCN, MultigridUtils.translateOut(paddedGrid) );
-
         }
     }
     /**
@@ -242,9 +252,6 @@ public class PDEWrapper extends ProcessDiffusion
         SolverGrid solute;
         MultigridSolute mGrid;
         double concn, productRate, volume, perVolume;
-
-
-
 
         double[] center = ((Body) agent.get(AspectRef.agentBody)).getCenter(shape);
 
@@ -314,7 +321,6 @@ public class PDEWrapper extends ProcessDiffusion
 //		Log.out(Tier.NORMAL , " -- " +
 //		this._environment.getSoluteGrid("glucose").getAverage(PRODUCTIONRATE));
     }
-
 
     private void applyAgentGrowth(Agent agent)
     {
@@ -460,6 +466,7 @@ public class PDEWrapper extends ProcessDiffusion
         }
         ProcessMethods.updateAgentMass(agent, newBiomass);
     }
+
     private MultigridSolute FindGrid(MultigridSolute[] grids, String name)
     {
         for ( MultigridSolute grid : grids )
