@@ -9,9 +9,12 @@
  */
 package solver.mgFas;
 
+import java.util.LinkedList;
+
 import utility.ExtraMath;
 import debugTools.QuickCSV;
 import linearAlgebra.Array;
+
 
 /**
  * \brief Implements static utility functions for used in multigrid method.
@@ -348,7 +351,7 @@ public class MultigridSolute
 	 * @param order
 	 * @return
 	 */
-	public double relax(int order)
+	public double[][][] relax(int order)
 	{
 		int nI = _conc[order].getGridSizeI();
 		int nJ = _conc[order].getGridSizeJ();
@@ -429,14 +432,17 @@ public class MultigridSolute
 				for (int k = 0; k < nK; k++)
 				{
 					difference[i][j][k] = 
-							Math.abs(_conc[order].grid[i+1][j+1][k+1] - original_conc[i+1][j+1][k+1]);
+							Math.abs(_conc[order].grid[i+1][j+1][k+1]
+									- original_conc[i+1][j+1][k+1]);
 				}
 			}
 		}
 		//QuickCSV.write( "solute_" + soluteName + "_order_" + order, Array.slice( difference, 2, 0 ) );
-		if (_conc[order]._recordKeeper != null)
-			_conc[order]._recordKeeper.step(u, order, this.soluteName);
-		return totalRes;
+		if (!_conc[order]._recordKeeper.isEmpty())
+			for (RecordKeeper r : _conc[order]._recordKeeper)
+				r.step(u, order, this.soluteName);
+		
+		return difference;
 	}
 	
 	/**

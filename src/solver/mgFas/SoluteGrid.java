@@ -11,6 +11,8 @@
  */
 package solver.mgFas;
 
+import java.util.LinkedList;
+
 import grid.ArrayType;
 import grid.SpatialGrid;
 import linearAlgebra.Array;
@@ -59,7 +61,7 @@ public class SoluteGrid extends SolverGrid
 	 */
 	private Domain _domain;
 	
-	protected RecordKeeper _recordKeeper;
+	protected LinkedList<RecordKeeper> _recordKeeper = new LinkedList<RecordKeeper>();
 
 
 
@@ -398,6 +400,6 @@ public class SoluteGrid extends SolverGrid
 	
 	public void setRecordKeeper(RecordKeeper r)
 	{
-		this._recordKeeper = r;
+		this._recordKeeper.add(r);
 	}
 }

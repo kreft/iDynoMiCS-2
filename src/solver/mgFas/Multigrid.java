@@ -28,6 +28,7 @@ import processManager.library.PDEWrapper;
 import settable.Settable;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 
@@ -392,8 +393,9 @@ public class Multigrid
 		{
 			for (int i = 0; i < maxOrder; i++)
 			{
-				if (_solute[iSolute]._conc[i]._recordKeeper != null)
-					_solute[iSolute]._conc[i]._recordKeeper.flush();
+				if (!_solute[iSolute]._conc[i]._recordKeeper.isEmpty())
+					for (RecordKeeper r : _solute[iSolute]._conc[i]._recordKeeper)
+						r.flush();
 			}
 		}
 	}
@@ -448,21 +450,38 @@ public class Multigrid
 
 	/**
 	 * Apply nIter relaxations to the grid at the current resolution.
+	 * Check here whether to continue with further post-steps?
 	 * 
 	 * @param nIter
 	 */
 	public void relax(int nIter)
 	{
-		for (int j = 0; j < nIter; j++)
+		HashMap<String, Boolean> relaxationMap = new HashMap<String, Boolean>();
+		
+		for (int iSolute : _soluteIndex)
 		{
-			updateReacRateAndDiffRate(order);
-			for (int iSolute : _soluteIndex)
-			{
-				_solute[iSolute].relax(order);
-				//QuickCSV.write( "solute" + iSolute +"_" + order, Array.slice(
-				//		_solute[iSolute]._conc[order].grid, 2, 1 ) );
-			}
+			relaxationMap.put(_solute[iSolute].soluteName, false);
 		}
+		
+		//while (relaxationMap.entrySet().contains(false))
+		//{
+		
+			for (int j = 0; j < nIter; j++)
+			{
+				updateReacRateAndDiffRate(order);
+				
+				for (int iSolute : _soluteIndex)
+				{
+					if (!relaxationMap.get(_solute[iSolute].soluteName))
+					{
+						double[][][] difference = _solute[iSolute].relax(order);
+						
+						if (Array.max(difference) < ((PDEWrapper)this._manager).absTol)
+							relaxationMap.put(_solute[iSolute].soluteName, true);
+					}
+				}
+			}
+		//}
 	}
 
 	/**

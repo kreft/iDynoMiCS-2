@@ -45,6 +45,10 @@ public class PDEWrapper extends ProcessDiffusion
     
     private Multigrid multigrid;
     
+    public double absTol;
+    
+    public double relTol;
+    
 
 //    private AgentContainer _agents;
     /**
@@ -58,8 +62,8 @@ public class PDEWrapper extends ProcessDiffusion
     {
         super.init(xmlElem, environment, agents, compartmentName);
 
-        double absTol = (double) this.getOr(ABS_TOLERANCE, 1.0e-9);
-        double relTol = (double) this.getOr(REL_TOLERANCE, 1.0e-3);
+        this.absTol = (double) this.getOr(ABS_TOLERANCE, 1.0e-9);
+        this.relTol = (double) this.getOr(REL_TOLERANCE, 1.0e-3);
 
         int vCycles = (int) this.getOr(AspectRef.vCycles, 5);
         int preSteps = (int) this.getOr(AspectRef.preSteps, 100);

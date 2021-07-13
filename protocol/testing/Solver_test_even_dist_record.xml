@@ -143,13 +143,6 @@
 						<aspect name="type" 	type = "PRIMARY" class = "String" value = "concentration" />
 						<aspect name="difference" 	type = "PRIMARY" class = "String" value = "real" />
 					</record>
-					<record name="record" solute = "ammonium" class="RecordKeeper">
-						<aspect name="solute"	type = "PRIMARY" class="String"	 value = "ammonium" />
-						<aspect name="order" 	type = "PRIMARY" class="Integer" value = "2" />
-						<aspect name="interval" type = "PRIMARY" class = "Integer" value = "1" />
-						<aspect name="type" 	type = "PRIMARY" class = "String" value = "difference" />
-						<aspect name="difference" 	type = "PRIMARY" class = "String" value = "real" />
-					</record>
 					<!-- In principle they are not all the same but all in the 
 					same order of magnitude ~ 2.0e-4 m2.day-1 values here in 
 					µm^2/ minute-->
