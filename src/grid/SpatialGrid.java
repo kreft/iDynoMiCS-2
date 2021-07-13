@@ -121,7 +121,16 @@ public class SpatialGrid implements Settable, Instantiable
 		return this.getShape().getCurrVoxelVolume();
 	}
 
-	
+	/**
+	 * Temporary get diff for pde wrapper
+	 * @return
+	 */
+	@Deprecated
+	public double getDiffusivity()
+	{
+		return this._defaultDiffusivity;
+	}
+
 	public void updateDiffusivity(
 			EnvironmentContainer env, AgentContainer agents)
 	{

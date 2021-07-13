@@ -141,7 +141,7 @@ public class Multigrid
 	 * 
 	 */
 	public void init(Domain domain, EnvironmentContainer environment,
-					 AgentContainer agents, ProcessDiffusion manager,
+					 AgentContainer agents, PDEWrapper manager,
 					 int vCycles, int preSteps, int coarseSteps, int postSteps)
 	{
 		/* Get the computational domain that this solver is associated with. */
@@ -185,9 +185,9 @@ public class Multigrid
 
 		/* TODO: here both bLayer and diffusivity initiate from the same grid like in iDyno 1
 		*  but both construct a new conc-grid. */
-		_bLayer = new MultigridSolute(_soluteList.get(0), "boundary layer");
+		_bLayer = new MultigridSolute(_soluteList.get(0), "boundary layer", manager);
 		_diffusivity = 
-				new MultigridSolute(_soluteList.get(0), "relative diffusivity");
+				new MultigridSolute(_soluteList.get(0), "relative diffusivity", manager);
 		
 		Double sBulk;
 		for (int i = 0; i < nSolute; i++)
@@ -195,7 +195,7 @@ public class Multigrid
 			/* FIXME taking initial as fixed boundary concentration bulk */
 				sBulk = environment.getAverageConcentration(_soluteList.get(i).gridName); // this is what the conc grid is set when first solved
 				_solute[i] = new MultigridSolute(_soluteList.get(i),
-												_diffusivity, _bLayer, sBulk);
+												_diffusivity, _bLayer, sBulk, manager);
 				_soluteIndex.add(i); //TODO figure out how solute index was used, adding it here to help program run
 		}
 

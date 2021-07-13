@@ -19,7 +19,7 @@
 								<constant name="mumax" 	value="1.0" />  
 							</expression>
 							<stoichiometric component="biomass" 	coefficient="0.01367982" />
-							<stoichiometric component="ammonium" 	coefficient="-0.147" />
+
 							<stoichiometric component="oxygen" 		coefficient="-0.046" />
 						</reaction> 
 					</list>
@@ -60,7 +60,7 @@
 		<compartment name="chemostat">
 			<shape class="Dimensionless" volume="1e22">
 				<boundary  class="constantConcentrationToChemostat" volumeFlowRate="1.0e20">
-					<solute name="ammonium"  concentration="6e-6" defaultDiffusivity="118055"/>
+	
 					<solute name="oxygen" 	concentration="1e-5" defaultDiffusivity="138888"/>
 				</boundary>
 				<boundary  class="chemostatOut" agentRemoval="false" constantVolume="true" >
@@ -68,13 +68,13 @@
 			</shape>
 			<solutes>
 				<!-- pg / µm3 -->
-				<solute name="ammonium"  concentration="6e-6" defaultDiffusivity="118055"/>
+
 				<solute name="oxygen" 	concentration="1e-5" defaultDiffusivity="138888"/>
 			</solutes>
 			<processManagers>
 				<process name="solveChemostat" class="ChemostatSolver" priority="0"
 					firstStep="0.0">
-					<aspect name="soluteNames" type="PRIMARY" class="String[]" value="ammonium" />
+
 					<aspect name="hMax" type="PRIMARY" class="Double" value="6.0" />
 					<aspect name="solver" type="PRIMARY" class="String" value="heun" />
 					<aspect name="tolerance" class="Double" value="1.0E-6" />
@@ -95,7 +95,7 @@
 			</shape>
 			<solutes>
 				<!-- Initial concentrations pg / µm2 -->
-				<solute name="ammonium"  concentration="6e-6" defaultDiffusivity="118055"/>
+
 				<solute name="oxygen" 	concentration="1e-5" defaultDiffusivity="138888"/>
 			</solutes>
 			<reactions>

@@ -112,7 +112,9 @@ public class SoluteGrid extends SolverGrid
 //		///////////////////////////
 //		// TODO set diffusivity
 //		grid.getArray(ArrayType.DIFFUSIVITY);
-		diffusivity = 1.0e5; // 1.0e5
+
+		// Note seems to be taken from chemostat???
+		diffusivity = grid.getDiffusivity();
 		/*
 		 * Set the initial concentration.
 		 */
@@ -311,51 +313,6 @@ public class SoluteGrid extends SolverGrid
 		pad.zeroFlux( this, 2, false);
 		pad.zeroFlux( this, 2, true);
 
-//		int s = -1;
-//		int[] out = new int[] {s , -1, 0 };
-//		int[] in = new int[] {s, 0, 0 };
-//
-//		int[] step = new int[] {1 , 0, 0 };
-//		while( out[0] < this._nI )
-//		{
-//			setValueAt(getValueAt(in), out);
-//			Vector.addEquals(out,step);
-//			Vector.addEquals(in,step);
-//		}
-
-
-//		out = new int[] { s , this._nJ, 0  };
-//		in = new int[] { s,  this._nJ-1, 0 };
-//
-//		while( out[0] < this._nI )
-//		{
-//			// set to bulk
-//			setValueAt(bulk, out);
-//			Vector.addEquals(out,step);
-//			Vector.addEquals(in,step);
-//		}
-
-//		out = new int[] {this._nI, s, 0 };
-//		in = new int[] {0, s, 0 };
-//
-//		step = new int[] {0 , 1, 0 };
-//		while( out[1] < this._nJ )
-//		{
-//			setValueAt(getValueAt(in), out);
-//			Vector.addEquals(out,step);
-//			Vector.addEquals(in,step);
-//		}
-
-//		out = new int[] { -1, s, 0  };
-//		in = new int[] { this._nI-1, s,  0 };
-//
-//		while( out[1] < this._nJ )
-//		{
-//			// set to bulk
-//			setValueAt(getValueAt(in), out);
-//			Vector.addEquals(out,step);
-//			Vector.addEquals(in,step);
-//		}
 	}
 	
 	/**
