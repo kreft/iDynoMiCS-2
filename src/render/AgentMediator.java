@@ -185,7 +185,7 @@ public class AgentMediator implements CommandMediator {
 	
 	public void colStep()
 	{
-		if (activeCol > soluteColors.size())
+		if (activeCol == soluteColors.size())
 			activeCol = 0;
 		else
 			activeCol += 1;
@@ -461,23 +461,24 @@ public class AgentMediator implements CommandMediator {
 
 					float[] col = new float[] { 0f, 0f, 0f };
 					j = 0;
-					if (this.activeCol == 1)
-					{
-						for (String s : soluteColors.keySet()){
-							SpatialGrid grid = _compartment.getSolute(soluteColors.get(s));
-							conc = (float)grid.getValueAt(ArrayType.CONCN, 
-									it.iteratorCurrent()) / max[j];
-							col[j++] = conc;
-
-//							System.out.println( (float)grid.getValueAt(ArrayType.CONCN,
-//									it.iteratorCurrent()) );
-						}
-					}
-					else
+					/* NOTE: disabled multicolor view */
+//					if (this.activeCol == 1)
+//					{
+//						for (String s : soluteColors.keySet()){
+//							SpatialGrid grid = _compartment.getSolute(soluteColors.get(s));
+//							conc = (float)grid.getValueAt(ArrayType.CONCN,
+//									it.iteratorCurrent()) / max[j];
+//							col[j++] = conc;
+//
+////							System.out.println( (float)grid.getValueAt(ArrayType.CONCN,
+////									it.iteratorCurrent()) );
+//						}
+//					}
+//					else
 					{
 						for (String s : soluteColors.keySet())
 						{
-							if(j == this.activeCol-2)
+							if(j == this.activeCol-1)
 							{
 								SpatialGrid grid = _compartment.getSolute(soluteColors.get(s));
 								conc = (float)grid.getValueAt(ArrayType.CONCN, 

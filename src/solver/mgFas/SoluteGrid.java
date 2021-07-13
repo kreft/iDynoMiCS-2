@@ -107,7 +107,9 @@ public class SoluteGrid extends SolverGrid
 //		///////////////////////////
 //		// TODO set diffusivity
 //		grid.getArray(ArrayType.DIFFUSIVITY);
-		diffusivity = 1.0e5; // 1.0e5
+
+		// Note seems to be taken from chemostat???
+		diffusivity = grid.getDiffusivity();
 		/*
 		 * Set the initial concentration.
 		 */
