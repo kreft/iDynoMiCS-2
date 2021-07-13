@@ -19,28 +19,8 @@
 								<constant name="mumax" 	value="1.0" />  
 							</expression>
 							<stoichiometric component="biomass" 	coefficient="0.001367982" />
-							<stoichiometric component="ammonium" 	coefficient="-0.147" />
+
 							<stoichiometric component="oxygen" 		coefficient="-0.046" />
-						</reaction> 
-					</list>
-				</aspect>
-			</species>
-		
-			<species name="Ego">
-				<speciesModule name="coccoid" />
-				<aspect name="reactions" type="PRIMARY"  class="InstantiableList"> 
-					<list class="RegularReaction" nodeLabel="reaction" 
-					entryClass="RegularReaction" keyClass="String" keyLabel="name">
-						<reaction name="growth">
-							<expression value="biomass * mumax * 
-									( oxygen / ( oxygen + Kox ) )">
-								<!-- pg/µm3 --> 
-								<constant name="Kox" 	value="0.0006" />
-								<constant name="mumax" 	value="0.002735964" />  
-							</expression>
-							<stoichiometric component="biomass" 	coefficient="1.0" />
-							<stoichiometric component="ammonium" 	coefficient="-0.0735" />
-							<stoichiometric component="oxygen" 		coefficient="-0.023" />
 						</reaction> 
 					</list>
 				</aspect>
@@ -74,7 +54,7 @@
 			<processManagers>
 				<process name="solveChemostat" class="ChemostatSolver" priority="0"
 					firstStep="0.0">
-					<aspect name="soluteNames" type="PRIMARY" class="String[]" value="ammonium" />
+
 					<aspect name="hMax" type="PRIMARY" class="Double" value="6.0" />
 					<aspect name="solver" type="PRIMARY" class="String" value="heun" />
 					<aspect name="tolerance" class="Double" value="1.0E-6" />
@@ -95,7 +75,7 @@
 			</shape>
 			<solutes>
 				<!-- Initial concentrations pg / µm2 -->
-				<solute name="ammonium"  concentration="6e-6" defaultDiffusivity="118055"/>
+
 				<solute name="oxygen" 	concentration="1e-5" defaultDiffusivity="138888"/>
 			</solutes>
 			<reactions>
