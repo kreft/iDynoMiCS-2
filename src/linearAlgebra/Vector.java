@@ -1099,6 +1099,13 @@ public final class Vector
 		for ( int i = 0; i < destination.length; i++ )
 			destination[i] = source[i] + value;
 	}
+
+	public static void addTo(float[] destination, float[] source,
+							 float value)
+	{
+		for ( int i = 0; i < destination.length; i++ )
+			destination[i] = source[i] + value;
+	}
 	
 	/**
 	 * \brief Add a scalar <b>value</b> to every element of a <b>vector</b>,
@@ -1115,6 +1122,13 @@ public final class Vector
 	public static double[] add(double[] vector, double value)
 	{
 		double[] out = new double[vector.length];
+		addTo(out, vector, value);
+		return out;
+	}
+
+	public static float[] add(float[] vector, float value)
+	{
+		float[] out = new float[vector.length];
 		addTo(out, vector, value);
 		return out;
 	}
@@ -1201,6 +1215,14 @@ public final class Vector
 			destination[i] = a[i] + b[i];
 		}
 	}
+
+	public static void addTo(float[] destination, float[] a, float[] b)
+	{
+		for ( int i = 0; i < a.length; i++ )
+		{
+			destination[i] = a[i] + b[i];
+		}
+	}
 	
 	/**
 	 * \brief Add two vectors together, writing the result into a new vector.
@@ -1215,6 +1237,13 @@ public final class Vector
 	public static double[] add(double[] a, double[] b)
 	{
 		double[] out = new double[a.length];
+		addTo(out, a, b);
+		return out;
+	}
+
+	public static float[] add(float[] a, float[] b)
+	{
+		float[] out = new float[a.length];
 		addTo(out, a, b);
 		return out;
 	}
