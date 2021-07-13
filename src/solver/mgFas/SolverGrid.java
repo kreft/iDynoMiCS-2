@@ -77,7 +77,8 @@ public class SolverGrid implements Serializable
 	 * Boolean noting whether this grid is 3D (true) or 2D (false)
 	 */
 	protected Boolean         _is3D;
-
+	
+	
 	
 	/**
 	 * \brief Blank constructor.
@@ -877,6 +878,8 @@ public class SolverGrid implements Serializable
 	{
 		grid = Array.copy(u);
 	}
+	
+	
 
 	/**
 	 * \brief Write the contents of this grid to the XML results files.

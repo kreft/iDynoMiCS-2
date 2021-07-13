@@ -592,6 +592,8 @@ public class AspectRef
 	public static final String coarseSteps = "coarseSteps";
 
 	public static final String postSteps = "postSteps";
+	
+	public static final String record = "record";
 
 	public static final String disableBulkDynamics = "disableBulkDynamics";
 
@@ -622,4 +624,14 @@ public class AspectRef
 	public static final String fileNumber = "fileNumber";
 
 	public static final String colourSpecification = "colourSpecification";
+	
+	public static final String order = "order";
+	
+	public static final String solute = "solute";
+	
+	public static final String recordType = "type";
+	
+	public static final String interval = "interval";
+	
+	public static final String difference = "difference";
 }

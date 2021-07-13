@@ -692,5 +692,8 @@ public class ClassRef
 
 	public static final String expression = 
 			expression.Expression.class.getName();
+	
+	public static final String recordKeeper = 
+			solver.mgFas.RecordKeeper.class.getName();
 
 }
