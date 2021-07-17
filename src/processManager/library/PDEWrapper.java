@@ -48,11 +48,6 @@ public class PDEWrapper extends ProcessDiffusion
     public static String REL_TOLERANCE = AspectRef.solverRelTolerance;
     
     private Multigrid multigrid;
-    
-    public double absTol;
-    
-    public double relTol;
-    
 
     public double absTol;
     public double relTol;
