@@ -334,9 +334,9 @@ public class Multigrid
 		The outer loop is getting finer (starting from coarsest + 1
 		The inner loop is getting coarser and then finer
 
-		        /\    /
+		        /\    / Finest
 		   /\  /  \  /
-		/\/  \/    \/
+		/\/  \/    \/   Coarsest
 
 		 */
 

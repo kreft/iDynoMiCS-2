@@ -12,6 +12,7 @@ package solver.mgFas;
 import java.util.*;
 
 import compartment.EnvironmentContainer;
+import dataIO.Log;
 import grid.ArrayType;
 import linearAlgebra.Array;
 import shape.Shape;
@@ -183,10 +184,10 @@ public class Domain
 		is3D = shape.getSignificantDimensions().size() == 3;
 
 		/* FIXME enforce all dimensions to be of the same resolution. */
-		_resolution = Math.min( Math.min(
+		_resolution = Math.min(
 				shape.getResolutionCalculator(null, 0).getResolution(),
-				shape.getResolutionCalculator(null, 1).getResolution()),
-				shape.getResolutionCalculator(null, 2).getResolution() );
+				shape.getResolutionCalculator(null, 1).getResolution() );
+			//	shape.getResolutionCalculator(null, 2).getResolution() );
 		
 		double[] lengths = (shape.getRealLengths());
 
@@ -195,7 +196,15 @@ public class Domain
 		_nI = (int) Math.ceil(lengths[0]/_resolution);
 		_nJ = (int) Math.ceil(lengths[1]/_resolution);
 		_nK = (is3D) ? (int) Math.ceil(lengths[2]/_resolution) : 1;
-		
+
+		String message = "unsupported mgFAS resolution, use n = 1+2^x";
+		if( isDiscretizationCompatible(_nI))
+			Log.out(Log.Tier.CRITICAL, message);
+		if( isDiscretizationCompatible(_nJ))
+			Log.out(Log.Tier.CRITICAL, message);
+		if( is3D && isDiscretizationCompatible(_nK))
+			Log.out(Log.Tier.CRITICAL, message);
+
 		// Now calculate the length of the grid in micrometres.
 		length_X = _nI * _resolution;
 		length_Y = _nJ * _resolution;
@@ -312,126 +321,7 @@ public class Domain
 					}
 				}
 	}
-	
-	/* _______________________ LOCATED AGENTS ______________________________ */
-	
-	/**
-     * \brief Test if a given location is outside a boundary.
-     * 
-     * Used to detect the crossed boundary when moving an agent.
-     * 
-     * @param newLoc The location to test
-     * @return Boundary that the point has crossed (if applicable: null if no
-     * boundary crossed)
-     */
-	
-	
-//	public AllBC testCrossedBoundary(Double radius, ContinuousVector newLoc)
-//	{
-//		// Test on the domain grid if the new location is inside the domain
-////		if (_domainGrid.isValid(newLoc) && _domainGrid.getPaddedValueAt(newLoc) >= 0)
-////			return null;
-//		
-//		// Find the first of the boundaries which has been crossed
-//		for (AllBC aBoundary : _boundaryList) {
-//			if ((aBoundary instanceof BoundaryCyclic ? aBoundary.overBoundary(0.0,newLoc) :
-//				aBoundary.overBoundary(radius, newLoc)) != null)
-//			{
-//				/*
-//				System.out.println("agent at "+newLoc.toString()+
-//								" crossed boundary "+aBoundary.getSide());
-//				*/
-//				return aBoundary;
-//			}
-//		}
-//		
-//		// If you are here, it means that no boundary is being crossed.
-//		return null;
-//	}
-	
-	/**
-     * \brief Test if a given location is outside a boundary other than the
-     * bottom. Used in self-attach scenarios.
-     * 
-     * For self-attachment, the simulation detects a swimming agent may have
-     * crossed the substratum boundary and will then assume that agent
-     * attaches. However we need to check that move has not crossed any of the
-     * other boundaries, else that move is invalid. To do this, all boundaries
-     * are checked. If using the method above, y0z could still be returned and
-     * thus we end up in a loop. Thus this has had to be adapted so this cannot
-     * be returned.
-     * 
-	 * @param newLoc The new location of this swimming agent.
-     * @return The boundary which this move crosses, if applicable. Null if no
-     * such boundary.
-     */
-//	public AllBC testCrossedBoundarySelfAttach(ContinuousVector newLoc) 
-//	{
-//		// Test on the domain grid if the new location is inside the domain.
-//		if (_domainGrid.isValid(newLoc) && _domainGrid.getValueAt(newLoc) >= 0)
-//			return null;
-//		
-//		// Find the first of the boundaries which has been crossed.
-//		// Added a check to not return y0z - we know this has been crossed as
-//		// the cell has met the substratum. We are only interested here in
-//		// checking the other 7 boundaries.
-//		for (AllBC aBoundary : _boundaryList)
-//			if ( aBoundary.isOutside(newLoc) )
-//				if ( ! aBoundary.getSideName().equals("y0z") )
-//					return aBoundary;
-//		
-//		// If you are here, it means that no boundary is being crossed.
-//		return null;
-//	}
-	
-	/**
-	 * \brief Add a boundary condition to the list of boundaries on this domain.
-	 * 
-	 * @param aBC Boundary condition to add to the list of boundaries.
-	 */
-	public void addBoundary(AllBC aBC)
-	{
-		_boundaryList.add(aBC);
-	}
-	
-//	@Override
-//	public LinkedList<AllBC> getAllBoundaries() 
-//	{
-//		return _boundaryList;
-//	}
-	
-//	public LinkedList<AllBC> getAllSupportBoundaries()
-//	{
-//		LinkedList<AllBC> out = new LinkedList<AllBC>();
-//		for ( AllBC aBC : _boundaryList )
-//			if ( aBC.isSupport() )
-//				out.add(aBC);
-//		return out;
-//	}
-//	
-//	public LinkedList<ConnectedBoundary> getAllConnectedBoundaries()
-//	{
-//		LinkedList<ConnectedBoundary> out = 
-//										new LinkedList<ConnectedBoundary>();
-//		for ( AllBC aBC : _boundaryList )
-//			if ( aBC instanceof ConnectedBoundary )
-//				out.add((ConnectedBoundary) aBC);
-//		return out;
-//	}
 
-
-//	public Bulk getChemostat()
-//	{
-//		Bulk aBulk;
-//		for (ConnectedBoundary aBC : getAllConnectedBoundaries())
-//		{
-//			aBulk = aBC.getBulk();
-//			if( aBulk != null && aBulk.nameEquals("chemostat") )
-//				return aBulk;
-//		}
-//		return null;
-//	}
-	
 	/**
 	 * \brief Refresh relative diffusivity and boundary layer grids to ensure
 	 * biomass updated this step is included.
@@ -440,67 +330,18 @@ public class Domain
 	 */
 	public void refreshBioFilmGrids() 
 	{
-		/* TODO idyno 2 biofilm */
-		// Build a grid with the concentration of agents skip the the
-		// refreshment of the position of the agents relative to the
-		// boundary layers.
-		_biomassGrid.setAllValueAt(0.0);
+		// Reset the grid
+		_boundaryLayer.setAllValueAt(0.0);
 
-			// Reset the grid
-			_boundaryLayer.setAllValueAt(0.0);
+		// calculate the values in each of the grids
+		calculateComputationDomainGrids2();
 
-			//
+		// update padding
+		_boundaryLayer.refreshBoundary();
+		_diffusivityGrid.refreshBoundary();
 
+		/* TODO biomass region diffusivity */
 
-			// calculate the values in each of the grids
-			calculateComputationDomainGrids2();
-
-			/* TODO this is where the boundary padding should be updated */
-			_boundaryLayer.refreshBoundary();
-
-			_diffusivityGrid.refreshBoundary();
-			_biomassGrid.refreshBoundary();
-
-	}
-	
-	/**
-	 * \brief Calculates the diffusivity and boundary layer grid levels.
-	 *
-	 * FIXME check this with debugger
-	 * 
-	 * In previous versions of iDynoMiCS this method could be found within
-	 * refreshBioFilmGrids. This has been moved here as, with the addition of
-	 * self attachment, this method needs to be called before agent
-	 * initialisation. KA May 2013.
-	 */
-	public void calculateComputationDomainGrids()
-	{
-		for (int i = 1; i <= _nI; i++) 
-			for (int j = 1; j <= _nJ; j++) 
-				for (int k = 1; k <= _nK; k++)
-					if ( _biomassGrid.grid[i][j][k] > 0.0 )
-					{
-						/*
-						 * This is biomass.
-						 */
-						_boundaryLayer.grid[i][j][k] = 1.0;
-						_diffusivityGrid.grid[i][j][k] = _biofilmDiffusivity;
-					}
-					else
-					{
-						/*
-						 * This is liquid, check dilation sphere for biomass:
-						 * checkDilationRadius will set the value to 1 if it is
-						 * within the boundary layer.
-						 */
-						_boundaryLayer.grid[i][j][k] = checkDilationRadius(i, j, k);
-
-						//LogFile.writeLog("_boundaryLayer["+i+"]["+j+"]["+k+"] = "+_boundaryLayer.grid[i][j][k]);
-						if ( _domainGrid.grid[i][j][k] == -1.0 )
-							_diffusivityGrid.grid[i][j][k] = Double.MIN_VALUE;
-						else
-							_diffusivityGrid.grid[i][j][k] = 1.0;
-					}
 	}
 
 	/**
@@ -568,40 +409,6 @@ public class Domain
 				}
 		return border;
 	}
-	
-	/**
-	 * \brief Creates a list of doubles with the heights of the biofilm/liquid
-	 * interface.
-	 * 
-	 * Used for writing simulation statistics. This routine is very basic in
-	 * that it just captures the overall height (x-position) of each point from
-	 * the nearest carrier, but for most cases it should be sufficient.
-	 * 
-	 * @return	Array of double values of the heights of the biofilm/liquid
-	 * interface.
-	 */
-//	public Double[] getInterface()
-//	{
-//		currentSim.agentGrid.getLevelSet().refreshBorder(false, currentSim);
-//		LinkedList<LocatedGroup> border =
-//							currentSim.agentGrid.getLevelSet().getBorder();
-//		/* 
-//		 * Catch if there is no biomass for some reason; in that case return
-//		 * zero height.
-//		 */
-//		if ( border.isEmpty() )
-//			return ExtraMath.newDoubleArray(1);
-//		// Now copy to regular array, but watch for infinite distances.
-//		ListIterator<LocatedGroup> iter = border.listIterator();
-//		Double [] out = new Double[border.size()];
-//		while ( iter.hasNext() )
-//		{
-//			out[iter.nextIndex()] = iter.next().distanceFromCarrier;
-//			if ( out[iter.previousIndex()] == Double.MAX_VALUE )
-//				out[iter.previousIndex()] = 0.0;
-//		}
-//		return out;
-//	}
 	
 	/**
 	 * \brief Determines whether points in the boundary layer have free
@@ -730,24 +537,7 @@ public class Domain
 	{
 		return (val<0 ? limit+val : (val>=limit ? val-limit : val));
 	}
-	
-	/**
-	 * 
-	 * @param coord
-	 * @return
-	 */
-	protected Boolean checkDilationCoord(int[] coord)
-	{
-		// TODO update biomassGrid
-//		for (AllBC aBC : _boundaryList )
-//			aBC.applyBoundary(coord);
-		/*
-		 * Return true if this is biomass or substratum.
-		 */
-		return ( _biomassGrid.getValueAt(coord) > 0.0 ) ||
-				( _domainGrid.getValueAt(coord) == 0.0 );
-	}
-	
+
 	/**
 	 * \brief Return longest side of this domain.
 	 * 
@@ -809,16 +599,6 @@ public class Domain
 	}
 	
 	/**
-	 * \brief Return the biomass grid associated with this domain.
-	 * 
-	 * @return	SoluteGrid containing biomass throughout this domain.
-	 */
-	public SoluteGrid getBiomass()
-	{
-		return _biomassGrid;
-	}
-	
-	/**
 	 * \brief Used in testing to view the boundary layer matrix for a set part
 	 * of the domain.
 	 * 
@@ -837,24 +617,21 @@ public class Domain
 				System.out.println();
 			}
 	}
-	
+
 	/**
-	 * \brief Used in testing to view the biomass matrix for a set part of the
-	 * domain.
-	 * 
-	 * @author KA 210513
+	 * \brief return true if chosen discretization is compatible with mgFAS
 	 */
-	public void printBiomassGrid()
+	public boolean isDiscretizationCompatible(int nCells)
 	{
-		// Printing the Boundary Layer Grid
-		for(int k = 1; k <= _biomassGrid.getGridSizeK(); k++)
-			for(int i = 1; i <= _biomassGrid.getGridSizeI(); i++)
-			{
-				for(int j = 1; j <= _biomassGrid.getGridSizeJ(); j++)
-				{
-					System.out.print(_biomassGrid.getValueAt(i, j, k)+" ");
-				}
-				System.out.println();
-			}
+		return isDiscretizationCompatible(nCells, 2);
+	}
+
+	public boolean isDiscretizationCompatible(int nCells, int t)
+	{
+		if ( nCells == t+1 )
+			return true;
+		else if (nCells > t )
+			return false;
+		else return isDiscretizationCompatible(nCells, (int) Math.round( Math.pow(t,2) ) );
 	}
 }
