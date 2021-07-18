@@ -73,8 +73,6 @@ public class PDEWrapper extends ProcessDiffusion
         int coarseSteps = (int) this.getOr(AspectRef.coarseSteps, 100);
         int postSteps = (int) this.getOr(AspectRef.postSteps, 100);
 
-        /* TODO initial diffusivity */
-
         /* gets specific solutes from process manager aspect registry if they
          * are defined, if not, solve for all solutes.
          */
@@ -98,9 +96,6 @@ public class PDEWrapper extends ProcessDiffusion
                 vCycles, preSteps, coarseSteps, postSteps);
 
         super.init(xmlElem, environment, agents, compartmentName);
-
-        // TODO Let the user choose which ODEsolver to use.
-
 
     }
 

@@ -202,7 +202,7 @@ public class Domain
 		length_Z = _nK * _resolution;
 		
 		// Create and initialise the domain grid.
-		_domainGrid = new SoluteGrid(_nI, _nJ, _nK, _resolution);
+		_domainGrid = new SoluteGrid(this, _nI, _nJ, _nK, _resolution);
 		
 		// Specific area is given in m2/m3.
 //		specificArea = cdRoot.getParamDbl("specificArea");
@@ -263,7 +263,7 @@ public class Domain
 	 */
 	public SoluteGrid createGrid(String gridName, double defaultValue)
 	{
-		SoluteGrid aGrid = new SoluteGrid(_nI, _nJ, _nK, _resolution);
+		SoluteGrid aGrid = new SoluteGrid(this, _nI, _nJ, _nK, _resolution);
 		aGrid.setAllValueAt(defaultValue);
 		return aGrid;
 	}

@@ -199,6 +199,7 @@ public class Multigrid
 				_soluteIndex.add(i); //TODO figure out how solute index was used, adding it here to help program run
 		}
 
+
 		/* From this moment, nSolute is the number of solutes SOLVED by THIS
 		 * solver.
 		 *
