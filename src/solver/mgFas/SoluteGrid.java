@@ -18,6 +18,7 @@ import grid.SpatialGrid;
 import linearAlgebra.Array;
 import linearAlgebra.Vector;
 import settable.Settable;
+import shape.Dimension;
 import shape.Shape;
 import solver.mgFas.boundaries.CartesianPadding;
 
@@ -168,9 +169,10 @@ public class SoluteGrid extends SolverGrid
 	 * @param nK	Number of grid elements in Z direction of grid.
 	 * @param res	The width of each grid element (in micrometres).
 	 */
-	public SoluteGrid(int nI, int nJ, int nK, double res)
+	public SoluteGrid(Domain domain, int nI, int nJ, int nK, double res)
 	{
 		super(nI, nJ, nK, res);
+		this._domain = domain;
 	}
 	
 	/**
@@ -286,32 +288,53 @@ public class SoluteGrid extends SolverGrid
 	public void refreshBoundary()
 	{
 		/*
-		 * TODO refresh boundaries
-		for (AllBC aBC:_domain.getAllBoundaries()) 
-				aBC.refreshBoundary(this);
-				
+		* Three possibilities: periodic, constant concentration, zero flux
 		*/
 
-		/*  FIXME hard coded test code,
-		 */
 		CartesianPadding pad = new CartesianPadding(_nI, _nJ, _nK );
 
+		/* TODO accessing dimensions is overly complex, simplify */
+		for( Dimension.DimName d : this._domain.getShape().getDimensionNames() )
+		{
+			Dimension dim = this._domain.getShape().getDimension( d );
+			if ( dim.isCyclic() )
+			{
+				pad.cyclic(this, d.dimNum(), true);
+				pad.cyclic(this, d.dimNum(), false);
+			}
+			else {
+				if (dim.isBoundaryDefined(0)) {
+				/* note we currently don't check the specifics of the boundary object as it is
+				currently always an instance of the well-mixed boundary or no boundary object.
+				 */
+					pad.constantConcentration(this, d.dimNum(), false, bulk);
+				} else {
+					pad.zeroFlux(this, d.dimNum(), false);
+				}
 
-		/* solid bound */
-		pad.zeroFlux( this, 1, false);
-
-		/*	bulk boundary */
-		pad.constantConcentration( this, 1, true, bulk);
-
-		/* cyclic bound 1 */
-		pad.cyclic( this, 0, false);
-
-		/* cyclic bound 2 */
-		pad.cyclic( this, 0, true);
-
-		/* virtual z dimension (Thanks Tim!) */
-		pad.zeroFlux( this, 2, false);
-		pad.zeroFlux( this, 2, true);
+				if (dim.isBoundaryDefined(1)) {
+					pad.constantConcentration(this, d.dimNum(), true, bulk);
+				} else {
+					pad.zeroFlux(this, d.dimNum(), true);
+				}
+			}
+		}
+//
+//		/* solid bound */
+//		pad.zeroFlux( this, 1, false);
+//
+//		/*	bulk boundary */
+//		pad.constantConcentration( this, 1, true, bulk);
+//
+//		/* cyclic bound 1 */
+//		pad.cyclic( this, 0, false);
+//
+//		/* cyclic bound 2 */
+//		pad.cyclic( this, 0, true);
+//
+//		/* virtual z dimension (Thanks Tim!) */
+//		pad.zeroFlux( this, 2, false);
+//		pad.zeroFlux( this, 2, true);
 
 	}
 	

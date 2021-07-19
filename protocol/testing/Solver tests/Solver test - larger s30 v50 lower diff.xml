@@ -61,9 +61,9 @@
 		<compartment name="first">
 			<shape class="Rectangle">
 				<!-- µm -->
-				<dimension name="X" isCyclic="true" 	targetResolution="1.0" max="33.0"/>
-				<dimension name="Y" isCyclic="false" 	targetResolution="1.0" max="33.0">
-					<boundary extreme="1" class="BiofilmBoundaryLayer" partnerCompartment="chemostat" layerThickness = "15.0"/>
+				<dimension name="X" isCyclic="true" 	targetResolution="2.0" max="34.0"/>
+				<dimension name="Y" isCyclic="false" 	targetResolution="2.0" max="66.0">
+					<boundary extreme="1" class="BiofilmBoundaryLayer" partnerCompartment="chemostat" layerThickness = "16.0"/>
 					<!--  <boundary extreme="1" class="FixedBoundary" layerThickness = "40.0">
 						<solute name="ammonium"  concentration="6e-6"/>
 						<solute name="oxygen" 	concentration="1e-5"/>

@@ -199,6 +199,7 @@ public class Multigrid
 				_soluteIndex.add(i); //TODO figure out how solute index was used, adding it here to help program run
 		}
 
+
 		/* From this moment, nSolute is the number of solutes SOLVED by THIS
 		 * solver.
 		 *
@@ -333,9 +334,9 @@ public class Multigrid
 		The outer loop is getting finer (starting from coarsest + 1
 		The inner loop is getting coarser and then finer
 
-		        /\    /
+		        /\    / Finest
 		   /\  /  \  /
-		/\/  \/    \/
+		/\/  \/    \/   Coarsest
 
 		 */
 
