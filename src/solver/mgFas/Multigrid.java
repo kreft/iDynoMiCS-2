@@ -487,7 +487,11 @@ public class Multigrid
 					{
 						double[][][] difference = _solute[iSolute].relax(order);
 						
-						if (Array.max(difference) < ((PDEWrapper)this._manager).absTol)
+						double highestConc = Array.max(_solute[iSolute]._conc[order].grid);
+						
+						if (Array.max(difference) < ((PDEWrapper)this._manager).absTol
+								|| Array.max(difference) < highestConc * 
+								((PDEWrapper)this._manager).absTol)
 							relaxationMap.put(_solute[iSolute].soluteName, true);
 					}
 				}

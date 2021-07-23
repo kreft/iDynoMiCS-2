@@ -15,9 +15,12 @@ import linearAlgebra.Array;
 import linearAlgebra.Vector;
 import referenceLibrary.AspectRef;
 import referenceLibrary.XmlRef;
+import settable.Attribute;
+import settable.Module;
 import settable.Settable;
+import settable.Module.Requirements;
 
-public class RecordKeeper implements AspectInterface, Instantiable {
+public class RecordKeeper implements AspectInterface, Instantiable, Settable {
 
 	public enum RecordType
 	{
@@ -31,6 +34,10 @@ public class RecordKeeper implements AspectInterface, Instantiable {
 	}
 	private AspectReg _aspectRegistry = new AspectReg();
 	
+	protected Settable _parentNode;
+	
+	private String _name;
+	
 	protected RecordType _recordType;
 	
 	protected Integer _interval;
@@ -41,7 +48,7 @@ public class RecordKeeper implements AspectInterface, Instantiable {
 	
 	public String _soluteName;
 	
-	protected String _difference;
+	protected Boolean _absoluteValue;
 	
 	protected double[][][] _savedGrid;
 	
@@ -70,11 +77,12 @@ public class RecordKeeper implements AspectInterface, Instantiable {
 	{
 		if (xmlElement != null)
 			this.loadAspects(xmlElement);
-		this._soluteName =  (String) this.getValue(AspectRef.solute);
+		this._name = (String) xmlElement.getAttribute(XmlRef.nameAttribute);
+		this._soluteName = (String) this.getValue(AspectRef.solute);
 		this._order = (Integer) this.getValue(AspectRef.order);
 		this._recordType = readRecordType((String) this.getValue(AspectRef.recordType));
 		this._interval = (Integer) this.getValue(AspectRef.interval);
-		this._difference = (String) this.getOr(AspectRef.difference, "real");
+		this._absoluteValue = (Boolean) this.getOr(AspectRef.absoluteValue, false);
 		this._counter = 0;
 	}
 	
@@ -107,7 +115,7 @@ public class RecordKeeper implements AspectInterface, Instantiable {
 						{
 							for (int k = 0; k < trimmedGrid[0][0].length; k++)
 							{
-								if (this._difference.contentEquals("absolute"))
+								if (this._absoluteValue)
 								{
 									difference[i][j][k] = 
 										Math.abs(trimmedGrid[i][j][k] - this._savedGrid[i][j][k]);
@@ -134,7 +142,7 @@ public class RecordKeeper implements AspectInterface, Instantiable {
 						{
 							for (int k = 0; k < trimmedGrid[0][0].length; k++)
 							{
-								if (this._difference.contentEquals("absolute"))
+								if (this._absoluteValue)
 								{
 									difference[i][j][k] = 
 										Math.abs(trimmedGrid[i][j][k] - this._savedGrid[i][j][k]);
@@ -162,7 +170,7 @@ public class RecordKeeper implements AspectInterface, Instantiable {
 						{
 							for (int k = 0; k < trimmedGrid[0][0].length; k++)
 							{
-								if (this._difference.contentEquals("absolute"))
+								if (this._absoluteValue)
 								{
 									difference[i][j][k] = 
 										(float) Math.abs(trimmedGrid[i][j][k] - this._savedGrid[i][j][k]);
@@ -229,6 +237,41 @@ public class RecordKeeper implements AspectInterface, Instantiable {
 	public String defaultXmlTag() 
 	{
 		return XmlRef.record;
+	}
+
+	@Override
+	public Module getModule() 
+	{
+		Module modelNode = new Module(defaultXmlTag(), this);
+		modelNode.setRequirements(Requirements.ZERO_TO_MANY);
+		modelNode.setTitle(this._name);
+		
+		modelNode.add(new Attribute(XmlRef.nameAttribute, 
+				this._name, null, true ));
+		
+		if ( Idynomics.xmlPackageLibrary.has( this.getClass().getSimpleName() ))
+			modelNode.add(new Attribute(XmlRef.classAttribute, 
+					this.getClass().getSimpleName(), null, false ));
+		else
+			modelNode.add(new Attribute(XmlRef.classAttribute, 
+					this.getClass().getName(), null, false ));
+		
+		for ( String key : this.reg().getLocalAspectNames() )
+			modelNode.add(reg().getAspectNode(key));
+		
+		return modelNode;
+	}
+
+	@Override
+	public void setParent(Settable parent) 
+	{
+		this._parentNode = parent;
+	}
+
+	@Override
+	public Settable getParent() 
+	{
+		return this._parentNode;
 	}
 	
 }

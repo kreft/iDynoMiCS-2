@@ -633,5 +633,5 @@ public class AspectRef
 	
 	public static final String interval = "interval";
 	
-	public static final String difference = "difference";
+	public static final String absoluteValue = "absoluteValue";
 }

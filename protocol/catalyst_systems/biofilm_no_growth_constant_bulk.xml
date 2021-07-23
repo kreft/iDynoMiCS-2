@@ -590,7 +590,7 @@
 			</agents>
 			<processManagers>				
 				<!-- ms -->
-				<process name="PDEWrapper" class="PDEWrapper" priority="1" firstStep="0.0" timerStepSize="2.0">
+				<process name="PDEWrapper" class="PDEWrapper" priority="1" firstStep="0.0" timerStepSize="0.2">
 					<aspect name="absoluteTolerance" type="PRIMARY" class="Double" value="1.0e-7" />
 					<aspect name="relativeTolerance" type="PRIMARY" class="Double" value="1.0e-6" />
 					<aspect name="vCycles" class="Integer" value="50" />
@@ -599,7 +599,7 @@
 					<aspect name="postSteps" class="Integer" value="20" />
 					<record name="record" solute = "ammonium" class="RecordKeeper">
 						<aspect name="solute"	type = "PRIMARY" class="String"	 value = "glucose" />
-						<aspect name="order" 	type = "PRIMARY" class="Integer" value = "1" />
+						<aspect name="order" 	type = "PRIMARY" class="Integer" value = "3" />
 						<aspect name="interval" type = "PRIMARY" class = "Integer" value = "1" />
 						<aspect name="type" 	type = "PRIMARY" class = "String" value = "concentration" />
 						<aspect name="difference" 	type = "PRIMARY" class = "String" value = "real" />
