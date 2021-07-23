@@ -49,7 +49,7 @@ public class PDEWrapper extends ProcessDiffusion
     public static String REL_TOLERANCE = AspectRef.solverRelTolerance;
     
     private Multigrid multigrid;
-    
+
     public double absTol;
     
     public double relTol;
@@ -74,8 +74,6 @@ public class PDEWrapper extends ProcessDiffusion
         int preSteps = (int) this.getOr(AspectRef.preSteps, 100);
         int coarseSteps = (int) this.getOr(AspectRef.coarseSteps, 100);
         int postSteps = (int) this.getOr(AspectRef.postSteps, 100);
-
-        /* TODO initial diffusivity */
 
         /* gets specific solutes from process manager aspect registry if they
          * are defined, if not, solve for all solutes.
