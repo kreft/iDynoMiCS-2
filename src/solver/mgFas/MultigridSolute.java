@@ -350,7 +350,8 @@ public class MultigridSolute
 		 *  Confirm that criterion is met for each solute.
 		 */
 		/* TODO can we just hook into the res to stop at absTol? */
-		return ( res <= truncationError || res <= manager.absTol );
+		//return ( res <= truncationError || res <= manager.absTol );
+		return false;
 	}
 	
 	/**
