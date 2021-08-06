@@ -352,14 +352,14 @@
 				<process name="PDEWrapper" class="PDEWrapper" priority="1" firstStep="0.0" timerStepSize="0.2">
 					<aspect name="absoluteTolerance" type="PRIMARY" class="Double" value="1.0e-20" />
 					<aspect name="relativeTolerance" type="PRIMARY" class="Double" value="1.0e-15" />
-					<aspect name="vCycles" class="Integer" value="100" />
-					<aspect name="preSteps" class="Integer" value="20" />
-					<aspect name="coarseSteps" class="Integer" value="20" />
-					<aspect name="postSteps" class="Integer" value="50" />
+					<aspect name="vCycles" class="Integer" value="20" />
+					<aspect name="preSteps" class="Integer" value="5" />
+					<aspect name="coarseSteps" class="Integer" value="5" />
+					<aspect name="postSteps" class="Integer" value="10" />
 					<record name="record" class="RecordKeeper">
 						<aspect name="solute"			type = "PRIMARY" class = "String"  value = "glucose" />
 						<aspect name="order" 			type = "PRIMARY" class = "Integer" value = "2" />
-						<aspect name="interval" 		type = "PRIMARY" class = "Integer" value = "30" />
+						<aspect name="interval" 		type = "PRIMARY" class = "Integer" value = "300" />
 						<aspect name="type" 			type = "PRIMARY" class = "String"  value = "concentration" />
 						<aspect name="absoluteValue" 	type = "PRIMARY" class = "Boolean"  value = "true" />
 					</record>

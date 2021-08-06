@@ -12,25 +12,20 @@
  */
 package solver.mgFas;
 
-import agent.Agent;
 import compartment.AgentContainer;
 import compartment.EnvironmentContainer;
 import dataIO.Log;
-import debugTools.QuickCSV;
 import grid.ArrayType;
 import grid.SpatialGrid;
 import idynomics.Idynomics;
 import linearAlgebra.Array;
 import linearAlgebra.Vector;
 import processManager.ProcessDiffusion;
-import processManager.ProcessManager;
 import processManager.library.PDEWrapper;
-import settable.Settable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.Map;
 
 /**
  * 
@@ -103,6 +98,8 @@ public class Multigrid
 	 * Number of solutes SOLVED by THIS solver
 	 */
 	protected int nSolute;
+	
+	private HashMap<String, Boolean> _relaxationMap = new HashMap<String, Boolean>();
 	
 	/**
 	 * 
@@ -197,6 +194,11 @@ public class Multigrid
 				_solute[i] = new MultigridSolute(_soluteList.get(i),
 												_diffusivity, _bLayer, sBulk, manager);
 				_soluteIndex.add(i); //TODO figure out how solute index was used, adding it here to help program run
+		}
+		
+		for (int iSolute : _soluteIndex)
+		{
+			this._relaxationMap.put(_solute[iSolute].soluteName, false);
 		}
 
 
@@ -468,23 +470,16 @@ public class Multigrid
 	 */
 	public void relax(int nIter)
 	{
-		HashMap<String, Boolean> relaxationMap = new HashMap<String, Boolean>();
-		
-		for (int iSolute : _soluteIndex)
+		for (int j = 0; j < nIter; j++)
 		{
-			relaxationMap.put(_solute[iSolute].soluteName, false);
-		}
-		
-		//while (relaxationMap.entrySet().contains(false))
-		//{
-		
-			for (int j = 0; j < nIter; j++)
+			boolean falsebool = false;
+			if (this._relaxationMap.values().contains(false))
 			{
 				updateReacRateAndDiffRate(order);
 				
 				for (int iSolute : _soluteIndex)
 				{
-					if (!relaxationMap.get(_solute[iSolute].soluteName))
+					if (!this._relaxationMap.get(_solute[iSolute].soluteName))
 					{
 						double[][][] difference = _solute[iSolute].relax(order);
 						
@@ -493,11 +488,15 @@ public class Multigrid
 						if (Array.max(difference) < ((PDEWrapper)this._manager).absTol
 								|| Array.max(difference) < highestConc * 
 								((PDEWrapper)this._manager).absTol)
-							relaxationMap.put(_solute[iSolute].soluteName, true);
+							this._relaxationMap.put(_solute[iSolute].soluteName, true);
 					}
 				}
 			}
-		//}
+		 }
+		 for (String s : this._relaxationMap.keySet())
+		 {
+			 this._relaxationMap.put(s, false);
+		 }
 	}
 
 	/**

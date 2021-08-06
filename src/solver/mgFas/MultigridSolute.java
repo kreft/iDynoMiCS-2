@@ -9,10 +9,8 @@
  */
 package solver.mgFas;
 
-import java.util.LinkedList;
 import processManager.library.PDEWrapper;
 import utility.ExtraMath;
-import debugTools.QuickCSV;
 import linearAlgebra.Array;
 
 
@@ -371,7 +369,7 @@ public class MultigridSolute
 		// iterate through system
 		// isw, jsw and ksw alternate between values 1 and 2
 		
-		double[][][] original_conc = Array.copy(_conc[order].grid);
+		double[][][] difference = new double[nI][nJ][nK];
 		u = _conc[order].grid;
 		bl = _bLayer[order].grid;
 		rd = _relDiff[order].grid;
@@ -409,7 +407,10 @@ public class MultigridSolute
 							
 							// compute residual
 							res = (lop-_rhs[order].grid[_i][_j][_k])/dlop;
-							totalRes += Math.abs(res);
+							
+							double absRes = Math.abs(res);
+							totalRes += absRes;
+							difference[_i][_j][_k] = absRes;
 							// update concentration (test for NaN)
 							//LogFile.writeLog("NaN generated in multigrid solver "+"while computing rate for "+soluteName);
 							//LogFile.writeLog("location: "+_i+", "+_j+", "+_k);
@@ -427,19 +428,6 @@ public class MultigridSolute
 			_conc[order].refreshBoundary();	
 		}
 		
-		double[][][] difference = new double[nI][nJ][nK];
-		for (int i = 0; i < nI; i++)
-		{
-			for (int j = 0; j < nJ; j++)
-			{
-				for (int k = 0; k < nK; k++)
-				{
-					difference[i][j][k] = 
-							Math.abs(_conc[order].grid[i+1][j+1][k+1]
-									- original_conc[i+1][j+1][k+1]);
-				}
-			}
-		}
 		//QuickCSV.write( "solute_" + soluteName + "_order_" + order, Array.slice( difference, 2, 0 ) );
 		if (!_conc[order]._recordKeeper.isEmpty())
 			for (RecordKeeper r : _conc[order]._recordKeeper)
