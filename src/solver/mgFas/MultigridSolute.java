@@ -343,13 +343,17 @@ public class MultigridSolute
 		 */
 		computeResidual(_itemp, order);
 		MultigridUtils.subtractTo(_itemp[order].grid, _rhs[order].grid);
+		/*
+		 * Change to max? Does grid size have an effect on the result?
+		 */
 		Double res = MultigridUtils.computeNorm(_itemp[order].grid);
 		/*
 		 *  Confirm that criterion is met for each solute.
 		 */
 		/* TODO can we just hook into the res to stop at absTol? */
 		//return ( res <= truncationError || res <= manager.absTol );
-		return false;
+		return ( res <= truncationError);
+		//return false;
 	}
 	
 	/**
@@ -410,7 +414,7 @@ public class MultigridSolute
 							
 							double absRes = Math.abs(res);
 							totalRes += absRes;
-							difference[_i][_j][_k] = absRes;
+							difference[_i - 1][_j - 1][_k - 1] = absRes;
 							// update concentration (test for NaN)
 							//LogFile.writeLog("NaN generated in multigrid solver "+"while computing rate for "+soluteName);
 							//LogFile.writeLog("location: "+_i+", "+_j+", "+_k);
@@ -673,8 +677,11 @@ public class MultigridSolute
 		if (_nK>1) _referenceSystemSide = Math.min(_referenceSystemSide, _nK);
 
 		maxOrder = ExtraMath.log2(_referenceSystemSide).intValue();
+		
+		/*
+		 * Switch from node system to voxel system (subtract 1)
+		 */
 		_referenceSystemSide -= 1;
-		// FIXME ??
 		_referenceSystemSide *= realGrid.getResolution();
 	}
 	

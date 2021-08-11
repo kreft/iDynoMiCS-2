@@ -472,7 +472,6 @@ public class Multigrid
 	{
 		for (int j = 0; j < nIter; j++)
 		{
-			boolean falsebool = false;
 			if (this._relaxationMap.values().contains(false))
 			{
 				updateReacRateAndDiffRate(order);
@@ -487,7 +486,7 @@ public class Multigrid
 						
 						if (Array.max(difference) < ((PDEWrapper)this._manager).absTol
 								|| Array.max(difference) < highestConc * 
-								((PDEWrapper)this._manager).absTol)
+								((PDEWrapper)this._manager).relTol)
 							this._relaxationMap.put(_solute[iSolute].soluteName, true);
 					}
 				}
