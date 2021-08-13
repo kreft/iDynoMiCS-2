@@ -1467,6 +1467,18 @@ public final class Array
 	}
 	
 	/**
+
+	public static double[][] meanSlice(double[][][] array, int dim)
+	{
+		if (dim == 2)
+		{
+			
+		}
+	}
+	
+	**/
+	
+	/**
 	 * \brief TODO
 	 * @param out
 	 * @param iStart

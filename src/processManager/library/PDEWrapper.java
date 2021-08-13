@@ -307,7 +307,7 @@ public class PDEWrapper extends ProcessDiffusion
                 {
                     solute = mGrid._reac[resorder];
                     productRate = r.getProductionRate(concns, productName);
-                    solute.addValueAt( volume * productRate, coord.get() , true );
+                    solute.addValueAt( productRate, coord.get() , true );
                 }
             }
         }
