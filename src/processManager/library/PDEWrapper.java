@@ -25,6 +25,7 @@ import reaction.Reaction;
 import reaction.RegularReaction;
 import referenceLibrary.AspectRef;
 import referenceLibrary.XmlRef;
+import settable.Module;
 import shape.Shape;
 import shape.subvoxel.IntegerArray;
 import solver.mgFas.Domain;
@@ -50,6 +51,7 @@ public class PDEWrapper extends ProcessDiffusion
     private Multigrid multigrid;
 
     public double absTol;
+    
     public double relTol;
 
 //    private AgentContainer _agents;
@@ -95,7 +97,8 @@ public class PDEWrapper extends ProcessDiffusion
         multigrid.init(domain, environment, agents, this,
                 vCycles, preSteps, coarseSteps, postSteps);
 
-        super.init(xmlElem, environment, agents, compartmentName);
+        // TODO Let the user choose which ODEsolver to use.
+
 
     }
 
@@ -304,7 +307,7 @@ public class PDEWrapper extends ProcessDiffusion
                 {
                     solute = mGrid._reac[resorder];
                     productRate = r.getProductionRate(concns, productName);
-                    solute.addValueAt( volume * productRate, coord.get() , true );
+                    solute.addValueAt( productRate, coord.get() , true );
                 }
             }
         }

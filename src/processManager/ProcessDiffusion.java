@@ -30,6 +30,7 @@ import reaction.Reaction;
 import reaction.RegularReaction;
 import referenceLibrary.AspectRef;
 import referenceLibrary.XmlRef;
+import settable.Module;
 import shape.CartesianShape;
 import shape.Shape;
 import shape.subvoxel.IntegerArray;
@@ -577,4 +578,18 @@ public abstract class ProcessDiffusion extends ProcessManager
 	{
 		return this._recordKeepers;
 	}
+	
+    
+    @Override
+    public Module getModule()
+	{
+    	Module modelNode = super.getModule();
+    	
+    	for (RecordKeeper r: this._recordKeepers)
+    		modelNode.add(r.getModule());
+    	
+    	return modelNode;
+    	
+	}
+    
 }

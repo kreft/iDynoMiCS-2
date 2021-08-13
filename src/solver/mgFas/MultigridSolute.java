@@ -9,10 +9,8 @@
  */
 package solver.mgFas;
 
-import java.util.LinkedList;
 import processManager.library.PDEWrapper;
 import utility.ExtraMath;
-import debugTools.QuickCSV;
 import linearAlgebra.Array;
 
 
@@ -345,12 +343,17 @@ public class MultigridSolute
 		 */
 		computeResidual(_itemp, order);
 		MultigridUtils.subtractTo(_itemp[order].grid, _rhs[order].grid);
+		/*
+		 * Change to max? Does grid size have an effect on the result?
+		 */
 		Double res = MultigridUtils.computeNorm(_itemp[order].grid);
 		/*
 		 *  Confirm that criterion is met for each solute.
 		 */
 		/* TODO can we just hook into the res to stop at absTol? */
-		return ( res <= truncationError || res <= manager.absTol );
+		//return ( res <= truncationError || res <= manager.absTol );
+		return ( res <= truncationError);
+		//return false;
 	}
 	
 	/**
@@ -370,7 +373,7 @@ public class MultigridSolute
 		// iterate through system
 		// isw, jsw and ksw alternate between values 1 and 2
 		
-		double[][][] original_conc = Array.copy(_conc[order].grid);
+		double[][][] difference = new double[nI][nJ][nK];
 		u = _conc[order].grid;
 		bl = _bLayer[order].grid;
 		rd = _relDiff[order].grid;
@@ -408,7 +411,10 @@ public class MultigridSolute
 							
 							// compute residual
 							res = (lop-_rhs[order].grid[_i][_j][_k])/dlop;
-							totalRes += Math.abs(res);
+							
+							double absRes = Math.abs(res);
+							totalRes += absRes;
+							difference[_i - 1][_j - 1][_k - 1] = absRes;
 							// update concentration (test for NaN)
 							//LogFile.writeLog("NaN generated in multigrid solver "+"while computing rate for "+soluteName);
 							//LogFile.writeLog("location: "+_i+", "+_j+", "+_k);
@@ -426,19 +432,6 @@ public class MultigridSolute
 			_conc[order].refreshBoundary();	
 		}
 		
-		double[][][] difference = new double[nI][nJ][nK];
-		for (int i = 0; i < nI; i++)
-		{
-			for (int j = 0; j < nJ; j++)
-			{
-				for (int k = 0; k < nK; k++)
-				{
-					difference[i][j][k] = 
-							Math.abs(_conc[order].grid[i+1][j+1][k+1]
-									- original_conc[i+1][j+1][k+1]);
-				}
-			}
-		}
 		//QuickCSV.write( "solute_" + soluteName + "_order_" + order, Array.slice( difference, 2, 0 ) );
 		if (!_conc[order]._recordKeeper.isEmpty())
 			for (RecordKeeper r : _conc[order]._recordKeeper)
@@ -684,8 +677,11 @@ public class MultigridSolute
 		if (_nK>1) _referenceSystemSide = Math.min(_referenceSystemSide, _nK);
 
 		maxOrder = ExtraMath.log2(_referenceSystemSide).intValue();
+		
+		/*
+		 * Switch from node system to voxel system (subtract 1)
+		 */
 		_referenceSystemSide -= 1;
-		// FIXME ??
 		_referenceSystemSide *= realGrid.getResolution();
 	}
 	

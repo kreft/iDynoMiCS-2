@@ -61,9 +61,9 @@ public class DistributedSpawner extends Spawner {
 		for( double d : positions(_orient[0],_spacing[0], _max[0]))
 			locations.add( new double[] {d} );
 		
-		LinkedList<double[]> temp = new LinkedList<double[]>();
 		for(int i = 1; i < _orient.length; i++)
 		{
+			LinkedList<double[]> temp = new LinkedList<double[]>();
 			for( double d : positions(_orient[i],_spacing[i], _max[i]))
 			{
 				for( double[] loc : locations )
