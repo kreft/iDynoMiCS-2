@@ -132,6 +132,11 @@ public class Multigrid
 	 */
 	protected int nPostSteps;
 
+	/**
+	 * Set Vcycle convergence mode to reporting only or auto adjusting
+	 */
+	private boolean autoVcycleAdjust = false;
+
 	protected ProcessDiffusion _manager;
 
 	protected EnvironmentContainer _environment;
@@ -142,7 +147,7 @@ public class Multigrid
 	 */
 	public void init(Domain domain, EnvironmentContainer environment,
 					 AgentContainer agents, PDEWrapper manager,
-					 int vCycles, int preSteps, int coarseSteps, int postSteps)
+					 int vCycles, int preSteps, int coarseSteps, int postSteps, boolean autoAdjust)
 	{
 		/* Get the computational domain that this solver is associated with. */
 		myDomain = domain;
@@ -175,6 +180,8 @@ public class Multigrid
 		_vCycles = vCycles;
 		nPreSteps = preSteps;
 		nPostSteps = postSteps;
+
+		this.autoVcycleAdjust = autoAdjust;
 
 		// Create the table of solute grids
 		nSolute = _soluteList.size();
@@ -326,6 +333,8 @@ public class Multigrid
 		for (int iSolute : _soluteIndex)
 			_solute[iSolute].resetMultigridCopies();
 
+		int stage = 0;
+
 		// Solve chemical concentrations on coarsest grid.
 		solveCoarsest(); // coarsest order = 0
 
@@ -352,11 +361,19 @@ public class Multigrid
 			// V-cycle loop.
 			for (int v = 0; v < _vCycles; v++)
 			{
+				/* autoAdjust, currently we adjust all to the one left behind */
+				for (int iSolute : _soluteIndex)
+					stage = Math.max( stage, _solute[iSolute].getStage() );
+
 				// Downward stroke of V.
 				while ( order > 0 )
 				{
 					// Pre-smoothing.
-					relax(nPreSteps);
+					if( this.autoVcycleAdjust ) // smooth more if Vcycle becomes stagnant
+						relax( Math.min(1 + 2*stage, nPreSteps) );
+					else
+						relax(nPreSteps);
+
 					for (int iSolute : _soluteIndex)
 						_solute[iSolute].downward1(order, outer);
 					
@@ -383,7 +400,10 @@ public class Multigrid
 						_solute[iSolute].truncateConcToZero(order);
 
 					// Post-smoothing.
-					relax(nPostSteps);
+					if( this.autoVcycleAdjust ) // smooth more if Vcycle becomes stagnant
+						relax( Math.min(1 + 3*stage, nPostSteps) );
+					else
+						relax(nPostSteps);
 				}
 
 				/* Break the V-cycles if remaining error is dominated
@@ -408,7 +428,10 @@ public class Multigrid
 					for (RecordKeeper r : _solute[iSolute]._conc[i]._recordKeeper)
 						r.flush();
 			}
+			stage = Math.max( stage, _solute[iSolute].getStage() );
 		}
+		if( this.autoVcycleAdjust == false )
+			Log.out( "Vcycle stagnations: " + stage );
 	}
 
 	/**
@@ -468,6 +491,7 @@ public class Multigrid
 	 */
 	public void relax(int nIter)
 	{
+//		Log.out( "" + nIter ); //debugline
 		HashMap<String, Boolean> relaxationMap = new HashMap<String, Boolean>();
 		
 		for (int iSolute : _soluteIndex)

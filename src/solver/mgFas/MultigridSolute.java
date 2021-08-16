@@ -10,6 +10,8 @@
 package solver.mgFas;
 
 import java.util.LinkedList;
+
+import dataIO.Log;
 import processManager.library.PDEWrapper;
 import utility.ExtraMath;
 import debugTools.QuickCSV;
@@ -95,6 +97,16 @@ public class MultigridSolute
 	 * 
 	 */
 	public double truncationError;
+
+	/**
+	 * storing previous residual for analysis.
+	 */
+	private double _res[];
+
+	/**
+	 * As more smoothing may be required stage is increased
+	 */
+	private int _stage = 0;
 	
 	/**
 	 * \brief 
@@ -198,6 +210,8 @@ public class MultigridSolute
 		_itemp = new SoluteGrid[maxOrder];
 		_itau = new SoluteGrid[maxOrder];
 
+		_res = new double[maxOrder];
+
 		for (int iGrid = 0; iGrid<maxOrder; iGrid++)
 		{
 			_i = (_nI-1)/ExtraMath.exp2(iGrid)+1;
@@ -212,6 +226,8 @@ public class MultigridSolute
 			_diffReac[maxOrder-iGrid-1] = new SoluteGrid(_i, _j, _k, r, aSolute);
 			_itemp[maxOrder-iGrid-1] = new SoluteGrid(_i, _j, _k, r, aSolute);
 			_itau[maxOrder-iGrid-1] = new SoluteGrid(_i, _j, _k, r, aSolute);
+
+			_res[maxOrder-iGrid-1] = Double.MAX_VALUE;
 		}
 	}
 
@@ -349,8 +365,15 @@ public class MultigridSolute
 		/*
 		 *  Confirm that criterion is met for each solute.
 		 */
-		/* TODO can we just hook into the res to stop at absTol? */
-		return ( res <= truncationError || res <= manager.absTol );
+		if( (_res[order] - res) / res < 0.01 ) // less than 1% drop in residual (or res increasing)
+		{
+			if( Log.shouldWrite( Log.Tier.DEBUG ) )
+				Log.out( Log.Tier.DEBUG, "Stagnant Vcycle residual res: " + res );
+			this._stage++;
+		}
+		this._res[order] = res;
+
+		return ( res <= truncationError );
 	}
 	
 	/**
@@ -572,6 +595,8 @@ public class MultigridSolute
 	 */
 	public void resetMultigridCopies()
 	{
+		this._stage = 0;
+
 		for (int order = 0; order < maxOrder; order++)
 		{
 			// TODO Test whether changes lead to issues
@@ -584,7 +609,17 @@ public class MultigridSolute
 			 _reac[order].resetToZero();
 			 _diffReac[order].resetToZero();
 			_rhs[order].resetToZero();
+
+			_res[order] = Double.MAX_VALUE;
 		}
+	}
+
+	/**
+	 *
+	 */
+	public int getStage()
+	{
+		return this._stage;
 	}
 	
 	/**
