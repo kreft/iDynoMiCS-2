@@ -9,8 +9,10 @@
  */
 package solver.mgFas;
 
+import dataIO.Log;
 import processManager.library.PDEWrapper;
 import utility.ExtraMath;
+import debugTools.QuickCSV;
 import linearAlgebra.Array;
 
 
@@ -93,7 +95,17 @@ public class MultigridSolute
 	 * 
 	 */
 	public double truncationError;
-	
+
+	/**
+	 * storing previous residual for analysis.
+	 */
+	private double _res[];
+
+	/**
+	 * As more smoothing may be required stage is increased
+	 */
+	private int _stage = 0;
+
 	/**
 	 * \brief 
 	 * 
@@ -196,6 +208,8 @@ public class MultigridSolute
 		_itemp = new SoluteGrid[maxOrder];
 		_itau = new SoluteGrid[maxOrder];
 
+		_res = new double[maxOrder];
+
 		for (int iGrid = 0; iGrid<maxOrder; iGrid++)
 		{
 			_i = (_nI-1)/ExtraMath.exp2(iGrid)+1;
@@ -210,6 +224,8 @@ public class MultigridSolute
 			_diffReac[maxOrder-iGrid-1] = new SoluteGrid(_i, _j, _k, r, aSolute);
 			_itemp[maxOrder-iGrid-1] = new SoluteGrid(_i, _j, _k, r, aSolute);
 			_itau[maxOrder-iGrid-1] = new SoluteGrid(_i, _j, _k, r, aSolute);
+
+			_res[maxOrder-iGrid-1] = Double.MAX_VALUE;
 		}
 	}
 
@@ -343,17 +359,19 @@ public class MultigridSolute
 		 */
 		computeResidual(_itemp, order);
 		MultigridUtils.subtractTo(_itemp[order].grid, _rhs[order].grid);
-		/*
-		 * Change to max? Does grid size have an effect on the result?
-		 */
 		Double res = MultigridUtils.computeNorm(_itemp[order].grid);
 		/*
 		 *  Confirm that criterion is met for each solute.
 		 */
-		/* TODO can we just hook into the res to stop at absTol? */
-		//return ( res <= truncationError || res <= manager.absTol );
-		return ( res <= truncationError);
-		//return false;
+		if( (_res[order] - res) / res < 0.01 ) // less than 1% drop in residual (or res increasing)
+		{
+			if( Log.shouldWrite( Log.Tier.DEBUG ) )
+				Log.out( Log.Tier.DEBUG, "Stagnant Vcycle residual res: " + res );
+			this._stage++;
+		}
+		this._res[order] = res;
+
+		return ( res <= truncationError );
 	}
 	
 	/**
@@ -411,7 +429,7 @@ public class MultigridSolute
 							
 							// compute residual
 							res = (lop-_rhs[order].grid[_i][_j][_k])/dlop;
-							
+
 							double absRes = Math.abs(res);
 							totalRes += absRes;
 							difference[_i - 1][_j - 1][_k - 1] = absRes;
@@ -431,7 +449,7 @@ public class MultigridSolute
 			// boundary conditions for all solutes
 			_conc[order].refreshBoundary();	
 		}
-		
+
 		//QuickCSV.write( "solute_" + soluteName + "_order_" + order, Array.slice( difference, 2, 0 ) );
 		if (!_conc[order]._recordKeeper.isEmpty())
 			for (RecordKeeper r : _conc[order]._recordKeeper)
@@ -565,6 +583,8 @@ public class MultigridSolute
 	 */
 	public void resetMultigridCopies()
 	{
+		this._stage = 0;
+
 		for (int order = 0; order < maxOrder; order++)
 		{
 			// TODO Test whether changes lead to issues
@@ -577,9 +597,19 @@ public class MultigridSolute
 			 _reac[order].resetToZero();
 			 _diffReac[order].resetToZero();
 			_rhs[order].resetToZero();
+
+			_res[order] = Double.MAX_VALUE;
 		}
 	}
-	
+
+	/**
+	 *
+	 */
+	public int getStage()
+	{
+		return this._stage;
+	}
+
 	/**
 	 * 
 	 * @param value
@@ -677,7 +707,7 @@ public class MultigridSolute
 		if (_nK>1) _referenceSystemSide = Math.min(_referenceSystemSide, _nK);
 
 		maxOrder = ExtraMath.log2(_referenceSystemSide).intValue();
-		
+
 		/*
 		 * Switch from node system to voxel system (subtract 1)
 		 */

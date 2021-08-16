@@ -100,7 +100,7 @@ public class Multigrid
 	protected int nSolute;
 	
 	private HashMap<String, Boolean> _relaxationMap = new HashMap<String, Boolean>();
-	
+
 	/**
 	 * 
 	 */
@@ -129,6 +129,11 @@ public class Multigrid
 	 */
 	protected int nPostSteps;
 
+	/**
+	 * Set Vcycle convergence mode to reporting only or auto adjusting
+	 */
+	private boolean autoVcycleAdjust = false;
+
 	protected ProcessDiffusion _manager;
 
 	protected EnvironmentContainer _environment;
@@ -139,7 +144,7 @@ public class Multigrid
 	 */
 	public void init(Domain domain, EnvironmentContainer environment,
 					 AgentContainer agents, PDEWrapper manager,
-					 int vCycles, int preSteps, int coarseSteps, int postSteps)
+					 int vCycles, int preSteps, int coarseSteps, int postSteps, boolean autoAdjust)
 	{
 		/* Get the computational domain that this solver is associated with. */
 		myDomain = domain;
@@ -173,6 +178,8 @@ public class Multigrid
 		nPreSteps = preSteps;
 		nPostSteps = postSteps;
 
+		this.autoVcycleAdjust = autoAdjust;
+
 		// Create the table of solute grids
 		nSolute = _soluteList.size();
 		_solute = new MultigridSolute[nSolute];
@@ -195,12 +202,11 @@ public class Multigrid
 												_diffusivity, _bLayer, sBulk, manager);
 				_soluteIndex.add(i); //TODO figure out how solute index was used, adding it here to help program run
 		}
-		
+
 		for (int iSolute : _soluteIndex)
 		{
 			this._relaxationMap.put(_solute[iSolute].soluteName, false);
 		}
-
 
 		/* From this moment, nSolute is the number of solutes SOLVED by THIS
 		 * solver.
@@ -328,6 +334,8 @@ public class Multigrid
 		for (int iSolute : _soluteIndex)
 			_solute[iSolute].resetMultigridCopies();
 
+		int stage = 0;
+
 		// Solve chemical concentrations on coarsest grid.
 		solveCoarsest(); // coarsest order = 0
 
@@ -354,11 +362,19 @@ public class Multigrid
 			// V-cycle loop.
 			for (int v = 0; v < _vCycles; v++)
 			{
+				/* autoAdjust, currently we adjust all to the one left behind */
+				for (int iSolute : _soluteIndex)
+					stage = Math.max( stage, _solute[iSolute].getStage() );
+
 				// Downward stroke of V.
 				while ( order > 0 )
 				{
 					// Pre-smoothing.
-					relax(nPreSteps);
+					if( this.autoVcycleAdjust ) // smooth more if Vcycle becomes stagnant
+						relax( Math.min(1 + 2*stage, nPreSteps) );
+					else
+						relax(nPreSteps);
+
 					for (int iSolute : _soluteIndex)
 						_solute[iSolute].downward1(order, outer);
 					
@@ -385,7 +401,10 @@ public class Multigrid
 						_solute[iSolute].truncateConcToZero(order);
 
 					// Post-smoothing.
-					relax(nPostSteps);
+					if( this.autoVcycleAdjust ) // smooth more if Vcycle becomes stagnant
+						relax( Math.min(1 + 3*stage, nPostSteps) );
+					else
+						relax(nPostSteps);
 				}
 
 				/* Break the V-cycles if remaining error is dominated
@@ -410,7 +429,10 @@ public class Multigrid
 					for (RecordKeeper r : _solute[iSolute]._conc[i]._recordKeeper)
 						r.flush();
 			}
+			stage = Math.max( stage, _solute[iSolute].getStage() );
 		}
+		if( this.autoVcycleAdjust == false )
+			Log.out( "Vcycle stagnations: " + stage );
 	}
 
 	/**
@@ -483,9 +505,9 @@ public class Multigrid
 						double[][][] difference = _solute[iSolute].relax(order);
 						
 						double highestConc = Array.max(_solute[iSolute]._conc[order].grid);
-						
+
 						if (Array.max(difference) < ((PDEWrapper)this._manager).absTol
-								|| Array.max(difference) < highestConc * 
+								|| Array.max(difference) < highestConc *
 								((PDEWrapper)this._manager).relTol)
 							this._relaxationMap.put(_solute[iSolute].soluteName, true);
 					}

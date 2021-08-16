@@ -75,6 +75,8 @@ public class PDEWrapper extends ProcessDiffusion
         int coarseSteps = (int) this.getOr(AspectRef.coarseSteps, 100);
         int postSteps = (int) this.getOr(AspectRef.postSteps, 100);
 
+        boolean autoVcycleAdjust = (boolean) this.getOr(AspectRef.autoVcycleAdjust, false);
+
         /* gets specific solutes from process manager aspect registry if they
          * are defined, if not, solve for all solutes.
          */
@@ -95,7 +97,7 @@ public class PDEWrapper extends ProcessDiffusion
         Domain domain = new Domain(environment.getShape(), this._environment);
         this.multigrid = new Multigrid();
         multigrid.init(domain, environment, agents, this,
-                vCycles, preSteps, coarseSteps, postSteps);
+                vCycles, preSteps, coarseSteps, postSteps, autoVcycleAdjust);
 
         // TODO Let the user choose which ODEsolver to use.
 

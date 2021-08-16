@@ -13,6 +13,7 @@ package solver.mgFas;
 
 import java.util.LinkedList;
 
+import boundary.WellMixedBoundary;
 import grid.ArrayType;
 import grid.SpatialGrid;
 import linearAlgebra.Array;
@@ -303,16 +304,13 @@ public class SoluteGrid extends SolverGrid
 				pad.cyclic(this, d.dimNum(), false);
 			}
 			else {
-				if (dim.isBoundaryDefined(0)) {
-				/* note we currently don't check the specifics of the boundary object as it is
-				currently always an instance of the well-mixed boundary or no boundary object.
-				 */
+				if ( dim.isBoundaryDefined(0) && dim.getBoundary(0) instanceof WellMixedBoundary) {
 					pad.constantConcentration(this, d.dimNum(), false, bulk);
 				} else {
 					pad.zeroFlux(this, d.dimNum(), false);
 				}
 
-				if (dim.isBoundaryDefined(1)) {
+				if (dim.isBoundaryDefined(1) && dim.getBoundary(1) instanceof WellMixedBoundary) {
 					pad.constantConcentration(this, d.dimNum(), true, bulk);
 				} else {
 					pad.zeroFlux(this, d.dimNum(), true);

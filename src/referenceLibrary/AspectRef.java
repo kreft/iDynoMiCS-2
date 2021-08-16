@@ -632,6 +632,8 @@ public class AspectRef
 	public static final String recordType = "type";
 	
 	public static final String interval = "interval";
-	
+
+	public static final String autoVcycleAdjust = "autoVcycleAdjust";
+
 	public static final String absoluteValue = "absoluteValue";
 }
