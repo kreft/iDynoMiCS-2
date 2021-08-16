@@ -9,8 +9,6 @@
  */
 package solver.mgFas;
 
-import java.util.LinkedList;
-
 import dataIO.Log;
 import processManager.library.PDEWrapper;
 import utility.ExtraMath;
@@ -107,7 +105,7 @@ public class MultigridSolute
 	 * As more smoothing may be required stage is increased
 	 */
 	private int _stage = 0;
-	
+
 	/**
 	 * \brief 
 	 * 
@@ -393,7 +391,7 @@ public class MultigridSolute
 		// iterate through system
 		// isw, jsw and ksw alternate between values 1 and 2
 		
-		double[][][] original_conc = Array.copy(_conc[order].grid);
+		double[][][] difference = new double[nI][nJ][nK];
 		u = _conc[order].grid;
 		bl = _bLayer[order].grid;
 		rd = _relDiff[order].grid;
@@ -431,7 +429,10 @@ public class MultigridSolute
 							
 							// compute residual
 							res = (lop-_rhs[order].grid[_i][_j][_k])/dlop;
-							totalRes += Math.abs(res);
+
+							double absRes = Math.abs(res);
+							totalRes += absRes;
+							difference[_i - 1][_j - 1][_k - 1] = absRes;
 							// update concentration (test for NaN)
 							//LogFile.writeLog("NaN generated in multigrid solver "+"while computing rate for "+soluteName);
 							//LogFile.writeLog("location: "+_i+", "+_j+", "+_k);
@@ -448,20 +449,7 @@ public class MultigridSolute
 			// boundary conditions for all solutes
 			_conc[order].refreshBoundary();	
 		}
-		
-		double[][][] difference = new double[nI][nJ][nK];
-		for (int i = 0; i < nI; i++)
-		{
-			for (int j = 0; j < nJ; j++)
-			{
-				for (int k = 0; k < nK; k++)
-				{
-					difference[i][j][k] = 
-							Math.abs(_conc[order].grid[i+1][j+1][k+1]
-									- original_conc[i+1][j+1][k+1]);
-				}
-			}
-		}
+
 		//QuickCSV.write( "solute_" + soluteName + "_order_" + order, Array.slice( difference, 2, 0 ) );
 		if (!_conc[order]._recordKeeper.isEmpty())
 			for (RecordKeeper r : _conc[order]._recordKeeper)
@@ -621,7 +609,7 @@ public class MultigridSolute
 	{
 		return this._stage;
 	}
-	
+
 	/**
 	 * 
 	 * @param value
@@ -719,8 +707,11 @@ public class MultigridSolute
 		if (_nK>1) _referenceSystemSide = Math.min(_referenceSystemSide, _nK);
 
 		maxOrder = ExtraMath.log2(_referenceSystemSide).intValue();
+
+		/*
+		 * Switch from node system to voxel system (subtract 1)
+		 */
 		_referenceSystemSide -= 1;
-		// FIXME ??
 		_referenceSystemSide *= realGrid.getResolution();
 	}
 	
