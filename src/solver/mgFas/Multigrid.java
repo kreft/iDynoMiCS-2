@@ -168,10 +168,6 @@ public class Multigrid
 		/* Now for each solver, reactions are specified. Add these reactions
 		 * and list the solutes that these modify.
 		 */
-
-		/* reaction handling done with iDyno 2 classes */
-//		for (String aReacName : xmlRoot.getChildrenNames("reaction"))
-//			addReactionWithSolutes(aSim.getReaction(aReacName));
 		
 		nCoarseStep = coarseSteps;
 		_vCycles = vCycles;
@@ -318,12 +314,6 @@ public class Multigrid
 			this._environment.getSoluteGrid( this._solute[iSolute].soluteName ).
 					setTo(ArrayType.CONCN, out );
 		}
-
-//		((PDEWrapper) this._manager).flashConcentrations(allSolute);
-//
-//		for (int iSolute : _soluteIndex)
-//			Log.out(Array.toString(_solute[iSolute].realGrid.getGrid()));
-
 	}
 
 	/**
@@ -437,33 +427,17 @@ public class Multigrid
 
 	/**
 	 * \brief Update concentration in the reactor.
-	 *
-	 * TODO boundaries update
 	 */
 	public void updateBulk()
 	{
 		/* Update reaction rates.
 		 * This yields solute change rates in fg.L-1.hr-1
 		 */
+		//FIXME is this next line required?
 		updateReacRateAndDiffRate(maxOrder-1);
-
-		// TODO update bulk boundary, we currently work with fixed concentration only
-		// Find the connected bulks and agars and update their concentration.
-//		for (AllBC aBC : myDomain.getAllBoundaries())
-//		{
-//			if ( aBC instanceof ConnectedBoundary )
-//			{
-//				((ConnectedBoundary) aBC).
-//							updateBulk(allSolute, allReac, internTimeStep);
-//			}
-//			if ( aBC instanceof BoundaryAgar )
-//			{
-//				((BoundaryAgar) aBC).
-//							updateAgar(allSolute, allReac, internTimeStep);
-//			}
-//		}
 		
-		// Refresh the bulk concentration of the multigrids.
+		/* Refresh the bulk concentration of the multigrids.
+		*/
 		for (int iSolute : _soluteIndex)
 			_solute[iSolute].readBulk();
 	}
@@ -538,25 +512,7 @@ public class Multigrid
 			allDiffReac[iSolute] = _solute[iSolute]._diffReac[resOrder];
 		}
 
-		// TODO agent and environment reaction rate
-		// Calls the agents of the guild and sums their uptake-rate
-//		for (int iReac = 0; iReac<_reactions.size(); iReac++)
-//			_reactions.get(iReac).applyReaction(allSolute, allReac,
-//								allDiffReac, _biomass[iReac]._conc[resOrder]);
-
-		// TODO is this method assuming finest grid or correctly using resOrder?
 		applyReaction(resOrder);
-		/*
-		 *  computes uptake rate per solute ( mass*_specRate*this._soluteYield[iSolute]; )
-		 *  reactionGrid += uptakeRateGrid
-		 *   diffReactionGrid += diffUptakeRate ( no diffusion mediated by agents)
-		 */
-//		this._manager.prestep( this._environment.getSolutes(), 0.0 );
-
-		/* flash current concentration to iDyno 2 concentration grids
-		Note This hapens after the solver has finished, during solver
-		we use temporary grids with applyReaction()
-		((PDEWrapper) this._manager).flashConcentrations(allSolute); */
 	}
 
 	/**
@@ -602,14 +558,14 @@ public class Multigrid
 	}
 
 	/**
-	 * TODO done at different depths?
+	 * apply reactions to grid at specified resOrder
 	 */
 	public void applyReaction(int resorder)
 	{
 		double[] temp = new double[(allSolute[0]._is3D ? 3 : 2)];
 		Vector.addEquals(temp, this._solute[0]._conc[resorder]._reso );
-		((PDEWrapper) this._manager).applyReactions(this._solute, resorder, allReac,	temp,
-				Math.pow( this._solute[0]._conc[resorder]._reso, 3.0 ));
+		((PDEWrapper) this._manager).applyReactions(this._solute, resorder, allReac, temp,
+				Math.pow( this._solute[0]._conc[resorder]._reso, (allSolute[0]._is3D ? 3.0 : 2.0) ));
 	}
 
 }

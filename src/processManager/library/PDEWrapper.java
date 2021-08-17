@@ -313,9 +313,6 @@ public class PDEWrapper extends ProcessDiffusion
                 }
             }
         }
-        /* debugging */
-//		Log.out(Tier.NORMAL , " -- " +
-//		this._environment.getSoluteGrid("glucose").getAverage(PRODUCTIONRATE));
     }
 
     private void applyAgentGrowth(Agent agent)
