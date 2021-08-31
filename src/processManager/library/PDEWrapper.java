@@ -323,16 +323,12 @@ public class PDEWrapper extends ProcessDiffusion
                 (List<RegularReaction>) agent.getValue(XmlRef.reactions);
         if ( reactions == null )
             return;
-        /*
-         * Get the distribution map and scale it so that its contents sum up to
-         * one.
-         */
-        @SuppressWarnings("unchecked")
-        Map<Shape, HashMap<IntegerArray,Double>> mapOfMaps =
-                ( Map<Shape, HashMap<IntegerArray,Double>> )
-                        agent.getValue(VOLUME_DISTRIBUTION_MAP);
-        HashMap<IntegerArray,Double> distributionMap =
-                mapOfMaps.get(agent.getCompartment().getShape());
+
+        Shape shape = this._agents.getShape();
+        double[] center = ((Body) agent.get(AspectRef.agentBody)).getCenter(shape);
+
+        IntegerArray coord = new IntegerArray(
+                shape.getCoords( center ));
         /*
          * Get the agent biomass kinds as a map. Copy it now so that we can
          * use this copy to store the changes.
@@ -347,8 +343,7 @@ public class PDEWrapper extends ProcessDiffusion
         Map<String,Double> concns = new HashMap<String,Double>();
         SpatialGrid solute;
         double concn, productRate, volume, perVolume;
-        for ( IntegerArray coord : distributionMap.keySet() )
-        {
+
             volume = this._agents.getShape().getVoxelVolume( coord.get() );
             perVolume = 1.0 / volume;
             for ( Reaction r : reactions )
@@ -370,8 +365,7 @@ public class PDEWrapper extends ProcessDiffusion
                     }
                     else if ( biomass.containsKey( varName ) )
                     {
-                        concn = biomass.get( varName ) *
-                                distributionMap.get( coord ) * perVolume;
+                        concn = biomass.get( varName ) * perVolume;
 
                     }
                     else if ( agent.isAspect( varName ) )
@@ -380,8 +374,7 @@ public class PDEWrapper extends ProcessDiffusion
                          * Check if the agent has other mass-like aspects
                          * (e.g. EPS).
                          */
-                        concn = agent.getDouble( varName ) *
-                                distributionMap.get( coord ) * perVolume;
+                        concn = agent.getDouble( varName ) * perVolume;
                     }
                     else
                     {
@@ -453,7 +446,7 @@ public class PDEWrapper extends ProcessDiffusion
                                 String.valueOf( quantity ), null );
                 }
             }
-        }
+
         ProcessMethods.updateAgentMass(agent, newBiomass);
     }
 

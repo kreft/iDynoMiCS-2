@@ -15,6 +15,7 @@ import compartment.EnvironmentContainer;
 import dataIO.Log;
 import grid.ArrayType;
 import linearAlgebra.Array;
+import linearAlgebra.Vector;
 import shape.Shape;
 import solver.mgFas.boundaries.AllBC;
 import solver.mgFas.utils.ContinuousVector;
@@ -195,7 +196,7 @@ public class Domain
 
 		_nI = (int) Math.ceil(lengths[0]/_resolution) +1;
 		_nJ = (int) Math.ceil(lengths[1]/_resolution) +1;
-		_nK = (is3D) ? (int) Math.ceil(lengths[2]/_resolution)+1 : 1;
+		_nK = (is3D) ? (int) Math.ceil(lengths[2]/_resolution) +1: 1;
 
 		String message = "unsupported mgFAS resolution, use n = 1+2^x";
 		if( isDiscretizationCompatible(_nI))
@@ -211,7 +212,7 @@ public class Domain
 		length_Z = _nK * _resolution;
 		
 		// Create and initialise the domain grid.
-		_domainGrid = new SoluteGrid(this, _nI, _nJ, _nK, _resolution);
+		_domainGrid = new SoluteGrid(_nI, _nJ, _nK, _resolution, "domainGrid", this);
 		
 		// Specific area is given in m2/m3.
 //		specificArea = cdRoot.getParamDbl("specificArea");

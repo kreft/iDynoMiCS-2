@@ -76,7 +76,7 @@ public abstract class ResolutionCalculator implements Copyable, Instantiable
 
 	public int getNElement()
 	{
-		return this._nVoxel + ( this._nodeSystem ? 1 : 0 );
+		return this._nVoxel;
 	}
 	
 	public double getTotalLength()
@@ -178,7 +178,7 @@ public abstract class ResolutionCalculator implements Copyable, Instantiable
 		{
 			throw new IllegalArgumentException("Location out of range");
 		}
-		return (int) ((( location + 0.5*_resolution) - this._dimension.getExtreme(0))
+		return (int) ((( location + 0.5*this._resolution) - this._dimension.getExtreme(0))
 				/ this._resolution);
 	}
 
@@ -189,7 +189,7 @@ public abstract class ResolutionCalculator implements Copyable, Instantiable
 		{
 			throw new IllegalArgumentException("Location out of range");
 		}
-		return (int) ((( location + 0.5*_resolution)  - this._dimension.getExtreme(0))
+		return (int) ((( location + 0.5*resolution)  - this._dimension.getExtreme(0))
 				/ resolution);
 	}
 

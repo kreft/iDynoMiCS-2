@@ -124,7 +124,9 @@ public class SoluteGrid extends SolverGrid
 //		///////////////////////////
 //		// TODO set concentration
 //
-		Array.addEquals(this.grid, grid.getArray(ArrayType.CONCN)[0][0][0]);
+		double[][][] in = grid.getArray(ArrayType.CONCN);
+//		Array.setAll(this.grid, in[0][0][0]);
+		Array.setAll(new double[in.length-1][in[0].length-1][in[0][0].length-1], in[0][0][0]);
 	}
 
 	public SoluteGrid(Domain domain, String name, ArrayType type, SpatialGrid grid)

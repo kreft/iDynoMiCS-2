@@ -41,24 +41,7 @@ public class MgFASResolution extends ResolutionCalculator
 			this._resolution = altRes;
 			altRes = this.getTotalLength() / (altNVoxel);
 		}
-	}
-	
-	public ResolutionCalculator getCoarserResolution()
-	{
-		if ( this._nVoxel > 2 )
-		{
-			MgFASResolution out = new MgFASResolution(this._dimension);
-			out._targetRes = 2.0 * this._targetRes;
-			out._nVoxel = (int)(0.5 * this._nVoxel);
-			out._resolution = 2.0 * this._resolution;
-			return out;
-		}
-		else
-		{
-			SingleVoxel sV = new SingleVoxel(this._dimension);
-			sV.setResolution(this.getTotalLength());
-			return sV;
-		}
+		this._nVoxel++;
 	}
 
 }
