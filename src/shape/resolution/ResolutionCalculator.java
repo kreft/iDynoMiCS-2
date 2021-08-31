@@ -34,6 +34,8 @@ public abstract class ResolutionCalculator implements Copyable, Instantiable
 	 */
 	protected double _targetRes;
 
+	protected Boolean _nodeSystem = false;
+
 	/* ***********************************************************************
 	 * CONSTRUCTION
 	 * **********************************************************************/
@@ -70,6 +72,11 @@ public abstract class ResolutionCalculator implements Copyable, Instantiable
 	public int getNVoxel()
 	{
 		return this._nVoxel;
+	}
+
+	public int getNElement()
+	{
+		return this._nVoxel + ( this._nodeSystem ? 1 : 0 );
 	}
 	
 	public double getTotalLength()
@@ -118,7 +125,7 @@ public abstract class ResolutionCalculator implements Copyable, Instantiable
 	
 	/**
 	 * \brief TODO
-	 * 
+	 *
 	 * @param voxelIndex
 	 * @param inside
 	 * @return
@@ -130,6 +137,10 @@ public abstract class ResolutionCalculator implements Copyable, Instantiable
 		out += this._resolution * inside;
 		return out;
 	}
+
+	/*
+	FIXME: I think the following 4 methods may yield issues with sub 1 micron resolutions
+	 */
 	
 	/**
 	 * \brief Calculates which voxel the given location lies inside.
@@ -159,6 +170,42 @@ public abstract class ResolutionCalculator implements Copyable, Instantiable
 		return (int) ((location - this._dimension.getExtreme(0))
 				/ resolution);
 	}
+
+	public int getNodeIndex(double location)
+	{
+		if ( location < this._dimension.getExtreme(0) ||
+				location >= this._dimension.getExtreme(1) )
+		{
+			throw new IllegalArgumentException("Location out of range");
+		}
+		return (int) ((( location + 0.5*_resolution) - this._dimension.getExtreme(0))
+				/ this._resolution);
+	}
+
+	public int getNodeIndex(double location, double resolution)
+	{
+		if ( location < this._dimension.getExtreme(0) ||
+				location >= this._dimension.getExtreme(1) )
+		{
+			throw new IllegalArgumentException("Location out of range");
+		}
+		return (int) ((( location + 0.5*_resolution)  - this._dimension.getExtreme(0))
+				/ resolution);
+	}
+
+	public int getElementIndex(double location)
+	{
+		return( this._nodeSystem ?
+				getNodeIndex(location) :
+				getVoxelIndex(location) );
+	}
+
+	public int getElementIndex(double location, double resolution)
+	{
+		return( this._nodeSystem ?
+				getNodeIndex(location, resolution) :
+				getVoxelIndex(location, resolution) );
+	}
 	
 	public Object copy()
 	{
@@ -176,12 +223,16 @@ public abstract class ResolutionCalculator implements Copyable, Instantiable
 		}
 		return out;
 	}
-	
 
 	@Override
 	public void instantiate(Element xmlElement, Settable parent) {
 		// TODO Auto-generated method stub
 		
+	}
+
+	public void setNodeSystem(Boolean nodes)
+	{
+		this._nodeSystem = nodes;
 	}
 	
 	/*************************************************************************
@@ -198,4 +249,5 @@ public abstract class ResolutionCalculator implements Copyable, Instantiable
 	{
 		return resDiff(altRes, targetRes) < resDiff(res, targetRes);
 	}
+
 }

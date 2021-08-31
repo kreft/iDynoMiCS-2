@@ -62,11 +62,12 @@ public abstract class CartesianShape extends Shape
 	@Override
 	public double[][][] getNewArray(double initialValue)
 	{
-		int[] nVoxel = new int[3];
+
+		int[] nElement = new int[3];
 		/* We need at least length 1 in each dimension for the array. */
 		for ( int dim = 0; dim < 3; dim ++ )
-			nVoxel[dim] = Math.max(this._resCalc[dim].getNVoxel(), 1);
-		return Array.array(nVoxel, initialValue);
+			nElement[dim] = Math.max(this._resCalc[dim].getNElement(), 1);
+		return Array.array(nElement, initialValue);
 	}
 	
 	@Override

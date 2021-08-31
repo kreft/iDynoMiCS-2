@@ -193,9 +193,9 @@ public class Domain
 
 		this._environment = environment;
 
-		_nI = (int) Math.ceil(lengths[0]/_resolution);
-		_nJ = (int) Math.ceil(lengths[1]/_resolution);
-		_nK = (is3D) ? (int) Math.ceil(lengths[2]/_resolution) : 1;
+		_nI = (int) Math.ceil(lengths[0]/_resolution) +1;
+		_nJ = (int) Math.ceil(lengths[1]/_resolution) +1;
+		_nK = (is3D) ? (int) Math.ceil(lengths[2]/_resolution)+1 : 1;
 
 		String message = "unsupported mgFAS resolution, use n = 1+2^x";
 		if( isDiscretizationCompatible(_nI))
@@ -356,7 +356,7 @@ public class Domain
 		/* bLayer is the opposite part of wellMixed */
 		temp = Array.minus( Array.add( Array.zeros(temp), 1.0 ) , temp);
 		/* add padding, padding will be filled by refreshBoundary */
-		double[][][] bLayer = MultigridUtils.translateIn(temp);
+		double[][][] bLayer = MultigridUtils.addPadding(temp);
 		for (int i = 1; i <= _nI; i++)
 			for (int j = 1; j <= _nJ; j++)
 				for (int k = 1; k <= _nK; k++)

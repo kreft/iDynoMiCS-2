@@ -309,7 +309,7 @@ public class Multigrid
 		/* flash current concentration to iDyno 2 concentration grids */
 		for(int iSolute: _soluteIndex)
 		{
-			double[][][] out = MultigridUtils.translateOut(
+			double[][][] out = MultigridUtils.removePadding(
 					_solute[iSolute].realGrid.grid );
 			this._environment.getSoluteGrid( this._solute[iSolute].soluteName ).
 					setTo(ArrayType.CONCN, out );
@@ -325,6 +325,7 @@ public class Multigrid
 			_solute[iSolute].resetMultigridCopies();
 
 		int stage = 0;
+		boolean breakVCycle = false;
 
 		// Solve chemical concentrations on coarsest grid.
 		solveCoarsest(); // coarsest order = 0
@@ -400,7 +401,7 @@ public class Multigrid
 				/* Break the V-cycles if remaining error is dominated
 				 * by local truncation error (see p. 884 of Numerical Recipes)
 				 */
-				boolean breakVCycle = true;
+				breakVCycle = true;
 
 				/* TODO validate (this one seems to be unnecessary) */
 //				updateReacRateAndDiffRate(order);
@@ -410,6 +411,9 @@ public class Multigrid
 				if (breakVCycle)
 					break;
 			}
+			if( ! breakVCycle && Log.shouldWrite( Log.Tier.CRITICAL ) )
+				Log.out(Log.Tier.CRITICAL,
+						"Warning: Multigrid VCycle stopped at maximum number of cycles.");
 		}
 		for (int iSolute : _soluteIndex)
 		{

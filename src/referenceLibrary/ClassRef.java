@@ -574,6 +574,13 @@ public class ClassRef
 	 */
 	public final static String multigridResolution =
 			shape.resolution.MultigridResolution.class.getName();
+
+	/**
+	 * MgFAS resolution class, used in combination with {@link
+	 * shape.resolution.ResolutionCalculator}
+	 */
+	public final static String MgFASResolution =
+			shape.resolution.MgFASResolution.class.getName();
 	
 	/* ************************************************************************
 	 * miscellaneous

@@ -257,6 +257,7 @@ public class MultigridSolute
 			int k = (_nK-1)/ExtraMath.exp2(iGrid)+1;
 			// FIXME ??
 			double r = _referenceSystemSide/referenceIndex(i,j,k);
+			System.out.println(r + "  " + i + "  " + iGrid + " " + _referenceSystemSide);
 			// with padding for boundary conditions
 			_conc[maxOrder-iGrid-1] = new SoluteGrid(i, j, k, r, aSolute);
 		}

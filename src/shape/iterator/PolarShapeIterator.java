@@ -73,7 +73,7 @@ public abstract class PolarShapeIterator extends ShapeIterator
 		double cur_min = rC.getCumulativeResolution(this._currentCoord[1] - 1);
 		rC = this._shape.getResolutionCalculator(this._currentNeighbor, 1);
 
-		int new_index = rC.getVoxelIndex(cur_min);
+		int new_index = rC.getElementIndex(cur_min);
 		
 		this._currentNeighbor[1] = new_index;
 

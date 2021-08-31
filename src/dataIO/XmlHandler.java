@@ -309,6 +309,16 @@ public class XmlHandler
 			}
 		}
 	}
+
+	public static Boolean gatherBoolean (Element xmlElement, String attribute)
+	{
+		String string;
+		if ( xmlElement != null && xmlElement.hasAttribute(attribute) )
+			string = xmlElement.getAttribute(attribute);
+		else
+			return (Boolean) null;
+		return Boolean.parseBoolean(string);
+	}
 	
 	/**
 	 * Redirects to gatherDouble (Element xmlElement, String attribute)

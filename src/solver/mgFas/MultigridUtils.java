@@ -475,7 +475,7 @@ public abstract class MultigridUtils {
 	 * @param in
 	 * @return
 	 */
-	public static double[][][] translateOut(double[][][] in)
+	public static double[][][] removePadding(double[][][] in)
 	{
 		double[][][] temp = Array.subarray(in,
 				1, in.length-2 ,
@@ -489,7 +489,7 @@ public abstract class MultigridUtils {
 	 * @param out
 	 * @return
 	 */
-	public static double[][][] translateIn(double[][][] out)
+	public static double[][][] addPadding(double[][][] out)
 	{
 		double[][][] temp = Array.superarray(out,
 				-1, out.length,
@@ -498,6 +498,31 @@ public abstract class MultigridUtils {
 		return temp;
 	}
 
+	public static double[][][] translateToVoxel(double[][][] in)
+	{
+		double[][][] temp = Array.subarray(in,
+				1, in.length-2 ,
+				1, in[0].length-2 ,
+				1, Math.max(in[0][0].length-2,1) );
+		double[][][] out = new double[in.length-3][in[0].length-3][in[0][0].length-3];
+		int[] old = new int[] { temp.length, temp[0].length, temp[0][0].length };
+
+		for ( int l = 0; l < old[0]; l++ )
+			for ( int m = 0; m < old[1]; m++ )
+				for ( int n = 0; n < old[2]; n++ )
+				{
+					out[l][m][n] = ( old[2] > 1 ?
+							// 3D
+							temp[l][m][n] + temp[l+1][m][n] +
+							temp[l][m+1][n] + temp[l][m][n+1] +
+							temp[l+1][m+1][n] + temp[l+1][m][n+1] +
+							temp[l][m+1][n+1] + temp[l+1][m+1][n+1] :
+							// 2D
+							temp[l][m][n] + temp[l+1][m][n] +
+							temp[l][m+1][n] + temp[l+1][m+1][n] );
+				}
+		return out;
+	}
 
 	/**
 	 * Return values in a matrix (excluding boundaries) as a formatted string

@@ -98,6 +98,11 @@ public abstract class Shape implements
 			new LinkedList<Boundary>();
 	
 	protected ShapeIterator _it;
+
+	/**
+	 * This shape represents a node based system (true) or a voxel based system (false).
+	 */
+	private Boolean _nodes = false;
 	
 	/**
 	 * TODO
@@ -146,6 +151,9 @@ public abstract class Shape implements
 		 * editable to false */
 		modelNode.add( new Attribute(XmlRef.classAttribute, 
 										this.getName(), null, false ) );
+
+		modelNode.add( new Attribute(XmlRef.nodeSystem, this._nodes.toString(), null, false) );
+
 		/** Add resolution calculator specification  */
 		modelNode.add( new Attribute(XmlRef.resolutionCalculator, 
 				this.resCal, null, false ) );
@@ -205,6 +213,12 @@ public abstract class Shape implements
 		dbl = XmlHandler.gatherDouble(xmlElem, "insignificantDimsLength");
 		if ( dbl != null )
 			insignificantDimsLength = dbl;
+
+		this._nodes = XmlHandler.gatherBoolean(xmlElem,
+				XmlRef.nodeSystem);
+		if ( this._nodes == null )
+			this._nodes = false;
+
 		/* Set up the dimensions. */
 		Dimension dim;
 		ResolutionCalculator rC;
@@ -226,6 +240,7 @@ public abstract class Shape implements
 					/* Initialise resolution calculators */
 					rC = (ResolutionCalculator) Instance.getNew(xmlElem, this, 
 							resCal );
+					rC.setNodeSystem(this._nodes);
 					rC.setDimension(dim);
 					rC.setResolution(dim._targetRes);
 					this.setDimensionResolution(dimName, rC);
@@ -1303,7 +1318,7 @@ public abstract class Shape implements
 			if( loc.length < dim+1)
 				coord[dim] = 0;
 			else
-				coord[dim] = rC.getVoxelIndex(loc[dim]);
+				coord[dim] = rC.getElementIndex(loc[dim]);
 			if ( inside != null )
 			{
 				inside[dim] = loc[dim] - 
@@ -1325,7 +1340,7 @@ public abstract class Shape implements
 			if( loc.length < dim+1)
 				coord[dim] = 0;
 			else
-				coord[dim] = rC.getVoxelIndex(loc[dim], resolution[dim]);
+				coord[dim] = rC.getElementIndex(loc[dim], resolution[dim]);
 			if ( inside != null )
 			{
 				inside[dim] = loc[dim] -

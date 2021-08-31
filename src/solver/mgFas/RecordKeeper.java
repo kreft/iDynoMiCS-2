@@ -6,11 +6,9 @@ import org.w3c.dom.Element;
 
 import aspect.AspectInterface;
 import aspect.AspectReg;
-import dataIO.XmlHandler;
 import debugTools.QuickCSV;
 import idynomics.Idynomics;
 import instantiable.Instantiable;
-import instantiable.object.InstantiableList;
 import linearAlgebra.Array;
 import linearAlgebra.Vector;
 import referenceLibrary.AspectRef;
@@ -88,7 +86,7 @@ public class RecordKeeper implements AspectInterface, Instantiable, Settable {
 	
 	public void step(double[][][] grid, Integer order, String soluteName)
 	{
-		double[][][] trimmedGrid = MultigridUtils.translateOut(grid);
+		double[][][] trimmedGrid = MultigridUtils.removePadding(grid);
 		if (this._order == order && this._soluteName.contentEquals(soluteName))
 		{
 			if (this._savedGrid == null)

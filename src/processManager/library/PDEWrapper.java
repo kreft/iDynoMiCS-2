@@ -25,15 +25,12 @@ import reaction.Reaction;
 import reaction.RegularReaction;
 import referenceLibrary.AspectRef;
 import referenceLibrary.XmlRef;
-import settable.Module;
 import shape.Shape;
 import shape.subvoxel.IntegerArray;
 import solver.mgFas.Domain;
 import solver.mgFas.Multigrid;
 import solver.mgFas.MultigridUtils;
 import solver.mgFas.SolverGrid;
-import solver.PDEexplicit;
-import solver.PDEmultigrid;
 import solver.mgFas.*;
 import utility.Helper;
 
@@ -203,7 +200,7 @@ public class PDEWrapper extends ProcessDiffusion
         {
             SpatialGrid spatGrid = this._environment.getSoluteGrid( g.gridName );
             double[][][] paddedGrid = g.getGrid();
-            spatGrid.setTo(CONCN, MultigridUtils.translateOut(paddedGrid) );
+            spatGrid.setTo(CONCN, MultigridUtils.removePadding(paddedGrid) );
         }
     }
     /**
