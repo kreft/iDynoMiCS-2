@@ -266,13 +266,6 @@ public class Multigrid
 
 		for (int iSolute : _soluteIndex)
 			_solute[iSolute].readBulk();
-		/*
-		LogFile.writeLogAlways("Solver_multigrid.initializeConcentrationfields()");
-		LogFile.writeLogAlways("Padded range is "+_solute[0].getGrid().getMin()+
-								" to "+_solute[0].getGrid().getMax());
-		LogFile.writeLogAlways("Unpadded range is "+_solute[0].getGrid().getMinUnpadded()+
-										" to "+_solute[0].getGrid().getMaxUnpadded());
-		*/
 	}
 
 	/**
@@ -439,7 +432,7 @@ public class Multigrid
 		 */
 		//FIXME is this next line required?
 		updateReacRateAndDiffRate(maxOrder-1);
-		
+
 		/* Refresh the bulk concentration of the multigrids.
 		*/
 		for (int iSolute : _soluteIndex)
@@ -570,6 +563,12 @@ public class Multigrid
 		Vector.addEquals(temp, this._solute[0]._conc[resorder]._reso );
 		((PDEWrapper) this._manager).applyReactions(this._solute, resorder, allReac, temp,
 				Math.pow( this._solute[0]._conc[resorder]._reso, (allSolute[0]._is3D ? 3.0 : 2.0) ));
+
+		/* synchronise cyclic reaction nodes */
+		for( SolverGrid s : allReac )
+		{
+			s.syncBoundary(myDomain);
+		}
 	}
 
 }

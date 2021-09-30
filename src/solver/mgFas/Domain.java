@@ -198,7 +198,7 @@ public class Domain
 		_nJ = (int) Math.ceil(lengths[1]/_resolution) +1;
 		_nK = (is3D) ? (int) Math.ceil(lengths[2]/_resolution) +1: 1;
 
-		String message = "unsupported mgFAS resolution, use n = 1+2^x";
+		String message = "unsupported mgFAS.md resolution, use n = 1+2^x";
 		if( isDiscretizationCompatible(_nI))
 			Log.out(Log.Tier.CRITICAL, message);
 		if( isDiscretizationCompatible(_nJ))
@@ -620,7 +620,7 @@ public class Domain
 	}
 
 	/**
-	 * \brief return true if chosen discretization is compatible with mgFAS
+	 * \brief return true if chosen discretization is compatible with mgFAS.md
 	 */
 	public boolean isDiscretizationCompatible(int nCells)
 	{

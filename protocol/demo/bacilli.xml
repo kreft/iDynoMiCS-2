@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document>
-	<simulation name="Smith3D_big" outputfolder="../results" log="DEBUG" randomSeed="22"
-						comment="this is a file for testing purposes only.">
+	<simulation name="Smith3D_big" outputfolder="../results" log="NORMAL" 
+		randomSeed="22"	comment="this is a file for testing purposes only."
+		configuration="config/models/arbitrary_testing_01.cfg">
 		
 		<timer stepSize="1.0" endOfSimulation="30.0" />
 		
@@ -31,7 +32,7 @@
 			</species>
 			<species name="rod">
 				<aspect name="surfaces"			type="CALCULATED"	class="AgentSurfaces"	  />
-				<aspect name="volume" 			type="CALCULATED" 	class="StateExpression" 		input="mass/density" />
+				<aspect name="volume" 		type="CALCULATED" 	class="SimpleVolumeState" 	/>
 				<aspect name="radius" 			type="PRIMARY" 		class="Double" 					value="0.3" />
 				<aspect name="divisionMass" 			type="PRIMARY" 		class="Double" 					value="0.6" />
 				<aspect name="divide" 			type="EVENT" 		class="RodDivision"		 />
@@ -41,6 +42,7 @@
 		</speciesLib>
 
 		<compartment name="second">
+			<orientation variable="0.0,0.0,1.0" />
 			<shape class="Cuboid">
 				<dimension name="X" isCyclic="true" targetResolution="1" max="32.0">
 				</dimension> 
@@ -50,8 +52,8 @@
 				</dimension> 
 			</shape>
 			<solutes>
-				<solute name="solute1" concentration="4.0"  defaultDiffusivity="1.0" biofilmDiffusivity="0.8"/>
-				<solute name="solute2" concentration="0.0"  defaultDiffusivity="1.0" biofilmDiffusivity="0.8"/>
+				<solute name="solute1" concentration="4.0" defaultDiffusivity="1"  />
+				<solute name="solute2" concentration="0.0" defaultDiffusivity="1"  />
 			</solutes>
 			<reactions>
 				<reaction name="slowInflow">

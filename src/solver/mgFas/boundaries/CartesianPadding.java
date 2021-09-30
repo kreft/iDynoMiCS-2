@@ -2,6 +2,7 @@ package solver.mgFas.boundaries;
 
 import linearAlgebra.Vector;
 import solver.mgFas.SoluteGrid;
+import solver.mgFas.SolverGrid;
 
 /**
  * FIXME Should we include padding corners fx (-1, -1) ?
@@ -88,6 +89,35 @@ public class CartesianPadding {
             sol.setValueAt( sol.getValueAt(
                     Vector.add( in, step ) ),
                     Vector.add( out, step ) );
+
+            step = step(step, dim);
+        }
+    }
+
+    /**
+     *  points on either side of the domain on the cyclic boundary represent the same point in
+     .space
+     */
+    public void synchroniseCyclic(SolverGrid sol, int dim)
+    {
+        int[] in = {0, 0, 0};
+        int[] out = {0, 0, 0};
+
+        {
+            in[dim] = 1;
+            out[dim] = extremes[dim];
+        }
+
+        int[] step = new int[] {-1, -1, -1};
+
+        while( step.length > 1 )
+        {
+            double value = sol.getValueAt(
+                            Vector.add( in, step ) ) +
+                    sol.getValueAt( Vector.add( out, step ) );
+
+            sol.setValueAt(value, Vector.add( in, step ));
+            sol.setValueAt(value, Vector.add( out, step ));
 
             step = step(step, dim);
         }

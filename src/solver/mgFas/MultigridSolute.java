@@ -255,13 +255,14 @@ public class MultigridSolute
 			int i = (_nI-1)/ExtraMath.exp2(iGrid)+1;
 			int j = (_nJ-1)/ExtraMath.exp2(iGrid)+1;
 			int k = (_nK-1)/ExtraMath.exp2(iGrid)+1;
-			// FIXME ??
+
 			double r = _referenceSystemSide/referenceIndex(i,j,k);
-			System.out.println(r + "  " + i + "  " + iGrid + " " + _referenceSystemSide);
+			if( Log.shouldWrite( Log.Tier.DEBUG ) )
+				Log.out( Log.Tier.DEBUG,
+						"MGsolute: " + r + "  " + i + "  " + iGrid + " " + _referenceSystemSide );
 			// with padding for boundary conditions
 			_conc[maxOrder-iGrid-1] = new SoluteGrid(i, j, k, r, aSolute);
 		}
-		
 	}
 
 	/**
@@ -451,7 +452,6 @@ public class MultigridSolute
 			_conc[order].refreshBoundary();	
 		}
 
-		//QuickCSV.write( "solute_" + soluteName + "_order_" + order, Array.slice( difference, 2, 0 ) );
 		if (!_conc[order]._recordKeeper.isEmpty())
 			for (RecordKeeper r : _conc[order]._recordKeeper)
 				r.step(u, order, this.soluteName);
@@ -658,7 +658,7 @@ public class MultigridSolute
 					}
 				}
 	}
-	
+
 	/**
 	 * 
 	 * @return

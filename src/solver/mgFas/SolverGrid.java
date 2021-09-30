@@ -13,6 +13,8 @@ package solver.mgFas;
 
 import java.io.Serializable;
 
+import shape.Dimension;
+import solver.mgFas.boundaries.CartesianPadding;
 import solver.mgFas.utils.ContinuousVector;
 import solver.mgFas.utils.DiscreteVector;
 import utility.ExtraMath;
@@ -175,6 +177,34 @@ public class SolverGrid implements Serializable
 				(j >= 0) && (j <= _nJ) &&
 				(k >= 0) && (k <= _nK);
 	}
+
+	public Boolean isPadding(int i, int j, int k)
+	{
+		return (i > 0) && (i < _nI) &&
+				(j > 0) && (j < _nJ) &&
+				(k > 0) && (k < _nK);
+	}
+
+//	public Boolean shouldSolve(int i, int j, int k, double threshold)
+//	{
+//		if ( isPadding(i, j, k) )
+//			return false;
+//		if(	grid[i][j][k] > threshold)
+//			return true;
+//		if(	grid[i-1][j][k] > threshold &! isPadding(i-1, j, k) )
+//			return true;
+//		if( grid[i+1][j][k] > threshold &! isPadding(i+1, j, k) )
+//			return true;
+//		if( grid[i][j-1][k] > threshold &! isPadding(i, j-1, k) )
+//			return true;
+//		if( grid[i][j+1][k] > threshold &! isPadding(i, j+1, k) )
+//			return true;
+//		if( grid[i][j][k-1] > threshold &! isPadding(i, j, k-1) )
+//			return true;
+//		if( grid[i][j][k+1] > threshold &! isPadding(i, j, k+1) )
+//			return true;
+//		return false;
+//	}
 
 	/**
 	 * \brief Determine if a given continuous location is valid or outside the
@@ -941,4 +971,20 @@ public class SolverGrid implements Serializable
 //		 */
 //		bufferState.write("\n</solute>\n");
 //	}
+
+	public void syncBoundary(Domain domain) {
+		/*
+		 * Three possibilities: periodic, constant concentration, zero flux
+		 */
+
+		CartesianPadding pad = new CartesianPadding(_nI, _nJ, _nK);
+
+		/* TODO accessing dimensions is overly complex, simplify */
+		for (Dimension.DimName d : domain.getShape().getDimensionNames()) {
+			Dimension dim = domain.getShape().getDimension(d);
+			if (dim.isCyclic()) {
+				pad.synchroniseCyclic(this, d.dimNum());
+			}
+		}
+	}
 }

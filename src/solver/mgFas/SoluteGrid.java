@@ -270,7 +270,7 @@ public class SoluteGrid extends SolverGrid
 		_nJ = _domain.getGrid().getGridSizeJ();
 		_nK = _domain.getGrid().getGridSizeK();
 	}
-	
+
 	public double getRes()
 	{
 		/* TODO now taking the smallest, but actually we should check wether they match together. */
@@ -337,7 +337,7 @@ public class SoluteGrid extends SolverGrid
 //		pad.zeroFlux( this, 2, true);
 
 	}
-	
+
 	/**
 	 * \brief Returns the name of this solute grid.
 	 * 

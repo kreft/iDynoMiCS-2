@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document>
-	<simulation log="EXPRESSIVE" outputfolder="../results" name="biofilm_no_growth"  randomSeed="224324231">
+	<simulation log="EXPRESSIVE" outputfolder="../results" name="nodes_test_solid"  randomSeed="224324231">
 	<timer stepSize="1.0" endOfSimulation="2.0" />
 		<speciesLib>
 			<!-- species/species library The species library contains all agent species 
@@ -62,7 +62,7 @@
 		<compartment name="biofilm" priority="1" tree="SPLITTREE">
 			<shape class="Rectangle" resolutionCalculator="MgFASResolution" nodeSystem="true">
 				<!-- µm -->
-				<dimension name="X" isCyclic="true" targetResolution="2.0" max="16.0"></dimension>
+				<dimension name="X" isCyclic="false" targetResolution="2.0" max="16.0"></dimension>
 				<dimension name="Y" isCyclic="false" targetResolution="2.0" max="16.0">
 					<boundary extreme="1" class="BiofilmBoundaryLayer" partnerCompartment="chemostat" layerThickness="12.0">
 						<solute name="glucose" concentration="2.0E-6" defaultDiffusivity="36000"/>

@@ -193,16 +193,6 @@ public class PDEWrapper extends ProcessDiffusion
             applyAgentReactions(agent, sols, resorder, reacGrid, resolution, voxelVolume);
     }
 
-    public void flashConcentrations(SolverGrid[] concGrid)
-    {
-        Shape shape = this._environment.getShape();
-        for( SolverGrid g : concGrid)
-        {
-            SpatialGrid spatGrid = this._environment.getSoluteGrid( g.gridName );
-            double[][][] paddedGrid = g.getGrid();
-            spatGrid.setTo(CONCN, MultigridUtils.removePadding(paddedGrid) );
-        }
-    }
     /**
      * \brief Apply the reactions for a single agent.
      *
@@ -446,7 +436,6 @@ public class PDEWrapper extends ProcessDiffusion
                                 String.valueOf( quantity ), null );
                 }
             }
-
         ProcessMethods.updateAgentMass(agent, newBiomass);
     }
 
