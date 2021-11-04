@@ -1,7 +1,5 @@
 package test.junit.newTests;
 
-import org.junit.Test;
-
 import boundary.Boundary;
 import boundary.WellMixedBoundary;
 import compartment.Compartment;
@@ -11,8 +9,9 @@ import debugTools.Testable;
 import debugTools.Tester;
 import grid.ArrayType;
 import idynomics.Idynomics;
+import org.junit.Test;
 
-public class ReactionDiffusion implements Testable {
+public class ReactionDiffusionMgFas implements Testable {
 
 	String sol = "glucose";
 	Compartment chemostat = null;
@@ -26,7 +25,7 @@ public class ReactionDiffusion implements Testable {
 	
 	public void test(TestMode mode)
 	{		
-		String file = "protocol/unit-tests/reaction_diffusion.xml";
+		String file = "protocol/unit-tests/reaction_diffusion_mgFas.xml";
 //		String file = "protocol/unit-tests/reaction_diffusion_Large.xml";
 		
 		/* basic simulator initiation */
@@ -65,7 +64,7 @@ public class ReactionDiffusion implements Testable {
 		/* max accepted Mean absolute relative error. As it is quite difficult
 		 * to get to precisely line-out the biofilm height with the grid and to
 		 * get a precise packing density typically 15% would be a good result */
-		double acceptedMRE = 0.15;
+		double acceptedMRE = 0.05;
 		/* polling frequency, set equal to the grid resolution (or a multitude), 
 		 * does not go below 1 */
 		int polling = Math.max((int)vLength[0], 1);

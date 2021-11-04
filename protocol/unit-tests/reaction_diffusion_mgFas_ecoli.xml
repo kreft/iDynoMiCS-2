@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document>
 	<simulation log="CRITICAL" outputfolder="../results" name="ecoli2D"  randomSeed="224324231">
-	<timer stepSize="10.0" endOfSimulation="20.0" />
+	<timer stepSize="1.0" endOfSimulation="2.0" />
 		<speciesLib>
 			<!-- species/species library The species library contains all agent species 
 				in the simulations. This may include microbial species, plasmid and vector 
@@ -28,8 +28,8 @@
 					<list class="RegularReaction" nodeLabel="reaction" 
 					entryClass="RegularReaction" keyClass="String" keyLabel="name">
 						<reaction name="growth">
+						<!-- pg * k * pg/um = pg/min -->
 							<expression value="mass * k * glucose">
-								<!-- per minute -->
 								<constant name="k" 	value="100000.0" />  
 							</expression>
 							<stoichiometric component="glucose" coefficient="-1.0" />
@@ -37,10 +37,31 @@
 					</list>
 				</aspect>
 			</species>
+			
+						
+			<species name="EColi">
+			<speciesModule name="coccoid" />
+			<speciesModule name="bacterium" />
+				<aspect name="pigment" type="PRIMARY" class="String" value="PURPLE" />
+				<aspect name="reactions" type="PRIMARY"  class="InstantiableList"> 
+					<list class="RegularReaction" nodeLabel="reaction" 
+					entryClass="RegularReaction" keyClass="String" keyLabel="name">
+						<reaction name="growth">
+							<expression value="mass * ( mumax / Ks ) * glucose )">
+								<!-- pg/µm3 --> 
+								<constant name="Ks" 	value="35.0E-06" /> 
+								<!-- per minute -->
+								<constant name="mumax" 	value="2.0E-02" />  
+							</expression>
+							<stoichiometric component="glucose" 	coefficient="-2.63" />
+						</reaction> 
+					</list>
+				</aspect>
+			</species>
 		</speciesLib>
 
 		<compartment name="biofilm" priority="1" tree="SPLITTREE">
-			<shape class="Rectangle" resolutionCalculator="MultigridResolution">
+			<shape class="Rectangle" resolutionCalculator="MgFASResolution" nodeSystem="true">
 				<!-- µm -->
 				<dimension name="X" isCyclic="true" targetResolution="2.0" max="32.0"></dimension>
 				<dimension name="Y" isCyclic="false" targetResolution="2.0" max="128.0">
@@ -56,7 +77,7 @@
 			</reactions>
 			<spawn class="randomSpawner" domain="32.0, 0.2" priority="1" number="100" morphology="COCCOID">
 				<templateAgent>
-					<aspect name="species" type="PRIMARY" class="String" value="Catalyst" />
+					<aspect name="species" type="PRIMARY" class="String" value="EColi" />
 					<aspect name="#isLocated" type="PRIMARY" class="Boolean" value="true" />
 					<!-- pg -->
 					<aspect name="mass" type="PRIMARY" class="Double" value="0.4" />
@@ -66,13 +87,14 @@
 			</agents>
 			<processManagers>				
 				<!-- ms -->
-				<process name="SolveDiffusionSteadyState" class="SolveDiffusionSteadyState" priority="1" firstStep="0.0">
-					<aspect name="absoluteTolerance" type="PRIMARY" class="Double" value="1.0e-10" />
+				<process name="PDEWrapper" class="PDEWrapper" priority="1" firstStep="0.0">
+					<aspect name="absoluteTolerance" type="PRIMARY" class="Double" value="1.0e-8" />
 					<aspect name="relativeTolerance" type="PRIMARY" class="Double" value="1.0e-6" />
-					<aspect name="vCycles" class="Integer" value="1" />
-					<aspect name="preSteps" class="Integer" value="1" />
-					<aspect name="coarseSteps" class="Integer" value="1" />
-					<aspect name="postSteps" class="Integer" value="500" />
+					<aspect name="vCycles" class="Integer" value="100" />
+					<aspect name="preSteps" class="Integer" value="25" />
+					<aspect name="coarseSteps" class="Integer" value="15" />
+					<aspect name="postSteps" class="Integer" value="25" />
+					<aspect name="autoVcycleAdjust" class="Boolean" value="false" />
 					<!-- µm^2 ms^-1-->
 				</process>
 				<process name="agentRelax" class="AgentRelaxation" priority="-2" firstStep="0.0">

@@ -1,7 +1,5 @@
 package test.junit.newTests;
 
-import org.junit.Test;
-
 import boundary.Boundary;
 import boundary.WellMixedBoundary;
 import compartment.Compartment;
@@ -11,8 +9,9 @@ import debugTools.Testable;
 import debugTools.Tester;
 import grid.ArrayType;
 import idynomics.Idynomics;
+import org.junit.Test;
 
-public class ReactionDiffusion implements Testable {
+public class ReactionDiffusionMgFasDistributed implements Testable {
 
 	String sol = "glucose";
 	Compartment chemostat = null;
@@ -26,7 +25,7 @@ public class ReactionDiffusion implements Testable {
 	
 	public void test(TestMode mode)
 	{		
-		String file = "protocol/unit-tests/reaction_diffusion.xml";
+		String file = "protocol/unit-tests/reaction_diffusion_smooth_distribution.xml";
 //		String file = "protocol/unit-tests/reaction_diffusion_Large.xml";
 		
 		/* basic simulator initiation */
@@ -59,13 +58,13 @@ public class ReactionDiffusion implements Testable {
 		biofilm.getShape().getVoxelSideLengthsTo(vLength, new int[3]);
 
 		/* set height of the biofilm and the diffusion boundary layer */
-		int hBiofilm = 10, hDBL = (int) (hBiofilm+bLayer), x=0;
+		int hBiofilm = 31, hDBL = (int) (hBiofilm+bLayer), x=0;
 		/* packing density of catalyst *cylinders* */
-		double pakcing = 0.75;
+		double pakcing = 0.5/(2.0*2.0);
 		/* max accepted Mean absolute relative error. As it is quite difficult
 		 * to get to precisely line-out the biofilm height with the grid and to
 		 * get a precise packing density typically 15% would be a good result */
-		double acceptedMRE = 0.15;
+		double acceptedMRE = 0.025;
 		/* polling frequency, set equal to the grid resolution (or a multitude), 
 		 * does not go below 1 */
 		int polling = Math.max((int)vLength[0], 1);
@@ -75,6 +74,7 @@ public class ReactionDiffusion implements Testable {
 		double mre1 = 0, mre2 = 0;
 		int e5 = 0, e10 = 0, e20 = 0;
 		int i=0;
+		boolean nodesystem = true;
 
 		Idynomics.simulator.initalRun();
 
@@ -88,12 +88,16 @@ public class ReactionDiffusion implements Testable {
 						+ "\t Relative error \t Location", mode);
 				for (int y = 0; y < hDBL+1; y++)
 				{
-					boolean poll = ( y%polling == 0);
+					boolean poll;
+					if( nodesystem )
+						poll = ( (y%polling)-1 == 0);
+					else
+						poll = (y%polling == 0);
 					solver = concn(x ,y);
 					if(y <= hBiofilm && poll)
 					{
 						/* catalyst part */
-						model = concnFirstOrder( y, (100000.0*0.15*pakcing) /
+						model = concnFirstOrder( y, ((2.0E-02/35.0E-06)*2.63*pakcing) /
 								36000.0, hBiofilm, concn(x, hBiofilm) );
 						error = (1-solver/model);
 						Tester.println( solver + "\t " + model + "\t " +
@@ -137,11 +141,11 @@ public class ReactionDiffusion implements Testable {
 		/* Unit test: are the MREs close to 0? */
 		Tester.println("\n", mode);
 		Tester.assess(0.0, mre1, acceptedMRE , mode, 
-				"Mean Relative error biofilm < " + acceptedMRE);
+				"Mean Relative error biofilm "  + (float)mre1 + " < " + acceptedMRE);
 		Tester.assess(0.0, mre2, acceptedMRE , mode, 
-				"Mean Relative error diffusion boundary layer < " +acceptedMRE);
+				"Mean Relative error diffusion boundary layer "  + (float)mre2 + " < " +acceptedMRE);
 		Tester.assess(0.0, (mre1+mre2)/2, acceptedMRE , mode, 
-				"Mean Relative error overall < " + acceptedMRE);
+				"Mean Relative error overall "  + (float)(mre1+mre2)/2 + " < " + acceptedMRE);
 	}
 	/**
 	 * Poll concentration in biofilm compartment.

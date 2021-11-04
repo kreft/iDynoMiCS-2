@@ -47,8 +47,11 @@ public abstract class WellMixedBoundary extends SpatialBoundary
 		}
 		catch (Exception e)
 		{
-			Log.out(Tier.CRITICAL, "Error getting solute \""+soluteName+"\"");
-			throw e;
+			Log.out(Tier.CRITICAL, "Error getting solute \""+soluteName+"\" \n" +
+					"Check whether all WellMixed boundaries are properly initialized.");
+			Thread.dumpStack();
+			return 0.0;
+//			throw e;
 		}
 	}
 }

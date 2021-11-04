@@ -239,7 +239,7 @@ public final class GuiConsole
 	
   	public static void scroll()
   	{
-  		if ( _autoScroll )
+  		if ( _autoScroll  && _console != null )
   		{
   			Document doc =	_console.getDocument();
   			_console.setCaretPosition(doc.getLength());

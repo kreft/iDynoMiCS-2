@@ -216,6 +216,15 @@ public class SoluteGrid extends SolverGrid
 		useExternalSoluteGrid(aSolG);
 	}
 
+	public SoluteGrid(int nI, int nJ, int nK, double res, SoluteGrid aSolG, double initial)
+	{
+		super(nI, nJ, nK, res);
+		useExternalSoluteGrid(aSolG);
+
+		this.setAllValueAt(initial);
+
+	}
+
 	/**
 	 * \brief Initialise a solute grid based on the properties of another
 	 * provided grid.
@@ -236,6 +245,24 @@ public class SoluteGrid extends SolverGrid
 		_nK = aSolG.getGridSizeK();
 		/*
 		 * 
+		 */
+		initGrids();
+	}
+
+	public SoluteGrid(SoluteGrid aSolG, double initial)
+	{
+		gridName = aSolG.gridName;
+		diffusivity = aSolG.diffusivity;
+		_domain = aSolG._domain;
+		/*
+		 *
+		 */
+		_reso = aSolG.getResolution();
+		_nI = aSolG.getGridSizeI();
+		_nJ = aSolG.getGridSizeJ();
+		_nK = aSolG.getGridSizeK();
+		/*
+		 *
 		 */
 		initGrids();
 	}
@@ -293,7 +320,6 @@ public class SoluteGrid extends SolverGrid
 		/*
 		* Three possibilities: periodic, constant concentration, zero flux
 		*/
-
 		CartesianPadding pad = new CartesianPadding(_nI, _nJ, _nK );
 
 		/* TODO accessing dimensions is overly complex, simplify */
@@ -308,6 +334,7 @@ public class SoluteGrid extends SolverGrid
 			else {
 				if ( dim.isBoundaryDefined(0) && dim.getBoundary(0) instanceof WellMixedBoundary) {
 					pad.constantConcentration(this, d.dimNum(), false, bulk);
+
 				} else {
 					pad.zeroFlux(this, d.dimNum(), false);
 				}

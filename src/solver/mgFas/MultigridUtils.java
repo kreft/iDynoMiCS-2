@@ -383,7 +383,8 @@ public abstract class MultigridUtils {
 	}
 	
 	/**
-	 * Subtract every entry of matrix b to the corresponding entry in matrix a.
+	 * /brief substract b from a.
+	 * Subtract every entry of matrix b from the corresponding entry in matrix a.
 	 * 
 	 * @param a
 	 * @param b
@@ -426,6 +427,27 @@ public abstract class MultigridUtils {
 			for (int j = 0; j<a[i].length; j++)
 				for (int k = 0; k<a[i][j].length; k++)
 					min = (a[i][j][k]<min ? a[i][j][k] : min);
+		return min;
+	}
+
+	/**
+	 * returns smallest non zero value over absolute, if all values are < absolute this returns absolute
+	 * @param a
+	 * @param absolute
+	 * @return
+	 */
+	public static double smallestNonZero(double a[][][], double absolute) {
+		double min = a[0][0][0];
+		for (int i = 0; i<a.length; i++) {
+			for (int j = 0; j < a[i].length; j++)
+				for (int k = 0; k < a[i][j].length; k++)
+				{
+					if(a[i][j][k] > absolute)
+						min = (a[i][j][k] < min ? a[i][j][k] : min);
+				}
+		}
+		if( min < absolute )
+			return absolute;
 		return min;
 	}
 

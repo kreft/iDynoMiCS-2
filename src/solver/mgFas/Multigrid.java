@@ -319,6 +319,7 @@ public class Multigrid
 
 		int stage = 0;
 		boolean breakVCycle = false;
+		int vc =0;
 
 		// Solve chemical concentrations on coarsest grid.
 		solveCoarsest(); // coarsest order = 0
@@ -346,6 +347,7 @@ public class Multigrid
 			// V-cycle loop.
 			for (int v = 0; v < _vCycles; v++)
 			{
+				vc = v;
 				/* autoAdjust, currently we adjust all to the one left behind */
 				for (int iSolute : _soluteIndex)
 					stage = Math.max( stage, _solute[iSolute].getStage() );
@@ -355,7 +357,7 @@ public class Multigrid
 				{
 					// Pre-smoothing.
 					if( this.autoVcycleAdjust ) // smooth more if Vcycle becomes stagnant
-						relax( Math.min(1 + 2*stage, nPreSteps) );
+						relax( Math.min( 5*(stage+1), nPreSteps) );
 					else
 						relax(nPreSteps);
 
@@ -372,7 +374,10 @@ public class Multigrid
 				}
 				
 				// Bottom of V.
-				solveCoarsest();
+				if( this.autoVcycleAdjust ) // smooth more if Vcycle becomes stagnant
+					solveCoarsest( Math.min( 3*(stage+1), nCoarseStep) );
+				else
+					solveCoarsest();
 				
 				// Upward stroke of V.
 				while ( order < outer )
@@ -386,7 +391,7 @@ public class Multigrid
 
 					// Post-smoothing.
 					if( this.autoVcycleAdjust ) // smooth more if Vcycle becomes stagnant
-						relax( Math.min(1 + 3*stage, nPostSteps) );
+						relax( Math.min( 5*(stage+1), nPostSteps) );
 					else
 						relax(nPostSteps);
 				}
@@ -402,7 +407,10 @@ public class Multigrid
 					breakVCycle &= _solute[iSolute].breakVCycle(order, v);
 
 				if (breakVCycle)
+				{
+					System.out.println(vc);
 					break;
+				}
 			}
 			if( ! breakVCycle && Log.shouldWrite( Log.Tier.CRITICAL ) )
 				Log.out(Log.Tier.CRITICAL,
@@ -418,8 +426,9 @@ public class Multigrid
 			}
 			stage = Math.max( stage, _solute[iSolute].getStage() );
 		}
-		if( this.autoVcycleAdjust == false )
-			Log.out( "Vcycle stagnations: " + stage );
+		if( Log.shouldWrite( Log.Tier.EXPRESSIVE ) )
+			Log.out(Log.Tier.EXPRESSIVE, "Vcycles: " + vc + " stage: " + stage );
+
 	}
 
 	/**
@@ -443,16 +452,20 @@ public class Multigrid
 	 * Solve the coarsest grid by relaxation Coarse grid is initialised to
 	 * bulk concentration.
 	 */
-	public void solveCoarsest()
+	public void solveCoarsest(int steps)
 	{
 		// NOTE disabled reset to bulk, previous solution should be better
 		order = 0;
 		// Reset coarsest grid to bulk concentration.
-//		for (int iSolute : _soluteIndex)
-//			_solute[iSolute].setSoluteGridToBulk(order);
+		for (int iSolute : _soluteIndex)
+			_solute[iSolute].setWellmixed(order);
 
 		// Relax NSOLVE times.
-		relax(nCoarseStep);
+		relax(steps);
+	}
+
+	public void solveCoarsest() {
+		solveCoarsest(nCoarseStep);
 	}
 
 	/**
@@ -465,29 +478,31 @@ public class Multigrid
 	{
 		for (int j = 0; j < nIter; j++)
 		{
-			if (this._relaxationMap.values().contains(false))
-			{
-				updateReacRateAndDiffRate(order);
-				
-				for (int iSolute : _soluteIndex)
-				{
-					if (!this._relaxationMap.get(_solute[iSolute].soluteName))
-					{
-						double[][][] difference = _solute[iSolute].relax(order);
-						
-						double highestConc = Array.max(_solute[iSolute]._conc[order].grid);
-
-						if (Array.max(difference) < ((PDEWrapper)this._manager).absTol
-								|| Array.max(difference) < highestConc *
-								((PDEWrapper)this._manager).relTol)
-							this._relaxationMap.put(_solute[iSolute].soluteName, true);
-					}
-				}
-			}
-		 }
-		 for (String s : this._relaxationMap.keySet())
-		 {
-			 this._relaxationMap.put(s, false);
+			updateReacRateAndDiffRate(order);
+			_solute[iSolute].relax(order);
+//
+//			if (this._relaxationMap.values().contains(false))
+//			{
+//				updateReacRateAndDiffRate(order);
+//				for (int iSolute : _soluteIndex)
+//				{
+//					if (!this._relaxationMap.get(_solute[iSolute].soluteName))
+//					{
+//						double[][][] difference = _solute[iSolute].relax(order);
+//
+//						double highestConc = Array.max(_solute[iSolute]._conc[order].grid);
+//
+//						if (Array.max(difference) < ((PDEWrapper)this._manager).absTol
+//								|| Array.max(difference) < highestConc *
+//								((PDEWrapper)this._manager).relTol)
+//							this._relaxationMap.put(_solute[iSolute].soluteName, true);
+//					}
+//				}
+//			}
+//		 }
+//		 for (String s : this._relaxationMap.keySet())
+//		 {
+//			 this._relaxationMap.put(s, false);
 		 }
 	}
 
