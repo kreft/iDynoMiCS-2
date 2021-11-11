@@ -479,7 +479,9 @@ public class Multigrid
 		for (int j = 0; j < nIter; j++)
 		{
 			updateReacRateAndDiffRate(order);
-			_solute[iSolute].relax(order);
+			for (int iSolute : _soluteIndex) {
+				_solute[iSolute].relax(order);
+			}
 //
 //			if (this._relaxationMap.values().contains(false))
 //			{

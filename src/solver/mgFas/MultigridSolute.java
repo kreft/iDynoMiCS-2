@@ -365,10 +365,10 @@ public class MultigridSolute
 		/*
 		 *  Confirm that criterion is met for each solute.
 		 */
-		if( (_res[order] - res) / res < 0.5 ) // less than 1% drop in residual (or res increasing)
+		if( (_res[order] - res) / res < 0.05 ) // less than 1% drop in residual (or res increasing)
 		{
-			if( Log.shouldWrite( Log.Tier.EXPRESSIVE ) )
-				Log.out( Log.Tier.EXPRESSIVE, "Stagnant Vcycle residual res: " + res );
+			if( Log.shouldWrite( Log.Tier.DEBUG ) )
+				Log.out( Log.Tier.DEBUG, "Stagnant Vcycle residual res: " + res );
 			this._stage++;
 		}
 		this._res[order] = res;
