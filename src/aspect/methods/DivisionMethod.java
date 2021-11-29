@@ -9,6 +9,7 @@ import aspect.Event;
 import aspect.Aspect.AspectClass;
 import dataIO.Log;
 import dataIO.Log.Tier;
+import debugTools.SegmentTimer;
 import referenceLibrary.AspectRef;
 import utility.ExtraMath;
 import utility.Helper;
@@ -23,8 +24,10 @@ public abstract class DivisionMethod extends Event {
 
 		/* Make one new agent, copied from the mother.*/
 		compliant = new Agent((Agent) initiator);
+
 		/* Transfer an appropriate amount of mass from mother to daughter. */
 		DivisionMethod.transferMass(initiator, compliant);
+
 		/* Update their bodies, if they have them. */
 		if ( initiator.isAspect(AspectRef.agentBody) &&
 				initiator.isAspect(AspectRef.bodyRadius) )

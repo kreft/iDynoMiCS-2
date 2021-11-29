@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
 
+import debugTools.SegmentTimer;
 import org.w3c.dom.Element;
 
 import agent.Agent;
@@ -208,11 +209,13 @@ public abstract class ProcessDiffusion extends ProcessManager
 		 * Clear agent mass distribution maps.
 		 */
 		this.removeAgentDistibutionMaps();
-		/**
+
+		/*
 		 * act upon new agent situations
 		 */
 		for(Agent agent: this._agents.getAllAgents()) 
 			agent.event(DIVIDE);
+
 		for(Agent agent: this._agents.getAllAgents()) 
 		{
 			agent.event(EXCRETE_EPS);

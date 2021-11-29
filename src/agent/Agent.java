@@ -2,6 +2,7 @@ package agent;
 import java.util.LinkedList;
 import java.util.List;
 
+import debugTools.SegmentTimer;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -121,7 +122,7 @@ public class Agent implements AspectInterface, Settable, Instantiable
 			// Place located agents
 			loadAspects(xmlNode);
 		}
-		this.init();
+		this.initiate();
 	}
 	
 	private void number(Integer in)
@@ -130,7 +131,8 @@ public class Agent implements AspectInterface, Settable, Instantiable
 		{
 			if ( UNIQUE_ID <= in )
 				UNIQUE_ID++;
-			if( Idynomics.simulator.findAgent(Integer.valueOf(in)) == null)
+			if( Idynomics.simulator.active() || //IMPORTANT prevent searching for duplicate number assignment in running simulations for efficiency.
+					Idynomics.simulator.findAgent(Integer.valueOf(in)) == null )
 				this._uid = Integer.valueOf(in);
 			else
 			{
@@ -146,12 +148,11 @@ public class Agent implements AspectInterface, Settable, Instantiable
 	/**
 	 * Assign the correct species from the species library
 	 */
-	public void init()
+	public void initiate()
 	{
-		String species;
 		if( this._uid == 0)
 			this.number(null);
-		
+		String species;
 		species = this.getString(XmlRef.species);
 		this._aspectRegistry.addModule( (Species) 
 				Idynomics.simulator.speciesLibrary.get(species), species);
@@ -165,7 +166,7 @@ public class Agent implements AspectInterface, Settable, Instantiable
 		((Compartment) parent.getParent()).addAgent(this);
 		this._compartment = (Compartment) parent.getParent();
 		loadAspects(xmlElement);
-		this.init();
+		this.initiate();
 		this._parentNode = parent;
 	}
 		
@@ -186,7 +187,7 @@ public class Agent implements AspectInterface, Settable, Instantiable
 	{
 		this.loadAspects(xmlNode);
 		this.set(AspectRef.agentBody, body);
-		this.init();
+		this.initiate();
 	}
 	
 	/**
@@ -197,14 +198,14 @@ public class Agent implements AspectInterface, Settable, Instantiable
 	public Agent(Node xmlNode, boolean boo)
 	{
 		this.loadAspects(xmlNode);
-		this.init();
+		this.initiate();
 	}
 
 	public Agent(String species, Compartment comp)
 	{
 		this.set(XmlRef.species, species);
 		this._compartment = comp;
-		this.init();
+		this.initiate();
 	}
 
 	public Agent(String species, Body body, Compartment comp)
@@ -212,7 +213,7 @@ public class Agent implements AspectInterface, Settable, Instantiable
 		this.set(XmlRef.species, species);
 		this.set(AspectRef.agentBody, body);
 		this._compartment = comp;
-		this.init();
+		this.initiate();
 	}
 
 	/**
@@ -223,7 +224,7 @@ public class Agent implements AspectInterface, Settable, Instantiable
 	public Agent(Agent agent)
 	{
 		this._aspectRegistry.duplicate(agent);
-		this.init();
+		this.initiate();
 		this._compartment = agent.getCompartment();
 	}
 
@@ -380,7 +381,7 @@ public class Agent implements AspectInterface, Settable, Instantiable
 	public void setModule(Module node)
 	{
 		Settable.super.setModule(node);
-		this.init(); // Updates species module if changed
+		this.initiate(); // Updates species module if changed
 	}
 
 	/**

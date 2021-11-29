@@ -647,8 +647,9 @@ public class AgentMediator implements CommandMediator {
 		double[] p1 = shape.getGlobalLocation(shape.getLocation(coord, in)); in[1]++;			 // [0 0 0]
 		double[] p2 = shape.getGlobalLocation(shape.getLocation(coord, in)); in[0]++;			 // [0 1 0]
 		double[] p7 = shape.getGlobalLocation(shape.getLocation(coord, in)); in[1]--;			 // [1 1 0]
-		double[] p8 = shape.getGlobalLocation(shape.getLocation(coord, in)); 					 // [1 0 0]
-		
+		double[] p8 = shape.getGlobalLocation(shape.getLocation(coord, in));
+		// [1 0 0]
+
 		_gl.glBegin(GL2.GL_QUADS);
 		// p==0
 		_gl.glVertex3fv(Vector.toFloat(p1), 0);

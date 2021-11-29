@@ -2051,6 +2051,15 @@ public final class Matrix
 		for ( int i = 0; i < rowDim(a); i++ )
 			Vector.divideTo(destination[i], a[i], b[i]);
 	}
+
+	public static void elemRatioTo(
+			double[][] destination, double[][] a, double[][] b)
+	{
+		checkDimensionsSame(destination, a, b);
+		for ( int i = 0; i < rowDim(a); i++ )
+			Vector.ratioTo(destination[i], a[i], b[i]);
+	}
+
 	
 	/**
 	 * \brief For each element of a matrix <b>a</b>, divide by the

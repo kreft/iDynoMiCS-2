@@ -13,6 +13,7 @@ import java.util.*;
 
 import compartment.EnvironmentContainer;
 import dataIO.Log;
+import debugTools.SegmentTimer;
 import grid.ArrayType;
 import linearAlgebra.Array;
 import linearAlgebra.Vector;
@@ -352,7 +353,8 @@ public class Domain
 	 */
 	public void calculateComputationDomainGrids2()
 	{
-		this._environment.updateWellMixed();
+		/* note well mixed should already be up-to-date here and should not be updated again for
+		* efficiency. */
 		double[][][] temp = this._environment.getCommonGrid().getArray( ArrayType.WELLMIXED );
 		/* bLayer is the opposite part of wellMixed */
 		temp = Array.minus( Array.add( Array.zeros(temp), 1.0 ) , temp);

@@ -148,9 +148,9 @@ public class SegmentTimer {
 	 */
 	public long pause()
 	{
+		this._netTime += tock();
 		if ( this._verbose)
 			this.report();
-		this._netTime += tock();
 		return this._netTime;
 	}
 	
@@ -169,7 +169,10 @@ public class SegmentTimer {
 	 */
 	public long stop()
 	{
-		return this.reportNet();
+		this._netTime += tock();
+		long out = this.reportNet();
+		this._netTime = 0;
+		return out;
 	}
 	
 	/**

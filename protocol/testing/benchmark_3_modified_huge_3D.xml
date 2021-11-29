@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+	<simulation name="benchmark3" outputfolder="../results" log="EXPRESSIVE" randomSeed="12432423"
+		comment="this is a file for testing purposes only.">
+		<!-- minutes -->
+		<timer stepSize="60.0" endOfSimulation="20.0[day]" />
+		<speciesLib>
+			<species name="heterotroph">
+				<speciesModule name="coccoid" />
+				<aspect name="reactions" type="PRIMARY"  class="InstantiableList"> 
+					<list class="RegularReaction" nodeLabel="reaction" 
+					entryClass="RegularReaction" keyClass="String" keyLabel="name">
+						<reaction name="hetGrowth">
+							<expression value="mass * mumax * 
+									( COD / ( COD + KS ) ) * 
+									( ( oxygen / ( oxygen + Kox ) )">
+								<!-- pg/µm3 --> 
+								<constant name="KS" 	value="4.0e-6" /> 
+								<constant name="Kox" 	value="2.0e-7" />
+								<!-- per minute -->
+								<constant name="mumax" 	value="0.004167" />
+							</expression>
+							<stoichiometric component="mass" coefficient="1.0" />
+							<stoichiometric component="COD" 	coefficient="-1.5873" />
+							<stoichiometric component="oxygen" 	coefficient="-0.5873" />
+						</reaction> 
+						<reaction name="hetInactivation">
+							<expression value="inactivationRate * mass">
+							<!-- per minute -->
+								<constant name="inactivationRate" 	value="5.556e-5" /> 
+							</expression>
+							<stoichiometric component="mass" coefficient="-1.0" />
+							<stoichiometric component="inert" 	coefficient="1.0" />
+						</reaction>
+						<reaction name="hetRespiration">
+							<expression value="mass * respirationRate * (oxygen / (oxygen + Kox))">
+								<!-- pg/µm3 --> 
+								<constant name="respirationRate" 	value="2.222e-4" />
+								<constant name="Kox" 				value="2.0e-7" />
+							</expression>
+							<stoichiometric component="mass" coefficient="-1.0" />
+							<stoichiometric component="oxygen" 	coefficient="-1.0" />
+						</reaction>
+					</list>
+				</aspect>
+			</species>
+			
+			<species name="autotroph">
+				<speciesModule name="coccoid" />
+				<aspect name="reactions" type="PRIMARY"  class="InstantiableList"> 
+					<list class="RegularReaction" nodeLabel="reaction" 
+					entryClass="RegularReaction" keyClass="String" keyLabel="name">
+						<reaction name="autGrowth">
+							<expression value="mass * mumax * 
+									( ammonium / ( ammonium + KN ) ) * 
+									( ( oxygen / ( oxygen + Kox ) )">
+								<!-- pg/µm3 --> 
+								<constant name="KN" 	value="1.0e-6" /> 
+								<constant name="Kox" 	value="5.0e-7" />
+								<!-- per minute -->
+								<constant name="mumax" 	value="6.95e-4" />  
+							</expression>
+							<stoichiometric component="mass" 	 coefficient="1.0" />
+							<stoichiometric component="oxygen" 	 coefficient="-18.0417" />
+							<stoichiometric component="ammonium" coefficient="-4.1667" />
+						</reaction> 
+						<reaction name="autInactivation">
+							<expression value="inactivationRate * mass">
+								<!-- per minute --> 
+								<constant name="inactivationRate" 	value="2.083e-5" /> 
+							</expression>
+							<stoichiometric component="mass"	coefficient="-1.0" />
+							<stoichiometric component="inert" 	coefficient="1.0" />
+						</reaction>
+						<reaction name="autRespiration">
+							<expression value="mass * respirationRate * (oxygen / (oxygen + Kox))">
+								<!-- pg/µm3 --> 
+								<constant name="respirationRate" 	value="8.333e-5" />
+								<constant name="Kox" 				value="5.0e-7" />
+							</expression>
+							<stoichiometric component="mass" coefficient="-1.0" />
+							<stoichiometric component="oxygen" 	coefficient="-1.0" />
+						</reaction>
+					</list>
+				</aspect>
+			</species>
+
+			<species name="coccoid">
+				<!-- pg / µm^3-->
+				<aspect name="density" 		type="PRIMARY" 		class="Double" 				value="1.5e-2" />
+				<aspect name="#isLocated" 	type="PRIMARY" 		class="Boolean" 			value="true" />
+				<aspect name="surfaces"		type="CALCULATED"	class="AgentSurfaces"		/>
+				<aspect name="morphology" 	type="PRIMARY" 		class="String" 				value="coccoid" />
+				<aspect name="volume" 		type="CALCULATED" 	class="SimpleVolumeState" 	/>
+				<aspect name="radius" 		type="CALCULATED" 	class="CoccoidRadius" 		/>
+				<aspect name="divide" 		type="EVENT" 		class="CoccoidDivision"		/>
+				<!-- Dry division mass (pg) -->
+				<aspect name="divisionMass"	class="Double"		value="4.0" 				/>
+				<aspect name="updateBody" 	type="EVENT" 		class="UpdateBody" 			/>
+				<aspect name="evaluatePull"	type="EVENT"		class="ResolveInteractionDistance" 	 />
+				<!-- µm -->
+				<aspect name="searchDist"	type="PRIMARY"		class="Double"				value="0.0"  />
+			</species>
+		</speciesLib>
+		<compartment name="chemostat" priority="2">
+			<shape class="Dimensionless" volume="4.0e12"> 
+				<boundary  class="constantConcentrationToChemostat" volumeFlowRate="4.444E4">
+				<solute name="ammonium" concentration="6.00E-06"/>
+				<solute name="oxygen" 	concentration="1.0E-5"/>
+				<solute name="COD" 	concentration="3.0E-5" />
+				</boundary>
+				<boundary  class="chemostatOut" volumeFlowRate="-4.444E4" agentRemoval="false" >
+				</boundary> 
+			</shape>
+			<solutes>
+				<!-- pg / µm3 -->
+				<solute name="ammonium" concentration="6.0E-06" defaultDiffusivity="118055.556"  />
+				<solute name="oxygen" 	concentration="1.0E-5" defaultDiffusivity="138888.889"  />
+				<solute name="COD" 	concentration="3.0E-5" defaultDiffusivity="69444.444"  />
+			</solutes>
+			<processManagers>
+				<process name="solveChemostat" class="ChemostatSolver" priority="0"
+					firstStep="0.0">
+					<aspect name="soluteNames" type="PRIMARY" class="String[]" value="ammonium,COD" />
+					<aspect name="hMax" type="PRIMARY" class="Double" value="0.1" />
+					<aspect name="solver" type="PRIMARY" class="String" value="heun" />
+					<aspect name="tolerance" class="Double" value="1.0E-6" />
+				</process>
+			</processManagers>
+		</compartment>
+		<compartment name="biofilm"  priority="1">
+			<shape class="Cuboid" resolutionCalculator="MgFASResolution" nodeSystem="true">
+				<!-- µm -->
+				<dimension name="X" isCyclic="true" 	targetResolution="20.0" max="640.0"/>
+				<dimension name="Y" isCyclic="false" 	targetResolution="20.0" max="640.0">
+					<boundary extreme="1" class="BiofilmBoundaryLayer" partnerCompartment="chemostat" layerThickness = "0.0"/>
+				</dimension>
+				<dimension name="Z" isCyclic="true" 	targetResolution="20.0" max="640.0"/>
+			</shape>
+			<solutes>
+				<!-- Initial concentrations pg / µm2 -->
+				<solute name="COD"  	concentration="3e-5" defaultDiffusivity="69444.444" />
+				<solute name="ammonium"  concentration="6e-6" defaultDiffusivity="118055.556"/>
+				<solute name="oxygen" 	concentration="1e-5" defaultDiffusivity="138888.889"/>
+			</solutes>
+			<reactions>
+			</reactions>
+			<spawn class="randomSpawner" domain="640.0, 20.0, 640.0" priority="0" number="500" morphology="COCCOID">
+				<templateAgent>
+					<aspect name="species" type="PRIMARY" class="String" value="heterotroph" />
+					<aspect  name="mass" class="Double" value="1.0"  />
+					<aspect  name="inert" class="Double" value="0.0"  />
+				</templateAgent>
+			</spawn>
+			<spawn class="randomSpawner" domain="640.0, 20.0, 640.0" priority="0" number="500" morphology="COCCOID">
+				<templateAgent>
+					<aspect name="species" type="PRIMARY" class="String" value="autotroph" />
+					<aspect  name="mass" class="Double" value="1.0"  />
+					<aspect  name="inert" class="Double" value="0.0"  />
+				</templateAgent>
+			</spawn>
+			<processManagers>
+				<!-- minute -->
+				<process name="agentRelax"	class="AgentRelaxation" priority="0"
+					firstStep="0.0">
+					<!-- µm -->
+					<aspect name="maxMovement" 		type="PRIMARY" class="Double" value="3.0" />
+					<aspect name="relaxationMethod" type="PRIMARY" class="String" value="EULER" />
+					<aspect name="stressThreshold" type="PRIMARY" class="Double" value="1.0e10" />
+				</process>
+				<!-- minute -->
+				<process name="PDEWrapper" class="PDEWrapper" priority="1" firstStep="0.0">
+					<aspect name="absoluteTolerance" type="PRIMARY" class="Double" value="1.0e-15" />
+					<aspect name="relativeTolerance" type="PRIMARY" class="Double" value="1.0e-10" />
+					<aspect name="vCycles" class="Integer" value="15" />
+					<aspect name="preSteps" class="Integer" value="20" />
+					<aspect name="coarseSteps" class="Integer" value="5" />
+					<aspect name="postSteps" class="Integer" value="10" />
+					<aspect name="autoVcycleAdjust" class="Boolean" value="true" />
+					<!-- µm^2 ms^-1-->
+				</process>
+				<process name="scrape" class="AgentScraper" priority="-2"
+					firstStep="0.0">
+					<aspect name="maxThickness" type="PRIMARY" class="Double" value="500.0" />
+				</process>
+			</processManagers>
+		</compartment>
+	</simulation>
+</document>

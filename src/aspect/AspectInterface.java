@@ -226,7 +226,7 @@ public abstract interface AspectInterface
 	{
 		Boolean out = (Boolean) this.reg().getValue(this, aspect);
 		if( out == null )
-			return false;
+			return null;
 		return out;
 	}
 	

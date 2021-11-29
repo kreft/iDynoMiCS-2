@@ -3,6 +3,7 @@ package boundary.spatialLibrary;
 import static grid.ArrayType.WELLMIXED;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -20,9 +21,12 @@ import grid.WellMixedConstants;
 import linearAlgebra.Vector;
 import referenceLibrary.AspectRef;
 import shape.Shape;
+import spatialRegistry.SpatialRegistry;
+import spatialRegistry.splitTree.SplitTree;
 import surface.Ball;
 import surface.BoundingBox;
 import surface.Surface;
+import surface.Voxel;
 import surface.collision.Collision;
 
 /**
@@ -144,10 +148,8 @@ public class BiofilmBoundaryLayer extends WellMixedBoundary
 		double concn = this._concns.get(grid.getName());
 		return this.calcDiffusiveFlowFixed(grid, concn);
 	}
-	
-	@SuppressWarnings("unchecked")
-	@Override
-	public void updateWellMixedArray()
+
+	public void updateWellMixedArrayOld()
 	{
 		Shape aShape = this._environment.getShape();
 		SpatialGrid grid = this._environment.getCommonGrid();
@@ -181,7 +183,12 @@ public class BiofilmBoundaryLayer extends WellMixedBoundary
 			double[] voxelCenterTrimmed = Vector.zerosDbl(numDim);
 			List<Agent> neighbors;
 			BoundingBox box;
-			while ( aShape.isIteratorValid() )
+			Voxel innerBox = new Voxel(Vector.vector(numDim,0.0),
+					Vector.vector(numDim,0.0));
+
+			/* naming parent loop so that we can break
+			out of it instantly when we hit and agent */
+			shapeloop : while ( aShape.isIteratorValid() )
 			{
 				aShape.voxelCentreTo(voxelCenter, coords);
 				Vector.copyTo(voxelCenterTrimmed, voxelCenter);
@@ -192,6 +199,7 @@ public class BiofilmBoundaryLayer extends WellMixedBoundary
 				 */
 				box = this._gridSphere.boundingBox(this._agents.getShape());
 				neighbors = this._agents.treeSearch(box);
+
 				for ( Agent a : neighbors )
 					for (Surface s : (List<Surface>) ((Body) 
 							a.get( AspectRef.agentBody )).getSurfaces() )
@@ -199,8 +207,78 @@ public class BiofilmBoundaryLayer extends WellMixedBoundary
 							{
 								grid.setValueAt(WELLMIXED, coords, 
 										WellMixedConstants.NOT_MIXED);
-								break;
+								coords = aShape.iteratorNext();
+								continue shapeloop;
 							}
+				coords = aShape.iteratorNext();
+			}
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public void updateWellMixedArray()
+	{
+		Shape aShape = this._environment.getShape();
+		SpatialGrid grid = this._environment.getCommonGrid();
+		int numDim = aShape.getNumberOfDimensions();
+		/*
+		 * Iterate over all voxels, checking if there are agents nearby.
+		 */
+		double[] min = Vector.zerosDbl(	aShape.getNumberOfDimensions() );
+
+		SpatialRegistry<Voxel> voxelRegistry =
+				new SplitTree<Voxel>( 1 + (2 << min.length) ,
+				min, Vector.add( min, aShape.getDimensionLengths() ),
+				aShape.getIsCyclicNaturalOrder() );
+
+		HashMap<Voxel,int[]> reiterate = new HashMap<Voxel,int[]>();
+
+		int[] coords = aShape.resetIterator();
+		while ( aShape.isIteratorValid() )
+		{
+			double[] voxelOrigin = aShape.getVoxelOrigin(coords);
+			double[] voxelUpper = aShape.getVoxelUpperCorner(coords);
+			Voxel box = new Voxel( Vector.subset(voxelOrigin, aShape.getNumberOfDimensions()),
+					Vector.subset(voxelUpper, aShape.getNumberOfDimensions()) );
+			if ( ! this._agents.treeSearch(box.boundingBox(aShape)).isEmpty() )
+			{
+				grid.setValueAt(WELLMIXED, coords,
+						WellMixedConstants.NOT_MIXED);
+				voxelRegistry.insert(box.boundingBox(aShape), box);
+			}
+			else
+			{
+				reiterate.put(box,coords);
+			}
+			coords = aShape.iteratorNext();
+		}
+
+		if (this._layerThickness > 0.0 )
+		{
+			coords = aShape.resetIterator();
+			double[] voxelCenter = aShape.getVoxelCentre(coords);
+			double[] voxelCenterTrimmed = Vector.zerosDbl(numDim);
+
+			/* naming parent loop so that we can break
+			out of it instantly when we hit and agent */
+			shapeloop : while ( aShape.isIteratorValid() ) {
+				aShape.voxelCentreTo(voxelCenter, coords);
+				Vector.copyTo(voxelCenterTrimmed, voxelCenter);
+				this._gridSphere.setCenter(voxelCenterTrimmed);
+				/*
+				 * Find all nearby agents. Set the grid to zero if an agent is
+				 * within the grid's sphere
+				 */
+				BoundingBox box = this._gridSphere.boundingBox(this._agents.getShape());
+
+				for (Voxel v : voxelRegistry.search(box))
+					if (this._gridSphere.distanceTo(v) < 0.0) {
+						grid.setValueAt(WELLMIXED, coords,
+								WellMixedConstants.NOT_MIXED);
+//						coords = aShape.iteratorNext();
+						break;
+					}
 				coords = aShape.iteratorNext();
 			}
 		}

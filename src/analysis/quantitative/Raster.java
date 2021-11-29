@@ -75,8 +75,11 @@ public class Raster {
 	
 	/* analysis */
 	protected SpatialMap<Integer> _agentDistanceMap;
+	public SpatialMap<Double> _agentMap;
+
 	protected SpatialMap<Integer> _edgeDistanceMap;
-	private SpatialMap<Double> _edgeDistanceMapDbl;
+	public SpatialMap<Double> _edgeDistanceMapDbl;
+
 	private double _voxelLength;
 	
 	/* header for default analysis output */
@@ -87,6 +90,10 @@ public class Raster {
 			"average diffusion distance (biomass)",
 			"fraction encapsulated void space"
 	};
+
+	protected int[][][] biofilmDepth;
+	protected int[][][] edgeMatrix;
+	protected int[][][] diffusionDistance;
 
 	private enum Region
 	{
@@ -191,6 +198,8 @@ public class Raster {
 		int[][][] edge = Array.copy( agents );
 		
 		agents = this.distanceMatrix( agents );
+		this._agentMap = euclideanMapDbl( agents );
+
 		long millis = System.currentTimeMillis();
 		if ( this._verbose )
 			this.plotArray(agents, "ag" + millis );
@@ -206,9 +215,9 @@ public class Raster {
 
 		/* plot edge euclidean distance */
 		this._edgeDistanceMap = euclideanMap( edge );
-		
+
 		this._edgeDistanceMapDbl = euclideanMapDbl( edge );
-		
+
 		/* NOTE for testing: looking for co-ocurance 
 		traitLocalization("species=CanonicalAOB", "species=CanonicalNOB" ); */
 	}
@@ -647,7 +656,7 @@ public class Raster {
 				out.put(c, 1);
 		return out;
 	}
-	
+
 	public SpatialMap<Integer> agentDistanceMap() 
 	{
 		return this._agentDistanceMap;
@@ -1081,6 +1090,20 @@ public class Raster {
 		if ( this._verbose )
 			this.plot( distance, 1, "eucliMap" + millis, Helper.giveMeAGradient( max+1 ) );
 		return distance;
+	}
+
+	public SpatialMap<Double> euclideanMapDbl()
+	{
+		int[][][] agents = new int[rX][rY][2];
+
+		/* fill matrix, add spacers for non periodic. */
+		agents = this.presenceMapToArray( agents, this.agentMap(), true, true);
+
+		agents = this.distanceMatrix( agents );
+		agents = this.edgeMatrix( agents );
+		agents = this.distanceMatrix( agents );
+
+		return euclideanMapDbl( agents );
 	}
 	
 	public SpatialMap<Double> euclideanMapDbl( int[][][] matrix )

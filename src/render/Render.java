@@ -152,8 +152,14 @@ public class Render implements GLEventListener, Runnable {
 		 * the open GL2 drawable
 		 */
 		final GL2 gl = drawable.getGL().getGL2();
+
+		/* line disabled because:
+		Currently squares are seen from backside so this would hide them, it also seems to
+		make very little difference in terms of frame rate
+		gl.glEnable(GL2.GL_CULL_FACE);
+		*/
 		gl.glClear(GL2.GL_COLOR_BUFFER_BIT | GL2.GL_DEPTH_BUFFER_BIT);
-		
+
 	     // fps
 	     double currentTime = System.currentTimeMillis();
 	     nbFrames++;

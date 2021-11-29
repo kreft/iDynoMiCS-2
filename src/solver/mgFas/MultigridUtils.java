@@ -316,21 +316,21 @@ public abstract class MultigridUtils {
 				for (ic = 1, i = 1; i <= nI; ic++, i += 2)
 					if (bl[i][j][k]>=BLTHRESH)
 						u[i][j][k] = uc[ic][jc][kc];
-		
+
 		// interpolate verically
 		for (k = 1; k <= nK; k += 2)
 			for (j = 1; j <= nJ; j += 2)
 				for (i = 2; i < nI; i += 2)
 					if ( bl[i][j][k] >= BLTHRESH )
 						u[i][j][k] = 0.5f*(u[i+1][j][k]+u[i-1][j][k]);
-		
+
 		// interpolate sideways
 		for (k = 1; k <= nK; k += 2)
 			for (j = 2; j < nJ; j += 2)
 				for (i = 1; i <= nI; i++)
 					if ( bl[i][j][k] >= BLTHRESH )
 						u[i][j][k] = 0.5f*(u[i][j+1][k]+u[i][j-1][k]);
-		
+
 		for (k = 2; k < nK; k += 2)
 			for (j = 1; j <= nJ; j++)
 				for (i = 1; i <= nI; i++)
@@ -449,6 +449,24 @@ public abstract class MultigridUtils {
 		if( min < absolute )
 			return absolute;
 		return min;
+	}
+
+	public static double largestRealNonZero(double a[][][], double absolute) {
+		double max = a[0][0][0];
+		double t = 0.0;
+		for (int i = 0; i<a.length; i++) {
+			for (int j = 0; j < a[i].length; j++)
+				for (int k = 0; k < a[i][j].length; k++)
+				{
+					if(a[i][j][k] > absolute && Double.isFinite(a[i][j][k]) )
+					{
+						max = (a[i][j][k] > max ? a[i][j][k] : max);
+					}
+				}
+		}
+		if( max < absolute )
+			return absolute;
+		return max;
 	}
 
 	/**

@@ -15,6 +15,9 @@ import utility.ExtraMath;
 import debugTools.QuickCSV;
 import linearAlgebra.Array;
 
+import java.util.LinkedList;
+import java.util.List;
+
 
 /**
  * \brief Implements static utility functions for used in multigrid method.
@@ -90,6 +93,11 @@ public class MultigridSolute
 	 * 
 	 */
 	protected SoluteGrid[] _itau;
+
+	/**
+	 * where _tempres[order].grid[i][j][k] =  ( lop - _rhs ) / dlop
+	 */
+	private SoluteGrid[] _tempRes;
 	
 	/**
 	 * 
@@ -105,6 +113,10 @@ public class MultigridSolute
 	 * As more smoothing may be required stage is increased
 	 */
 	private int _stage = 0;
+
+	private int _tempOrder = 0;
+
+	private List<Double> _tempNums = new LinkedList<Double>();
 
 	/**
 	 * \brief 
@@ -207,6 +219,7 @@ public class MultigridSolute
 		_diffReac = new SoluteGrid[maxOrder];
 		_itemp = new SoluteGrid[maxOrder];
 		_itau = new SoluteGrid[maxOrder];
+		_tempRes = new SoluteGrid[maxOrder];
 
 		_res = new double[maxOrder];
 
@@ -224,6 +237,7 @@ public class MultigridSolute
 			_diffReac[maxOrder-iGrid-1] = new SoluteGrid(_i, _j, _k, r, aSolute);
 			_itemp[maxOrder-iGrid-1] = new SoluteGrid(_i, _j, _k, r, aSolute);
 			_itau[maxOrder-iGrid-1] = new SoluteGrid(_i, _j, _k, r, aSolute);
+			_tempRes[maxOrder-iGrid-1] = new SoluteGrid(_i, _j, _k, r, aSolute);
 
 			_res[maxOrder-iGrid-1] = Double.MAX_VALUE;
 		}
@@ -275,7 +289,7 @@ public class MultigridSolute
 		MultigridUtils.interpolateBoundaryLayer(_conc[order],
 										_conc[order-1], _bLayer[order].grid);
 		// Set each solute's r.h.s. to 0
-		_rhs[order].resetToZero();;
+		_rhs[order].resetToZero();
 	}
 
 	public void downward(int order, int outer)
@@ -297,7 +311,7 @@ public class MultigridSolute
 		// compute the truncation error for this V-cycle
 		// for all chemicals
 		if ( order+1 == outer )
-			truncationError = .3333*MultigridUtils.computeNorm(_itau[order].grid);
+			truncationError = .3*MultigridUtils.computeNorm(_itau[order].grid);
 	}
 	
 	/**
@@ -333,7 +347,7 @@ public class MultigridSolute
 		// compute the truncation error for this V-cycle
 		// for all chemicals
 		if ( order+1 == outer )
-			truncationError = 0.3333*MultigridUtils.computeNorm(_itau[order].grid);
+			truncationError = 0.3*MultigridUtils.computeNorm(_itau[order].grid);
 	}
 	
 	/**
@@ -351,38 +365,100 @@ public class MultigridSolute
 	/**
 	 * 
 	 * @param order
-	 * @param v
 	 * @return
 	 */
-	public boolean breakVCycle(int order, int v)
+	public boolean breakVCycle(int order)
 	{
-		/*
-		 * Compute the residue for this solute.
-		 */
-		computeResidual(_itemp, order); //assigns lop to _itemp.
-		MultigridUtils.subtractTo(_itemp[order].grid, _rhs[order].grid);
-		Double res = MultigridUtils.computeNorm(_itemp[order].grid);
-		/*
-		 *  Confirm that criterion is met for each solute.
-		 */
-		if( (_res[order] - res) / res < 0.05 ) // less than 1% drop in residual (or res increasing)
-		{
-			if( Log.shouldWrite( Log.Tier.DEBUG ) )
-				Log.out( Log.Tier.DEBUG, "Stagnant Vcycle residual res: " + res );
-			this._stage++;
+		/* Absolute concentration that is negligible,
+		ratio at which the residual is small relative to the concentration. */
+		double NEGLIGIBLE = 1e-13;
+		double RELATIVE = manager.solverResidualRatioThreshold; // 1e-4; // fast: 1e-3, fine 1e-4
+
+		if (order != _tempOrder) {
+			_tempOrder = order;
+			_tempNums = new LinkedList<Double>();
 		}
-		this._res[order] = res;
 
-		if( Log.shouldWrite(Log.Tier.DEBUG))
-			Log.out( Log.Tier.DEBUG,  "mgFasTruncation: " + truncationError);
+		/* We obtain data on mgFas concentrations and
+		residuals to decide when to stop the cycle */
+		double[][][] ratio = Array.copy( this._conc[order].grid );
+		Array.restrictMinimum( ratio, NEGLIGIBLE / RELATIVE );
+		Array.elemRatioTo( ratio, _tempRes[order].grid, ratio);
+		double maxRatio = MultigridUtils.largestRealNonZero( ratio , NEGLIGIBLE);
+		double locResidual = MultigridUtils.largestRealNonZero( _tempRes[order].grid ,
+				NEGLIGIBLE * NEGLIGIBLE );
+		double smallestConc = MultigridUtils.smallestNonZero( this._conc[order].grid ,
+				NEGLIGIBLE * NEGLIGIBLE ); // only for reporting
 
-		//TODO settable absolute
-		double threshold = MultigridUtils.smallestNonZero( this._conc[order].grid , 1e-12);
+		if ( Log.shouldWrite( Log.Tier.EXPRESSIVE ) )
+			System.out.println( this.soluteName + " order: " + order +
+					", ratio: " + maxRatio + ", smallest concentration: " +
+					smallestConc + ", max local residual: " + locResidual );
 
-		return ( res <= threshold );
-//		return ( res <= truncationError* 1.0e-3); //*1.0e-3); // investigate improves the result a lot compared to "real" scenario if we lower this
+		/* Stopping because of converged outcome */
+
+		/* The largest residual became negligible. */
+//		if( MultigridUtils.largestRealNonZero( _tempRes[order].grid, NEGLIGIBLE ) <= NEGLIGIBLE ) {
+//			System.out.println( "mgFas stop condi: diminishing res" );
+//			return true;
+//		}
+		/* The local residuals are small in relation to the local concentration. */
+		if( ( maxRatio <= RELATIVE ) ) {
+			return true;
+		}
+
+		/* Stopping because of stagnation */
+
+		/* Diminishing change in residual, the solver seems to have stopped converging. */
+//		if ( almostEqual( _res[order], locResidual,locResidual*1e-2) ) {
+//			if( Log.shouldWrite( Log.Tier.DEBUG ) )
+//				Log.out( Log.Tier.DEBUG, this.soluteName + " stagnant Vcycle in "
+//						+ this.getClass().getSimpleName() + " residual res: " + locResidual );
+//			System.out.println(this.soluteName + " mgFas stop condi:  stagnant Vcycle.");
+//			return true;
+//		}
+		this._res[order] = locResidual;
+		/* The solver loops in the same patern, the solver seems to have stopped converging. */
+//		for( Double d : _tempNums)
+//			if ( almostEqual( d, maxRatio,maxRatio*1e-4) )
+//			{
+//				if( Log.shouldWrite( Log.Tier.DEBUG ) )
+//					Log.out( Log.Tier.DEBUG, this.soluteName + " repeated number patern in "
+//							+ this.getClass().getSimpleName() + ": " + maxRatio );
+//				System.out.println(this.soluteName + " mgFas stop condi: repeated patern loop.");
+//				return true;
+//			}
+		_tempNums.add( maxRatio );
+
+		if( _stage > 5 )
+		{
+			if (Log.shouldWrite(Log.Tier.CRITICAL)) {
+				Log.out(Log.Tier.CRITICAL,
+						this.getClass().getSimpleName() + " vCycle stagnated:\n "
+								+ "\torder: " + order + ", ratio: " + maxRatio
+								+ ", \n\tsmallest concentration: " + smallestConc
+								+ ", \n\tmax local residual: " + locResidual);
+			}
+			return true;
+		}
+
+//		computeResidual(_itemp, order); //assigns lop to _itemp.
+//		MultigridUtils.subtractTo(_itemp[order].grid, _rhs[order].grid);
+//		Double res = MultigridUtils.computeNorm(_itemp[order].grid);
+//		if( Log.shouldWrite(Log.Tier.DEBUG))
+//			Log.out( Log.Tier.DEBUG,  "mgFasTruncation: " + truncationError);
+//		if( res <= truncationError )
+//		{
+//			System.out.println("mgFas stop condi: truncation error passed residual.");
+//			return true;
+//		}
+		return false;
 	}
-	
+
+	public static boolean almostEqual(double a, double b, double eps){
+		return Math.abs(a-b)<eps;
+	}
+
 	/**
 	 * 
 	 * @param order
@@ -446,7 +522,9 @@ public class MultigridSolute
 							//LogFile.writeLog("NaN generated in multigrid solver "+"while computing rate for "+soluteName);
 							//LogFile.writeLog("location: "+_i+", "+_j+", "+_k);
 							//LogFile.writeLog("dlop: "+dlop+"; lop: "+lop+"; grid: "+_rhs[order].grid[_i][_j][_k]);
-							
+
+							_tempRes[order].grid[_i][_j][_k] = res;
+
 							u[_i][_j][_k] -= res;
 							// if negative concentrations, put 0 value
 							u[_i][_j][_k] = (u[_i][_j][_k]<0 ? 0 : u[_i][_j][_k]);
@@ -606,7 +684,6 @@ public class MultigridSolute
 			 _reac[order].resetToZero();
 			 _diffReac[order].resetToZero();
 			_rhs[order].resetToZero();
-
 			_res[order] = Double.MAX_VALUE;
 		}
 	}

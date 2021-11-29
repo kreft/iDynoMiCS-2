@@ -1722,7 +1722,14 @@ public final class Vector
 		for ( int i = 0; i < a.length; i++ ) 
 			destination[i] = a[i] / b[i];
 	}
-	
+
+	public static void ratioTo(double[] destination, double[] a, double[] b)
+	{
+		checkLengths(destination, a, b);
+		for ( int i = 0; i < a.length; i++ )
+			destination[i] = Math.abs(a[i]) / Math.abs(b[i]);
+	}
+
 	/**
 	 * \brief divide destination vector elements by divisor.
 	 * @param destination

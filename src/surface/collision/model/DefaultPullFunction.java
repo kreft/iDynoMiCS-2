@@ -62,10 +62,10 @@ public class  DefaultPullFunction implements CollisionFunction
 		 * 
 		 * TODO magic number, set in defaults or avoid
 		 */
-		if ( var.distance > 0.001 && var.distance < var.margin ) 
+		if ( var.getDistance() > 0.001 && var.getDistance() < var.margin )
 		{
 			/* Linear. */
-			double c = Math.abs(this._forceScalar * var.distance);
+			double c = Math.abs(this._forceScalar * var.getDistance());
 			/* dP is overwritten here. */
 			Vector.normaliseEuclidEquals(var.interactionVector, c);
 			return var;

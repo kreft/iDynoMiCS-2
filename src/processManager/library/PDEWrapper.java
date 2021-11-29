@@ -13,6 +13,7 @@ import bookkeeper.KeeperEntry;
 import boundary.Boundary;
 import boundary.WellMixedBoundary;
 import dataIO.ObjectFactory;
+import debugTools.SegmentTimer;
 import idynomics.Global;
 import org.w3c.dom.Element;
 
@@ -51,6 +52,8 @@ public class PDEWrapper extends ProcessDiffusion
     
     public double relTol;
 
+    public double solverResidualRatioThreshold;
+
 //    private AgentContainer _agents;
     /**
      *
@@ -66,6 +69,8 @@ public class PDEWrapper extends ProcessDiffusion
         /* TODO move values to global defaults */
         this.absTol = (double) this.getOr(ABS_TOLERANCE, 1.0e-12);
         this.relTol = (double) this.getOr(REL_TOLERANCE, 1.0e-6);
+
+        this.solverResidualRatioThreshold = (double) this.getOr("solverResidualRatioThreshold", 1.0e-4);
 
         int vCycles = (int) this.getOr(AspectRef.vCycles, 5);
         int preSteps = (int) this.getOr(AspectRef.preSteps, 100);
@@ -122,8 +127,6 @@ public class PDEWrapper extends ProcessDiffusion
          * Do the generic set up and solving.
          */
 //        super.internalStep();
-
-
         for ( Boundary b : this._environment.getShape().getAllBoundaries() )
         {
             b.resetMassFlowRates();
@@ -140,9 +143,7 @@ public class PDEWrapper extends ProcessDiffusion
         {
             var.reset(PRODUCTIONRATE);
         }
-
         multigrid.initAndSolve();
-
         /*
          * Estimate agent growth based on the steady-state solute
          * concentrations.
@@ -155,6 +156,7 @@ public class PDEWrapper extends ProcessDiffusion
             double massMove = var.getTotal(PRODUCTIONRATE);
             var.increaseWellMixedMassFlow(massMove);
         }
+
         /*
          * Estimate the steady-state mass flows in or out of the well-mixed
          * region, and distribute it among the relevant boundaries.

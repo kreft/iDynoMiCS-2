@@ -1296,7 +1296,15 @@ public final class Array
 		for ( int i = 0; i < a.length; i++ )
 			Matrix.elemDivideTo(destination[i], a[i], b[i]);
 	}
-	
+
+	public static void elemRatioTo(
+			double[][][] destination, double[][][] a, double[][][] b)
+	{
+		checkDimensionsSame(destination, a, b);
+		for ( int i = 0; i < a.length; i++ )
+			Matrix.elemRatioTo(destination[i], a[i], b[i]);
+	}
+
 	/**
 	 * \brief Multiply one array by another, element-by-element.
 	 * 
@@ -1310,6 +1318,7 @@ public final class Array
 		elemDivideTo(out, a, b);
 		return a;
 	}
+
 	
 	/**
 	 * \brief Multiply one array by another, element-by-element, writing the

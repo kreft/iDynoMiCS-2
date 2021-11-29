@@ -15,6 +15,7 @@ package solver.mgFas;
 import compartment.AgentContainer;
 import compartment.EnvironmentContainer;
 import dataIO.Log;
+import debugTools.SegmentTimer;
 import grid.ArrayType;
 import grid.SpatialGrid;
 import idynomics.Idynomics;
@@ -139,6 +140,8 @@ public class Multigrid
 	protected EnvironmentContainer _environment;
 	
 	protected LinkedList<RecordKeeper> _recordKeepers;
+
+	private boolean initialGuess = false;
 	/**
 	 * 
 	 */
@@ -241,7 +244,7 @@ public class Multigrid
 	public void initializeConcentrationFields()
 	{
 		minimalTimeStep = 0.1*Idynomics.simulator.timer.getTimeStepSize();
-		
+
 		// Refresh, then insert, the boundary layer and the diffusivity grid.
 		// NOTE not using Biofilm grids
 		myDomain.refreshBioFilmGrids();
@@ -253,7 +256,7 @@ public class Multigrid
 		// TODO this should be per solute in the future?
 		_diffusivity.setFinest(myDomain.getDiffusivity());
 		_diffusivity.restrictToCoarsest();
-		
+
 		/* TODO we don't need to prepare anything here for the idyno 2
 		 *  implementation do we? */
 		// Prepare a soluteGrid with catalyst CONCENTRATION.
@@ -284,12 +287,13 @@ public class Multigrid
 		 *
 		while ( timeToSolve > 0 ) {
 		 */
-			// Compute new equilibrium concentrations.
-			stepSolveDiffusionReaction();
-			
+
 			// Update bulk concentration.
 			updateBulk();
-			
+
+			// Compute new equilibrium concentrations.
+			stepSolveDiffusionReaction();
+
 			// Manage iterations.
 			internalIteration += 1;
 			timeToSolve -= internTimeStep;
@@ -317,15 +321,11 @@ public class Multigrid
 		for (int iSolute : _soluteIndex)
 			_solute[iSolute].resetMultigridCopies();
 
-		int stage = 0;
+		int smoothingScalar = 1; // before 4
 		boolean breakVCycle = false;
 		int vc =0;
 
-		// Solve chemical concentrations on coarsest grid.
-		solveCoarsest(); // coarsest order = 0
-
 		/*
-
 		The outer loop is getting finer (starting from coarsest + 1
 		The inner loop is getting coarser and then finer
 
@@ -333,31 +333,38 @@ public class Multigrid
 		   /\  /  \  /
 		/\/  \/    \/   Coarsest
 
+
+		 order / outer representing finer and coarse grid for
 		 */
 
-		/* order / outer representing finer and coarse grid for
-		*   the active V-cycle. */
-		// Nested iteration loop.
-		for (int outer = 1; outer < maxOrder; outer++)
+		int startOrder;
+		if( initialGuess ) {
+			startOrder = maxOrder - 1;
+		} else {
+			startOrder = 1;
+			solveCoarsest( smoothingScalar ); // coarsest order = 0
+		}
+
+		/*   the active V-cycle. */
+		for (int outer = startOrder; outer < maxOrder; outer++)
 		{
 			order = outer;
-			for (int iSolute : _soluteIndex)
-				_solute[iSolute].initLoop(order);
+			/* this interpolates boundary at start of loop, that does not seem logical.
+			interpolate during upward part of the vCycle only.	*/
+//			for (int iSolute : _soluteIndex)
+//				_solute[iSolute].initLoop(order);
 
 			// V-cycle loop.
 			for (int v = 0; v < _vCycles; v++)
 			{
-				vc = v;
-				/* autoAdjust, currently we adjust all to the one left behind */
-				for (int iSolute : _soluteIndex)
-					stage = Math.max( stage, _solute[iSolute].getStage() );
-
+				vc++;
 				// Downward stroke of V.
 				while ( order > 0 )
 				{
 					// Pre-smoothing.
-					if( this.autoVcycleAdjust ) // smooth more if Vcycle becomes stagnant
-						relax( Math.min( 5*(stage+1), nPreSteps) );
+					if( this.autoVcycleAdjust )
+						relax( smoothingScalar * (order+1));
+//						relax( Math.min( 5*(stage+1), nPreSteps) );
 					else
 						relax(nPreSteps);
 
@@ -374,8 +381,8 @@ public class Multigrid
 				}
 				
 				// Bottom of V.
-				if( this.autoVcycleAdjust ) // smooth more if Vcycle becomes stagnant
-					solveCoarsest( Math.min( 3*(stage+1), nCoarseStep) );
+				if( this.autoVcycleAdjust )
+					solveCoarsest( smoothingScalar );
 				else
 					solveCoarsest();
 				
@@ -391,7 +398,8 @@ public class Multigrid
 
 					// Post-smoothing.
 					if( this.autoVcycleAdjust ) // smooth more if Vcycle becomes stagnant
-						relax( Math.min( 5*(stage+1), nPostSteps) );
+						relax( smoothingScalar * (order+1) );
+//						relax( Math.min( 5*(stage+1), nPostSteps) );
 					else
 						relax(nPostSteps);
 				}
@@ -401,21 +409,25 @@ public class Multigrid
 				 */
 				breakVCycle = true;
 
-				/* TODO validate (this one seems to be unnecessary) */
-//				updateReacRateAndDiffRate(order);
 				for (int iSolute : _soluteIndex)
-					breakVCycle &= _solute[iSolute].breakVCycle(order, v);
+					breakVCycle &= _solute[iSolute].breakVCycle(order);
 
-				if (breakVCycle)
+				/* don't cycle initial coarse cycles */
+				if (breakVCycle || outer < maxOrder-1)
 				{
-					System.out.println(vc);
+					breakVCycle = true;
 					break;
 				}
+
+				/* if the solver struggles to reach stop conditions smooth more */
+				smoothingScalar += 3;
 			}
 			if( ! breakVCycle && Log.shouldWrite( Log.Tier.CRITICAL ) )
 				Log.out(Log.Tier.CRITICAL,
 						"Warning: Multigrid VCycle stopped at maximum number of cycles.");
 		}
+		initialGuess = true;
+
 		for (int iSolute : _soluteIndex)
 		{
 			for (int i = 0; i < maxOrder; i++)
@@ -424,10 +436,9 @@ public class Multigrid
 					for (RecordKeeper r : _solute[iSolute]._conc[i]._recordKeeper)
 						r.flush();
 			}
-			stage = Math.max( stage, _solute[iSolute].getStage() );
 		}
 		if( Log.shouldWrite( Log.Tier.EXPRESSIVE ) )
-			Log.out(Log.Tier.EXPRESSIVE, "Vcycles: " + vc + " stage: " + stage );
+			Log.out(Log.Tier.EXPRESSIVE, "Vcycles: " + vc );
 
 	}
 
@@ -440,7 +451,7 @@ public class Multigrid
 		 * This yields solute change rates in fg.L-1.hr-1
 		 */
 		//FIXME is this next line required?
-		updateReacRateAndDiffRate(maxOrder-1);
+//		updateReacRateAndDiffRate(maxOrder-1);
 
 		/* Refresh the bulk concentration of the multigrids.
 		*/
@@ -457,8 +468,8 @@ public class Multigrid
 		// NOTE disabled reset to bulk, previous solution should be better
 		order = 0;
 		// Reset coarsest grid to bulk concentration.
-		for (int iSolute : _soluteIndex)
-			_solute[iSolute].setWellmixed(order);
+//		for (int iSolute : _soluteIndex)
+//			_solute[iSolute].setWellmixed(order);
 
 		// Relax NSOLVE times.
 		relax(steps);
@@ -520,12 +531,12 @@ public class Multigrid
 		for (int iSolute : _soluteIndex)
 		{
 			_solute[iSolute].resetReaction(resOrder);
+			Array.restrictMinimum(_solute[iSolute]._conc[resOrder].grid, 0.0);
 			allSolute[iSolute] = _solute[iSolute]._conc[resOrder];
 			// TODO  environment reactions
 			allReac[iSolute] = _solute[iSolute]._reac[resOrder];
 			allDiffReac[iSolute] = _solute[iSolute]._diffReac[resOrder];
 		}
-
 		applyReaction(resOrder);
 	}
 
