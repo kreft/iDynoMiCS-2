@@ -105,7 +105,7 @@ public class AgentRelaxation extends ProcessManager
 	/**
 	 * Base time step, time step that will be used in mechanical relaxation
 	 * unless it is over ruled due to the use of {@link #_maxMove}, 
-	 * {@link #_timeLeap} or {@link #_stressThreshold}. {@link #_dtStatic} 
+	 * {@link #_fastRelaxation} or {@link #_stressThreshold}. {@link #_dtStatic}
 	 * forces the use of the base time step.
 	 */
 	protected double _dtBase;
@@ -132,7 +132,7 @@ public class AgentRelaxation extends ProcessManager
 	private boolean _fastRelaxation;
 	
 	/**
-	 * Selected stepping {@link #Method}
+	 * Selected stepping
 	 */
 	private Method _method;
 	
@@ -201,6 +201,10 @@ public class AgentRelaxation extends ProcessManager
 
 	double maxAgentOverlap = 0.1;
 
+	double moveGranularity = 0.3;
+
+	double shoveFactor = 1.25;
+
 	/* ************************************************************************
 	 * Initiation
 	 * ***********************************************************************/
@@ -211,8 +215,16 @@ public class AgentRelaxation extends ProcessManager
 	{
 		super.init(xmlElem, environment, agents, compartmentName);
 
-		this.maxAgentOverlap = Helper.setIfNone( this.getDouble("maxAgentOverlap"),
-				2.0 );
+		this.maxAgentOverlap = Helper.setIfNone( this.getDouble(AspectRef.maxAgentOverlap),
+				0.1 );
+
+		this.moveGranularity = Helper.setIfNone( this.getDouble(AspectRef.moveGranularity),
+				0.3 );
+
+		this.shoveFactor = Helper.setIfNone( this.getDouble(AspectRef.shoveFactor),
+				1.25 );
+		if( this.shoveFactor < 1.0 )
+			this.shoveFactor = 1.0;
 
 		/* Obtaining relaxation parameters. 
 		 * Base time step */
@@ -230,13 +242,8 @@ public class AgentRelaxation extends ProcessManager
 		/* Set relaxation method, set default if none */
 		this._method = Method.valueOf( Helper.setIfNone(
 				this.getString(RELAXATION_METHOD), Method.EULER.toString() ) );
-		
-		/* Time leaping */
-		this._fastRelaxation = Helper.setIfNone( 
-				this.getBoolean(FAST_RELAXATION), true );
-		
-		/* force static dt (ignores maxMovement, timeleap, stress thresholds
-		 * but thereby does not has to evaluate these constituants either */
+
+		/* force static dt */
 		this._dtStatic = Helper.setIfNone( 
 				this.getBoolean(STATIC_TIMESTEP), false );
 		
@@ -246,6 +253,12 @@ public class AgentRelaxation extends ProcessManager
 		/* Surface objects of compartment, FIXME discovered circle returns a 
 		 * rod type shape (2 points) instead of circle (2d sphere, 1 point). */
 		this._shapeSurfs  = this._shape.getSurfaces();
+
+		/* FIXME: we have to initiate collision scalar different, currently it is only possible trough globals. */
+		if( this._method == Method.SHOVE )
+		{
+			Global.collision_scalar = 1.0;
+		}
 		
 		/* Collision iterator */
 		this._iterator = new Collision( this.getString(COLLISION_FUNCTION),
@@ -273,7 +286,6 @@ public class AgentRelaxation extends ProcessManager
 		/* Include decompression */
 		this._decompression = Helper.setIfNone( this.getBoolean(DECOMPRESSION), 
 				false);
-		
 
 		if ( this._decompression )
 			decompressionMatrix = new Decompress( 
@@ -284,7 +296,6 @@ public class AgentRelaxation extends ProcessManager
 					this._agents.getShape().getIsCyclicNaturalOrderIncludingVirtual(),
 					(double) this.getOr(AspectRef.traversingFraction, Global.traversing_fraction),
 					(double) this.getOr(AspectRef.dampingFactor, Global.damping_factor));
-		
 	}
 
 	/* ************************************************************************
@@ -294,15 +305,11 @@ public class AgentRelaxation extends ProcessManager
 	@Override
 	protected void internalStep()
 	{
-		/* current step of mechanical relaxation */
 		int nstep = 0;
-		/* current time in mechanical relaxation. */
 		tMech = 0.0;
-		/* All located agents in this compartment */
 		Collection<Agent> allAgents = this._agents.getAllLocatedAgents();
 
-		/* if higher order ODE solvers are used we need additional space to 
-		 * write. */
+		/* With higher order ODE solvers, we need additional space to write. */
 		switch ( _method )
 		{
 		case HEUN :
@@ -325,8 +332,6 @@ public class AgentRelaxation extends ProcessManager
 			if ( this._decompression )
 				decompressionMatrix.buildDirectionMatrix();
 
-			/* If stochastic movement is enabled for the agent, update the agent
-			 * perform the stochastic movement.  */
 			for(Agent agent : allAgents )
 				if ( agent.isAspect(STOCHASTIC_STEP) )
 					agent.event(STOCHASTIC_MOVE, dtMech);
@@ -355,19 +360,9 @@ public class AgentRelaxation extends ProcessManager
 			if( dtMech == 0.0 )
 				break;
 		}
-
-		if( Log.shouldWrite( Tier.DEBUG ))
-		{
-			for ( Agent agent : allAgents )
-				for ( Point point: ( (Body) agent.get(BODY) ).getPoints() )
-					if ( Double.isNaN(point.getPosition()[0]))
-						Log.out(Tier.DEBUG, String.valueOf( point.getPosition()[0] ));
-		}
-		
 		/* Leave with a clean spatial tree. */
 		this._agents.refreshSpatialRegistry();
-		
-		/* Notify user */
+
 		if( Log.shouldWrite( Tier.EXPRESSIVE ) )
 		{
 			if (nstep == this._maxIter )
@@ -375,7 +370,7 @@ public class AgentRelaxation extends ProcessManager
 						" stop condition iterations: " + this._maxIter);
 			else
 				Log.out( Tier.EXPRESSIVE, this.getName() +
-						" stop condition stress threshold, iterations: " + nstep );
+						" reached relaxation criteria, iterations: " + nstep );
 		}
 	}
 
@@ -388,7 +383,7 @@ public class AgentRelaxation extends ProcessManager
 			{
 				for ( Agent agent : agents )
 					for ( Point point: ( (Body) agent.get(BODY) ).getPoints() )
-						point.shove( dtMech, agent.getDouble(RADIUS) );
+						point.shove( this.maxAgentOverlap, this.shoveFactor, agent.getDouble(RADIUS) );
 				/* NOTE: is stopped when {@link _stressThreshold} is reached
 				 * TODO add max iter for shove? */
 				break;
@@ -421,49 +416,26 @@ public class AgentRelaxation extends ProcessManager
 		/* adjust step size unless static step size is forced */
 		if( !this._dtStatic || this._method == Method.SHOVE )
 		{
-			/* obtain current highest particle velocity and highest force */
-			double ts = 0.0;
-			double tv = 0.0;
+			/* obtain current highest particle velocity. */
+			double ts;
 			vs = 0.0;
-			st = 0.0;
 			for(Agent agent : agents ) {
-				boolean added = false;
 				radius = agent.getDouble(RADIUS);
-				for (Point point : ((Body) agent.get(BODY)).getPoints()) {
-					if ( (ts = Vector.normSquare(point.dxdt(radius))) > vs )
+				for ( Point point : ( (Body) agent.get(BODY) ).getPoints() ) {
+					if ( ( ts = Vector.normSquare( point.dxdt(radius) ) ) > vs )
 						vs = ts;
-					if ( (tv = Vector.normSquare(point.getForce())) > st)
-						st = tv;
 				}
 			}
 
-			/* Stress Threshold allows finishing relaxation early if the
-			 * mechanical stress is low. Default value is 0.0 -> only skip
-			 * if there is no mechanical stress in the system at all.
-			 * */
-//				if ( _stressThreshold != 0.0 && ( this.tMech > this.compresionDuration || compresionDuration == 0.0 ) )
-//				{
-//					if ( Math.sqrt(st) * Global.agent_stress_scaling <
-//							_stressThreshold )
-//						break;
-//				} else if ( this._method == Method.SHOVE )
-//				{
-//					if (_stressThreshold == 0.0)
-//					{
-//					Log.out(Tier.CRITICAL, AspectRef.stressThreshold + " must "
-//							+ "be set for relaxation method " +
-//							Method.SHOVE.toString() );
-//					Idynomics.simulator.interupt(null);
-//					return;
-//					}
-//				}
 			if ( this._iterator.maxOverlap() > -maxAgentOverlap)
 			{
 				// system relaxed can stop loop
 				return 0.0;
 			}
 
-			/* When stochastic movement is enabled update vs to represent
+			/* NOTE: stochastic movement really should only be used with static dt.
+			 *
+			 * When stochastic movement is enabled update vs to represent
 			 * the highest velocity object in the system accounting for
 			 * stochastic movement to. */
 			for( Agent agent : agents )
@@ -474,25 +446,11 @@ public class AgentRelaxation extends ProcessManager
 					vs = Math.max( Vector.dotProduct( move, move ), vs );
 				}
 
-			/* fast relaxation: set the time step to match 'maxMovement'
-			 * with the the fastest object, for a 'fast' run. */
-			moveScalar = Math.min(-0.3 * _iterator.maxOverlap(), this._maxMove);
-			if ( this._fastRelaxation ) {
-				dtMech = moveScalar / (Math.sqrt(vs) + 1e-9 );
-			}
-			/* Note: for real shoving dtMech would need to be set for each
-			agent, this is a shove-like approach. */
-			else if( this._method == Method.SHOVE ) {
-				dtMech = this._maxMove / ( Math.sqrt(vs) +
-						Global.agent_move_safety );
-			}
-
-			/* no fast relaxation: adjust the time step with the fastest
-			 * object yet cap the maximum dtMech */
-			else
-				dtMech = this._maxMove / Math.max( Math.sqrt(vs) +
-						Global.agent_move_safety, 1.0 );
-			/* TODO we may want to make the dt cap settable as well */
+			/* Scale dt such that the fastest moving object is moving a fraction of the
+			* largest overlap. */
+			moveScalar = Math.min( -this.moveGranularity *
+					_iterator.maxOverlap(), this._maxMove );
+			dtMech = moveScalar / (Math.sqrt(vs) + 1e-9 );
 		}
 
 		/* prevent to relaxing longer than the global _timeStepSize */

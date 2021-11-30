@@ -582,6 +582,16 @@ public abstract class Shape implements
 		}
 	}
 
+	public int getDimensionVoxelCount( int dimension )
+	{
+		DimName d = this.getDimensionName( dimension );
+		if( d != null && this instanceof CartesianShape )
+		{
+			return ((CartesianShape) this)._resCalc[2].getNVoxel();
+		}
+		return 0;
+	}
+
 	/**
 	 * \brief Try to initialise a resolution calculator from storage, for a
 	 * dimension that is dependent on another.

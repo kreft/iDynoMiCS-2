@@ -456,7 +456,7 @@ public class EnvironmentContainer implements CanPrelaunchCheck, Settable
 		{
 
 			SegmentTimer.start("update");
-			if( this._shape.getSignificantDimensions().size() > 2 )
+			if( this._shape.getSignificantDimensions().size() > 2 && this._shape.getDimensionVoxelCount(2) > 2 )
 				b.updateWellMixedArray();
 			else
 			{

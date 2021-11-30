@@ -178,8 +178,11 @@ public abstract class ResolutionCalculator implements Copyable, Instantiable
 		{
 			throw new IllegalArgumentException("Location out of range");
 		}
-		return (int) ((( location + 0.5*this._resolution) - this._dimension.getExtreme(0))
-				/ this._resolution);
+		if( this.getNVoxel() > 1 )
+			return (int) ((( location + 0.5*this._resolution ) -
+					this._dimension.getExtreme(0)) / this._resolution);
+		else
+			return 0;
 	}
 
 	public int getNodeIndex(double location, double resolution)
@@ -189,8 +192,11 @@ public abstract class ResolutionCalculator implements Copyable, Instantiable
 		{
 			throw new IllegalArgumentException("Location out of range");
 		}
-		return (int) ((( location + 0.5*resolution)  - this._dimension.getExtreme(0))
-				/ resolution);
+		if( this.getNVoxel() > 1 )
+			return (int) ((( location + 0.5*resolution)  -
+					this._dimension.getExtreme(0)) / resolution);
+		else
+			return getVoxelIndex(location, resolution);
 	}
 
 	public int getElementIndex(double location)

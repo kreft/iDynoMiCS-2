@@ -302,6 +302,22 @@ public class AspectRef
 	public final static String collisionRelaxationMethod = "relaxationMethod";
 
 	/**
+	 * Maximum amount of overlap in microns that may exist for a scenario
+	 * to be considered relaxed.
+	 */
+	public final static String maxAgentOverlap = "maxAgentOverlap";
+
+	/**
+	 * determines coarseness of agentRelaxation stepSize .
+	 */
+	public final static String moveGranularity = "moveGranularity";
+
+	/**
+	 * determines coarseness of agentRelaxation stepSize .
+	 */
+	public final static String shoveFactor = "shoveFactor";
+
+	/**
 	 * TODO
 	 */
 	public final static String agentExcreteEps = "epsExcretion";
@@ -345,7 +361,12 @@ public class AspectRef
 	 * TODO
 	 */
 	public final static String solverRelTolerance = "relativeTolerance";
-	
+
+	/**
+	 *
+	 */
+	public final static String solverResidualRatioThreshold = "solverResidualRatioThreshold";
+
 	/**
 	 * TODO
 	 */

@@ -10,6 +10,7 @@
 package solver.mgFas;
 
 import dataIO.Log;
+import idynomics.Global;
 import processManager.library.PDEWrapper;
 import utility.ExtraMath;
 import debugTools.QuickCSV;
@@ -371,8 +372,8 @@ public class MultigridSolute
 	{
 		/* Absolute concentration that is negligible,
 		ratio at which the residual is small relative to the concentration. */
-		double NEGLIGIBLE = 1e-13;
-		double RELATIVE = manager.solverResidualRatioThreshold; // 1e-4; // fast: 1e-3, fine 1e-4
+		double NEGLIGIBLE = Global.negligible_change;
+		double RELATIVE = manager.solverResidualRatioThreshold; // fast: 1e-3, fine 1e-4
 
 		if (order != _tempOrder) {
 			_tempOrder = order;
@@ -395,51 +396,40 @@ public class MultigridSolute
 					", ratio: " + maxRatio + ", smallest concentration: " +
 					smallestConc + ", max local residual: " + locResidual );
 
+		if ( Log.shouldWrite(Log.Tier.DEBUG) ) {
+			Log.out(Log.Tier.DEBUG,
+					this.getClass().getSimpleName() + " vCycle stagnated:\n "
+							+ "\torder: " + order + ", ratio: " + maxRatio
+							+ ", \n\tsmallest concentration: " + smallestConc
+							+ ", \n\tmax local residual: " + locResidual);
+		}
+
 		/* Stopping because of converged outcome */
 
-		/* The largest residual became negligible. */
-//		if( MultigridUtils.largestRealNonZero( _tempRes[order].grid, NEGLIGIBLE ) <= NEGLIGIBLE ) {
-//			System.out.println( "mgFas stop condi: diminishing res" );
-//			return true;
-//		}
 		/* The local residuals are small in relation to the local concentration. */
 		if( ( maxRatio <= RELATIVE ) ) {
 			return true;
 		}
 
-		/* Stopping because of stagnation */
+		/* Debugging stagnating solver scenarios */
 
 		/* Diminishing change in residual, the solver seems to have stopped converging. */
-//		if ( almostEqual( _res[order], locResidual,locResidual*1e-2) ) {
-//			if( Log.shouldWrite( Log.Tier.DEBUG ) )
-//				Log.out( Log.Tier.DEBUG, this.soluteName + " stagnant Vcycle in "
-//						+ this.getClass().getSimpleName() + " residual res: " + locResidual );
-//			System.out.println(this.soluteName + " mgFas stop condi:  stagnant Vcycle.");
-//			return true;
-//		}
+		if ( Log.shouldWrite(Log.Tier.DEBUG) ||
+				almostEqual( _res[order], locResidual,locResidual * 1e-6 ) ) {
+			Log.out( Log.Tier.CRITICAL, this.soluteName + " stagnant Vcycle in "
+					+ this.getClass().getSimpleName() + " residual res: " + locResidual );
+		}
 		this._res[order] = locResidual;
-		/* The solver loops in the same patern, the solver seems to have stopped converging. */
-//		for( Double d : _tempNums)
-//			if ( almostEqual( d, maxRatio,maxRatio*1e-4) )
-//			{
-//				if( Log.shouldWrite( Log.Tier.DEBUG ) )
-//					Log.out( Log.Tier.DEBUG, this.soluteName + " repeated number patern in "
-//							+ this.getClass().getSimpleName() + ": " + maxRatio );
-//				System.out.println(this.soluteName + " mgFas stop condi: repeated patern loop.");
-//				return true;
-//			}
-		_tempNums.add( maxRatio );
 
-		if( _stage > 5 )
-		{
-			if (Log.shouldWrite(Log.Tier.CRITICAL)) {
-				Log.out(Log.Tier.CRITICAL,
-						this.getClass().getSimpleName() + " vCycle stagnated:\n "
-								+ "\torder: " + order + ", ratio: " + maxRatio
-								+ ", \n\tsmallest concentration: " + smallestConc
-								+ ", \n\tmax local residual: " + locResidual);
-			}
-			return true;
+		/* The solver loops in the same patern, the solver seems to have stopped converging. */
+		if( Log.shouldWrite( Log.Tier.DEBUG ) ) {
+			for (Double d : _tempNums)
+				if ( almostEqual( d, maxRatio, maxRatio * 1e-6 ) ) {
+					Log.out(Log.Tier.CRITICAL, this.soluteName + " repeated number patern in "
+							+ this.getClass().getSimpleName() + ": " + maxRatio);
+					return true;
+				}
+			_tempNums.add(maxRatio);
 		}
 
 //		computeResidual(_itemp, order); //assigns lop to _itemp.

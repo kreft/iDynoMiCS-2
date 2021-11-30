@@ -15,6 +15,7 @@ import boundary.WellMixedBoundary;
 import dataIO.ObjectFactory;
 import debugTools.SegmentTimer;
 import idynomics.Global;
+import linearAlgebra.Vector;
 import org.w3c.dom.Element;
 
 import compartment.AgentContainer;
@@ -70,12 +71,13 @@ public class PDEWrapper extends ProcessDiffusion
         this.absTol = (double) this.getOr(ABS_TOLERANCE, 1.0e-12);
         this.relTol = (double) this.getOr(REL_TOLERANCE, 1.0e-6);
 
-        this.solverResidualRatioThreshold = (double) this.getOr("solverResidualRatioThreshold", 1.0e-4);
+        this.solverResidualRatioThreshold = (double) this.getOr(
+                AspectRef.solverResidualRatioThreshold, 1.0e-4);
 
-        int vCycles = (int) this.getOr(AspectRef.vCycles, 5);
-        int preSteps = (int) this.getOr(AspectRef.preSteps, 100);
-        int coarseSteps = (int) this.getOr(AspectRef.coarseSteps, 100);
-        int postSteps = (int) this.getOr(AspectRef.postSteps, 100);
+        int vCycles = (int) this.getOr(AspectRef.vCycles, 15);
+        int preSteps = (int) this.getOr(AspectRef.preSteps, 5);
+        int coarseSteps = (int) this.getOr(AspectRef.coarseSteps, 5);
+        int postSteps = (int) this.getOr(AspectRef.postSteps, 5);
 
         boolean autoVcycleAdjust = (boolean) this.getOr(AspectRef.autoVcycleAdjust, false);
 

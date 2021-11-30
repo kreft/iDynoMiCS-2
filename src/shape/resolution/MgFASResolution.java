@@ -41,6 +41,7 @@ public class MgFASResolution extends ResolutionCalculator
 			this._resolution = altRes;
 			altRes = this.getTotalLength() / (altNVoxel);
 		}
+
 		this._nVoxel++;
 	}
 

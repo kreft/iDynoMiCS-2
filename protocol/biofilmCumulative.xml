@@ -12,6 +12,7 @@
 				both on species level and on agent level, the agent state will be used in 
 				the simulation. small test -->
 			<species name="species1">
+				<aspect name="divisionMass" type="PRIMARY" class="Double" value="0.5 [pg]" />
 				<aspect name="pigment" class="String" value="RED" />
 				<speciesModule name="coccoid" />
 				<speciesModule name="producer" />
@@ -31,6 +32,7 @@
 			</species>
 			
 			<species name="species2">
+				<aspect name="divisionMass" type="PRIMARY" class="Double" value="0.5 [pg]" />
 				<aspect name="pigment" class="String" value="BLUE" />
 				<speciesModule name="coccoid" />
 				<aspect name="reactions"  class="InstantiableList"> 
@@ -140,7 +142,8 @@
 				
 				<process name="agentRelax" class="AgentRelaxation" priority="-2"
 					firstStep="0.0"  timerStepSize="0.1">
-					<aspect name="maxMovement" class="Double" value="0.05" />
+					<aspect name="maxMovement" class="Double" value="0.1" />
+					<aspect name="maxAgentOverlap" class="Double" value="0.001" />
 					<aspect name="relaxationMethod" class="String" value="EULER" />
 				</process>
 				

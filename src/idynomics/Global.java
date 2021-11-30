@@ -367,6 +367,14 @@ public class Global extends ParameterSet
 	 * Default decompression parameters
 	 */
 	public static double damping_factor = 0.9;
-	
+
+	/**
+	 * Used to determine if a residual in multigrid is becoming negligibly small.
+	 */
+	public static double negligible_change = 1e-13;
+
+	/**
+	 * Number of digits (including leading zeros) in file numbering
+	 */
 	public static int file_number_of_digits = 5;
 }

@@ -64,7 +64,7 @@ public class DefaultPushFunction implements CollisionFunction
 		if ( var.getDistance() < -0.001 )
 		{
 			/* Linear. */
-			double c = Math.abs( this._forceScalar * var.getDistance());
+			double c = Math.abs( this._forceScalar * var.getDistance() );
 			/* two component, better force scaling for low vs high overlap */
 			/* dP is overwritten here. */
 			Vector.normaliseEuclidEquals( var.interactionVector, c );
