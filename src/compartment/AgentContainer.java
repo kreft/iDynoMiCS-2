@@ -518,7 +518,9 @@ public class AgentContainer implements Settable
 		}
 		
 		Body agentBody = (Body) agent.get(AspectRef.agentBody);
-		List<Point> points = agentBody.getPoints();
+		List<Point> points;
+		if (!Helper.isNullOrEmpty(agentBody))
+			points = agentBody.getPoints();
 	}
 
 	/**

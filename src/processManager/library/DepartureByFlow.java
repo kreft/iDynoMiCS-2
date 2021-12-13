@@ -48,11 +48,11 @@ public class DepartureByFlow extends ProcessDeparture {
 	 * agent being removed over time t equals e^(rt).
 	 */
 	@Override
-	protected LinkedList<Agent> agentsDepart() 
+	protected LinkedList<Agent> agentsDepart()
 	{
 		int nAllAgents = this._agents.getNumAllAgents();
 		LinkedList<Agent> removals = new LinkedList<Agent>();
-		if ( (nAllAgents > 0) && (this._flowRate < 0.0) )
+		if (nAllAgents > 0)
 		{
 			/* calculate (1 - removal chance) */
 			double e = Math.exp( ( 

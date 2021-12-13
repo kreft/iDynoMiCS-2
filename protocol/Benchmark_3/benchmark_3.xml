@@ -121,7 +121,7 @@
 			<processManagers>
 				<process name="solveChemostat" class="ChemostatSolver" priority="0"
 					firstStep="0.0"  timerStepSize="60.0">
-					<aspect name="soluteNames" type="PRIMARY" class="String[]" value="ammonium,oxygen,COD" />
+					<aspect name="soluteNames" type="PRIMARY" class="String[]" value="ammonium,COD" />
 					<aspect name="hMax" type="PRIMARY" class="Double" value="60.0" />
 					<aspect name="solver" type="PRIMARY" class="String" value="heun" />
 					<aspect name="tolerance" class="Double" value="1.0E-6" />
