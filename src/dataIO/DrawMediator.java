@@ -160,6 +160,8 @@ public class DrawMediator {
 				/* Identify exact voxel location and size. */
 				origin = _shape.getVoxelOrigin(coord);
 				_shape.getVoxelSideLengthsTo(dimension, coord);
+				if( _shape.isNodeSystem() )
+					Vector.minusEquals( origin, _shape.getVoxelSideLengths( coord ) );
 				/*
 				 * Scale the solute concentration for coloring.
 				 * First, map the concentration to the real interval [0, 1].
@@ -186,7 +188,7 @@ public class DrawMediator {
 				else
 					pigment = "rgb(" + c + "," + c + "," + c + ")";
 				if (_shape instanceof CartesianShape)
-				_graphics.rectangle(Vector.subset(origin, nDim), 
+					_graphics.rectangle(Vector.subset(origin, nDim),
 							Vector.subset(dimension, nDim),pigment);
 				else if (_shape instanceof CylindricalShape)
 					_graphics.circleElement(Vector.zerosDbl(2), origin, 

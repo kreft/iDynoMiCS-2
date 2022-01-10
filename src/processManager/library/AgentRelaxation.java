@@ -223,8 +223,6 @@ public class AgentRelaxation extends ProcessManager
 
 		this.shoveFactor = Helper.setIfNone( this.getDouble(AspectRef.shoveFactor),
 				1.25 );
-		if( this.shoveFactor < 1.0 )
-			this.shoveFactor = 1.0;
 
 		/* Obtaining relaxation parameters. 
 		 * Base time step */

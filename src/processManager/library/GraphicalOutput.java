@@ -207,6 +207,8 @@ public class GraphicalOutput extends ProcessManager
 				/* Identify exact voxel location and size. */
 				origin = _shape.getVoxelOrigin(coord);
 				_shape.getVoxelSideLengthsTo(dimension, coord);
+				if( _shape.isNodeSystem() )
+					Vector.minusEquals( origin, Vector.times( dimension, 0.5 ) );
 				/*
 				 * Scale the solute concentration for coloring.
 				 * First, map the concentration to the real interval [0, 1].

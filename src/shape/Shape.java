@@ -1493,6 +1493,13 @@ public abstract class Shape implements
 			destination[dim] = rC.getResolution();
 		}
 	}
+
+	public double[] getVoxelSideLengths( int[] coord )
+	{
+		double[] out = new double[coord.length];
+		getVoxelSideLengthsTo( out, coord );
+		return out;
+	}
 	
 	/* ***********************************************************************
 	 * SHAPE AND VOXEL PROPERTIES 
@@ -1740,7 +1747,12 @@ public abstract class Shape implements
 	{
 		return this._it.nbhIteratorNext();
 	}
-	
+
+	public boolean isNodeSystem()
+	{
+		return this._nodes;
+	}
+
 	public boolean isNbhIteratorValid(){
 		return this._it.isNbhIteratorValid();
 	}
