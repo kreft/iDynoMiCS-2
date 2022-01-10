@@ -100,11 +100,11 @@ public abstract class ProcessDeparture extends ProcessManager {
 		case REMOVAL:
 		{
 			this._departureLounge = this.agentsDepart();
-			
-			LinkedList<Agent> agentsOutsideOrLeaving = 
+
+			LinkedList<Agent> agentsOutsideOrLeaving =
 					this.agentsOutsideOrLeavingDomain();
-			
-			if (!agentsOutsideOrLeaving.isEmpty() && 
+
+			if (!agentsOutsideOrLeaving.isEmpty() &&
 					!(this instanceof AgentsOutsideDomainDepart))
 			{
 				if (Log.shouldWrite(Tier.NORMAL))
@@ -112,16 +112,16 @@ public abstract class ProcessDeparture extends ProcessManager {
 							" encountered agents leaving the computational "
 							+ "domain. Adding to departure lounge.");
 			}
-			
+
 			this._departureLounge.addAll(agentsOutsideOrLeaving);
-			
-			this._agents.registerRemoveAgents(this._departureLounge, 
+
+			this._agents.registerRemoveAgents(this._departureLounge,
 					EventType.REMOVED, "Removed from simulation by departure "
 						+ "process" + this.getName(), null);
 			this._departureLounge.clear();
 			break;
 		}
-	
+
 		case TRANSFER:
 		{
 		
@@ -238,16 +238,16 @@ public abstract class ProcessDeparture extends ProcessManager {
 					//Remove departing agents from this compartment's
 					//AgentContainer.
 					//TODO - ask Bas what parameters event and value are for.
-					this._agents.registerRemoveAgents(this._departureLounge, 
-						EventType.TRANSFER, "Transferred from compartment " + 
+					this._agents.registerRemoveAgents(this._departureLounge,
+						EventType.TRANSFER, "Transferred from compartment " +
 							this._compartmentName + " to new compartment, " +
 							destinations.get(destinations.size()-1).getName()
 							+ " by departure process " + this._name, null);
-					
+
 					//Send departing agents to their destination
 					destinations.get(destinations.size()-1).acceptAgents(
 							this._compartmentName, this._departureLounge);
-					
+
 					this._departureLounge.clear();
 				}
 				
@@ -268,34 +268,37 @@ public abstract class ProcessDeparture extends ProcessManager {
 	protected LinkedList<Agent> agentsOutsideOrLeavingDomain()
 	{
 		LinkedList<Agent> agentsToDepart = new LinkedList<Agent>();
-		
+
 		if (this._shape.getNumberOfDimensions() > 0)
 		{
 			for (Agent a : this._agents.getAllAgents())
 			{
-				
+
 				/*
 				 * Find agents that are outside the computational domain.
 				 */
 				Body body = (Body) a.get(AspectRef.agentBody);
-				
+
 				for (Point p : body.getPoints())
 				{
 					this._shape.applyBoundaries(p.getPosition());
-					
+
 					if (!this._shape.isInside(p.getPosition()))
 					{
 						agentsToDepart.add(a);
 					}
 				}
-				
+
 				/*
 				 * Find agents colliding with spatial boundaries that are not
 				 * solid.
+				 *
+				 * FIXME: this may be better handled by the boundary themselves eg: ask a boundary
+				 *  whether an agent should be considered for removal.
 				 */
-				Collection<SpatialBoundary> collidingBoundaries = 
+				Collection<SpatialBoundary> collidingBoundaries =
 						this._agents.boundarySearch(a, 0.0);
-				
+
 				for (SpatialBoundary boundary : collidingBoundaries)
 				{
 					if (!boundary.isSolid())
@@ -303,7 +306,7 @@ public abstract class ProcessDeparture extends ProcessManager {
 						agentsToDepart.add(a);
 					}
 				}
-				
+
 			}
 		}
 		
