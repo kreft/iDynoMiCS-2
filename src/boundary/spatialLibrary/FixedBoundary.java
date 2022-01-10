@@ -1,16 +1,10 @@
 package boundary.spatialLibrary;
 
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.w3c.dom.Element;
 
-import boundary.SpatialBoundary;
-import dataIO.Log;
-import dataIO.Log.Tier;
 import dataIO.XmlHandler;
-import grid.SpatialGrid;
 import instantiable.Instantiable;
 import referenceLibrary.XmlRef;
 import settable.Settable;
@@ -78,20 +72,9 @@ public class FixedBoundary extends BiofilmBoundaryLayer implements Instantiable
 
 	@Override
 	public void additionalPartnerUpdate() {}
-
-	/* ***********************************************************************
-	 * AGENT TRANSFERS
-	 * **********************************************************************/
 	
-	@Override
-	public void agentsArrive()
+	public boolean isSolid()
 	{
-		if ( ! this._arrivalsLounge.isEmpty() )
-		{
-			Log.out(Tier.NORMAL,
-					"Unexpected: agents arriving at a fixed boundary!");
-		}
-		this.placeAgentsRandom();
-		this.clearArrivalsLounge();
+		return true;
 	}
 }

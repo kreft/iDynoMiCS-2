@@ -44,19 +44,4 @@ public class ChemostatToMembrane extends Boundary
 
 	@Override
 	public void additionalPartnerUpdate() {}
-
-	/* ***********************************************************************
-	 * AGENT TRANSFERS
-	 * **********************************************************************/
-	
-	@Override
-	public void agentsArrive()
-	{
-		if ( ! this._arrivalsLounge.isEmpty() )
-		{
-			Log.out(Tier.NORMAL,
-					"Unexpected: agents arriving from a membrane!");
-		}
-		super.agentsArrive();
-	}
 }

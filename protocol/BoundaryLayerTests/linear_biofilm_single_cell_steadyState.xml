@@ -89,7 +89,9 @@
 					<aspect name="soluteNames" type="PRIMARY" class="String[]" value="hydrogen" /> 
 					<!-- µm^2 ms^-1-->
 				</process>
-				
+				<process name="biofilmBoundaryDeparture" 
+					class="AgentsInBoundaryLayerDepart" priority = "1">
+				</process>
 			</processManagers>
 		</compartment>
 	</simulation>

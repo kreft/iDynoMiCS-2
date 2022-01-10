@@ -108,6 +108,9 @@
 					<aspect name="soluteNames" type="PRIMARY" class="String[]" value="solute1" /> 
 					<diffusivitySetter solute="solute1" class="ScaledIfBiomassPresent" defaultDiffusivity="0.1" biofilmDiffusivity="0.08" />
 				</process>
+				<process name="agentsOutsideDomainDepart" 
+					class="AgentsOutsideDomainDepart" priority = "1">
+				</process>
 			</processManagers>
 		</compartment>
 	</simulation>

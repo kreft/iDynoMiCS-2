@@ -135,7 +135,7 @@
 					<aspect name="detachmentRate" type="PRIMARY" class="Double" value="0.1" />
 					<aspect name="rasterScale" type="PRIMARY" class="Double" value="0.2" />
 					<aspect name="regionDepth" type="PRIMARY" class="Integer" value="10" />
-					<aspect name="verbose" type="PRIMARY" class="Boolean" value="true" />
+					<aspect name="verbose" type="PRIMARY" class="Boolean" value="false" />
 				</process>
 				<process name="agentRelax" class="AgentRelaxation" priority="-3"
 					firstStep="0.0"  timerStepSize="0.1">
@@ -145,6 +145,9 @@
 				<process name="solveDiffusionTransient" class="SolveDiffusionTransient" priority="-1"
 					firstStep="0.0"  timerStepSize="0.1">	
 					<aspect name="soluteNames" type="PRIMARY" class="String[]" value="solute1" /> 
+				</process>
+				<process name="agentsOutsideDomainDepart" 
+					class="AgentsOutsideDomainDepart" priority = "1">
 				</process>
 			</processManagers>
 		</compartment>

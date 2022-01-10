@@ -74,7 +74,8 @@ public class BoundaryTest
 		elem.setAttribute(XmlRef.partnerCompartment, dummyCompName);
 		bL.instantiate(elem, x);
 		bL.setContainers(comp.environment, comp.agents);
-		bL.acceptInboundAgent(insertAgent);
+		//TODO - rewrite this test
+		//bL.acceptInboundAgent(insertAgent);
 		bL.setLayerThickness(boundaryLayerThickness);
 		comp.addBoundary(bL);
 		/*

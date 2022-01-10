@@ -339,6 +339,22 @@ public class Agent implements AspectInterface, Settable, Instantiable
 		return this._uid;
 	}
 	
+	
+	/**
+	 * Agent's with only one point will have their location co-ordinates
+	 * simplified to zeros. Agent's with multiple points will have each 
+	 * co-ordinate reduced by the lowest value in that dimension.
+	 */
+	public void simplifyLocation()
+	{
+		if (this.isLocalAspect(XmlRef.agentBody))
+			{
+				Body body = (Body) this._aspectRegistry.getValue(
+						this, XmlRef.agentBody);
+				body.simplifyLocation();
+			}
+	}
+	
 	/*************************************************************************
 	 * Model Node factory
 	 ************************************************************************/

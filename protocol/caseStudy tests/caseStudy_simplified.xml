@@ -115,6 +115,9 @@
 					<aspect name="maxConcentration" type="PRIMARY" class="Double" value="1.0e-5" />
 					<aspect name="outputWriter" type="PRIMARY" class="String" value="SvgExport" />
 				</process>
+				<process name="agentsOutsideDomainDepart" 
+					class="AgentsOutsideDomainDepart" priority = "1">
+				</process>
 			</processManagers>
 		</compartment>
 	</simulation>

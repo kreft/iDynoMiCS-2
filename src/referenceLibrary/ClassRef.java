@@ -6,7 +6,6 @@ import java.util.List;
 
 import dataIO.Log;
 import dataIO.Log.Tier;
-import surface.link.TorsionSpring;
 
 /**
  * 
@@ -323,6 +322,18 @@ public class ClassRef
 			processManager.ProcessManager.class.getName();
 	
 	/**
+	 * the generic arrival process class
+	 */
+	public final static String processArrival =
+			processManager.ProcessArrival.class.getName();
+	
+	/**
+	 * the generic departure process class
+	 */
+	public final static String processDeparture =
+			processManager.ProcessDeparture.class.getName();
+	
+	/**
 	 * the agent events process manager
 	 */
 	public final static String agentEvents =
@@ -407,16 +418,67 @@ public class ClassRef
 			processManager.library.AgentDetachment.class.getName();
 	
 	/**
+	 * Agent attachment process manager
+	 */
+	public final static String agentAttachment =
+			processManager.library.AgentAttachment.class.getName();
+	
+	/**
+	 * Agent attachment by random walk process manager
+	 */
+	public final static String agentAttachmentRandomWalk =
+			processManager.library.AgentAttachmentRandomWalk.class.getName();
+	
+	/**
 	 * Process for maintenance of biofilm at maximum thickness through 
 	 * removal of all agents above threshold height
 	 */
 	public final static String agentScraper =
 			processManager.library.AgentScraper.class.getName();
+	
+	/**
+	 * 
+	 */
+	public final static String agentsInBoundaryLayerDepart = 
+			processManager.library.AgentsInBoundaryLayerDepart.class.getName();
+	
+	/**
+	 * Process for agent departure from a dimensionless compartment
+	 */
+	public final static String agentsLeaveChemostat = 
+			processManager.library.AgentsLeaveChemostat.class.getName();
+	
+	/**
+	 * Removes agents that are outside the computational domain or colliding
+	 * with non-solid boundaries
+	 */
+	public final static String agentsOutsideDomainDepart = 
+			processManager.library.AgentsOutsideDomainDepart.class.getName();
+	
+	/**
+	 * Removal of floating groups of unattached agents from a biofilm
+	 * compartment.
+	 */
+	public final static String floatingAgentDeparture = 
+			processManager.library.FloatingAgentDeparture.class.getName();
+	
+	/**
+	 * Removal of agents from a chemostat by a given proportion
+	 */
+	public final static String departureByFlow = 
+			processManager.library.DepartureByFlow.class.getName();
+	
 	/**
 	 * writes tables in csv
 	 */
 	public final static String tableWriter =
 			processManager.library.TableWriter.class.getName();
+	
+	/**
+	 * process for agent arrival in a dimensionless compartment
+	 */
+	public final static String agentsArriveInChemostat = 
+			processManager.library.AgentsArriveInChemostat.class.getName();
 	
 	/* ************************************************************************
 	 * IdynoMiCS main classes

@@ -241,6 +241,9 @@
 					<aspect name="maxConcentration" type="PRIMARY" class="Double" value="8.74E-6" />
 					<aspect name="outputWriter" type="PRIMARY" class="String" value="SvgExport" />
 				</process>
+				<process name="biofilmBoundaryDeparture"
+					class="AgentsInBoundaryLayerDepart" priority = "1">
+				</process>
 			</processManagers>
 		</compartment>
 	</simulation>

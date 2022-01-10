@@ -211,6 +211,9 @@
 					value="0 ~ mass ? species == ABCD | mass ? species == ABC |  mass ? species == D | %acetate | %nitrate | %nitrousoxide" />
 					<aspect name="fileName" type="PRIMARY" class="String" value="data" />
 				</process>
+				<process name="flowDeparture"
+					class="DepartureByFlow" priority = "1" volumeFlowRate="-1.0E-1">
+				</process>
 			</processManagers>
 		</compartment>
 	</simulation>

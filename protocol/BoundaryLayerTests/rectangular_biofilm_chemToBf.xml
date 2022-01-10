@@ -97,6 +97,9 @@
 					<aspect name="maxMovement" type="PRIMARY" class="Double" value="0.05" />
 					<aspect name="relaxationMethod" type="PRIMARY" class="String" value="EULER" />
 				</process>
+				<process name="biofilmBoundaryDeparture"
+					class="AgentsInBoundaryLayerDepart" priority = "1">
+				</process>
 			</processManagers>
 		</compartment>
 	</simulation>
