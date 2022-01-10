@@ -452,9 +452,8 @@ public class AgentMediator implements CommandMediator {
 					max[i++] = (float) grid.getMax(ArrayType.CONCN);
 				}
 			}
-			
 			for (int[] cur = it.resetIterator(); it.isIteratorValid(); cur = it.iteratorNext())
-			{			
+			{
 				_gl.glPushMatrix();
 				/* print solutes */ 
 				if (soluteColors.values().size() > 0){
@@ -590,14 +589,14 @@ public class AgentMediator implements CommandMediator {
 //		Vector3f norm = new Vector3f(0f,0f,1f);
 		double[] in = new double[]{0,0,0};
 		
-		double[] p1 = shape.getGlobalLocation(shape.getLocation(coord, in)); in[1]++;			 // [0 0 0]
-		double[] p2 = shape.getGlobalLocation(shape.getLocation(coord, in)); in[2]++;			 // [0 1 0]
-		double[] p3 = shape.getGlobalLocation(shape.getLocation(coord, in)); in[1]--;			 // [0 1 1]
-		double[] p4 = shape.getGlobalLocation(shape.getLocation(coord, in)); in[0]++; in[1]++; 	 // [0 0 1]
-		double[] p5 = shape.getGlobalLocation(shape.getLocation(coord, in)); in[1]--;			 // [1 1 1]
-		double[] p6 = shape.getGlobalLocation(shape.getLocation(coord, in)); in[2]--;			 // [1 0 1]
-		double[] p7 = shape.getGlobalLocation(shape.getLocation(coord, in)); in[1]++;			 // [1 0 0]
-		double[] p8 = shape.getGlobalLocation(shape.getLocation(coord, in)); 					 // [1 1 0]
+		double[] p1 = shape.getRenderLocation(coord, in); in[1]++;			 // [0 0 0]
+		double[] p2 = shape.getRenderLocation(coord, in); in[2]++;			 // [0 1 0]
+		double[] p3 = shape.getRenderLocation(coord, in); in[1]--;			 // [0 1 1]
+		double[] p4 = shape.getRenderLocation(coord, in); in[0]++; in[1]++; 	 // [0 0 1]
+		double[] p5 = shape.getRenderLocation(coord, in); in[1]--;			 // [1 1 1]
+		double[] p6 = shape.getRenderLocation(coord, in); in[2]--;			 // [1 0 1]
+		double[] p7 = shape.getRenderLocation(coord, in); in[1]++;			 // [1 0 0]
+		double[] p8 = shape.getRenderLocation(coord, in); 					 // [1 1 0]
 		
 		_gl.glBegin(GL2.GL_QUADS);
 		// r==0
@@ -644,10 +643,10 @@ public class AgentMediator implements CommandMediator {
 //		Vector3f norm = new Vector3f(0f,0f,1f);
 		double[] in = new double[]{0,0,0};
 		
-		double[] p1 = shape.getGlobalLocation(shape.getLocation(coord, in)); in[1]++;			 // [0 0 0]
-		double[] p2 = shape.getGlobalLocation(shape.getLocation(coord, in)); in[0]++;			 // [0 1 0]
-		double[] p7 = shape.getGlobalLocation(shape.getLocation(coord, in)); in[1]--;			 // [1 1 0]
-		double[] p8 = shape.getGlobalLocation(shape.getLocation(coord, in));
+		double[] p1 = shape.getRenderLocation(coord, in); in[1]++;			 // [0 0 0]
+		double[] p2 = shape.getRenderLocation(coord, in); in[0]++;			 // [0 1 0]
+		double[] p7 = shape.getRenderLocation(coord, in); in[1]--;			 // [1 1 0]
+		double[] p8 = shape.getRenderLocation(coord, in);
 		// [1 0 0]
 
 		_gl.glBegin(GL2.GL_QUADS);

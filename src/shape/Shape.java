@@ -761,6 +761,16 @@ public abstract class Shape implements
 		this.getGlobalLocationTo(out, local);
 		return out;
 	}
+
+	public double[] getRenderLocation(int[] coord, double[] in)
+	{
+		double out[] = this.getGlobalLocation(this.getLocation(coord, in));
+		//FIXME quickfix shift by half a voxel to represent nodes
+		// for better representation side nodes need to be resized.
+		if( this.isNodeSystem() )
+			Vector.minusEquals( out, Vector.times(this.getVoxelSideLengths( coord ), 0.5) );
+		return out;
+	}
 	
 	/**
 	 * \brief Convert a spatial position from the local coordinate scheme to
