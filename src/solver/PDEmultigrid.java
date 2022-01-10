@@ -569,18 +569,18 @@ public class PDEmultigrid extends PDEsolver
 							+ numRepetitions );
 				break relaxLoops;
 			}
-			if( i+1 >= numRepetitions && Log.shouldWrite(Tier.NORMAL) )
+			if( i+1 >= numRepetitions && Log.shouldWrite(Tier.DEBUG) )
 			{
-				if( Log.shouldWrite(Tier.EXPRESSIVE))
+				if( Log.shouldWrite(Tier.DEBUG))
 					if( Vector.max(this.tempRes) > this._absToleranceLevel )
 					{
-						Log.out(Tier.EXPRESSIVE, (i+1) + " " + Vector.max(this.tempRes) + 
-								" > " +	this._absToleranceLevel );
+						Log.out(Tier.DEBUG, (i+1) + " " + Vector.max(this.tempRes) +
+								" > " +	this._absToleranceLevel + " in: " + this.getClass().getSimpleName());
 					}
 					else
 					{
-						Log.out(Tier.EXPRESSIVE, (i+1) + " " + Vector.max(this.tempRel) + 
-								" > " +	this._relToleranceLevel );
+						Log.out(Tier.DEBUG, (i+1) + " " + Vector.max(this.tempRel) +
+								" > " +	this._relToleranceLevel  + " in: " + this.getClass().getSimpleName());
 					}
 			}
 		}

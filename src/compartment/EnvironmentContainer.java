@@ -454,8 +454,6 @@ public class EnvironmentContainer implements CanPrelaunchCheck, Settable
 		 */
 		for ( WellMixedBoundary b: bndrs )
 		{
-
-			SegmentTimer.start("update");
 			if( this._shape.getSignificantDimensions().size() > 2 && this._shape.getDimensionVoxelCount(2) > 2 )
 				b.updateWellMixedArray();
 			else
@@ -495,8 +493,6 @@ public class EnvironmentContainer implements CanPrelaunchCheck, Settable
 					coords = aShape.iteratorNext();
 				}
 			}
-
-			SegmentTimer.stop("update");
 			if ( b.needsToUpdateWellMixed() )
 			{
 				double sAreaFactor = b.getTotalSurfaceArea() * scaleFactor;
