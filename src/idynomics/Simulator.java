@@ -356,7 +356,7 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable,
 		Log.step();
 	}
 
-	public void initalRun()
+	public void initialRun()
 	{
 		/* start storing log on disk */
 		if( Log.shouldWrite(Tier.EXPRESSIVE) )
@@ -376,7 +376,7 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable,
 
 	public void run()
 	{
-		this.initalRun();
+		this.initialRun();
 		
 		/* Run the simulation. */
 		while ( this.timer.isRunning() && !this.interupt && !this.stopAction )

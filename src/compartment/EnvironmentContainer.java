@@ -168,7 +168,8 @@ public class EnvironmentContainer implements CanPrelaunchCheck, Settable
 			if ( sg.getName().equals(soluteName) )
 				return sg;
 		Log.out(Tier.CRITICAL,
-				"EnvironmentContainer can't find grid for \""+soluteName+"\"");
+				"EnvironmentContainer can't find grid for \""+soluteName+"\" " +
+						this.getClass().getSimpleName());
 		Thread.dumpStack();
 		return null;
 	}

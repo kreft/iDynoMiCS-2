@@ -207,7 +207,8 @@ public class Collision
 		this.distance(a, b, var);
 		
 		if ( Double.isNaN(var.interactionVector[0]))
-			System.out.println(var.interactionVector[0] + "f0");
+			Log.out( Tier.CRITICAL, this.getClass().getSimpleName() +
+					" detected unidentified number (NaN) " + var.interactionVector[0]);
 		/* 
 		 * If the two surfaces overlap, then they should push each other away.
 		 */
@@ -216,7 +217,7 @@ public class Collision
 			this._collisionFun.interactionForce( var, first, second );
 			if ( Double.isNaN(var.interactionVector[0]))
 				Log.out( Tier.CRITICAL, this.getClass().getSimpleName() +
-						" detected nan " + var.interactionVector[0]);
+						" detected unidentified number (NaN) " + var.interactionVector[0]);
 			if( var.flip )
 			{
 				this.applyForce(b, var.interactionVector, var.s);
@@ -305,7 +306,7 @@ public class Collision
 	{
 		if ( Double.isNaN(force[0]))
 			Log.out( Tier.CRITICAL, this.getClass().getSimpleName() +
-					" detected nan " );
+					" detected unidentified number (NaN) ");
 		switch ( surf.type() )
 		{
 		case SPHERE:

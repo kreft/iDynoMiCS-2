@@ -76,7 +76,7 @@ public class ReactionDiffusionMgFasDistributed implements Testable {
 		int i=0;
 		boolean nodesystem = true;
 
-		Idynomics.simulator.initalRun();
+		Idynomics.simulator.initialRun();
 
 		while ( Idynomics.simulator.timer.isRunning() )
 		{
@@ -129,8 +129,8 @@ public class ReactionDiffusionMgFasDistributed implements Testable {
 				}
 			}
 		}
-		mre1 /= hBiofilm;
-		mre2 /= hDBL-hBiofilm;
+		mre1 /= hBiofilm/polling;
+		mre2 /= (hDBL-hBiofilm)/polling;
 		
 		/* amount of times the relative error exceeds .05, .10 and .20 */
 		Tester.println("\n", mode);
