@@ -14,10 +14,13 @@ import com.jogamp.opengl.math.Quaternion;
 import com.jogamp.opengl.util.gl2.GLUT;
 
 import agent.Agent;
+import colour.ColourSpecification;
+import colour.Palette;
 import compartment.AgentContainer;
 import compartment.Compartment;
 import grid.ArrayType;
 import grid.SpatialGrid;
+import idynomics.Global;
 import linearAlgebra.Vector;
 import referenceLibrary.AspectRef;
 import shape.CartesianShape;
@@ -137,12 +140,39 @@ public class AgentMediator implements CommandMediator {
 
 	private int j;
 
+	private Palette palette;
+
+	private ColourSpecification colSpec;
+
 	/**
 	 * used to set up the open gl camera
 	 */
 	@Override
 	public float kickback() {
 		return _kickback;
+	}
+	
+	public String currentColourSpecification()
+	{
+		return this.colSpec.toString();
+	}
+	
+	public void setColourSpecification(String filter)
+	{
+		this.colSpec = new ColourSpecification(palette, filter);
+	}
+	
+
+	public void setPalette(String palette) 
+	{
+		this.palette = new Palette( palette );
+		this.colSpec = new ColourSpecification( this.palette, 
+				currentColourSpecification() );
+	}
+
+	public void resetPalette() 
+	{
+		palette.reset();
 	}
 	
 	public double[] orientation() 
@@ -155,7 +185,7 @@ public class AgentMediator implements CommandMediator {
 	
 	public void colStep()
 	{
-		if (activeCol > soluteColors.size())
+		if (activeCol == soluteColors.size())
 			activeCol = 0;
 		else
 			activeCol += 1;
@@ -177,6 +207,13 @@ public class AgentMediator implements CommandMediator {
 			soluteColors.put("Green", (String)solutes.toArray()[1]);
 		if( solutes.size() > 2 )
 			soluteColors.put("Blue", (String)solutes.toArray()[2]);
+		
+		this.palette = new Palette( String.valueOf( Global.default_palette ));
+		
+		/* In the future we may want to change the default to "species" */
+		 this.colSpec = new ColourSpecification( palette, 
+				 Global.default_colour_specification );
+		
 		
 		this._compartment = c;
 		
@@ -240,44 +277,45 @@ public class AgentMediator implements CommandMediator {
 					AspectRef.surfaceList) ? a.get(AspectRef.surfaceList) :
 					new LinkedList<Surface>()))
 			{
-				_pigment = a.getValue("pigment");
-				_pigment = Helper.setIfNone(_pigment, "WHITE");
-				if (!(_pigment instanceof String))
-				{
-					double[] _pigmentDouble = (double[]) _pigment;
-					for (int i = 0; i < _pigmentDouble.length; i++)
-					{
-						_rgba[i] = (float) _pigmentDouble[i];
-					}
-				}
-				else
-				{
-					switch ((String) _pigment)
-					{
-					case "GREEN" :
-						_rgba = new float[] {0.0f, 1.0f, 0.0f};
-						break;
-					case "RED" :
-						_rgba = new float[] {1.0f, 0.0f, 0.0f};
-						break;
-					case "BLUE" :
-						_rgba = new float[] {0.01f, 0.0f, 1.0f};
-						break;
-					case "PURPLE" :
-						_rgba = new float[] {1.0f, 0.0f, 1.0f};
-						break;
-					case "ORANGE" :
-						_rgba = new float[] {1.0f, 0.6f, 0.1f};
-						break;
-					case "BLACK" :
-						_rgba = new float[] {0.0f, 0.0f, 0.0f};
-						break;
-					case "WHITE" :
-					default :
-						_rgba = new float[] {1.0f, 1.0f, 1.0f};
-						break;
-					}
-				}
+				_rgba = colSpec.colorize(a);
+//				_pigment = a.getValue("pigment");
+//				_pigment = Helper.setIfNone(_pigment, "WHITE");
+//				if (!(_pigment instanceof String))
+//				{
+//					double[] _pigmentDouble = (double[]) _pigment;
+//					for (int i = 0; i < _pigmentDouble.length; i++)
+//					{
+//						_rgba[i] = (float) _pigmentDouble[i];
+//					}
+//				}
+//				else
+//				{
+//					switch ((String) _pigment)
+//					{
+//					case "GREEN" :
+//						_rgba = new float[] {0.0f, 1.0f, 0.0f};
+//						break;
+//					case "RED" :
+//						_rgba = new float[] {1.0f, 0.0f, 0.0f};
+//						break;
+//					case "BLUE" :
+//						_rgba = new float[] {0.01f, 0.0f, 1.0f};
+//						break;
+//					case "PURPLE" :
+//						_rgba = new float[] {1.0f, 0.0f, 1.0f};
+//						break;
+//					case "ORANGE" :
+//						_rgba = new float[] {1.0f, 0.6f, 0.1f};
+//						break;
+//					case "BLACK" :
+//						_rgba = new float[] {0.0f, 0.0f, 0.0f};
+//						break;
+//					case "WHITE" :
+//					default :
+//						_rgba = new float[] {1.0f, 1.0f, 1.0f};
+//						break;
+//					}
+//				}
 				
 				/*
 				 * Render the appropriate surface
@@ -414,29 +452,32 @@ public class AgentMediator implements CommandMediator {
 					max[i++] = (float) grid.getMax(ArrayType.CONCN);
 				}
 			}
-			
 			for (int[] cur = it.resetIterator(); it.isIteratorValid(); cur = it.iteratorNext())
-			{			
+			{
 				_gl.glPushMatrix();
 				/* print solutes */ 
 				if (soluteColors.values().size() > 0){
 
 					float[] col = new float[] { 0f, 0f, 0f };
 					j = 0;
-					if (this.activeCol == 1)
-					{
-						for (String s : soluteColors.keySet()){
-							SpatialGrid grid = _compartment.getSolute(soluteColors.get(s));
-							conc = (float)grid.getValueAt(ArrayType.CONCN, 
-									it.iteratorCurrent()) / max[j];
-							col[j++] = conc;
-						}
-					}
-					else
+					/* NOTE: disabled multicolor view */
+//					if (this.activeCol == 1)
+//					{
+//						for (String s : soluteColors.keySet()){
+//							SpatialGrid grid = _compartment.getSolute(soluteColors.get(s));
+//							conc = (float)grid.getValueAt(ArrayType.CONCN,
+//									it.iteratorCurrent()) / max[j];
+//							col[j++] = conc;
+//
+////							System.out.println( (float)grid.getValueAt(ArrayType.CONCN,
+////									it.iteratorCurrent()) );
+//						}
+//					}
+//					else
 					{
 						for (String s : soluteColors.keySet())
 						{
-							if(j == this.activeCol-2)
+							if(j == this.activeCol-1)
 							{
 								SpatialGrid grid = _compartment.getSolute(soluteColors.get(s));
 								conc = (float)grid.getValueAt(ArrayType.CONCN, 
@@ -446,7 +487,6 @@ public class AgentMediator implements CommandMediator {
 							j++;
 						}
 					}
-					
 					_rgba=col;
 					applyCurrentColor(_soluteTranparancy);
 				}
@@ -549,14 +589,14 @@ public class AgentMediator implements CommandMediator {
 //		Vector3f norm = new Vector3f(0f,0f,1f);
 		double[] in = new double[]{0,0,0};
 		
-		double[] p1 = shape.getGlobalLocation(shape.getLocation(coord, in)); in[1]++;			 // [0 0 0]
-		double[] p2 = shape.getGlobalLocation(shape.getLocation(coord, in)); in[2]++;			 // [0 1 0]
-		double[] p3 = shape.getGlobalLocation(shape.getLocation(coord, in)); in[1]--;			 // [0 1 1]
-		double[] p4 = shape.getGlobalLocation(shape.getLocation(coord, in)); in[0]++; in[1]++; 	 // [0 0 1]
-		double[] p5 = shape.getGlobalLocation(shape.getLocation(coord, in)); in[1]--;			 // [1 1 1]
-		double[] p6 = shape.getGlobalLocation(shape.getLocation(coord, in)); in[2]--;			 // [1 0 1]
-		double[] p7 = shape.getGlobalLocation(shape.getLocation(coord, in)); in[1]++;			 // [1 0 0]
-		double[] p8 = shape.getGlobalLocation(shape.getLocation(coord, in)); 					 // [1 1 0]
+		double[] p1 = shape.getRenderLocation(coord, in); in[1]++;			 // [0 0 0]
+		double[] p2 = shape.getRenderLocation(coord, in); in[2]++;			 // [0 1 0]
+		double[] p3 = shape.getRenderLocation(coord, in); in[1]--;			 // [0 1 1]
+		double[] p4 = shape.getRenderLocation(coord, in); in[0]++; in[1]++; 	 // [0 0 1]
+		double[] p5 = shape.getRenderLocation(coord, in); in[1]--;			 // [1 1 1]
+		double[] p6 = shape.getRenderLocation(coord, in); in[2]--;			 // [1 0 1]
+		double[] p7 = shape.getRenderLocation(coord, in); in[1]++;			 // [1 0 0]
+		double[] p8 = shape.getRenderLocation(coord, in); 					 // [1 1 0]
 		
 		_gl.glBegin(GL2.GL_QUADS);
 		// r==0
@@ -603,11 +643,12 @@ public class AgentMediator implements CommandMediator {
 //		Vector3f norm = new Vector3f(0f,0f,1f);
 		double[] in = new double[]{0,0,0};
 		
-		double[] p1 = shape.getGlobalLocation(shape.getLocation(coord, in)); in[1]++;			 // [0 0 0]
-		double[] p2 = shape.getGlobalLocation(shape.getLocation(coord, in)); in[0]++;			 // [0 1 0]
-		double[] p7 = shape.getGlobalLocation(shape.getLocation(coord, in)); in[1]--;			 // [1 1 0]
-		double[] p8 = shape.getGlobalLocation(shape.getLocation(coord, in)); 					 // [1 0 0]
-		
+		double[] p1 = shape.getRenderLocation(coord, in); in[1]++;			 // [0 0 0]
+		double[] p2 = shape.getRenderLocation(coord, in); in[0]++;			 // [0 1 0]
+		double[] p7 = shape.getRenderLocation(coord, in); in[1]--;			 // [1 1 0]
+		double[] p8 = shape.getRenderLocation(coord, in);
+		// [1 0 0]
+
 		_gl.glBegin(GL2.GL_QUADS);
 		// p==0
 		_gl.glVertex3fv(Vector.toFloat(p1), 0);
@@ -661,4 +702,5 @@ public class AgentMediator implements CommandMediator {
 			_soluteTranparancy += 0.05f;
 		
 	}
+
 }

@@ -309,7 +309,7 @@ public class RegularReaction
 		for ( String s : concentrations.keySet() )
 		{
 			if( concentrations.get(s) < 0.0 )
-				System.out.println( s + " "  + concentrations.get(s) );
+				System.out.println( this.getClass().getSimpleName() + " detecteded negative concentration "+ s + " "  + concentrations.get(s) );
 		}
 	}
 	
@@ -320,7 +320,6 @@ public class RegularReaction
 	 * @param withRespectTo
 	 * @return
 	 */
-	// TODO never used, consider deletion
 	public double getDiffRate(HashMap<String, Double> concentrations, 
 														String withRespectTo)
 	{

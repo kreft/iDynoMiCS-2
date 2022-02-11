@@ -75,6 +75,9 @@ public class ReactionDiffusion implements Testable {
 		double mre1 = 0, mre2 = 0;
 		int e5 = 0, e10 = 0, e20 = 0;
 		int i=0;
+
+		Idynomics.simulator.initialRun();
+
 		while ( Idynomics.simulator.timer.isRunning() )
 		{
 			i++;

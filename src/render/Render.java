@@ -27,6 +27,7 @@ import javax.swing.ImageIcon;
 import javax.swing.InputMap;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.KeyStroke;
 
@@ -42,6 +43,7 @@ import com.jogamp.opengl.util.awt.TextRenderer;
 
 import dataIO.Log;
 import dataIO.Log.Tier;
+import gui.GuiActions;
 import idynomics.Global;
 import idynomics.Idynomics;
 
@@ -150,8 +152,14 @@ public class Render implements GLEventListener, Runnable {
 		 * the open GL2 drawable
 		 */
 		final GL2 gl = drawable.getGL().getGL2();
+
+		/* line disabled because:
+		Currently squares are seen from backside so this would hide them, it also seems to
+		make very little difference in terms of frame rate
+		gl.glEnable(GL2.GL_CULL_FACE);
+		*/
 		gl.glClear(GL2.GL_COLOR_BUFFER_BIT | GL2.GL_DEPTH_BUFFER_BIT);
-		
+
 	     // fps
 	     double currentTime = System.currentTimeMillis();
 	     nbFrames++;
@@ -789,5 +797,48 @@ public class Render implements GLEventListener, Runnable {
 			}
 		});	
 		
+		/* Palette */
+		inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_F1, 0), "Palette") ;
+		actionMap.put("Palette", new AbstractAction(){
+			private static final long serialVersionUID = 346448974654345823L;
+			
+			@Override
+			public void actionPerformed(ActionEvent g) {
+				System.out.println("Palette");
+				File f = GuiActions.chooseFile("colourPalettes", 
+						"Choose palette file.");
+				if( f.canRead() )
+					((AgentMediator) r._commandMediator).setPalette(
+							f.getName() );
+				else
+					Log.out("Could not read palette file.");
+			}
+		});	
+		
+		/* Palette */
+		inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_F2, 0), "Colour specification") ;
+		actionMap.put("Colour specification", new AbstractAction(){
+			private static final long serialVersionUID = 346448974654345823L;
+			
+			@Override
+			public void actionPerformed(ActionEvent g) {
+				System.out.println("Colour specification");
+				/* We could do this a bit cleaner */
+				String in = inputDialog("Colour specification", ((AgentMediator) 
+						r._commandMediator).currentColourSpecification());
+				((AgentMediator) r._commandMediator).setColourSpecification(in);
+				((AgentMediator) r._commandMediator).resetPalette();
+			}
+		});	
+	}
+	
+	public static String inputDialog(String message, String initial)
+	{
+		JFrame f;  
+	    f=new JFrame();  
+	    if( initial == null )
+		    return JOptionPane.showInputDialog( f,message );
+	    else
+	    	return JOptionPane.showInputDialog( f, message, initial );
 	}
 }

@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module type="JAVA_MODULE" version="4">
+  <component name="EclipseModuleManager">
+    <libelement value="jar://$MODULE_DIR$/src/lib/jogl/gluegen-rt-natives-linux-amd64.jar!/" />
+    <libelement value="jar://$MODULE_DIR$/src/lib/jogl/gluegen-rt-natives-linux-i586.jar!/" />
+    <libelement value="jar://$MODULE_DIR$/src/lib/jogl/gluegen-rt-natives-macosx-universal.jar!/" />
+    <libelement value="jar://$MODULE_DIR$/src/lib/jogl/gluegen-rt-natives-windows-amd64.jar!/" />
+    <libelement value="jar://$MODULE_DIR$/src/lib/jogl/gluegen-rt-natives-windows-i586.jar!/" />
+    <libelement value="jar://$MODULE_DIR$/src/lib/jogl/gluegen-rt.jar!/" />
+    <libelement value="jar://$MODULE_DIR$/src/lib/jogl/jogl-all-natives-linux-amd64.jar!/" />
+    <libelement value="jar://$MODULE_DIR$/src/lib/jogl/jogl-all-natives-linux-i586.jar!/" />
+    <libelement value="jar://$MODULE_DIR$/src/lib/jogl/jogl-all-natives-macosx-universal.jar!/" />
+    <libelement value="jar://$MODULE_DIR$/src/lib/jogl/jogl-all-natives-solaris-i586.jar!/" />
+    <libelement value="jar://$MODULE_DIR$/src/lib/jogl/jogl-all-natives-windows-amd64.jar!/" />
+    <libelement value="jar://$MODULE_DIR$/src/lib/jogl/jogl-all-natives-windows-i586.jar!/" />
+    <libelement value="jar://$MODULE_DIR$/src/lib/jogl/jogl-all.jar!/" />
+    <libelement value="jar://$MODULE_DIR$/src/lib/exificient-core.jar!/" />
+    <libelement value="jar://$MODULE_DIR$/src/lib/exificient-1.0.4.jar!/" />
+    <src_description expected_position="0">
+      <src_folder value="file://$MODULE_DIR$/src" expected_position="0" />
+    </src_description>
+  </component>
+  <component name="NewModuleRootManager">
+    <output url="file://$MODULE_DIR$/bin" />
+    <exclude-output />
+    <content url="file://$MODULE_DIR$">
+      <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/lib/JUnit" isTestSource="true" />
+    </content>
+    <orderEntry type="jdk" jdkName="1.8" jdkType="JavaSDK" />
+    <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="module-library">
+      <library name="gluegen-rt-natives-linux-amd64.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/src/lib/jogl/gluegen-rt-natives-linux-amd64.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="gluegen-rt-natives-linux-i586.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/src/lib/jogl/gluegen-rt-natives-linux-i586.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="gluegen-rt-natives-macosx-universal.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/src/lib/jogl/gluegen-rt-natives-macosx-universal.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="gluegen-rt-natives-windows-amd64.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/src/lib/jogl/gluegen-rt-natives-windows-amd64.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="gluegen-rt-natives-windows-i586.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/src/lib/jogl/gluegen-rt-natives-windows-i586.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="gluegen-rt.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/src/lib/jogl/gluegen-rt.jar!/" />
+        </CLASSES>
+        <JAVADOC>
+          <root url="http://jogamp.org/deployment/jogamp-next/javadoc/gluegen/javadoc/" />
+        </JAVADOC>
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="jogl-all-natives-linux-amd64.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/src/lib/jogl/jogl-all-natives-linux-amd64.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="jogl-all-natives-linux-i586.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/src/lib/jogl/jogl-all-natives-linux-i586.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="jogl-all-natives-macosx-universal.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/src/lib/jogl/jogl-all-natives-macosx-universal.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="jogl-all-natives-solaris-i586.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/src/lib/jogl/jogl-all-natives-solaris-i586.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="jogl-all-natives-windows-amd64.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/src/lib/jogl/jogl-all-natives-windows-amd64.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="jogl-all-natives-windows-i586.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/src/lib/jogl/jogl-all-natives-windows-i586.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="jogl-all.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/src/lib/jogl/jogl-all.jar!/" />
+        </CLASSES>
+        <JAVADOC>
+          <root url="http://jogamp.org/deployment/jogamp-next/javadoc/jogl/javadoc/" />
+        </JAVADOC>
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="exificient-core.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/src/lib/exificient-core.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="exificient-1.0.4.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/src/lib/exificient-1.0.4.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="junit4">
+        <CLASSES>
+          <root url="jar://$APPLICATION_HOME_DIR$/lib/junit-4.12.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="library" name="hamcrest-core-1.3" level="project" />
+    <orderEntry type="library" name="junit-4.13.2" level="project" />
+  </component>
+</module>

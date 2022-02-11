@@ -167,6 +167,12 @@ public class Global extends ParameterSet
 	public static boolean csv_bookkeeping = true;
 	
 	/**
+	 * the default color specification for graphical output, NOTE in the future
+	 * we probably want to set this to "species"
+	 */
+	public static String default_colour_specification = "species";
+	
+	/**
 	 * enable xml bookkeeping (also logging complete agent xml)
 	 * Warning: very slow
 	 */
@@ -366,6 +372,14 @@ public class Global extends ParameterSet
 	 * Default decompression parameters
 	 */
 	public static double damping_factor = 0.9;
-	
+
+	/**
+	 * Used to determine if a residual in multigrid is becoming negligibly small.
+	 */
+	public static double negligible_change = 1e-13;
+
+	/**
+	 * Number of digits (including leading zeros) in file numbering
+	 */
 	public static int file_number_of_digits = 5;
 }

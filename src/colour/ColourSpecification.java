@@ -26,9 +26,14 @@ public class ColourSpecification {
 	public float[] colorize(AspectInterface subject)
 	{
 		/* placeholder code before merge */
-		String factor = subject.getString(filter);
-		if( !factors.containsKey(factor) )
-			this.factors.put(factor, palette.getNext());
-		return this.factors.get(factor).returnColour(new float[3]);
+		String factor = subject.getString( filter );
+		if( !factors.containsKey( factor ) )
+			this.factors.put( factor, palette.getNext() );
+		return this.factors.get( factor ).returnColourRGB( new float[3] );
+	}
+	
+	public String toString()
+	{
+		return this.filter;
 	}
 }

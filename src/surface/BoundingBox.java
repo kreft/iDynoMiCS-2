@@ -1,6 +1,7 @@
 package surface;
 
 import linearAlgebra.Vector;
+import settable.Module;
 import spatialRegistry.Area;
 
 /**
@@ -20,6 +21,13 @@ public class BoundingBox extends Area
 	public BoundingBox()
 	{
 		
+	}
+
+	public BoundingBox copy()
+	{
+		BoundingBox out = new BoundingBox();
+		out.set(Vector.copy(low),Vector.copy(high),Vector.copy(periodic));
+		return out;
 	}
 	
 	/**

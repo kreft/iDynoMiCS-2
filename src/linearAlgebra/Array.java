@@ -114,6 +114,11 @@ public final class Array
 		double[][][] out = new double[ni][nj][nk];
 		return setAll(out, value);
 	}
+	
+	public static Double[][][] arrayDouble(int ni, int nj, int nk)
+	{
+		return new Double[ni][nj][nk];
+	}
 
 	/**
 	 * \brief A new cubic array of {@code double}s.
@@ -283,6 +288,12 @@ public final class Array
 	 * @param array 3D array of {@code double}s (preserved).
 	 */
 	public static void copyTo(double[][][] destination, double[][][] array)
+	{
+		for ( int i = 0 ; i < array.length; i++ )
+			Matrix.copyTo(destination[i], array[i]);
+	}
+	
+	public static void copyTo(Double[][][] destination, Double[][][] array)
 	{
 		for ( int i = 0 ; i < array.length; i++ )
 			Matrix.copyTo(destination[i], array[i]);
@@ -1285,7 +1296,15 @@ public final class Array
 		for ( int i = 0; i < a.length; i++ )
 			Matrix.elemDivideTo(destination[i], a[i], b[i]);
 	}
-	
+
+	public static void elemRatioTo(
+			double[][][] destination, double[][][] a, double[][][] b)
+	{
+		checkDimensionsSame(destination, a, b);
+		for ( int i = 0; i < a.length; i++ )
+			Matrix.elemRatioTo(destination[i], a[i], b[i]);
+	}
+
 	/**
 	 * \brief Multiply one array by another, element-by-element.
 	 * 
@@ -1299,6 +1318,7 @@ public final class Array
 		elemDivideTo(out, a, b);
 		return a;
 	}
+
 	
 	/**
 	 * \brief Multiply one array by another, element-by-element, writing the
@@ -1422,6 +1442,50 @@ public final class Array
 					out[i - iStart][j - jStart][k - kStart] = array[i][j][k];
 		return out;
 	}
+
+	public static double[][] slice(double[][][] array, int dim, int num )
+	{
+		int a = 0, b = 0, c = 0;
+		int d = height(array);
+		int e = width(array);
+		int f = depth(array);
+		double[][] out;
+
+		if( dim == 0 )
+		{
+			out = new double[e][f];
+				for ( int j = b; j < e; j++ )
+					for ( int k = c; k < f; k++ )
+						out[j][k] = array[num][j][k];
+		}
+		else if ( dim == 1 )
+		{
+			out = new double[d][f];
+			for ( int i = a; i < d; i++ )
+					for ( int k = c; k < f; k++ )
+						out[i][k] = array[i][num][k];
+		}
+		else
+		{
+			out = new double[d][e];
+			for ( int i = a; i < d; i++ )
+				for ( int j = b; j < e; j++ )
+						out[i][j] = array[i][j][num];
+		}
+		return out;
+	}
+	
+	/**
+
+	public static double[][] meanSlice(double[][][] array, int dim)
+	{
+		if (dim == 2)
+		{
+			
+		}
+	}
+	
+	**/
 	
 	/**
 	 * \brief TODO
@@ -1441,6 +1505,36 @@ public final class Array
 			for ( int j = jStart; j <= jStop; j++ )
 				for ( int k = kStart; k <= kStop; k++ )
 					out[i - iStart][j - jStart][k - kStart] = array[i][j][k];
+		return out;
+	}
+
+	public static double[][][] rotate(double[][][] array, int i, int j, int k)
+	{
+		int[] old = new int[] { array.length, array[0].length, array[0][0].length };
+		int[] size = new int[] { old[i], old[j], old[k]};
+		double[][][] out = Array.array(size, 0.0);
+
+		int[] pos;
+		for ( int l = 0; l < old[0]; l++ )
+			for ( int m = 0; m < old[1]; m++ )
+				for ( int n = 0; n < old[2]; n++ )
+				{
+					pos = new int[] { l, m, n };
+					out[pos[i]][pos[j]][pos[k]] = array[l][m][n];
+				}
+		return out;
+	}
+
+	public static double[][][] superarray(double[][][] array,
+										  int iStart, int iStop,
+										  int jStart, int jStop,
+										  int kStart, int kStop)
+	{
+		double[][][] out = new double[iStop+1 - iStart][jStop+1 - jStart][kStop+1 - kStart];
+		for ( int i = Math.max(0, iStart); i < Math.min(iStop-iStart, array.length); i++ )
+			for ( int j = Math.max(0, jStart); j < Math.min(jStop-jStart, array[0].length); j++ )
+				for ( int k = Math.max(0, kStart); k < Math.min(kStop-kStart, array[0][0].length); k++ )
+					out[i-iStart][j-jStart][k-kStart] =	array[i][j][k];
 		return out;
 	}
 	/*************************************************************************

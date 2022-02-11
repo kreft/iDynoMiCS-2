@@ -66,8 +66,7 @@ import utility.Helper;
  */
 // TODO remove the last three sections by incorporation into Node construction.
 public abstract class Shape implements
-					CanPrelaunchCheck, Instantiable, Settable
-{
+					CanPrelaunchCheck, Instantiable, Settable {
 	/**
 	 * Ordered dictionary of dimensions for this shape.
 	 * TODO switch to a Shape._dimensions a Dimension[3] paradigm
@@ -99,6 +98,11 @@ public abstract class Shape implements
 			new LinkedList<Boundary>();
 	
 	protected ShapeIterator _it;
+
+	/**
+	 * This shape represents a node based system (true) or a voxel based system (false).
+	 */
+	private Boolean _nodes = false;
 	
 	/**
 	 * TODO
@@ -147,6 +151,9 @@ public abstract class Shape implements
 		 * editable to false */
 		modelNode.add( new Attribute(XmlRef.classAttribute, 
 										this.getName(), null, false ) );
+
+		modelNode.add( new Attribute(XmlRef.nodeSystem, this._nodes.toString(), null, false) );
+
 		/** Add resolution calculator specification  */
 		modelNode.add( new Attribute(XmlRef.resolutionCalculator, 
 				this.resCal, null, false ) );
@@ -206,6 +213,12 @@ public abstract class Shape implements
 		dbl = XmlHandler.gatherDouble(xmlElem, "insignificantDimsLength");
 		if ( dbl != null )
 			insignificantDimsLength = dbl;
+
+		this._nodes = XmlHandler.gatherBoolean(xmlElem,
+				XmlRef.nodeSystem);
+		if ( this._nodes == null )
+			this._nodes = false;
+
 		/* Set up the dimensions. */
 		Dimension dim;
 		ResolutionCalculator rC;
@@ -227,6 +240,7 @@ public abstract class Shape implements
 					/* Initialise resolution calculators */
 					rC = (ResolutionCalculator) Instance.getNew(xmlElem, this, 
 							resCal );
+					rC.setNodeSystem(this._nodes);
 					rC.setDimension(dim);
 					rC.setResolution(dim._targetRes);
 					this.setDimensionResolution(dimName, rC);
@@ -568,6 +582,16 @@ public abstract class Shape implements
 		}
 	}
 
+	public int getDimensionVoxelCount( int dimension )
+	{
+		DimName d = this.getDimensionName( dimension );
+		if( d != null && this instanceof CartesianShape )
+		{
+			return ((CartesianShape) this)._resCalc[2].getNVoxel();
+		}
+		return 0;
+	}
+
 	/**
 	 * \brief Try to initialise a resolution calculator from storage, for a
 	 * dimension that is dependent on another.
@@ -735,6 +759,16 @@ public abstract class Shape implements
 	{
 		double[] out = new double[local.length];
 		this.getGlobalLocationTo(out, local);
+		return out;
+	}
+
+	public double[] getRenderLocation(int[] coord, double[] in)
+	{
+		double out[] = this.getGlobalLocation(this.getLocation(coord, in));
+		//FIXME quickfix shift by half a voxel to represent nodes
+		// for better representation side nodes need to be resized.
+		if( this.isNodeSystem() )
+			Vector.minusEquals( out, Vector.times(this.getVoxelSideLengths( coord ), 0.5) );
 		return out;
 	}
 	
@@ -1304,11 +1338,33 @@ public abstract class Shape implements
 			if( loc.length < dim+1)
 				coord[dim] = 0;
 			else
-				coord[dim] = rC.getVoxelIndex(loc[dim]);
+				coord[dim] = rC.getElementIndex(loc[dim]);
 			if ( inside != null )
 			{
 				inside[dim] = loc[dim] - 
 								rC.getCumulativeResolution(coord[dim] - 1);
+			}
+		}
+		return coord;
+	}
+
+	public int[] getCoords(double[] loc, double[] inside, double[] resolution)
+	{
+		int[] coord = new int[3];
+		ResolutionCalculator rC;
+		for ( int dim = 0; dim < 3; dim++ )
+		{
+			rC = this.getResolutionCalculator(coord, dim);
+			/* if the location comes from a 1D or 2D system set the coordinate
+			 * index for additional dimensions to 0. */
+			if( loc.length < dim+1)
+				coord[dim] = 0;
+			else
+				coord[dim] = rC.getElementIndex(loc[dim], resolution[dim]);
+			if ( inside != null )
+			{
+				inside[dim] = loc[dim] -
+						rC.getCumulativeResolution(coord[dim] - 1, resolution[dim]);
 			}
 		}
 		return coord;
@@ -1446,6 +1502,13 @@ public abstract class Shape implements
 			rC = this.getResolutionCalculator(coord, dim);
 			destination[dim] = rC.getResolution();
 		}
+	}
+
+	public double[] getVoxelSideLengths( int[] coord )
+	{
+		double[] out = new double[coord.length];
+		getVoxelSideLengthsTo( out, coord );
+		return out;
 	}
 	
 	/* ***********************************************************************
@@ -1694,7 +1757,12 @@ public abstract class Shape implements
 	{
 		return this._it.nbhIteratorNext();
 	}
-	
+
+	public boolean isNodeSystem()
+	{
+		return this._nodes;
+	}
+
 	public boolean isNbhIteratorValid(){
 		return this._it.isNbhIteratorValid();
 	}

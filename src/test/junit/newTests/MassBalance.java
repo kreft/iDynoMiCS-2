@@ -83,6 +83,8 @@ public class MassBalance implements Testable {
 				"accu\t" +
 				"solver", mode);
 
+		Idynomics.simulator.initialRun();
+
 		/* run the simulator manually and gather relevant system properties
 		 * in the mean while. */
 		while ( Idynomics.simulator.timer.isRunning() )

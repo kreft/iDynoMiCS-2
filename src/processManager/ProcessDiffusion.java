@@ -5,10 +5,12 @@ import static grid.ArrayType.PRODUCTIONRATE;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
 
+import debugTools.SegmentTimer;
 import org.w3c.dom.Element;
 
 import agent.Agent;
@@ -18,19 +20,25 @@ import boundary.Boundary;
 import compartment.AgentContainer;
 import compartment.EnvironmentContainer;
 import dataIO.Log;
+import dataIO.XmlHandler;
 import dataIO.Log.Tier;
 import grid.SpatialGrid;
 import idynomics.Global;
 import idynomics.Idynomics;
+import instantiable.Instance;
 import linearAlgebra.Vector;
 import reaction.Reaction;
 import reaction.RegularReaction;
 import referenceLibrary.AspectRef;
+import referenceLibrary.XmlRef;
+import settable.Module;
 import shape.CartesianShape;
 import shape.Shape;
 import shape.subvoxel.IntegerArray;
 import shape.subvoxel.SubvoxelPoint;
 import solver.PDEsolver;
+import solver.PDEupdater;
+import solver.mgFas.RecordKeeper;
 import surface.Point;
 import surface.Surface;
 import surface.Voxel;
@@ -90,6 +98,10 @@ public abstract class ProcessDiffusion extends ProcessManager
 	 * voxels a located {@code Agent} covers.
 	 */
 	private static final String VD_TAG = AspectRef.agentVolumeDistributionMap;
+	
+	public LinkedList<RecordKeeper> _recordKeepers = 
+			new LinkedList<RecordKeeper>();
+
 	/**
 	 * When choosing an appropriate sub-voxel resolution for building agents'
 	 * {@code coordinateMap}s, the smallest agent radius is multiplied by this
@@ -116,6 +128,11 @@ public abstract class ProcessDiffusion extends ProcessManager
 			AgentContainer agents, String compartmentName)
 	{
 		super.init(xmlElem, environment, agents, compartmentName);
+		for ( Element e : XmlHandler.getElements( xmlElem, XmlRef.record) )
+		{
+			this._recordKeepers.add(
+					(RecordKeeper) Instance.getNew(e, this, (String[])null));
+		}
 	}
 	
 	/* ***********************************************************************
@@ -192,11 +209,13 @@ public abstract class ProcessDiffusion extends ProcessManager
 		 * Clear agent mass distribution maps.
 		 */
 		this.removeAgentDistibutionMaps();
-		/**
+
+		/*
 		 * act upon new agent situations
 		 */
 		for(Agent agent: this._agents.getAllAgents()) 
 			agent.event(DIVIDE);
+
 		for(Agent agent: this._agents.getAllAgents()) 
 		{
 			agent.event(EXCRETE_EPS);
@@ -217,8 +236,7 @@ public abstract class ProcessDiffusion extends ProcessManager
 	/**
 	 * \brief Iterate over all solute grids, applying any reactions that occur
 	 * in the environment to the grids' {@code PRODUCTIONRATE} arrays.
-	 * 
-	 * @param environment The environment container of a {@code Compartment}.
+	 *
 	 */
 	protected void applyEnvReactions(Collection<SpatialGrid> solutes)
 	{
@@ -273,13 +291,14 @@ public abstract class ProcessDiffusion extends ProcessManager
 			}
 		}
 		
-		if( Global.bookkeeping )
-			for (String t : totals.keySet())
-				/* NOTE we should rewrite how to access the compartment because 
-				 * this is pretty inefficient.	 */
-				Idynomics.simulator.getCompartment(this._compartmentName).
-						registerBook(EventType.REACTION, t, "ENIVIRONMENT", 
-						String.valueOf( totals.get(t) ), null );
+		// this class should only calculate, but values may not be final
+//		if( Global.bookkeeping )
+//			for (String t : totals.keySet())
+//				/* NOTE we should rewrite how to access the compartment because 
+//				 * this is pretty inefficient.	 */
+//				Idynomics.simulator.getCompartment(this._compartmentName).
+//						registerBook(EventType.REACTION, t, "ENIVIRONMENT", 
+//						String.valueOf( totals.get(t) ), null );
 	}
 	
 
@@ -322,7 +341,6 @@ public abstract class ProcessDiffusion extends ProcessManager
 			case MIDPOINT:
 				for ( Agent a : this._agents.getAllLocatedAgents() )
 				{
-					
 					IntegerArray coordArray = new IntegerArray( 
 							shape.getCoords(shape.getVerifiedLocation(((Body) a.get(AspectRef.agentBody)).getCenter(shape))));
 					mapOfMaps = (Map<Shape, HashMap<IntegerArray,Double>>) a.getValue(VD_TAG);
@@ -550,12 +568,31 @@ public abstract class ProcessDiffusion extends ProcessManager
 	 * distribution maps.
 	 * 
 	 * <p>This prevents unneeded clutter in XML output.</p>
-	 * 
-	 * @see #setupAgentDistributionMaps()
+	 *
+	 * @see #setupAgentDistributionMaps(Shape)
 	 */
 	public void removeAgentDistibutionMaps()
 	{
 		for ( Agent a : this._agents.getAllLocatedAgents() )
 			a.reg().remove(VD_TAG);
 	}
+	
+	public LinkedList<RecordKeeper> getRecordKeepers()
+	{
+		return this._recordKeepers;
+	}
+	
+    
+    @Override
+    public Module getModule()
+	{
+    	Module modelNode = super.getModule();
+    	
+    	for (RecordKeeper r: this._recordKeepers)
+    		modelNode.add(r.getModule());
+    	
+    	return modelNode;
+    	
+	}
+    
 }

@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+	<simulation name="Smith3D_big" outputfolder="../results" log="NORMAL" 
+		randomSeed="22"	comment="this is a file for testing purposes only."
+		configuration="config/models/arbitrary_testing_01.cfg">
+		
+		<timer stepSize="1.0" endOfSimulation="30.0" />
+		
+		<speciesLib>
+			<!-- species/species library The species library contains all agent species 
+				in the simulations. This may include microbial species, plasmid and vector 
+				species, particle species etc. Species states are states that are in principal 
+				identical for all agents of that species. However note that iDynoMiCS 2.0 
+				does allow you to overwrite states on agent level. Thus if a state is defined 
+				both on species level and on agent level, the agent state will be used in 
+				the simulation. small test -->
+			<species name="rAOB">
+				<aspect name="reactions" type="PRIMARY"  class="InstantiableList"> 
+ 					<list class="RegularReaction" nodeLabel="reaction" entryClass="RegularReaction" keyClass="String" keyLabel="name">
+						<reaction name="testReact">
+							<expression value="mass * solute1 * k">
+								<constant name="k" value="0.1" />
+							</expression>
+							<stoichiometric component="mass" coefficient="1.0" />
+							<stoichiometric component="solute1" coefficient="-5.0" />
+							<stoichiometric component="solute2" coefficient="0.5" />
+						</reaction> 
+ 					</list>
+				</aspect>
+				<aspect name="pigment" type="PRIMARY" class="String" value="GREEN" />
+				<speciesModule name="rod" />
+			</species>
+			<species name="rod">
+				<aspect name="surfaces"			type="CALCULATED"	class="AgentSurfaces"	  />
+				<aspect name="volume" 		type="CALCULATED" 	class="SimpleVolumeState" 	/>
+				<aspect name="radius" 			type="PRIMARY" 		class="Double" 					value="0.3" />
+				<aspect name="divisionMass" 			type="PRIMARY" 		class="Double" 					value="0.6" />
+				<aspect name="divide" 			type="EVENT" 		class="RodDivision"		 />
+				<aspect name="#isLocated" 		type="PRIMARY" class="Boolean" value="true" />
+				<aspect name="updateBody" 		type="EVENT" 		class="UpdateBody" 	 />
+			</species>
+		</speciesLib>
+
+		<compartment name="second">
+			<orientation variable="0.0,0.0,1.0" />
+			<shape class="Cuboid">
+				<dimension name="X" isCyclic="true" targetResolution="1" max="32.0">
+				</dimension> 
+				<dimension name="Y" isCyclic="true" targetResolution="1" max="32.0">
+				</dimension> 
+				<dimension name="Z" isCyclic="false" targetResolution="1" max="4.0">
+				</dimension> 
+			</shape>
+			<solutes>
+				<solute name="solute1" concentration="4.0" defaultDiffusivity="1"  />
+				<solute name="solute2" concentration="0.0" defaultDiffusivity="1"  />
+			</solutes>
+			<reactions>
+				<reaction name="slowInflow">
+					<expression value="1.0 * inflow">
+						<constant name="inflow" value="4.0" />
+					</expression>
+					<stoichiometric component="solute1" coefficient="1.0" />
+				</reaction>
+			</reactions>
+			<agents>
+				<agent>
+					<aspect name="volumeDistribution" type="PRIMARY" class="HashMap">
+					</aspect>				
+					<aspect name="species" type="PRIMARY" class="String" value="rAOB" />
+					<aspect name="mass" type="PRIMARY" class="Double" value="0.2" />
+					<aspect name="density" type="PRIMARY" class="Double" value="1" />
+					<aspect name="pigment" type="PRIMARY" class="String" value="RED" />
+					<spawn number="12" domain="32.0,32.0,0.1" points="2" />
+				</agent>
+				<agent>
+					<aspect name="volumeDistribution" type="PRIMARY" class="HashMap">
+					</aspect>				
+					<aspect name="species" type="PRIMARY" class="String" value="rAOB" />
+					<aspect name="mass" type="PRIMARY" class="Double" value="0.2" />
+					<aspect name="density" type="PRIMARY" class="Double" value="1" />
+					<aspect name="pigment" type="PRIMARY" class="String" value="BLUE" />
+					<spawn number="12" domain="32.0,32.0,0.1" points="2" />
+				</agent>
+			</agents>
+			<processManagers>
+				<process name="svgWriter" class="GraphicalOutput"  priority="-3"
+					firstStep="0.0"  timerStepSize="1.0">
+					<aspect name="outputWriter" type="PRIMARY" class="String" value="SvgExport" />
+				</process>
+				<process name="povWriter" class="GraphicalOutput"  priority="-3"
+					firstStep="0.0"  timerStepSize="1.0">
+					<aspect name="outputWriter" type="PRIMARY" class="String" value="PovExport" />
+				</process>
+				<process name="svgWriter" class="GraphicalOutput"  priority="-3"
+					firstStep="0.0"  timerStepSize="1.0">
+					
+					<aspect name="solute" type="PRIMARY" class="String" value="solute2" />
+					<aspect name="maxConcentration" type="PRIMARY" class="Double" value="2.0" />
+					<aspect name="outputWriter" type="PRIMARY" class="String" value="SvgExport" />
+				</process>
+				<process name="svgWriter" class="GraphicalOutput"  priority="-3"
+					firstStep="0.0"  timerStepSize="1.0">
+					<aspect name="maxConcentration" type="PRIMARY" class="Double" value="2.0" />
+					<aspect name="solute" type="PRIMARY" class="String" value="solute2" />
+					<aspect name="outputWriter" type="PRIMARY" class="String" value="SvgExport" />
+				</process>
+				<process name="svgWriter" class="GraphicalOutput"  priority="-3"
+					firstStep="0.0"  timerStepSize="1.0">
+					<aspect name="maxConcentration" type="PRIMARY" class="Double" value="2.0" />
+					<aspect name="solute" type="PRIMARY" class="String" value="solute2" />
+					<aspect name="arrayType" type="PRIMARY" class="String" value="PRODUCTIONRATE" />
+					<aspect name="outputWriter" type="PRIMARY" class="String" value="SvgExport" />
+				</process>
+				<process name="agentRelax" class="AgentRelaxation"  priority="-2"
+					firstStep="0.0"  timerStepSize="0.1">
+					<aspect name="maxMovement" type="PRIMARY" class="Double" value="0.05" />
+					<aspect name="stressThreshold" type="PRIMARY" class="Double" value="10000.0" />
+					<aspect name="relaxationMethod" type="PRIMARY" class="String" value="EULER" />
+					<aspect name="gravity_testing" class="Boolean" value="true" />
+				</process>
+				<process name="solveDiffusionTransient" class="SolveDiffusionTransient"  priority="-1"
+					firstStep="0.0" timerStepSize="0.1">
+					<aspect name="soluteNames" type="PRIMARY" class="String[]" value="solute1,solute2" /> 
+				</process>
+				<process name="agentsOutsideDomainDepart" 
+					class="AgentsOutsideDomainDepart" priority = "1">
+				</process>
+			</processManagers>
+		</compartment>
+	</simulation>
+</document>

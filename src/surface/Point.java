@@ -257,38 +257,23 @@ public class Point implements Copyable, Settable
 	 * @param dt Time step to use (in units of second).
 	 * @param radius Radius of a sphere (in units of micrometer).
 	 */
-	public void shove(double dt, double radius) 
+	public void shove(double shovingLimit, double shoveFactor, double radius)
 	{
 		/*
 		 * No point shoving if there's no force.
 		 */
-		if ( Vector.isZero( this.getForce() ))
+		if ( Vector.isZero( this.dxdt(radius) ))
 			return;
-		/*
-		 * Scale the force.
-		 */
-		double scalar = 0.2;
+
 		/* the following dynamic scaling is a slight deviation from the original
-		 * iDynoMiCS where instead of dynamic scaling the overlap was simply
-		 * considered resolved at small when the difference vector (and thus
-		 * the force was sufficiently small) 
-		 * TODO, make these things settable from xml.
+		 * iDynoMiCS as the iDynoMiCS 2 collision detection cumulative displacement
+		 * vector is used to calculate delta rather than stepping through every individually.
 		 */
-		if ( Vector.normEuclid( this.getForce()) < 0.2 )
-		{
-			/* Anti deadlock. */
-			scalar *= 2.0;
-		}
-		else
-		{
-			/* Anti catapult */
-			scalar *= 0.2;
-		}
-		Vector.timesEquals(this._f, scalar);
+		double delta = 2 * ( radius * ( shoveFactor - 1.0 ) ) + shovingLimit;
 		/*
 		 * Apply the force and reset it.
 		 */
-		Vector.addEquals(this._p, this._f);
+		Vector.addEquals( this._p,  Vector.normaliseEuclid(  this.getForce() , delta * 0.5 ) );
 		this.resetForce();
 	}
 	

@@ -165,9 +165,16 @@ public class Collision
 					+ " instead .\n" + e.getMessage());
 			}
 		}
-		
 	}
-	
+
+	public void resetOverlap() 	{
+		this._variables.resetOverlap();
+	}
+
+	public double maxOverlap() 	{
+		return this._variables.maxOverlap();
+	}
+
 	/* ***********************************************************************
 	 * FORCE METHODS
 	 * **********************************************************************/
@@ -200,15 +207,17 @@ public class Collision
 		this.distance(a, b, var);
 		
 		if ( Double.isNaN(var.interactionVector[0]))
-			System.out.println(var.interactionVector[0] + "f0");
+			Log.out( Tier.CRITICAL, this.getClass().getSimpleName() +
+					" detected unidentified number (NaN) " + var.interactionVector[0]);
 		/* 
 		 * If the two surfaces overlap, then they should push each other away.
 		 */
-		if ( var.distance < 0.0 )
+		if ( var.getDistance() < 0.0 )
 		{
 			this._collisionFun.interactionForce( var, first, second );
 			if ( Double.isNaN(var.interactionVector[0]))
-				System.out.println(var.interactionVector[0] + "f");
+				Log.out( Tier.CRITICAL, this.getClass().getSimpleName() +
+						" detected unidentified number (NaN) " + var.interactionVector[0]);
 			if( var.flip )
 			{
 				this.applyForce(b, var.interactionVector, var.s);
@@ -296,7 +305,8 @@ public class Collision
 	private void applyForce(Surface surf, double[] force, double intersect)
 	{
 		if ( Double.isNaN(force[0]))
-			System.out.println(force[0] + "h");
+			Log.out( Tier.CRITICAL, this.getClass().getSimpleName() +
+					" detected unidentified number (NaN) ");
 		switch ( surf.type() )
 		{
 		case SPHERE:
@@ -344,7 +354,7 @@ public class Collision
 	{
 		_variables.setMargin( 0.0 );
 		CollisionVariables var = this.distance( a, b, _variables );
-		return var.distance;
+		return var.getDistance();
 	}
 	
 	/**
@@ -406,13 +416,13 @@ public class Collision
 		{
 		case SPHERE :
 			this.spherePoint( (Ball) a, p, this._variables );
-			return this._variables.distance;
+			return this._variables.getDistance();
 		case ROD :
 			this.rodPoint( (Rod) a, p, this._variables );
-			return this._variables.distance;
+			return this._variables.getDistance();
 		case PLANE:
 			this.planePoint( (Plane) a, p, this._variables );
-			return this._variables.distance;
+			return this._variables.getDistance();
 		default:
 			Log.out( Tier.CRITICAL, this.getClass().getSimpleName() +
 					" encountered undefined surface assessment, returning 0.");
@@ -571,14 +581,14 @@ public class Collision
 		case SPHERE:
 			_variables.flip = false;
 			this.assessSphere((Ball) a, b, _variables);
-			return _variables.distance < margin;
+			return _variables.getDistance() < margin;
 		case ROD:
 			_variables.flip = false;
 			return this.intersectRod((Rod) a, b, _variables); 
 		case PLANE:
 			_variables.flip = false;
 			this.assessPlane((Plane) a, b, _variables);
-			return _variables.distance < margin;
+			return _variables.getDistance() < margin;
 		case VOXEL:
 			_variables.flip = false;
 			return this.intersectVoxel((Voxel) a, b, _variables);
@@ -603,13 +613,13 @@ public class Collision
 		{
 		case SPHERE:
 			this.rodSphere(rod, (Ball) otherSurface, var);
-			return var.distance < var.margin;
+			return var.getDistance() < var.margin;
 		case ROD:
 			this.rodRod(rod, (Rod) otherSurface, var);
-			return var.distance < var.margin;
+			return var.getDistance() < var.margin;
 		case PLANE:
 			this.planeRod((Plane) otherSurface, rod, var);
-			return var.distance < var.margin;
+			return var.getDistance() < var.margin;
 		case VOXEL:
 			return this.voxelRodIntersection(rod, (Voxel) otherSurface, var);
 		default:
@@ -634,7 +644,7 @@ public class Collision
 		{
 		case SPHERE:
 			this.voxelSphere(vox, (Ball) otherSurface, var);
-			return var.distance < var.margin;
+			return var.getDistance() < var.margin;
 		case ROD:
 			return this.voxelRodIntersection((Rod) otherSurface, vox, var);
 		default:
@@ -662,7 +672,7 @@ public class Collision
 			CollisionVariables var) 
 	{
 		this.setPeriodicDistanceVector(p, q, var);
-		var.distance = Vector.normEuclidTo(var.distance, var.interactionVector);
+		var.setDistance(Vector.normEuclidTo(var.getDistance(), var.interactionVector));
 		return var;
 	}
 	
@@ -688,7 +698,7 @@ public class Collision
 		 * Subtract the sphere's radius to find the distance between the point
 		 * and the surface of the sphere.
 		 */
-		var.distance -= a.getRadius();
+		var.setDistance(var.getDistance() - a.getRadius());
 		return var;
 	}
 	
@@ -721,7 +731,7 @@ public class Collision
 		 */
 		
 		/* Normal collision. */
-		var.distance -= a.getRadius() + b.getRadius();
+		var.setDistance(var.getDistance() - (a.getRadius() + b.getRadius()));
 		/* additional collision variables */
 		if (extend) 
 		{ 
@@ -753,19 +763,19 @@ public class Collision
 			i=0;
 		}
 		this.planePoint(normal, d, p0, var);
-		double a = Double.valueOf(var.distance);
+		double a = Double.valueOf(var.getDistance());
 		this.planePoint(normal, d, p1, var);
-		double b = Double.valueOf(var.distance);
+		double b = Double.valueOf(var.getDistance());
 		if ( a < b )
 		{
 			var.t = 0.0;
-			var.distance = a;
+			var.setDistance(a);
 			return var;
 		}
 		if ( a > b ) 
 		{
 			var.t = 1.0;
-			var.distance = b;
+			var.setDistance(b);
 			return var;
 		}
 		/* a = b */
@@ -794,7 +804,7 @@ public class Collision
 				var);
 		/* Subtract the rod's radius to find the distance between the plane and
 		 * the rod's surface. */
-		var.distance -= rod.getRadius();
+		var.setDistance(var.getDistance() - rod.getRadius());
 		/* additional collision variables */
 		if (extend) 
 		{ 
@@ -831,7 +841,7 @@ public class Collision
 		Vector.timesEquals(var.interactionVector, var.s);
 		Vector.addEquals(var.interactionVector, sp0);
 		Vector.minusEquals(var.interactionVector, q0);
-		var.distance = Vector.normEuclid(var.interactionVector);
+		var.setDistance(Vector.normEuclid(var.interactionVector));
 		return var;
 	}
 	
@@ -856,7 +866,7 @@ public class Collision
 				aRod._points[1].getPosition(), p, var);
 		/* Subtract the rod's radius to find the distance between the point and
 		 * the rod's surface. */
-		var.distance -= aRod.getRadius();
+		var.setDistance(var.getDistance() - aRod.getRadius());
 		return var;
 	}
 	
@@ -887,7 +897,7 @@ public class Collision
 		 * Subtract the radii of both to find the distance between their
 		 * surfaces.
 		 */
-		var.distance -= aRod.getRadius() + aBall.getRadius();
+		var.setDistance(var.getDistance() - (aRod.getRadius() + aBall.getRadius()));
 		/*
 		 * additional collision variables
 		 */
@@ -971,7 +981,7 @@ public class Collision
 		Vector.addEquals(d2, q0);
 		/* finally calculate the distance between the two points */
 		this.setPeriodicDistanceVector(d1, d2, var);
-		var.distance = Vector.normEuclid(var.interactionVector);
+		var.setDistance(Vector.normEuclid(var.interactionVector));
 		return var;
 	}
 	
@@ -995,7 +1005,7 @@ public class Collision
 				b._points[1].getPosition(), var);
 		/* Subtract the radii of both rods to find the distance between their
 		 * surfaces.  */
-		var.distance -= a.getRadius() + b.getRadius();
+		var.setDistance(var.getDistance() - (a.getRadius() + b.getRadius()));
 		/* additional collision variables */
 		if (extend) 
 		{ 
@@ -1019,7 +1029,7 @@ public class Collision
 			CollisionVariables var)
 	{
 		Vector.reverseTo(var.interactionVector, plane.getNormal());
-		var.distance = Vector.dotProduct(plane.getNormal(), point)-plane.getD();
+		var.setDistance(Vector.dotProduct(plane.getNormal(), point)-plane.getD());
 		return var;
 	}
 	
@@ -1042,7 +1052,7 @@ public class Collision
 		 * distance between the point and the plane in the direction of the
 		 * planes normal.
 		 */
-		return Vector.minus(point, Vector.times(normal, - var.distance));
+		return Vector.minus(point, Vector.times(normal, -var.getDistance()));
 	}
 	
 	/**
@@ -1069,7 +1079,7 @@ public class Collision
 		 * Subtract the rod's radius to find the distance between the plane and
 		 * the rod's surface.
 		 */
-		var.distance -= sphere.getRadius();
+		var.setDistance(var.getDistance() - sphere.getRadius());
 		/*
 		 * additional collision variables
 		 */
@@ -1099,7 +1109,7 @@ public class Collision
 		/* store the direction vector */
 		Vector.reverseTo(var.interactionVector, normal);
 		/* calculate the distance between a point and a normalized plane */
-		var.distance = Vector.dotProduct(normal, point) - d;
+		var.setDistance(Vector.dotProduct(normal, point) - d);
 		return var;
 	}
 	
@@ -1116,14 +1126,14 @@ public class Collision
 			CollisionVariables var)
 	{
 		var = voxelPoint(voxel, sphere._point.getPosition(), var);
-		var.distance -= sphere.getRadius();
+		var.setDistance(var.getDistance() - sphere.getRadius());
 		return var;
 	}
 	
 	private CollisionVariables voxelPoint(Voxel voxel, double[] point,
 			CollisionVariables var)
 	{
-		var.distance = 0.0; double t,v = 0.0;
+		var.setDistance(0.0); double t,v = 0.0;
 		for(int i=0; i < voxel.getLower().length ; i++) 
 		{ 
 			double[] p = this._shape.getNearestShadowPoint( point, 
@@ -1131,12 +1141,12 @@ public class Collision
 			t = voxel.getLower()[i];
 			v = p[i];
 			if (v < t)
-				var.distance += ( t - v ) * ( t - v );
+				var.setDistance(var.getDistance() + ( t - v ) * ( t - v ));
 			t = voxel.getHigher()[i];
 			if (v > t)
-				var.distance += ( v - t ) * ( v - t );
+				var.setDistance(var.getDistance() + ( v - t ) * ( v - t ));
 		}
-		var.distance = Math.sqrt(var.distance);
+		var.setDistance(Math.sqrt(var.getDistance()));
 		return var;
 		
 	}
@@ -1165,7 +1175,7 @@ public class Collision
 		
 		var = intersectRayAABB(periodicShadow._points[0].getPosition(), 
 				periodicShadow._points[1].getPosition(), e, var);
-		if (var.distance == Double.MAX_VALUE || var.t > 1.0 ) 
+		if (var.getDistance() == Double.MAX_VALUE || var.t > 1.0 )
 			return false;
 		/* Compute which min and max faces of b the intersection point p lies 
 		 * outside of. Note, u and v cannot have the same bits set and 
@@ -1254,7 +1264,7 @@ public class Collision
 	private CollisionVariables intersectRayAABB( double[] p, double[] o, 
 			Voxel a, CollisionVariables var)
 	{
-		var.distance = 0.0;
+		var.setDistance(0.0);
 		double[] d = Vector.minus(o, p);
 		/* set to max distance ray can travel (for segment) */
 		double tmax = Vector.distanceEuclid(p, o); 
@@ -1269,7 +1279,7 @@ public class Collision
 				/* Ray is parallel to slab. No hit if origin not within slab */
 				if (p[i] < a.getLower()[i] || p[i] > a.getHigher()[i])
 				{
-					var.distance = Double.MAX_VALUE;
+					var.setDistance(Double.MAX_VALUE);
 					return var;
 				}
 			} 
@@ -1292,7 +1302,7 @@ public class Collision
 				 * empty. */
 				if (var.t > tmax) 
 				{
-					var.distance = Double.MAX_VALUE;
+					var.setDistance(Double.MAX_VALUE);
 					return var;
 				}
 			} 
@@ -1311,10 +1321,10 @@ public class Collision
 	{
 		/* checking caps */
 		var = linesegPoint( sa, sb, p, var );
-		if(var.distance < r + var.margin)
+		if(var.getDistance() < r + var.margin)
 			return true;
 		var = linesegPoint( sa, sb, q, var );
-		if(var.distance < r + var.margin)
+		if(var.getDistance() < r + var.margin)
 			return true;
 		/* checking cylinder */
 		return intersectSegmentCylinder( sa, sb, p, q, r, var );

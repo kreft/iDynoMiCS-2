@@ -37,7 +37,6 @@
 					</list>
 				</aspect>
 			</species>
-						
 		</speciesLib>
 
 		<compartment name="biofilm" priority="1" tree="SPLITTREE">
@@ -70,6 +69,10 @@
 				<process name="SolveDiffusionSteadyState" class="SolveDiffusionSteadyState" priority="1" firstStep="0.0">
 					<aspect name="absoluteTolerance" type="PRIMARY" class="Double" value="1.0e-10" />
 					<aspect name="relativeTolerance" type="PRIMARY" class="Double" value="1.0e-6" />
+					<aspect name="vCycles" class="Integer" value="1" />
+					<aspect name="preSteps" class="Integer" value="1" />
+					<aspect name="coarseSteps" class="Integer" value="1" />
+					<aspect name="postSteps" class="Integer" value="500" />
 					<!-- µm^2 ms^-1-->
 				</process>
 				<process name="agentRelax" class="AgentRelaxation" priority="-2" firstStep="0.0">

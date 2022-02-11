@@ -90,7 +90,19 @@ public class XmlExport
 		this._xmlFile.write(XML_HEADER);
 	}
 	
-	
+	public void newXml(String filePath, boolean absolutePath)
+	{
+		String fileString;
+		if( this._exiEncoding )
+			this._xmlFile.bufferOutput();
+		if( absolutePath )
+			fileString = filePath + (this._exiEncoding ? ".exi" : ".xml");
+		else
+			fileString = Idynomics.global.outputLocation + filePath + 
+			(this._exiEncoding ? ".exi" : ".xml");
+		this._xmlFile.fnew(fileString);
+		this._xmlFile.write(XML_HEADER);
+	}
 	
 	/**
 	 * Close the XML file and increment the file number counter for the next
@@ -120,6 +132,13 @@ public class XmlExport
 	public void writeFile()
 	{
 		this.newXml(Idynomics.global.simulationName);
+		this.writeState();
+		this.closeXml();
+	}
+	
+	public void writeFile(String file)
+	{
+		this.newXml(file, true);
 		this.writeState();
 		this.closeXml();
 	}

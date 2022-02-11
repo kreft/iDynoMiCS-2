@@ -19,7 +19,6 @@
 				<aspect name="updateBody" type="EVENT" class="UpdateBody" />
 				<aspect name="volume" type="CALCULATED" class="SimpleVolumeState" 	/>
 				<aspect name="radius" type="CALCULATED" class="CoccoidRadius" 		/>
-				
 			</species>
 			
 			<species name="bacterium">

@@ -137,7 +137,6 @@ public class GraphicalOutput extends ProcessManager
 		str = Helper.obtainIfNone( this.getString(OUTPUT_WRITER), 
 				"output writer", true, this.options() );
 		this._graphics = (GraphicalExporter) Instance.getNew(null, null, str);
-		
 		/* write scene files (used by pov ray) */
 		this._graphics.init( this._prefix, this._shape );
 		
@@ -146,8 +145,11 @@ public class GraphicalOutput extends ProcessManager
 		
 		this.palette = new Palette( String.valueOf( 
 				this.getOr( AspectRef.colourPalette, Global.default_palette) ) );
-		/* placeholder spec */
-		 colSpec = new ColourSpecification(palette, "species");
+		
+		/* In the future we may want to change the default to "species" */
+		 colSpec = new ColourSpecification(palette, (String)
+				 this.getOr( AspectRef.colourSpecification, 
+						 Global.default_colour_specification));
 
 	}
 	
@@ -166,6 +168,8 @@ public class GraphicalOutput extends ProcessManager
 	@Override
 	protected void internalStep()
 	{
+		if ( this.getInt(AspectRef.fileNumber) != null )
+			this._graphics.setFileNumber(this.getInt(AspectRef.fileNumber));
 		/* Initiate new file. */
 		this._graphics.createFile(this._prefix);
 		
@@ -203,6 +207,8 @@ public class GraphicalOutput extends ProcessManager
 				/* Identify exact voxel location and size. */
 				origin = _shape.getVoxelOrigin(coord);
 				_shape.getVoxelSideLengthsTo(dimension, coord);
+				if( _shape.isNodeSystem() )
+					Vector.minusEquals( origin, Vector.times( dimension, 0.5 ) );
 				/*
 				 * Scale the solute concentration for coloring.
 				 * First, map the concentration to the real interval [0, 1].

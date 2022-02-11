@@ -71,10 +71,33 @@ public class CollisionVariables
 	/*
 	 * calculated distance between two objects.
 	 */
-	public double distance;
+	private double distance;
+
+	/*
+	 * used to track max overlap
+	 */
+	private double maxOverlap = 0;
 	
 	/*
 	 * Effective radius (required for Herz model).
 	 */
 	public double radiusEffective;
+
+	public double getDistance() {
+		return distance;
+	}
+
+	public void setDistance(double distance) {
+		this.distance = distance;
+		if( distance < maxOverlap )
+			maxOverlap = distance;
+	}
+
+	public void resetOverlap() {
+		this.maxOverlap = 0.0;
+	}
+
+	public double maxOverlap() 	{
+		return this.maxOverlap;
+	}
 }

@@ -51,7 +51,7 @@ public class AgentDetachment extends ProcessDeparture
 				this.getDouble( RASTER_SCALE ), 0.2 );
 		
 		this._regionDepth = Helper.setIfNone( 
-				this.getInt( REGION_DEPTH ), 10 );		
+				this.getInt( REGION_DEPTH ), 10 );
 	}
 	
 	/**
@@ -63,7 +63,7 @@ public class AgentDetachment extends ProcessDeparture
 	 * 
 	 * We only consider removal from the biofilm surface and refer to this as 
 	 * detachment.
-	 * @return 
+	 * @return
 	 */
 	@Override
 	protected LinkedList<Agent> agentsDepart()

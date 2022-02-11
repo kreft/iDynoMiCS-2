@@ -240,7 +240,7 @@ public final class GuiConsole
   	//TODO this causes crash when running from command prompt
   	public static void scroll()
   	{
-  		if ( _autoScroll )
+  		if ( _autoScroll  && _console != null )
   		{
   			Document doc =	_console.getDocument();
   			_console.setCaretPosition(doc.getLength());

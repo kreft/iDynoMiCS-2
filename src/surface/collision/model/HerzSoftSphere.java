@@ -66,11 +66,11 @@ public class HerzSoftSphere implements CollisionFunction
 		 * Otherwise, return a zero vector. A small overlap is allowed to
 		 * prevent objects bouncing in equilibrium 
 		 */
-		if ( var.distance < -0.001 ) 
+		if ( var.getDistance() < -0.001 )
 		{
 			double kn = 1.33333333 * Math.sqrt( var.radiusEffective ) * forceScalar();
 			
-			double c = kn * Math.pow(-var.distance, 1.5 );
+			double c = kn * Math.pow(-var.getDistance(), 1.5 );
 			/* dP is overwritten here. */
 			Vector.normaliseEuclidEqualsUnchecked( var.interactionVector, c );
 			return var;

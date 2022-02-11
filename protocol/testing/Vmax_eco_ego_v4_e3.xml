@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+	<simulation log="EXPRESSIVE" outputfolder="../results" name="EcoEgo_mgFas"  randomSeed="42" outputskip="100" >
+	<timer stepSize="12.0 [h]" endOfSimulation="21.0 [d]" />
+		<speciesLib>
+			<!-- species/species library The species library contains all agent species 
+				in the simulations. This may include microbial species, plasmid and vector 
+				species, particle species etc. Species states are states that are in principal 
+				identical for all agents of that species. However note that iDynoMiCS 2.0 
+				does allow you to overwrite states on agent level. Thus if a state is defined 
+				both on species level and on agent level, the agent state will be used in 
+				the simulation. small test 
+				-->
+			<species name="coccoid">
+				<aspect name="density" type="PRIMARY" class="Double" value="0.29*0.5 [pg/fl]" />
+				<aspect name="surfaces" type="CALCULATED" class="AgentSurfaces" />
+				<aspect name="divisionMass" type="PRIMARY" class="Double" value="0.08 [pg]" /> <!-- 0.16 -->
+				<aspect name="divide" type="EVENT" class="CoccoidDivision"	/>
+				<aspect name="updateBody" type="EVENT" class="UpdateBody" />
+				<aspect name="volume" type="CALCULATED" class="SimpleVolumeState" 	/>
+				<aspect name="radius" type="CALCULATED" class="CylinderRadius" 		/>
+			</species>
+
+			<species name="Eco">
+				<speciesModule name="coccoid" />
+				<aspect name="reactions" type="PRIMARY"  class="InstantiableList">
+					<list class="RegularReaction" nodeLabel="reaction"
+						  entryClass="RegularReaction" keyClass="String" keyLabel="name">
+						<reaction name="growth">
+							<expression value="biomass * vmax *
+									( oxygen / ( oxygen + Kox ) )">
+								<!-- pg/µm3 -->
+								<constant name="Kox" 	value="0.0003 [fg/fl]" />
+								<constant name="vmax" 	value="0.009306 [min-1]" />
+							</expression>
+							<stoichiometric component="biomass" 	coefficient="0.147" /> <!-- fg biomass per fg N -->
+							<!--							<stoichiometric component="ammonium" 	coefficient="-0.147" />-->
+							<stoichiometric component="oxygen" 		coefficient="-(0.147/0.046)" />
+						</reaction>
+					</list>
+				</aspect>
+			</species>
+
+			<species name="Ego">
+				<speciesModule name="coccoid" />
+				<aspect name="reactions" type="PRIMARY"  class="InstantiableList">
+					<list class="RegularReaction" nodeLabel="reaction"
+						  entryClass="RegularReaction" keyClass="String" keyLabel="name">
+						<reaction name="growth">
+							<expression value="biomass * vmax *
+									( oxygen / ( oxygen + Kox ) )">
+								<!-- pg/µm3 -->
+								<constant name="Kox" 	value="0.0006 [fg/fl]" />
+								<constant name="vmax" 	value="0.037224 [min-1]" />
+							</expression>
+							<stoichiometric component="biomass" 	coefficient="0.0735" />
+							<!--							<stoichiometric component="ammonium" 	coefficient="-0.0735" />-->
+							<stoichiometric component="oxygen" 		coefficient="-(0.0735/0.023)" />
+						</reaction>
+					</list>
+				</aspect>
+			</species>
+		</speciesLib>
+
+		<compartment name="biofilm" priority="1" tree="SPLITTREE">
+			<shape class="Rectangle" resolutionCalculator="MgFASResolution" nodeSystem="true">
+				<!-- µm -->
+				<dimension name="X" isCyclic="true" targetResolution="2.0" max="40.0"></dimension>
+				<dimension name="Y" isCyclic="false" targetResolution="2.0" max="80.0">
+					<boundary extreme="0" class="SolidBoundary" />
+					<boundary extreme="1" class="BiofilmBoundaryLayer" partnerCompartment="chemostat" layerThickness="40" />
+				</dimension>
+			</shape>
+			<solutes>
+				<!-- pg / µm3 -->
+<!--				<solute name="oxygen" concentration="5.6E-5" defaultDiffusivity="36000"  />-->
+				<solute name="oxygen" 	concentration="0.001 [fg/fl]" defaultDiffusivity="120000 [um^2/min]"  />
+<!--				<solute name="oxygen" 	concentration="0.001 [fg/fl]" defaultDiffusivity="2.1*10^-5 [cm^2/min]"  />-->
+			</solutes>
+			<reactions>
+			</reactions>
+			<!-- yield strategy -->
+			<spawn class="distributedSpawner" domain="40.0, 2.0" priority="0"
+				   number="20" morphology="COCCOID">
+				<aspect  name="spacing" class="Double[]" value="2.0, 0.0" />
+				<aspect  name="orient" class="Double[]" value="0.0, 0.0" />
+				<templateAgent>
+					<aspect name="species" type="PRIMARY" class="String" value="Eco" />
+					<aspect  name="mass" class="InstantiableMap">
+						<map entryClass="Double" keyType="String">
+							<item key="biomass" value="0.04 [pg]"  />
+						</map>
+					</aspect>
+				</templateAgent>
+			</spawn>
+			<!-- rate strategy -->
+			<spawn class="distributedSpawner" domain="40.0, 2.0" priority="0"
+				   number="20" morphology="COCCOID">
+				<aspect  name="spacing" class="Double[]" value="2.0, 0.0" />
+				<aspect  name="orient" class="Double[]" value="1.0, 0.0" />
+				<templateAgent>
+					<aspect name="species" type="PRIMARY" class="String" value="Ego" />
+					<aspect  name="mass" class="InstantiableMap">
+						<map entryClass="Double" keyType="String">
+							<item key="biomass" value="0.04 [pg]"  />
+						</map>
+					</aspect>
+				</templateAgent>
+			</spawn>
+			<agents>
+			</agents>
+			<processManagers>				
+				<!-- ms -->
+				<process name="PDEWrapper" class="PDEWrapper" priority="1" firstStep="0.0">
+					<aspect name="vCycles" class="Integer" value="25" />
+					<aspect name="preSteps" class="Integer" value="9" />
+					<aspect name="coarseSteps" class="Integer" value="9" />
+					<aspect name="postSteps" class="Integer" value="9" />
+					<aspect name="autoVcycleAdjust" class="Boolean" value="true" />
+					<!-- µm^2 ms^-1-->
+				</process>
+<!--				<process name="agentRelax" class="AgentRelaxation" priority="-2" firstStep="0.0">-->
+<!--					<aspect name="maxMovement" type="PRIMARY" class="Double" value="0.10" />-->
+<!--					<aspect name="relaxationMethod" type="PRIMARY" class="String" value="EULER" />-->
+<!--					<aspect name="stressThreshold" type="PRIMARY" class="Double" value="1.0E6" />-->
+<!--					<aspect name="LimitCompressionDuration" type="PRIMARY" class="Double" value="1.0" />-->
+<!--					<aspect name="maxIterations" type="PRIMARY" class="Integer" value="10000" />-->
+<!--					<aspect name="gravity_testing" type="PRIMARY" class="Boolean" value="FALSE" />-->
+<!--				</process>-->
+				<process name="agentRelax"	class="AgentRelaxation" priority="0"
+						 firstStep="0.0">
+					<!-- µm -->
+					<aspect name="maxMovement" 		type="PRIMARY" class="Double" value="0.3" />
+					<aspect name="maxIterations" type="PRIMARY" class="Integer" value="10000" />
+					<aspect name="relaxationMethod" type="PRIMARY" class="String" value="EULER" />
+					<aspect name="stressThreshold" type="PRIMARY" class="Double" value="1.0E7" />
+				</process>
+			</processManagers>
+		</compartment>
+		<compartment name="chemostat" priority="2" >
+			<shape class="Dimensionless" volume="1e9 [fl]">
+				<boundary  class="constantConcentrationToChemostat" volumeFlowRate="1.0E6">
+<!--				<solute name="oxygen" concentration="5.6E-5" defaultDiffusivity="36000"  />-->
+					<solute name="oxygen" 	concentration="0.001 [fg/fl]" defaultDiffusivity="120000 [um^2/min]"  />
+				</boundary>
+				<boundary  class="chemostatOut" volumeFlowRate="-1.0E6 [fl]" agentRemoval="false" >
+				</boundary> 
+			</shape>
+			<solutes>
+				<!-- pg / µm3 -->
+<!--				<solute name="oxygen" concentration="5.6E-5" defaultDiffusivity="36000"  />-->
+				<solute name="oxygen" 	concentration="0.001 [fg/fl]" defaultDiffusivity="120000 [um^2/min]"  />
+			</solutes>
+			<processManagers>
+			</processManagers>
+		</compartment>
+		
+	</simulation>
+</document>

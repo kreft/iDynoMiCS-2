@@ -1,5 +1,7 @@
 package spatialRegistry;
 
+import linearAlgebra.Vector;
+
 import java.util.function.Predicate;
 
 /**
@@ -47,6 +49,11 @@ public class Area implements Predicate<Area> {
 		this.low = low;
 		this.high = high;
 		this.periodic = periodic;
+	}
+
+	public Area copy()
+	{
+		return new Area(Vector.copy(low),Vector.copy(high),Vector.copy(periodic));
 	}
 
 	/**

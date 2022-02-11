@@ -34,24 +34,29 @@ public class Dimension implements CanPrelaunchCheck, Settable,
 	 */
 	public enum DimName
 	{
-		X(false),
-		Y(false),
-		Z(false),
-		R(false),
-		THETA(true),
-		PHI(true);
+		X(false, 0),
+		Y(false, 1),
+		Z(false, 2),
+		R(false, 0),
+		THETA(true, 1),
+		PHI(true,2);
 		
 		private boolean _isAngular;
+
+		private int _dimNum;
 		
-		DimName(boolean isAngular)
+		DimName(boolean isAngular, int dimNum)
 		{
 			this._isAngular = isAngular;
+			this._dimNum = dimNum;
 		}
 		
 		public boolean isAngular()
 		{
 			return this._isAngular;
 		}
+
+		public int dimNum() { return this._dimNum; }
 	}
 	
 

@@ -61,10 +61,10 @@ public class DefaultPushFunction implements CollisionFunction
 		 * Otherwise, return a zero vector. A small overlap is allowed to
 		 * prevent objects bouncing in equilibrium 
 		 */
-		if ( var.distance < -0.001 ) 
+		if ( var.getDistance() < -0.001 )
 		{
 			/* Linear. */
-			double c = Math.abs( this._forceScalar * var.distance );
+			double c = Math.abs( this._forceScalar * var.getDistance() );
 			/* two component, better force scaling for low vs high overlap */
 			/* dP is overwritten here. */
 			Vector.normaliseEuclidEquals( var.interactionVector, c );

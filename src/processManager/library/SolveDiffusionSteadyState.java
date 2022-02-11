@@ -55,9 +55,9 @@ public class SolveDiffusionSteadyState extends ProcessDiffusion
 	{
 		super.init(xmlElem, environment, agents, compartmentName);
 		
-		double absTol = (double) this.getOr(ABS_TOLERANCE, 1.0e-18);
+		double absTol = (double) this.getOr(ABS_TOLERANCE, 1.0e-9);
 		
-		double relTol = (double) this.getOr(REL_TOLERANCE, 1.0e-18);
+		double relTol = (double) this.getOr(REL_TOLERANCE, 1.0e-3);
 
 		// TODO Let the user choose which ODEsolver to use.
 		this._solver = new PDEmultigrid(

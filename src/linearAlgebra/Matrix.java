@@ -422,6 +422,13 @@ public final class Matrix
 		toString(matrix, out);
 		return out.toString();
 	}
+
+	public static String toString(double[][] matrix, String delimiter)
+	{
+		StringBuffer out = new StringBuffer();
+		toString(matrix, out, delimiter);
+		return out.toString();
+	}
 	
 	/**
 	 * \brief Converts the given <b>matrix</b> to {@code String}
@@ -448,15 +455,20 @@ public final class Matrix
 	 * @param matrix Two-dimensional array of doubles (preserved).
 	 * @param buffer String buffer (faster than String).
 	 */
-	public static void toString(double[][] matrix, StringBuffer buffer)
+	public static void toString(double[][] matrix, StringBuffer buffer, String delimiter)
 	{
 		int n = matrix.length - 1;
 		for ( int i = 0; i < n; i++ )
 		{
 			Vector.toString(matrix[i], buffer);
-			buffer.append(DELIMITER);
+			buffer.append(delimiter);
 		}
 		Vector.toString(matrix[n], buffer);
+	}
+
+	public static void toString(double[][] matrix, StringBuffer buffer)
+	{
+		toString(matrix, buffer, DELIMITER);
 	}
 	
 	/*************************************************************************
@@ -633,6 +645,12 @@ public final class Matrix
 	 * @see #copyTo(int[][], int[][])
 	 */
 	public static void copyTo(double[][] destination, double[][] matrix)
+	{
+		for ( int i = 0; i < matrix.length; i++ )
+			Vector.copyTo(destination[i], matrix[i]);
+	}
+	
+	public static void copyTo(Double[][] destination, Double[][] matrix)
 	{
 		for ( int i = 0; i < matrix.length; i++ )
 			Vector.copyTo(destination[i], matrix[i]);
@@ -2033,6 +2051,15 @@ public final class Matrix
 		for ( int i = 0; i < rowDim(a); i++ )
 			Vector.divideTo(destination[i], a[i], b[i]);
 	}
+
+	public static void elemRatioTo(
+			double[][] destination, double[][] a, double[][] b)
+	{
+		checkDimensionsSame(destination, a, b);
+		for ( int i = 0; i < rowDim(a); i++ )
+			Vector.ratioTo(destination[i], a[i], b[i]);
+	}
+
 	
 	/**
 	 * \brief For each element of a matrix <b>a</b>, divide by the

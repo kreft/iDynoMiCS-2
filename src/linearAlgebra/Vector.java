@@ -410,6 +410,20 @@ public final class Vector
 			destination[i] = source[i];
 	}
 	
+	public static void copyTo(double[][][] destination, double[][][] source)
+	{
+		for ( int i = 0; i < destination.length; i++ )
+			for ( int j = 0; j < destination[0].length; j++ )
+				for ( int k = 0; k < destination[0][0].length; k++ )
+					destination[i][j][k] = source[i][j][k];
+	}
+	
+	public static void copyTo(Double[] destination, Double[] source)
+	{
+		for ( int i = 0; i < destination.length; i++ )
+			destination[i] = source[i];
+	}
+	
 	/**
 	 * \brief Copy the <b>vector</b> given to a new int[] array.
 	 * 
@@ -440,6 +454,14 @@ public final class Vector
 	public static double[] copy(double[] vector)
 	{
 		double[] out = new double[vector.length];
+		copyTo(out, vector);
+		return out;
+	}
+	
+	public static double[][][] copy(double[][][] vector)
+	{
+		double[][][] out = 
+			new double[vector.length][vector[0].length][vector[0][0].length];
 		copyTo(out, vector);
 		return out;
 	}
@@ -1077,6 +1099,13 @@ public final class Vector
 		for ( int i = 0; i < destination.length; i++ )
 			destination[i] = source[i] + value;
 	}
+
+	public static void addTo(float[] destination, float[] source,
+							 float value)
+	{
+		for ( int i = 0; i < destination.length; i++ )
+			destination[i] = source[i] + value;
+	}
 	
 	/**
 	 * \brief Add a scalar <b>value</b> to every element of a <b>vector</b>,
@@ -1093,6 +1122,13 @@ public final class Vector
 	public static double[] add(double[] vector, double value)
 	{
 		double[] out = new double[vector.length];
+		addTo(out, vector, value);
+		return out;
+	}
+
+	public static float[] add(float[] vector, float value)
+	{
+		float[] out = new float[vector.length];
 		addTo(out, vector, value);
 		return out;
 	}
@@ -1179,6 +1215,14 @@ public final class Vector
 			destination[i] = a[i] + b[i];
 		}
 	}
+
+	public static void addTo(float[] destination, float[] a, float[] b)
+	{
+		for ( int i = 0; i < a.length; i++ )
+		{
+			destination[i] = a[i] + b[i];
+		}
+	}
 	
 	/**
 	 * \brief Add two vectors together, writing the result into a new vector.
@@ -1193,6 +1237,13 @@ public final class Vector
 	public static double[] add(double[] a, double[] b)
 	{
 		double[] out = new double[a.length];
+		addTo(out, a, b);
+		return out;
+	}
+
+	public static float[] add(float[] a, float[] b)
+	{
+		float[] out = new float[a.length];
 		addTo(out, a, b);
 		return out;
 	}
@@ -1671,7 +1722,14 @@ public final class Vector
 		for ( int i = 0; i < a.length; i++ ) 
 			destination[i] = a[i] / b[i];
 	}
-	
+
+	public static void ratioTo(double[] destination, double[] a, double[] b)
+	{
+		checkLengths(destination, a, b);
+		for ( int i = 0; i < a.length; i++ )
+			destination[i] = Math.abs(a[i]) / Math.abs(b[i]);
+	}
+
 	/**
 	 * \brief divide destination vector elements by divisor.
 	 * @param destination

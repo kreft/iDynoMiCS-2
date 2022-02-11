@@ -254,7 +254,7 @@ public class SphericalShapeIterator extends PolarShapeIterator
 		 */
 		double theta = rC.getCumulativeResolution(this._currentCoord[2] - 1);
 		rC = this._shape.getResolutionCalculator(this._currentNeighbor, 2);
-		int new_index = rC.getVoxelIndex(theta);
+		int new_index = rC.getElementIndex(theta);
 		this._currentNeighbor[2] = new_index;
 		
 		return true;

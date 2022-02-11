@@ -71,6 +71,8 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable,
 	private long _timeSpentOnXmlOutput = 0;
 	
 	private int _outputTicker = 1;
+
+	private double tic;
 	
 	/**
 	 * Simulator is the top node in iDynoMiCS and stores its own modelNode and 
@@ -353,8 +355,8 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable,
 		
 		Log.step();
 	}
-	
-	public void run()
+
+	public void initialRun()
 	{
 		/* start storing log on disk */
 		if( Log.shouldWrite(Tier.EXPRESSIVE) )
@@ -363,13 +365,18 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable,
 		/*
 		 * Start timing just before simulation starts.
 		 */
-		double tic = System.currentTimeMillis();
+		tic = System.currentTimeMillis();
 		/* Check if any boundary connections need to be made. */
 		for ( Compartment c : this._compartments )
 		{
 			c.checkBoundaryConnections(this._compartments);
 			c.environment.updateSoluteBoundaries();
 		}
+	}
+
+	public void run()
+	{
+		this.initialRun();
 		
 		/* Run the simulation. */
 		while ( this.timer.isRunning() && !this.interupt && !this.stopAction )
@@ -634,6 +641,12 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable,
 	public String getXml() 
 	{
 		return this._modelNode.getXML();
+	}
+	
+	public void saveSimulationState(String path, boolean exi)
+	{
+		XmlExport xmlOut = new XmlExport(exi);
+		xmlOut.writeFile(path);
 	}
 
 	@Override

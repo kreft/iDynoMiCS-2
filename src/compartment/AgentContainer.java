@@ -21,6 +21,7 @@ import dataIO.Log.Tier;
 import gereralPredicates.IsSame;
 import idynomics.Global;
 import idynomics.Idynomics;
+import instantiable.object.InstantiableList;
 import linearAlgebra.Vector;
 import physicalObject.PhysicalObject;
 import referenceLibrary.AspectRef;
@@ -714,6 +715,7 @@ public class AgentContainer implements Settable
 		/* Add the agent childConstrutor for adding of additional agents. */
 		modelNode.addChildSpec( ClassRef.agent,
 				Module.Requirements.ZERO_TO_MANY);
+		
 		/* If there are agents, add them as child nodes. */
 		for ( Agent a : this.getAllAgents() )
 			modelNode.add( a.getModule() );

@@ -46,8 +46,11 @@ public abstract interface AspectInterface
 			for (int j = 0; j < stateNodes.getLength(); j++) 
 			{
 				Element s = (Element) stateNodes.item(j);
-				key = s.getAttribute( XmlRef.nameAttribute );
-				aspectReg.add( key, ObjectFactory.loadObject( s ) );
+				if(s.getParentNode() == e)
+				{
+					key = s.getAttribute( XmlRef.nameAttribute );
+					aspectReg.add( key, ObjectFactory.loadObject( s ) );
+				}
 			}
 		}
 	}
@@ -223,7 +226,7 @@ public abstract interface AspectInterface
 	{
 		Boolean out = (Boolean) this.reg().getValue(this, aspect);
 		if( out == null )
-			return false;
+			return null;
 		return out;
 	}
 	

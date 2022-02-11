@@ -1,5 +1,6 @@
 package colour;
 
+import java.awt.Color;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -12,6 +13,8 @@ public class Colour {
 		HSB,
 		RGB;
 	}
+	
+	private Color jColor;
 	
 	public final float[] zeros = new float[3];
 	
@@ -33,12 +36,20 @@ public class Colour {
 
 	public Colour(float[] baseColour, String format, String name)
 	{
-		this.initialColour = baseColour;
-		this.format = Format.valueOf(format);
+		this.format = Format.valueOf( format );
+		if( Format.HSB.equals( this.format ))
+			this.initialColour = baseColour;
+		else
+		{
+			this.initialColour = Color.RGBtoHSB(
+					Math.round( baseColour[0]*255 ),
+					Math.round( baseColour[1]*255 ),
+					Math.round( baseColour[2]*255 ), null);
+		}
 		this.name = name;
 	}
 	
-	public void addGradient(float[] gradient)
+	public void addGradient( float[] gradient )
 	{
 		if( gradients.size() >= 3)
 		{
@@ -48,13 +59,13 @@ public class Colour {
 		this.gradients.add( gradient );
 	}
 	
-	public void addGradient(String first, String second, String third)
+	public void addGradient( String first, String second, String third )
 	{
 		float[] out = new float[3];
 		if( first == null )
 			out[0] = 0.0f;
 		else
-			out[0] = Float.valueOf(first);
+			out[0] = Float.valueOf( first );
 		if( second == null )
 			out[1] = 0.0f;
 		else
@@ -72,7 +83,7 @@ public class Colour {
 	 * @param opacity - given opacity
 	 * @return
 	 */
-	public float[] returnColour(float[] dial, float opacity)
+	public float[] returnColourHSB(float[] dial, float opacity)
 	{
 		this.opacity = opacity;
 		float[] HSBOOut = {0.0f, 0.0f, 0.0f, this.opacity};
@@ -86,10 +97,9 @@ public class Colour {
 	
 	public float line(int gradient, int field)
 	{
-		float[] grad = (this.gradients.size() > gradient ?
-				this.gradients.get( gradient ) :
-				zeros );
-		return dial[gradient]*(grad[field]-initialColour[field]);
+		float[] grad = ( this.gradients.size() > gradient ?
+				this.gradients.get( gradient ) : zeros );
+		return dial[gradient] * ( grad[field] - initialColour[field] );
 	}
 	
 	/**
@@ -101,7 +111,7 @@ public class Colour {
 	 * object, which is 1.0 at setup unless defined in the palette).
 	 * @return
 	 */
-	public float[] returnColour(float[] dial)
+	public float[] returnColourHSB(float[] dial)
 	{
 		float[] HSBOOut = {0.0f, 0.0f, 0.0f};
 		for (int i = 0; i < 3; i++)
@@ -110,6 +120,16 @@ public class Colour {
 					line(0,i) +	line(1,i) +	line(2,i);
 		}
 		return HSBOOut;
+	}
+	
+	public float[] returnColourRGB(float[] dial)
+	{
+		float[] hsb = returnColourHSB(dial);
+		jColor = new Color(Color.HSBtoRGB( hsb[0], hsb[1], hsb[2] ));
+		return new float[] { 
+				jColor.getRed() / 255.0f, 
+				jColor.getGreen() / 255.0f, 
+				jColor.getBlue() / 255.0f };
 	}
 
 	public void setOpacity(Float opacity) 

@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document>
-	<colour baseColour="0.0, 1.0, 1.0" 
+	<colour baseColour="0.0, 1.0, 1.0" name = "red"
 			gradient = "true" form = "HSB" opacity = "1.0">
 		<shift brightness = "-0.5" saturation = "-0.5"/>
 	</colour>
-	<colour baseColour="0.7, 1.0, 1.0" 
+	<colour baseColour="0.7, 1.0, 1.0" name = "blue"
 			gradient = "true" form = "HSB" opacity = "1.0">
 		<shift brightness = "-0.5" saturation = "-0.5"/>
 	</colour>
-	<colour baseColour="0.3, 1.0, 1.0" 
+	<colour baseColour="0.3, 1.0, 1.0" name = "green"
 			gradient = "true" form = "HSB" opacity = "1.0">
 		<shift brightness = "-0.5" saturation = "-0.5"/>
 	</colour>

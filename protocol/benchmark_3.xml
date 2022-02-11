@@ -6,10 +6,6 @@
 		<timer stepSize="6.0" endOfSimulation="432000.0" />
 		<speciesLib>
 			<species name="heterotroph">
-				<aspect name="redComponent" type="PRIMARY" class="Double" value="1.0" />
-				<aspect name="greenComponent" type="CALCULATED" 
-				class="structuredBiomassCalculation" input="1.0 - inert / (biomass + inert)" />
-				<aspect name="pigment" type="CALCULATED" class="AgentColouring" />
 				<speciesModule name="coccoid" />
 				<aspect name="reactions" type="PRIMARY"  class="InstantiableList"> 
 					<list class="RegularReaction" nodeLabel="reaction" 
@@ -50,10 +46,6 @@
 			</species>
 			
 			<species name="autotroph">
-				<aspect name="blueComponent" type="PRIMARY" class="Double" value="1.0" />
-				<aspect name="redComponent" type="CALCULATED" 
-				class="structuredBiomassCalculation" input="1.0 - inert / (biomass + inert)" />
-				<aspect name="pigment" type="CALCULATED" class="AgentColouring" />
 				<speciesModule name="coccoid" />
 				<aspect name="reactions" type="PRIMARY"  class="InstantiableList"> 
 					<list class="RegularReaction" nodeLabel="reaction" 
@@ -185,7 +177,7 @@
 			<processManagers>
 				<!-- minute -->
 				<process name="agentRelax"	class="AgentRelaxation" priority="0"
-					firstStep="0.0"  		timerStepSize="6.0">
+					firstStep="0.0">
 					<!-- µm -->
 					<aspect name="maxMovement" 		type="PRIMARY" class="Double" value="0.5" />
 					<aspect name="relaxationMethod" type="PRIMARY" class="String" value="EULER" />
@@ -193,7 +185,7 @@
 				</process>
 				<!-- minute -->
 				<process name="SolveDiffusionSteadyState" class="SolveDiffusionSteadyState" priority="-1"
-					firstStep="0.0"  timerStepSize="6.0">	
+					firstStep="0.0">
 					<!-- In principle they are not all the same but all in the 
 					same order of magnitude ~ 2.0e-4 m2.day-1 values here in 
 					µm^2/ minute-->

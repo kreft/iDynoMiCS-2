@@ -170,6 +170,21 @@ public class SplitTree<T> implements SpatialRegistry<T>
 		{
 			if ( this._periodic[i] ) 
 			{
+				/*
+				 * If the bounding box is bigger than the compartment in periodic
+				 * dimension i, simply set the bounds to equal the extremes of 
+				 * the dimension. This avoids the bounding box wrapping around
+				 * at both ends, causing the middle of the bounding box to be
+				 * effectively cancelled out.
+				 */
+				if ((area.getHigh()[i] - area.getLow()[i]) > this._lengths[i])
+				{
+					double[] low = area.getLow();
+					double[] high = area.getHigh();
+					low[i] = this.node.getLow()[i];
+					high[i] = this.node.getHigh()[i];
+					area.set(low, high);
+				}
 				if ( area.getHigh()[i] > this.node.getHigh()[i] )
 				{
 					area.getHigh()[i] -= this._lengths[i];
