@@ -1,5 +1,6 @@
 package compartment.agentStaging;
 
+import agent.AgentHelperMethods;
 import org.w3c.dom.Element;
 
 import agent.Agent;
@@ -32,6 +33,7 @@ public class RandomSpawner extends Spawner {
 			newRandom.set(AspectRef.agentBody, 
 					new Body( this.getMorphology(), this.getSpawnDomain() ));
 			newRandom.setCompartment( this.getCompartment() );
+			AgentHelperMethods.springInitialization(newRandom);
 			newRandom.registerBirth();
 		}
 	}

@@ -177,13 +177,13 @@ public class AgentRelaxation extends ProcessManager
 	 * limit duration of biofilm compression 
 	 */
 	private double compresionDuration = 0.0;
-	
+
 	/**
 	 * TODO check whether implementation is finished
 	 * Default spine function, fall back for if none is defined by the agent.
 	 */
-	private Expression _spineFunction = 
-			new Expression( "stiffness * ( dh + SIGN(dh) * dh * dh * 100.0 )" );
+	//private Expression _spineFunction =
+	//		new Expression( "stiffness * ( dh + SIGN(dh) * dh * dh * 100.0 )" );
 	
 	private Boolean _decompression;
 	
@@ -273,13 +273,6 @@ public class AgentRelaxation extends ProcessManager
 		/* Limit the duration of biofilm compression */
 		this.compresionDuration = Helper.setIfNone( 
 				this.getDouble(COMPRESSION_DURATION), 0.0 );
-		
-		/* Set default spine function for rod type agents, this function is
-		 * used if it is not overwritten by the agent, obtain
-		 * ComponentExpression from process manager otherwise fall back default
-		 * is used. */
-		if ( ! Helper.isNullOrEmpty( this.getValue(SPINE_FUNCTION) ) )
-			this._spineFunction = new Expression((String) this.getValue(SPINE_FUNCTION));
 		
 		/* Include decompression */
 		this._decompression = Helper.setIfNone( this.getBoolean(DECOMPRESSION), 
@@ -609,7 +602,7 @@ public class AgentRelaxation extends ProcessManager
 							spineFun = new Expression((String) 
 									a.getValue(AspectRef.agentSpineFunction ));
 						else
-							spineFun = this._spineFunction;
+							spineFun = Global.fallback_spinefunction;
 						s.setSpringFunction( spineFun );
 					}
 					else if( s instanceof TorsionSpring )

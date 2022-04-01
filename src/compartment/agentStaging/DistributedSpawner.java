@@ -2,6 +2,7 @@ package compartment.agentStaging;
 
 import java.util.LinkedList;
 
+import agent.AgentHelperMethods;
 import org.w3c.dom.Element;
 
 import agent.Agent;
@@ -120,6 +121,7 @@ public class DistributedSpawner extends Spawner {
 		newAgent.set(AspectRef.agentBody, 
 				new Body( this.getMorphology(), location, 0.0, 0.0 ) );
 		newAgent.setCompartment( this.getCompartment() );
+		AgentHelperMethods.springInitialization(newAgent);
 		newAgent.registerBirth();
 	}
 }
