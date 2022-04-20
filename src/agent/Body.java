@@ -230,6 +230,7 @@ public class Body implements Copyable, Instantiable, Settable
 			default: 
 				break;
 		}
+		this.constructBody();
 	}
 	
 	/**

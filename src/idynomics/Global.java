@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import expression.Expression;
 import org.w3c.dom.Element;
 
 import dataIO.Log;
@@ -382,4 +383,11 @@ public class Global extends ParameterSet
 	 * Number of digits (including leading zeros) in file numbering
 	 */
 	public static int file_number_of_digits = 5;
+
+	/**
+	 * fall back spine function for if nothing is set TODO it may be a better option to just
+	 * warn and instruct the user, function might not be the best as a default
+	 */
+	public static Expression fallback_spinefunction =
+			new Expression( "stiffness * ( dh + SIGN(dh) * dh * dh * 100.0 )" );
 }
