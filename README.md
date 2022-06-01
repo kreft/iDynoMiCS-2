@@ -10,3 +10,5 @@ The latest iDynoMiCS 2 binaries are available under the [releases](https://githu
 
 ## Getting started
 read more about iDynoMiCS 2 in the iDynoMiCS 2 [wiki](https://github.com/kreft/iDynoMiCS-2/wiki).
+
+![iDynoMiCS](icons/iDynoMiCS_logo.gif)
