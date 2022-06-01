@@ -24,3 +24,7 @@ unitTests
 # other
 iDynoMiCS_logo.eps
 protocol/Microcosm_XMLFiles
+
+#inteliJ files
+.idea
+iDynoMiCS-2.iml
