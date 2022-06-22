@@ -34,7 +34,6 @@ import processManager.ProcessDeparture;
 import processManager.ProcessComparator;
 import processManager.ProcessManager;
 import reaction.RegularReaction;
-import referenceLibrary.AspectRef;
 import referenceLibrary.ClassRef;
 import referenceLibrary.XmlRef;
 import settable.Attribute;

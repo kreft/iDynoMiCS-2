@@ -268,8 +268,11 @@ public class Point implements Copyable, Settable
 		/* the following dynamic scaling is a slight deviation from the original
 		 * iDynoMiCS as the iDynoMiCS 2 collision detection cumulative displacement
 		 * vector is used to calculate delta rather than stepping through every individually.
+		 *
+		 * NOTE had a shoveFactor-1 term that is not there in idyno 1
+		 * FIXME idyno uses radius of both agents radius1 * factor + radus2 * factor instead of 2* radius * factor
 		 */
-		double delta = 2 * ( radius * ( shoveFactor - 1.0 ) ) + shovingLimit;
+		double delta = 2 * ( radius * ( shoveFactor ) ) + shovingLimit;
 		/*
 		 * Apply the force and reset it.
 		 */

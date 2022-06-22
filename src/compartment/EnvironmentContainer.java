@@ -14,7 +14,6 @@ import boundary.SpatialBoundary;
 import boundary.WellMixedBoundary;
 import dataIO.Log;
 import dataIO.Log.Tier;
-import debugTools.SegmentTimer;
 import generalInterfaces.CanPrelaunchCheck;
 import grid.SpatialGrid;
 import grid.WellMixedConstants;
@@ -29,7 +28,6 @@ import settable.Module;
 import settable.Module.Requirements;
 import settable.Settable;
 import shape.Shape;
-import spatialRegistry.SpatialMap;
 
 /**
  * \brief Manages the solutes in a {@code Compartment}.

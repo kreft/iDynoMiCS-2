@@ -5,23 +5,19 @@ import static dataIO.Log.Tier.DEBUG;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import agent.Agent;
 import agent.Body;
 import agent.predicate.IsLocated;
 import bookkeeper.KeeperEntry.EventType;
-import boundary.Boundary;
 import boundary.SpatialBoundary;
 import dataIO.Log;
 import dataIO.Log.Tier;
 import gereralPredicates.IsSame;
 import idynomics.Global;
 import idynomics.Idynomics;
-import instantiable.object.InstantiableList;
 import linearAlgebra.Vector;
 import physicalObject.PhysicalObject;
 import referenceLibrary.AspectRef;
@@ -30,7 +26,6 @@ import referenceLibrary.XmlRef;
 import settable.Module;
 import settable.Module.Requirements;
 import settable.Settable;
-import shape.Dimension;
 import shape.Dimension.DimName;
 import shape.Shape;
 import spatialRegistry.DummyTree;
@@ -162,7 +157,7 @@ public class AgentContainer implements Settable
 						this.getShape().getNumberOfDimensions() );
 				/* The 2D optimum is different from 3D, 2 * 2 ^ #dimensions
 				 * seems to perform well in general.  */
-				this._agentTree = new SplitTree<Agent>( 1 + (2 << min.length) , 
+				this._agentTree = new SplitTree<Agent>( 1 + (2 << min.length) ,
 						min, Vector.add( min, 
 						this.getShape().getDimensionLengths() ),
 						this._shape.getIsCyclicNaturalOrder() );

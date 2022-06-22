@@ -1,26 +1,7 @@
 package test.junit.oldTests;
 
-import static grid.ArrayType.CONCN;
-import static grid.ArrayType.DIFFUSIVITY;
-import static grid.ArrayType.PRODUCTIONRATE;
-import static grid.ArrayType.WELLMIXED;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static test.OldTests.TOLERANCE_SOFT;
-
-import org.junit.Before;
-import org.junit.Test;
-
-import grid.SpatialGrid;
-import linearAlgebra.Vector;
-import shape.Dimension;
-import shape.Dimension.DimName;
-import shape.Shape;
-import shape.resolution.MultigridResolution;
-import shape.resolution.ResolutionCalculator;
-import solver.PDEmultigrid;
-import solver.PDEupdater;
-import test.OldTests;
 
 /**
  * \brief Set of tests for the PDEmultigrid solver class, that focuses on Line

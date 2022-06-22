@@ -15,7 +15,6 @@ package solver.mgFas;
 import compartment.AgentContainer;
 import compartment.EnvironmentContainer;
 import dataIO.Log;
-import debugTools.SegmentTimer;
 import grid.ArrayType;
 import grid.SpatialGrid;
 import idynomics.Idynomics;

@@ -2,7 +2,6 @@ package analysis;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Locale;
 
 import agent.Agent;
 import analysis.filter.Filter;

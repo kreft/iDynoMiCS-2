@@ -2,7 +2,6 @@ package agent;
 import java.util.LinkedList;
 import java.util.List;
 
-import debugTools.SegmentTimer;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;

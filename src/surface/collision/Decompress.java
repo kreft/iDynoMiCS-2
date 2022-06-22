@@ -1,6 +1,5 @@
 package surface.collision;
 
-import dataIO.Log;
 import idynomics.Global;
 import idynomics.Idynomics;
 import linearAlgebra.Vector;

@@ -17,10 +17,8 @@ import boundary.WellMixedBoundary;
 import grid.ArrayType;
 import grid.SpatialGrid;
 import linearAlgebra.Array;
-import linearAlgebra.Vector;
 import settable.Settable;
 import shape.Dimension;
-import shape.Shape;
 import solver.mgFas.boundaries.CartesianPadding;
 
 /**
