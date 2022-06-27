@@ -143,9 +143,9 @@
 			</shape>
 			<solutes>
 				<!-- Initial concentrations pg / µm2 -->
-				<solute name="ammonium" concentration="6.0E-06" defaultDiffusivity="1.2E6"  />
-				<solute name="oxygen" 	concentration="1.0E-5" defaultDiffusivity="1.4E6"  />
-				<solute name="COD" 	concentration="3.0E-5" defaultDiffusivity="7.0E5"  />
+				<solute name="ammonium" concentration="6.0E-06" defaultDiffusivity="118055.556"  />
+				<solute name="oxygen" 	concentration="1.0E-5" defaultDiffusivity="138888.889"  />
+				<solute name="COD" 	concentration="3.0E-5" defaultDiffusivity="69444.444"  />
 			</solutes>
 			<reactions>
 			</reactions>
