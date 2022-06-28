@@ -390,15 +390,14 @@ public class MultigridSolute
 		double smallestConc = MultigridUtils.smallestNonZero( this._conc[order].grid ,
 				NEGLIGIBLE * NEGLIGIBLE ); // only for reporting
 
-		if ( Log.shouldWrite( Log.Tier.EXPRESSIVE ) )
-			System.out.println( this.soluteName + " order: " + order +
-					", ratio: " + maxRatio + ", smallest concentration: " +
-					smallestConc + ", max local residual: " + locResidual );
+//		if ( Log.shouldWrite( Log.Tier.EXPRESSIVE ) )
+//			System.out.println( this.soluteName + " order: " + order +
+//					", ratio: " + maxRatio + ", smallest concentration: " +
+//					smallestConc + ", max local residual: " + locResidual );
 
 		if ( Log.shouldWrite(Log.Tier.DEBUG) ) {
 			Log.out(Log.Tier.DEBUG,
-					this.getClass().getSimpleName() + " vCycle stagnated:\n "
-							+ "\torder: " + order + ", ratio: " + maxRatio
+							"\torder: " + order + ", ratio: " + maxRatio
 							+ ", \n\tsmallest concentration: " + smallestConc
 							+ ", \n\tmax local residual: " + locResidual);
 		}
