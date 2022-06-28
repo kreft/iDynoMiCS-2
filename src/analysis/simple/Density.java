@@ -49,6 +49,7 @@ public class Density {
                 coord[i] = (int) Math.floor(dim/_vox[i]);
                 i++;
             }
+            //FIXME also make this work for agents with simple mass.
             _field[coord[0]][coord[1]] += a.getDouble("biomass@mass");
         }
     }
