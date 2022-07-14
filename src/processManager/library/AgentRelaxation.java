@@ -317,6 +317,7 @@ public class AgentRelaxation extends ProcessManager
 		/* Mechanical relaxation */
 		while( tMech < this.getTimeStepSize() && nstep < this._maxIter) 
 		{
+			Log.setStatus( "Mechanical Relaxation: " + nstep );
 			this._agents.refreshSpatialRegistry();
 			this._iterator.resetOverlap();
 
@@ -361,10 +362,10 @@ public class AgentRelaxation extends ProcessManager
 		{
 			if (nstep == this._maxIter )
 				Log.out( Tier.EXPRESSIVE, this.getName() +
-						" stop condition iterations: " + this._maxIter);
+						" stop condition max cycles: " + this._maxIter);
 			else
 				Log.out( Tier.EXPRESSIVE, this.getName() +
-						" reached relaxation criteria, iterations: " + nstep );
+						" reached relaxation criteria, cycles: " + nstep );
 		}
 	}
 
@@ -463,10 +464,11 @@ public class AgentRelaxation extends ProcessManager
 										   AgentContainer aContainer, boolean hs)
 	{
 		Collection<Agent> out = new LinkedList<Agent>();
+		Body body;
 		/* Calculate forces. */
 		for ( Agent agent: agents )
 		{
-			Body body = (Body) agent.get(AspectRef.agentBody);
+			body = (Body) agent.get(AspectRef.agentBody);
 			List<Surface> agentSurfs = body.getSurfaces();
 
 			if( hs )

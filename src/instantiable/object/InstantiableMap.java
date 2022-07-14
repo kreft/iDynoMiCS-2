@@ -89,6 +89,8 @@ public class InstantiableMap<K,T> extends HashMap<K,T> implements Settable,
 	 */
 	public InstantiableMap( Class<?> keyClass, Class<?> entryClass )
 	{
+		/* Fixme: implement initial capacity and loading */
+		/* super(6); */
 		this.keyLabel = XmlRef.keyAttribute;
 		this.valueLabel = XmlRef.valueAttribute;
 		

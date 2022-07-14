@@ -312,6 +312,23 @@ public abstract class ProcessDiffusion extends ProcessManager
 	public void setupAgentDistributionMaps(Shape shape)
 	{
 		int nDim = this._agents.getNumDims();
+		int initial = 2;
+		float loading = 1.0f;
+
+		/** avoid a massive amount of default size hashmaps if not needed **/
+		switch( _distributionMethod ) {
+			case MIDPOINT:
+				/* default case */
+				break;
+			case COLLISION:
+				/* up to as many voxels 1 agent can hit */
+				initial = 4;
+				break;
+			case SUBGRID:
+				/* many points */
+				initial = 16;
+				loading = 0.75f;
+		}
 		
 		/*
 		 * Reset the agent biomass distribution maps.
@@ -322,8 +339,8 @@ public abstract class ProcessDiffusion extends ProcessManager
 			if ( a.isAspect(VD_TAG) )
 				mapOfMaps = (Map<Shape, HashMap<IntegerArray,Double>>)a.get(VD_TAG);
 			else
-				mapOfMaps = new HashMap<Shape, HashMap<IntegerArray,Double>>();
-			mapOfMaps.put(shape, new HashMap<IntegerArray,Double>());
+				mapOfMaps = new HashMap<Shape, HashMap<IntegerArray,Double>>(initial,loading);
+			mapOfMaps.put(shape, new HashMap<IntegerArray,Double>(initial,loading));
 			a.set(VD_TAG, mapOfMaps);
 		}
 		double[] location;

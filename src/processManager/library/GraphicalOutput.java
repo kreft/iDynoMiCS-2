@@ -97,6 +97,8 @@ public class GraphicalOutput extends ProcessManager
 	
 	protected ColourSpecification colSpec;
 
+	protected double[] filter;
+
 	
 	/*************************************************************************
 	 * CONSTRUCTORS
@@ -124,11 +126,15 @@ public class GraphicalOutput extends ProcessManager
 		/* ArrayType to plot (CONCN if unspecified_ */
 		str = (String) this.getOr(ARRAY_TYPE, CONCN.toString());
 		this._arrayType = ArrayType.valueOf(str);
+
+		String filename = this.getString( AspectRef.fileName );
+		if( Helper.isNullOrEmpty(filename))
+			filename = "agents";
 		
 		/* Output naming */
 		this._prefix = this._compartmentName + "_";
 		if ( this._solute == null )
-			this._prefix += "agents";
+			this._prefix += filename;
 		else
 			this._prefix += this._solute + "_" + this._arrayType.toString();
 
@@ -146,10 +152,13 @@ public class GraphicalOutput extends ProcessManager
 				this.getOr( AspectRef.colourPalette, Global.default_palette) ) );
 		
 		/* In the future we may want to change the default to "species" */
-		 colSpec = new ColourSpecification(palette, (String)
+		colSpec = new ColourSpecification(palette, (String)
 				 this.getOr( AspectRef.colourSpecification, 
 						 Global.default_colour_specification));
 
+		double[] filt = this.getDoubleA( AspectRef.filter );
+		if( !Helper.isNullOrEmpty( filt ) )
+			this._graphics.setFilter( filter = filt );
 	}
 	
 	private Collection<String> options()

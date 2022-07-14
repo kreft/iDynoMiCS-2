@@ -184,7 +184,7 @@ public class Point implements Copyable, Settable
 		// identical properties (in this case hydrodynamic).
 		// see pdf forces in microbial systems.
 		double[] diff = this.dxdt( radius );
-		diff = this.dxdt( radius );
+//		diff = this.dxdt( radius );
 		Vector.timesEquals( diff, dt );
 		this.setPosition( Vector.add( this._p, diff ));
 		this.resetForce();

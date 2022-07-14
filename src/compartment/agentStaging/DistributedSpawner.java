@@ -1,6 +1,7 @@
 package compartment.agentStaging;
 
 import java.util.LinkedList;
+import java.util.Map;
 
 import agent.AgentHelperMethods;
 import org.w3c.dom.Element;
@@ -11,7 +12,9 @@ import compartment.AgentContainer;
 import dataIO.Log;
 import dataIO.Log.Tier;
 import linearAlgebra.Vector;
+import processManager.ProcessMethods;
 import referenceLibrary.AspectRef;
+import utility.ExtraMath;
 import utility.Helper;
 
 
@@ -122,6 +125,31 @@ public class DistributedSpawner extends Spawner {
 				new Body( this.getMorphology(), location, 0.0, 0.0 ) );
 		newAgent.setCompartment( this.getCompartment() );
 		AgentHelperMethods.springInitialization(newAgent);
+
+		// FIXME test feature to randomize agent mass at start
+		if( newAgent.isAspect( "randomize" ))
+		{
+			String ran = newAgent.getString( "randomize" );
+			Double factor =  newAgent.getDouble( "factor" );
+			Map<String,Double> biomass = ProcessMethods.getAgentMassMap( newAgent );
+
+			Double out = ExtraMath.getUniRand( 1.0-factor, 1.0+factor);
+			if ( biomass.containsKey(ran) )
+			{
+				out = biomass.get(ran) * out;
+				biomass.put(ran, out);
+			}
+			else if ( newAgent.isAspect(ran) )
+			{
+				/*
+				 * Check if the agent has other mass-like aspects
+				 * (e.g. EPS).
+				 */
+				out = newAgent.getDouble(ran) * out;
+				newAgent.set(ran,out);
+			}
+			ProcessMethods.updateAgentMass(newAgent,biomass);
+		}
 		newAgent.registerBirth();
 	}
 }

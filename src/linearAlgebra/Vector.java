@@ -3565,6 +3565,19 @@ public final class Vector
 				return false;
 		return true;
 	}
+    public static double[] convert(Double[] doubleA)
+	{
+		double[] out = new double[doubleA.length];
+		for( int i = 0; i < doubleA.length; i++ )
+			out[i] = doubleA[i];
+		return out;
+    }
 
-
+	public static Double[] convert(double[] doubleA)
+	{
+		Double[] out = new Double[doubleA.length];
+		for( int i = 0; i < doubleA.length; i++ )
+			out[i] = doubleA[i];
+		return out;
+	}
 }

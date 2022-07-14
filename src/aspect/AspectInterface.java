@@ -141,9 +141,9 @@ public abstract interface AspectInterface
 	 * @param aspect
 	 * @return
 	 */
-	public default Double[] getDoubleA(String aspect)
+	public default double[] getDoubleA(String aspect)
 	{
-		return (Double[]) this.reg().getValue(this, aspect);
+		return (double[]) this.reg().getValue(this, aspect);
 	}
 	
 	/**

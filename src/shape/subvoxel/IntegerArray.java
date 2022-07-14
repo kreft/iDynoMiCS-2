@@ -23,7 +23,8 @@ public class IntegerArray
 	{
 		this.set(array);
 	}
-	
+
+	/** this should be improved **/
 	@Override
 	public int hashCode()
 	{

@@ -163,7 +163,7 @@ public class AspectRef
 	/**
 	 * TODO
 	 */
-	public final static String agentVolumeDistributionMap = "volumeDistribution";
+	public final static String agentVolumeDistributionMap = "VD#$";
 
 	/**
 	 * TODO

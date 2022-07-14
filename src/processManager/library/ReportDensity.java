@@ -4,6 +4,7 @@ import analysis.simple.Density;
 import compartment.AgentContainer;
 import compartment.EnvironmentContainer;
 import idynomics.Idynomics;
+import linearAlgebra.Vector;
 import org.w3c.dom.Element;
 import processManager.ProcessManager;
 import referenceLibrary.AspectRef;
@@ -20,15 +21,15 @@ public class ReportDensity extends ProcessManager
     {
         super.init(xmlElem, environment, agents, compartmentName);
 
-        Double[] domain = getDoubleA( AspectRef.domain );
-        Double[] voxel = getDoubleA( AspectRef.voxel );
+        double[] domain = getDoubleA( AspectRef.domain );
+        double[] voxel = getDoubleA( AspectRef.voxel );
 
         if( Helper.isNullOrEmpty( domain ) || Helper.isNullOrEmpty( voxel ) ) {
             Idynomics.simulator.interupt(this.getClass().getSimpleName() + " initialized with invalid" +
                     "domain or voxel specification, stopping");
         }
         else {
-            density = new Density( domain, voxel );
+            density = new Density( Vector.convert(domain), Vector.convert(voxel) );
 //            density = new Density(new Double[]{202.0, 202.0, 4.0}, new Double[]{2.0, 2.0, 2.0});
         }
 

@@ -23,7 +23,7 @@ import utility.Helper;
 public class Global extends ParameterSet
 {
 
-	/**************************************************************************
+    /**************************************************************************
 	 * Constructing and loading
 	 *************************************************************************/
 	
@@ -160,12 +160,14 @@ public class Global extends ParameterSet
 	/**
 	 * enable bookkeeping.
 	 */
-	public static boolean bookkeeping = true;
+	public static boolean bookkeeping = false;
 	
 	/**
 	 * enable csv bookkeeping
 	 */
-	public static boolean csv_bookkeeping = true;
+	public static boolean csv_bookkeeping = false;
+
+	public static boolean log_memory_use = true;
 	
 	/**
 	 * the default color specification for graphical output, NOTE in the future

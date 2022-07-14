@@ -1,5 +1,6 @@
 package dataIO;
 
+import linearAlgebra.Vector;
 import org.w3c.dom.Element;
 
 import idynomics.Global;
@@ -8,6 +9,7 @@ import settable.Settable;
 import shape.Shape;
 import surface.Ball;
 import surface.Rod;
+import utility.Helper;
 
 /**
  * \brief TODO class needs a rigorous update
@@ -25,7 +27,14 @@ public class PovExport implements GraphicalExporter
 	 * TODO
 	 */
 	protected int _filewriterfilenr = 0;
-	
+
+	protected double[] filter;
+
+	public void setFilter( double[] filter )
+	{
+		this.filter = filter;
+	}
+
 	/**
 	 * returns file number with appending zeros as string.
 	 * TODO: move to a place sensible for all file handling classes.
@@ -116,7 +125,7 @@ public class PovExport implements GraphicalExporter
 	{
 		String fileString = Idynomics.global.outputLocation + prefix + "/" 
 				+ "sceneheader.inc";
-		
+
 		if ( ! _povFile.doesFileExist(fileString) )
 		{
 			_povFile.fnew(fileString);
@@ -219,6 +228,9 @@ public class PovExport implements GraphicalExporter
 	 */
 	public void sphere(double[] center, double radius, String pigment) 
 	{
+		if ( !Helper.isNullOrEmpty( filter ) )
+			if ( Vector.isNonnegative( Vector.minus( center , filter) ) )
+				return;
 		_povFile.write("sphere { \n" + toPov(this.to3D(center)) + radius + "\n pigment { " 
 				+ pigment + " } }\n" );
 	}

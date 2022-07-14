@@ -9,6 +9,7 @@ import java.util.Map;
 
 import agent.Agent;
 import agent.Body;
+import aspect.Aspect;
 import bookkeeper.KeeperEntry;
 import boundary.Boundary;
 import boundary.WellMixedBoundary;
@@ -320,6 +321,7 @@ public class PDEWrapper extends ProcessDiffusion
 
         IntegerArray coord = new IntegerArray(
                 shape.getCoords( center ));
+
         /*
          * Get the agent biomass kinds as a map. Copy it now so that we can
          * use this copy to store the changes.
@@ -354,7 +356,7 @@ public class PDEWrapper extends ProcessDiffusion
                         solute = this._environment.getSoluteGrid( varName );
                         concn = solute.getValueAt( CONCN, coord.get() );
                     }
-                    else if ( biomass.containsKey( varName ) )
+                    else if (biomass.containsKey( varName ) )
                     {
                         concn = biomass.get( varName ) * perVolume;
 
@@ -398,7 +400,7 @@ public class PDEWrapper extends ProcessDiffusion
                         solute.addValueAt(PRODUCTIONRATE, coord.get(), quantity
                         );
                     }
-                    else if ( newBiomass.containsKey(productName) )
+                    else if (newBiomass.containsKey(productName) )
                     {
                         quantity =
                                 productRate * this.getTimeStepSize() * volume;

@@ -39,6 +39,13 @@ public class SvgExport implements GraphicalExporter
 	private static final String[] CIRCLE_LABELS = new String[] {"cx","cy"};
 
 	private static final String[] RECTANGLE_LABELS = new String[] {"x","y"};
+
+	protected double[] filter;
+
+	public void setFilter( double[] filter )
+	{
+		this.filter = filter;
+	}
 	
 	public void instantiate(Element xmlElem, Settable parent)
 	{
