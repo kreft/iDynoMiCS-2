@@ -269,10 +269,10 @@ public class Point implements Copyable, Settable
 		 * iDynoMiCS as the iDynoMiCS 2 collision detection cumulative displacement
 		 * vector is used to calculate delta rather than stepping through every individually.
 		 *
-		 * NOTE had a shoveFactor-1 term that is not there in idyno 1
+		 * FIXME: shoveFactor -1 is not there in iDyno 1, this is to compensate for distance to center vs distance to surface
 		 * FIXME idyno uses radius of both agents radius1 * factor + radus2 * factor instead of 2* radius * factor
 		 */
-		double delta = 2 * ( radius * ( shoveFactor ) ) + shovingLimit;
+		double delta = 2 * ( radius * ( shoveFactor - 1 ) ) + shovingLimit;
 		/*
 		 * Apply the force and reset it.
 		 */

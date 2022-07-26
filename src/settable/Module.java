@@ -1,9 +1,11 @@
 package settable;
 
 import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
+import dataIO.Log;
 import instantiable.Instance;
 
 /**
@@ -373,8 +375,17 @@ public class Module
 	 * @param tabs Number of tabs to offset by.
 	 * @return String description of this ModelNode in XML format.
 	 */
-	public StringWriter getXML(int tabs, StringWriter writer)
+	public  ArrayList<StringWriter> getXML(int tabs, ArrayList<StringWriter> writers)
 	{
+		StringWriter writer = writers.get( writers.size() - 1 );
+
+		/* the stringbuffer would overload if it exceeds max int value */
+		if( writer.getBuffer().length() > Integer.MAX_VALUE - 1000000 )
+		{
+			System.out.println( "extending to additional stringBuffer." );
+			writer = new StringWriter();
+			writers.add( writer );
+		}
 		String out = "";
 		appendTabs(tabs, writer);
 		writer.append('<').append(this._tag);
@@ -392,11 +403,11 @@ public class Module
 		{
 			writer.append(" >\n");
 			for ( Module n : this._childModules )
-				n.getXML(tabs+1, writer);
+				n.getXML(tabs+1, writers);
 			appendTabs(tabs, writer);
 			writer.append("</").append(this._tag).append(">\n");
 		}
-		return writer;
+		return writers;
 	}
 	
 	public String getHeader()
@@ -444,9 +455,12 @@ public class Module
 	 */
 	public String getXML()
 	{
-		StringWriter outputWriter = new StringWriter();
-		outputWriter = this.getXML(0, outputWriter);
-		return outputWriter.toString();
+		ArrayList<StringWriter> outputWriters = new ArrayList<StringWriter>();
+		outputWriters.add(new StringWriter());
+		outputWriters = this.getXML(0, outputWriters);
+		if( outputWriters.size() > 1);
+			Log.out(Log.Tier.CRITICAL, "Warning! xml output is split over multiple string buffers due to size. returning first String buffer only.");
+		return outputWriters.get(0).toString();
 	}
 
 	/**

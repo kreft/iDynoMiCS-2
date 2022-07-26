@@ -1,15 +1,8 @@
 package dataIO;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -253,6 +246,31 @@ public class FileHandler
 				{
 					Log.printToScreen(e.toString(), false);
 					Log.printToScreen("skipped line: " + text, false);
+				}
+			}
+		}
+	}
+
+	public void write(List<StringWriter> StringWriters)
+	{
+		if ( Global.write_to_disc )
+		{
+			if ( this._encoding )
+				Log.out(Tier.CRITICAL, "Output buffer too large for exi encoding (might be fixable).");
+			else
+			{
+				String text = "";
+				for( int i = 0; i< StringWriters.size(); i++) {
+					try {
+						text = StringWriters.get(i).toString();
+						this._output.write(text);
+						if (this._flushAll)
+							this._output.flush();
+
+					} catch (IOException e) {
+						Log.printToScreen(e.toString(), false);
+						Log.printToScreen("skipped line: " + text, false);
+					}
 				}
 			}
 		}

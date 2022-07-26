@@ -3,6 +3,7 @@ package boundary.spatialLibrary;
 import static grid.ArrayType.WELLMIXED;
 
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 
 import agent.Agent;
@@ -11,6 +12,7 @@ import boundary.WellMixedBoundary;
 import boundary.library.ChemostatToBoundaryLayer;
 import compartment.AgentContainer;
 import compartment.EnvironmentContainer;
+import debugTools.SegmentTimer;
 import grid.SpatialGrid;
 import grid.WellMixedConstants;
 import linearAlgebra.Vector;
@@ -214,16 +216,13 @@ public class BiofilmBoundaryLayer extends WellMixedBoundary
 		 */
 		double[] min = Vector.zerosDbl(	aShape.getNumberOfDimensions() );
 
-		SpatialRegistry<Voxel> voxelRegistry =
-				new SplitTree<Voxel>( 1 + (2 << min.length) ,
-				min, Vector.add( min, aShape.getDimensionLengths() ),
-				aShape.getIsCyclicNaturalOrder() );
 
-		HashMap<Voxel,int[]> reiterate = new HashMap<Voxel,int[]>();
+		LinkedList<int[]> reiterate = new LinkedList<int[]>();
 
 		int[] coords = aShape.resetIterator();
 		while ( aShape.isIteratorValid() )
 		{
+
 			double[] voxelOrigin = aShape.getVoxelOrigin(coords);
 			double[] voxelUpper = aShape.getVoxelUpperCorner(coords);
 			Voxel box = new Voxel( Vector.subset(voxelOrigin, aShape.getNumberOfDimensions()),
@@ -232,43 +231,67 @@ public class BiofilmBoundaryLayer extends WellMixedBoundary
 			{
 				grid.setValueAt(WELLMIXED, coords,
 						WellMixedConstants.NOT_MIXED);
-				voxelRegistry.insert(box.boundingBox(aShape), box);
+				reiterate.add(Vector.copy(coords));
 			}
 			else
 			{
-				reiterate.put(box,coords);
+				grid.setValueAt(WELLMIXED, coords,
+						Double.MAX_VALUE);
 			}
 			coords = aShape.iteratorNext();
+
 		}
 
 		if (this._layerThickness > 0.0 )
 		{
+			iterateDiffusionRegion( reiterate );
+
 			coords = aShape.resetIterator();
-			double[] voxelCenter = aShape.getVoxelCentre(coords);
-			double[] voxelCenterTrimmed = Vector.zerosDbl(numDim);
-
-			/* naming parent loop so that we can break
-			out of it instantly when we hit and agent */
-			shapeloop : while ( aShape.isIteratorValid() ) {
-				aShape.voxelCentreTo(voxelCenter, coords);
-				Vector.copyTo(voxelCenterTrimmed, voxelCenter);
-				this._gridSphere.setCenter(voxelCenterTrimmed);
-				/*
-				 * Find all nearby agents. Set the grid to zero if an agent is
-				 * within the grid's sphere
-				 */
-				BoundingBox box = this._gridSphere.boundingBox(this._agents.getShape());
-
-				for (Voxel v : voxelRegistry.search(box))
-					if (this._gridSphere.distanceTo(v) < 0.0) {
-						grid.setValueAt(WELLMIXED, coords,
-								WellMixedConstants.NOT_MIXED);
-//						coords = aShape.iteratorNext();
-						break;
-					}
+			while ( aShape.isIteratorValid() ) {
+				//NOTE assuming voxel is cube
+				if( grid.getValueAt(WELLMIXED, coords) < (this._layerThickness / aShape.getVoxelSideLengths(coords)[0]) )
+					grid.setValueAt(WELLMIXED, coords, WellMixedConstants.NOT_MIXED );
 				coords = aShape.iteratorNext();
 			}
 		}
+	}
+
+	private void iterateDiffusionRegion(LinkedList<int[]> outerBound)
+	{
+		LinkedList<int[]> reiterate = new LinkedList<int[]>();
+		SpatialGrid grid = this._environment.getCommonGrid();
+		int[] dims = Vector.dimensions( grid.getArray(WELLMIXED) );
+
+		for( int[] coords : outerBound )
+		{
+			Double neighbour;
+			Double current = grid.getValueAt(WELLMIXED, coords);
+			int[] temp = Vector.copy(coords);
+			for( int i = 0; i < dims.length; i++)
+			{
+				temp = Vector.copy(coords);
+				// minus 1
+				temp[i] -= 1;
+				if( temp[i] > 0 ) {
+					neighbour = grid.getValueAt(WELLMIXED, temp);
+					if (neighbour > current + 1.0) {
+						grid.setValueAt(WELLMIXED, temp, current + 1.0);
+						reiterate.add(Vector.copy(temp));
+					}
+				}
+				// plus 1
+				temp[i] += 2;
+				if (temp[i] < dims[i]) {
+					neighbour = grid.getValueAt(WELLMIXED, temp);
+					if (neighbour > current + 1.0) {
+						grid.setValueAt(WELLMIXED, temp, current + 1.0);
+						reiterate.add(Vector.copy(temp));
+					}
+				}
+			}
+		}
+		if( !reiterate.isEmpty() )
+			iterateDiffusionRegion( reiterate );
 	}
 
 	@Override

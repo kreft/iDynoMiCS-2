@@ -3580,4 +3580,13 @@ public final class Vector
 			out[i] = doubleA[i];
 		return out;
 	}
+
+	/**
+	 * get dimensions of array
+	 * @param array
+	 * @return
+	 */
+    public static int[] dimensions(double[][][] array) {
+		return new int[] { array.length, array[0].length, array[0][0].length };
+    }
 }
