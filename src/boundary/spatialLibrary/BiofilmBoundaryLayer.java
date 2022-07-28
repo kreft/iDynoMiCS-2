@@ -244,7 +244,7 @@ public class BiofilmBoundaryLayer extends WellMixedBoundary
 
 		if (this._layerThickness > 0.0 )
 		{
-			iterateDiffusionRegion( reiterate );
+			iterateDiffusionRegion( reiterate, (this._layerThickness / aShape.getVoxelSideLengths(coords)[0]) );
 
 			coords = aShape.resetIterator();
 			while ( aShape.isIteratorValid() ) {
@@ -256,44 +256,133 @@ public class BiofilmBoundaryLayer extends WellMixedBoundary
 		}
 	}
 
-	private void iterateDiffusionRegion(LinkedList<int[]> outerBound)
+	private void iterateDiffusionRegion(LinkedList<int[]> outerBound, Double treshold)
 	{
 		LinkedList<int[]> reiterate = new LinkedList<int[]>();
 		SpatialGrid grid = this._environment.getCommonGrid();
 		int[] dims = Vector.dimensions( grid.getArray(WELLMIXED) );
+		boolean[] periodic = this._environment.getShape().getIsCyclicNaturalOrder();
+
+		double sqrt2 = 1.41421356237;
 
 		for( int[] coords : outerBound )
 		{
-			Double neighbour;
 			Double current = grid.getValueAt(WELLMIXED, coords);
-			int[] temp = Vector.copy(coords);
+			if ( current > treshold )
+				break;
+			int[] temp;
+			boolean valid;
 			for( int i = 0; i < dims.length; i++)
 			{
 				temp = Vector.copy(coords);
-				// minus 1
+				// down
 				temp[i] -= 1;
-				if( temp[i] > 0 ) {
-					neighbour = grid.getValueAt(WELLMIXED, temp);
-					if (neighbour > current + 1.0) {
-						grid.setValueAt(WELLMIXED, temp, current + 1.0);
-						reiterate.add(Vector.copy(temp));
-					}
+				valid = push(temp, dims, periodic, current + 1.0, grid, reiterate);
+
+				// down neighbors (x+ gets: x+ z+, x+ z-. y+ gets: y+ x-, y+ x+ etc.)
+				if( valid && i > 0)
+				{
+					temp[i-1] -= 1;
+					push(temp, dims, periodic, current + sqrt2, grid, reiterate);
+					temp[i-1] += 2;
+					push(temp, dims, periodic, current + sqrt2, grid, reiterate);
 				}
-				// plus 1
-				temp[i] += 2;
-				if (temp[i] < dims[i]) {
-					neighbour = grid.getValueAt(WELLMIXED, temp);
-					if (neighbour > current + 1.0) {
-						grid.setValueAt(WELLMIXED, temp, current + 1.0);
-						reiterate.add(Vector.copy(temp));
-					}
+				else
+				{
+					temp[dims.length-1] -= 1;
+					push(temp, dims, periodic, current + sqrt2, grid, reiterate);
+					temp[dims.length-1] += 2;
+					push(temp, dims, periodic, current + sqrt2, grid, reiterate);
 				}
+
+				// up
+				temp = Vector.copy(coords);
+				temp[i] += 1;
+				valid = push(temp, dims, periodic, current + 1.0, grid, reiterate);
+
+				// up neighbors
+				if( valid && i > 0)
+				{
+					temp[i-1] -= 1;
+					push(temp, dims, periodic, current + sqrt2, grid, reiterate);
+					temp[i-1] += 2;
+					push(temp, dims, periodic, current + sqrt2, grid, reiterate);
+				}
+				else
+				{
+					temp[dims.length-1] -= 1;
+					push(temp, dims, periodic, current + sqrt2, grid, reiterate);
+					temp[dims.length-1] += 2;
+					push(temp, dims, periodic, current + sqrt2, grid, reiterate);
+				}
+
 			}
 		}
 		if( !reiterate.isEmpty() )
-			iterateDiffusionRegion( reiterate );
+			iterateDiffusionRegion( reiterate , treshold);
 	}
 
+	/** updates diffusion distance of potential neighbor to step. Returns true if neighbor is valid
+	 * false if neighbor is invalid
+	 *
+	 * @param vocal
+	 * @param dims
+	 * @param periodic
+	 * @param step
+	 * @param grid
+	 * @param reiterate
+	 * @return
+	 */
+	public boolean push( int[] vocal, int[] dims, boolean[] periodic, double step,
+					  SpatialGrid grid, LinkedList<int[]> reiterate )
+	{
+		vocal = periodicCoord(vocal, dims, periodic);
+		if( vocal != null ) {
+			Double neighbour = grid.getValueAt(WELLMIXED, vocal);
+			if (neighbour > step) {
+				grid.setValueAt(WELLMIXED, vocal, step);
+				reiterate.add(Vector.copy(vocal));
+			}
+		}
+		else {
+			return false;
+		}
+		return true;
+	}
+
+	/**
+	 * returns Periodic coord, returns the same value if coord is already within bounds,
+	 * returns null if coord is out of spec
+	 *
+	 * @param coords
+	 * @param dims
+	 * @param periodic
+	 * @return
+	 */
+	public int[] periodicCoord( int[] coords, int[] dims, boolean[] periodic )
+	{
+		int[] out = new int[coords.length];
+		for( int i = 0; i < coords.length; i++ )
+		{
+			if( coords[i] >= 0 && coords[i] < dims[i] )
+				out[i] = coords[i];
+			else if ( !periodic[i] )
+			{
+				// not in range and not periodic
+				return null;
+			}
+			else {
+				if( coords[i] == -1 )
+					out[i] = dims[i]-1;
+				else if( coords[i] == dims[i] )
+					out[i] = 0;
+				else
+					// periodic but jumps more than one step (somehow)
+					return null;
+			}
+		}
+		return out;
+	}
 	@Override
 	public void additionalPartnerUpdate()
 	{
