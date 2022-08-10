@@ -141,8 +141,10 @@ public class FillialRodShift extends DivisionMethod
 			p = iniBody.getClosePoint(otABody.getCenter(shape), shape);
 			q = new Point(p);
 
-			p.setPosition(Vector.add( originalPos, Vector.times( shiftA, rs )));
-			q.setPosition(Vector.add( originalPos, Vector.times( shiftB, rs )));
+			p.setPosition( shape.applyBoundaries(
+					Vector.add( originalPos, Vector.times( shiftA, rs ))));
+			q.setPosition( shape.applyBoundaries(
+					Vector.add( originalPos, Vector.times( shiftB, rs ))));
 			
 			/* reshape */
 			iniBody.getPoints().add( new Point( q ));
@@ -195,8 +197,10 @@ public class FillialRodShift extends DivisionMethod
 			p = iniBody.getPoints().get(0);
 			q = new Point(p);
 			
-			p.setPosition( Vector.add( originalPos, Vector.times( shiftA, rs)));
-			q.setPosition(Vector.minus(originalPos, Vector.times( shiftA, rs)));
+			p.setPosition( shape.applyBoundaries(
+					Vector.add( originalPos, Vector.times( shiftA, rs))) );
+			q.setPosition( shape.applyBoundaries(
+					Vector.minus( originalPos, Vector.times( shiftA, rs))) );
 			
 			/* reshape */
 			iniBody.getPoints().add( new Point( q ));
@@ -205,7 +209,7 @@ public class FillialRodShift extends DivisionMethod
 			iniBody.constructBody( 0.1,
 					initiator.getDouble( AspectRef.transientRadius ));
 		}
-		
+
 		if( otherA != null)
 			Link.torsion( (Agent) otherA, initiator, initiator );
 		if( otherB != null)

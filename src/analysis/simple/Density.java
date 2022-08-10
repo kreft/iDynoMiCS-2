@@ -17,13 +17,13 @@ import java.util.Collection;
  */
 public class Density {
 
-    Double[] _lengths;
-    Double[] _vox;
+    double[] _lengths;
+    double[] _vox;
 
     CsvExport csv;
     double[][] _field;
 
-    public Density(Double[] lengths, Double[] vox)
+    public Density(double[] lengths, double[] vox)
     {
         this._lengths = lengths;
         this._vox = vox;

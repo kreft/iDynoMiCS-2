@@ -222,8 +222,8 @@ public class Agent implements AspectInterface, Settable, Instantiable
 	public Agent(Agent agent)
 	{
 		this._aspectRegistry.duplicate(agent);
-		this.initiate();
 		this._compartment = agent.getCompartment();
+		this.initiate();
 	}
 
 	/*************************************************************************

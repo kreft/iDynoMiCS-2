@@ -602,8 +602,8 @@ public class AgentRelaxation extends ProcessManager
 						Expression spineFun;
 						if ( !Helper.isNullOrEmpty( a.getValue(
 								AspectRef.agentSpineFunction )))
-							spineFun = new Expression((String) 
-									a.getValue(AspectRef.agentSpineFunction ));
+							spineFun = (Expression)
+									a.getValue(AspectRef.agentSpineFunction );
 						else
 							spineFun = Global.fallback_spinefunction;
 						s.setSpringFunction( spineFun );

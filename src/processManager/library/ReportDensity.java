@@ -29,7 +29,7 @@ public class ReportDensity extends ProcessManager
                     "domain or voxel specification, stopping");
         }
         else {
-            density = new Density( Vector.convert(domain), Vector.convert(voxel) );
+            density = new Density( domain, voxel );
 //            density = new Density(new Double[]{202.0, 202.0, 4.0}, new Double[]{2.0, 2.0, 2.0});
         }
 

@@ -19,6 +19,10 @@ import referenceLibrary.XmlRef;
  * aspects from xml.
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
+ *
+ * TODO: investigate mixed use of primitive and object type such as double and Double
+ * advantage of object type might be that it does not directly lead to a crash if it happens to be
+ * set to null.
  */
 public abstract interface AspectInterface
 {

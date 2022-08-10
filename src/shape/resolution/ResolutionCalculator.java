@@ -174,7 +174,7 @@ public abstract class ResolutionCalculator implements Copyable, Instantiable
 	public int getNodeIndex(double location)
 	{
 		if ( location < this._dimension.getExtreme(0) ||
-				location >= this._dimension.getExtreme(1) )
+				location > this._dimension.getExtreme(1) )
 		{
 			throw new IllegalArgumentException("Location out of range");
 		}

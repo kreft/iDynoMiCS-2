@@ -175,10 +175,7 @@
 					<aspect name="maxIterations" type="PRIMARY" class="Integer" value="100" />
 					<aspect name="relaxationMethod" type="PRIMARY" class="String" value="EULER" />
 					<aspect name="agentDecompression" type="PRIMARY" class="Boolean" value="FALSE" />
-					<aspect name="decompressionThreshold" type="PRIMARY" class="Double" value="20000000.0" />
-					<aspect name="decompressionCellLength" type="PRIMARY" class="Double" value="10.0" />
-					<aspect name="traversingFraction" class="Double" value="0.10" />
-					<aspect name="stressThreshold" type="PRIMARY" class="Double" value="1e8" />
+					<aspect name="stressThreshold" type="PRIMARY" class="Double" value="1e9" />
 				</process>
 				<!-- minute -->
 				<process name="SolveDiffusionSteadyState" class="SolveDiffusionSteadyState" priority="-1"

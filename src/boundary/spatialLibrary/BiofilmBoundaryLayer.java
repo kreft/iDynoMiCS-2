@@ -277,45 +277,15 @@ public class BiofilmBoundaryLayer extends WellMixedBoundary
 				temp = Vector.copy(coords);
 				// down
 				temp[i] -= 1;
-				valid = push(temp, dims, periodic, current + 1.0, grid, reiterate);
-
-				// down neighbors (x+ gets: x+ z+, x+ z-. y+ gets: y+ x-, y+ x+ etc.)
-				if( valid && i > 0)
-				{
-					temp[i-1] -= 1;
-					push(temp, dims, periodic, current + sqrt2, grid, reiterate);
-					temp[i-1] += 2;
-					push(temp, dims, periodic, current + sqrt2, grid, reiterate);
-				}
-				else
-				{
-					temp[dims.length-1] -= 1;
-					push(temp, dims, periodic, current + sqrt2, grid, reiterate);
-					temp[dims.length-1] += 2;
-					push(temp, dims, periodic, current + sqrt2, grid, reiterate);
-				}
+				if( push(temp, dims, periodic, current + 1.0, grid, reiterate) )
+					// also push neighbors of neighbors (diagonals)
+					pushDiag(temp, dims, i, periodic, current + sqrt2, grid, reiterate);
 
 				// up
 				temp = Vector.copy(coords);
 				temp[i] += 1;
-				valid = push(temp, dims, periodic, current + 1.0, grid, reiterate);
-
-				// up neighbors
-				if( valid && i > 0)
-				{
-					temp[i-1] -= 1;
-					push(temp, dims, periodic, current + sqrt2, grid, reiterate);
-					temp[i-1] += 2;
-					push(temp, dims, periodic, current + sqrt2, grid, reiterate);
-				}
-				else
-				{
-					temp[dims.length-1] -= 1;
-					push(temp, dims, periodic, current + sqrt2, grid, reiterate);
-					temp[dims.length-1] += 2;
-					push(temp, dims, periodic, current + sqrt2, grid, reiterate);
-				}
-
+				if( push(temp, dims, periodic, current + 1.0, grid, reiterate) )
+					pushDiag(temp, dims, i, periodic, current + sqrt2, grid, reiterate);
 			}
 		}
 		if( !reiterate.isEmpty() )
@@ -348,6 +318,36 @@ public class BiofilmBoundaryLayer extends WellMixedBoundary
 			return false;
 		}
 		return true;
+	}
+
+	/**
+	 * push the neighbors of the neighbors (diagonals)
+	 * @param vocal
+	 * @param dims
+	 * @param dim
+	 * @param periodic
+	 * @param step
+	 * @param grid
+	 * @param reiterate
+	 */
+	public void pushDiag( int[] vocal, int[] dims, int dim, boolean[] periodic, double step,
+						 SpatialGrid grid, LinkedList<int[]> reiterate) {
+		// down neighbors (x+ gets: x+ z+, x+ z-. y+ gets: y+ x-, y+ x+ etc.)
+		if( dim > 0)
+		{
+			vocal[dim-1] -= 1;
+			push(vocal, dims, periodic, step, grid, reiterate);
+			vocal[dim-1] += 2;
+			push(vocal, dims, periodic, step, grid, reiterate);
+		}
+		else if( dims.length > 2 )
+		{
+			// x and z dimension
+			vocal[dims.length-1] -= 1;
+			push(vocal, dims, periodic, step, grid, reiterate);
+			vocal[dims.length-1] += 2;
+			push(vocal, dims, periodic, step, grid, reiterate);
+		}
 	}
 
 	/**
