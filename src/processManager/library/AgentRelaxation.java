@@ -199,6 +199,9 @@ public class AgentRelaxation extends ProcessManager
 	/* highest force in the system */
 	double st;
 
+	Double pull = null;
+	Double searchDist = null;
+
 	double maxAgentOverlap = 0.1;
 
 	double moveGranularity = 0.3;
@@ -313,7 +316,7 @@ public class AgentRelaxation extends ProcessManager
 
 		/* Mechanical relaxation */
 		while( tMech < this.getTimeStepSize() && nstep < this._maxIter) 
-		{	
+		{
 			this._agents.refreshSpatialRegistry();
 			this._iterator.resetOverlap();
 
@@ -476,7 +479,6 @@ public class AgentRelaxation extends ProcessManager
 			
 			/* spring operations */
 			springEvaluation(agent, body);
-			
 			/* Look for neighbors and resolve collisions */
 			neighboorhoodEvaluation(agent, agentSurfs, aContainer);
 			/*
@@ -538,7 +540,7 @@ public class AgentRelaxation extends ProcessManager
 	private Collection<Agent> neighboorhoodEvaluation(Agent agent, List<Surface> surfaces,
 										 AgentContainer agentContainer, boolean hs)
 	{
-		double searchDist = (agent.isAspect(SEARCH_DIST) ?
+		searchDist = (agent.isAspect(SEARCH_DIST) ?
 				agent.getDouble(SEARCH_DIST) : 0.0);
 		Collection<Agent> nhbs = agentContainer.treeSearch(agent, searchDist);
 		/* Perform neighborhood search and perform collision detection and
@@ -548,7 +550,6 @@ public class AgentRelaxation extends ProcessManager
 			{
 				/* obtain maximum distance for which pulls should be considered
 				 */
-				Double pull = null;
 				if( searchDist != 0.0 )
 				{
 					agent.event(PULL_EVALUATION, neighbour);
@@ -559,8 +560,8 @@ public class AgentRelaxation extends ProcessManager
 
 				/* pass this agents and neighbor surfaces as well as the pull
 				 * region to the collision iterator to update the net forces. */
-				this._iterator.collision(surfaces, agent, 
-						((Body) neighbour.get(BODY)).getSurfaces(), neighbour, 
+				this._iterator.collision(surfaces, agent,
+						((Body) neighbour.get(BODY)).getSurfaces(), neighbour,
 						pull);
 			}
 		return nhbs;

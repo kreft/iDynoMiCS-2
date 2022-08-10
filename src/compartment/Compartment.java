@@ -34,7 +34,6 @@ import processManager.ProcessDeparture;
 import processManager.ProcessComparator;
 import processManager.ProcessManager;
 import reaction.RegularReaction;
-import referenceLibrary.AspectRef;
 import referenceLibrary.ClassRef;
 import referenceLibrary.XmlRef;
 import settable.Attribute;
@@ -347,19 +346,19 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable, C
 					(ProcessManager) Instance.getNew(e, this, (String[])null));
 		}
 		
-		for ( Element e : XmlHandler.getElements(
-				xmlElem, XmlRef.arrivalProcesses) )
-		{
-			this.addProcessManager(
-					(ProcessManager) Instance.getNew(e, this, (String[])null));
-		}
-
-		for ( Element e : XmlHandler.getElements(
-				xmlElem, XmlRef.departureProcesses) )
-		{
-			this.addProcessManager(
-					(ProcessManager) Instance.getNew(e, this, (String[])null));
-		}
+//		for ( Element e : XmlHandler.getElements(
+//				xmlElem, XmlRef.arrivalProcesses) )
+//		{
+//			this.addProcessManager(
+//					(ProcessManager) Instance.getNew(e, this, (String[])null));
+//		}
+//
+//		for ( Element e : XmlHandler.getElements(
+//				xmlElem, XmlRef.departureProcesses) )
+//		{
+//			this.addProcessManager(
+//					(ProcessManager) Instance.getNew(e, this, (String[])null));
+//		}
 
 		for ( Element e : XmlHandler.getElements(xmlElem,XmlRef.physicalObject))
 		{

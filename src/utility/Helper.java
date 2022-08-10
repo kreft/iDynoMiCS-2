@@ -775,6 +775,8 @@ public final class Helper
 	{
 		if(strParse == null)
 			return false;
+		if(strParse.contains(Vector.DELIMITER))
+			return false;
 		try
 		{
 			new Expression( strParse ).format( Idynomics.unitSystem );

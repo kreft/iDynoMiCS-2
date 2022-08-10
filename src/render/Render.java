@@ -301,7 +301,7 @@ public class Render implements GLEventListener, Runnable {
 		
 		/* shading and rendering settings */
 		gl.glShadeModel(GL2.GL_SMOOTH);
-		gl.glClearColor(0.0f, 0.5f, 0.5f, 0.5f);
+		gl.glClearColor(1.0f, 1.0f, 1.0f, 1.0f); // background color
 		gl.glClearDepth(1.0f);
 		gl.glEnable(GL2.GL_DEPTH_TEST);
 		gl.glDepthFunc(GL2.GL_LEQUAL);

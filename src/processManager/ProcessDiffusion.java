@@ -10,12 +10,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
 
-import debugTools.SegmentTimer;
 import org.w3c.dom.Element;
 
 import agent.Agent;
 import agent.Body;
-import bookkeeper.KeeperEntry.EventType;
 import boundary.Boundary;
 import compartment.AgentContainer;
 import compartment.EnvironmentContainer;
@@ -24,7 +22,6 @@ import dataIO.XmlHandler;
 import dataIO.Log.Tier;
 import grid.SpatialGrid;
 import idynomics.Global;
-import idynomics.Idynomics;
 import instantiable.Instance;
 import linearAlgebra.Vector;
 import reaction.Reaction;
@@ -37,7 +34,6 @@ import shape.Shape;
 import shape.subvoxel.IntegerArray;
 import shape.subvoxel.SubvoxelPoint;
 import solver.PDEsolver;
-import solver.PDEupdater;
 import solver.mgFas.RecordKeeper;
 import surface.Point;
 import surface.Surface;

@@ -135,11 +135,11 @@
 		<compartment name="biofilm"  priority="1">
 			<shape class="Cuboid" resolutionCalculator="MgFASResolution" nodeSystem="true">
 				<!-- µm -->
-				<dimension name="X" isCyclic="true" 	targetResolution="20.0" max="640.0"/>
-				<dimension name="Y" isCyclic="false" 	targetResolution="20.0" max="640.0">
+				<dimension name="X" isCyclic="true" 	targetResolution="20.0" max="1280.0"/>
+				<dimension name="Y" isCyclic="false" 	targetResolution="20.0" max="1280.0">
 					<boundary extreme="1" class="BiofilmBoundaryLayer" partnerCompartment="chemostat" layerThickness = "0.0"/>
 				</dimension>
-				<dimension name="Z" isCyclic="true" 	targetResolution="20.0" max="640.0"/>
+				<dimension name="Z" isCyclic="true" 	targetResolution="20.0" max="1280.0"/>
 			</shape>
 			<solutes>
 				<!-- Initial concentrations pg / µm2 -->
@@ -149,21 +149,21 @@
 			</solutes>
 			<reactions>
 			</reactions>
-			<spawn class="randomSpawner" domain="640.0, 20.0, 640.0" priority="0" number="250" morphology="COCCOID">
+			<spawn class="randomSpawner" domain="1280.0, 20.0, 1280.0" priority="0" number="1200" morphology="COCCOID">
 				<templateAgent>
 					<aspect name="species" type="PRIMARY" class="String" value="heterotroph" />
 					<aspect  name="mass" class="Double" value="1.0"  />
 					<aspect  name="inert" class="Double" value="0.0"  />
 				</templateAgent>
 			</spawn>
-			<spawn class="randomSpawner" domain="640.0, 20.0, 640.0" priority="0" number="500" morphology="COCCOID">
+			<spawn class="randomSpawner" domain="1280.0, 20.0, 1280.0" priority="0" number="2400" morphology="COCCOID">
 				<templateAgent>
 					<aspect name="species" type="PRIMARY" class="String" value="autotroph" />
 					<aspect  name="mass" class="Double" value="1.0"  />
 					<aspect  name="inert" class="Double" value="0.0"  />
 				</templateAgent>
 			</spawn>
-			<spawn class="randomSpawner" domain="640.0, 20.0, 640.0" priority="0" number="250" morphology="COCCOID">
+			<spawn class="randomSpawner" domain="1280.0, 20.0, 1280.0" priority="0" number="1200" morphology="COCCOID">
 				<templateAgent>
 					<aspect name="species" type="PRIMARY" class="String" value="heterotroph2" />
 					<aspect  name="mass" class="Double" value="1.0"  />
@@ -186,6 +186,10 @@
 					<aspect name="solverResidualRatioThreshold" class="Double" value="1.0E-3" />
 					<aspect name="autoVcycleAdjust" class="Boolean" value="true" />
 					<!-- µm^2 ms^-1-->
+				</process>
+				<process name="povWriter" class="GraphicalOutput"  priority="-3"
+					firstStep="0.0">
+					<aspect name="outputWriter" type="PRIMARY" class="String" value="PovExport" />
 				</process>
 				<process name="scrape" class="AgentScraper" priority="-2"
 					firstStep="0.0">

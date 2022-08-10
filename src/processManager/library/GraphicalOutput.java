@@ -10,7 +10,6 @@ import org.w3c.dom.Element;
 
 import agent.Agent;
 import agent.Body;
-import colour.Colour;
 import colour.ColourSpecification;
 import colour.Palette;
 import compartment.AgentContainer;

@@ -1,7 +1,6 @@
 package surface;
 
 import linearAlgebra.Vector;
-import settable.Module;
 import spatialRegistry.Area;
 
 /**

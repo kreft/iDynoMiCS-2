@@ -1,6 +1,6 @@
 # iDynoMiCS 2
 
-iDynoMiCS 2 ia available under the CeCILL license [(txt)](LICENSE.TXT)
+iDynoMiCS 2 ia available under the CeCILL license [(txt)](CeCILL_LICENSE.TXT)
 
 The [CeCILL license V2](http://www.cecill.info/index.en.html) follows the principles of the [GNU general public license (GPL)](http://www.gnu.org/licenses/gpl-3.0.en.html) and of the [BSD license](https://opensource.org/licenses/BSD-3-Clause). The [CeCILL FAQ page](http://www.cecill.info/faq.en.html) claims that it gives a clearer definition of the *copyleft* of code licensed with it. Copyleft is the requirement that anyone distributing the code (unmodified or modified) to adopt the same license, therefore keeping it open source.
 

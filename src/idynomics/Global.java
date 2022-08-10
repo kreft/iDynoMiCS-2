@@ -345,7 +345,7 @@ public class Global extends ParameterSet
 	/* 
 	 * Default maximum displacement per step, set default if none.
 	 */
-	public static double mechanical_max_movement = 0.01;
+	public static double mechanical_max_movement = 1.0;
 	
 	/* 
 	 * Default maximum displacement per step, set default if none.

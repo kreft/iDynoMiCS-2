@@ -4,7 +4,6 @@ import agent.Agent;
 import agent.Body;
 import agent.Body.Morphology;
 import aspect.AspectInterface;
-import aspect.Event;
 import aspect.methods.DivisionMethod;
 import linearAlgebra.Vector;
 import referenceLibrary.AspectRef;

@@ -13,9 +13,7 @@ import bookkeeper.KeeperEntry;
 import boundary.Boundary;
 import boundary.WellMixedBoundary;
 import dataIO.ObjectFactory;
-import debugTools.SegmentTimer;
 import idynomics.Global;
-import linearAlgebra.Vector;
 import org.w3c.dom.Element;
 
 import compartment.AgentContainer;
@@ -31,7 +29,6 @@ import shape.Shape;
 import shape.subvoxel.IntegerArray;
 import solver.mgFas.Domain;
 import solver.mgFas.Multigrid;
-import solver.mgFas.MultigridUtils;
 import solver.mgFas.SolverGrid;
 import solver.mgFas.*;
 import utility.Helper;

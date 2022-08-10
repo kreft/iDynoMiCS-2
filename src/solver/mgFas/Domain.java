@@ -13,10 +13,8 @@ import java.util.*;
 
 import compartment.EnvironmentContainer;
 import dataIO.Log;
-import debugTools.SegmentTimer;
 import grid.ArrayType;
 import linearAlgebra.Array;
-import linearAlgebra.Vector;
 import shape.Shape;
 import solver.mgFas.boundaries.AllBC;
 import solver.mgFas.utils.ContinuousVector;

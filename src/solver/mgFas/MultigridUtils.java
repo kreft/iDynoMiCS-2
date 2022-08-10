@@ -14,7 +14,6 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 
-import grid.ArrayType;
 import linearAlgebra.Array;
 import utility.ExtraMath;
 

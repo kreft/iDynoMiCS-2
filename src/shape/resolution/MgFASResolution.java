@@ -1,5 +1,6 @@
 package shape.resolution;
 
+import dataIO.Log;
 import shape.Dimension;
 import shape.ShapeConventions.SingleVoxel;
 import utility.ExtraMath;
@@ -41,8 +42,8 @@ public class MgFASResolution extends ResolutionCalculator
 			this._resolution = altRes;
 			altRes = this.getTotalLength() / (altNVoxel);
 		}
-
 		this._nVoxel++;
+		Log.out( Log.Tier.DEBUG, "resCalc: nNode" + _nVoxel + " reso: " + _resolution);
 	}
 
 }

@@ -32,7 +32,6 @@ import shape.iterator.ShapeIterator;
 import surface.Ball;
 import surface.Rod;
 import surface.Surface;
-import utility.Helper;
 
 
 /**
@@ -434,7 +433,7 @@ public class AgentMediator implements CommandMediator {
 		_gl.glEnable(GL2.GL_BLEND); 
 		_gl.glBlendFunc(GL2.GL_SRC_ALPHA, GL2.GL_ONE_MINUS_SRC_ALPHA);
 //		_gl.glBlendFunc(GL2.GL_SRC_ALPHA, GL2.GL_ONE);
-		_gl.glColor4f(0.9f,0.9f,1.0f,0.1f);
+		_gl.glColor4f(0.0f,0.0f,0.0f,0.1f); //shape color
 		
 		if (this.activeCol != 0)
 		{

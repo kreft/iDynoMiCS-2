@@ -4,8 +4,6 @@ import java.util.HashMap;
 
 import org.w3c.dom.Element;
 
-import agent.Agent;
-import aspect.AspectInterface;
 import dataIO.Log;
 import dataIO.Log.Tier;
 import expression.Expression;

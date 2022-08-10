@@ -4,15 +4,11 @@ import agent.Agent;
 import agent.Body;
 import aspect.AspectInterface;
 import aspect.methods.DivisionMethod;
-import expression.Expression;
 import linearAlgebra.Vector;
 import referenceLibrary.AspectRef;
 import shape.Shape;
 import surface.Point;
-import surface.link.LinearSpring;
 import surface.link.Link;
-import surface.link.Spring;
-import surface.link.TorsionSpring;
 import utility.ExtraMath;
 
 /**

@@ -3,7 +3,6 @@ package aspect.event;
 import agent.Agent;
 import agent.Body;
 import aspect.methods.DivisionMethod;
-import debugTools.SegmentTimer;
 import linearAlgebra.Vector;
 import referenceLibrary.AspectRef;
 import surface.Point;

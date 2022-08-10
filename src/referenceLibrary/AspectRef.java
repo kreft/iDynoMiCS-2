@@ -688,4 +688,8 @@ public class AspectRef
 	public static final String autoVcycleAdjust = "autoVcycleAdjust";
 
 	public static final String absoluteValue = "absoluteValue";
+
+	public static final String domain = "domain";
+
+	public static final String voxel = "voxel";
 }
