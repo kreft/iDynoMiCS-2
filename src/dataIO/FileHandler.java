@@ -255,8 +255,13 @@ public class FileHandler
 	{
 		if ( Global.write_to_disc )
 		{
-			if ( this._encoding )
-				Log.out(Tier.CRITICAL, "Output buffer too large for exi encoding (might be fixable).");
+			if ( this._encoding) {
+				if ( StringWriters.size() > 1 )
+					//Note we could setup an xml file whenever this happens as ez fix.
+					Log.out(Tier.CRITICAL, "Output buffer too large for exi encoding (might be fixable).");
+				else
+					outputBuffer.append(StringWriters.get(0).toString());
+			}
 			else
 			{
 				String text = "";
