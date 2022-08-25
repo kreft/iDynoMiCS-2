@@ -136,9 +136,15 @@ public final class Helper
 	 * @return The requested input as a string.
 	 */
 	public static String obtainInput(String input,
-			String description, boolean shouldLogMessage)
+									 String description, boolean shouldLogMessage)
 	{
-		if ( isNullOrEmpty(input) || input == "null" )
+		return obtainInput(input, description, shouldLogMessage, false);
+	}
+
+	public static String obtainInput(String input,
+			String description, boolean shouldLogMessage, boolean suggestion)
+	{
+		if ( suggestion || (isNullOrEmpty(input) || input == "null" ))
 		{
 			if ( isSystemRunningInGUI )
 				input = GuiConsole.requestInput(description);

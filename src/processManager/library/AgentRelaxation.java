@@ -625,8 +625,8 @@ public class AgentRelaxation extends ProcessManager
 					}
 				}
 				s.applyForces(this._shape);
-				if(Log.shouldWrite(Tier.DEBUG))
-					Log.out(Tier.DEBUG,s.toString());
+//				if(Log.shouldWrite(Tier.DEBUG))
+//					Log.out(Tier.DEBUG,s.toString());
 			}
 		}
 	}

@@ -221,6 +221,8 @@ public class Point implements Copyable, Settable
 		 * p = c0 + ((dxdt + c1) * dt / 2)
 		 * -> c0 is the old position
 		 * -> c1 is the old velocity
+		 *
+		 * TODO should we check for NaN here?
 		 */
 		Vector.addTo( this._p, this.dxdt( radius ), this._c[1] );
 		Vector.timesEquals( this._p, dt * 0.5 );
@@ -275,6 +277,8 @@ public class Point implements Copyable, Settable
 		double delta = 2 * ( radius * ( shoveFactor - 1 ) ) + shovingLimit;
 		/*
 		 * Apply the force and reset it.
+		 *
+		 * Todo: should we check for NaN here?
 		 */
 		Vector.addEquals( this._p,  Vector.normaliseEuclid(  this.getForce() , delta * 0.5 ) );
 		this.resetForce();

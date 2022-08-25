@@ -105,7 +105,7 @@ public class LinearSpring implements Spring {
 		
 		/* when debugging this can be used to check rather large deltas */
 		if( Log.shouldWrite( Tier.DEBUG ) && 
-				Math.abs(dn-this._restLength) > 0.1)
+				Math.abs(dn-this._restLength) > Double.MAX_VALUE)
 			Log.out( Tier.DEBUG, String.valueOf( dn-this._restLength ));
 		
 		double[] fV	= Vector.times(diff, 

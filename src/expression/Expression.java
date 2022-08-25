@@ -760,6 +760,19 @@ public class Expression extends Component implements Settable
 	{
 		return this.format( Idynomics.unitSystem );
 	}
+
+	public double getValue(String format)
+	{
+		return this.getUnit().format( format ) * this.getValue(true);
+	}
+
+	public double getValue( boolean originalFormating )
+	{
+		if( originalFormating )
+			return this.getValue( new HashMap<String,Double>() );
+		else
+			return getValue();
+	}
 	
 	/**
 	 * get Value for expressions where variables are used, applying iDynoMiCS

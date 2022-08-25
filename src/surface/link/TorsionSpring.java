@@ -139,7 +139,7 @@ public class TorsionSpring implements Spring {
 					this._b.getPosition()) || 
 					Vector.equals( this._c.getPosition(), 
 					this._b.getPosition()))
-				Log.out(Tier.DEBUG, "duplicate point");
+				Log.out(Tier.CRITICAL, "duplicate point");
 		}
 		
 		/* currently we only support torsion springs that relax to a linear

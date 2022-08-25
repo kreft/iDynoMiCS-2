@@ -92,6 +92,12 @@ public final class GuiMenu
 		menuItem.getAccessibleContext().setAccessibleDescription(
 				"Batch convert files");
 		menu.add(menuItem);
+
+		menuItem = new JMenuItem(new GuiMenu.ConvertUnits());
+		menuItem.getAccessibleContext().setAccessibleDescription(
+				"Unit conversion dialog");
+		menu.add(menuItem);
+
 		
 		/*
 		 * Add the option of rendering a compartment.
@@ -313,6 +319,25 @@ public final class GuiMenu
 	    {
 	    	GuiActions.convertFiles();
 	    }
+	}
+
+	public static class ConvertUnits extends AbstractAction
+	{
+
+		private static final long serialVersionUID = 1L;
+
+		/**
+		 * Action for the file open sub-menu.
+		 */
+		public ConvertUnits()
+		{
+			super("Convert Units");
+		}
+
+		public void actionPerformed(ActionEvent e)
+		{
+			GuiActions.convertUnits();
+		}
 	}
 	
 	
