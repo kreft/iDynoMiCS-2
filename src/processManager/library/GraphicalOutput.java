@@ -27,6 +27,7 @@ import shape.CartesianShape;
 import shape.CylindricalShape;
 import shape.Dimension.DimName;
 import shape.Shape;
+import surface.Rod;
 import surface.Surface;
 import utility.ExtraMath;
 import utility.Helper;
@@ -259,9 +260,23 @@ public class GraphicalOutput extends ProcessManager
 			if ( a.isAspect(BODY) )
 			{
 				List<Surface> surfaces = ((Body) a.getValue(BODY)).getSurfaces();
-				for( Surface s : surfaces)
-//					this._graphics.draw(s, a.getValue(PIGMENT)); 
-					this._graphics.draw(s, colSpec.colorize(a)); 
+				/* update multi-point surfaces to use their closest shadow/projection point
+				rather than computational domain point to have correct rendering over periodic
+				boundaries
+				 */
+				for( Surface s : surfaces) {
+					Surface renderObject = s;
+					if( s instanceof Rod) {
+						Rod r = (Rod) s;
+						Rod projection = new Rod(r);
+						projection._points[0].setPosition( Helper.searchClosestCyclicShadowPoint(
+								this._shape,
+								projection._points[0].getPosition(),
+								projection._points[1].getPosition() ) );
+						renderObject = projection;
+					}
+					this._graphics.draw(renderObject, colSpec.colorize(a));
+				}
 				
 					
 			}
