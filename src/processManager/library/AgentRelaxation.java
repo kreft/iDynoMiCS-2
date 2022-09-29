@@ -624,7 +624,17 @@ public class AgentRelaxation extends ProcessManager
 						s.setSpringFunction( torsFun );
 					}
 				}
-				s.applyForces(this._shape);
+				double distOrAngle = s.applyForces(this._shape);
+
+				/* update overlap number for step size scaling
+				 this might make less sense for torsion springs */
+				if( s instanceof LinearSpring) {
+					_iterator.updateOverlap( Math.abs( distOrAngle*0.5 ) );
+				}
+				else if( s instanceof TorsionSpring )
+				{
+					_iterator.updateOverlap( Math.abs( distOrAngle*0.1 ) );
+				}
 //				if(Log.shouldWrite(Tier.DEBUG))
 //					Log.out(Tier.DEBUG,s.toString());
 			}

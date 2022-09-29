@@ -1,5 +1,6 @@
 package processManager.library;
 
+import agent.Agent;
 import analysis.simple.Density;
 import compartment.AgentContainer;
 import compartment.EnvironmentContainer;
@@ -8,7 +9,10 @@ import linearAlgebra.Vector;
 import org.w3c.dom.Element;
 import processManager.ProcessManager;
 import referenceLibrary.AspectRef;
+import referenceLibrary.XmlRef;
 import utility.Helper;
+
+import java.util.LinkedList;
 
 public class ReportDensity extends ProcessManager
 {
@@ -48,7 +52,19 @@ public class ReportDensity extends ProcessManager
     @Override
     protected void internalStep() {
 
-        density.read(this._agents.getAllAgents(), this._agents.getShape());
-        density.writeCSV("density_iDyno");
+        String filter = "all";
+        if( this.isAspect( AspectRef.filter ))
+        {
+            filter = this.getString(AspectRef.filter);
+            LinkedList<Agent> agentList = new LinkedList<Agent>();
+            for( Agent a : this._agents.getAllAgents() )
+                if( a.getString(XmlRef.species).equals( filter ) )
+                    agentList.add(a);
+            density.read( agentList , this._agents.getShape());
+        }
+        else {
+            density.read(this._agents.getAllAgents(), this._agents.getShape());
+        }
+        density.writeCSV("density_iDyno_" + filter);
     }
 }

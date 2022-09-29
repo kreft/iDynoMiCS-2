@@ -175,6 +175,10 @@ public class Collision
 		return this._variables.maxOverlap();
 	}
 
+	public void updateOverlap( double overlap ) {
+		this._variables.setDistance( overlap );
+	}
+
 	/* ***********************************************************************
 	 * FORCE METHODS
 	 * **********************************************************************/

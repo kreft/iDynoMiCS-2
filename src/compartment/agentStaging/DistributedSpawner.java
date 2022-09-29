@@ -45,6 +45,8 @@ public class DistributedSpawner extends Spawner {
 	{
 		super.init(xmlElem, agents, compartmentName);
 		this._max = this.getCompartment().getShape().getDimensionLengths();
+		if( this.isAspect( AspectRef.max) )
+			this._max = (double[]) this.getValue(AspectRef.max);
 		this._spacing = (double[]) this.getValue(SPACING);
 		this._orient = (double[]) this.getValue(ORIENT);
 	}
