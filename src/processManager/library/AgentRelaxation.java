@@ -317,6 +317,7 @@ public class AgentRelaxation extends ProcessManager
 		/* Mechanical relaxation */
 		while( tMech < this.getTimeStepSize() && nstep < this._maxIter) 
 		{
+			Log.setStatus( "Mechanical Relaxation: " + nstep );
 			this._agents.refreshSpatialRegistry();
 			this._iterator.resetOverlap();
 
@@ -361,10 +362,10 @@ public class AgentRelaxation extends ProcessManager
 		{
 			if (nstep == this._maxIter )
 				Log.out( Tier.EXPRESSIVE, this.getName() +
-						" stop condition iterations: " + this._maxIter);
+						" stop condition max cycles: " + this._maxIter);
 			else
 				Log.out( Tier.EXPRESSIVE, this.getName() +
-						" reached relaxation criteria, iterations: " + nstep );
+						" reached relaxation criteria, cycles: " + nstep );
 		}
 	}
 
@@ -463,10 +464,11 @@ public class AgentRelaxation extends ProcessManager
 										   AgentContainer aContainer, boolean hs)
 	{
 		Collection<Agent> out = new LinkedList<Agent>();
+		Body body;
 		/* Calculate forces. */
 		for ( Agent agent: agents )
 		{
-			Body body = (Body) agent.get(AspectRef.agentBody);
+			body = (Body) agent.get(AspectRef.agentBody);
 			List<Surface> agentSurfs = body.getSurfaces();
 
 			if( hs )
@@ -600,8 +602,8 @@ public class AgentRelaxation extends ProcessManager
 						Expression spineFun;
 						if ( !Helper.isNullOrEmpty( a.getValue(
 								AspectRef.agentSpineFunction )))
-							spineFun = new Expression((String) 
-									a.getValue(AspectRef.agentSpineFunction ));
+							spineFun = (Expression)
+									a.getValue(AspectRef.agentSpineFunction );
 						else
 							spineFun = Global.fallback_spinefunction;
 						s.setSpringFunction( spineFun );
@@ -622,9 +624,19 @@ public class AgentRelaxation extends ProcessManager
 						s.setSpringFunction( torsFun );
 					}
 				}
-				s.applyForces(this._shape);
-				if(Log.shouldWrite(Tier.DEBUG))
-					Log.out(Tier.DEBUG,s.toString());
+				double distOrAngle = s.applyForces(this._shape);
+
+				/* update overlap number for step size scaling
+				 this might make less sense for torsion springs */
+				if( s instanceof LinearSpring) {
+					_iterator.updateOverlap( Math.abs( distOrAngle*0.5 ) );
+				}
+				else if( s instanceof TorsionSpring )
+				{
+					_iterator.updateOverlap( Math.abs( distOrAngle*0.1 ) );
+				}
+//				if(Log.shouldWrite(Tier.DEBUG))
+//					Log.out(Tier.DEBUG,s.toString());
 			}
 		}
 	}

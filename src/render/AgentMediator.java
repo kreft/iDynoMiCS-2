@@ -32,6 +32,7 @@ import shape.iterator.ShapeIterator;
 import surface.Ball;
 import surface.Rod;
 import surface.Surface;
+import utility.Helper;
 
 
 /**
@@ -104,7 +105,7 @@ public class AgentMediator implements CommandMediator {
 	/**
 	 * 
 	 */
-	public int definition = 8;
+	public int definition = 3;
 	/**
 	 * Default slices / stacks to subdivide polar objects.
 	 * TODO we really want to have this separate for small and large objects
@@ -368,7 +369,7 @@ public class AgentMediator implements CommandMediator {
 		 /* second sphere*/
 		temp_posB = GLUtil.make3D(rod._points[1].getPosition());
 		
-		temp_posA = GLUtil.searchClosestCyclicShadowPoint(_shape, temp_posA, temp_posB);
+		temp_posA = Helper.searchClosestCyclicShadowPoint(_shape, temp_posA, temp_posB);
 		
 		/* save the transformation matrix, so we do not disturb other drawings */
 		_gl.glPushMatrix();

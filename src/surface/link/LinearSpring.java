@@ -93,19 +93,22 @@ public class LinearSpring implements Spring {
 	
 	/**
 	 * Apply the forces resulting from this spring to the associated points.
+	 *
+	 * @return
 	 */
-	public void applyForces(Shape shape)
+	public double applyForces(Shape shape)
 	{
 		/* calculate the difference between the rest length and actual distance
 		 * between the points */
 		double[] diff = shape.getMinDifferenceVector( 
 				_a.getPosition(), _b.getPosition() );
 		double dn = Vector.normEuclid(diff);
-		springVars.put("dh", dn-this._restLength);
+		double dh = dn-this._restLength;
+		springVars.put("dh", dh);
 		
 		/* when debugging this can be used to check rather large deltas */
 		if( Log.shouldWrite( Tier.DEBUG ) && 
-				Math.abs(dn-this._restLength) > 0.1)
+				Math.abs(dn-this._restLength) > Double.MAX_VALUE)
 			Log.out( Tier.DEBUG, String.valueOf( dn-this._restLength ));
 		
 		double[] fV	= Vector.times(diff, 
@@ -120,6 +123,8 @@ public class LinearSpring implements Spring {
 		Vector.addEquals( this._b.getForce(), fV ) ;
 		Vector.reverseEquals(fV);
 		Vector.addEquals( this._a.getForce(), fV );
+
+		return dh;
 	}
 
 	@Override

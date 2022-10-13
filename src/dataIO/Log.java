@@ -4,6 +4,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import gui.GuiConsole;
+import gui.GuiMain;
 import idynomics.Global;
 import idynomics.Idynomics;
 import utility.Helper;
@@ -260,7 +261,13 @@ public class Log
 				System.out.println(message);
 		}
 	}
-	
+
+	public static void setStatus(String message)
+	{
+		if ( Helper.isSystemRunningInGUI )
+			GuiMain.setStatus( Idynomics.global.protocolFile + " - " + message );
+	}
+
 	public static void step()
 	{
 		GuiConsole.scroll();

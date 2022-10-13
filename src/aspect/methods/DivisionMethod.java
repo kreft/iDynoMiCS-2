@@ -145,6 +145,7 @@ public abstract class DivisionMethod extends Event {
 				child.event(AspectRef.agentPlasmidLoss);
 			child.event(AspectRef.agentDivide);
 		}
+
 		/* if either is still larger than the division size they need to divide 
 		 * again */
 		parent.event(AspectRef.agentUpdateBody);

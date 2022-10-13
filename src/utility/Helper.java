@@ -19,6 +19,7 @@ import expression.Expression;
 import gui.GuiConsole;
 import idynomics.Idynomics;
 import linearAlgebra.Vector;
+import shape.Shape;
 
 /**
  * \brief Utilities class of helpful methods used across iDynoMiCS 2.
@@ -136,9 +137,15 @@ public final class Helper
 	 * @return The requested input as a string.
 	 */
 	public static String obtainInput(String input,
-			String description, boolean shouldLogMessage)
+									 String description, boolean shouldLogMessage)
 	{
-		if ( isNullOrEmpty(input) || input == "null" )
+		return obtainInput(input, description, shouldLogMessage, false);
+	}
+
+	public static String obtainInput(String input,
+			String description, boolean shouldLogMessage, boolean suggestion)
+	{
+		if ( suggestion || (isNullOrEmpty(input) || input == "null" ))
 		{
 			if ( isSystemRunningInGUI )
 				input = GuiConsole.requestInput(description);
@@ -788,4 +795,39 @@ public final class Helper
 		}
 		return true;
 	}
+
+    public static double[] searchClosestCyclicShadowPoint(Shape shape,
+                                                          double[] posA, double[] posB)
+    {
+        // FIXME think of something more robust
+        /*
+         * find the closest distance between the two mass points of the rod
+         * agent and assumes this is the correct length, preventing rods being
+         * stretched out over the entire domain
+         *
+         * Here we assume that posB will stay fixed, so we are looking for a
+         * candidate position for the "A" end of the cylinder.
+         */
+        List<double[]> cyclicPoints = shape.getCyclicPoints(posA);
+        double[] c = cyclicPoints.get(0);
+
+        /* distance between the two mass points */
+        double dist = Vector.distanceEuclid(posB, c);
+        double dDist;
+        /*
+         * find the closest 'shadow' point, use the original point if all
+         * alternative point are further.
+         */
+        for ( double[] d : cyclicPoints )
+        {
+            dDist = Vector.distanceEuclid( posB, d);
+            if ( dDist < dist)
+            {
+                c = d;
+                dist = dDist;
+            }
+        }
+
+        return c;
+    }
 }

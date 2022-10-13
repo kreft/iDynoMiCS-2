@@ -16,7 +16,8 @@ public class AspectRef
 {
 
 
-	public static String[] getAllOptions()
+
+    public static String[] getAllOptions()
 	{
 		Field[] fields = AspectRef.class.getFields();
 		String[] options = new String[fields.length];
@@ -163,7 +164,7 @@ public class AspectRef
 	/**
 	 * TODO
 	 */
-	public final static String agentVolumeDistributionMap = "volumeDistribution";
+	public final static String agentVolumeDistributionMap = "VD#$";
 
 	/**
 	 * TODO
@@ -692,4 +693,6 @@ public class AspectRef
 	public static final String domain = "domain";
 
 	public static final String voxel = "voxel";
+
+	public static final String max = "max";
 }

@@ -6,7 +6,11 @@ import org.w3c.dom.Element;
 import agent.Agent;
 import agent.Body;
 import compartment.AgentContainer;
+import processManager.ProcessMethods;
 import referenceLibrary.AspectRef;
+import utility.ExtraMath;
+
+import java.util.Map;
 
 
 /**
@@ -34,6 +38,31 @@ public class RandomSpawner extends Spawner {
 					new Body( this.getMorphology(), this.getSpawnDomain() ));
 			newRandom.setCompartment( this.getCompartment() );
 			AgentHelperMethods.springInitialization(newRandom);
+
+			// FIXME test feature to randomize agent mass at start
+			if( newRandom.isAspect( "randomize" ))
+			{
+				String ran = newRandom.getString( "randomize" );
+				Double factor =  newRandom.getDouble( "factor" );
+				Map<String,Double> biomass = ProcessMethods.getAgentMassMap( newRandom );
+
+				Double out = ExtraMath.getUniRand( 1.0-factor, 1.0+factor);
+				if ( biomass.containsKey(ran) )
+				{
+					out = biomass.get(ran) * out;
+					biomass.put(ran, out);
+				}
+				else if ( newRandom.isAspect(ran) )
+				{
+					/*
+					 * Check if the agent has other mass-like aspects
+					 * (e.g. EPS).
+					 */
+					out = newRandom.getDouble(ran) * out;
+					biomass.put(ran, out);
+				}
+				ProcessMethods.updateAgentMass(newRandom,biomass);
+			}
 			newRandom.registerBirth();
 		}
 	}

@@ -34,14 +34,14 @@ public class RodDivision extends DivisionMethod {
 				0.05*(double) mother.get(AspectRef.bodyRadius) );
 		
 		Point p = momBody.getPoints().get(1);
+		double[] dPos = Vector.copy(midPos);
 		p.setPosition( shape.periodicMidPoint( 
 				momBody.getPosition(0),
 				Vector.add(midPos, shift) ) );
-		
 		Body daughterBody = (Body) daughter.get(AspectRef.agentBody);
 		Point q = daughterBody.getPoints().get(0);
 		q.setPosition( shape.periodicMidPoint(
 				daughterBody.getPosition(1),
-				Vector.minus( midPos, shift ) ) );
+				Vector.minus( dPos, shift ) ) );
 	}
 }

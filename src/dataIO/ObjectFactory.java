@@ -203,7 +203,15 @@ public class ObjectFactory
 			return ObjectHelper.xmlHashMap(elem);
 
 		case ObjectRef.EXPRESSION :
-				return new Expression( input(input, elem) );
+				String in = input(input, elem);
+				if (Helper.isNullOrEmpty(in)) {
+					Element el = XmlHandler.findUniqueChild(elem, XmlRef.expression);
+					if (el == null)
+						return null;
+					return new Expression(el);
+				}
+				else
+					return new Expression( in );
 				
 		case ObjectRef.BODY :
 			if ( elem == null )

@@ -3565,6 +3565,28 @@ public final class Vector
 				return false;
 		return true;
 	}
+    public static double[] convert(Double[] doubleA)
+	{
+		double[] out = new double[doubleA.length];
+		for( int i = 0; i < doubleA.length; i++ )
+			out[i] = doubleA[i];
+		return out;
+    }
 
+	public static Double[] convert(double[] doubleA)
+	{
+		Double[] out = new Double[doubleA.length];
+		for( int i = 0; i < doubleA.length; i++ )
+			out[i] = doubleA[i];
+		return out;
+	}
 
+	/**
+	 * get dimensions of array
+	 * @param array
+	 * @return
+	 */
+    public static int[] dimensions(double[][][] array) {
+		return new int[] { array.length, array[0].length, array[0][0].length };
+    }
 }

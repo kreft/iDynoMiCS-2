@@ -66,7 +66,10 @@ public interface GraphicalExporter extends Instantiable {
 		}
 		return pigmentArray;
 	}
-	
+
+
+	public void setFilter( double[] filter );
+
 	/**
 	 * 
 	 * @param ball

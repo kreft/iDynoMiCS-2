@@ -611,12 +611,12 @@ public class Dimension implements CanPrelaunchCheck, Settable,
 	public boolean isInside(double a)
 	{
 		return this._isCyclic ||
-					(( a >= this._extreme[0] ) && ( a < this._extreme[1] ));
+					(( a >= this._extreme[0] ) && ( a <= this._extreme[1] ));
 	}
 	
 	public boolean isLocalInside(double a)
 	{
-		return (( a >= this._extreme[0] ) && ( a < this._extreme[1] ));
+		return (( a >= this._extreme[0] ) && ( a <= this._extreme[1] ));
 	}
 	
 	/**

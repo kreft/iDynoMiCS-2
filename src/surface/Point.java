@@ -184,7 +184,7 @@ public class Point implements Copyable, Settable
 		// identical properties (in this case hydrodynamic).
 		// see pdf forces in microbial systems.
 		double[] diff = this.dxdt( radius );
-		diff = this.dxdt( radius );
+//		diff = this.dxdt( radius );
 		Vector.timesEquals( diff, dt );
 		this.setPosition( Vector.add( this._p, diff ));
 		this.resetForce();
@@ -221,6 +221,8 @@ public class Point implements Copyable, Settable
 		 * p = c0 + ((dxdt + c1) * dt / 2)
 		 * -> c0 is the old position
 		 * -> c1 is the old velocity
+		 *
+		 * TODO should we check for NaN here?
 		 */
 		Vector.addTo( this._p, this.dxdt( radius ), this._c[1] );
 		Vector.timesEquals( this._p, dt * 0.5 );
@@ -269,12 +271,14 @@ public class Point implements Copyable, Settable
 		 * iDynoMiCS as the iDynoMiCS 2 collision detection cumulative displacement
 		 * vector is used to calculate delta rather than stepping through every individually.
 		 *
-		 * NOTE had a shoveFactor-1 term that is not there in idyno 1
+		 * FIXME: shoveFactor -1 is not there in iDyno 1, this is to compensate for distance to center vs distance to surface
 		 * FIXME idyno uses radius of both agents radius1 * factor + radus2 * factor instead of 2* radius * factor
 		 */
-		double delta = 2 * ( radius * ( shoveFactor ) ) + shovingLimit;
+		double delta = 2 * ( radius * ( shoveFactor - 1 ) ) + shovingLimit;
 		/*
 		 * Apply the force and reset it.
+		 *
+		 * Todo: should we check for NaN here?
 		 */
 		Vector.addEquals( this._p,  Vector.normaliseEuclid(  this.getForce() , delta * 0.5 ) );
 		this.resetForce();

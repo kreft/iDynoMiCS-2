@@ -51,7 +51,7 @@ public class Agent implements AspectInterface, Settable, Instantiable
 	 * The aspect registry
 	 */
 	protected AspectReg _aspectRegistry = new AspectReg();
-	private Settable _parentNode;
+
 	
 		
 	/*************************************************************************
@@ -166,7 +166,6 @@ public class Agent implements AspectInterface, Settable, Instantiable
 		this._compartment = (Compartment) parent.getParent();
 		loadAspects(xmlElement);
 		this.initiate();
-		this._parentNode = parent;
 	}
 		
 	/* FIXME work in progress */
@@ -223,8 +222,8 @@ public class Agent implements AspectInterface, Settable, Instantiable
 	public Agent(Agent agent)
 	{
 		this._aspectRegistry.duplicate(agent);
-		this.initiate();
 		this._compartment = agent.getCompartment();
+		this.initiate();
 	}
 
 	/*************************************************************************
@@ -420,12 +419,12 @@ public class Agent implements AspectInterface, Settable, Instantiable
 	@Override
 	public void setParent(Settable parent) 
 	{
-		this._parentNode = parent;
+		//this._parentNode = parent;
 	}
 	
 	@Override
 	public Settable getParent() 
 	{
-		return this._parentNode;
+		return this._compartment;
 	}
 }

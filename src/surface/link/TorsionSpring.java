@@ -114,15 +114,17 @@ public class TorsionSpring implements Spring {
 	}
 	
 	/**
-	 * Apply the forces resulting from this spring to the associated points.
-	 * The forces on a and c are reverse equals applied to b such that the net
-	 * force on the entire construct equals out. 
-	 *
-	 * note: in order to find the rest position of the outer points the system
-	 * is converted to spherical coordinates with center point b as reference 
-	 * point.
-	 */
-	public void applyForces(Shape shape)
+     * Apply the forces resulting from this spring to the associated points.
+     * The forces on a and c are reverse equals applied to b such that the net
+     * force on the entire construct equals out.
+     * <p>
+     * note: in order to find the rest position of the outer points the system
+     * is converted to spherical coordinates with center point b as reference
+     * point.
+     *
+     * @return
+     */
+	public double applyForces(Shape shape)
 	{
 		double[] a = shape.getNearestShadowPoint(_a.getPosition(), 
 				_b.getPosition() );
@@ -139,17 +141,17 @@ public class TorsionSpring implements Spring {
 					this._b.getPosition()) || 
 					Vector.equals( this._c.getPosition(), 
 					this._b.getPosition()))
-				Log.out(Tier.DEBUG, "duplicate point");
+				Log.out(Tier.CRITICAL, "duplicate point");
 		}
 		
 		/* currently we only support torsion springs that relax to a linear
 		 * alignment */
 		double u = Math.PI - Vector.angle(a, c);
-		if( Log.shouldWrite(Tier.DEBUG) )
-		{
-			if( Double.isNaN(u))
-				Idynomics.simulator.interupt = true;
-		}
+
+		/* I've only seen this happening on perfect alignment leading to a crash,
+		* correct behavior should be to not apply force instead. */
+		if( Double.isNaN(u))
+			return 0.0;
 		
 		Vector.spherifyTo(a, a);
 		Vector.spherifyTo(c, c);
@@ -231,7 +233,8 @@ public class TorsionSpring implements Spring {
 			if ( Double.isNaN(fV[1]))
 				Log.out(Tier.DEBUG, fV[1]+" torsion");
 		Vector.addEquals( this._b.getForce(), fV ) ;
-		
+
+		return u;
 	}
 
 	@Override

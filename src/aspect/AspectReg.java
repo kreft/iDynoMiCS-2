@@ -36,20 +36,20 @@ public class AspectReg
 	/**
 	 * nested value delimiter
 	 */
-	protected String DELIMITER = "@";
+	static final String DELIMITER = "@";
 	
 	/**
 	 * The _aspects HashMap stores all aspects (primary, secondary states and 
 	 * events).
 	 */
-	protected HashMap<String, Aspect> _aspects = 
-			new HashMap<String, Aspect>();
+	protected HashMap<String, Aspect> _aspects =
+			new HashMap<String, Aspect>(8, 1.0f);
 	
 	/**
 	 * all (sub) modules
 	 */
 	protected HashMap<String, AspectInterface> _speciesModules = 
-			new HashMap<String, AspectInterface>();
+			new HashMap<String, AspectInterface>(2, 1.0f);
 	
 	/**
 	 * get the identity of this aspectReg
@@ -74,7 +74,6 @@ public class AspectReg
 	 */
 	public boolean isGlobalAspect(String key)
 	{
-
 
 		if( key.contains(DELIMITER))
 		{
@@ -187,7 +186,6 @@ public class AspectReg
 	 */
 	public void addModule(  AspectInterface module, String name)
 	{
-
 		if( module != null && !this._speciesModules.entrySet().contains(module) )
 			this._speciesModules.put( name, module );
 	}
