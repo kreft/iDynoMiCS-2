@@ -626,6 +626,10 @@ public class AgentRelaxation extends ProcessManager
 				}
 				double distOrAngle = s.applyForces(this._shape);
 
+				/* very rare bug where torsion a pos = c pos FIXME quick fix report and remove */
+				if( Double.MAX_VALUE == distOrAngle )
+					b.clearLinks();
+
 				/* update overlap number for step size scaling
 				 this might make less sense for torsion springs */
 				if( s instanceof LinearSpring) {
@@ -633,7 +637,7 @@ public class AgentRelaxation extends ProcessManager
 				}
 				else if( s instanceof TorsionSpring )
 				{
-					_iterator.updateOverlap( Math.abs( distOrAngle*0.1 ) );
+//					_iterator.updateOverlap( Math.abs( distOrAngle*0.1 ) );
 				}
 //				if(Log.shouldWrite(Tier.DEBUG))
 //					Log.out(Tier.DEBUG,s.toString());

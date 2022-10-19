@@ -135,14 +135,18 @@ public class TorsionSpring implements Spring {
 		Vector.minusEquals(c, this._b.getPosition());
 		
 		/* Neither a or c should have the same position as b */
-		if( Log.shouldWrite(Tier.DEBUG) )
-		{
-			if( Vector.equals( this._a.getPosition(),
-					this._b.getPosition()) || 
-					Vector.equals( this._c.getPosition(), 
-					this._b.getPosition()))
-				Log.out(Tier.CRITICAL, "duplicate point");
+		if( Vector.equals( this._a.getPosition(),
+				this._b.getPosition()) ||
+				Vector.equals( this._c.getPosition(),
+				this._b.getPosition())) {
+			Log.out(Tier.CRITICAL, "duplicate point");
+
+			/* out of 28 simulations I had this happening once after 24 hours of simulation
+			since this seems very rare, for now I'll just remove the connection but investigate further
+			 */
+			return Double.MAX_VALUE;
 		}
+
 		
 		/* currently we only support torsion springs that relax to a linear
 		 * alignment */
