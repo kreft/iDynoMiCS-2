@@ -39,6 +39,15 @@ public class ExcreteEPSCumulative extends Event
 	public String SPECIES = XmlRef.species;
 	public String SEARCH_DIST = XmlRef.epsDist;
 	
+	
+	/**
+	 * TODO - Needs reworking max EPS is multiplied by
+	 * 0.5 for no clear reason, and there is no while loop
+	 * so only one excretion event can happen even if
+	 * there is enough EPS for multiple excretions
+	 */
+	
+	
 	/**
 	 * The distance around the agent that we will search for existing EPS
 	 * particles.

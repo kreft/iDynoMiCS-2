@@ -333,6 +333,11 @@ public final class Helper
 		return (input == null || input == "");
 	}
 	
+	public static boolean listIsNullOrEmpty (List list)
+	{
+		return (list == null || list.isEmpty());
+	}
+	
 	
 	public static String obtainIfNone(String input, String description,
 			boolean shouldLogMessage, Collection<String> options)

@@ -42,14 +42,14 @@ public class ExcreteEPS extends Event
 		 * Find out how much EPS the agent can hold before it must excrete.
 		 */
 		double maxEPS = initiator.getDouble(this.MAX_INTERNAL_EPS);
+		
 		/*
 		 * Vary this number randomly by about 10%. If the agent has less EPS
 		 * than this amount, then exit.
 		 */
-		// TODO this should probably be set when the agent has its max EPS		
-		// value set, to avoid timestep size artifacts
 		double epsBlob = ExtraMath.deviateFromCV(maxEPS, 0.1);
-		if ( maxEPS > epsBlob )
+		
+		if ( epsBlob > currentEPS )
 			return;
 		/*
 		 * While the agent has more EPS than the "blob", excrete EPS particles.

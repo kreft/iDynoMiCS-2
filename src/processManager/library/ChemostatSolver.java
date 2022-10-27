@@ -368,6 +368,27 @@ public class ChemostatSolver extends ProcessManager
 	
 	protected void postStep()
 	{
+		/**
+		 * Update mass flow rates
+		 */
+		for ( Boundary aBoundary : 
+			this._environment.getNonSpatialBoundaries() )
+		{
+			
+			double volFlowRate = aBoundary.getVolumeFlowRate();
+			if ( volFlowRate < 0.0 )
+			{
+				Map<String, Double> soluteConcentrations =
+						this._environment.getAverageConcentrations();
+				for (String solute : soluteConcentrations.keySet())
+				{
+					aBoundary.setMassFlowRate(solute,
+							soluteConcentrations.get(solute) *
+							volFlowRate);
+				}
+			}
+		}
+		
 		/*
 		 * Ask all boundaries to update their solute concentrations.
 		 */

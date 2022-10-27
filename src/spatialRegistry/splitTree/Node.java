@@ -69,7 +69,44 @@ public class Node<T> extends Area
 			{
 				this.getEntries().add(entry);
 				if( this.size() > this._tree.maxEntries &! this._atomic )
-					split();
+				{
+					/*
+					 * This boolean tells you whether the entry
+					 * has a higher high and a lower low than the
+					 * node. Checking this ensures that you do not
+					 * get stuck in an endless loop of creating
+					 * smaller and smaller nodes
+					 */
+					boolean entryEncompassesNode = true;
+					
+					for (int i = 0; i < entry.getLow().length; i++)
+					{
+						if (entry.getLow()[i] > this.getLow()[i]
+								|| entry.getHigh()[i] < this.getHigh()[i])
+							entryEncompassesNode = false;
+					}
+					
+					/*
+					 * Checks whether the entry's range in the
+					 * dimension of interest is twice as great as
+					 * the node's. If this is the case, further
+					 * splitting of the node will not be useful.
+					 * This helps prevent endless loops of nodes
+					 * located at the edge of an entry repeatedly
+					 * splitting.
+					 */
+					boolean twiceTheSize = false;
+					
+					for (int i = 0; i < entry.getLow().length; i++)
+					{
+						if (entry.getHigh()[i] - entry.getLow()[i] > 
+							(2 * (this.getHigh()[i] - this.getLow()[i])))
+							twiceTheSize = true;
+					}
+					
+					if (!entryEncompassesNode && !twiceTheSize)
+						split();
+				}
 			}
 			else
 			{

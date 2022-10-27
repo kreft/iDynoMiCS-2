@@ -577,6 +577,33 @@ public class SpatialGrid implements Settable, Instantiable
 	}
 	
 	/**
+	 * Get the single value from an array with only one
+	 * element. If the array has multiple elements, it will
+	 * log an error and return a value of zero.
+	 * @param type
+	 * @return
+	 */
+	public double getSingleValue (ArrayType type)
+	{
+		double[][][] array = this.getArray(type);
+		if (array.length == 1 && 
+				array[0].length == 1 &&
+				array[0][0].length == 1)
+		{
+			return array[0][0][0];
+		}
+		else
+		{
+			
+			if (Log.shouldWrite(Tier.CRITICAL))
+				Log.out(Tier.CRITICAL, "Array has more than"
+						+ "one value. Returning 0.0.");
+			
+			return 0.0;
+		}
+	}
+	
+	/**
 	 * \brief Sets the value of one voxel on the given array type.
 	 * 
 	 * @param type Type of array to set in.
