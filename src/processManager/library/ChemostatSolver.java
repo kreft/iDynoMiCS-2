@@ -47,7 +47,6 @@ public class ChemostatSolver extends ProcessManager
 	public static String TOLERANCE = AspectRef.solverTolerance;
 	public static String REACTIONS = AspectRef.agentReactions;
 	public static String SOLUTES = AspectRef.soluteNames;
-	public static String AGENT_VOLUME = AspectRef.agentVolume;
 	public static String DIVIDE = AspectRef.agentDivision;
 
 	public static String DISABLE_BULK_DYNAMICS = AspectRef.disableBulkDynamics;

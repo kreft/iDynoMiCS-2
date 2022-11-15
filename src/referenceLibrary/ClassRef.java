@@ -151,6 +151,12 @@ public class ClassRef
 			aspect.calculated.SimpleVolumeState.class.getName();
 	
 	/**
+	 * structured volume state
+	 */
+	public final static String structuredVolumeState =
+			aspect.calculated.StructuredVolumeState.class.getName();
+	
+	/**
 	 * class reference to the StateExpression
 	 */
 	public final static String expressionAspect = 

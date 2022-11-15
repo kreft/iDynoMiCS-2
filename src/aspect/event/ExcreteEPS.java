@@ -16,7 +16,12 @@ import utility.ExtraMath;
  * \brief TODO
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
+ * 
+ * We are planning to replace this completely with ExcreteEPSCumulative. Leaving
+ * as deprecated for now to allow for time to rename classes and/or update
+ * protocols.
  */
+@Deprecated
 public class ExcreteEPS extends Event
 {
 	

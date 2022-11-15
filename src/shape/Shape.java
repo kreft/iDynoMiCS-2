@@ -1304,43 +1304,6 @@ public abstract class Shape implements
 	}
 	
 	/**
-	 * Returns all boundaries bordering a particular voxel
-	 * @param coord - The co-ordinate of the voxel
-	 * @return
-	 */
-	public Collection<SpatialBoundary> getNeighbouringBoundaries(int[] coord)
-	{
-		LinkedList<SpatialBoundary> boundaries = new LinkedList<SpatialBoundary>();
-		
-		for (DimName dimensionName : this.getDimensionNames())
-		{
-			Dimension dimension = this.getDimension(dimensionName);
-			int index = this.getDimensionIndex(dimensionName);
-			int nVox = this.getResolutionCalculator(coord, index).
-					getNVoxel();
-			
-			if (dimension.isSignificant()) {
-				if (coord[index] == 0) 
-				{
-					if (dimension.isBoundaryDefined(0)) 
-					{
-						boundaries.add(dimension.getBoundary(0));
-					}
-				}
-				if (coord[index] == nVox) 
-				{
-					if (dimension.isBoundaryDefined(1)) 
-					{
-						boundaries.add(dimension.getBoundary(1));
-					}
-				}
-			}
-		}
-		
-		return boundaries;
-	}
-	
-	/**
 	 * \brief TODO
 	 * 
 	 * @param dimN

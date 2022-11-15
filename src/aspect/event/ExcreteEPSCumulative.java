@@ -20,6 +20,7 @@ import surface.Surface;
 import surface.collision.Collision;
 import surface.predicate.AreColliding;
 import utility.ExtraMath;
+import utility.Helper;
 
 /**
  * \brief TODO
@@ -37,21 +38,22 @@ public class ExcreteEPSCumulative extends Event
 	public String BODY = AspectRef.agentBody;
 	public String RADIUS = AspectRef.bodyRadius;
 	public String SPECIES = XmlRef.species;
-	public String SEARCH_DIST = XmlRef.epsDist;
-	
-	
-	/**
-	 * TODO - Needs reworking max EPS is multiplied by
-	 * 0.5 for no clear reason, and there is no while loop
-	 * so only one excretion event can happen even if
-	 * there is enough EPS for multiple excretions
+	/*
+	 * We could make this user settable in Global or in the protocol file. It
+	 * represents how much the EPS must increase above the "max" for the agent
+	 * to excrete, ensuring that we do not have many many tiny excretions in 
+	 * each timestep.
 	 */
+	public double excessVolumeProportionAllowed = 0.1;
 	
+	public double excessVolumeProportionAllowedVaried;
 	
 	/**
 	 * The distance around the agent that we will search for existing EPS
 	 * particles.
 	 */
+	public String SEARCH_DIST = XmlRef.epsDist;
+	
 	
 	public void start(AspectInterface initiator, 
 			AspectInterface compliant, Double timeStep)
@@ -70,17 +72,34 @@ public class ExcreteEPSCumulative extends Event
 		 * Find out how much EPS the agent can hold before it must excrete.
 		 */
 		double maxEPS = initiator.getDouble(this.MAX_INTERNAL_EPS);
-		if ( maxEPS > currentEPS )
+		
+		/*
+		 * How much excess EPS the agent has above the "max"
+		 */
+		double excess = currentEPS - maxEPS;
+		
+		if ( excess <= 0.0 )
 		{
 			return;
 		}
+		
+		if (excessVolumeProportionAllowedVaried == 0.0)
+		{
+			excessVolumeProportionAllowedVaried = ExtraMath.deviateFromCV(
+					excessVolumeProportionAllowed, 0.1);
+		}
+		
+		if (excess/maxEPS < excessVolumeProportionAllowedVaried)
+			return;
+		
+		
+		
 		/*
-		 * Vary this number randomly by about 10%
+		 * Now we know excretion will definitely take place deviate a little
+		 * from the excess to get a value of EPS to excrete.
 		 */
-		double toExcreteEPS = ExtraMath.deviateFromCV(maxEPS * 0.5, 0.1);
-		/*
-		 * Find out how much EPS the agent has.
-		 */
+		double toExcreteEPS = ExtraMath.deviateFromCV(excess, 0.1);
+		
 		Body body = (Body) initiator.getValue(BODY);
 		List<Surface> bodySurfs = body.getSurfaces();
 		String epsSpecies = initiator.getString(EPS_SPECIES);
@@ -92,7 +111,8 @@ public class ExcreteEPSCumulative extends Event
 		 * Perform neighborhood search and perform collision detection and
 		 * response. 
 		 */
-		Collection<Agent> nhbs = comp.agents.treeSearch(agent, agent.getDouble(SEARCH_DIST) );
+		Collection<Agent> nhbs = comp.agents.treeSearch(agent, 
+				agent.getDouble(SEARCH_DIST) );
 
 		/*
 		 * Remove all non-EPS neighboring agents.
@@ -121,9 +141,17 @@ public class ExcreteEPSCumulative extends Event
 		double particleMass = 0.0;
 		if ( epsParticles.isEmpty() )
 		{
-			double[] originalPos = body.getPosition(0);
+			int numPoints = body.getNumberOfPoints();
+			int randomPoint = ExtraMath.getUniRandInt(numPoints);
+			double[] originalPos = body.getPosition(randomPoint);
+			
+			/*
+			 * Ideally we should create a method in {@code surface.Rod} to 
+			 * select a random point on the surface to avoid edge cases where
+			 * the EPS particle is placed on or very near the rod's spine
+			 */
 			double[] shift = Vector.randomPlusMinus(originalPos.length, 
-					0.6 * initiator.getDouble(this.RADIUS));
+					initiator.getDouble(this.RADIUS));
 			double[] epsPos = Vector.minus(originalPos, shift);
 			// FIXME this is not correct, calculate with density
 			compliant = new Agent(epsSpecies, 
@@ -148,6 +176,15 @@ public class ExcreteEPSCumulative extends Event
 		compliant.reg().doEvent(compliant, null, 0.0, this.UPDATE_BODY);
 		currentEPS -= toExcreteEPS;
 		this.updateEPS(agent, currentEPS);
+		
+		/*
+		 * Vary this number randomly by about 10%. This will then stay fixed
+		 * until an agent passes the threshold and secretes EPS. Alternatively
+		 * we could make an agent aspect that holds this value so that this
+		 * is specific to each agent.
+		 */
+		excessVolumeProportionAllowedVaried = ExtraMath.deviateFromCV(
+				excessVolumeProportionAllowed, 0.1);
 	}
 	
 	/**

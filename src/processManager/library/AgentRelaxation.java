@@ -54,7 +54,6 @@ public class AgentRelaxation extends ProcessManager
 	
 	public String BODY = AspectRef.agentBody;
 	public String RADIUS = AspectRef.bodyRadius;
-	public String VOLUME = AspectRef.agentVolume;
 	public String DIVIDE = AspectRef.agentDivision;
 	public String MASS = AspectRef.agentMass;
 	

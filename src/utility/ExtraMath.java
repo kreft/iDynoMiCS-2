@@ -636,6 +636,66 @@ public final class ExtraMath
 		return cubeRoot(volume*0.75/Math.PI);
 	}
 	
+	/**
+	 * This calculates the radius of a capsule (cylinder + hemisphere ends)
+	 * given its volume and length. It is calculated by taking the cubic
+	 * equation for the volume of a capsule 4/3 pi r^3 + pi l r^2 - V = 0
+	 * and solving for r using the general cubic formula as described here:
+	 * https://en.wikipedia.org/wiki/Cubic_equation#General_cubic_formula
+	 * @param volume
+	 * @param length
+	 */
+	public static final double radiusOfACapsule(double volume, double length)
+	{
+		/*
+		 * First, some intermediates for clarity and ease
+		 */
+		
+		/*
+		 * a, b and d of the cubic formula (c = 0 in our case)
+		 */
+		double a = (Math.PI * 4) / 3;
+		double b = Math.PI * length;
+		double d = -volume;
+		
+		/*
+		 * More intermediates
+		 */
+		double delta0 = Math.pow(b, 2);
+		double delta1 = (2 * Math.pow(b, 3)) + (27 * Math.pow(a, 2) * d);
+		double delta1Squared = Math.pow(delta1, 2);
+		double delta0Cubed = Math.pow(delta0, 3);
+		
+		double C = Math.pow((delta1 + Math.pow(
+				(delta1Squared - (4 * delta0Cubed)), 0.5)) / 2 , 1/3);
+		
+		/*
+		 * Calculate the radius
+		 */
+		double radius = (-1/(3*a)) * (b + C + (delta0/C));
+		
+		return radius;
+	}
+	
+	/**
+	 * Calculates the radius of a stadium (AKA obround) given its area and
+	 * length. Calculated using the quadratic formula
+	 * @param volume
+	 * @param length
+	 * @return
+	 */
+	public static final double radiusOfAStadium(double area, double length)
+	{
+		double intermediate = Math.pow(
+				(Math.pow(length, 2)) + (Math.PI * area), 
+				0.5);
+		
+		double radius = (-length + intermediate) / Math.PI;
+		
+		return radius;
+	}
+	
+	
 	
 	/*  ----------------------- Dealing with signs  ----------------------- */
 	

@@ -403,8 +403,6 @@ public class AgentAttachmentRandomWalk extends ProcessArrival {
 		
 		LinkedList<Point> oldPoints = this.copyPoints(points);
 		
-		int counter = 0;
-		
 		attachmentLoop: while (true)
 		{
 			this.randomStep(agent, points);
@@ -472,15 +470,6 @@ public class AgentAttachmentRandomWalk extends ProcessArrival {
 			oldPoints.clear();
 			
 			oldPoints = this.copyPoints(points);
-			
-			counter++;
-			
-			if (counter > 10)
-			{
-				if (this.attemptToReachBoundaryLayer(agent, points))
-						counter = 0;
-			}
-			
 		}
 	}
 	
