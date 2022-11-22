@@ -98,13 +98,6 @@ public class LinearSpring implements Spring {
 	{
 		/* calculate the difference between the rest length and actual distance
 		 * between the points */
-		
-		if (this._restLength <= 0.0)
-		{
-			int a;
-			a = 1;
-		}
-		
 		double[] diff = shape.getMinDifferenceVector( 
 				_a.getPosition(), _b.getPosition() );
 		
