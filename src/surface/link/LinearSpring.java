@@ -98,8 +98,18 @@ public class LinearSpring implements Spring {
 	{
 		/* calculate the difference between the rest length and actual distance
 		 * between the points */
+		
+		if (this._restLength <= 0.0)
+		{
+			int a;
+			a = 1;
+		}
+		
 		double[] diff = shape.getMinDifferenceVector( 
 				_a.getPosition(), _b.getPosition() );
+		
+		double[] diffNormalised = Vector.normaliseEuclid(diff);
+		
 		double dn = Vector.normEuclid(diff);
 		springVars.put("dh", dn-this._restLength);
 		
@@ -108,7 +118,7 @@ public class LinearSpring implements Spring {
 				Math.abs(dn-this._restLength) > 0.1)
 			Log.out( Tier.DEBUG, String.valueOf( dn-this._restLength ));
 		
-		double[] fV	= Vector.times(diff, 
+		double[] fV	= Vector.times(diffNormalised, 
 				this._springFunction.getValue(springVars) );
 		
 		/* If errors occur this extra check will show up if either the spring
