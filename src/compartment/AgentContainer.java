@@ -510,7 +510,8 @@ public class AgentContainer implements Settable
 		else
 		{
 			this._agentList.add(agent);
-			agent.simplifyLocation();
+			// Should we do this? Needs review
+			//agent.simplifyLocation();
 		}
 		
 		Body agentBody = (Body) agent.get(AspectRef.agentBody);
@@ -584,7 +585,7 @@ public class AgentContainer implements Settable
 			return null;
 		}
 		else
-			return (i > this._agentList.size()) ?
+			return (i + 1 > this._agentList.size()) ?
 					/* Located agent. */
 					this._locatedAgentList.get(i - this._agentList.size()) :
 						/* non-located agent. */

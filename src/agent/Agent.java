@@ -342,6 +342,8 @@ public class Agent implements AspectInterface, Settable, Instantiable
 	 * Agent's with only one point will have their location co-ordinates
 	 * simplified to zeros. Agent's with multiple points will have each 
 	 * co-ordinate reduced by the lowest value in that dimension.
+	 * 
+	 * Review whether this is useful
 	 */
 	public void simplifyLocation()
 	{

@@ -47,7 +47,6 @@ public class ChemostatSolver extends ProcessManager
 	public static String TOLERANCE = AspectRef.solverTolerance;
 	public static String REACTIONS = AspectRef.agentReactions;
 	public static String SOLUTES = AspectRef.soluteNames;
-	public static String AGENT_VOLUME = AspectRef.agentVolume;
 	public static String DIVIDE = AspectRef.agentDivision;
 
 	public static String DISABLE_BULK_DYNAMICS = AspectRef.disableBulkDynamics;
@@ -368,6 +367,27 @@ public class ChemostatSolver extends ProcessManager
 	
 	protected void postStep()
 	{
+		/**
+		 * Update mass flow rates
+		 */
+		for ( Boundary aBoundary : 
+			this._environment.getNonSpatialBoundaries() )
+		{
+			
+			double volFlowRate = aBoundary.getVolumeFlowRate();
+			if ( volFlowRate < 0.0 )
+			{
+				Map<String, Double> soluteConcentrations =
+						this._environment.getAverageConcentrations();
+				for (String solute : soluteConcentrations.keySet())
+				{
+					aBoundary.setMassFlowRate(solute,
+							soluteConcentrations.get(solute) *
+							volFlowRate);
+				}
+			}
+		}
+		
 		/*
 		 * Ask all boundaries to update their solute concentrations.
 		 */

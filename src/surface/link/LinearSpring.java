@@ -102,6 +102,9 @@ public class LinearSpring implements Spring {
 		 * between the points */
 		double[] diff = shape.getMinDifferenceVector( 
 				_a.getPosition(), _b.getPosition() );
+		
+		double[] diffNormalised = Vector.normaliseEuclid(diff);
+		
 		double dn = Vector.normEuclid(diff);
 		double dh = dn-this._restLength;
 		springVars.put("dh", dh);
@@ -111,7 +114,7 @@ public class LinearSpring implements Spring {
 				Math.abs(dn-this._restLength) > Double.MAX_VALUE)
 			Log.out( Tier.DEBUG, String.valueOf( dn-this._restLength ));
 		
-		double[] fV	= Vector.times(diff, 
+		double[] fV	= Vector.times(diffNormalised, 
 				this._springFunction.getValue(springVars) );
 		
 		/* If errors occur this extra check will show up if either the spring

@@ -665,6 +665,11 @@ public class AspectRef
 	public static final String directionalDivision = "directionalDivision";
 
 	public static final String removed = "removed";
+	
+	public static final String fewNeighboursRemoval = "fewNeighboursRemoval";
+	
+	public static final String fewNeighboursRemovalProbability
+		= "fewNeighboursRemovalProbability";
 
 	public static final String unlinkProbabillity = "unlinkProbabillity";
 
