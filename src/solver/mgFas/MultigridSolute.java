@@ -414,7 +414,8 @@ public class MultigridSolute
 		/* Diminishing change in residual, the solver seems to have stopped converging. */
 		if ( Log.shouldWrite(Log.Tier.DEBUG) ||
 				almostEqual( _res[order], locResidual,locResidual * 1e-6 ) ) {
-			Log.out( Log.Tier.CRITICAL, this.soluteName + " stagnant Vcycle in "
+			/* This doesn't need to be a problem and often is resolved in the following vCycle. */
+			Log.out( Log.Tier.NORMAL, this.soluteName + " stagnant Vcycle in "
 					+ this.getClass().getSimpleName() + " residual res: " + locResidual );
 		}
 		this._res[order] = locResidual;

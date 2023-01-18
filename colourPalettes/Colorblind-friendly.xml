@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<note> original source: http://www.cookbook-r.com/Graphs/Colors_(ggplot2)/</note>
+<document>
+	<colour baseColour="0.1139, 1.0, 0.902" name = "E69F00"
+			gradient = "false" form = "HSB" opacity = "1.0">
+	</colour>
+	<colour baseColour="0.5611, 0.631, 0.914" name = "56B4E9"
+			gradient = "false" form = "HSB" opacity = "1.0">
+	</colour>
+	<colour baseColour="0.4556, 1.0, 0.62" name = "009E73"
+			gradient = "false" form = "HSB" opacity = "1.0">
+	</colour>
+	<colour baseColour="0.1556, 0.725, 0.941" name="F0E442"
+			gradient = "false" form = "HSB" opacity = "1.0">
+	</colour>
+	<colour baseColour="0.0, 114.0, 178.0" name="0072B2"
+			gradient = "false" form = "HSB" opacity = "1.0">
+	</colour>
+	<colour baseColour = "0.5611, 1.0, 0.698" name="D55E00"
+			gradient = "false" form = "HSB" opacity = "1.0" >	
+	</colour>
+	<colour baseColour = "0.9083, 0.407, 0.8" name="CC79A7"
+			gradient = "false" form = "HSB" opacity = "1.0" >	
+	</colour>
+	<colour baseColour = "0.0, 0.0, 0.0" name="000000"
+			gradient = "false" form = "HSB" opacity = "1.0" >	
+	</colour>			
+</document>
+
+
+<!--
+<document>
+	<colour baseColour="230.0, 159.0, 0.0" name = "E69F00"
+			gradient = "false" form = "RGB" opacity = "1.0">
+	</colour>
+	<colour baseColour="86.0, 180.0, 233.0" name = "56B4E9"
+			gradient = "false" form = "RGB" opacity = "1.0">
+	</colour>
+	<colour baseColour="0.0, 158.0, 115.0" name = "009E73"
+			gradient = "false" form = "RGB" opacity = "1.0">
+	</colour>
+	<colour baseColour="240.0, 228.0, 66.0" name="F0E442"
+			gradient = "false" form = "RGB" opacity = "1.0">
+	</colour>
+	<colour baseColour="0.0, 114.0, 178.0" name="0072B2"
+			gradient = "false" form = "RGB" opacity = "1.0">
+	</colour>
+	<colour baseColour = "213.0, 94.0, 0.0" name="D55E00"
+			gradient = "false" form = "RGB" opacity = "1.0" >	
+	</colour>
+	<colour baseColour = "204.0, 121.0, 167.0" name="CC79A7"
+			gradient = "false" form = "RGB" opacity = "1.0" >	
+	</colour>
+	<colour baseColour = "0.0, 0.0, 0.0" name="000000"
+			gradient = "false" form = "RGB" opacity = "1.0" >	
+	</colour>			
+</document>
+
+-->

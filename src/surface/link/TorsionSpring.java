@@ -133,9 +133,12 @@ public class TorsionSpring implements Spring {
 				
 		Vector.minusEquals(a, this._b.getPosition());
 		Vector.minusEquals(c, this._b.getPosition());
+
+		double ab = Vector.normEuclid(a);
+		double cb = Vector.normEuclid(c);
 		
 		/* Neither a or c should have the same position as b */
-		if( Log.shouldWrite(Tier.DEBUG) )
+		if( Log.shouldWrite(Tier.CRITICAL) )
 		{
 			if( Vector.equals( this._a.getPosition(),
 					this._b.getPosition()) || 
@@ -211,23 +214,23 @@ public class TorsionSpring implements Spring {
 		springVars.put("dif", u );
 		
 		/* apply force to a */
-		double[] fV	= Vector.times(directionA, 
-				this._springFunction.getValue(springVars) );
+		double[] fV	= Vector.times( Vector.times( directionA,
+				this._springFunction.getValue(springVars) ), 1/ab );
 		if( Log.shouldWrite(Tier.DEBUG) )
 			if ( Double.isNaN(fV[1]))
 				Log.out(Tier.DEBUG, fV[1]+" torsion" );
 		Vector.addEquals( this._a.getForce(), fV ) ;
 
 		/* apply force to c */
-		fV	= Vector.times(directionC, 
-				this._springFunction.getValue(springVars) );
+		fV	= Vector.times( Vector.times(directionC,
+				this._springFunction.getValue(springVars) ) , 1/cb);
 		if( Log.shouldWrite(Tier.DEBUG) )
 			if ( Double.isNaN(fV[1]))
 				Log.out(Tier.DEBUG, fV[1]+" torsion");
 		Vector.addEquals( this._c.getForce(), fV ) ;
 
 		/* b receives force from both sides in opposing direction */
-		fV	= Vector.times(Vector.times(directionB, 2.0), 
+		fV	= Vector.times(Vector.times(directionB, (1/ab)+(1/cb)),
 				this._springFunction.getValue(springVars) );
 		if( Log.shouldWrite(Tier.DEBUG) )
 			if ( Double.isNaN(fV[1]))

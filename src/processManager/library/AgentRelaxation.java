@@ -422,11 +422,31 @@ public class AgentRelaxation extends ProcessManager
 				}
 			}
 
-			if ( this._iterator.maxOverlap() > -maxAgentOverlap)
+			boolean stressed = false;
+
+			if ( this._iterator.maxOverlap() < -maxAgentOverlap)
 			{
 				// system relaxed can stop loop
-				return 0.0;
+				stressed = true;
 			}
+
+			if ( this._stressThreshold > 0.0 )
+			{
+				double f, fMax = 0.0;
+				for( Agent agent : agents)
+					for( Point p : ((Body) agent.get(BODY)).getPoints())
+					{
+						f = Vector.normEuclid( p.getForce() );
+						if( f > fMax )
+							fMax = f;
+					}
+				if ( fMax > this._stressThreshold )
+					stressed = true;
+			}
+
+			/* if both thresholds are set, both need to be met in order to not be stressed */
+			if( !stressed )
+				return 0.0;
 
 			/* NOTE: stochastic movement really should only be used with static dt.
 			 *
@@ -629,7 +649,7 @@ public class AgentRelaxation extends ProcessManager
 				/* update overlap number for step size scaling
 				 this might make less sense for torsion springs */
 				if( s instanceof LinearSpring) {
-					_iterator.updateOverlap( Math.abs( distOrAngle*0.5 ) );
+					_iterator.updateOverlap( Math.abs( distOrAngle ) );
 				}
 				else if( s instanceof TorsionSpring )
 				{
