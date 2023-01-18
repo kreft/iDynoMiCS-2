@@ -2041,6 +2041,15 @@ public final class Array
 			array[i] = Matrix.dblFromString(matrices[i]);
 		return array;
 	}
+
+	public static float[][][] fltFromString(String arrayString)
+	{
+		String[] matrices = arrayString.split(DELIMITER);
+		float[][][] array = new float[matrices.length][][];
+		for ( int i = 0; i < matrices.length; i++ )
+			array[i] = Matrix.fltFromString(matrices[i]);
+		return array;
+	}
 	
 	/**
 	 * \brief Returns integer array in string format.
@@ -2067,6 +2076,13 @@ public final class Array
 		toString(array, out);
 		return out.toString();
 	}
+
+	public static String toString(float[][][] array)
+	{
+		StringBuffer out = new StringBuffer();
+		toString(array, out);
+		return out.toString();
+	}
 	
 	/**
 	 * \brief Converts the given <b>array</b> to {@code String}
@@ -2085,6 +2101,7 @@ public final class Array
 		}
 		Matrix.toString(array[n], buffer);
 	}
+
 	
 	/**
 	 * \brief Converts the given <b>array</b> to {@code String}
@@ -2094,6 +2111,17 @@ public final class Array
 	 * @param buffer String buffer (faster than String).
 	 */
 	public static void toString(double[][][] array, StringBuffer buffer)
+	{
+		int n = array.length - 1;
+		for ( int i = 0; i < n; i++ )
+		{
+			Matrix.toString(array[i], buffer);
+			buffer.append(PRINT_DELIMITER);
+		}
+		Matrix.toString(array[n], buffer);
+	}
+
+	public static void toString(float[][][] array, StringBuffer buffer)
 	{
 		int n = array.length - 1;
 		for ( int i = 0; i < n; i++ )

@@ -677,6 +677,8 @@ public class AspectRef
 	public static final String fileNumber = "fileNumber";
 
 	public static final String colourSpecification = "colourSpecification";
+
+	public static final String gradientSpecification = "gradientSpecification";
 	
 	public static final String order = "order";
 	

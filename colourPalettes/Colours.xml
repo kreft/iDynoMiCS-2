@@ -2,23 +2,23 @@
 <document>
 	<colour baseColour="0.0, 1.0, 1.0" name = "red"
 			gradient = "true" form = "HSB" opacity = "1.0">
-		<shift brightness = "-0.5" saturation = "-0.5"/>
+		<shift brightness = "-1.0"/>
 	</colour>
 	<colour baseColour="0.7, 1.0, 1.0" name = "blue"
 			gradient = "true" form = "HSB" opacity = "1.0">
-		<shift brightness = "-0.5" saturation = "-0.5"/>
+		<shift brightness = "-1.0"/>
 	</colour>
 	<colour baseColour="0.3, 1.0, 1.0" name = "green"
 			gradient = "true" form = "HSB" opacity = "1.0">
-		<shift brightness = "-0.5" saturation = "-0.5"/>
+		<shift brightness = "-1.0"/>
 	</colour>
 	<colour baseColour="0.5, 1.0, 1.0" name = "purple"
 			gradient = "true" form = "HSB" opacity = "1.0">
-		<shift brightness = "-0.5" saturation = "-0.5"/>
+		<shift brightness = "-1.0" />
 	</colour>
 	<colour baseColour="0.15, 1.0, 1.0" 
 			gradient = "true" form = "HSB" opacity = "1.0">
-		<shift brightness = "-0.5" saturation = "-0.5"/>
+		<shift brightness = "-1.0" saturation = "-0.5"/>
 	</colour>
 	<colour baseColour = "0.85, 0.1, 0.6" 
 			gradient = "false" form = "HSB" opacity = "1.0" />

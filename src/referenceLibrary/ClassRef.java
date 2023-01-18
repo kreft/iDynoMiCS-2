@@ -192,6 +192,9 @@ public class ClassRef
 	public final static String agentMassProportion =
 			aspect.calculated.StructuredBiomassCalculation.class.getName();
 
+	public final static String localConcentrations =
+			aspect.calculated.LocalConcentrations.class.getName();
+
 	/* ************************************************************************
 	 * Class reference library : Aspects - Event
 	 */
