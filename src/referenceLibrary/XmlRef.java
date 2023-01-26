@@ -15,6 +15,8 @@ import dataIO.Log.Tier;
  */
 public class XmlRef
 {
+
+
     public static String[] getAllOptions()
 	{
 		Field[] fields = XmlRef.class.getFields();
@@ -675,4 +677,6 @@ public class XmlRef
 	public static final String record = "record";
 
 	public static String nodeSystem = "nodeSystem";
+
+	public static String xmlImport = "import";
 }

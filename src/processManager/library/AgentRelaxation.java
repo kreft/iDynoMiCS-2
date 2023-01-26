@@ -682,7 +682,7 @@ public class AgentRelaxation extends ProcessManager
 		if ( tMech < compresionDuration || compresionDuration == 0.0 )
 		{
 			/* note should be mass per point */
-			double fg = agent.getDouble(MASS) * 1e-12 * 35.316e9 /* 1E16 */ * Global.density_difference;
+			double fg = agent.getDouble(MASS) * /* 1e-12 * 35.316e9 */ 1E9 * Global.density_difference;
 			double[] fgV;
 			
 			if( this._shape.isOriented() )

@@ -2,6 +2,7 @@ package dataIO;
 
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.TreeMap;
 
 import idynomics.Global;
 import idynomics.Idynomics;
@@ -47,7 +48,16 @@ public class XmlExport
 	 * The final line in any XML document.
 	 */
 	private final static String XML_FOOTER = "</document>\n";
-	
+
+	/**
+	 *
+	 * @param encoding
+	 */
+	protected String currentFileBase;
+
+	protected String extension;
+
+
 	public XmlExport(boolean encoding)
 	{
 		this._exiEncoding = encoding;
@@ -82,26 +92,25 @@ public class XmlExport
 	 */
 	public void newXml(String prefix)
 	{
+		this.extension = (this._exiEncoding ? ".exi" : ".xml");
 		if( this._exiEncoding )
 			this._xmlFile.bufferOutput();
-		String fileString = Idynomics.global.outputLocation + prefix + "/" 
-				+ prefix + "_" + this.fileNumberAsPaddedString() + 
-				(this._exiEncoding ? ".exi" : ".xml");
-		this._xmlFile.fnew(fileString);
+		currentFileBase = Idynomics.global.outputLocation + prefix + "/"
+				+ prefix + "_" + this.fileNumberAsPaddedString();
+		this._xmlFile.fnew(currentFileBase + this.extension);
 		this._xmlFile.write(XML_HEADER);
 	}
 	
 	public void newXml(String filePath, boolean absolutePath)
 	{
-		String fileString;
+		this.extension = (this._exiEncoding ? ".exi" : ".xml");
 		if( this._exiEncoding )
 			this._xmlFile.bufferOutput();
 		if( absolutePath )
-			fileString = filePath + (this._exiEncoding ? ".exi" : ".xml");
+			currentFileBase = filePath;
 		else
-			fileString = Idynomics.global.outputLocation + filePath + 
-			(this._exiEncoding ? ".exi" : ".xml");
-		this._xmlFile.fnew(fileString);
+			currentFileBase = Idynomics.global.outputLocation + filePath + this.extension;
+		this._xmlFile.fnew(currentFileBase);
 		this._xmlFile.write(XML_HEADER);
 	}
 	
@@ -116,18 +125,37 @@ public class XmlExport
 		this._xmlFile.fclose();
 		this._fileCounter++;
 	}
+
+	/**
+	 *
+	 */
+	public void write(StringWriter writer)
+	{
+		this._xmlFile.write(writer);
+	}
 	
 	/**
 	 * TODO
 	 */
 	public void writeState()
 	{
-		ArrayList<StringWriter> outputWriters = new ArrayList<StringWriter>();
-		outputWriters.add(new StringWriter());
-		outputWriters = Idynomics.simulator.getModule().getXML(1, outputWriters);
+		TreeMap<String, StringWriter> outputWriters = new TreeMap<String, StringWriter>();
+		outputWriters.put(this.currentFileBase, new StringWriter());
+		outputWriters = Idynomics.simulator.getModule().getXML(1, outputWriters, this.currentFileBase, this.extension);
 
-
-		this._xmlFile.write(outputWriters);
+		this.write(outputWriters.get(this.currentFileBase));
+		if( outputWriters.size() > 1)
+		{
+			XmlExport exp = new XmlExport(this._exiEncoding);
+			for( String key : outputWriters.keySet())
+			{
+				if( key != this.currentFileBase ) {
+					exp.newXml(key, true);
+					exp.write(outputWriters.get(key));
+					exp.closeXml();
+				}
+			}
+		}
 	}
 	
 	/**

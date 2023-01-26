@@ -251,32 +251,27 @@ public class FileHandler
 		}
 	}
 
-	public void write(List<StringWriter> StringWriters)
+	public void write(StringWriter StringWriter)
 	{
 		if ( Global.write_to_disc )
 		{
 			if ( this._encoding) {
-				if ( StringWriters.size() > 1 )
-					//Note we could setup an xml file whenever this happens as ez fix.
-					Log.out(Tier.CRITICAL, "Output buffer too large for exi encoding (might be fixable).");
-				else
-					outputBuffer.append(StringWriters.get(0).toString());
+					outputBuffer.append(StringWriter.toString());
 			}
 			else
 			{
 				String text = "";
-				for( int i = 0; i< StringWriters.size(); i++) {
-					try {
-						text = StringWriters.get(i).toString();
-						this._output.write(text);
-						if (this._flushAll)
-							this._output.flush();
+				try {
+					text = StringWriter.toString();
+					this._output.write(text);
+					if (this._flushAll)
+						this._output.flush();
 
-					} catch (IOException e) {
-						Log.printToScreen(e.toString(), false);
-						Log.printToScreen("skipped line: " + text, false);
-					}
+				} catch (IOException e) {
+					Log.printToScreen(e.toString(), false);
+					Log.printToScreen("skipped line: " + text, false);
 				}
+
 			}
 		}
 	}

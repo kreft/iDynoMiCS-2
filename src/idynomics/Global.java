@@ -253,6 +253,8 @@ public class Global extends ParameterSet
 	 */
 	public static String[] supplementary_property_files;
 
+	public static int agentsToSplit = 500_000;
+
 	/**************************************************************************
 	 * Appearance
 	 *************************************************************************/

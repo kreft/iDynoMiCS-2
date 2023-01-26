@@ -135,11 +135,17 @@ public class XmlHandler
 			}
 			return doc.getDocumentElement();
 		} catch ( ParserConfigurationException | IOException e) {
-			Log.printToScreen("Error while loading: " + document + "\n"
-					+ "error message: " + e.getMessage(), true);
-			document = Helper.obtainInput("", "Atempt to re-obtain document",
-					false);
-			return loadDocument(document);
+			/* If a filename instead of path was passed we can retry in the same folder as the
+			protocol if present */
+			if( Idynomics.global.protocolFile != null &! document.contains("\\") ) {
+				String input = Idynomics.global.protocolFile;
+				int lastSlashIndex = input.lastIndexOf("\\");
+				return loadDocument( input.substring(0, lastSlashIndex+1) + document );
+			} else {
+				Log.printToScreen("Error while loading: " + document + "\n"
+						+ "error message: " + e.getMessage(), true);
+				return null;
+			}
 		} catch ( SAXException e ) {
 			Log.printToScreen("Error while loading: " + document + "\n"
 				+ "error message: " + e.getMessage(), true);
@@ -167,6 +173,8 @@ public class XmlHandler
 	}
 	
 	/**
+	 * FIXME: this is nearly the same as loadDocument, but it returns the Document Object rather
+	 * than the document element. It further does not implement exi. Consider unifying methods.
 	 * \brief Load the input XML file provided in the argument
 	 */
 	public static Document getDocument(String filePath) {

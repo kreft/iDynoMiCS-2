@@ -73,6 +73,8 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable,
 	private int _outputTicker = 1;
 
 	private double tic;
+
+	private long agentCount = 0;
 	
 	/**
 	 * Simulator is the top node in iDynoMiCS and stores its own modelNode and 
@@ -327,6 +329,12 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable,
 		 */
 		this.timer.step();
 
+		long agents = 0;
+		for (Compartment c : this._compartments)
+			agents += c.agents.getAllAgents().size();
+
+		this.setAgentCount(agents);
+
 		/*
 		 * Write state to new XML file.
 		 */
@@ -337,7 +345,7 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable,
 			this._xmlOut.writeFile();
 			this._outputTicker = 1;
 		}
-		
+
 		for ( Compartment c : this._compartments )
 			c._bookKeeper.clear();
 
@@ -640,6 +648,10 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable,
 		return new Simulator();
 	}
 
+	/**
+	 * return plain XML
+	 * @return
+	 */
 	@Override
 	public String getXml() 
 	{
@@ -672,6 +684,14 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable,
 				if( Integer.valueOf(identity).equals(a.identity()))
 					return a;
 		return null;
+	}
+
+	public long getAgentCount() {
+		return agentCount;
+	}
+
+	public void setAgentCount(long agentCount) {
+		this.agentCount = agentCount;
 	}
 }
 

@@ -4,9 +4,13 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.TreeMap;
 
 import dataIO.Log;
+import idynomics.Global;
+import idynomics.Idynomics;
 import instantiable.Instance;
+import referenceLibrary.XmlRef;
 
 /**
  * \brief TODO
@@ -375,38 +379,70 @@ public class Module
 	 * @param tabs Number of tabs to offset by.
 	 * @return String description of this ModelNode in XML format.
 	 */
-	public  ArrayList<StringWriter> getXML(int tabs, ArrayList<StringWriter> writers)
+	public  TreeMap<String, StringWriter> getXML(int tabs, TreeMap<String, StringWriter> writers, String active)
 	{
-		StringWriter writer = writers.get( writers.size() - 1 );
+		return getXML(tabs, writers, active, "");
+	}
 
+	public  TreeMap<String, StringWriter> getXML(int tabs, TreeMap<String, StringWriter> writers, String active, String append)
+	{
+		if( !writers.containsKey(active))
+			return null;
+		StringWriter writer = writers.get( active );
 		/* the stringbuffer would overload if it exceeds max int value */
-		if( writer.getBuffer().length() > Integer.MAX_VALUE - 1000000 )
-		{
-			System.out.println( "extending to additional stringBuffer." );
-			writer = new StringWriter();
-			writers.add( writer );
+		if (writer.getBuffer().length() > Integer.MAX_VALUE - 1000) {
+			System.out.println(this.getClass().getSimpleName()+" Stringbuffer full.");
 		}
+
 		String out = "";
 		appendTabs(tabs, writer);
 		writer.append('<').append(this._tag);
-		/* 
+		/*
 		 * Attributes
 		 */
-		for ( Attribute a : this._attributes )
+		for (Attribute a : this._attributes)
 			a.getXML(writer);
 		/*
 		 * Child nodes
 		 */
-		if ( this._childModules.isEmpty() )
-			writer.append(" />\n ");
-		else
-		{
+		if (this._childModules.isEmpty())
+			writer.append(" />\n");
+		else {
 			writer.append(" >\n");
-			for ( Module n : this._childModules )
-				n.getXML(tabs+1, writers);
-			appendTabs(tabs, writer);
+			// split agents into multiple files and add import node to main xml
+			if(  Global.agentsToSplit < Idynomics.simulator.getAgentCount() &&
+					this._tag == XmlRef.agents ) {
+				int i = 0, j = 0;
+				String filename = null;
+				for (Module n : this._childModules) {
+					if( i == 0 )
+					{
+						j++;
+						filename = writers.firstKey() + "_" + j + append;
+						StringWriter agentWriter = new StringWriter();
+						writers.put(filename, agentWriter );
+						int lastSlashIndex = filename.lastIndexOf("/");
+						String filenameShort = filename.substring(lastSlashIndex+1);
+						appendTabs(tabs, writer);
+						writer.append( "\t<" + XmlRef.xmlImport + ' ' + XmlRef.valueAttribute +
+								"=\"" + filenameShort + "\" />\n" );
+					}
+					n.getXML(2, writers, filename, "");
+					// add additional outputWriter if threshold is reached.
+					if( i++ >  Global.agentsToSplit )
+						i=0;
+				}
+				appendTabs(tabs, writer);
+
+			}
+			else {
+				for (Module n : this._childModules)
+					n.getXML(tabs + 1, writers, active, append);
+				appendTabs(tabs, writer);
+			}
 			writer.append("</").append(this._tag).append(">\n");
 		}
+
 		return writers;
 	}
 	
@@ -455,9 +491,9 @@ public class Module
 	 */
 	public String getXML()
 	{
-		ArrayList<StringWriter> outputWriters = new ArrayList<StringWriter>();
-		outputWriters.add(new StringWriter());
-		outputWriters = this.getXML(0, outputWriters);
+		TreeMap<String, StringWriter> outputWriters = new TreeMap<String, StringWriter>();
+		outputWriters.put("0", new StringWriter());
+		outputWriters = this.getXML(0, outputWriters,"0");
 		if( outputWriters.size() > 1);
 			Log.out(Log.Tier.CRITICAL, "Warning! xml output is split over multiple string buffers due to size. returning first String buffer only.");
 		return outputWriters.get(0).toString();
