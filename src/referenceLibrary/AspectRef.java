@@ -16,8 +16,7 @@ public class AspectRef
 {
 
 
-
-    public static String[] getAllOptions()
+	public static String[] getAllOptions()
 	{
 		Field[] fields = AspectRef.class.getFields();
 		String[] options = new String[fields.length];
@@ -697,4 +696,10 @@ public class AspectRef
 	public static final String voxel = "voxel";
 
 	public static final String max = "max";
+
+	public static String functionLimit = "functionLimit" ;
+
+
+	public static String youngsModulus = "youngsModulus";
+	public static String poissonRatio = "poissonRatio";
 }

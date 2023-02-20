@@ -137,10 +137,28 @@ public class XmlHandler
 		} catch ( ParserConfigurationException | IOException e) {
 			/* If a filename instead of path was passed we can retry in the same folder as the
 			protocol if present */
-			if( Idynomics.global.protocolFile != null &! document.contains("\\") ) {
+			if( Idynomics.global.protocolFile != null &! document.contains("\\") &! document.contains("/") ) {
 				String input = Idynomics.global.protocolFile;
+				File file = new File(input);
+				String usr = System.getProperty("user.dir");
+				boolean flipslash = false;
+				String path;
 				int lastSlashIndex = input.lastIndexOf("\\");
-				return loadDocument( input.substring(0, lastSlashIndex+1) + document );
+				if( lastSlashIndex == -1 ) {
+					// typical Linux system
+					lastSlashIndex = input.lastIndexOf("/");
+					flipslash = true;
+				}
+				if( file.exists() )
+					// Typical Windows system gives us the full path to the protocol file.
+					path = input.substring(0, lastSlashIndex + 1) + document;
+				else
+					// Typical Linux system gives us the relative path to the protocol file.
+					path = System.getProperty("user.dir") + "\\" + input.substring(0, lastSlashIndex + 1) + document;
+				if( flipslash )
+					path.replace("\\","/");
+				Log.out( "loading: " + path);
+				return loadDocument( path );
 			} else {
 				Log.printToScreen("Error while loading: " + document + "\n"
 						+ "error message: " + e.getMessage(), true);

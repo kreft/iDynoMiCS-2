@@ -293,15 +293,10 @@ public class RegularReaction
 	 * @see reaction.ReactionInterface#getProductionRate(java.util.Map, java.lang.String)
 	 */
 	@Override
-	public double getProductionRate(Map<String, Double> concentrations, 
-														String reactantName)
+	public double getProductionRate(Map<String, Double> concentrations, String reactantName)
 	{
 		checkNegatives(concentrations);
-//		reaction_tally++;
-//		if( reaction_tally/1000.0 == Math.round(reaction_tally/1000.0) && Log.shouldWrite(Log.Tier.DEBUG))
-//			Log.out(Log.Tier.DEBUG, reaction_tally + " reactions");
-		return this.getStoichiometry(reactantName) * 
-											this.getRate(concentrations);
+		return this.getStoichiometry(reactantName) * this.getRate(concentrations);
 	}
 	
 	private void checkNegatives( Map<String, Double> concentrations )
@@ -309,7 +304,8 @@ public class RegularReaction
 		for ( String s : concentrations.keySet() )
 		{
 			if( concentrations.get(s) < 0.0 )
-				System.out.println( this.getClass().getSimpleName() + " detecteded negative concentration "+ s + " "  + concentrations.get(s) );
+				System.out.println( this.getClass().getSimpleName() +
+						" detecteded negative concentration "+ s + " "  + concentrations.get(s) );
 		}
 	}
 	

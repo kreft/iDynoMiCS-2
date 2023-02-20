@@ -2,6 +2,7 @@ package dataIO;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.xml.sax.InputSource;
@@ -172,6 +173,7 @@ public class FileHandler
 	// make a new file with unique name.
 	public void fnew(String file)
 	{
+		_file = file;
 		if ( Global.write_to_disc ) 
 		{
 			if ( file.split("/").length > 1 )
@@ -356,5 +358,14 @@ public class FileHandler
 	public boolean isReady()
 	{
 		return ( this._output != null );
+	}
+
+	public String toString()
+	{
+		Collection<String> file = this.fopen(_file);
+		StringBuffer out = new StringBuffer();
+		for( String s : file )
+			out.append(s);
+		return out.toString();
 	}
 }

@@ -293,11 +293,11 @@ public final class GuiActions
 				if( path.toLowerCase().contains(".xml"))
 				{
 					exi = true;
-					out = path.toLowerCase().replaceAll(".xml", "");
+					out = path.toLowerCase().replaceAll(".xml", ".exi");
 				} else if( path.toLowerCase().contains(".exi"))
 				{
 					exi = false;
-					out = path.toLowerCase().replaceAll(".exi", "");
+					out = path.toLowerCase().replaceAll(".exi", ".xml");
 				}
 				Idynomics.setupSimulator( f.getAbsolutePath() );
 				Idynomics.simulator.saveSimulationState(out, exi);

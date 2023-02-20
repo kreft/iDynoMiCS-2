@@ -2,11 +2,15 @@ package boundary.spatialLibrary;
 
 import java.util.Collection;
 
+import dataIO.ObjectFactory;
+import grid.ArrayType;
 import org.w3c.dom.Element;
 
 import dataIO.XmlHandler;
 import instantiable.Instantiable;
 import referenceLibrary.XmlRef;
+import settable.Attribute;
+import settable.Module;
 import settable.Settable;
 
 /**
@@ -45,6 +49,25 @@ public class FixedBoundary extends BiofilmBoundaryLayer implements Instantiable
 		}
 	}
 
+	@Override
+	public Module getModule()
+	{
+		Module modelNode = super.getModule();
+
+		for ( String sol : this._concns.keySet() ) {
+			Module soluteNode = new Module(XmlRef.solute, this);
+			soluteNode.setRequirements(Module.Requirements.ZERO_TO_MANY);
+
+			soluteNode.add(new Attribute(XmlRef.nameAttribute,
+					sol, null, true));
+
+			soluteNode.add(new Attribute(XmlRef.concentration,
+					String.valueOf( this._concns.get(sol) ), null, true));
+			modelNode.add(soluteNode);
+		}
+		return modelNode;
+	}
+
 	/* ***********************************************************************
 	 * PARTNER BOUNDARY
 	 * **********************************************************************/
@@ -72,7 +95,7 @@ public class FixedBoundary extends BiofilmBoundaryLayer implements Instantiable
 
 	@Override
 	public void additionalPartnerUpdate() {}
-	
+
 	public boolean isSolid()
 	{
 		return true;

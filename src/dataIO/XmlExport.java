@@ -137,7 +137,8 @@ public class XmlExport
 	/**
 	 * TODO
 	 */
-	public void writeState()
+	@Deprecated
+	public void writeState_old()
 	{
 		TreeMap<String, StringWriter> outputWriters = new TreeMap<String, StringWriter>();
 		outputWriters.put(this.currentFileBase, new StringWriter());
@@ -155,6 +156,24 @@ public class XmlExport
 					exp.closeXml();
 				}
 			}
+		}
+	}
+
+	public void writeState()
+	{
+		StringWriter outputWriter = new StringWriter();
+		outputWriter = Idynomics.simulator.getModule().getXML(1, outputWriter, this.currentFileBase, this.extension, this);
+
+		this.write(outputWriter);
+	}
+
+	public void writePartial(String key, StringWriter outputWriter)
+	{
+		XmlExport exp = new XmlExport(this._exiEncoding);
+		if( key != this.currentFileBase ) {
+			exp.newXml( key, true );
+			exp.write( outputWriter );
+			exp.closeXml();
 		}
 	}
 	

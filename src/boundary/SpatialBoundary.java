@@ -267,7 +267,8 @@ public abstract class SpatialBoundary extends Boundary
 		String str = xmlElem.getAttribute("extreme");
 		this._extreme = Dimension.extremeToInt(str);
 	}
-	
+
+	// FIXME are we handling partner boundaries?
 	@Override
 	public Module getModule()
 	{

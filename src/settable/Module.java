@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.TreeMap;
 
 import dataIO.Log;
+import dataIO.XmlExport;
 import idynomics.Global;
 import idynomics.Idynomics;
 import instantiable.Instance;
@@ -237,7 +238,7 @@ public class Module
 	/**
 	 * \brief Add the given child node to this ModelNode object.
 	 * 
-	 * @param childNode Child model node to add.
+	 * @param childModule Child model node to add.
 	 */
 	public void add(Module childModule)
 	{
@@ -379,11 +380,21 @@ public class Module
 	 * @param tabs Number of tabs to offset by.
 	 * @return String description of this ModelNode in XML format.
 	 */
+	@Deprecated
 	public  TreeMap<String, StringWriter> getXML(int tabs, TreeMap<String, StringWriter> writers, String active)
 	{
 		return getXML(tabs, writers, active, "");
 	}
 
+	/**
+	 * verify and remove -> this method uses too much memory for large simulations
+	 * @param tabs
+	 * @param writers
+	 * @param active
+	 * @param append
+	 * @return
+	 */
+	@Deprecated
 	public  TreeMap<String, StringWriter> getXML(int tabs, TreeMap<String, StringWriter> writers, String active, String append)
 	{
 		if( !writers.containsKey(active))
@@ -444,6 +455,91 @@ public class Module
 		}
 
 		return writers;
+	}
+
+	/**
+	 * Reduced memory footprint by writing to disk in between using the exporter.
+	 * @param tabs
+	 * @param writer
+	 * @param active
+	 * @param exporter
+	 * @return
+	 */
+	public  StringWriter getXML(int tabs, StringWriter writer, String active, XmlExport exporter)
+	{
+		return getXML(tabs, writer, active, "", exporter);
+	}
+
+	/**
+	 * Reduced memory footprint by writing to disk in between using the exporter.
+	 * @param tabs
+	 * @param writer
+	 * @param active
+	 * @param append
+	 * @param exporter
+	 * @return
+	 */
+	public  StringWriter getXML(int tabs, StringWriter writer, String active, String append, XmlExport exporter)
+	{
+		/* the stringbuffer would overload if it exceeds max int value */
+		if (writer.getBuffer().length() > Integer.MAX_VALUE - 1000) {
+			System.err.println(this.getClass().getSimpleName()+" Stringbuffer full.");
+		}
+		appendTabs(tabs, writer);
+		writer.append('<').append(this._tag);
+		/*
+		 * Attributes
+		 */
+		for (Attribute a : this._attributes)
+			a.getXML(writer);
+		/*
+		 * Child nodes
+		 */
+		if (this._childModules.isEmpty())
+			writer.append(" />\n");
+		else {
+			writer.append(" >\n");
+			// split agents into multiple files and add import node to main xml
+			if(  Global.agentsToSplit < Idynomics.simulator.getAgentCount() &&
+					this._tag == XmlRef.agents ) {
+				int i = 0, j = 0;
+				String filename = null;
+				StringWriter agentWriter = new StringWriter();
+				for (Module n : this._childModules) {
+					if( i == 0 )
+					{
+						j++;
+						filename = active + "_" + j + append;
+						int lastSlashIndex = filename.lastIndexOf("/");
+						String filenameShort = filename.substring(lastSlashIndex+1);
+						appendTabs(tabs, writer);
+						writer.append( "\t<" + XmlRef.xmlImport + ' ' + XmlRef.valueAttribute +
+								"=\"" + filenameShort + "\" />\n" );
+					}
+					agentWriter = n.getXML(2, agentWriter, filename, "", exporter);
+
+					if( i++ >  Global.agentsToSplit ) {
+						/*
+							By writing the partial xml here we can  ditch the associated
+							StringWriter after, thereby cutting back memory usage.
+						 */
+						exporter.writePartial(filename, agentWriter);
+						agentWriter = new StringWriter();
+						i = 0;
+					}
+				}
+				exporter.writePartial(filename, agentWriter);
+				appendTabs(tabs, writer);
+
+			}
+			else {
+				for (Module n : this._childModules)
+					n.getXML(tabs + 1, writer, active, append, exporter);
+				appendTabs(tabs, writer);
+			}
+			writer.append("</").append(this._tag).append(">\n");
+		}
+		return writer;
 	}
 	
 	public String getHeader()
