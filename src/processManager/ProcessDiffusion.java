@@ -236,7 +236,7 @@ public abstract class ProcessDiffusion extends ProcessManager
 	 */
 	protected void applyEnvReactions(Collection<SpatialGrid> solutes)
 	{
-		Collection<RegularReaction> reactions = this._environment.getReactions();
+		Collection<Reaction> reactions = this._environment.getReactions();
 		if ( reactions.isEmpty() )
 		{
 			return;

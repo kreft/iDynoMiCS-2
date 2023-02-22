@@ -21,7 +21,7 @@
 				</aspect>
 			</species>
 			<species name="coccoid">
-				<aspect name="density" class="Double" value="0.15 [g/g]" />
+				<aspect name="density" class="Double" value="0.15" />
 				<aspect name="surfaces" class="AgentSurfaces" />
 				<aspect name="morphology" class="String" value="coccoid" />
 				<aspect name="volume" class="SimpleVolumeState" />

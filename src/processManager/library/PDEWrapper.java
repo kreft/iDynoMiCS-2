@@ -309,7 +309,7 @@ public class PDEWrapper extends ProcessDiffusion
     protected void applyEnvReactions(MultigridSolute[] concGrid, int resorder)
     {
         Shape shape = this._environment.getShape();
-        Collection<RegularReaction> reactions = this._environment.getReactions();
+        Collection<Reaction> reactions = this._environment.getReactions();
         if ( reactions.isEmpty() )
         {
             return;

@@ -32,12 +32,6 @@ public interface Reaction {
 	Collection<String> getConstituentNames();
 
 	/**
-	 * @return This reaction's whole stoichiometric dictionary (given standard 
-	 * concentrations of 1 mol/L at pH 7.0).
-	 */
-	Map<String, Double> getStoichiometryAtStdConcentration();
-
-	/**
 	 * @return the production rate of a given chemical species.
 	 */
 	double getProductionRate(Map<String, Double> concentrations, 

@@ -225,7 +225,7 @@ public class RegularReaction
 	@Override
 	public Collection<String> getReactantNames()
 	{
-		return this.getStoichiometryAtStdConcentration().keySet();
+		return this._stoichiometry.keySet();
 	}
 	
 	/* (non-Javadoc)
@@ -239,7 +239,7 @@ public class RegularReaction
 			this._constituents = new ArrayList<String>();
 			this._constituents.addAll(this.getVariableNames());
 		}
-		for(String s : this.getStoichiometryAtStdConcentration().keySet() )
+		for(String s : this._stoichiometry.keySet() )
 			if(! _constituents.contains(s) )
 				this._constituents.add(s);
 		return this._constituents;
@@ -278,15 +278,6 @@ public class RegularReaction
 		if ( this._stoichiometry.containsKey(reactantName) )
 			return this._stoichiometry.get(reactantName);
 		return 0.0;
-	}
-	
-	/* (non-Javadoc)
-	 * @see reaction.ReactionInterface#getStoichiometryAtStdConcentration()
-	 */
-	@Override
-	public Map<String,Double> getStoichiometryAtStdConcentration()
-	{
-		return this._stoichiometry;
 	}
 	
 	/* (non-Javadoc)

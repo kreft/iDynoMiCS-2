@@ -227,12 +227,6 @@ public class MetabolicReaction
 		concns.put("uMax", maxGrowth(concns) );
 		return this._kinetic.getValue( concns );
 	}
-	
-	@Override
-	public Map<String, Double> getStoichiometryAtStdConcentration() 
-	{
-		return getStoichiometry(null);
-	}
 
 	@Override
 	public double getProductionRate(Map<String, Double> concns, 
