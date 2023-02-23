@@ -289,7 +289,7 @@ public class ChemostatSolver extends ProcessManager
 					for ( int i = 0; i < _n; i++ )
 					{
 						dydt[i] += aReac.getProductionRate( soluteMap, 
-								_solutes[i]);
+								_solutes[i], null);
 					}
 				}
 				/*
@@ -342,7 +342,7 @@ public class ChemostatSolver extends ProcessManager
 						for ( int i = 0; i < _n; i++ )
 						{
 							dydt[i] += aReac.getProductionRate( reactionMap, 
-									_solutes[i] );
+									_solutes[i], a );
 						}
 						/*
 						 * Apply the effect of this reaction to the agent and
@@ -356,7 +356,7 @@ public class ChemostatSolver extends ProcessManager
 								i++;
 								/* mass and internal products */
 								dydt[ _n + yAgent + i ] += 
-										aReac.getProductionRate(reactionMap, s);
+										aReac.getProductionRate(reactionMap, s, a);
 							}
 						}
 					}

@@ -180,6 +180,8 @@ public class PDEWrapper extends ProcessDiffusion
      */
     public void prestep(Collection<SpatialGrid> variables, double dt)
     {
+        for ( SpatialGrid var : variables )
+            var.newArray(PRODUCTIONRATE);
         /* Note environment should be calculated simultaneously with agent reactions! */
         setupAgentDistributionMaps(this._agents.getShape());
     }
@@ -294,7 +296,7 @@ public class PDEWrapper extends ProcessDiffusion
                 if ( mGrid != null )
                 {
                     solute = mGrid._reac[resorder];
-                    productRate = r.getProductionRate(concns, productName);
+                    productRate = r.getProductionRate(concns, productName, agent);
                     solute.addValueAt( productRate, coord.get() , true );
                 }
             }
@@ -355,7 +357,7 @@ public class PDEWrapper extends ProcessDiffusion
                             if ( mGrid != null )
                             {
                                 solute = mGrid._reac[resorder];
-                                productRate = r.getProductionRate(concns, s);
+                                productRate = r.getProductionRate(concns, s, null);
                                 solute.addValueAt( productRate, coord, true );
                             }
                         }
@@ -448,7 +450,7 @@ public class PDEWrapper extends ProcessDiffusion
                      * once and then calculate the rate per product from that
                      * for each individual product
                      */
-                    productRate = r.getProductionRate(concns,productName);
+                    productRate = r.getProductionRate(concns,productName, agent);
                     double quantity;
 
                     if ( this._environment.isSoluteName(productName) )

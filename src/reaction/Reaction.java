@@ -1,5 +1,7 @@
 package reaction;
 
+import aspect.AspectInterface;
+
 import java.util.Collection;
 import java.util.Map;
 
@@ -34,7 +36,7 @@ public interface Reaction {
 	/**
 	 * @return the production rate of a given chemical species.
 	 */
-	double getProductionRate(Map<String, Double> concentrations, 
-			String reactantName);
+	double getProductionRate(Map<String, Double> concentrations,
+							 String reactantName, AspectInterface subject);
 
 }

@@ -1,14 +1,6 @@
 package reaction;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-
 import aspect.AspectInterface;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-
 import compartment.EnvironmentContainer;
 import dataIO.ObjectFactory;
 import dataIO.XmlHandler;
@@ -18,12 +10,20 @@ import generalInterfaces.Copyable;
 import instantiable.Instantiable;
 import instantiable.object.InstantiableList;
 import instantiable.object.InstantiableMap;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 import referenceLibrary.XmlRef;
 import settable.Attribute;
 import settable.Module;
 import settable.Module.Requirements;
 import settable.Settable;
+import shape.subvoxel.CoordinateMap;
 import utility.Helper;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * \brief The reaction class handles the chemical conversions of various
@@ -38,7 +38,7 @@ import utility.Helper;
  * @author Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU.
  */
-public class RegularReaction 
+public class FlexibleReaction
 	implements Instantiable, Copyable, Settable, Reaction
 {
 	/**
@@ -46,7 +46,7 @@ public class RegularReaction
 	 * reaction rate to a grid as output.
 	 */
 	protected String _name;
-	
+
 	/**
 	 * identifies what environment hosts this reaction, null if this reaction
 	 * is not a compartment reaction
@@ -57,8 +57,8 @@ public class RegularReaction
 	 * in this reaction may be produced (stoichiometry > 0), consumed (< 0), or
 	 * unaffected (stoichiometry = 0, or unlisted) by the reaction.
 	 */
-	private InstantiableMap<String,Double> _stoichiometry = new InstantiableMap<String,Double>(
-			String.class, Double.class, XmlRef.component, XmlRef.coefficient,
+	private InstantiableMap<String,Expression> _stoichiometry = new InstantiableMap<String,Expression>(
+			String.class, Expression.class, XmlRef.component, XmlRef.coefficient,
 			XmlRef.stoichiometry, XmlRef.stoichiometric, true);
 	/**
 	 * The mathematical expression describing the rate at which this reaction
@@ -74,34 +74,34 @@ public class RegularReaction
 	private HashMap<String, Component> _diffKinetics;
 
 	private ArrayList<String> _constituents;
-	
+
 	/* ***********************************************************************
 	 * CONSTRUCTORS
 	 * **********************************************************************/
-	
+
 	/**
 	 * \brief Empty reaction for ReactionLibrary construction.
 	 */
-	public RegularReaction()
+	public FlexibleReaction()
 	{
-		
+
 	}
-	
+
 	/**
 	 * \brief Construct a reaction from an XML node;
-	 * 
+	 *
 	 * @param xmlNode XMl node from a protocol file.
 	 */
-	public RegularReaction(Node xmlNode, Settable parent)
+	public FlexibleReaction(Node xmlNode, Settable parent)
 	{
 		Element elem = (Element) xmlNode;
 		this.instantiate( elem, parent );
 	}
-	
+
 	/**
 	 * \brief Construct a reaction from a dictionary of reactants and a
-	 * {@code Component} description of the kinetic rate. 
-	 * 
+	 * {@code Component} description of the kinetic rate.
+	 *
 	 * @param stoichiometry Dictionary of amounts that each reactant is
 	 * produced per reaction event (use negative values for reactants that are
 	 * consumed).
@@ -109,18 +109,18 @@ public class RegularReaction
 	 * reaction proceeds.
 	 * @param name Name of the reaction.
 	 */
-	public RegularReaction(
-			Map<String,Double> stoichiometry, Component kinetic, String name)
+	public FlexibleReaction(
+			Map<String,Expression> stoichiometry, Component kinetic, String name)
 	{
 		this._name = name;
 		this._stoichiometry.putAll(stoichiometry);
 		this._kinetic = kinetic;
 	}
-	
+
 	/**
 	 * \brief Construct a reaction from a dictionary of reactants and a
 	 * {@code String} description of the kinetic rate.
-	 * 
+	 *
 	 * @param stoichiometry Dictionary of amounts that each reactant is
 	 * produced per reaction event (use negative values for reactants that are
 	 * consumed).
@@ -128,15 +128,15 @@ public class RegularReaction
 	 * proceeds.
 	 * @param name Name of the reaction.
 	 */
-	public RegularReaction(
-			Map<String, Double> stoichiometry, String kinetic, String name)
+	public FlexibleReaction(
+			Map<String, Expression> stoichiometry, String kinetic, String name)
 	{
 		this(stoichiometry, new Expression(kinetic), name);
 	}
-	
+
 	/**
 	 * \brief Construct a reaction with a single reactant.
-	 * 
+	 *
 	 * @param chemSpecies The name of the chemical species which is the sole
 	 * reactant in this reaction.
 	 * @param stoichiometry The amount of this reactant that is produced per
@@ -146,11 +146,11 @@ public class RegularReaction
 	 * proceeds.
 	 * @param name Name of the reaction.
 	 */
-	public RegularReaction(String chemSpecies, double stoichiometry, 
-											String kinetic, String name)
-	{
-		this( getHM(chemSpecies, stoichiometry), new Expression(kinetic), name);
-	}
+//	public FlexibleReaction(String chemSpecies, double stoichiometry,
+//                            String kinetic, String name)
+//	{
+//		this( getHM(chemSpecies, stoichiometry), new Expression(kinetic), name);
+//	}
 	
 	@SuppressWarnings("unchecked")
 	public void instantiate(Element xmlElem, Settable parent)
@@ -159,7 +159,7 @@ public class RegularReaction
 		if ( parent instanceof EnvironmentContainer )
 			((EnvironmentContainer) parent).addReaction(this);
 		if (parent instanceof InstantiableList)
-			((InstantiableList<RegularReaction>) parent).add(this);
+			((InstantiableList<FlexibleReaction>) parent).add(this);
 
 		if ( !Helper.isNullOrEmpty(xmlElem) && XmlHandler.hasChild(xmlElem, XmlRef.reaction))
 		{
@@ -191,11 +191,11 @@ public class RegularReaction
 	public Object copy()
 	{
 		@SuppressWarnings("unchecked")
-		HashMap<String,Double> stoichiometry = (HashMap<String,Double>)
+		HashMap<String,Expression> stoichiometry = (HashMap<String,Expression>)
 				ObjectFactory.copy(this._stoichiometry);
 		// NOTE: _kinetic is not copyable, this will become an issue of you
-		// want to do evo addaptation simulations
-		return new RegularReaction(stoichiometry, this._kinetic, this._name);
+		// want to do evo adaptation simulations
+		return new FlexibleReaction(stoichiometry, this._kinetic, this._name);
 	}
 	
 	/* ***********************************************************************
@@ -259,6 +259,9 @@ public class RegularReaction
 	 */
 	private double getRate(Map<String, Double> concentrations)
 	{
+		HashMap<String, Double> variables = new HashMap<String, Double>();
+
+		// note that here aspects are already passed by the diffusion process if required.
 		double out = this._kinetic.getValue(concentrations);
 		//String msg = "   reaction \""+this._name+"\" variables: ";
 		//for ( String name : concentrations.keySet() )
@@ -274,10 +277,18 @@ public class RegularReaction
 	 * @param reactantName The name of the chemical species of interest.
 	 * @return The stoichiometry of this chemical species in this reaction.
 	 */
-	private double getStoichiometry(String reactantName)
+	private double getStoichiometry(String reactantName, Map<String, Double> concentrations, AspectInterface subject)
 	{
+		HashMap<String, Double> variables = new HashMap<String, Double>();
+		// get concentration, get aspect if value is not a concentration
+		for( String var : _kinetic.getAllVariablesNames() ) {
+			if(concentrations.containsKey(var))
+				variables.put(var,concentrations.get(var));
+			else
+				variables.put(var, subject.getDouble(var));
+		}
 		if ( this._stoichiometry.containsKey(reactantName) )
-			return this._stoichiometry.get(reactantName);
+			return this._stoichiometry.get(reactantName).getValue(variables);
 		return 0.0;
 	}
 	
@@ -288,7 +299,7 @@ public class RegularReaction
 	public double getProductionRate(Map<String, Double> concentrations, String reactantName, AspectInterface subject)
 	{
 		checkNegatives(concentrations);
-		return this.getStoichiometry(reactantName) * this.getRate(concentrations);
+		return this.getStoichiometry(reactantName, concentrations, subject) * this.getRate(concentrations);
 	}
 	
 	private void checkNegatives( Map<String, Double> concentrations )
