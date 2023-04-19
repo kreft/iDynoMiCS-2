@@ -15,14 +15,6 @@ import utility.ExtraMath;
  * Input: volume
  */
 public class CoccoidRadius extends Calculated {
-	
-	public String VOLUME = AspectRef.agentVolume;
-	
-	public CoccoidRadius()
-	{
-		setInput("volume");
-	}
-
 	public Object get(AspectInterface aspectOwner)
 	{
 		if( aspectOwner.isAspect(AspectRef.transientRadius))
@@ -30,8 +22,8 @@ public class CoccoidRadius extends Calculated {
 			if( ((Body) aspectOwner.getValue(AspectRef.agentBody)).getMorphology() == Morphology.BACILLUS)
 				return aspectOwner.getDouble(AspectRef.transientRadius);
 		}
-		// FIXME is this appropriate in 1D & 2D compartments?
-		return ExtraMath.radiusOfASphere(aspectOwner.getDouble(VOLUME));
+		//NOTE: only for 3D simulations
+		return ExtraMath.radiusOfASphere(aspectOwner.getDouble(AspectRef.agentVolume));
 	}
 
 }

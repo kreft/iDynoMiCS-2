@@ -419,9 +419,6 @@ public class Unit {
 				this.modifier *= Math.pow( 0.001, power );
 				break;
 			case "µm" :
-				this.mutation( SI.m, update );
-				this.modifier *= Math.pow( 1.0e-6, power );
-				break;
 			case "um" :
 				this.mutation( SI.m, update );
 				this.modifier *= Math.pow( 1.0e-6, power );
@@ -450,9 +447,6 @@ public class Unit {
 				this.modifier *= Math.pow( 1.0e-6, power );
 				break;
 			case "µg" :
-				this.mutation( SI.kg, update );
-				this.modifier *= Math.pow( 1.0e-9, power );
-				break;
 			case "ug" :
 				this.mutation( SI.kg, update );
 				this.modifier *= Math.pow( 1.0e-9, power );
@@ -487,9 +481,6 @@ public class Unit {
 				this.modifier *= Math.pow( 0.001, power );
 				break;
 			case "µmol" :
-				this.mutation( SI.mol, update );
-				this.modifier *= Math.pow( 1.0e-6, power );
-				break;
 			case "umol" :
 				this.mutation( SI.mol, update );
 				this.modifier *= Math.pow( 1.0e-6, power );
@@ -519,26 +510,29 @@ public class Unit {
 				this.mutation( SI.m, (3 * update ));
 				this.modifier *= Math.pow( 0.001, power );
 				break;
+			case "mL" :
 			case "ml" :
 				this.update("l", update);
 				this.modifier *= Math.pow( 0.001, power );
 				break;
+			case "µL" :
 			case "µl" :
-				this.update("l", update);
-				this.modifier *= Math.pow( 1.0e-6, power );
-				break;
+			case "uL" :
 			case "ul" :
 				this.update("l", update);
 				this.modifier *= Math.pow( 1.0e-6, power );
 				break;
+			case "nL" :
 			case "nl" :
 				this.update("l", update);
 				this.modifier *= Math.pow( 1.0e-9, power );
 				break;
+			case "pL" :
 			case "pl" :
 				this.update("l", update);
 				this.modifier *= Math.pow( 1.0e-12, power );
 				break;
+			case "fL" :
 			case "fl" :
 				this.update("l", update);
 				this.modifier *= Math.pow( 1.0e-15, power );
@@ -557,9 +551,6 @@ public class Unit {
 				this.modifier *= Math.pow( 0.001, power );
 				break;
 			case "µN" :
-				this.update("N", update);
-				this.modifier *= Math.pow( 1.0e-6, power );
-				break;
 			case "uN" :
 				this.update("N", update);
 				this.modifier *= Math.pow( 1.0e-6, power );
