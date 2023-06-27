@@ -280,6 +280,7 @@ public class PlasmidDynamics extends ProcessManager {
 						n = 0;
 						/* Calculate time for complete retraction and add to cool down time. */
 						double addTime = 0.0;
+						// Move the next section after probCheck?
 						if (this._piliRetractionSpeed != 0.0) {
 							addTime = minDist/this._piliRetractionSpeed;
 							cool_down += addTime;

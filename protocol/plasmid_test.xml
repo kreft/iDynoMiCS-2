@@ -3,7 +3,7 @@
 	<simulation name="plasmid_test" outputfolder="../results" log="NORMAL"
 		comment="this is a file for testing purposes only." randomSeed="224323"
 		configuration="C:\Users\sanka\git\iDynoMiCS-2\config\alternative_colouring.cfg">
-		<timer stepSize="1.0" endOfSimulation="20.0" />
+		<timer stepSize="0.25" endOfSimulation="20.0" />
 		<speciesLib>
 			<!-- species/species library The species library contains all agent species 
 				in the simulations. This may include microbial species, plasmid and vector 
