@@ -157,7 +157,16 @@ public class PlasmidDynamics extends ProcessManager {
 		
 		double maxPiliLength = (Double) newPlasmid.get(PILUS_LENGTH);
 		
-		List<Agent> neighbours = agents.treeSearch(a, maxPiliLength);
+		Compartment comp = a.getCompartment();
+
+		List<Agent> neighbours;
+		if (!comp.isDimensionless())
+			neighbours = agents.treeSearch(a, maxPiliLength);
+		else {
+			neighbours = agents.getAllAgents();
+			if (neighbours.contains(a))
+				neighbours.remove(a);
+		}
 		
 		/*
 		 * No need to proceed if there are no neighbours to receive the plasmid.
@@ -223,7 +232,6 @@ public class PlasmidDynamics extends ProcessManager {
 		
 		Body aBody = (Body) a.getValue(this.BODY);
 		List<Surface> aBodSurfaces = aBody.getSurfaces();
-		Compartment comp = a.getCompartment();
 		
 		//Add the plasmid name to the list of aspects to be copied to recipient.
 		this._aspectsToCopy.addAll(Arrays.asList(plasmid));
