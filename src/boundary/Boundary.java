@@ -16,6 +16,7 @@ import referenceLibrary.XmlRef;
 import settable.Attribute;
 import settable.Module;
 import settable.Module.Requirements;
+import shape.Shape;
 import settable.Settable;
 import utility.Helper;
 
@@ -196,9 +197,20 @@ public abstract class Boundary implements Settable, Instantiable
 				out = (Boundary) bClass.newInstance();
 				this.setPartner(out);
 				out.setPartner(this);
-				/* oh dear TODO better to assign compartment name on boundary creation or just associate the compartment */
-				out._partnerCompartmentName = ((Compartment) this.getParent().	
-						getParent().getParent()).getName();
+				
+				/* oh dear TODO better to assign compartment name on boundary 
+				 * creation or just associate the compartment */
+				if (this.getParent() instanceof Shape)
+				{
+					out._partnerCompartmentName = ((Compartment) this.
+							getParent().getParent()).getName();
+				}
+				
+				else
+				{
+					out._partnerCompartmentName = ((Compartment) this.
+							getParent().getParent().getParent()).getName();
+				}
 			}
 			catch (Exception e)
 			{

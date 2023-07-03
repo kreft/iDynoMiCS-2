@@ -376,6 +376,13 @@ public class AgentAttachmentRandomWalk extends ProcessArrival {
 				}
 			}
 			
+			/**
+			 * This can trigger if agent is above the domain in the
+			 * dimension it is "falling" through after just one
+			 * moveAlongDimension. Rework, or find way to ignore a
+			 * dimension.
+			 * 
+			 */
 			else
 				return false;
 		}
@@ -406,7 +413,8 @@ public class AgentAttachmentRandomWalk extends ProcessArrival {
 			 * the compartment.
 			 */
 			for (Point p : points)
-				this._shape.applyBoundaries( p.getPosition() );
+				p.setPosition(this._shape.applyBoundaries(
+						p.getPosition() ));
 			
 			/*
 			 * Look for boundaries
@@ -462,7 +470,6 @@ public class AgentAttachmentRandomWalk extends ProcessArrival {
 			oldPoints.clear();
 			
 			oldPoints = this.copyPoints(points);
-			
 		}
 	}
 	

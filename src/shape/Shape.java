@@ -561,6 +561,27 @@ public abstract class Shape implements
 	}
 	
 	/**
+	 * Returns length of this shape in the specified dimension
+	 * @param dimension
+	 * @return
+	 */
+	public double getDimensionLength(Dimension dimension)
+	{
+		for ( Dimension dim : this._dimensions.values() )
+		{
+			if (dimension.getName() == dim.getName()
+					&& dim.isSignificant())
+			{
+				return dim.getLength();
+			}
+		}
+		if( Log.shouldWrite(Tier.CRITICAL))
+			Log.out(Tier.CRITICAL, "Dimension " + dimension.getName() +
+					" not found. Returning length zero.");
+		return 0;
+	}
+	
+	/**
 	 * \brief Set the dimension lengths of this shape.
 	 * 
 	 * <p><b>Note</b>: If <b>lengths</b> has more than elements than this shape
@@ -1518,6 +1539,60 @@ public abstract class Shape implements
 	{
 		double[] out = new double[coord.length];
 		getVoxelSideLengthsTo( out, coord );
+		return out;
+	}
+	
+	/**
+	 * Returns a collection of voxels which at least cover the area between
+	 * the two given corners.
+	 * @param bottomCorner
+	 * @param topCorner
+	 * @return Collection <int[]> out (a collection of voxel coordinates 
+	 * (counted in voxel number, not the compartment's length units))
+	 */
+	public Collection <int[]> getVoxelsFromVolume (double[] bottomCorner,
+			double[]topCorner) 
+	{
+		Collection <int[]> out = new ArrayList <int[]>();
+		int numDims = bottomCorner.length;
+		int[] bottomCornerVoxel = getCoords (bottomCorner);
+		double[] dimensions = new double[numDims];
+		for (int i = 0; i < numDims; i++)
+			dimensions[i] = topCorner[i] - bottomCorner[i];
+		int[] voxelArray = new int[numDims];
+		for (int i = 0; i < numDims; i++)
+		{
+			ResolutionCalculator rC;
+			rC = this.getResolutionCalculator(bottomCornerVoxel,i);
+			//Calculate the number of voxels in each dimension
+			voxelArray[i] = (int) Math.ceil(dimensions[i] / rC.getResolution());
+		}
+		
+		//countArray counts number of voxels added
+		int[] countArray = new int[numDims];
+		for (int i = 0; i < numDims; i++)
+			countArray[i] = 0;
+		int[] currentVoxel = bottomCornerVoxel.clone();
+		while (countArray[countArray.length - 1] != 
+				voxelArray[voxelArray.length - 1])
+		{
+			/*shifter is the dimension in which the currentVoxel index will be
+			increased */
+			int shifter = 0;
+			out.add(currentVoxel.clone());
+			countArray[shifter]++;
+			currentVoxel[shifter] ++;
+			while (countArray[shifter] == voxelArray[shifter]
+					&& shifter < numDims - 1) 
+			{
+					currentVoxel[shifter] = bottomCornerVoxel[shifter];
+					countArray[shifter] = 0;
+					shifter ++;
+					currentVoxel[shifter] ++;
+					countArray[shifter] ++;
+			}
+		}
+		
 		return out;
 	}
 	

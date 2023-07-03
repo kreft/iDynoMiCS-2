@@ -52,7 +52,7 @@ public class DepartureByFlow extends ProcessDeparture {
 	{
 		int nAllAgents = this._agents.getNumAllAgents();
 		LinkedList<Agent> removals = new LinkedList<Agent>();
-		if ( (nAllAgents > 0) && (this._flowRate < 0.0) )
+		if ( (nAllAgents > 0) )
 		{
 			/* calculate (1 - removal chance) */
 			double e = Math.exp( ( 

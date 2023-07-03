@@ -1,5 +1,6 @@
 package processManager;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -81,7 +82,10 @@ public class ProcessMethods {
 		 * 
 		 * Now check if any other aspects were added to biomass (e.g. EPS).
 		 */
-		for ( String key : biomass.keySet() )
+		ArrayList<String> biomassTypes = 
+				new ArrayList<String>(biomass.keySet());
+		
+		for ( String key : biomassTypes )
 		{
 			if( Global.bookkeeping )
 				agent.getCompartment().registerBook(

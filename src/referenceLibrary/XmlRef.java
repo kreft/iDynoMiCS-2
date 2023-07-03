@@ -427,6 +427,11 @@ public class XmlRef
 	/**
 	 * TODO
 	 */
+	public final static String dominant = "dominant";
+	
+	/**
+	 * TODO
+	 */
 	public final static String gridMethod = "gridMethod";
 
 	/**
