@@ -352,12 +352,14 @@ public class Module
 	 * @param attribute Tag for the attribute required.
 	 * @return The ModelAttribute with this tag, or null if it cannot be found.
 	 */
-	// TODO what if there is more that one attribute with the same name?
+	// what if there is more that one attribute with the same name?
+	// --> With XML attributes must have unique names.
 	public Attribute getAttribute(String attribute)
 	{
-		for ( Attribute a : this._attributes )
-			if ( a.tag.equals(attribute) )
+		for ( Attribute a : this._attributes ) {
+			if (a.tag.equals(attribute))
 				return a;
+		}
 		return null;
 	}
 	

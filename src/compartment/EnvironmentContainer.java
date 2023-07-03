@@ -50,7 +50,7 @@ public class EnvironmentContainer implements CanPrelaunchCheck, Settable
 	 * Collection of extracellular reactions specific to this compartment
 	 * (each Reaction knows its own name).
 	 */
-	protected InstantiableList<Reaction> _reactions = new InstantiableList<Reaction>(Reaction.class, null, XmlRef.reactions, XmlRef.reaction);
+	protected InstantiableList<Reaction> _reactions = new InstantiableList<Reaction>(RegularReaction.class, null, XmlRef.reactions, XmlRef.reaction);
 	/**
 	 * Name of the common grid.
 	 */

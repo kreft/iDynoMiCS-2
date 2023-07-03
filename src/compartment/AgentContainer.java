@@ -98,7 +98,7 @@ public class AgentContainer implements Settable
 	/**
 	 * \brief Construct an {@code AgentContainer} from a {@code Shape}.
 	 * 
-	 * @param aShape {@code Shape} object (see shape.ShapeLibrary).
+	 * 
 	 */
 	public AgentContainer(Compartment comp)
 	{
@@ -519,9 +519,6 @@ public class AgentContainer implements Settable
 			this._agentList.add(agent);
 			agent.simplifyLocation();
 		}
-		
-		Body agentBody = (Body) agent.get(AspectRef.agentBody);
-		List<Point> points = agentBody.getPoints();
 	}
 
 	/**
