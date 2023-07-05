@@ -135,11 +135,35 @@ public class XmlHandler
 			}
 			return doc.getDocumentElement();
 		} catch ( ParserConfigurationException | IOException e) {
-			Log.printToScreen("Error while loading: " + document + "\n"
-					+ "error message: " + e.getMessage(), true);
-			document = Helper.obtainInput("", "Atempt to re-obtain document",
-					false);
-			return loadDocument(document);
+			/* If a filename instead of path was passed we can retry in the same folder as the
+			protocol if present */
+			if( Idynomics.global.protocolFile != null &! document.contains("\\") &! document.contains("/") ) {
+				String input = Idynomics.global.protocolFile;
+				File file = new File(input);
+				String usr = System.getProperty("user.dir");
+				boolean flipslash = false;
+				String path;
+				int lastSlashIndex = input.lastIndexOf("\\");
+				if( lastSlashIndex == -1 ) {
+					// typical Linux system
+					lastSlashIndex = input.lastIndexOf("/");
+					flipslash = true;
+				}
+				if( file.exists() )
+					// Typical Windows system gives us the full path to the protocol file.
+					path = input.substring(0, lastSlashIndex + 1) + document;
+				else
+					// Typical Linux system gives us the relative path to the protocol file.
+					path = System.getProperty("user.dir") + "\\" + input.substring(0, lastSlashIndex + 1) + document;
+				if( flipslash )
+					path.replace("\\","/");
+				Log.out( "loading: " + path);
+				return loadDocument( path );
+			} else {
+				Log.printToScreen("Error while loading: " + document + "\n"
+						+ "error message: " + e.getMessage(), true);
+				return null;
+			}
 		} catch ( SAXException e ) {
 			Log.printToScreen("Error while loading: " + document + "\n"
 				+ "error message: " + e.getMessage(), true);
@@ -167,6 +191,8 @@ public class XmlHandler
 	}
 	
 	/**
+	 * FIXME: this is nearly the same as loadDocument, but it returns the Document Object rather
+	 * than the document element. It further does not implement exi. Consider unifying methods.
 	 * \brief Load the input XML file provided in the argument
 	 */
 	public static Document getDocument(String filePath) {

@@ -90,16 +90,21 @@ public class Colour {
 		for (int i = 0; i < 3; i++)
 		{
 			HSBOOut[i] = initialColour[i] + 
-					line(0,i) +	line(1,i) +	line(2,i);
+					line(0,i, dial) +	line(1,i, dial) +	line(2,i, dial);
 		}
 		return HSBOOut;
 	}
-	
+
 	public float line(int gradient, int field)
+	{
+		return line(gradient, field, dial);
+	}
+	
+	public float line(int gradient, int field, float[] dial)
 	{
 		float[] grad = ( this.gradients.size() > gradient ?
 				this.gradients.get( gradient ) : zeros );
-		return dial[gradient] * ( grad[field] - initialColour[field] );
+		return ( dial[gradient] * grad[field] );
 	}
 	
 	/**
@@ -117,7 +122,7 @@ public class Colour {
 		for (int i = 0; i < 3; i++)
 		{
 			HSBOOut[i] = initialColour[i] + 
-					line(0,i) +	line(1,i) +	line(2,i);
+					line(0,i, dial) + line(1,i, dial) + line(2,i, dial);
 		}
 		return HSBOOut;
 	}

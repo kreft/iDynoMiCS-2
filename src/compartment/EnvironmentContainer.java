@@ -50,7 +50,7 @@ public class EnvironmentContainer implements CanPrelaunchCheck, Settable
 	 * Collection of extracellular reactions specific to this compartment
 	 * (each Reaction knows its own name).
 	 */
-	protected InstantiableList<RegularReaction> _reactions = new InstantiableList<RegularReaction>(RegularReaction.class, null, XmlRef.reactions, XmlRef.reaction);
+	protected InstantiableList<Reaction> _reactions = new InstantiableList<Reaction>(RegularReaction.class, null, XmlRef.reactions, XmlRef.reaction);
 	/**
 	 * Name of the common grid.
 	 */
@@ -199,9 +199,9 @@ public class EnvironmentContainer implements CanPrelaunchCheck, Settable
 	/**
 	 * @return All of this {@code Compartment}'s extracellular reactions.
 	 */
-	public Collection<RegularReaction> getReactions()
+	public Collection<Reaction> getReactions()
 	{
-		Collection<RegularReaction> out = new LinkedList<RegularReaction>();
+		Collection<Reaction> out = new LinkedList<Reaction>();
 		out.addAll(this._reactions);
 		return this._reactions;
 	}
@@ -228,7 +228,7 @@ public class EnvironmentContainer implements CanPrelaunchCheck, Settable
 	 * 
 	 * @param reaction Reaction to add to this compartment.
 	 */
-	public void addReaction(RegularReaction reaction)
+	public void addReaction(Reaction reaction)
 	{
 		// TODO Safety: check this reaction is not already present?
 		this._reactions.add(reaction);

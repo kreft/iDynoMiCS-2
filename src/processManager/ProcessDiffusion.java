@@ -236,7 +236,7 @@ public abstract class ProcessDiffusion extends ProcessManager
 	 */
 	protected void applyEnvReactions(Collection<SpatialGrid> solutes)
 	{
-		Collection<RegularReaction> reactions = this._environment.getReactions();
+		Collection<Reaction> reactions = this._environment.getReactions();
 		if ( reactions.isEmpty() )
 		{
 			return;
@@ -278,7 +278,7 @@ public abstract class ProcessDiffusion extends ProcessManager
 					for ( SpatialGrid soluteGrid : solutes )
 						if ( product.equals(soluteGrid.getName()) )
 						{
-							productRate = r.getProductionRate( concns, product);
+							productRate = r.getProductionRate( concns, product, null);
 							soluteGrid.addValueAt(PRODUCTIONRATE,
 									coord, productRate);
 							totals.put(product,

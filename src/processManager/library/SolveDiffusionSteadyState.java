@@ -233,7 +233,7 @@ public class SolveDiffusionSteadyState extends ProcessDiffusion
 					solute = FindGrid(variables, productName);
 					if ( solute != null )
 					{
-						productRate = r.getProductionRate(concns, productName);
+						productRate = r.getProductionRate(concns, productName, agent);
 						solute.addValueAt( PRODUCTIONRATE, coord.get(), volume * 
 								productRate );
 					}
@@ -348,7 +348,7 @@ public class SolveDiffusionSteadyState extends ProcessDiffusion
 					 * once and then calculate the rate per product from that
 					 * for each individual product
 					 */
-					productRate = r.getProductionRate(concns,productName);
+					productRate = r.getProductionRate(concns,productName, agent);
 					double quantity;
 					
 					if ( this._environment.isSoluteName(productName) )

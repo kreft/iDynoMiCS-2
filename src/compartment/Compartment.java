@@ -305,12 +305,26 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable, C
 					" initialised with " + this.agents.getNumAllAgents() +
 					" agents.");
 
+
+		Element agents = XmlHandler.findUniqueChild(xmlElem, XmlRef.agents);
+
+		/*
+		 * Potential imports
+		 */
+		Collection<Element> imports = XmlHandler.getElements( agents, XmlRef.xmlImport);
+		for ( Element e : imports ) {
+			Element imported = XmlHandler.loadDocument(e.getAttribute(XmlRef.valueAttribute));
+			for (Element a : XmlHandler.getElements(imported, XmlRef.agent)) {
+				this.agents.addAgent(new Agent(a, this), true);
+			}
+		}
+
 		/*
 		 * Read in agents.
 		 */
-		Element agents = XmlHandler.findUniqueChild(xmlElem, XmlRef.agents);
-		for ( Element e : XmlHandler.getElements( agents, XmlRef.agent) )
-			this.addAgent(new Agent( e, this ));
+			for (Element a : XmlHandler.getElements(agents, XmlRef.agent)) {
+				this.agents.addAgent(new Agent(a, this), true);
+			}
 		
 		this.agents.update();
 		

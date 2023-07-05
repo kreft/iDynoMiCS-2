@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import agent.Agent;
+import agent.Body;
 import aspect.AspectInterface;
 import aspect.Calculated;
 import compartment.Compartment;
@@ -52,20 +53,18 @@ public class LocalConcentrations extends Calculated
 		 */
 		Collection<SpatialGrid> solutes = comp.environment.getSolutes();
 
+		CoordinateMap distribMap;
 		if ( ! anAgent.isAspect(VD_TAG) )
 		{
-			if ( Log.shouldWrite(level) )
-			{
-				Log.out(level, "Error in "+ this.getClass().getSimpleName() +
-						", agent " +  anAgent.identity()+ " has no " + VD_TAG);
-			}
-			return out;
+			distribMap = new CoordinateMap();
+			Shape shape = anAgent.getCompartment().getShape();
+			int[] coords = shape.getCoords( ((Body) anAgent.get(AspectRef.agentBody)).getCenter(shape));
+			distribMap.put(coords,1.0);
+		} else
+		{
+			Map<Shape, CoordinateMap> mapOfMaps = (Map<Shape, CoordinateMap>) anAgent.getValue(VD_TAG);
+			distribMap = mapOfMaps.get(comp.getShape());
 		}
-		
-		@SuppressWarnings("unchecked")
-		Map<Shape, CoordinateMap> mapOfMaps = 
-				(Map<Shape, CoordinateMap>) anAgent.getValue(VD_TAG);
-		CoordinateMap distribMap = mapOfMaps.get(comp.getShape());
 		
 		/*
 		 * Loop over the coordinates, storing the solute concentrations.

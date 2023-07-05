@@ -198,6 +198,12 @@ public class ClassRef
 	public final static String agentMassProportion =
 			aspect.calculated.StructuredBiomassCalculation.class.getName();
 
+	public final static String localConcentrations =
+			aspect.calculated.LocalConcentrations.class.getName();
+
+	public final static String localConcentration =
+			aspect.calculated.LocalConcentration.class.getName();
+
 	/* ************************************************************************
 	 * Class reference library : Aspects - Event
 	 */
@@ -683,7 +689,11 @@ public class ClassRef
 	 */
 	public static final String reaction =
 			reaction.RegularReaction.class.getName();
-	
+
+	public static final String flexibleReaction =
+			reaction.FlexibleReaction.class.getName();
+
+
 	/**
 	 * TODO
 	 */
@@ -725,7 +735,7 @@ public class ClassRef
 			String.class.getName();
 	
 	/**		
-	* String		
+	* String FIXME?? not sure whether java standard types should even be here, see also objectRef
 	*/		
 	public final static String doub =		
 				Double.class.getName();

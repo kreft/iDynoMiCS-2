@@ -200,7 +200,7 @@ public class SolveDiffusionTransient extends ProcessDiffusion
 				 */
 				for ( String productName : r.getReactantNames() )
 				{
-					productRate = r.getProductionRate(concns,productName);
+					productRate = r.getProductionRate(concns,productName, agent);
 					double quantity;
 					if ( this._environment.isSoluteName(productName) )
 					{

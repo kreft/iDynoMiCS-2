@@ -189,6 +189,55 @@ public class ObjectFactory
 				printReadError( input(input, elem), ObjectRef.DBL_ARRY);
 				return null;
 			}
+
+		case ObjectRef.FLT :
+			try{
+				return Float.valueOf( input(input, elem) );
+			}
+			catch(NumberFormatException e)
+			{
+				try
+				{
+					return Float.valueOf((float) new Expression( input(input, elem) ).format(
+							Idynomics.unitSystem ));
+				}
+				catch (NumberFormatException | StringIndexOutOfBoundsException
+					   | NullPointerException f)
+				{
+					printReadError( input(input, elem), ObjectRef.FLT);
+					return null;
+				}
+			}
+
+		case ObjectRef.FLT_VECT :
+			try{
+				return Vector.fltFromString( input(input, elem) );
+			}
+			catch(NumberFormatException e)
+			{
+				printReadError( input(input, elem), ObjectRef.FLT_VECT);
+				return null;
+			}
+
+		case ObjectRef.FLT_MATR :
+			try{
+				return Matrix.fltFromString( input(input, elem) );
+			}
+			catch(NumberFormatException e)
+			{
+				printReadError( input(input, elem), ObjectRef.DBL_MATR);
+				return null;
+			}
+
+		case ObjectRef.FLT_ARRY :
+			try{
+				return Array.fltFromString( input(input, elem) );
+			}
+			catch(NumberFormatException e)
+			{
+				printReadError( input(input, elem), ObjectRef.FLT_ARRY);
+				return null;
+			}
 			
 		case ObjectRef.STR : 
 			return input(input, elem);
@@ -348,6 +397,15 @@ public class ObjectFactory
 			break;
 		case ObjectRef.DBL_VECT:
 			out = Vector.toString( (double[]) obj );
+			break;
+		case ObjectRef.FLT_ARRY:
+			out = Array.toString( (float[][][]) obj );
+			break;
+		case ObjectRef.FLT_MATR:
+			out = Matrix.toString( (float[][]) obj );
+			break;
+		case ObjectRef.FLT_VECT:
+			out = Vector.toString( (float[]) obj );
 			break;
 		case ObjectRef.INT_ARRY:
 			out = Array.toString( (int[][][]) obj );

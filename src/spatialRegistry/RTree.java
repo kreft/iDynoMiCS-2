@@ -49,6 +49,16 @@ public class RTree<T> implements SpatialRegistry<T>
 	private Shape _shape;
 
 	/**
+	 * FIXME implement
+	 * @param list
+	 * @return
+	 */
+	public List<T> getAll( List<T> list )
+	{
+		return list;
+	}
+
+	/**
 	 * Creates a new RTree.
 	 * 
 	 * @param maxEntries

@@ -70,14 +70,14 @@ public class PDEWrapper extends ProcessDiffusion
         this.relTol = (double) this.getOr(REL_TOLERANCE, 1.0e-6);
 
         this.solverResidualRatioThreshold = (double) this.getOr(
-                AspectRef.solverResidualRatioThreshold, 1.0e-4);
+                AspectRef.solverResidualRatioThreshold, 1.0e-3);
 
         int vCycles = (int) this.getOr(AspectRef.vCycles, 15);
         int preSteps = (int) this.getOr(AspectRef.preSteps, 5);
         int coarseSteps = (int) this.getOr(AspectRef.coarseSteps, 5);
         int postSteps = (int) this.getOr(AspectRef.postSteps, 5);
 
-        boolean autoVcycleAdjust = (boolean) this.getOr(AspectRef.autoVcycleAdjust, false);
+        boolean autoVcycleAdjust = (boolean) this.getOr(AspectRef.autoVcycleAdjust, true);
 
         /* gets specific solutes from process manager aspect registry if they
          * are defined, if not, solve for all solutes.
@@ -180,17 +180,16 @@ public class PDEWrapper extends ProcessDiffusion
      */
     public void prestep(Collection<SpatialGrid> variables, double dt)
     {
-    /* TODO should env reactions be aplied here? */
         for ( SpatialGrid var : variables )
             var.newArray(PRODUCTIONRATE);
-        applyEnvReactions(variables);
-
+        /* Note environment should be calculated simultaneously with agent reactions! */
         setupAgentDistributionMaps(this._agents.getShape());
     }
 
     public void applyReactions(MultigridSolute[] sols, int resorder, SolverGrid[] reacGrid, double[] resolution,
                                double voxelVolume)
     {
+        applyEnvReactions( sols, resorder );
         for( Agent agent : this._agents.getAllAgents() )
             applyAgentReactions(agent, sols, resorder, reacGrid, resolution, voxelVolume);
     }
@@ -297,9 +296,71 @@ public class PDEWrapper extends ProcessDiffusion
                 if ( mGrid != null )
                 {
                     solute = mGrid._reac[resorder];
-                    productRate = r.getProductionRate(concns, productName);
+                    productRate = r.getProductionRate(concns, productName, agent);
                     solute.addValueAt( productRate, coord.get() , true );
                 }
+            }
+        }
+    }
+
+    /**
+     * TODO this method seemed to be missing for PDE wrapper -> test it!
+     * @param concGrid
+     * @param resorder
+     */
+    protected void applyEnvReactions(MultigridSolute[] concGrid, int resorder)
+    {
+        Shape shape = this._environment.getShape();
+        Collection<Reaction> reactions = this._environment.getReactions();
+        if ( reactions.isEmpty() )
+        {
+            return;
+        }
+        /*
+         * Construct the "concns" dictionary once, so that we don't have to
+         * re-enter the solute names for every voxel coordinate.
+         */
+        Collection<String> soluteNames = this._environment.getSoluteNames();
+        HashMap<String,Double> concns = new HashMap<String,Double>();
+        for ( String soluteName : soluteNames )
+            concns.put(soluteName, 0.0);
+        /*
+         * Iterate over the spatial discretization of the environment,
+         * applying extracellular reactions as required.
+         */
+        double productRate;
+        SolverGrid solute;
+        MultigridSolute mGrid;
+        // TODO test
+        for ( IntegerArray position : concGrid[0].fetchCoords(resorder) )
+        {
+            int[] coord = position.get();
+            /* Get the solute concentrations in this grid voxel. */
+            for ( String s : soluteNames )
+            {
+                mGrid = FindGrid(concGrid, s);
+                if ( mGrid != null )
+                {
+                    solute = mGrid._conc[resorder];
+                    concns.put( s, solute.getValueAt(coord, true));
+                }
+            }
+            /* Iterate over each compartment reactions. */
+            for ( Reaction r : reactions )
+            {
+                /* Write rate for each product to grid. */
+                for ( String product : r.getReactantNames() )
+                    for ( String s : soluteNames )
+                        if ( product.equals( s ) )
+                        {
+                            mGrid = FindGrid(concGrid, s );
+                            if ( mGrid != null )
+                            {
+                                solute = mGrid._reac[resorder];
+                                productRate = r.getProductionRate(concns, s, null);
+                                solute.addValueAt( productRate, coord, true );
+                            }
+                        }
             }
         }
     }
@@ -389,7 +450,7 @@ public class PDEWrapper extends ProcessDiffusion
                      * once and then calculate the rate per product from that
                      * for each individual product
                      */
-                    productRate = r.getProductionRate(concns,productName);
+                    productRate = r.getProductionRate(concns,productName, agent);
                     double quantity;
 
                     if ( this._environment.isSoluteName(productName) )

@@ -59,7 +59,8 @@ public class SamplerLaunch implements Launchable {
 					"Number of repetitions: ",true) );
 
 		}
-		else if ( samplingChoice == Sampler.SampleMethod.SIMPLE && 
+		else if ( ( samplingChoice == Sampler.SampleMethod.SIMPLE ||
+					samplingChoice == Sampler.SampleMethod.LHC )	&&
 				( args == null || args.length == 4 || args[4] == null ) )
 		{
 			boolean force_round = Helper.obtainInput("Force rounding?",true);
