@@ -1,13 +1,17 @@
 package aspect;
 
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.Map;
+
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import dataIO.Log;
+import aspect.Aspect.AspectClass;
 import dataIO.ObjectFactory;
-import dataIO.Log.Tier;
-import dataIO.XmlRef;
+import referenceLibrary.XmlRef;
 
 /**
  * The aspect interface is implemented by classes with an aspect registry,
@@ -15,13 +19,15 @@ import dataIO.XmlRef;
  * aspects from xml.
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
+ *
+ * TODO: investigate mixed use of primitive and object type such as double and Double
+ * advantage of object type might be that it does not directly lead to a crash if it happens to be
+ * set to null.
  */
 public abstract interface AspectInterface
 {
 	/**
 	 * \brief TODO
-	 * @param <A>
-	 * 
 	 * @return
 	 */
 	public AspectReg reg();	
@@ -35,18 +41,22 @@ public abstract interface AspectInterface
 	 */
 	public default void loadAspects(Node xmlNode)
 	{
-		Element e = (Element) xmlNode;
-		AspectReg aspectReg = (AspectReg) reg();
-		String  name;
-		NodeList stateNodes = e.getElementsByTagName(XmlRef.aspect);
-		for (int j = 0; j < stateNodes.getLength(); j++) 
+		if (xmlNode != null)
 		{
-			Element s = (Element) stateNodes.item(j);
-			name = s.getAttribute(XmlRef.nameAttribute);
-			aspectReg.add(name, ObjectFactory.loadObject(s));
-			Log.out(Tier.BULK, "Aspects loaded for \""+name+"\"");
+			Element e = (Element) xmlNode;
+			AspectReg aspectReg = (AspectReg) reg();
+			String  key;
+			NodeList stateNodes = e.getElementsByTagName( XmlRef.aspect );
+			for (int j = 0; j < stateNodes.getLength(); j++) 
+			{
+				Element s = (Element) stateNodes.item(j);
+				if(s.getParentNode() == e)
+				{
+					key = s.getAttribute( XmlRef.nameAttribute );
+					aspectReg.add( key, ObjectFactory.loadObject( s ) );
+				}
+			}
 		}
-		
 	}
 	
 	
@@ -57,32 +67,55 @@ public abstract interface AspectInterface
 	 */
 	
 	/**
+	 * check for local existence of aspect
+	 * @param aspect
+	 * @return
+	 */
+	default boolean isLocalAspect(String aspect)
+	{
+		return this.reg().isLocalAspect(aspect);
+	}
+	
+	/**
 	 * check for global existence of aspect
 	 * @param aspect
 	 * @return
 	 */
 	default boolean isAspect(String aspect)
 	{
-		if ( reg().isGlobalAspect(aspect) )
-		{
-			if ( reg().getValue(this, aspect) != null )
-				return true;
-			else
-			{
-				Log.out(Tier.BULK, "Aspect \""+aspect+"\" found but null");
-				return false;
-			}
-		}
-		else
-		{
-			Log.out(Tier.BULK, "Aspect \""+aspect+"\" not found");
-			return false;
-		}
+		return this.reg().isGlobalAspect(aspect);
 	}
 	
+	/**
+	 * 
+	 * @param aspect
+	 * @return
+	 */
+	default AspectClass getType(String aspect)
+	{
+		return reg().getType(this, aspect);
+	}
+	
+	/**
+	 * 
+	 * @param key
+	 * @param aspect
+	 */
 	public default void set(String key, Object aspect)
 	{
-		reg().set(key, aspect);
+		this.reg().set(key, aspect);
+	}
+	
+	/**
+	 * get value or use default if the aspect is not set
+	 * @param aspect
+	 * @param defaultValue
+	 * @return
+	 */
+	public default Object getOr(String aspect, Object defaultValue)
+	{
+		return ( this.isAspect(aspect) ? 
+				this.getValue(aspect) : defaultValue );
 	}
 	
 	/**
@@ -92,7 +125,7 @@ public abstract interface AspectInterface
 	 */
 	public default Object getValue(String aspect)
 	{
-		return (isAspect(aspect) ?  reg().getValue(this, aspect) : null);
+		return this.reg().getValue(this, aspect);
 	}
 	
 	/**
@@ -103,8 +136,7 @@ public abstract interface AspectInterface
 	 */
 	public default Double getDouble(String aspect)
 	{
-		return (isAspect(aspect) ? (double) reg().getValue(this, aspect) 
-				: null);
+		return (Double) this.reg().getValue(this, aspect);
 	}
 	
 	/**
@@ -113,11 +145,9 @@ public abstract interface AspectInterface
 	 * @param aspect
 	 * @return
 	 */
-	// TODO Rob [24May2016]: change this from Double[] to double[]?
-	public default Double[] getDoubleA(String aspect)
+	public default double[] getDoubleA(String aspect)
 	{
-		return (isAspect(aspect) ? (Double[]) reg().getValue(this, aspect) 
-				: null);
+		return (double[]) this.reg().getValue(this, aspect);
 	}
 	
 	/**
@@ -128,8 +158,7 @@ public abstract interface AspectInterface
 	 */
 	public default String getString(String aspect)
 	{
-		return (isAspect(aspect) ? (String) reg().getValue(this, aspect) 
-				: null);
+		return (String) this.reg().getValue(this, aspect);
 	}
 	
 	/**
@@ -140,8 +169,7 @@ public abstract interface AspectInterface
 	 */
 	public default String[] getStringA(String aspect)
 	{
-		return (isAspect(aspect) ? (String[]) reg().getValue(this, aspect) 
-				: null);
+		return (String[]) this.reg().getValue(this, aspect);
 	}
 	
 	/**
@@ -152,8 +180,7 @@ public abstract interface AspectInterface
 	 */
 	public default Integer getInt(String aspect)
 	{
-		return (isAspect(aspect) ? (int) reg().getValue(this, aspect) 
-				: null);
+		return (Integer) this.reg().getValue(this, aspect);
 	}
 	
 	/**
@@ -164,8 +191,7 @@ public abstract interface AspectInterface
 	 */
 	public default Integer[] getIntA(String aspect)
 	{
-		return (isAspect(aspect) ? (Integer[]) reg().getValue(this, aspect) 
-				: null);
+		return (Integer[]) this.reg().getValue(this, aspect);
 	}
 	
 	/**
@@ -178,8 +204,7 @@ public abstract interface AspectInterface
 	 */
 	public default Float getFloat(String aspect)
 	{
-		return (isAspect(aspect) ? (float) reg().getValue(this, aspect) 
-				: null);
+		return (Float) this.reg().getValue(this, aspect);
 	}
 	
 	/**
@@ -192,8 +217,7 @@ public abstract interface AspectInterface
 	 */
 	public default Float[] getFloatA(String aspect)
 	{
-		return (isAspect(aspect) ? (Float[]) reg().getValue(this, aspect) 
-				: null);
+		return (Float[]) this.reg().getValue(this, aspect);
 	}
 	
 	/**
@@ -204,8 +228,10 @@ public abstract interface AspectInterface
 	 */
 	public default Boolean getBoolean(String aspect)
 	{
-		return (isAspect(aspect) ? (boolean) reg().getValue(this, aspect)
-				: null);
+		Boolean out = (Boolean) this.reg().getValue(this, aspect);
+		if( out == null )
+			return null;
+		return out;
 	}
 	
 	/**
@@ -216,8 +242,14 @@ public abstract interface AspectInterface
 	 */
 	public default Boolean[] getBooleanA(String aspect)
 	{
-		return (isAspect(aspect) ? (Boolean[]) reg().getValue(this, aspect)
-				: null);
+		return (Boolean[]) this.reg().getValue(this, aspect);
 	}
 
+	public default Map<String, Double> getVariables(Collection<String> variables)
+	{
+		HashMap<String, Double> out = new HashMap<String, Double>();
+		for( String s : variables)
+			out.put(s, this.getDouble(s));
+		return out;
+	}
 }

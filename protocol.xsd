@@ -1,0 +1,218 @@
+<?xml version="1.0"?>
+
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="document">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="simulation">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="timer">
+                <xs:complexType>
+                  <xs:simpleContent>
+                    <xs:extension base="xs:string">
+                      <xs:attribute type="xs:float" name="stepSize"/>
+                      <xs:attribute type="xs:float" name="endOfSimulation"/>
+                    </xs:extension>
+                  </xs:simpleContent>
+                </xs:complexType>
+              </xs:element>
+              <xs:element name="speciesLib">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="species" maxOccurs="unbounded" minOccurs="0">
+                      <xs:complexType>
+                        <xs:choice maxOccurs="unbounded" minOccurs="0">
+                          <xs:element name="aspect">
+                            <xs:complexType>
+                              <xs:simpleContent>
+                                <xs:extension base="xs:string">
+                                  <xs:attribute type="xs:string" name="name" use="optional"/>
+                                  <xs:attribute type="xs:string" name="type" use="optional"/>
+                                  <xs:attribute type="xs:string" name="class" use="optional"/>
+                                  <xs:attribute type="xs:string" name="value" use="optional"/>
+                                  <xs:attribute type="xs:string" name="input" use="optional"/>
+                                </xs:extension>
+                              </xs:simpleContent>
+                            </xs:complexType>
+                          </xs:element>
+                          <xs:element name="speciesModule">
+                            <xs:complexType mixed="true">
+                              <xs:sequence>
+                                <xs:element name="list" minOccurs="0">
+                                  <xs:complexType>
+                                    <xs:sequence>
+                                      <xs:element name="reaction">
+                                        <xs:complexType>
+                                          <xs:sequence>
+                                            <xs:element name="expression">
+                                              <xs:complexType>
+                                                <xs:sequence>
+                                                  <xs:element name="constant" maxOccurs="unbounded" minOccurs="0">
+                                                    <xs:complexType>
+                                                      <xs:simpleContent>
+                                                        <xs:extension base="xs:string">
+                                                          <xs:attribute type="xs:string" name="name" use="optional"/>
+                                                          <xs:attribute type="xs:float" name="value" use="optional"/>
+                                                        </xs:extension>
+                                                      </xs:simpleContent>
+                                                    </xs:complexType>
+                                                  </xs:element>
+                                                </xs:sequence>
+                                                <xs:attribute type="xs:string" name="value"/>
+                                              </xs:complexType>
+                                            </xs:element>
+                                            <xs:element name="stoichiometric" maxOccurs="unbounded" minOccurs="0">
+                                              <xs:complexType>
+                                                <xs:simpleContent>
+                                                  <xs:extension base="xs:string">
+                                                    <xs:attribute type="xs:string" name="component" use="optional"/>
+                                                    <xs:attribute type="xs:float" name="coefficient" use="optional"/>
+                                                  </xs:extension>
+                                                </xs:simpleContent>
+                                              </xs:complexType>
+                                            </xs:element>
+                                          </xs:sequence>
+                                          <xs:attribute type="xs:string" name="name"/>
+                                          <xs:attribute type="xs:string" name="comment"/>
+                                        </xs:complexType>
+                                      </xs:element>
+                                    </xs:sequence>
+                                    <xs:attribute type="xs:string" name="class"/>
+                                    <xs:attribute type="xs:string" name="nodeLabel"/>
+                                    <xs:attribute type="xs:string" name="entryClass"/>
+                                    <xs:attribute type="xs:string" name="keyClass"/>
+                                    <xs:attribute type="xs:string" name="keyLabel"/>
+                                  </xs:complexType>
+                                </xs:element>
+                              </xs:sequence>
+                              <xs:attribute type="xs:string" name="name" use="optional"/>
+                              <xs:attribute type="xs:string" name="type" use="optional"/>
+                              <xs:attribute type="xs:string" name="class" use="optional"/>
+                            </xs:complexType>
+                          </xs:element>
+                        </xs:choice>
+                        <xs:attribute type="xs:string" name="name" use="optional"/>
+                      </xs:complexType>
+                    </xs:element>
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+              <xs:element name="compartment">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="shape">
+                      <xs:complexType>
+                        <xs:sequence>
+                          <xs:element name="dimension" maxOccurs="unbounded" minOccurs="0">
+                            <xs:complexType>
+                              <xs:simpleContent>
+                                <xs:extension base="xs:string">
+                                  <xs:attribute type="xs:string" name="name" use="optional"/>
+                                  <xs:attribute type="xs:string" name="isCyclic" use="optional"/>
+                                  <xs:attribute type="xs:float" name="targetResolution" use="optional"/>
+                                  <xs:attribute type="xs:float" name="max" use="optional"/>
+                                </xs:extension>
+                              </xs:simpleContent>
+                            </xs:complexType>
+                          </xs:element>
+                        </xs:sequence>
+                        <xs:attribute type="xs:string" name="class"/>
+                      </xs:complexType>
+                    </xs:element>
+                    <xs:element name="solutes">
+                      <xs:complexType>
+                        <xs:sequence>
+                          <xs:element name="solute">
+                            <xs:complexType>
+                              <xs:simpleContent>
+                                <xs:extension base="xs:string">
+                                  <xs:attribute type="xs:string" name="name"/>
+                                  <xs:attribute type="xs:float" name="concentration"/>
+                                  <xs:attribute type="xs:float" name="defaultDiffusivity"/>
+                                </xs:extension>
+                              </xs:simpleContent>
+                            </xs:complexType>
+                          </xs:element>
+                        </xs:sequence>
+                      </xs:complexType>
+                    </xs:element>
+                    <xs:element type="xs:string" name="reactions"/>
+                    <xs:element name="agents">
+                      <xs:complexType>
+                        <xs:sequence>
+                          <xs:element name="agent">
+                            <xs:complexType>
+                              <xs:sequence>
+                                <xs:element name="aspect" maxOccurs="unbounded" minOccurs="0">
+                                  <xs:complexType>
+                                    <xs:simpleContent>
+                                      <xs:extension base="xs:string">
+                                        <xs:attribute type="xs:string" name="name" use="optional"/>
+                                        <xs:attribute type="xs:string" name="type" use="optional"/>
+                                        <xs:attribute type="xs:string" name="class" use="optional"/>
+                                        <xs:attribute type="xs:string" name="value" use="optional"/>
+                                      </xs:extension>
+                                    </xs:simpleContent>
+                                  </xs:complexType>
+                                </xs:element>
+                                <xs:element name="spawn">
+                                  <xs:complexType>
+                                    <xs:simpleContent>
+                                      <xs:extension base="xs:string">
+                                        <xs:attribute type="xs:byte" name="number"/>
+                                        <xs:attribute type="xs:string" name="domain"/>
+                                      </xs:extension>
+                                    </xs:simpleContent>
+                                  </xs:complexType>
+                                </xs:element>
+                              </xs:sequence>
+                            </xs:complexType>
+                          </xs:element>
+                        </xs:sequence>
+                      </xs:complexType>
+                    </xs:element>
+                    <xs:element name="processManagers">
+                      <xs:complexType>
+                        <xs:sequence>
+                          <xs:element name="process" maxOccurs="unbounded" minOccurs="0">
+                            <xs:complexType>
+                              <xs:sequence>
+                                <xs:element name="aspect" maxOccurs="unbounded" minOccurs="0">
+                                  <xs:complexType>
+                                    <xs:simpleContent>
+                                      <xs:extension base="xs:string">
+                                        <xs:attribute type="xs:string" name="name" use="optional"/>
+                                        <xs:attribute type="xs:string" name="type" use="optional"/>
+                                        <xs:attribute type="xs:string" name="class" use="optional"/>
+                                        <xs:attribute type="xs:string" name="value" use="optional"/>
+                                      </xs:extension>
+                                    </xs:simpleContent>
+                                  </xs:complexType>
+                                </xs:element>
+                              </xs:sequence>
+                              <xs:attribute type="xs:string" name="name" use="optional"/>
+                              <xs:attribute type="xs:string" name="class" use="optional"/>
+                              <xs:attribute type="xs:byte" name="priority" use="optional"/>
+                              <xs:attribute type="xs:float" name="firstStep" use="optional"/>
+                              <xs:attribute type="xs:float" name="timerStepSize" use="optional"/>
+                            </xs:complexType>
+                          </xs:element>
+                        </xs:sequence>
+                      </xs:complexType>
+                    </xs:element>
+                  </xs:sequence>
+                  <xs:attribute type="xs:string" name="name"/>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+            <xs:attribute type="xs:string" name="name"/>
+            <xs:attribute type="xs:string" name="outputfolder"/>
+            <xs:attribute type="xs:string" name="log"/>
+            <xs:attribute type="xs:string" name="comment"/>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

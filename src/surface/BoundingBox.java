@@ -1,29 +1,33 @@
 package surface;
 
 import linearAlgebra.Vector;
-import utility.ExtraMath;
+import spatialRegistry.Area;
 
 /**
  * This class constructs and holds the bounding box for sphere swept volumes
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
- * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
-public class BoundingBox
+public class BoundingBox extends Area
 {	
-	/**
-	 * TODO
-	 */
-	protected double[] _dimensions;
-	
-	/**
-	 * TODO
-	 */
-	protected double[] _lower;
+
 	
 	/*************************************************************************
 	 * CONSTRUCTORS
 	 ************************************************************************/
+	
+	public BoundingBox()
+	{
+		
+	}
+
+	public BoundingBox copy()
+	{
+		BoundingBox out = new BoundingBox();
+		out.set(Vector.copy(low),Vector.copy(high),Vector.copy(periodic));
+		return out;
+	}
 	
 	/**
 	 * construct from a matrix of locations, a sphere radius for the sphere-
@@ -33,11 +37,10 @@ public class BoundingBox
 	 * @param radius
 	 * @param margin
 	 */
-	public BoundingBox(double[][] p, double radius, double margin)
+	public BoundingBox get(double[][] p, double radius, double margin)
 	{
-		double size = radius + margin;
-		this._dimensions = dimensions(p, size);
-		this._lower = lower(p, size);
+		super.set(lower(p, radius + margin), upper(p, radius + margin));
+		return this;
 	}
 	
 	/**
@@ -45,9 +48,10 @@ public class BoundingBox
 	 * @param p
 	 * @param radius
 	 */
-	public BoundingBox(double[][] p, double radius)
+	public BoundingBox get(double[][] p, double radius)
 	{
-		this(p, radius, 0.0);
+		super.set(lower(p, radius), upper(p, radius));
+		return this;
 	}
 	
 	/**
@@ -56,9 +60,11 @@ public class BoundingBox
 	 * @param radius
 	 * @param margin
 	 */
-	public BoundingBox(double[] p, double radius, double margin)
+	public BoundingBox get(double[] p, double radius, double margin)
 	{
-		this(new double[][]{ p }, radius, margin);
+		super.set(lower(new double[][]{ p }, radius + margin),
+				upper(new double[][]{ p }, radius + margin));
+		return this;
 	}
 	
 	/**
@@ -66,9 +72,11 @@ public class BoundingBox
 	 * @param p
 	 * @param radius
 	 */
-	public BoundingBox(double[] p, double radius)
+	public BoundingBox get(double[] p, double radius)
 	{
-		this(p, radius, 0.0);
+		super.set(lower(new double[][]{ p }, radius),
+				upper(new double[][]{ p }, radius));
+		return this;
 	}
 	
 	/**
@@ -77,25 +85,24 @@ public class BoundingBox
 	 * @param dimensions
 	 * @param lower
 	 */
-	public BoundingBox(double[] dimensions, double[] lower)
+	public BoundingBox get(double[] lower, double[] higher)
 	{
-		Vector.checkLengths(dimensions, lower);
-		this._dimensions = dimensions;
-		this._lower = lower;
+		super.set(lower, higher);
+		return this;
 	}
 	
 	/*************************************************************************
 	 * BASIC SETTERS & GETTERS
 	 ************************************************************************/
-	
+
 	/**
 	 * return the box as report string
 	 * @return
 	 */
 	public String getReport()
 	{
-		return "lower: " + Vector.toString(this._lower) + " dimensions: " + 
-				Vector.toString(this._dimensions);
+		return "lower: " + Vector.toString(this.getLow()) + " higher: " + 
+				Vector.toString(this.getHigh());
 	}
 	
 	/**
@@ -104,16 +111,7 @@ public class BoundingBox
 	 */
 	public double[] ribLengths()
 	{
-		return this._dimensions;
-	}
-	
-	/**
-	 * return the lower corner of the bounding box
-	 * @return
-	 */
-	public double[] lowerCorner()
-	{
-		return this._lower;
+		return Vector.minus(this.getHigh(), this.getLow());
 	}
 
 	/*************************************************************************
@@ -125,33 +123,20 @@ public class BoundingBox
 	 */
 	public double[] getRandomInside()
 	{
-		double[] out = Vector.randomZeroOne(this._dimensions);
-		Vector.timesEquals(out, this._dimensions);
-		Vector.addEquals(out, this._lower);
+		double[] out = Vector.randomZeroOne(this.ribLengths());
+		Vector.timesEquals(out, this.ribLengths());
+		Vector.addEquals(out, this.getLow());
 		return out;
 	}
 	
-	/**
-	 * @return Random position on the surface of this bounding box.
-	 */
-	public double[] getRandomOnPeriphery()
-	{
-		/* Get a random point inside this bounding box. */
-		double[] out = getRandomInside();
-		/*
-		 * Choose a random dimension, and force the position to one of the two
-		 * extremes in that dimension.
-		 */
-		int dim = ExtraMath.getUniRandInt(out.length);
-		out[dim] = this._lower[dim];
-		if ( ExtraMath.getRandBool() )
-			out[dim] += this._dimensions[dim];
-		return out;
-	}
 	
 	/*************************************************************************
 	 * STATIC HELPER METHODS
 	 ************************************************************************/
+	
+	/* static calculation vectors, reduce garbage for calculations */
+	protected static double[] sOut = null;
+	protected static double[] sPoint = null;
 	
 	/**
 	 * returns the lower corner of the bounding box
@@ -163,19 +148,18 @@ public class BoundingBox
 		/*
 		 * First find the lowest position in each dimension.
 		 */
-		double[] out = Vector.copy(points[0]);
-		double[] point;
+		sOut = points[0].clone();
 		for ( int pointIndex = 1; pointIndex < points.length; pointIndex++ )
 		{
-			point = points[pointIndex];
-			for ( int dim = 0; dim < out.length; dim++ )
-				out[dim] = Math.min(out[dim], point[dim]);
+			sPoint = points[pointIndex];
+			for ( int dim = 0; dim < sOut.length; dim++ )
+				sOut[dim] = Math.min(sOut[dim], sPoint[dim]);
 		}
 		/*
 		 * Subtract the radius from this in each dimension.
 		 */
-		Vector.addEquals(out, - radius);
-		return out;
+		Vector.addEquals(sOut, - radius);
+		return sOut;
 	}
 	
 	/**
@@ -188,19 +172,18 @@ public class BoundingBox
 		/*
 		 * First find the greatest position in each dimension.
 		 */
-		double[] out = Vector.copy(points[0]);
-		double[] point;
+		sOut = points[0].clone();
 		for ( int pointIndex = 1; pointIndex < points.length; pointIndex++ )
 		{
-			point = points[pointIndex];
-			for ( int dim = 0; dim < out.length; dim++ )
-				out[dim] = Math.max(out[dim], point[dim]);
+			sPoint = points[pointIndex];
+			for ( int dim = 0; dim < sOut.length; dim++ )
+				sOut[dim] = Math.max(sOut[dim], sPoint[dim]);
 		}
 		/*
 		 * Add the radius to this in each dimension.
 		 */
-		Vector.addEquals(out, radius);
-		return out;
+		Vector.addEquals(sOut, radius);
+		return sOut;
 	}
 	
 	/**

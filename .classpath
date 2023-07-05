@@ -1,23 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
-	<classpathentry kind="lib" path="src/lib/SimulationCoreLibrary_v1.4_incl-libs.jar"/>
-	<classpathentry kind="lib" path="src/lib/jfreechart-1.0.19.jar"/>
-	<classpathentry kind="lib" path="src/lib/jcommon-1.0.23.jar"/>
-	<classpathentry kind="lib" path="src/lib/j3dcore.jar">
+	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8">
 		<attributes>
-			<attribute name="javadoc_location" value="jar:platform:/resource/iDynoMiCS-2/Docs/java3d-1_5-spec.zip!/java3d-1_5-spec"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="lib" path="src/lib/j3dutils.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="jar:platform:/resource/iDynoMiCS-2/Docs/java3d-1_5-spec.zip!/java3d-1_5-spec"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="lib" path="src/lib/vecmath.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="jar:platform:/resource/iDynoMiCS-2/Docs/java3d-1_5-spec.zip!/java3d-1_5-spec"/>
+			<attribute name="module" value="true"/>
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="src/lib/jogl/gluegen-rt-natives-linux-amd64.jar"/>
@@ -25,14 +11,24 @@
 	<classpathentry kind="lib" path="src/lib/jogl/gluegen-rt-natives-macosx-universal.jar"/>
 	<classpathentry kind="lib" path="src/lib/jogl/gluegen-rt-natives-windows-amd64.jar"/>
 	<classpathentry kind="lib" path="src/lib/jogl/gluegen-rt-natives-windows-i586.jar"/>
-	<classpathentry kind="lib" path="src/lib/jogl/gluegen-rt.jar"/>
+	<classpathentry kind="lib" path="src/lib/jogl/gluegen-rt.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="http://jogamp.org/deployment/jogamp-next/javadoc/gluegen/javadoc/"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="lib" path="src/lib/jogl/jogl-all-natives-linux-amd64.jar"/>
 	<classpathentry kind="lib" path="src/lib/jogl/jogl-all-natives-linux-i586.jar"/>
 	<classpathentry kind="lib" path="src/lib/jogl/jogl-all-natives-macosx-universal.jar"/>
 	<classpathentry kind="lib" path="src/lib/jogl/jogl-all-natives-solaris-i586.jar"/>
 	<classpathentry kind="lib" path="src/lib/jogl/jogl-all-natives-windows-amd64.jar"/>
 	<classpathentry kind="lib" path="src/lib/jogl/jogl-all-natives-windows-i586.jar"/>
-	<classpathentry kind="lib" path="src/lib/jogl/jogl-all.jar"/>
+	<classpathentry kind="lib" path="src/lib/jogl/jogl-all.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="http://jogamp.org/deployment/jogamp-next/javadoc/jogl/javadoc/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="src/lib/exificient-core.jar"/>
+	<classpathentry kind="lib" path="src/lib/exificient-1.0.4.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

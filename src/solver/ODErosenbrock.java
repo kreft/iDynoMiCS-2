@@ -211,7 +211,7 @@ public class ODErosenbrock extends ODEsolver
 			 * fails.
 			 */
 			noFailed = true;
-			usingHMin = false;
+			usingHMin = true;
 			while ( true )
 			{
 				tNext = ( lastStep ) ? tFinal : t + h;
@@ -260,6 +260,8 @@ public class ODErosenbrock extends ODEsolver
 					/* ynext = y + h * k2 */
 					Vector.timesTo(ynext, k2, h);
 					Vector.addEquals(ynext, y);
+					if ( ! this._allowNegatives )
+						Vector.makeNonnegative(ynext);
 					/* f2 = dYdT(ynext) */
 					this._deriv.firstDeriv(f2, ynext);
 					/*
@@ -358,13 +360,20 @@ public class ODErosenbrock extends ODEsolver
 			 * Check if we've reached a steady-state solution.
 			 * NOTE: do not use absTol when comparing y and ynext!
 			 */
-			if( (h == hMax) && Vector.areSame(y, ynext) )
-				return ynext;
+			// FIXME this is the cause of the solute concentrations disappearing
+			// when there are no reactions or agents, etc
+			//if( (h == hMax) && Vector.areSame(y, ynext) )
+			//	return ynext;
 			/*
 			 * Update the y and the first derivative dYdT.
 			 */
 			Vector.copyTo(y, ynext);
 			Vector.copyTo(dYdT, f2);
+			/*
+			 * If the method using this solver has anything it needs to update
+			 * after every mini-timestep, then do this now.
+			 */
+			this._deriv.postMiniStep(y, h);
 		} // End of `while ( ! lastStep )`
 		return y;
 	}

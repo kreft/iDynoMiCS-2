@@ -19,24 +19,23 @@ import java.text.DecimalFormat;
 import java.util.Calendar;
 import java.util.Random;
 
-import utility.MTRandom;
-
 /**
  * \brief Abstract class with some extra useful math functions.
  * 
- * Contents:
- * 		Simple calculations
- * 		Shapes
- * 		Arrays of doubles
- * 		Dealing with signs
- * 		Dealing with strings
- * 		Random number generation
- * 
+ * <p>Contents:<ul>
+ * <li>Simple calculations</li>
+ * <li>Shapes</li>
+ * <li>Dealing with signs</li>
+ * <li>Dealing with strings</li>
+ * <li>Random number generation</li>
+ * </ul></p>
  * @author João Xavier (xavierj@mskcc.org), Memorial Sloan-Kettering Cancer
  * Center (NY, USA)
  * @author Brian Merkey (brim@env.dtu.dk, bvm@northwestern.edu)
  * @author Robert Clegg (rjc096@bham.ac.uk), University of Birmingham, UK
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
  */
+
 public final class ExtraMath
 {
 	/**
@@ -53,13 +52,24 @@ public final class ExtraMath
 	 * This always has 2 digits after the decimal point, and will round any
 	 * smaller decimals.
 	 */
-	public static java.text.DecimalFormat dfUs = new DecimalFormat("########.##");
+	public static java.text.DecimalFormat dfUs = 
+			new DecimalFormat("########.##");
 	
 	/**
 	 * Random number generator
 	 */
 	public static Random random;
 	
+	/**
+	 * 
+	 */
+	public static long seed;
+	
+	/**
+	 * 
+	 */
+	private static boolean spoiled = true;
+
 	/* ----------------------- Initialising random ------------------------ */
 	
 	/**
@@ -70,7 +80,9 @@ public final class ExtraMath
 	{
 		long seed = (long) ( Calendar.getInstance().getTimeInMillis() *
 															Math.random() );
-		intialiseRandomNumberGenerator(seed);
+		initialiseRandomNumberGenerator(seed);
+		ExtraMath.seed = seed;
+		ExtraMath.spoiled = false;
 	}
 	
 	/**
@@ -78,9 +90,11 @@ public final class ExtraMath
 	 * 
 	 * @param seed long integer number to seed the random number generator. 
 	 */
-	public static void intialiseRandomNumberGenerator(long seed)
+	public static void initialiseRandomNumberGenerator(long seed)
 	{
 		random = new MTRandom(seed);
+		ExtraMath.seed = seed;
+		ExtraMath.spoiled = false;
 	}
 	
 	/**
@@ -103,6 +117,29 @@ public final class ExtraMath
 		{
 			// TODO
 		}
+	}
+	
+	/**
+	 * get the current seed, used to create intermediate restartable save points
+	 * @return
+	 */
+	public static long seed()
+	{
+		if (spoiled)
+		{
+			seed = ExtraMath.random.nextLong();
+			ExtraMath.initialiseRandomNumberGenerator(seed);
+		}
+		return seed;
+	}
+	
+	/**
+	 * Initiate random number generator with given seed
+	 * @param seed
+	 */
+	public static void seed(long seed)
+	{
+		ExtraMath.initialiseRandomNumberGenerator(seed);
 	}
 	
 	/**
@@ -139,7 +176,7 @@ public final class ExtraMath
 	{
 		if ( absTol < 0.0 )
 			throw new IllegalArgumentException("Negative tolerance: "+absTol);
-		return Math.abs(x - y) < absTol;
+		return StrictMath.abs(x - y) < absTol;
 	}
 	
 	/**
@@ -180,8 +217,8 @@ public final class ExtraMath
 	 * as the <b>dividend</b>. Where the two arguments have the same sign, the
 	 * result will be identical.</p>
 	 * 
-	 * <p>This is the equivalent of {@code Math.floorMod(int, int)} for real
-	 * numbers.</b>
+	 * <p>This is the equivalent of {@code StrictMath.floorMod(int, int)} for 
+	 * real numbers.</b>
 	 * 
 	 * @param dividend The dividend.
 	 * @param divisor The divisor.
@@ -204,9 +241,9 @@ public final class ExtraMath
 	 * @param x The double to take the logarithm of.
 	 * @return double value of the logarithm (base 2) of <b>x</b>.
 	 */
-	public static final double log2(double x)
+	public static final Double log2(double x)
 	{
-		return Math.log(x) / Math.log(2.0);
+		return StrictMath.log(x) / StrictMath.log(2.0);
 	}
 	
 	/**
@@ -261,7 +298,7 @@ public final class ExtraMath
 	 */
 	public static final double cubeRoot(double x)
 	{
-		return Math.pow( x, (1.0/3.0) );
+		return StrictMath.pow( x, (1.0/3.0) );
 	}
 	
 	/**
@@ -288,7 +325,7 @@ public final class ExtraMath
 	 */
 	public static final double exp2(double x)
 	{
-		return Math.pow(2, x);
+		return StrictMath.pow(2, x);
 	}
 	
 	/**
@@ -300,7 +337,7 @@ public final class ExtraMath
 	 * 
 	 * <p>Formula: sqrt( a*a + b*b + c*c )</p>
 	 * 
-	 * <p>Note: for a 2D hypotenuse, use Math.hypot(a, b)</p>
+	 * <p>Note: for a 2D hypotenuse, use StrictMath.hypot(a, b)</p>
 	 * 
 	 * @param a double value of the length of the first side of the triangle.
 	 * @param b double value of the length of the second side of the triangle.
@@ -309,7 +346,7 @@ public final class ExtraMath
 	 */
 	public static final double hypotenuse(double a, double b, double c)
 	{
-		return Math.sqrt( sq(a) + sq(b) + sq(c) );
+		return StrictMath.sqrt( sq(a) + sq(b) + sq(c) );
 	}
 	
 	/**
@@ -328,7 +365,7 @@ public final class ExtraMath
 	 */
 	public static final double hypotenuse(int a, int b, int c)
 	{
-		return Math.sqrt( sq(a) + sq(b) + sq(c) );
+		return StrictMath.sqrt( sq(a) + sq(b) + sq(c) );
 	}
 	
 	/**
@@ -345,7 +382,7 @@ public final class ExtraMath
 	 */
 	public static final double triangleSide(double hypotenuse, double side)
 	{
-		return Math.sqrt( sq(hypotenuse) - sq(side) );
+		return StrictMath.sqrt( sq(hypotenuse) - sq(side) );
 	}
 	
 	/**
@@ -368,7 +405,7 @@ public final class ExtraMath
 	public static final double triangleSide(double hypotenuse, double sideA,
 																double sideB)
 	{
-		return Math.sqrt( sq(hypotenuse) - sq(sideA) - sq(sideB) );
+		return StrictMath.sqrt( sq(hypotenuse) - sq(sideA) - sq(sideB) );
 	}
 	
 	/**
@@ -389,13 +426,13 @@ public final class ExtraMath
 		Complex[] out = new Complex[2];
 		if ( discriminant < 0.0 )
 		{
-			discriminant = Math.sqrt(-discriminant);
+			discriminant = StrictMath.sqrt(-discriminant);
 			for ( Complex num : out )
 				num.setImag(discriminant);
 		}
 		else
 		{
-			discriminant = Math.sqrt(discriminant);
+			discriminant = StrictMath.sqrt(discriminant);
 			for ( Complex num : out )
 				num.setReal(discriminant);
 		}
@@ -425,7 +462,33 @@ public final class ExtraMath
 	{
 		if ( xMin > xMax || yMin > yMax )
 			throw new IllegalArgumentException("Minimum > Maximum!");
-		return Math.max(0.0, Math.min(xMax, yMax) - Math.max(xMin, yMin));
+		return StrictMath.max( 0.0, StrictMath.min(xMax, yMax) - 
+				StrictMath.max(xMin, yMin) );
+	}
+	
+	/**
+	 * \brief Calculate the harmonic mean of two numbers.
+	 * 
+	 * @param a Any real number (including infinity).
+	 * @param b Any real number (including infinity).
+	 * @return The harmonic mean, i.e. 
+	 * (a<sup>-1</sup> + b<sup>-1</sup>)<sup>-1</sup>
+	 */
+	public static final double harmonicMean(double a, double b)
+	{
+		if ( a == 0.0 || b == 0.0 )
+			return 0.0;
+		if ( a == b )
+			return a;
+		if ( ! Double.isFinite(a) )
+			return b;
+		if ( ! Double.isFinite(b) )
+			return a;
+		/*
+		 * This is a computationally nicer way of getting the harmonic mean:
+		 * 2 / ( (1/a) + (1/b))
+		 */
+		return 2.0 * ( a * b ) / ( a + b );
 	}
 	
 	/*  ----------------------------- Shapes  ----------------------------- */
@@ -441,7 +504,41 @@ public final class ExtraMath
 	 */
 	public static final double areaOfACircle(double radius)
 	{
-		return Math.PI * sq(radius);
+		return StrictMath.PI * sq(radius);
+	}
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * <p>Always returns an answer greater than or equal to zero.</p>
+	 * 
+	 * @param radius
+	 * @param angle
+	 * @return
+	 */
+	public static final double areaOfACircleSegment(double radius,double angle)
+	{
+		double area = 0.5 * sq(radius) * (angle - StrictMath.sin(angle));
+		return StrictMath.abs(area);
+	}
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * Right-circular cone
+	 * 
+	 * Doens't include base
+	 * 
+	 * <p>Always returns an answer greater than or equal to zero.</p>
+	 * 
+	 * @param lateralH Lateral height of the cone
+	 * @param angle Angle between the vertical and the lateral surface.
+	 * @return
+	 */
+	public static final double lateralAreaOfACone(double lateralH, double angle)
+	{
+		double baseRadius = lateralH * StrictMath.sin(angle);
+		return StrictMath.abs(StrictMath.PI * lateralH * baseRadius);
 	}
 	
 	/**
@@ -470,7 +567,7 @@ public final class ExtraMath
 	 */
 	public static final double radiusOfACircle(double area)
 	{
-		return Math.sqrt(area / Math.PI);
+		return StrictMath.sqrt(area / StrictMath.PI);
 	}
 	
 	/**
@@ -518,7 +615,7 @@ public final class ExtraMath
 	 */
 	public static final double volumeOfASphere(double radius)
 	{
-		return (4.0/3.0) * Math.PI * cube(radius);
+		return (4.0/3.0) * StrictMath.PI * cube(radius);
 	}
 	
 	/**
@@ -535,8 +632,69 @@ public final class ExtraMath
 	 */
 	public static final double radiusOfASphere(double volume)
 	{
+		/* alternatively Math.pow((volume*0.23873241463),0.333333333333) */
 		return cubeRoot(volume*0.75/Math.PI);
 	}
+	
+	/**
+	 * This calculates the radius of a capsule (cylinder + hemisphere ends)
+	 * given its volume and length. It is calculated by taking the cubic
+	 * equation for the volume of a capsule 4/3 pi r^3 + pi l r^2 - V = 0
+	 * and solving for r using the general cubic formula as described here:
+	 * https://en.wikipedia.org/wiki/Cubic_equation#General_cubic_formula
+	 * @param volume
+	 * @param length
+	 */
+	public static final double radiusOfACapsule(double volume, double length)
+	{
+		/*
+		 * First, some intermediates for clarity and ease
+		 */
+		
+		/*
+		 * a, b and d of the cubic formula (c = 0 in our case)
+		 */
+		double a = (Math.PI * 4) / 3;
+		double b = Math.PI * length;
+		double d = -volume;
+		
+		/*
+		 * More intermediates
+		 */
+		double delta0 = Math.pow(b, 2);
+		double delta1 = (2 * Math.pow(b, 3)) + (27 * Math.pow(a, 2) * d);
+		double delta1Squared = Math.pow(delta1, 2);
+		double delta0Cubed = Math.pow(delta0, 3);
+		
+		double C = Math.pow((delta1 + Math.pow(
+				(delta1Squared - (4 * delta0Cubed)), 0.5)) / 2 , 1/3);
+		
+		/*
+		 * Calculate the radius
+		 */
+		double radius = (-1/(3*a)) * (b + C + (delta0/C));
+		
+		return radius;
+	}
+	
+	/**
+	 * Calculates the radius of a stadium (AKA obround) given its area and
+	 * length. Calculated using the quadratic formula
+	 * @param volume
+	 * @param length
+	 * @return
+	 */
+	public static final double radiusOfAStadium(double area, double length)
+	{
+		double intermediate = Math.pow(
+				(Math.pow(length, 2)) + (Math.PI * area), 
+				0.5);
+		
+		double radius = (-length + intermediate) / Math.PI;
+		
+		return radius;
+	}
+	
 	
 	
 	/*  ----------------------- Dealing with signs  ----------------------- */
@@ -544,24 +702,21 @@ public final class ExtraMath
 	/**
 	 * \brief Unequivocally determine the sign of a double <b>value</b>. 
 	 * 
-	 * <p>Copied from 
-	 * http://stackoverflow.com/questions/3994531/how-to-determine-if-a-number-is-positive-or-negative-in-java
-	 * on 7 August 2013.</p>
-	 * 
 	 * @param value double to be inspected.
 	 * @return integer with the sign of <b>value</b>: -1, 0, or +1
 	 */
 	public static int sign(double value)
 	{
+		if (Double.isNaN(value))
+			throw new IllegalArgumentException("NaN");
 		// Not sure if checking -0.0 is necessary, but better safe than sorry!
-	    if ( value == 0.0 || value == -0.0 )
-	    	return 0;
-	    value *= Double.POSITIVE_INFINITY;
-	    if ( value == Double.POSITIVE_INFINITY )
-	    	return +1;
-	    if ( value == Double.NEGATIVE_INFINITY )
-	    	return -1;
-	    throw new IllegalArgumentException("Unfathomed double");
+		if ( value == 0.0 || value == -0.0 )
+			return 0;
+		if ( value > 0.0 )
+			return +1;
+		if ( value < 0.0 )
+			return -1;
+		throw new IllegalArgumentException("Unfathomed double");
 	}
 	
 	/**
@@ -578,6 +733,8 @@ public final class ExtraMath
 	{
 		return ( sign(a)*sign(b) >= 0 );
 	}
+	
+	/*  ----------------------- Dealing with strings  ---------------------- */
 	
 	/**
 	 * \brief Output a double value as a string, in a particular decimal
@@ -660,6 +817,7 @@ public final class ExtraMath
 	 */
 	public static boolean getRandBool()
 	{
+		ExtraMath.spoiled = true;
 		return random.nextBoolean();
 	}
 	
@@ -673,7 +831,21 @@ public final class ExtraMath
 	// TODO rename getUniRand()? Should be unambiguous
 	public static double getUniRandDbl()
 	{
+		ExtraMath.spoiled = true;
 		return random.nextDouble();
+	}
+	
+	/**
+	 * \brief Return a uniformly distributed random number between 0 and 1.
+	 * 
+	 * <p>Lower bound (0) is inclusive, upper bound (1) is exclusive.</p>
+	 * 
+	 * @return A uniformly distributed random number in [0,1).
+	 */
+	public static float getUniRandFlt()
+	{
+		ExtraMath.spoiled = true;
+		return random.nextFloat();
 	}
 	
 	/**
@@ -698,7 +870,7 @@ public final class ExtraMath
 	 */
 	public static double getUniRandAngle()
 	{
-		return 2 * Math.PI * getUniRandDbl();
+		return 2 * StrictMath.PI * getUniRandDbl();
 	}
 	
 	/**
@@ -722,6 +894,7 @@ public final class ExtraMath
 	 */
 	public static int getUniRandInt(int uBound)
 	{
+		ExtraMath.spoiled = true;
 		return random.nextInt(uBound);
 	}
 	
@@ -759,10 +932,11 @@ public final class ExtraMath
 	 */
 	public static double getNormRand()
 	{
+		ExtraMath.spoiled = true;
 		double phi;
 		do {
 			phi = random.nextGaussian();
-		} while ( Math.abs(phi) > 2 );
+		} while ( StrictMath.abs(phi) > 2 );
 		return phi;
 	}
 	

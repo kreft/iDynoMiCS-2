@@ -1,10 +1,12 @@
 package spatialRegistry;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Map;
 import java.util.Set;
 
 import shape.Shape;
@@ -28,6 +30,7 @@ import utility.ExtraMath;
  * @author Russ Weeks rweeks@newbrightidea.com
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU.
  */
+@SuppressWarnings("unchecked")
 public class RTree<T> implements SpatialRegistry<T>
 {
 	public enum SeedPicker { LINEAR, QUADRATIC }
@@ -41,10 +44,19 @@ public class RTree<T> implements SpatialRegistry<T>
 	private final SeedPicker seedPicker;
 
 	private Node root;
-	private Node nearest;
 
 	private volatile int size;
 	private Shape _shape;
+
+	/**
+	 * FIXME implement
+	 * @param list
+	 * @return
+	 */
+	public List<T> getAll( List<T> list )
+	{
+		return list;
+	}
 
 	/**
 	 * Creates a new RTree.
@@ -158,7 +170,7 @@ public class RTree<T> implements SpatialRegistry<T>
 	 * @return a list of objects whose rectangles overlap with the given
 	 *         rectangle.
 	 */
-	public synchronized List<T> search(double[] coords, double[] dimensions)
+	public List<T> localSearch(double[] coords, double[] dimensions)
 	{
 		assert (coords.length == numDims);
 		assert (dimensions.length == numDims);
@@ -167,7 +179,7 @@ public class RTree<T> implements SpatialRegistry<T>
 		return results;
 	}
 
-	private synchronized void search(double[] coords, double[] dimensions, Node n,
+	private void search(double[] coords, double[] dimensions, Node n,
 			LinkedList<T> results)
 	{
 		if (n.leaf)
@@ -209,7 +221,7 @@ public class RTree<T> implements SpatialRegistry<T>
 	 * @return a list of objects whose rectangles overlap with the given
 	 *         rectangle.
 	 */
-	public synchronized List<T> cyclicsearch(double[] coords, double[] dimensions)  {
+	public List<T> search(double[] coords, double[] dimensions)  {
 		LinkedList<T> combinedlist = new LinkedList<T>();
 		LinkedList<double[]> boxList = this._shape.getCyclicPoints(coords);
 
@@ -225,42 +237,48 @@ public class RTree<T> implements SpatialRegistry<T>
 	/**
 	 * Cyclic search using bounding box as query
 	 */
-	public synchronized List<T> cyclicsearch(BoundingBox boundingBox)
+	public List<T> search(Area area)
 	{
-		return cyclicsearch(boundingBox.lowerCorner(), boundingBox.ribLengths());
+		return search(area.getLow(), area.getHigh());
 	}
-
-
-	public synchronized List<T> cyclicsearch(List<BoundingBox> boundingBoxes)
+	
+	public List<T> search(List<BoundingBox> boundingBoxes)
 	{
 		List<T> entryList = new LinkedList<T>();
 		for(BoundingBox b : boundingBoxes)
-			entryList.addAll(cyclicsearch(b));
+			entryList.addAll(search(b));
 		return entryList;
-	}
-
-	/**
-	 * helper method that counts the number of fields with value 'true' in an array of booleans.
-	 * 
-	 * @param booleans
-	 * 		  an array of booleans.
-	 * @return An integer that represents the number of fields with value 'true' in booleans.
-	 */
-	private int counttrue(Boolean[] booleans) {
-		int a = 0;
-		for (int j = 0; j < booleans.length; j++)
-			if (booleans[j]) a++;
-		return a;
 	}
 
 	/**
 	 * Returns every entry from the tree
 	 * @return A list with every entry from the tree.
 	 */
-	public synchronized List<T> all()
+	public List<T> all()
 	{
 		LinkedList<T> results = new LinkedList<T>();
 		all(root, results);
+		return results;
+	}
+	
+	public Map<double[],double[]> allBoxes()
+	{
+		HashMap<double[],double[]> results = new HashMap<double[],double[]>();
+		return allBoxes(root, results);
+	}
+	
+	public HashMap<double[],double[]> allBoxes(Node n, HashMap<double[],double[]> results)
+	{
+		if (n.leaf)
+		{
+			for (Node e : n.children)
+				results.put(((Entry) e).coords, ((Entry) e).dimensions);
+		}
+		else
+		{
+			for (Node c : n.children)
+				allBoxes(c, results);
+		}
 		return results;
 	}
 
@@ -282,7 +300,7 @@ public class RTree<T> implements SpatialRegistry<T>
 	 * added for idynomics 1.0 compatability
 	 * @return returns random entry from tree
 	 */
-	public synchronized T getRandom()
+	public T getRandom()
 	{
 		LinkedList<T> results = new LinkedList<T>();
 		all(root, results);
@@ -301,7 +319,7 @@ public class RTree<T> implements SpatialRegistry<T>
 	 *          the entry to delete
 	 * @return true iff the entry was deleted from the RTree.
 	 */
-	public synchronized boolean delete(double[] coords, double[] dimensions, T entry)
+	public boolean delete(double[] coords, double[] dimensions, T entry)
 	{
 		assert (coords.length == numDims);
 		assert (dimensions.length == numDims);
@@ -316,7 +334,6 @@ public class RTree<T> implements SpatialRegistry<T>
 		T removed = null;
 		while (li.hasNext())
 		{
-			@SuppressWarnings("unchecked")
 			Entry e = (Entry) li.next();
 			if (e.entry.equals(entry))
 			{
@@ -346,14 +363,13 @@ public class RTree<T> implements SpatialRegistry<T>
 	 *          the entry to delete
 	 * @return true iff the entry was deleted from the RTree.
 	 */
-	public synchronized boolean delete(T entry)
+	public boolean delete(T entry)
 	{
 		Node l = root;
 		ListIterator<Node> li = l.children.listIterator();
 		T removed = null;
 		while (li.hasNext())
 		{
-			@SuppressWarnings("unchecked")
 			Entry e = (Entry) li.next();
 			if (e.entry.equals(entry))
 			{
@@ -374,7 +390,7 @@ public class RTree<T> implements SpatialRegistry<T>
 		return (removed != null);
 	}
 
-	public synchronized boolean delete(double[] coords, T entry)
+	public boolean delete(double[] coords, T entry)
 	{
 		return delete(coords, pointDims, entry);
 	}
@@ -458,7 +474,6 @@ public class RTree<T> implements SpatialRegistry<T>
 		}
 		for (Node ne : q)
 		{
-			@SuppressWarnings("unchecked")
 			Entry e = (Entry) ne;
 			insert(e.coords, e.dimensions, e.entry);
 		}
@@ -468,7 +483,7 @@ public class RTree<T> implements SpatialRegistry<T>
 	/**
 	 * Empties the RTree
 	 */
-	public synchronized void clear()
+	public void clear()
 	{
 		root = buildRoot(true);
 		// let the GC take care of the rest.
@@ -486,7 +501,7 @@ public class RTree<T> implements SpatialRegistry<T>
 	 * @param entry
 	 *          the entry to insert
 	 */
-	public synchronized void insert(double[] coords, double[] dimensions, T entry)
+	public void insert(double[] coords, double[] dimensions, T entry)
 	{
 		assert (coords.length == numDims);
 		assert (dimensions.length == numDims);
@@ -509,8 +524,8 @@ public class RTree<T> implements SpatialRegistry<T>
 	/**
 	 * insert entry with bounding box object
 	 */
-	public synchronized void insert(BoundingBox boundingBox, T entry) {
-		insert(boundingBox.lowerCorner(), boundingBox.ribLengths(), entry);
+	public void insert(BoundingBox boundingBox, T entry) {
+		insert(boundingBox.getLow(), boundingBox.ribLengths(), entry);
 	}
 
 	/**
@@ -518,7 +533,7 @@ public class RTree<T> implements SpatialRegistry<T>
 	 * @param coords
 	 * @param entry
 	 */
-	public synchronized void insert(double[] coords, T entry)
+	public void insert(double[] coords, T entry)
 	{
 		insert(coords, pointDims, entry);
 	}
@@ -561,7 +576,6 @@ public class RTree<T> implements SpatialRegistry<T>
 		// For instance the call at the end of the "while (!cc.isEmpty())" loop
 		// could be modified and inlined because it's only adjusting for the addition
 		// of a single node.  Left as-is for now for readability.
-		@SuppressWarnings("unchecked")
 		Node[] nn = new RTree.Node[]
 				{ n, new Node(n.coords, n.dimensions, n.leaf) };
 		nn[1].parent = n.parent;
@@ -628,7 +642,6 @@ public class RTree<T> implements SpatialRegistry<T>
 	// Implementation of Quadratic PickSeeds
 	private RTree<T>.Node[] qPickSeeds(LinkedList<Node> nn)
 	{
-		@SuppressWarnings("unchecked")
 		RTree<T>.Node[] bestPair = new RTree.Node[2];
 		double maxWaste = -1.0 * Double.MAX_VALUE;
 		for (Node n1: nn)
@@ -687,7 +700,6 @@ public class RTree<T> implements SpatialRegistry<T>
 	// Implementation of LinearPickSeeds
 	private RTree<T>.Node[] lPickSeeds(LinkedList<Node> nn)
 	{
-		@SuppressWarnings("unchecked")
 		RTree<T>.Node[] bestPair = new RTree.Node[2];
 		boolean foundBestPair = false;
 		double bestSep = 0.0;
@@ -908,18 +920,6 @@ public class RTree<T> implements SpatialRegistry<T>
 			this.leaf = leaf;
 			children = new LinkedList<Node>();
 		}
-
-		private double distance(double[] point)
-		{
-			double[] d = new double[point.length];
-			double distsquared = 0.0;
-			for(int i = 0; i<point.length; i++) {
-				d[i] = Math.max(Math.max(coords[i] - point[i], point[i] - coords[i] + dimensions[i]), 0.0);
-				distsquared += d[i]*d[i];
-			}
-			return Math.sqrt(distsquared);
-		}
-
 	}
 
 	private class Entry extends Node

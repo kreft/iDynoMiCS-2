@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+	<simulation log="DEBUG" outputfolder="../results" name="F3s_3D_EcoF_EgoF"  randomSeed="42">
+	<timer stepSize="1.0 [h]" endOfSimulation="3.0*7.0 [d]" />
+		<speciesLib>
+			<!-- species/species library The species library contains all agent species 
+				in the simulations. This may include microbial species, plasmid and vector 
+				species, particle species etc. Species states are states that are in principal 
+				identical for all agents of that species. However note that iDynoMiCS 2.0 
+				does allow you to overwrite states on agent level. Thus if a state is defined 
+				both on species level and on agent level, the agent state will be used in 
+				the simulation. small test 
+				-->
+			<species name="coccoid">
+				<aspect name="density" type="PRIMARY" class="Double" value="0.29*0.47 [pg/fl]" />
+				<aspect name="surfaces" type="CALCULATED" class="AgentSurfaces" />
+				<aspect name="divisionMass" type="PRIMARY" class="Double" value="0.08 [pg]" /> <!-- 0.16 -->
+				<aspect name="divide" type="EVENT" class="CoccoidDivision"	/>
+				<aspect name="updateBody" type="EVENT" class="UpdateBody" />
+				<aspect name="volume" type="CALCULATED" class="SimpleVolumeState" 	/>
+				<aspect name="radius" type="CALCULATED" class="CoccoidRadius" 		/>
+			</species>
+			
+			<species name="fil">
+				<aspect name="density" type="PRIMARY" class="Double" value="0.29*0.47 [pg/fl]" />
+				<aspect name="surfaces"			type="CALCULATED"	class="AgentSurfaces"	  />
+				<aspect name="volume" 		type="CALCULATED" 	class="SimpleVolumeState" 	/>
+				<aspect name="divide" 		type="EVENT" 		class="fillialRodShift"			 />
+				<aspect name="radius" type="CALCULATED" class="CoccoidRadius" 		/>
+				<aspect name="divisionMass" 	type="PRIMARY" 		class="Double" 				value="0.14" />
+				<aspect name="divide" 			type="EVENT" 		class="RodDivision"		 />
+				<aspect name="updateBody" 		type="EVENT" 		class="UpdateBody" 	 />
+				<aspect name="directionalDivision" class="Boolean" value="true" />
+				<aspect name="agentSpineFunction" class="Expression" value="stiffness * dh"/>
+				<aspect name="spineStiffness" class="Double" value="0.56 [fN]" />
+				<aspect name="transientRadius" class="Double" value="0.37" />
+				<aspect name="shiftMass" type="PRIMARY" class="Double" value="0.09" />
+				<aspect name="torsionStiffness" class="Double" value="0.1 [fN]" />
+				<aspect name="torsionFunction" class="Expression" value="stiffness * dif"/>
+				<aspect name="linearStiffness" class="Double" value="0.56 [fN]" />
+				<aspect name="linearFunction" class="Expression" value="stiffness * dh "/>
+				<aspect name="unlinkProbabillity" class="Double" value="0.15" />
+			</species>
+
+			<species name="Eco">
+				<speciesModule name="fil" />
+				<aspect name="reactions" type="PRIMARY"  class="InstantiableList">
+					<list class="RegularReaction" nodeLabel="reaction"
+						  entryClass="RegularReaction" keyClass="String" keyLabel="name">
+						<reaction name="growth">
+							<expression value="biomass * vmax *
+									( oxygen / ( oxygen + Kox ) )">
+								<!-- pg/µm3 -->
+								<constant name="Kox" 	value="0.0003 [fg/fl]" />
+								<constant name="vmax" 	value="0.009306 [min-1]" />
+							</expression>
+							<stoichiometric component="biomass" 	coefficient="0.147" /> <!-- fg biomass per fg N -->
+							<!--							<stoichiometric component="ammonium" 	coefficient="-0.147" />-->
+							<stoichiometric component="oxygen" 		coefficient="-(0.147/0.046)" />
+						</reaction>
+					</list>
+				</aspect>
+			</species>
+
+			<species name="Ego">
+				<speciesModule name="fil" />
+				<aspect name="reactions" type="PRIMARY"  class="InstantiableList">
+					<list class="RegularReaction" nodeLabel="reaction"
+						  entryClass="RegularReaction" keyClass="String" keyLabel="name">
+						<reaction name="growth">
+							<expression value="biomass * vmax *
+									( oxygen / ( oxygen + Kox ) )">
+								<!-- pg/µm3 -->
+								<constant name="Kox" 	value="0.0006 [fg/fl]" />
+								<constant name="vmax" 	value="0.037224 [min-1]" />
+							</expression>
+							<stoichiometric component="biomass" 	coefficient="0.0735" />
+							<!--							<stoichiometric component="ammonium" 	coefficient="-0.0735" />-->
+							<stoichiometric component="oxygen" 		coefficient="-(0.0735/0.023)" />
+						</reaction>
+					</list>
+				</aspect>
+			</species>
+		</speciesLib>
+
+		<compartment name="biofilm" priority="1" tree="SPLITTREE">
+			<shape class="Cuboid" resolutionCalculator="MgFASResolution" nodeSystem="true">
+				<!-- µm -->
+				<dimension name="X" isCyclic="true" targetResolution="1.5625" max="200.0"></dimension>
+				<dimension name="Y" isCyclic="false" targetResolution="1.5625" max="200.0">
+					<boundary extreme="0" class="SolidBoundary" />
+					<boundary extreme="1" class="BiofilmBoundaryLayer" partnerCompartment="chemostat" layerThickness="40" />
+				</dimension>
+				<dimension name="Z" isCyclic="true" targetResolution="1.5625" max="12.5" />
+			</shape>
+			<solutes>
+				<!-- pg / µm3 -->
+<!--				<solute name="oxygen" concentration="5.6E-5" defaultDiffusivity="36000"  />-->
+				<solute name="oxygen" 	concentration="0.001 [fg/fl]" defaultDiffusivity="120000 [um^2/min]"  />
+<!--				<solute name="oxygen" 	concentration="0.001 [fg/fl]" defaultDiffusivity="2.1*10^-5 [cm^2/min]"  />-->
+			</solutes>
+			<reactions>
+			</reactions>
+			<!-- yield strategy -->
+			<spawn class="distributedSpawner" priority="0"
+				   number="160" morphology="COCCOID">
+				<aspect  name="spacing" class="Double[]" value="5.0, 0.0, 1.5625" />
+				<aspect  name="orient" class="Double[]" value="0.0, 0.0, 0.0" />
+				<aspect  name="max" class="Double[]" value="100.0, 2.0, 12.5" />
+				<templateAgent>
+					<aspect name="species" type="PRIMARY" class="String" value="Eco" />
+					<aspect  name="mass" class="InstantiableMap">
+						<map entryClass="Double" keyType="String">
+							<item key="biomass" value="0.11 [pg]"  />
+						</map>
+					</aspect>
+				</templateAgent>
+			</spawn>
+			<!-- rate strategy -->
+			<spawn class="distributedSpawner" priority="0"
+				   number="160" morphology="COCCOID">
+				<aspect  name="spacing" class="Double[]" value="5.0, 0.0, 1.5625" />
+				<aspect  name="orient" class="Double[]" value="100.0, 0.0, 0.0" />
+				<aspect  name="max" class="Double[]" value="200.0, 2.0, 12.5" />
+				<templateAgent>
+					<aspect name="species" type="PRIMARY" class="String" value="Ego" />
+					<aspect  name="mass" class="InstantiableMap">
+						<map entryClass="Double" keyType="String">
+							<item key="biomass" value="0.11 [pg]"  />
+						</map>
+					</aspect>
+				</templateAgent>
+			</spawn>
+			<agents>
+			</agents>
+			<processManagers>				
+				<!-- ms -->
+				<process name="PDEWrapper" class="PDEWrapper" priority="1" firstStep="0.0">
+					<aspect name="solverResidualRatioThreshold" class="Double" value="1.0E-3" />
+					<aspect name="autoVcycleAdjust" class="Boolean" value="true" />
+				</process>
+				<process name="agentRelax"	class="AgentRelaxation" priority="0"
+						 firstStep="0.0">
+					<aspect name="maxAgentOverlap" class="Double" value="0.15 [um]" />
+					<aspect name="moveGranularity" class="Double" value="0.25" />
+					<aspect name="stressThreshold" class="Double" value="0.05 [fN]" />
+					<aspect name="maxMovement" class="Double" value="0.15" />
+<aspect name="maxIterations" class="Integer" value="1000" />
+				</process>
+				<process name="ReportDensity" class="processManager.library.ReportDensity" priority="-1" 	firstStep="0.0">
+					<aspect name="domain" class="Double[]" value="202.0,202.0,12.5" />
+					<aspect name="voxel" class="Double[]" value="2.0,2.0,12.5" />
+				</process>
+				<process name="povWriter" class="GraphicalOutput"  priority="-3"
+					firstStep="0.0" >
+					<aspect name="outputWriter" type="PRIMARY" class="String" value="PovExport" />
+				</process>
+				<process name="summary" class="Summary"  priority="2"
+					firstStep="0.0">
+					<aspect name="includeHeader" type="PRIMARY" class="Boolean" value="TRUE" />
+					<aspect name="fileName" type="PRIMARY" class="String" value="bioflm" />
+					<aspect name="tableSpecification" type="PRIMARY" class="String"
+					value="biomass@mass ? species == Eco | biomass@mass  ? species == Ego" />
+					<aspect name="fileName" type="PRIMARY" class="String" value="data" />
+				</process>
+			</processManagers>
+		</compartment>
+		<compartment name="chemostat" priority="2" >
+			<shape class="Dimensionless" volume="1e9 [fl]">
+				<boundary  class="constantConcentrationToChemostat" volumeFlowRate="1.0E6">
+<!--				<solute name="oxygen" concentration="5.6E-5" defaultDiffusivity="36000"  />-->
+					<solute name="oxygen" 	concentration="0.001 [fg/fl]" defaultDiffusivity="120000 [um^2/min]"  />
+				</boundary>
+				<boundary  class="chemostatOut" volumeFlowRate="-1.0E6 [fl]" agentRemoval="false" >
+				</boundary> 
+			</shape>
+			<solutes>
+				<!-- pg / µm3 -->
+<!--				<solute name="oxygen" concentration="5.6E-5" defaultDiffusivity="36000"  />-->
+				<solute name="oxygen" 	concentration="0.001 [fg/fl]" defaultDiffusivity="120000 [um^2/min]"  />
+			</solutes>
+			<processManagers>
+			</processManagers>
+		</compartment>
+		
+	</simulation>
+</document>

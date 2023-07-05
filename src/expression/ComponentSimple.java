@@ -5,10 +5,12 @@ package expression;
 
 import java.util.Map;
 
+import expression.Elemental.Type;
+
 /**
  * \brief The most basic component of a mathematical expression.
  * 
- * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
 public abstract class ComponentSimple extends Component
 {
@@ -25,6 +27,7 @@ public abstract class ComponentSimple extends Component
 	 */
 	public ComponentSimple(String name)
 	{
+		super(Type.numeric);
 		this._name = name;
 	}
 	

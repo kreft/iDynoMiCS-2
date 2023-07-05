@@ -7,7 +7,7 @@ import linearAlgebra.Vector;
  * 
  * <p>Used for estimating how much of an {@code Agent} lies in each voxel.</p>
  * 
- * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
 public class SubvoxelPoint
 {

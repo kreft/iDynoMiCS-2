@@ -2,11 +2,11 @@ package processManager.library;
 
 import org.w3c.dom.Element;
 
-import aspect.AspectRef;
+import compartment.AgentContainer;
+import compartment.EnvironmentContainer;
 import dataIO.XmlExport;
-import idynomics.AgentContainer;
-import idynomics.EnvironmentContainer;
 import processManager.ProcessManager;
+import referenceLibrary.AspectRef;
 
 /**
  * TODO this should be a general class rather than a process manager
@@ -33,9 +33,10 @@ public class WriteXmlOutput extends ProcessManager
 	 ************************************************************************/
 	
 	@Override
-	public void init(Element xmlElem)
+	public void init(Element xmlElem, EnvironmentContainer environment, 
+			AgentContainer agents, String compartmentName)
 	{
-		super.init(xmlElem);
+		super.init(xmlElem, environment, agents, compartmentName);
 		this._prefix = this.getString(FILE_PREFIX);
 	}
 	
@@ -44,8 +45,7 @@ public class WriteXmlOutput extends ProcessManager
 	 ************************************************************************/
 	
 	@Override
-	protected void internalStep(EnvironmentContainer environment,
-														AgentContainer agents)
+	protected void internalStep()
 	{
 		/* Initiate new file. */
 		this._xmlExport.newXml(this._prefix);

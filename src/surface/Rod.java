@@ -1,8 +1,15 @@
 package surface;
 
+import org.w3c.dom.Element;
+
 import dataIO.ObjectFactory;
 import generalInterfaces.HasBoundingBox;
-import surface.BoundingBox;
+import referenceLibrary.XmlRef;
+import settable.Attribute;
+import settable.Module;
+import shape.Shape;
+import utility.Helper;
+import utility.StandardizedImportMethods;
 
 /**
  * \brief TODO
@@ -22,6 +29,8 @@ public class Rod extends Surface implements HasBoundingBox {
 	 * TODO
 	 */
     public double _radius;
+
+	private BoundingBox boundingBox = new BoundingBox();
     
     public Rod(Point[] points, double spineLength, double radius)
     {
@@ -57,6 +66,25 @@ public class Rod extends Surface implements HasBoundingBox {
 		this._radius = (double) ObjectFactory.copy(rod._radius);
 	}
 
+	public Rod(Element xmlElem)
+	{
+		if( !Helper.isNullOrEmpty( xmlElem ))
+		{
+			this._points = StandardizedImportMethods.
+					pointImport(xmlElem, this, 2);
+			this._length = Double.valueOf( xmlElem.getAttribute(XmlRef.length));
+		}
+	}
+	
+	public Module appendToModule(Module modelNode) 
+	{
+		modelNode.add(new Attribute(XmlRef.length, 
+				String.valueOf(this._length), null, false ));
+
+		for (Point p : _points )
+			modelNode.add(p.getModule() );
+		return modelNode;
+	}
 
 	public Type type() {
 		return Surface.Type.ROD;
@@ -72,27 +100,41 @@ public class Rod extends Surface implements HasBoundingBox {
 		return _length;
 	}
 	
-	public void set(double radius, double spineLength)
+	public void setRadius(double radius)
 	{
 		this._radius = radius;
+	}
+	
+	public void setLength(double spineLength)
+	{
 		this._length = spineLength;
 	}
 
-	public double[][] pointMatrix()
+	public double[][] pointMatrix(Shape shape)
 	{
-		double[][] p = new double[_points[0].nDim()][_points.length];
+		double[][] p = new double[_points.length][_points[0].nDim()];
 		for(int i = 0; i < _points.length; i++)
-			p[i] = _points[i].getPosition();
+			if ( i < 1)
+				p[i] = _points[i].getPosition();
+			else
+				p[i] = shape.getNearestShadowPoint( _points[i].getPosition(), 
+						p[i-1]);
 		return p;
 	}
 	
-	public BoundingBox boundingBox(double margin)
+	@Override
+	public int dimensions() 
 	{
-		return new BoundingBox(pointMatrix(),_radius,margin);
+		return this._points[0].nDim();
 	}
 
-	public BoundingBox boundingBox()
+	public BoundingBox boundingBox(double margin, Shape shape)
 	{
-		return new BoundingBox(pointMatrix(),_radius);
+		return boundingBox.get(pointMatrix(shape),_radius,margin);
+	}
+
+	public BoundingBox boundingBox(Shape shape)
+	{
+		return boundingBox .get(pointMatrix(shape),_radius);
 	}
 }

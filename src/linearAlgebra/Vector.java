@@ -1,9 +1,16 @@
 package linearAlgebra;
 
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Set;
 
+import dataIO.Log;
+import dataIO.Log.Tier;
+import expression.Expression;
+import idynomics.Idynomics;
 import utility.ExtraMath;
+import utility.Helper;
 
 /**
  * \brief Library of useful vector functions.
@@ -50,7 +57,7 @@ public final class Vector
 	 * matrix or array cannot be defined.
 	 */
 	public final static double UNDEFINED_AVERAGE = Double.NaN;
-	
+
 	/*************************************************************************
 	 * STANDARD NEW VECTORS
 	 ************************************************************************/
@@ -99,6 +106,37 @@ public final class Vector
 			vector[i] = object[i];
 		return vector;
 	}
+	
+	/**
+	 * \brief Create a double vector from an existing list<Double> (capital D)
+	 * @param object
+	 * @return double[] array obtained from list<Double> object
+	 */
+	public static double[] vector(List<Double> object)
+	{
+		double[] vector = new double[object.size()];
+		for(int i = 0; i < object.size(); i++)
+			vector[i] = object.get(i);
+		return vector;
+	}
+	
+	/**
+	 * \brief Create a double vector from an existing Collection<Double> (capital D)
+	 * @param object
+	 * @return double[] array obtained from list<Double> object
+	 */
+	public static double[] vector(Collection<Double> object)
+	{
+		double[] vector = new double[object.size()];
+		int i = 0;
+		for(Double d : object)
+		{
+			vector[i] = d;
+			i++;
+		}
+		return vector;
+	}
+	
 	
 	/**
 	 * \brief A new integer vector of length <b>n</b>, and all elements set to
@@ -215,6 +253,7 @@ public final class Vector
 	 */
 	public static int[] intFromString(String vectorString)
 	{
+		vectorString = Helper.removeWhitespace(vectorString);
 		String[] fields = vectorString.split(DELIMITER);
 		int[] vector = new int[fields.length];
 		for ( int i = 0; i < fields.length; i++ )		
@@ -231,10 +270,33 @@ public final class Vector
 	 */
 	public static double[] dblFromString(String vectorString)
 	{
+		vectorString = Helper.removeWhitespace(vectorString);
 		String[] fields = vectorString.split(DELIMITER);
 		double[] vector = new double[fields.length];
-		for ( int i = 0; i < fields.length; i++ )		
-			vector[i] = Double.valueOf(fields[i]);
+		for ( int i = 0; i < fields.length; i++ )	
+		{
+			try
+			{
+				vector[i] = Double.parseDouble(fields[i]);
+			}
+			catch (NumberFormatException e)
+			{
+				vector[i] = 
+					new Expression( fields[i] ).format( Idynomics.unitSystem );
+			}
+		}
+		return vector;
+	}
+	
+	public static float[] fltFromString(String vectorString)
+	{
+		vectorString = Helper.removeWhitespace(vectorString);
+		String[] fields = vectorString.split(DELIMITER);
+		float[] vector = new float[fields.length];
+		for ( int i = 0; i < fields.length; i++ )	
+		{
+			vector[i] = (float) Double.parseDouble(fields[i]);
+		}
 		return vector;
 	}
 	
@@ -258,6 +320,13 @@ public final class Vector
 	 * @return String representation of this <b>vector</b>.
 	 */
 	public static String toString(double[] vector)
+	{
+		StringBuffer out = new StringBuffer();
+		toString(vector, out);
+		return out.toString();
+	}
+
+	public static String toString(float[] vector)
 	{
 		StringBuffer out = new StringBuffer();
 		toString(vector, out);
@@ -292,6 +361,21 @@ public final class Vector
 	public static void toString(double[] vector, StringBuffer buffer)
 	{
 		int n = vector.length - 1;
+		if ( n < 0 )
+			return;
+		for ( int i = 0; i < n; i++ )
+		{
+			buffer.append(vector[i]);
+			buffer.append(DELIMITER);
+		}
+		buffer.append(vector[n]);
+	}
+
+	public static void toString(float[] vector, StringBuffer buffer)
+	{
+		int n = vector.length - 1;
+		if ( n < 0 )
+			return;
 		for ( int i = 0; i < n; i++ )
 		{
 			buffer.append(vector[i]);
@@ -306,6 +390,11 @@ public final class Vector
 	 
 	/**
 	 * \brief Copy the values of <b>source</b> into <b>destination</b>.
+	 * 
+	 * NOTE: If source.length > destination.length tailing values are omitted in
+	 * destination. If destination.length > source.length tailing values of 
+	 * original destination will be maintained. If this behavior is unwanted use
+	 * java default destination = source.clone();
 	 * 
 	 * @param destination int[] to be overwritten with the values of
 	 * <b>source</b>.
@@ -323,6 +412,11 @@ public final class Vector
 	/**
 	 * \brief Copy the values of <b>source</b> into <b>destination</b>.
 	 * 
+	 * NOTE: If source.length > destination.length tailing values are omitted in
+	 * destination. If destination.length > source.length tailing values of 
+	 * original destination will be maintained. If this behavior is unwanted use
+	 * java default destination = source.clone();
+	 * 
 	 * @param destination double[] to be overwritten with the values of
 	 * <b>source</b>.
 	 * @param source double[] to be copied from (preserved).
@@ -331,6 +425,20 @@ public final class Vector
 	 * @see #copyTo(int[] destination, int[] source)
 	 */
 	public static void copyTo(double[] destination, double[] source)
+	{
+		for ( int i = 0; i < destination.length; i++ )
+			destination[i] = source[i];
+	}
+	
+	public static void copyTo(double[][][] destination, double[][][] source)
+	{
+		for ( int i = 0; i < destination.length; i++ )
+			for ( int j = 0; j < destination[0].length; j++ )
+				for ( int k = 0; k < destination[0][0].length; k++ )
+					destination[i][j][k] = source[i][j][k];
+	}
+	
+	public static void copyTo(Double[] destination, Double[] source)
 	{
 		for ( int i = 0; i < destination.length; i++ )
 			destination[i] = source[i];
@@ -370,6 +478,27 @@ public final class Vector
 		return out;
 	}
 	
+	public static double[][][] copy(double[][][] vector)
+	{
+		double[][][] out = 
+			new double[vector.length][vector[0].length][vector[0][0].length];
+		copyTo(out, vector);
+		return out;
+	}
+	
+	public static double[] replace(int field, double value, double[] source)
+	{
+		double[] out = new double[source.length];
+		for ( int i = 0; i < source.length; i++ )
+		{
+			if ( i == field)
+				out[i] = value;
+			else		
+				out[i] = source[i];
+		}
+		return out;
+	}
+	
 	/**
 	 * \brief Copy the <b>vector</b> given to a new boolean[] array.
 	 * 
@@ -389,6 +518,11 @@ public final class Vector
 	/**
 	 * \brief Copy the values of <b>source</b> into <b>destination</b>.
 	 * 
+	 * NOTE: If source.length > destination.length tailing values are omitted in
+	 * destination. If destination.length > source.length tailing values of 
+	 * original destination will be maintained. If this behavior is unwanted use
+	 * java default destination = source.clone();
+	 * 
 	 * @param destination boolean[] to be overwritten with the values of
 	 * <b>source</b>.
 	 * @param source boolean[] to be copied from (preserved).
@@ -399,6 +533,54 @@ public final class Vector
 	{
 		for ( int i = 0; i < destination.length; i++ )
 			destination[i] = source[i];
+	}
+	
+	/**
+	 * returns true if all fields in input are equal to value
+	 * @param input
+	 * @param value
+	 * @return
+	 */
+	public static boolean allOfValue(boolean[] input, boolean value)
+	{
+		if ( input == null )
+			return false;
+		for ( boolean b : input)
+			if ( b != value)
+				return false;
+		return true;
+	}
+	
+	/**
+	 * returns true if all fields in input are equal to value
+	 * @param input
+	 * @param value
+	 * @return
+	 */
+	public static boolean allOfValue(double[] input, double value)
+	{
+		if ( input == null )
+			return false;
+		for ( double b : input)
+			if ( b != value)
+				return false;
+		return true;
+	}
+	
+	/**
+	 * returns true if all fields in input are equal to value
+	 * @param input
+	 * @param value
+	 * @return
+	 */
+	public static boolean allOfValue(int[] input, int value)
+	{
+		if ( input == null )
+			return false;
+		for ( int b : input)
+			if ( b != value)
+				return false;
+		return true;
 	}
 	
 	/**
@@ -431,6 +613,21 @@ public final class Vector
 	 * @see #setAll(int[] vector, int value)
 	 */
 	public static double[] setAll(double[] vector, double value)
+	{
+		for ( int i = 0; i < vector.length; i++ )
+			vector[i] = value;
+		return vector;
+	}
+	
+	/**
+	 * \brief Set all elements of the given <b>vector</b> to the boolean
+	 * <b>value</b> given.
+	 * 
+	 * @param vector One-dimensional array of booleans (overwritten).
+	 * @param value	boolean value to use.
+	 * @return	Given <b>vector</b>, with all elements set to <b>value</b>.
+	 */
+	public static boolean[] setAll(boolean[] vector, boolean value)
 	{
 		for ( int i = 0; i < vector.length; i++ )
 			vector[i] = value;
@@ -922,6 +1119,13 @@ public final class Vector
 		for ( int i = 0; i < destination.length; i++ )
 			destination[i] = source[i] + value;
 	}
+
+	public static void addTo(float[] destination, float[] source,
+							 float value)
+	{
+		for ( int i = 0; i < destination.length; i++ )
+			destination[i] = source[i] + value;
+	}
 	
 	/**
 	 * \brief Add a scalar <b>value</b> to every element of a <b>vector</b>,
@@ -938,6 +1142,13 @@ public final class Vector
 	public static double[] add(double[] vector, double value)
 	{
 		double[] out = new double[vector.length];
+		addTo(out, vector, value);
+		return out;
+	}
+
+	public static float[] add(float[] vector, float value)
+	{
+		float[] out = new float[vector.length];
 		addTo(out, vector, value);
 		return out;
 	}
@@ -1019,9 +1230,18 @@ public final class Vector
 	 */
 	public static void addTo(double[] destination, double[] a, double[] b)
 	{
-		checkLengths(destination, a, b);
 		for ( int i = 0; i < a.length; i++ ) 
+		{
 			destination[i] = a[i] + b[i];
+		}
+	}
+
+	public static void addTo(float[] destination, float[] a, float[] b)
+	{
+		for ( int i = 0; i < a.length; i++ )
+		{
+			destination[i] = a[i] + b[i];
+		}
 	}
 	
 	/**
@@ -1037,6 +1257,13 @@ public final class Vector
 	public static double[] add(double[] a, double[] b)
 	{
 		double[] out = new double[a.length];
+		addTo(out, a, b);
+		return out;
+	}
+
+	public static float[] add(float[] a, float[] b)
+	{
+		float[] out = new float[a.length];
 		addTo(out, a, b);
 		return out;
 	}
@@ -1122,7 +1349,6 @@ public final class Vector
 	 */
 	public static void minusTo(double[] destination, double[] a, double[] b)
 	{
-		checkLengths(destination, a, b);
 		for ( int i = 0; i < a.length; i++ ) 
 			destination[i] = a[i] - b[i];
 	}
@@ -1142,6 +1368,20 @@ public final class Vector
 	{
 		double[] out = new double[a.length];
 		minusTo(out, a, b);
+		return out;
+	}
+	
+
+	/**
+	 * TODO
+	 * @param a
+	 * @param value
+	 * @return
+	 */
+	public static double[] minus(double[] a, double value) {
+		double[] out = new double[a.length];
+		for ( int i = 0; i < a.length; i++ ) 
+			out[i] = a[i] - value;
 		return out;
 	}
 	
@@ -1502,6 +1742,25 @@ public final class Vector
 		for ( int i = 0; i < a.length; i++ ) 
 			destination[i] = a[i] / b[i];
 	}
+
+	public static void ratioTo(double[] destination, double[] a, double[] b)
+	{
+		checkLengths(destination, a, b);
+		for ( int i = 0; i < a.length; i++ )
+			destination[i] = Math.abs(a[i]) / Math.abs(b[i]);
+	}
+
+	/**
+	 * \brief divide destination vector elements by divisor.
+	 * @param destination
+	 * @param divisor
+	 */
+	public static double[] divideEqualsA(double[] destination, double divisor)
+	{
+		for ( int i = 0; i < destination.length; i++ ) 
+			destination[i] = destination[i] / divisor;
+		return destination;
+	}
 	
 	/**
 	 * \brief For each element of a vector <b>a</b>, divide by the
@@ -1737,6 +1996,63 @@ public final class Vector
 	public static double[] subset(double[] vector, int stop)
 	{
 		return subset(vector, 0, stop);
+	}
+	
+	/**
+	 * \brief Append a value to the end of a vector, writing the result into a
+	 * new vector.
+	 * 
+	 * @param vector One-dimensional array of integers (preserved).
+	 * @param value New number to append to the end of this vector.
+	 * @return New one-dimensional array of integers.
+	 */
+	public static int[] append(int[] vector, int value)
+	{
+		int[] out = new int[vector.length+1];
+		for (int i = 0; i < vector.length; i++)
+			out[i] = vector[i];
+		out[vector.length] = value;
+		return out;
+	}
+	
+	/**
+	 * \brief Append a value to the end of a vector, writing the result into a
+	 * new vector.
+	 * 
+	 * For appending entire vectors @See {@link #appendAll(double[], double[]) 
+	 * appendAll}
+	 * 
+	 * @param vector One-dimensional array of doubles (preserved).
+	 * @param value New number to append to the end of this vector.
+	 * @return New one-dimensional array of doubles.
+	 */
+	public static double[] append(double[] vector, double value)
+	{
+		double[] out = new double[vector.length+1];
+		for (int i = 0; i < vector.length; i++)
+			out[i] = vector[i];
+		out[vector.length] = value;
+		return out;
+	}
+	
+	/**
+	 * \brief Append a second vector to the end of a vector (returning a new 
+	 * double[] object including both.
+	 * 
+	 * For single value appending @See {@link #append(double[], double) append}
+	 * 
+	 * @param vector One-dimensional array of doubles (preserved).
+	 * @param second One-dimensional array of doubles to append (preserved).
+	 * @return New one-dimensional array of doubles.
+	 */
+	public static double[] appendAll(double[] vector, double[] second)
+	{
+		double[] out = new double[vector.length+second.length];
+		for (int i = 0; i < vector.length; i++)
+			out[i] = vector[i];
+		for (int i = 0; i < second.length; i++)
+			out[i+vector.length] = second[i];
+		return out;
 	}
 	
 	/* Flip */
@@ -2028,6 +2344,24 @@ public final class Vector
 	}
 	
 	/**
+	 * \brief Calculates the sum of each element squared in the given
+	 * <b>vector</b> and writes the result to out.
+	 * 
+	 * <p>E.g. the normSquare of the vector <i>(a, b)</i> is
+	 * <i>a<sup>2</sup> + b<sup>2</sup></i>.</p>
+	 * 
+	 * @param vector One-dimensional array of doubles (preserved).
+	 * @Param out re-usable double
+	 * @return double sum of all elements in <b>vector</b>.
+	 * @see #normEuclid(double[] vector)
+	 * @see #normSquare(int[] vector)
+	 */
+	public static double normSquareTo(double out, double[] vector)
+	{
+		return dotProductTo(out, vector, vector);
+	}
+	
+	/**
 	 * \brief Euclidean norm of the given <b>vector</b>.
 	 * 
 	 * <p>E.g. the normEuclid of the vector <i>(a, b)</i> is
@@ -2043,6 +2377,12 @@ public final class Vector
 	public static double normEuclid(double[] vector)
 	{
 		return Math.sqrt(normSquare(vector));
+	}
+	
+	public static double normEuclidTo(double out, double[] vector)
+	{
+		out = Math.sqrt(normSquareTo(out, vector));
+		return out;
 	}
 	
 	/* Statistics */
@@ -2294,8 +2634,30 @@ public final class Vector
 	 */
 	public static double dotProduct(double[] a, double[] b)
 	{
-		checkLengths(a, b);
 		double out = 0.0;
+		for ( int i = 0; i < a.length; i++ )
+			out += a[i] * b[i];	
+		return out;
+	}
+	
+	/**
+	 * \brief Calculate the dot product of the two vectors given and writes the
+	 * result to out.
+	 * 
+	 * <p>For example, <i>(a<sub>1</sub> , a<sub>2</sub> ).(b<sub>1</sub> ,
+	 * b<sub>2</sub> ) = a<sub>1</sub>*b<sub>1</sub> +
+	 * a<sub>2</sub>*b<sub>2</sub></i></p>
+	 * 
+	 * @Param out re-usable double
+	 * @param a One-dimensional array of doubles (preserved).
+	 * @param b One-dimensional array of doubles (preserved).
+	 * @return double value of the dot product of <b>a</b> and <b>b</b>.
+	 * @see #dotQuotient(double[] a, double[] b)
+	 * @see #dotProduct(int[] a, int[] b)
+	 */
+	public static double dotProductTo(double out, double[] a, double[] b)
+	{
+		out = 0.0;
 		for ( int i = 0; i < a.length; i++ )
 			out += a[i] * b[i];	
 		return out;
@@ -2315,7 +2677,6 @@ public final class Vector
 	 */
 	public static double dotQuotient(double[] a, double[] b)
 	{
-		checkLengths(a, b);
 		double out = 0.0;
 		for ( int i = 0; i < a.length; i++ )
 			out += a[i] / b[i];	
@@ -2333,7 +2694,6 @@ public final class Vector
 	 */
 	public static double distanceEuclid(double[] a, double[] b)
 	{
-		checkLengths(a, b);
 		double out = 0.0;
 		for ( int i = 0; i < a.length; i++ )
 			out += ExtraMath.sq(a[i] - b[i]);
@@ -2617,6 +2977,24 @@ public final class Vector
 		return out;
 	}
 	
+	/**
+	 * \brief Recast an double[] as a float[].
+	 * 
+	 * <p>Note also that this method makes a copy, so the original state of 
+	 * <b>vector</b> will be unaffected.</p>
+	 * 
+	 * @param vector One-dimensional array of doubles. 
+	 * @return	float[] array where each element is the recast double in the
+	 * corresponding position of <b>vector</b>.
+	 */
+	public static float[] toFloat(double[] vector)
+	{
+		float[] out = new float[vector.length];
+		for ( int i = 0; i < vector.length; i++ )
+			out[i] = (float) vector[i];
+		return out;
+	}
+	
 	
 	/*************************************************************************
 	 * RESCALING VECTORS
@@ -2634,7 +3012,6 @@ public final class Vector
 	public static void normaliseEuclidTo(double[] destination, double[] source, 
 			double newNorm)
 	{
-		checkLengths(destination, source);
 		double oldNorm = normEuclid(source);
 		if ( oldNorm != 0.0 )
 			timesTo(destination, source, newNorm/oldNorm);
@@ -2696,6 +3073,31 @@ public final class Vector
 		double oldNorm = normEuclid(vector);
 		if ( oldNorm != 0.0 )
 			timesEquals(vector, newNorm/oldNorm);
+		else 
+		{
+			Log.out("zero division");
+		}
+	}
+	
+	/**
+	 * \brief Scale each element of the given <b>vector</b> by the same
+	 * amount, so that the Euclidean norm of <b>vector</b> becomes 
+	 * <b>newNorm</b> NOTE: does not check for division by 0.
+	 * 
+	 * <p>Note that if the <b>vector</b> is composed of all zeros, this
+	 * method will simply exit with the <b>vector</b> unchanged.</p>
+	 * 
+	 * @param vector One-dimensional array of doubles (overwritten).
+	 * @param newNorm double value for the new Euclidean norm of <b>vector</i>.
+	 */
+	public static void normaliseEuclidEqualsUnchecked(double[] vector, double newNorm)
+	{
+		if(normEuclid(vector) == 0.0)
+		{
+			Log.out(Tier.CRITICAL,"zero division not allowed in: Vector");
+			return;
+		}
+		timesEquals(vector, newNorm/normEuclid(vector));
 	}
 	
 	/**
@@ -2883,8 +3285,8 @@ public final class Vector
 			double theta = Math.atan2(cartesian[1], cartesian[0]);
 			double phi = Math.acos(cartesian[2]/radius);
 			destination[0] = radius;
-			destination[1] = phi;
-			destination[2] = theta;
+			destination[2] = phi;
+			destination[1] = theta;
 		}
 		}
 	}
@@ -2962,8 +3364,8 @@ public final class Vector
 		case 3 :
 		{
 			double radius = spherical[0];
-			double phi = spherical[1];
-			double theta = spherical[2];
+			double phi = spherical[2];
+			double theta = spherical[1];
 			destination[0] = radius * Math.cos(theta) * Math.sin(phi);
 			destination[1] = radius * Math.sin(theta) * Math.sin(phi);
 			destination[2] = radius * Math.cos(phi);
@@ -3128,4 +3530,83 @@ public final class Vector
 	{
 		uncylindrifyTo(vector, vector);
 	}
+	
+	/**
+	 * \brief Find the outer-product of two vectors, <b>a</b>
+	 * and <b>b</b>, and write the result into <b>destination</b>.
+	 * 
+	 * @param destination  Two-dimensional array of doubles to be overwritten
+	 * with <b>a</b> ⓧ <b>b</b> with number of rows equal to length of <b>a</b> 
+	 * and number of columns equal to length of <b>b</b>.
+	 * @param a One-dimensional array of doubles (preserved).
+	 * @param b One-dimensional array of doubles (preserved).
+	 */
+	public static void outerProductTo(double[][] destination, double[] a,
+																double[] b)
+	{
+		for ( int i = 0; i < a.length; i++ ) {
+			for (int j = 0; j < b.length; j++) {
+				destination[i][j] = a[i]*b[j];
+			}
+		}
+	}
+	
+	/**
+	 * \brief Find the outer-product of two vectors, <b>a</b>
+	 * and <b>b</b>, and write the result into a new vector.
+	 * 
+	 * @param a One-dimensional array of doubles (preserved).
+	 * @param b One-dimensional array of doubles (preserved).
+	 * @return new double[a.length][b.length] with the outer-product <b>a</b> ⓧ <b>b</b>.
+	 */
+	public static double[][] outerProduct(double[] a, double[] b)
+	{
+		double[][] out = new double[a.length][b.length];
+		outerProductTo(out, a, b);
+		return out;
+	}
+
+	public static int[] translate(double[] location, double[] resolution) 
+	{
+		int out[] = new int[3];
+		for(int i = 0; i < resolution.length; i++)
+			if( i < location.length)
+				out[i] = (int) Math.floor(location[i]/resolution[i]);
+			else
+				out[i] = 0;
+		return out;
+	}
+
+	public static boolean equals(double[] a, double[] b) {
+		if(a.length != b.length)
+			return false;
+		for( int i = 0; i < a.length; i++)
+			if( a[i] != b[i] )
+				return false;
+		return true;
+	}
+    public static double[] convert(Double[] doubleA)
+	{
+		double[] out = new double[doubleA.length];
+		for( int i = 0; i < doubleA.length; i++ )
+			out[i] = doubleA[i];
+		return out;
+    }
+
+	public static Double[] convert(double[] doubleA)
+	{
+		Double[] out = new Double[doubleA.length];
+		for( int i = 0; i < doubleA.length; i++ )
+			out[i] = doubleA[i];
+		return out;
+	}
+
+	/**
+	 * get dimensions of array
+	 * @param array
+	 * @return
+	 */
+    public static int[] dimensions(double[][][] array) {
+		return new int[] { array.length, array[0].length, array[0][0].length };
+    }
 }

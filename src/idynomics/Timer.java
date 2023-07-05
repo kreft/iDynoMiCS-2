@@ -1,24 +1,27 @@
 package idynomics;
 
+import java.math.BigDecimal;
+
 import org.w3c.dom.Element;
 
 import dataIO.Log;
-import dataIO.XmlHandler;
-import dataIO.XmlRef;
-import generalInterfaces.XMLable;
-import nodeFactory.ModelAttribute;
-import nodeFactory.ModelNode;
-import nodeFactory.ModelNode.Requirements;
-import nodeFactory.NodeConstructor;
 import dataIO.Log.Tier;
+import dataIO.XmlHandler;
+import gui.GuiButtons;
+import instantiable.Instantiable;
+import referenceLibrary.XmlRef;
+import settable.Attribute;
+import settable.Module;
+import settable.Module.Requirements;
+import settable.Settable;
 import utility.Helper;
 
 /**
  * \brief TODO
  * 
- * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
-public class Timer implements XMLable, NodeConstructor
+public class Timer implements Instantiable, Settable
 {
 	/**
 	 * TODO
@@ -39,40 +42,42 @@ public class Timer implements XMLable, NodeConstructor
 	 * TODO
 	 */
 	protected double _endOfSimulation;
+
+	private Settable _parentNode;
 		
 	public Timer()
 	{
-		this._iteration = 0;
+		this._iteration = 1;
 		this._now = 0.0;
 	}
-	
-	public String getName()
-	{
-		return XmlRef.timer;
-	}
-	
-	public void init(Element xmlNode)
-	{
-		Log.out(Tier.NORMAL, "Timer loading...");
-		String s;
-		double d;
-		/* Get the time step. */
-		s = XmlHandler.gatherAttribute(xmlNode, XmlRef.timerStepSize);
-		s = Helper.obtainInput(s, "Timer time step size");
-		d = Double.valueOf(s);
-		// TODO safety
-		setTimeStepSize(d);
-		/* Get the total time span. */
-		s = XmlHandler.gatherAttribute(xmlNode, XmlRef.endOfSimulation);
-		s = Helper.obtainInput(s, "End of simulation");
-		d = Double.valueOf(s);
-		// TODO safety
-		setEndOfSimulation(d);
-		report(Tier.NORMAL);
-		Log.out(Tier.NORMAL, "Timer loaded!\n");
 		
-		if ( Helper.gui )
-			GuiLaunch.resetProgressBar();
+	public void instantiate(Element xmlElem, Settable parent)
+	{
+		/* Get starting time step */
+		this.setCurrentTime( Helper.setIfNone( XmlHandler.gatherDouble(
+				xmlElem, XmlRef.currentTime ), 0.0 ) );
+		
+		this.setCurrentIteration( Integer.valueOf( Helper.setIfNone( 
+				XmlHandler.gatherAttribute(
+						xmlElem, XmlRef.currentIter ), "1" ) ) );
+		
+		/* Get the time step. */
+		this.setTimeStepSize( XmlHandler.obtainDouble (
+				xmlElem, XmlRef.timerStepSize, this.defaultXmlTag() ) );
+
+		/* Get the total time span. */
+		this.setEndOfSimulation( XmlHandler.obtainDouble (
+				xmlElem, XmlRef.endOfSimulation, this.defaultXmlTag() ) );
+		
+		if ( XmlHandler.hasAttribute(xmlElem, XmlRef.outputskip) )
+			Idynomics.global.outputskip = Integer.valueOf( 
+					XmlHandler.obtainAttribute( xmlElem, XmlRef.outputskip, 
+					XmlRef.simulation));
+		
+		if ( XmlHandler.hasAttribute(xmlElem, XmlRef.outputTime) )
+			Idynomics.global.outputskip = (int) Math.round( (Double.valueOf(
+					XmlHandler.obtainAttribute( xmlElem, XmlRef.outputTime, 
+					XmlRef.simulation)) / this.getTimeStepSize()));
 	}
 	
 	/*************************************************************************
@@ -82,8 +87,8 @@ public class Timer implements XMLable, NodeConstructor
 	
 	public void reset()
 	{
-		_now = 0.0;
-		_iteration = 0;
+		this._now = 0.0;
+		this._iteration = 1;
 	}
 	
 	public void setTimeStepSize(double stepSize)
@@ -91,14 +96,24 @@ public class Timer implements XMLable, NodeConstructor
 		this._timerStepSize = stepSize;
 	}
 	
+	public void setCurrentTime(double time)
+	{
+		this._now = time;
+	}
+	
 	public double getCurrentTime()
 	{
-		return _now;
+		return this._now;
+	}
+	
+	private void setCurrentIteration(int iteration) 
+	{
+		this._iteration = iteration;
 	}
 	
 	public int getCurrentIteration()
 	{
-		return _iteration;
+		return this._iteration;
 	}
 	
 	public double getTimeStepSize()
@@ -108,15 +123,16 @@ public class Timer implements XMLable, NodeConstructor
 	
 	public double getEndOfCurrentIteration()
 	{
-		return _now + getTimeStepSize();
+		return ( BigDecimal.valueOf( this._now ) ).
+				add( BigDecimal.valueOf( this._timerStepSize ) ).doubleValue();
 	}
 	
 	public void step()
 	{
-		_now += getTimeStepSize();
-		_iteration++;
-		if ( Helper.gui )
-			GuiLaunch.updateProgressBar();
+		this._now = getEndOfCurrentIteration();
+		this._iteration++;
+		if ( Helper.isSystemRunningInGUI )
+			GuiButtons.updateProgressBar();
 	}
 	
 	public double getEndOfSimulation()
@@ -129,24 +145,26 @@ public class Timer implements XMLable, NodeConstructor
 		this._endOfSimulation = timeToStopAt;
 	}
 	
-	public int estimateLastIteration()
+	public int estimateIterationsRemaining()
 	{
-		return (int) (getEndOfSimulation() / getTimeStepSize());
+		double timeLeft = this.getEndOfSimulation() - this.getCurrentTime();
+		return (int) (timeLeft / this.getTimeStepSize());
 	}
 	
 	public boolean isRunning()
 	{
-		Log.out(Tier.DEBUG, "Timer.isRunning()? now = "+_now+", end = "+
-				getEndOfSimulation()+", so "+(_now<getEndOfSimulation())); 
-		return _now < getEndOfSimulation();
+		if( Log.shouldWrite(Tier.DEBUG) )
+			Log.out(Tier.DEBUG, "Timer.isRunning()? now = "+ this._now+
+					", end = "+ this.getEndOfSimulation()+
+					", so "+ (this._now<getEndOfSimulation())); 
+		return this._now < this.getEndOfSimulation();
 	}
 	
 	public void report(Tier outputLevel)
 	{
-		Log.out(outputLevel, "Timer: time is   = "+_now);
-		Log.out(outputLevel, "       iteration = "+_iteration);
-		Log.out(outputLevel, "       step size = "+getTimeStepSize());
-		Log.out(outputLevel, "       end time  = "+getEndOfSimulation());
+		if( Log.shouldWrite(outputLevel))
+			Log.out(outputLevel, "#"+ getCurrentIteration()+ " time: "+ _now+ 
+					" step: "+ getTimeStepSize()+ " end: "+ getEndOfSimulation());
 	}
 	
 	/*************************************************************************
@@ -157,18 +175,22 @@ public class Timer implements XMLable, NodeConstructor
 	 * Get the ModelNode object for this Timer object
 	 * @return ModelNode
 	 */
-	public ModelNode getNode() {
-
+	public Module getModule()
+	{
 		/* the timer node */
-		ModelNode modelNode = new ModelNode(XmlRef.timer, this);
-		modelNode.requirement = Requirements.EXACTLY_ONE;
+		Module modelNode = new Module(XmlRef.timer, this);
+		modelNode.setRequirements(Requirements.EXACTLY_ONE);
 		
+		/* now */
+		modelNode.add(new Attribute(XmlRef.currentTime, 
+				String.valueOf(this._now), null, true ));
+
 		/* time step size */
-		modelNode.add(new ModelAttribute(XmlRef.timerStepSize, 
+		modelNode.add(new Attribute(XmlRef.timerStepSize, 
 				String.valueOf(this._timerStepSize), null, true ));
 		
 		/* end of simulation */
-		modelNode.add(new ModelAttribute(XmlRef.endOfSimulation, 
+		modelNode.add(new Attribute(XmlRef.endOfSimulation, 
 				String.valueOf(this._endOfSimulation), null, true ));
 		
 		return modelNode;
@@ -179,24 +201,18 @@ public class Timer implements XMLable, NodeConstructor
 	 * NodeConstructor object
 	 * @param node
 	 */
-	public void setNode(ModelNode node)
+	public void setModule(Module node)
 	{
+		this.setCurrentTime( Double.valueOf( 
+				node.getAttribute( XmlRef.currentTime ).getValue() ));
+		
 		/* time step size */
 		this.setTimeStepSize( Double.valueOf( 
-				node.getAttribute( XmlRef.timerStepSize ).value ));
+				node.getAttribute( XmlRef.timerStepSize ).getValue() ));
 		
 		/* end of simulation */
 		this.setEndOfSimulation( Double.valueOf( 
-				node.getAttribute( XmlRef.endOfSimulation ).value ));
-	}
-	
-	/**
-	 * Create a new minimal object of this class and return it
-	 * @return NodeConstructor
-	 */
-	public NodeConstructor newBlank()
-	{
-		return new Timer();
+				node.getAttribute( XmlRef.endOfSimulation ).getValue() ));
 	}
 
 	/**
@@ -206,5 +222,17 @@ public class Timer implements XMLable, NodeConstructor
 	@Override
 	public String defaultXmlTag() {
 		return XmlRef.timer;
+	}
+
+	@Override
+	public void setParent(Settable parent) 
+	{
+		this._parentNode = parent;
+	}
+	
+	@Override
+	public Settable getParent() 
+	{
+		return this._parentNode;
 	}
 }

@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+	<simulation log="NORMAL" outputfolder="../results" name="aDin">
+	<timer stepSize="1.0" endOfSimulation="200.0" /> <!-- 10 weeks -->
+		<speciesLib>
+			<!-- species/species library The species library contains all agent species 
+				in the simulations. This may include microbial species, plasmid and vector 
+				species, particle species etc. Species states are states that are in principal 
+				identical for all agents of that species. However note that iDynoMiCS 2.0 
+				does allow you to overwrite states on agent level. Thus if a state is defined 
+				both on species level and on agent level, the agent state will be used in 
+				the simulation. small test 
+				-->
+			<species name="coccoid">
+				<aspect name="density" type="PRIMARY" class="Double" value="1" />
+				<aspect name="divide" 			type="EVENT" 		class="CoccoidDivision"	/>
+				<aspect name="divisionMass" type="PRIMARY" class="Double" value="0.005" />
+			</species>
+			
+			<species name="ABCD">
+				<aspect name="pigment" type="PRIMARY" class="String" value="RED" />
+				<aspect name="reactions" type="PRIMARY"  class="InstantiableList"> 
+					<list class="MetabolicReaction" nodeLabel="reaction" 
+					entryClass="MetabolicReaction" keyClass="String" keyLabel="name">
+						<reaction name="growth">
+							<expression value="mass * uMax * 
+									( acetate / ( acetate + Kacetate ) ) * 
+									( nitrate / ( nitrate + Knitrate ) )">
+								<constant name="Kacetate" 	value="0.1" /> 
+								<constant name="Knitrate" 	value="0.1" />
+							</expression>
+						<halfReaction name="acceptor">
+							<stoichiometric component="nitrogen"	coefficient="0.5" />
+							<stoichiometric component="nitrate"		coefficient="-1.0" />
+							<stoichiometric component="water" 		coefficient="3.0" />
+							<stoichiometric component="proton"		coefficient="-6.0" />
+							<stoichiometric component="electron" 	coefficient="-5.0" />
+						</halfReaction> 
+						<halfReaction name="donor">
+							<stoichiometric component="acetate" 			coefficient="-1.0" />
+							<stoichiometric component="bicarbonate" 		coefficient="1.0" />
+							<stoichiometric component="carbondioxide" 	coefficient="1.0" />
+							<stoichiometric component="water" 				coefficient="-3.0" />
+							<stoichiometric component="proton" 			coefficient="8.0" />
+							<stoichiometric component="electron" 			coefficient="8.0" />
+						</halfReaction> 
+						<halfReaction name="anabolism">
+							<stoichiometric component="acetate" 		coefficient="-0.5" />
+							<stoichiometric component="nitrate" 		coefficient="-0.2" />
+							<stoichiometric component="mass" 		coefficient="1.0" />
+							<stoichiometric component="water" 			coefficient="1.1" />
+							<stoichiometric component="proton" 		coefficient="-2.5" />
+							<stoichiometric component="electron" 		coefficient="-1.8" />
+						</halfReaction> 
+						</reaction> 
+					</list>
+				</aspect>
+				<speciesModule name="coccoid" />
+			</species>
+			
+			<species name="ABC">
+				<aspect name="pigment" type="PRIMARY" class="String" value="RED" />
+				<aspect name="reactions" type="PRIMARY"  class="InstantiableList"> 
+					<list class="MetabolicReaction" nodeLabel="reaction" 
+					entryClass="MetabolicReaction" keyClass="String" keyLabel="name">
+						<reaction name="growth">
+							<expression value="mass * uMax * 
+									( acetate / ( acetate + Kacetate ) ) * 
+									( nitrate / ( nitrate + Knitrate ) )">
+								<constant name="Kacetate" 	value="0.1" /> 
+								<constant name="Knitrate" 	value="0.1" />
+							</expression>
+						<halfReaction name="acceptor">
+							<stoichiometric component="nitrousoxide"	coefficient="0.5" />
+							<stoichiometric component="nitrate"		coefficient="-1.0" />
+							<stoichiometric component="water" 		coefficient="2.5" />
+							<stoichiometric component="proton"		coefficient="-5.0" />
+							<stoichiometric component="electron" 	coefficient="-4.0" />
+						</halfReaction> 
+						<halfReaction name="donor">
+							<stoichiometric component="acetate" 			coefficient="-1.0" />
+							<stoichiometric component="bicarbonate" 		coefficient="1.0" />
+							<stoichiometric component="carbondioxide" 	coefficient="1.0" />
+							<stoichiometric component="water" 				coefficient="-3.0" />
+							<stoichiometric component="proton" 			coefficient="8.0" />
+							<stoichiometric component="electron" 			coefficient="8.0" />
+						</halfReaction> 
+						<halfReaction name="anabolism">
+							<stoichiometric component="acetate" 		coefficient="-0.5" />
+							<stoichiometric component="nitrate" 		coefficient="-0.2" />
+							<stoichiometric component="mass" 		coefficient="1.0" />
+							<stoichiometric component="water" 			coefficient="1.1" />
+							<stoichiometric component="proton" 		coefficient="-2.5" />
+							<stoichiometric component="electron" 		coefficient="-1.8" />
+						</halfReaction> 
+						</reaction> 
+					</list>
+				</aspect>
+				<speciesModule name="coccoid" />
+			</species>
+		
+			<species name="D">
+				<aspect name="pigment" type="PRIMARY" class="String" value="RED" />
+				<aspect name="reactions" type="PRIMARY"  class="InstantiableList"> 
+					<list class="MetabolicReaction" nodeLabel="reaction" 
+					entryClass="MetabolicReaction" keyClass="String" keyLabel="name">
+						<reaction name="growth">
+							<expression value="mass * uMax * 
+									( acetate / ( acetate + Kacetate ) ) * 
+									( nitrousoxide / ( nitrousoxide + Knitrous ) )">
+								<constant name="Kacetate" 	value="0.1" /> 
+								<constant name="Knitrous" 	value="0.1" />
+							</expression>
+						<halfReaction name="acceptor">
+							<stoichiometric component="nitrogen"	coefficient="1.0" />
+							<stoichiometric component="nitrousoxide"		coefficient="-1.0" />
+							<stoichiometric component="water" 		coefficient="1.0" />
+							<stoichiometric component="proton"		coefficient="-2.0" />
+							<stoichiometric component="electron" 	coefficient="-2.0" />
+						</halfReaction> 
+						<halfReaction name="donor">
+							<stoichiometric component="acetate" 			coefficient="-1.0" />
+							<stoichiometric component="bicarbonate" 		coefficient="1.0" />
+							<stoichiometric component="carbondioxide" 	coefficient="1.0" />
+							<stoichiometric component="water" 				coefficient="-3.0" />
+							<stoichiometric component="proton" 			coefficient="8.0" />
+							<stoichiometric component="electron" 			coefficient="8.0" />
+						</halfReaction> 
+						<halfReaction name="anabolism">
+							<stoichiometric component="acetate" 		coefficient="-0.5" />
+							<stoichiometric component="nitrousoxide" 		coefficient="-0.1" />
+							<stoichiometric component="mass" 		coefficient="1.0" />
+							<stoichiometric component="water" 			coefficient="0.6" />
+							<stoichiometric component="proton" 		coefficient="-1.5" />
+							<stoichiometric component="electron" 		coefficient="-1.0" />
+						</halfReaction> 
+						</reaction> 
+					</list>
+				</aspect>
+				<speciesModule name="coccoid" />
+			</species>
+		</speciesLib>
+		
+		<chemicalLib>
+			<chemical name="electron" formationGibbs="0.0" composition="e-1" />
+			<chemical name="proton" formationGibbs="0.0" composition="eH" />
+			<chemical name="oxygen" formationGibbs="0.0" composition="O2" />
+			<chemical name="water" formationGibbs="-237.2" composition="H2O" />
+			<chemical name="nitrogen" formationGibbs="0.0" composition="N2" />
+			<chemical name="nitricoxide" formationGibbs="86.6" composition="NO" />
+			<chemical name="nitrousoxide" formationGibbs="104.2" composition="N2O" />
+			<chemical name="amonium" formationGibbs="-79.4" composition="NH4e1" />
+			<chemical name="nitrite" formationGibbs="-32.2" composition="NO2e-1" />
+			<chemical name="nitrate" formationGibbs="-111.3" composition="NO3e-1" />
+			<chemical name="carbonmonoxide" formationGibbs="-137.2" composition="0, 1, 0, 1, 0, 0, 0" />
+			<chemical name="carbondioxide" formationGibbs="-394.4" composition="CO2" />
+			<chemical name="bicarbonate" formationGibbs="-586.9" composition="CHO3e-1" />
+			<chemical name="acetate" formationGibbs="369.4" composition="C2H3O2e-1" />
+			<chemical name="aceticacid" formationGibbs="-396.6" composition="C2H4O2" />
+			<chemical name="mass" formationGibbs="-67.0" composition="CH1.8O0.5N0.2" />
+
+		</chemicalLib>
+		<compartment name="chemostat">
+			<shape class="Dimensionless" volume="10"> 
+				<boundary  class="constantConcentrationToChemostat" volumeFlowRate="1.0E-1"> 
+					<solute name="nitrate" 	concentration="0.1"  />
+					<solute name="acetate" 	concentration="0.2"  />
+				</boundary>
+				<boundary  class="chemostatOut" volumeFlowRate="-1.0E-1" agentRemoval="true">
+				</boundary> 
+			</shape>
+			<solutes>
+				<!-- pg / µm3 -->
+				<solute name="acetate" concentration="0.1" defaultDiffusivity="1"  />
+				<solute name="nitrate" 	concentration="0.1"  defaultDiffusivity="1"  />
+				<solute name="nitrite" 	concentration="0.1"  defaultDiffusivity="1"  />
+				<solute name="nitricoxide" 	concentration="0.01"  defaultDiffusivity="1"  />
+				<solute name="nitrousoxide" 	concentration="0.01"  defaultDiffusivity="1"  />
+				<solute name="proton" concentration="1e-7" defaultDiffusivity="1"  />
+				<solute name="electron" 	concentration="1"  defaultDiffusivity="1"  />
+				<solute name="water" 	concentration="1"  defaultDiffusivity="1"  />
+			</solutes>
+			<reactions>
+			</reactions>
+			<agents>
+				<agent>
+					<aspect name="species" type="PRIMARY" class="String" value="ABCD" />
+					<aspect name="mass" type="PRIMARY" class="Double" value="0.1" />
+				</agent>
+				<agent>
+					<aspect name="species" type="PRIMARY" class="String" value="ABC" />
+					<aspect name="mass" type="PRIMARY" class="Double" value="0.1" />
+				</agent>
+				<agent>
+					<aspect name="species" type="PRIMARY" class="String" value="D" />
+					<aspect name="mass" type="PRIMARY" class="Double" value="0.1" />
+				</agent>
+			</agents>
+			<processManagers>
+				<process name="solveChemostat" class="ChemostatSolver" priority="0"
+					firstStep="0.0"  timerStepSize="1.0">
+					<aspect name="soluteNames" type="PRIMARY" class="String[]" value="acetate,nitrate,nitrousoxide" />
+					<aspect name="hMax" type="PRIMARY" class="Double" value="0.1" />
+					<aspect name="solver" type="PRIMARY" class="String" value="heun" />
+					<aspect name="tolerance" class="Double" value="1.0E-6" />
+				</process>
+				<process name="summary" class="Summary"  priority="2"
+					firstStep="0.0" timerStepSize="1.0">
+					<aspect name="includeHeader" type="PRIMARY" class="Boolean" value="TRUE" />
+					<aspect name="tableSpecification" type="PRIMARY" class="String"
+					value="0 ~ mass ? species == ABCD | mass ? species == ABC |  mass ? species == D | %acetate | %nitrate | %nitrousoxide" />
+					<aspect name="fileName" type="PRIMARY" class="String" value="data" />
+				</process>
+				<process name="flowDeparture"
+					class="DepartureByFlow" priority = "1" volumeFlowRate="-1.0E-1">
+				</process>
+			</processManagers>
+		</compartment>
+	</simulation>
+</document>

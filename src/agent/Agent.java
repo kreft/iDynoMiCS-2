@@ -1,36 +1,46 @@
 package agent;
+import java.util.LinkedList;
+import java.util.List;
+
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import aspect.Aspect.AspectClass;
 import aspect.AspectInterface;
 import aspect.AspectReg;
-import aspect.AspectRef;
-import dataIO.XmlHandler;
+import compartment.Compartment;
 import dataIO.Log;
-import dataIO.XmlRef;
 import dataIO.Log.Tier;
-import idynomics.Compartment;
+import dataIO.XmlHandler;
 import idynomics.Idynomics;
+import instantiable.Instantiable;
 import linearAlgebra.Vector;
-import nodeFactory.ModelAttribute;
-import nodeFactory.ModelNode;
-import nodeFactory.NodeConstructor;
-import nodeFactory.ModelNode.Requirements;
+import referenceLibrary.AspectRef;
+import referenceLibrary.ClassRef;
+import referenceLibrary.XmlRef;
+import settable.Attribute;
+import settable.Module;
+import settable.Module.Requirements;
+import settable.Settable;
 import surface.Point;
+import utility.Helper;
 
 /**
  * \brief TODO
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
-public class Agent implements AspectInterface, NodeConstructor
+public class Agent implements AspectInterface, Settable, Instantiable
 {
 	/**
 	 * The uid is a unique identifier created when a new Agent is created via 
 	 * the constructor.
+	 * 
+	 * becomiming tricky consider redesign
 	 */
 	protected static int UNIQUE_ID = 0;
-	final int _uid = ++UNIQUE_ID;
+	protected int _uid;
 
 	/**
 	 * The compartment the agent is currently in
@@ -42,6 +52,8 @@ public class Agent implements AspectInterface, NodeConstructor
 	 */
 	protected AspectReg _aspectRegistry = new AspectReg();
 
+	
+		
 	/*************************************************************************
 	 * CONSTRUCTORS
 	 ************************************************************************/
@@ -50,140 +62,148 @@ public class Agent implements AspectInterface, NodeConstructor
 	{
 
 	}
-	
-	/**
-	 * Used by GUI, dummy agent.
-	 */
-	public Agent(Compartment comp)
-	{
-		this._compartment = comp;
-	}
 
 	/**
-	 * \brief Construct an {@code Agent} with unknown {@code Compartment}.
-	 * 
-	 * <p>This is useful for agent introduction by a {@code ProcessManager}.
-	 * </p>
-	 * 
-	 * @param xmlNode
-	 */
-	public Agent(Node xmlNode)
-	{
-		this.loadAspects(xmlNode);
-	}
-
-	
-	//FIXME breaks protocols with random spawn
-//	/**
-//	 * Agent xml constructor allowing for multiple randomized initial agents
-//	 * @param xmlNode
-//	 */
-//	// TODO this method needs tidying and clarification
-//	public Agent(Node xmlNode, Compartment comp)
-//	{
-//		
-//		NodeList temp = XmlHandler.getAll(xmlNode, XmlRef.spawnNode);
-//		if ( temp.getLength() > 0 )
-//		{
-//			/* Initiate all "extra" random agents. */
-//			for ( int i = 0; i < temp.getLength(); i++ )
-//			{
-//				String str;
-//				/*
-//				 * Find the number of Agents to create.
-//				 */
-//				str = XmlHandler.obtainAttribute(temp.item(i), XmlRef.numberOfAgents);
-//				int n = Integer.valueOf(str);
-//				/*
-//				 * Find the domain, i.e. the physical region of space in which
-//				 * to randomly place new Agents.
-//				 */
-//				str = XmlHandler.obtainAttribute(temp.item(i), XmlRef.spawnDomain);
-//				double[] domain = Vector.dblFromString(str);
-//				/* Create n - 1 agents, as one has already been made. */
-//				// TODO give the agents a body shape specified in the protocol
-//				// file, rather than assuming it to be coccoid.
-//				for ( int j = 0; j < n - 1; j++ )
-//				{
-//					Agent extra = new Agent(xmlNode);
-//					extra.setCompartment(comp);
-//					extra.set(AspectRef.agentBody, this.randBody(domain));
-//					extra.registerBirth();
-//				}
-//				this.loadAspects(xmlNode);
-//				this.set(AspectRef.agentBody, this.randBody(domain));
-//			}
-//		}
-//		else
-//		{
-//			/* No "extra" agents, just this one. */
-//			this.loadAspects(xmlNode);
-//		}
-//		this.init();
-//	}
-	
-	/**
-	 * FIXME temporarily restored old method, sort out what breaks the 
-	 * tidied version
+	 * NOTE Bit of a hack allows initiation of multiple random agents
 	 * Agent xml constructor allowing for multiple randomized initial agents
 	 * @param xmlNode
 	 */
 	public Agent(Node xmlNode, Compartment comp)
 	{
+		this.init(xmlNode, comp);
+	}
+	
+	public Agent (Node xmlNode, Body body, Compartment comp) {
+		Agent extra = new Agent(xmlNode, body);
+		extra._compartment = comp;
+		extra.registerBirth();
+	}
+	
+	public void init(Node xmlNode, Compartment comp)
+	{
+		this._compartment = comp;
 		/* initiate all random agents */
 		NodeList temp = XmlHandler.getAll(xmlNode, XmlRef.spawnNode);
 		if(temp.getLength() > 0)
 		{
+			// Spawn random agents
 			for(int i = 0; i < temp.getLength(); i++)
 			{
-				/* TODO this is a cheat, make a standard method for this */
-				int n = Math.round(Float.valueOf(XmlHandler.obtainAttribute(
-						temp.item(i), XmlRef.numberOfAgents)));
-				double[] domain = Vector.dblFromString(XmlHandler.
-						obtainAttribute(temp.item(i), XmlRef.spawnDomain));
+				/* NOTE this remains here for older protocols, for newer ones we
+				 * should use the spawner classes. */
+				int n = Integer.valueOf(XmlHandler.obtainAttribute(
+						temp.item(i), XmlRef.numberOfAgents, 
+						this.defaultXmlTag() ) );
+				double[] domain = Vector.dblFromString(
+						XmlHandler.obtainAttribute(temp.item(i), 
+						XmlRef.spawnDomain, this.defaultXmlTag() ) );
+				int points = Integer.valueOf( Helper.setIfNone(  
+						XmlHandler.gatherAttribute(temp.item(i), XmlRef.points) 
+						, "1" ) );
 				for(int j = 0; j < n-1; j++)
 				{
-					Agent extra = new Agent(xmlNode, randBody(domain));
+					Agent extra = new Agent(xmlNode, randBody(domain, points));
 					extra._compartment = comp;
 					extra.registerBirth();
 				}
 				this.loadAspects(xmlNode);
-				this.set(AspectRef.agentBody, randBody(domain));
+				this.set(AspectRef.agentBody, randBody(domain, points));
 			}
 		}
 		else
 		{
+			String in =  XmlHandler.gatherAttribute(xmlNode, 
+					XmlRef.identity);
+			if( in == null)
+				this.number(null);
+			else
+				this.number(Integer.valueOf(in));
+			// Place located agents
 			loadAspects(xmlNode);
 		}
-		this.init();
+		this.initiate();
+	}
+	
+	private void number(Integer in)
+	{
+		if(in != null)
+		{
+			if ( UNIQUE_ID <= in )
+				UNIQUE_ID++;
+			if( Idynomics.simulator.active() || //IMPORTANT prevent searching for duplicate number assignment in running simulations for efficiency.
+					Idynomics.simulator.findAgent(Integer.valueOf(in)) == null )
+				this._uid = Integer.valueOf(in);
+			else
+			{
+				Log.out(Tier.NORMAL, "attempted to assign pre-existing agent"+
+						" identity, assigning next instead");
+				number(null);
+			}
+		}
+		else
+			number( UNIQUE_ID );
 	}
 	
 	/**
-	 * \brief Quick fix to get a coccoid body at a random location in the
-	 * region of physical space specified by domain.
-	 * 
-	 * @param domain
-	 * @return
+	 * Assign the correct species from the species library
 	 */
-	public Body randBody(double[] domain)
+	public void initiate()
+	{
+		if( this._uid == 0)
+			this.number(null);
+		String species;
+		species = this.getString(XmlRef.species);
+		this._aspectRegistry.addModule( (Species) 
+				Idynomics.simulator.speciesLibrary.get(species), species);
+	}
+	
+	/**
+	 * Instantiatable implementation
+	 */
+	public void instantiate(Element xmlElement, Settable parent)
+	{
+		((Compartment) parent.getParent()).addAgent(this);
+		this._compartment = (Compartment) parent.getParent();
+		loadAspects(xmlElement);
+		this.initiate();
+	}
+		
+	/* FIXME work in progress */
+	@Deprecated
+	public Body randBody(double[] domain, int p)
 	{
 		double[] v = Vector.randomZeroOne(domain);
 		Vector.timesEquals(v, domain);
-		return new Body(new Point(v), 0.0);
+		List<Point> points = new LinkedList<Point>();
+		points.add(new Point(v));
+		for ( int i = 1; i < p; i++ )
+			points.add(new Point(Vector.add(v,Vector.randomZeroOne(domain))));
+		return new Body(points, 0, 0);
 	}
 
 	public Agent(Node xmlNode, Body body)
 	{
 		this.loadAspects(xmlNode);
 		this.set(AspectRef.agentBody, body);
-		this.init();
+		this.initiate();
+	}
+	
+	/**
+	 * template constructor
+	 * @param xmlNode
+	 * @param boo
+	 */
+	public Agent(Node xmlNode, boolean boo)
+	{
+		this.loadAspects(xmlNode);
+		this.initiate();
 	}
 
 	public Agent(String species, Compartment comp)
 	{
-		this.set(XmlRef.species,species);
+		this.set(XmlRef.species, species);
 		this._compartment = comp;
-		this.init();
+		this.initiate();
 	}
 
 	public Agent(String species, Body body, Compartment comp)
@@ -191,7 +211,7 @@ public class Agent implements AspectInterface, NodeConstructor
 		this.set(XmlRef.species, species);
 		this.set(AspectRef.agentBody, body);
 		this._compartment = comp;
-		this.init();
+		this.initiate();
 	}
 
 	/**
@@ -202,30 +222,9 @@ public class Agent implements AspectInterface, NodeConstructor
 	public Agent(Agent agent)
 	{
 		this._aspectRegistry.duplicate(agent);
-		this.init();
 		this._compartment = agent.getCompartment();
+		this.initiate();
 	}
-
-	/**
-	 * Assign the correct species from the species library
-	 */
-	public void init()
-	{
-		String species;
-		if ( this.isAspect(XmlRef.species) )
-		{
-			species = this.getString(XmlRef.species);
-			Log.out(Tier.DEBUG, "Agent belongs to species \""+species+"\"");
-		}
-		else
-		{
-			species = "";
-			Log.out(Tier.DEBUG, "Agent belongs to void species");
-		}
-		this._aspectRegistry.addSubModule( (Species) 
-				Idynomics.simulator.speciesLibrary.get(species));
-	}
-
 
 	/*************************************************************************
 	 * BASIC SETTERS & GETTERS
@@ -248,6 +247,11 @@ public class Agent implements AspectInterface, NodeConstructor
 	{
 		return _aspectRegistry.getValue(this, key);
 	}
+	
+	public AspectClass getAspectType(String key)
+	{
+		return reg().getType(this, key);
+	}
 
 	/**
 	 * return the compartment the agent is registered to
@@ -268,7 +272,7 @@ public class Agent implements AspectInterface, NodeConstructor
 	{
 		this._compartment = compartment;
 	}
-
+	
 	/*************************************************************************
 	 * STEPPING
 	 ************************************************************************/
@@ -309,8 +313,6 @@ public class Agent implements AspectInterface, NodeConstructor
 	 */
 	public void registerBirth()
 	{
-		Log.out(Tier.DEBUG, "Compartment \""+this._compartment.name+
-				"\" registering agent birth");
 		this._compartment.addAgent(this);
 		this.set(AspectRef.birthday, Idynomics.simulator.timer.getCurrentTime());
 	}
@@ -335,6 +337,24 @@ public class Agent implements AspectInterface, NodeConstructor
 		return this._uid;
 	}
 	
+	
+	/**
+	 * Agent's with only one point will have their location co-ordinates
+	 * simplified to zeros. Agent's with multiple points will have each 
+	 * co-ordinate reduced by the lowest value in that dimension.
+	 * 
+	 * Review whether this is useful
+	 */
+	public void simplifyLocation()
+	{
+		if (this.isLocalAspect(XmlRef.agentBody))
+			{
+				Body body = (Body) this._aspectRegistry.getValue(
+						this, XmlRef.agentBody);
+				body.simplifyLocation();
+			}
+	}
+	
 	/*************************************************************************
 	 * Model Node factory
 	 ************************************************************************/
@@ -344,56 +364,48 @@ public class Agent implements AspectInterface, NodeConstructor
 	 * @return ModelNode
 	 */
 	@Override
-	public ModelNode getNode() 
+	public Module getModule() 
 	{
 		/* create the agent node */
-		ModelNode modelNode = new ModelNode(XmlRef.agent, this);
-		modelNode.requirement = Requirements.ZERO_TO_MANY;
+		Module modelNode = new Module(XmlRef.agent, this);
+		modelNode.setRequirements(Requirements.ZERO_TO_MANY);
 		
 		/* use the identifier as agent title in gui */
-		modelNode.title = String.valueOf(this.identity());
+		modelNode.setTitle(String.valueOf(this.identity()));
 		
 		/* 
 		 * store the identity as attribute, note identity cannot be overwritten
 		*/
-		modelNode.add(new ModelAttribute(XmlRef.identity, 
+		modelNode.add(new Attribute(XmlRef.identity, 
 				String.valueOf(this.identity()), null, false ));
 		
-		// TODO:  add removing aspects
 		/* add the agents aspects as childNodes */
 		for ( String key : this.reg().getLocalAspectNames() )
 			modelNode.add(reg().getAspectNode(key));
 		
 		/* allow adding of new aspects */
-		modelNode.childConstructors.put(reg().new Aspect(reg()), 
-				ModelNode.Requirements.ZERO_TO_MANY);
+		modelNode.addChildSpec( ClassRef.aspect,
+				Module.Requirements.ZERO_TO_MANY);
 		
 		return modelNode;
 	}
-
+	
 	/**
-	 * update the values of the child nodes (aspects) with the entered values
-	 * from the gui
+	 * Update this module and all child modules with updated information from
+	 * the gui (init if the agent is newly created in the gui).
 	 */
-	@Override
-	public void setNode(ModelNode node) 
+	public void setModule(Module node)
 	{
-		for ( ModelNode n : node.childNodes )
-			n.constructor.setNode(n);
+		Settable.super.setModule(node);
+		this.initiate(); // Updates species module if changed
 	}
 
 	/**
-	 * create and return a new agent when the add agent button is hit in the
-	 * gui
-	 * @return NodeConstructor
+	 * respond to gui command to remove the agent
 	 */
-	@Override
-	public NodeConstructor newBlank() 
+	public void removeModule(String specifier)
 	{
-		Agent newBlank = new Agent(this._compartment);
-		newBlank.reg().setIdentity(String.valueOf(newBlank.identity()));
-		newBlank.registerBirth();
-		return newBlank;
+		this._compartment.registerRemoveAgent(this);
 	}
 
 	/** 
@@ -406,9 +418,15 @@ public class Agent implements AspectInterface, NodeConstructor
 		return XmlRef.agent;
 	}
 
-
-	/*************************************************************************
-	 * REPORTING
-	 ************************************************************************/
-
+	@Override
+	public void setParent(Settable parent) 
+	{
+		//this._parentNode = parent;
+	}
+	
+	@Override
+	public Settable getParent() 
+	{
+		return this._compartment;
+	}
 }

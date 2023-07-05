@@ -117,4 +117,16 @@ public abstract class ODEderivatives
 			ynext[i] = y[i];
 		}
 	}
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param y One-dimensional array of {@code double}s with the current
+	 * values of the variables in the system.
+	 * @param dt Timestep size.
+	 */
+	public void postMiniStep(double[] y, double dt)
+	{
+		/* By default, do nothing. */
+	}
 }

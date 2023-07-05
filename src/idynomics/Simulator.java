@@ -1,72 +1,106 @@
 package idynomics;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
+import agent.Agent;
 import agent.SpeciesLib;
+import chemical.ChemicalLib;
+import compartment.Compartment;
 import dataIO.Log;
+import dataIO.Log.Tier;
+import dataIO.Report;
 import dataIO.XmlExport;
 import dataIO.XmlHandler;
-import dataIO.XmlRef;
-import dataIO.Log.Tier;
+import debugTools.SegmentTimer;
 import generalInterfaces.CanPrelaunchCheck;
-import generalInterfaces.XMLable;
-import utility.*;
-import nodeFactory.*;
-import nodeFactory.ModelNode.Requirements;
+import instantiable.Instance;
+import instantiable.Instantiable;
+import referenceLibrary.ClassRef;
+import referenceLibrary.XmlRef;
+import settable.Attribute;
+import settable.Module;
+import settable.Module.Requirements;
+import settable.Settable;
+import utility.ExtraMath;
+import utility.Helper;
 
 /**
  * \brief Simulator manages all compartments, making sure they synchronise at
  * the correct times. 
  * 
- * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
-public class Simulator implements CanPrelaunchCheck, Runnable, XMLable, NodeConstructor
+public strictfp class Simulator implements CanPrelaunchCheck, Runnable, 
+		Instantiable, Settable
 {
 	/**
 	 * \brief List of {@code Compartment}s in this {@code Simulator}.
 	 * 
-	 * Order is irrelevant, and each {@code Compartment} knows its own name.
+	 * Order is relevant, each {@code Compartment} knows its own name and 
+	 * priority. Note: we should ensure compartment order remains the same
 	 */
 	protected LinkedList<Compartment> _compartments = 
-												new LinkedList<Compartment>();
+			new LinkedList<Compartment>();
+
 	/**
 	 * Contains information about all species for this simulation.
 	 */
 	public SpeciesLib speciesLibrary = new SpeciesLib();
-	
+
+	public ChemicalLib chemicalLibrary = new ChemicalLib();
 	/**
 	 * The timer
 	 */
 	public Timer timer;
 	
+	public boolean interupt = true;
+	
+	public boolean stopAction = false;
 	/**
 	 * Xml output writer
 	 */
 	private XmlExport _xmlOut;
+	
+	private long _timeSpentOnXmlOutput = 0;
+	
+	private int _outputTicker = 1;
+
+	private double tic;
+
+	private long agentCount = 0;
 	
 	/**
 	 * Simulator is the top node in iDynoMiCS and stores its own modelNode and 
 	 * within that all child nodes, simulator is the exception to the rule not
 	 * storing ModelNodes
 	 */
-	private ModelNode _modelNode;
-
+	private Module _modelNode;
 	
-	/*************************************************************************
+	/* ***********************************************************************
 	 * CONSTRUCTORS
-	 ************************************************************************/
+	 * **********************************************************************/
 		
 	public Simulator()
 	{
-		//TODO fully implement MTRandom (reading in random seed)
-		ExtraMath.initialiseRandomNumberGenerator();
+		/* Just for unit tests initialize random number generator here */
+		if( ExtraMath.random == null )
+    		ExtraMath.initialiseRandomNumberGenerator();
 		this.timer = new Timer();
-		this._xmlOut = new XmlExport();
+		this._xmlOut = new XmlExport(Global.output_compression);
+	}
+	
+	public void deleteFromCompartment(String name, Object object)
+	{
+		for ( Compartment c : _compartments)
+			if ( c.name == name )
+				c.remove(object);
 	}
 
 	/**
@@ -79,50 +113,45 @@ public class Simulator implements CanPrelaunchCheck, Runnable, XMLable, NodeCons
 					XmlRef.simulation : Idynomics.global.simulationName;
 	}
 	
-	/**
-	 * get the current seed, used to create intermediate restartable save points
-	 * @return
-	 */
-	public long seed()
-	{
-		long currentSeed = ExtraMath.random.nextLong();
-		ExtraMath.intialiseRandomNumberGenerator(currentSeed);
-		return currentSeed;
-	}
-	
-	/**
-	 * Initiate random number generator with given seed
-	 * @param seed
-	 */
-	public void seed(long seed)
-	{
-		ExtraMath.intialiseRandomNumberGenerator(seed);
-	}
-	
-	public void init(Element xmlElem)
+	public void instantiate(Element xmlElem, Settable parent)
 	{
 		/* 
-		 * retrieve seed from xml file and initiate random number generator with
-		 * that seed
+		 * Retrieve seed from xml file and initiate random number generator with
+		 * that seed.
 		 */
-		String seed =XmlHandler.gatherAttribute(xmlElem, XmlRef.seed);
-		if (seed != "")
-			ExtraMath.intialiseRandomNumberGenerator(Long.valueOf(seed));
-		
+		String seed = XmlHandler.gatherAttribute(xmlElem, XmlRef.seed);
+
+		if ( ! Helper.isNullOrEmpty(seed) )
+			ExtraMath.initialiseRandomNumberGenerator(Long.valueOf(seed));
+		else
+			seed = String.valueOf( ExtraMath.seed );
+		Log.out("Random seed: " + seed);
 		/*
 		 * Set up the Timer.
 		 */
-		this.timer.init( XmlHandler.loadUnique( xmlElem, XmlRef.timer ));
+		this.timer.instantiate( XmlHandler.findUniqueChild( xmlElem, 
+				XmlRef.timer ), this);
 		/*
 		 * Set up the species library.
 		 */
-		if (XmlHandler.hasNode(Idynomics.global.xmlDoc, XmlRef.speciesLibrary))
-				this.speciesLibrary.init( XmlHandler.loadUnique(xmlElem, 
-						XmlRef.speciesLibrary ));
+		if (XmlHandler.hasChild(Idynomics.global.xmlDoc, XmlRef.speciesLibrary))
+		{
+			this.speciesLibrary = (SpeciesLib) Instance.getNew(
+					XmlHandler.findUniqueChild( xmlElem, XmlRef.speciesLibrary), 
+					this, ClassRef.speciesLibrary );
+		}
+		/*
+		 * Set up the chemical library.
+		 */
+		if (XmlHandler.hasChild(Idynomics.global.xmlDoc, XmlRef.chemicalLibrary))
+		{
+			this.chemicalLibrary = (ChemicalLib) Instance.getNew(
+					XmlHandler.findUniqueChild( xmlElem, XmlRef.chemicalLibrary), 
+					this, ClassRef.chemicalLibrary );
+		}
 		/*
 		 * Set up the compartments.
 		 */
-		Log.out(Tier.NORMAL, "Compartments loading...");
 		NodeList children;
 		children = XmlHandler.getAll( xmlElem, XmlRef.compartment );
 		if ( children.getLength() == 0 )
@@ -131,24 +160,26 @@ public class Simulator implements CanPrelaunchCheck, Runnable, XMLable, NodeCons
 				   "Warning: Simulator initialised without any compartments!");
 		}
 		Element child;
-		String str;
 		for ( int i = 0; i < children.getLength(); i++ )
 		{
 			child = (Element) children.item(i);
-			str = XmlHandler.gatherAttribute(child, XmlRef.nameAttribute);
-			Log.out(Tier.NORMAL, "Making "+str);
-			str = Helper.obtainInput(str, "compartment name");
-			Compartment aCompartment = this.addCompartment(str);
-			aCompartment.init(child);
+			/* Compartments add themselves to the simulator. */
+			Instance.getNew( child, this, XmlRef.compartment );
 		}
-		Log.out(Tier.NORMAL, "Compartments loaded!\n");
-		
+		for ( Compartment compartment : this._compartments )
+		{
+			if (Log.shouldWrite(Tier.EXPRESSIVE))
+				Log.out(Tier.EXPRESSIVE, compartment.getName() + 
+						" validating boundaries.");
+			compartment.checkBoundaryConnections(this._compartments);
+			compartment.checkAgentDeparture();
+		}
+		this.interupt = false;
 	}
 	
-	
-	/*************************************************************************
+	/* ***********************************************************************
 	 * BASIC SETTERS & GETTERS
-	 ************************************************************************/
+	 * **********************************************************************/
 	
 	/**
 	 * \brief Add a {@code Compartment} with the given name, checking for
@@ -168,6 +199,11 @@ public class Simulator implements CanPrelaunchCheck, Runnable, XMLable, NodeCons
 		aCompartment.name = name;
 		this._compartments.add(aCompartment);
 		return aCompartment;
+	}
+	
+	public void addCompartment(Compartment compartment)
+	{
+		this._compartments.add(compartment);
 	}
 	
 	/**
@@ -227,108 +263,227 @@ public class Simulator implements CanPrelaunchCheck, Runnable, XMLable, NodeCons
 	}
 	
 	/**
-	 * \brief Get the first {@code Compartment} in this {@code Simulator} that
-	 * has at least one spatial dimension.
+	 * \brief Get the names of the {@code Compartment}s in this 
+	 * {@code Simulator} that have at least one spatial dimension.
 	 * 
 	 * @return A {@code Compartment} if possible, {@code null} if not.
 	 */
-	public Compartment get1stSpatialCompartment()
+	public List<String> getSpatialCompartmentNames()
 	{
+		LinkedList<String> out = new LinkedList<String>();
 		for ( Compartment c : this._compartments )
 			if ( ! c.isDimensionless() )
+				out.add(c.name);
+		return out;
+	}
+	
+	/**
+	 * \brief Get the compartment with matching name, return null if no
+	 * compartment with that name exists.
+	 * @param name
+	 * @return Compartment
+	 */
+	public Compartment getCompartment(String name)
+	{
+		for ( Compartment c : this._compartments )
+			if ( c.name.equals(name) )
 				return c;
 		return null;
 	}
 	
-	/*************************************************************************
+	/* ***********************************************************************
 	 * STEPPING
-	 ************************************************************************/
+	 * **********************************************************************/
 	
 	public void step()
 	{
+
+		if( Log.shouldWrite(Tier.NORMAL) )
+			this.timer.report(Tier.NORMAL);
 		/*
-		 * TODO
+		 * Loop through all compartments, updating solute boundaries and asking
+		 * inbound agents to arrive.
 		 */
 		for ( Compartment c : this._compartments )
-			c.agentsArrive();
+			c.preStep();
+
 		/*
-		 * Loop through all compartments, calling their internal steps. 
+		 * Loop through all compartments, calling their internal steps.
 		 */
 		for ( Compartment c : this._compartments )
+		{
 			c.step();
+			if(this.interupt)
+				return;
+		}
+
 		/*
 		 * Once this is done loop through all again, this time exchanging
-		 * cells that have tried to cross connected boundaries. 
+		 * agents and solutes that have tried to cross connected boundaries. 
 		 */
 		for ( Compartment c : this._compartments )
-			c.pushAllOutboundAgents();
+			c.postStep();
+		
 		/*
 		 * 
 		 */
 		this.timer.step();
-		
+
+		if( Log.shouldWrite(Tier.NORMAL ) && Global.log_memory_use )
+			Log.out( "Memory: " + (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory())/1048576 + " MB" );
+
+		long agents = 0;
+		for (Compartment c : this._compartments)
+			agents += c.agents.getAllAgents().size();
+
+		this.setAgentCount(agents);
+
 		/*
-		 * write state to new xml file
+		 * Write state to new XML file.
 		 */
-		_xmlOut.writeFile();
-		
-		/* we should say something when an iter step is finished */
-		Log.out(Tier.NORMAL, "iter time: " + this.timer.getCurrentTime());
+		if( this._outputTicker < Idynomics.global.outputskip )
+			this._outputTicker++;
+		else
+		{
+			this._xmlOut.writeFile();
+			this._outputTicker = 1;
+		}
+
+		for ( Compartment c : this._compartments )
+			c._bookKeeper.clear();
 		
 		/*
-		 * reporting agents
+		 * Reporting agents.
 		 */
 		for (Compartment c : this._compartments)
-		{
-			Log.out(Tier.QUIET,"COMPARTMENT: " + c.getName());
-			Log.out(Tier.QUIET,c.agents.getAllAgents().size() + " agents");
-		};
-
+		{	
+			if( Log.shouldWrite(Tier.NORMAL) )
+			{
+				Log.out(Tier.NORMAL, c.getName() + " contains " + 
+						c.agents.getAllAgents().size() + " agents");
+			}
+		}
+		
+		Log.step();
 	}
-	
-	public void run()
+
+	public void initialRun()
 	{
-		Log.out(Tier.NORMAL, "Launching simulation!");
+		/* start storing log on disk */
+		if( Log.shouldWrite(Tier.EXPRESSIVE) )
+			Log.out(Tier.EXPRESSIVE, "Launching simulation!");
+		Log.keep();
 		/*
 		 * Start timing just before simulation starts.
 		 */
-		double tic = System.currentTimeMillis();
+		tic = System.currentTimeMillis();
 		/* Check if any boundary connections need to be made. */
 		for ( Compartment c : this._compartments )
+		{
 			c.checkBoundaryConnections(this._compartments);
+			c.environment.updateSoluteBoundaries();
+		}
+	}
+
+	public void run()
+	{
+		this.initialRun();
+		
 		/* Run the simulation. */
-		while ( this.timer.isRunning() )
+		while ( this.timer.isRunning() && !this.interupt && !this.stopAction )
 			this.step();
-		/*
-		 * Print the simulation results.
-		 */
-		this.printAll();
-		/*
-		 * Report simulation time.
-		 */
-		tic = (System.currentTimeMillis() - tic) * 0.001;
-		Log.out(Tier.QUIET, "Simulation finished in " + tic + " seconds\n"+
-				"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-				+ "~~~~~~~~~~~~~~~~~~~~~~~~\n");
+		
+		if ( this.interupt )
+		{
+			tic = (System.currentTimeMillis() - tic) * 0.001;
+			Log.out(Tier.NORMAL, "Simulation terminated in "+ tic +" seconds\n"+
+					"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+					+ "~~~~~~~~~~~~~~~~~~~~~~~~\n");
+		}
+		else
+		{
+			
+			/*
+			 * Print the simulation results.
+			 */
+			this.printAll();
+			/*
+			 * Run report file.
+			 */
+			Report report = new Report();
+			report.createCustomFile("report");
+			report.writeReport();
+			report.closeFile();
+			
+			/*
+			 * Report simulation time.
+			 */
+			tic = (System.currentTimeMillis() - tic) * 0.001;
+			Log.out(Tier.NORMAL, "Time: "+ timer._endOfSimulation + 
+					" Simulation finished in " + tic + " seconds\n"+
+					"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+					+ "~~~~~~~~~~~~~~~~~~~~~~~~\n");
+			this.printProcessManagerRealTimeStats();
+			/* Stop and report on all debugger timers (if any enabled). */
+			SegmentTimer.stopAll();
+			
+			/* execute exit command if any */
+			if( !Helper.isNullOrEmpty( Global.exitCommand ) )
+				Helper.executeCommand( Global.exitCommand );
+		}
 	}
 	
-	/*************************************************************************
+	public void interupt(String message)
+	{
+		this.interupt = true;
+	}
+	
+
+	public boolean active() 
+	{
+		return !this.interupt;
+	}
+	
+	/* ***********************************************************************
 	 * REPORTING
-	 ************************************************************************/
+	 * **********************************************************************/
 	
 	public void printAll()
 	{
 		for ( Compartment c : this._compartments ) 
 		{
-			Log.out(Tier.QUIET, "COMPARTMENT: " + c.name);
+			Log.out(Tier.NORMAL, "COMPARTMENT: " + c.name);
 			c.printAllSoluteGrids();
-			Log.out(Tier.QUIET, c.agents.getNumAllAgents() + " agents");
+			Log.out(Tier.NORMAL, c.agents.getNumAllAgents() + " agents");
 		}
 	}
 
-	/*************************************************************************
+	public void printProcessManagerRealTimeStats()
+	{
+		Map<String,Long> millis = new HashMap<String,Long>();
+		millis.put("[XML OUTPUT]", this._timeSpentOnXmlOutput);
+		long total = this._timeSpentOnXmlOutput;
+		for ( Compartment c : this._compartments )
+		{
+			Map<String,Long> cStats = c.getRealTimeStats();
+			for ( String pmName : cStats.keySet() )
+			{
+				millis.put(c.getName()+" : "+pmName, cStats.get(pmName));
+				total += cStats.get(pmName);
+			}
+		}
+		double scalar = 100.0 / total;
+		for ( String name : millis.keySet() )
+		{
+			Log.out(Tier.NORMAL, 
+					name+" took "+(millis.get(name)*0.001)+
+					" seconds ("+(millis.get(name)*scalar)+"%)");
+		}
+	}
+	
+	/* ***********************************************************************
 	 * PRE-LAUNCH CHECK
-	 ************************************************************************/
+	 * **********************************************************************/
 	
 	public boolean isReadyForLaunch()
 	{
@@ -366,103 +521,115 @@ public class Simulator implements CanPrelaunchCheck, Runnable, XMLable, NodeCons
 	 * for xml output and gui fields.
 	 */
 	@Override
-	public ModelNode getNode() {
+	public Module getModule() {
 		/* create simulation node */
-		ModelNode modelNode = new ModelNode(XmlRef.simulation, this);
-		modelNode.requirement = Requirements.EXACTLY_ONE;
+		Module modelNode = new Module(XmlRef.simulation, this);
+		modelNode.setRequirements(Requirements.EXACTLY_ONE);
 		
-		Param.init();
+		/* required if we start without a protocol file */
+		Idynomics.global.updateSettings();
 		if(! Log.isSet())
 			Log.set(Tier.NORMAL);
 		
 		/* add attributes */
 		/* the current random seed */
-		modelNode.add( new ModelAttribute(XmlRef.seed,
-				String.valueOf(seed()), null, true));
+		modelNode.add( new Attribute(XmlRef.seed,
+				String.valueOf( ExtraMath.seed() ), null, true));
 		
 		/* the simulation name */
-		modelNode.add( new ModelAttribute(XmlRef.nameAttribute, 
+		modelNode.add( new Attribute(XmlRef.nameAttribute, 
 				Idynomics.global.simulationName, null, false ));
 		
 		/* the output folder */
-		modelNode.add(new ModelAttribute(XmlRef.outputFolder, 
+		modelNode.add(new Attribute(XmlRef.outputFolder, 
 				Idynomics.global.outputRoot, null, false ));
 		
+		/* the subfolder structure */
+		if ( !Helper.isNullOrEmpty( Idynomics.global.subFolderStruct ))
+			modelNode.add(new Attribute(XmlRef.subFolder,
+					Idynomics.global.subFolderStruct, null, false ));
+		
 		/* the log level */
-		modelNode.add(new ModelAttribute(XmlRef.logLevel, Log.level(), 
+		modelNode.add(new Attribute(XmlRef.logLevel, Log.level(), 
 				Helper.enumToString(Tier.class).split(" "), false ));
 		
 		/* the optional comment */
-		modelNode.add(new ModelAttribute(XmlRef.commentAttribute, 
+		modelNode.add(new Attribute(XmlRef.commentAttribute, 
 				Idynomics.global.simulationComment, null, true ));
 		
 		/* add timer node */
-		modelNode.add(timer.getNode());
+		modelNode.add(timer.getModule());
 		
 		/* add species lib */
-		modelNode.add(speciesLibrary.getNode());
-
+		modelNode.add(speciesLibrary.getModule());
+		
+		/* add chemical lib */
+		modelNode.add(chemicalLibrary.getModule());
+		
 		/* add compartment nodes */
-		for ( Compartment c : this._compartments )
-			modelNode.add(c.getNode());
+		for ( int i = 0; i < this._compartments.size(); i++ )
+			modelNode.add(this._compartments.get(i).getModule());
 		
 		/* add child constructor (adds add compartment button to gui */
-		modelNode.childConstructors.put(new Compartment(), 
-				ModelNode.Requirements.ZERO_TO_FEW);
+		modelNode.addChildSpec("Compartment", 
+				Module.Requirements.ZERO_TO_FEW);
 
 		/* Safe this modelNode locally for model run without having to have save 
-		 * all button */
+		 * all button NOTE this is the only exception to the rule never to store
+		 * a modelNode, prevent working with out dated information and always
+		 * create new modelNodes from the current model state */
 		this._modelNode = modelNode;
-		
+
 		/* return node */
 		return modelNode;
 	}
 	
 	/**
-	 * Additional setNode method for simulation, allows for emediate simulation
+	 * Additional setNode method for simulation, allows for immediate simulation
 	 * kick-off
 	 */
 	public void setNode()
 	{
-		setNode(this._modelNode);
+		setModule(this._modelNode);
 	}
 	
-	/**
-	 * update current value's with the value's from the modelNode
-	 */
-	public void setNode(ModelNode node)
-	{
-		/* set local node */
-		this._modelNode = node;
-		
-		/* update simulation name */
-		Idynomics.global.simulationName = 
-				node.getAttribute(XmlRef.nameAttribute).value;
-		
-		/* update output root folder */
-		Idynomics.global.outputRoot = 
-				node.getAttribute(XmlRef.outputFolder).value;
-		
-		/* set output level */
-		Log.set(node.getAttribute(XmlRef.logLevel).value);
-		
-		/* set random seed */
-		seed(Long.valueOf(node.getAttribute(XmlRef.seed).value));
-		
-		/* set value's for all child nodes */
-		for(ModelNode n : node.childNodes)
-			n.constructor.setNode(n);
-	}
-
-	/**
-	 * Method is called when "add" button is hit in gui, options are set in
-	 * child constructor hashMap of model node.
-	 */
 	@Override
-	public void addChildObject(NodeConstructor childObject) 
+	public void setModule(Module node)
 	{
-		if (childObject instanceof Compartment)
-			this._compartments.add((Compartment) childObject);
+		/* skip if no gui elements have been loaded */
+		if (this._modelNode != null)
+		{
+			/* set local node */
+			this._modelNode = node;
+			
+			/* update simulation name */
+			Idynomics.global.simulationName = 
+					node.getAttribute(XmlRef.nameAttribute).getValue();
+			
+			/* update output root folder */
+			Idynomics.global.outputRoot = 
+					node.getAttribute(XmlRef.outputFolder).getValue();
+			
+			/* the subfolder structure */
+			if ( !Helper.isNullOrEmpty( Idynomics.global.subFolderStruct ))
+				Idynomics.global.subFolderStruct =
+						node.getAttribute(XmlRef.subFolder).getValue();
+			
+			/* set output level */
+			Log.set(node.getAttribute(XmlRef.logLevel).getValue());
+			
+			/* set random seed */
+			ExtraMath.seed( Long.valueOf( 
+					node.getAttribute( XmlRef.seed ).getValue()));
+			
+			/* Set values for all child nodes. */
+			Settable.super.setModule(node);
+		}
+	}
+	
+	public void removeCompartment(Compartment compartment)
+	{
+		this._compartments.remove(compartment);
 	}
 
 	/**
@@ -476,15 +643,55 @@ public class Simulator implements CanPrelaunchCheck, Runnable, XMLable, NodeCons
 	/**
 	 * returns an "empty" Node constructor object.
 	 */
-	public NodeConstructor newBlank()
+	public Settable newBlank()
 	{
 		return new Simulator();
 	}
 
+	/**
+	 * return plain XML
+	 * @return
+	 */
 	@Override
 	public String getXml() 
 	{
 		return this._modelNode.getXML();
+	}
+	
+	public void saveSimulationState(String path, boolean exi)
+	{
+		XmlExport xmlOut = new XmlExport(exi);
+		xmlOut.writeFile(path);
+	}
+
+	@Override
+	public void setParent(Settable parent) 
+	{
+		Log.out(Tier.CRITICAL, "Simulator is root node");
+	}
+	
+	@Override
+	public Settable getParent() 
+	{
+		Log.out(Tier.CRITICAL, "Simulator is root node");
+		return null;
+	}
+
+	public Agent findAgent(int identity) 
+	{
+		for( Compartment c : this._compartments)
+			for( Agent a : c.agents.getAllAgents())
+				if( Integer.valueOf(identity).equals(a.identity()))
+					return a;
+		return null;
+	}
+
+	public long getAgentCount() {
+		return agentCount;
+	}
+
+	public void setAgentCount(long agentCount) {
+		this.agentCount = agentCount;
 	}
 }
 

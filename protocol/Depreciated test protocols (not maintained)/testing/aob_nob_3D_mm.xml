@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+	<simulation name="AobNob" outputfolder="../results" log="EXPRESSIVE" randomSeed="12432423"
+		comment="this is a file for testing purposes only.">
+		<!-- minutes -->
+		<timer stepSize="1.0 [d]" endOfSimulation="300.0[day]" />
+		<speciesLib>
+			<species name="CanonicalAOB">
+				<speciesModule name="coccoid" />
+				<speciesModule name="producer" />
+				<aspect name="reactions" type="PRIMARY"  class="InstantiableList"> 
+					<list class="RegularReaction" nodeLabel="reaction" 
+					entryClass="RegularReaction" keyClass="String" keyLabel="name">
+						<reaction name="growth">
+							<expression value="mass * mumax * 
+									( ammonium / ( ammonium + Kam ) ) * 
+									( oxygen / ( oxygen + Kox ) )">
+								<!-- pg/µm3 --> 
+								<constant name="Kam" 	value="9.00E-07" /> 
+								<constant name="Kox" 	value="3.00E-07" />
+								<!-- per minute -->
+								<constant name="mumax" 	value="3.33E-04" />  
+							</expression>
+							<stoichiometric component="mass" 		coefficient="1.0" />
+							<stoichiometric component="eps" 		coefficient="0.33" />
+							<stoichiometric component="ammonium" 	coefficient="-7.951966182" />
+							<stoichiometric component="nitrite" 	coefficient="7.828426182" />
+							<stoichiometric component="oxygen" 		coefficient="-25.41235268" />
+						</reaction> 
+						<reaction name="decay">
+							<expression value="mass * b"> <!-- before (b + d) -->
+								<constant name="b" 	value="4.16666667E-5" />  
+								<!-- <constant name="d" 	value="1.0E-5" />  -->
+							</expression>
+							<stoichiometric component="mass" 		coefficient="-1.0" />
+						</reaction>
+					</list>
+				</aspect>
+			</species>
+			
+			<species name="CanonicalNOB">
+				<speciesModule name="coccoid" />
+				<speciesModule name="producer" />
+				<aspect name="reactions" type="PRIMARY"  class="InstantiableList"> 
+					<list class="RegularReaction" nodeLabel="reaction" 
+					entryClass="RegularReaction" keyClass="String" keyLabel="name">
+						<reaction name="growth">
+							<expression value="mass * mumax * 
+									( nitrite / ( nitrite + Kni ) ) * 
+									( oxygen / ( oxygen + Kox ) ) * 
+									( ammonium / ( ammonium +Kam ) )">
+								<!-- pg/µm3 --> 
+								<constant name="Kni" 	value="2.70E-7" /> 
+								<constant name="Kox" 	value="3.00E-7" />
+								<constant name="Kam" 	value="1.00E-12" />
+								<!-- per minute -->
+								<constant name="mumax" 	value="2.01E-4" />  
+							</expression>
+							<stoichiometric component="mass" 		coefficient="1.0" />
+							<stoichiometric component="eps" 		coefficient="0.33" />
+							<stoichiometric component="ammonium" 	coefficient="-0.12" />
+							<stoichiometric component="nitrite" 	coefficient="-31.70487973" />
+							<stoichiometric component="nitrate" 	coefficient="31.70487973" />
+							<stoichiometric component="oxygen" 		coefficient="-34.80" />
+						</reaction> 
+						<reaction name="decay">
+							<expression value="mass * b"> <!-- before (b + d) -->
+								<constant name="b" 	value="4.16666667E-5" />  
+								<!-- <constant name="d" 	value="1.0E-5" />  -->
+							</expression>
+							<stoichiometric component="mass" 		coefficient="-1.0" />
+						</reaction>
+					</list>
+				</aspect>
+			</species>
+			
+			<species name="producer">
+				<aspect name="randomize" class="String" value="mass" 	 />
+				<aspect name="factor" class="Double" value="0.3"	 />
+				<aspect name="produce" class="InternalProduction" 	 />
+				<aspect name="epsExcretion" class="ExcreteEPSCumulative" 	 />
+				<aspect  name="maxInternalEPS" class="Double" value="5.0" />
+				<aspect name="epsDist" class="Double" value="0.5" />
+				<aspect  name="epsSpecies" class="String" value="particleEPS" />
+			</species>
+			
+			<species name="particleEPS">
+				<speciesModule name="coccoid" />
+				<aspect name="volume" class="SimpleVolumeState" />
+				<aspect name="divisionMass" class="Double" value="5.0" />
+			</species>
+
+			<species name="coccoid">
+				<!-- pg / µm^3-->
+				<aspect name="density" 		type="PRIMARY" 		class="Double" 				value="3.0e-1" />
+				<aspect name="#isLocated" 	type="PRIMARY" 		class="Boolean" 			value="true" />
+				<aspect name="surfaces"		type="CALCULATED"	class="AgentSurfaces"		/>
+				<aspect name="morphology" 	type="PRIMARY" 		class="String" 				value="coccoid" />
+				<aspect name="volume" 		type="CALCULATED" 	class="SimpleVolumeState" 	/>
+				<aspect name="radius" 		type="CALCULATED" 	class="CoccoidRadius" 		/>
+				<aspect name="divide" 		type="EVENT" 		class="CoccoidDivision"		/>
+				<!-- Dry division mass (pg) -->
+				<aspect name="divisionMass"	class="Double"		value="10.0" 				/>
+				<aspect name="updateBody" 	type="EVENT" 		class="UpdateBody" 			/>
+				<aspect name="searchDist"	type="PRIMARY"		class="Double"				value="0.5"  />
+			</species>
+		</speciesLib>
+		<compartment name="chemostat" priority="2">
+			<shape class="Dimensionless" volume="4.0e15"> 
+				<boundary  class="constantConcentrationToChemostat" volumeFlowRate="4.444E10">
+					<solute name="ammonium" concentration="1.00E-6"  />
+					<solute name="oxygen" 	concentration="8.74E-6"  />
+					<solute name="nitrite" 	concentration="1.00E-8"  /> <!-- 5.00E-9 -->
+					<solute name="nitrate" 	concentration="1.00E-6"  />
+				</boundary>
+				<boundary  class="chemostatOut" volumeFlowRate="-4.444E10" agentRemoval="false" >
+				</boundary> 
+			</shape>
+			<solutes>
+				<!-- pg / µm3 -->
+				<solute name="ammonium" concentration="1.00E-6" defaultDiffusivity="118055.556" />
+				<solute name="oxygen" 	concentration="8.74E-6" defaultDiffusivity="138888.889" />
+				<solute name="nitrite" 	concentration="1.00E-8" defaultDiffusivity="118055.556" />  <!-- 5.00E-9 -->
+				<solute name="nitrate" 	concentration="1.00E-6" defaultDiffusivity="118055.556" />
+			</solutes>
+			<processManagers>
+				<process name="solveChemostat" class="ChemostatSolver" priority="0"
+					firstStep="0.0">
+					<aspect name="soluteNames" type="PRIMARY" class="String[]" value="ammonium,nitrite,nitrate" />
+					<aspect name="hMax" type="PRIMARY" class="Double" value="0.1" />
+					<aspect name="solver" type="PRIMARY" class="String" value="heun" />
+					<aspect name="tolerance" class="Double" value="1.0E-6" />
+				</process>
+			</processManagers>
+		</compartment>
+		<compartment name="biofilm"  priority="1">
+			<shape class="Cuboid" resolutionCalculator="MgFASResolution" nodeSystem="true">
+				<!-- µm -->
+				<dimension name="X" isCyclic="true" 	targetResolution="15.625" max="1000.0"/>
+				<dimension name="Y" isCyclic="false" 	targetResolution="15.625" max="1000.0">
+					<boundary extreme="1" class="BiofilmBoundaryLayer" partnerCompartment="chemostat" layerThickness = "15.625"/>
+				</dimension>
+				<dimension name="Z" isCyclic="true" 	targetResolution="15.625" max="1000.0"/>
+			</shape>
+			<solutes>
+				<!-- Initial concentrations pg / µm2 -->
+				<solute name="ammonium" concentration="1.00E-6" defaultDiffusivity="118055.556" />
+				<solute name="oxygen" 	concentration="8.74E-6" defaultDiffusivity="138888.889" />
+				<solute name="nitrite" 	concentration="1.00E-8" defaultDiffusivity="118055.556" />  <!-- 5.00E-9 -->
+				<solute name="nitrate" 	concentration="1.00E-6" defaultDiffusivity="118055.556" />
+			</solutes>
+			<reactions>
+			</reactions>
+			<spawn class="randomSpawner" domain="1000.0, 10.0, 1000.0" priority="0" number="5000" morphology="COCCOID">
+				<templateAgent>
+					<aspect name="species" type="PRIMARY" class="String" value="CanonicalAOB" />
+					<aspect  name="mass" class="Double" value="10.0"  />
+					<aspect  name="inert" class="Double" value="0.0"  />
+				</templateAgent>
+			</spawn>
+			<spawn class="randomSpawner" domain="1000.0, 10.0, 1000.0" priority="0" number="5000" morphology="COCCOID">
+				<templateAgent>
+					<aspect name="species" type="PRIMARY" class="String" value="CanonicalNOB" />
+					<aspect  name="mass" class="Double" value="10.0"  />
+					<aspect  name="inert" class="Double" value="0.0"  />
+				</templateAgent>
+			</spawn>
+			<processManagers>
+				<!-- minute -->
+				<process name="agentRelax"	class="AgentRelaxation" priority="0"
+					firstStep="0.0">
+					<!-- µm -->
+					<aspect name="maxMovement" 		 class="Double" value="1.5" />
+					<aspect name="relaxationMethod"  class="String" value="EULER" />
+					<aspect name="moveGranularity" class="Double" value="0.99" />
+					<aspect name="maxAgentOverlap" class="Double" value="2.5" />
+				</process>
+				<!-- minute -->
+				<process name="PDEWrapper" class="PDEWrapper" priority="1" firstStep="0.0">
+					<aspect name="solverResidualRatioThreshold" class="Double" value="1.0E-3" />
+					<aspect name="autoVcycleAdjust" class="Boolean" value="true" />
+					<!-- µm^2 ms^-1-->
+				</process>
+				<process name="povWriter" class="GraphicalOutput"  priority="-3"
+					firstStep="0.0">
+					<aspect name="outputWriter" type="PRIMARY" class="String" value="PovExport" />
+				</process>
+			</processManagers>
+		</compartment>
+	</simulation>
+</document>

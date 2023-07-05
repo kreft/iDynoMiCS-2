@@ -1,93 +1,153 @@
 package shape;
 
-import static shape.Dimension.DimName;
-import static shape.Dimension.DimName.*;
-import static shape.Shape.WhereAmI.UNDEFINED;
+import static shape.Dimension.DimName.R;
+import static shape.Dimension.DimName.THETA;
+import static shape.Dimension.DimName.Z;
 
+import dataIO.Log;
+import dataIO.Log.Tier;
 import linearAlgebra.Matrix;
 import linearAlgebra.Vector;
-import shape.resolution.ResolutionCalculator.ResCalc;
+import shape.Dimension.DimName;
+import shape.ShapeConventions.SingleVoxel;
+import shape.iterator.CylindricalShapeIterator;
+import shape.iterator.ShapeIterator;
+import shape.resolution.ResolutionCalculator;
 import surface.Rod;
 import surface.Surface;
 import utility.ExtraMath;
 
 /**
+ * \brief Abstract shape that is in some way cylindrical.
  * 
- * 
+ * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ * @author Stefan Lang (stefan.lang@uni-jena.de)
+ * 		Friedrich-Schiller University Jena, Germany 
  */
-public abstract class CylindricalShape extends PolarShape
+public abstract class CylindricalShape extends Shape
 {
 	/**
 	 * Collection of resolution calculators for each dimension.
 	 */
-	protected ResCalc[][] _resCalc;
+	protected ResolutionCalculator[][] _resCalc;
 	
-	/*************************************************************************
+	/* ***********************************************************************
 	 * CONSTRUCTION
-	 ************************************************************************/
+	 * **********************************************************************/
 	
 	public CylindricalShape()
 	{
 		super();
-		this._resCalc = new ResCalc[3][];
+		this._resCalc = new ResolutionCalculator[3][];
 		Dimension dim;
 		/* There is no need for an r-min boundary. */
-		dim = new Dimension();
+		dim = new Dimension(true, R);
 		dim.setBoundaryOptional(0);
 		this._dimensions.put(R, dim);
-		this._resCalc[getDimensionIndex(R)] = new ResCalc[1];
+		this._resCalc[this.getDimensionIndex(R)] = new ResolutionCalculator[1];
+		this._resCalc[this.getDimensionIndex(R)][0] = new SingleVoxel(dim);
 		/*
-		 * Set to a full circle by default, let it be overwritten later.
+		 * The theta-dimension must be significant.
 		 */
-		dim = new Dimension();
-		dim.setCyclic();
-		dim.setLength(2 * Math.PI);
+		dim = new Dimension(true, THETA);
 		this._dimensions.put(THETA, dim);
+		this._resCalc[this.getDimensionIndex(THETA)] = new ResolutionCalculator[1];
+		this._resCalc[this.getDimensionIndex(THETA)][0] = new SingleVoxel(dim);
 		/*
 		 * The z-dimension is insignificant, unless told otherwise later.
 		 */
 		dim = new Dimension(false, Z);
 		this._dimensions.put(Z, dim);
-		this._resCalc[getDimensionIndex(Z)] = new ResCalc[1];
+		this._resCalc[this.getDimensionIndex(Z)] = new ResolutionCalculator[1];
+		this._resCalc[this.getDimensionIndex(Z)][0] = new SingleVoxel(dim);
+		
+		this._it = this.getNewIterator();
 	}
 	
 	@Override
-	public double[][][] getNewArray(double initialValue) {
-		int nr, nz;
-		if (getNumberOfDimensions() < 2)
+	public double[][][] getNewArray(double initialValue)
+	{
+		if ( this.getNumberOfDimensions() < 2 )
+		{
 			throw new IllegalArgumentException(
 					"A cylindrical array needs at least 2 dimensions");
-		nr = _resCalc[0][0].getNVoxel();
-		nz = _resCalc[2][0] == null ? 0 : _resCalc[2][0].getNVoxel();
-		double[][][] a = new double[nr][][];
-		for ( int i = 0; i < nr; i++ )
-			a[i] = Matrix.matrix(_resCalc[1][i].getNVoxel(), nz, initialValue);
+		}
+		/* We need at least one voxel in each dimension. */
+		int nR, nTheta, nZ;
+		nR = this._resCalc[0][0].getNVoxel();
+		nZ = this._resCalc[2][0] == null ? 1 : this._resCalc[2][0].getNVoxel();
+		double[][][] a = new double[nR][][];
+		for ( int i = 0; i < nR; i++ )
+		{
+			nTheta = this._resCalc[1][i].getNVoxel();
+			a[i] = Matrix.matrix(nTheta, nZ, initialValue);
+		}
 		return a;
 	}
 	
-	/*************************************************************************
+	/* ***********************************************************************
 	 * BASIC SETTERS & GETTERS
-	 ************************************************************************/
-	
+	 * **********************************************************************/
 
 	@Override
-	public double[] getLocalPosition(double[] location)
+	public double getTotalVolume()
 	{
-		return Vector.cylindrify(location);
+		/*
+		 * Volume of a complete cylinder: pi * r^2 * z
+		 * Half theta gives the angle (pi in complete cylinder).
+		 * Need to subtract the inner cylinder from the outer one, hence
+		 * rFactor = rMax^2 - rMin^2
+		 */
+		Dimension r = this.getDimension(R);
+		double rMin = r.getExtreme(0);
+		double rMax = r.getExtreme(1);
+		double rFactor = ExtraMath.sq(rMax) - ExtraMath.sq(rMin);
+		double thetaLength = this.getDimension(THETA).getLength();
+		double zLength = this.getDimension(Z).getLength();
+		return 0.5 * thetaLength * rFactor * zLength;
 	}
 	
 	@Override
-	public double[] getGlobalLocation(double[] local)
+	public double getTotalRealVolume()
 	{
-		return Vector.uncylindrify(local);
+		/*
+		 * Volume of a complete cylinder: pi * r^2 * z
+		 * Half theta gives the angle (pi in complete cylinder).
+		 * Need to subtract the inner cylinder from the outer one, hence
+		 * rFactor = rMax^2 - rMin^2
+		 */
+		Dimension r = this.getDimension(R);
+		double rMin = r.getRealExtreme(0);
+		double rMax = r.getRealExtreme(1);
+		double rFactor = ExtraMath.sq(rMax) - ExtraMath.sq(rMin);
+		double thetaLength = this.getDimension(THETA).getRealLength();
+		double zLength = this.getDimension(Z).getRealLength();
+		return 0.5 * thetaLength * rFactor * zLength;
 	}
 	
-	/*************************************************************************
+	public void setTotalVolume( double volume)
+	{
+		Log.out(Tier.CRITICAL, "Cannot adjust Cylindrical shape volume" );
+	}
+
+	@Override
+	public void getLocalPositionTo(double[] destination, double[] location)
+	{
+		Vector.cylindrifyTo(destination, location);
+	}
+	
+	@Override
+	public void getGlobalLocationTo(double[] destination, double[] local)
+	{
+		Vector.uncylindrifyTo(destination, local);
+	}
+	
+	/* ***********************************************************************
 	 * DIMENSIONS
-	 ************************************************************************/
+	 * **********************************************************************/
 	
 	@Override
-	public void setDimensionResolution(DimName dName, ResCalc resC)
+	public void setDimensionResolution(DimName dName, ResolutionCalculator resC)
 	{
 		int index = this.getDimensionIndex(dName);
 		switch ( dName )
@@ -100,23 +160,33 @@ public abstract class CylindricalShape extends PolarShape
 		}
 		case THETA:
 		{
-			ResCalc radiusC = this._resCalc[0][0];
-			if ( radiusC == null )
+
+			ResolutionCalculator radiusC = this._resCalc[0][0];
+			/* If R only stores a single voxel, it is most 
+			 * probably not set already -> check again later */
+			if ( radiusC.getNVoxel() == 1 )
+			{
 				this._rcStorage.put(dName, resC);
+				return;
+			}
 			else
 			{
 				int nShell = radiusC.getNVoxel();
-				this._resCalc[index] = new ResCalc[nShell];
-				ResCalc shellResCalc;
+				/* NOTE For varying resolution this has to be adjusted */
+				int rMin = (int)(this.getDimension(R).getExtreme(0)
+						/ radiusC.getResolution());
+				this._resCalc[index] = new ResolutionCalculator[nShell];
+				ResolutionCalculator shellResCalc;
 				for ( int i = 0; i < nShell; i++ )
 				{
-					shellResCalc = (ResCalc) resC.copy();
+					shellResCalc = (ResolutionCalculator) resC.copy();
 					/* since we do not allow initialization with varying 
 					 * resolutions, resC.getResolution(x) should all be the 
 					 * same at this point. 
 					 */
-					shellResCalc.setResolution(scaleResolutionForShell(i,
-							resC.getResolution(0)));
+					double res = ShapeHelper.scaleResolutionForShell(
+							rMin + i, resC.getResolution());
+					shellResCalc.setResolution(res);
 					this._resCalc[index][i] = shellResCalc;
 				}
 			}
@@ -136,24 +206,29 @@ public abstract class CylindricalShape extends PolarShape
 	}
 	
 	@Override
-	protected ResCalc getResolutionCalculator(int[] coord, int dim)
+	public ResolutionCalculator getResolutionCalculator(int[] coord, int dim)
 	{
+		/* 
+		 * If this is the radial dimension (0) or the z dimension (2),
+		 * always use the first.
+		 * 
+		 * If it is the theta dimension (1), use the r-index.
+		 */
 		int index = 0;
 		if ( dim == 1 )
 		{
 			index = coord[0];
-			// TODO check if valid?
 		}
 		return this._resCalc[dim][index];
 	}
 	
-	/*************************************************************************
+	/* ***********************************************************************
 	 * LOCATIONS
-	 ************************************************************************/
+	 * **********************************************************************/
 	
-	/*************************************************************************
+	/* ***********************************************************************
 	 * SURFACES
-	 ************************************************************************/
+	 * **********************************************************************/
 	
 	public void setSurfaces()
 	{
@@ -182,36 +257,149 @@ public abstract class CylindricalShape extends PolarShape
 		if ( radius > 0.0 )
 		{
 			Surface rod = new Rod(pointA, pointB, radius);
-			this._surfaces.put(rod, radiusDim.getBoundary(0));
+			rod.init(_defaultCollision);
+			radiusDim.setSurface(rod, 0);
 		}
 		/* We always use the outer radius. */
 		radius = radiusDim.getExtreme(1);
 		Surface rod = new Rod(pointA, pointB, radius);
-		this._surfaces.put(rod, radiusDim.getBoundary(1));
+		rod.init(_defaultCollision);
+		radiusDim.setSurface(rod, 1);
 		/*
 		 * If theta is not cyclic, we need to add two planes.
 		 */
 		Dimension thetaDim = this.getDimension(THETA);
 		if ( ! thetaDim.isCyclic() )
 		{
+			// FIXME replace with non-infinite plane starting from orient
+			// REMEMBER Surfaces are always expressed in Cartesian coordinates
+			//	thetaDim.setSurface(THETA, adjust normal);
 			// TODO can we use Shape.setPlanarSurfaces() here?
 			// Probably depends on which coordinate system we use.
 		}
 	}
 	
-	/*************************************************************************
+	/* ***********************************************************************
 	 * BOUNDARIES
-	 ************************************************************************/
-	
-	/*************************************************************************
-	 * VOXELS
-	 ************************************************************************/
+	 * **********************************************************************/
 	
 	@Override
-	public double getVoxelVolume(int[] coord)
+	public double getBoundarySurfaceArea(DimName dimN, int extreme)
 	{
-		double[] origin = this.getVoxelOrigin(coord);
-		double[] upper = this.getVoxelUpperCorner(coord);
+		switch( dimN )
+		{
+		case R:
+		{
+			/* 
+			 * Area is a curved rectangle (cylinder if theta length is 2 pi).
+			 */
+			double rExt = this.getDimension(R).getExtreme(extreme);
+			double thetaLength = this.getDimension(THETA).getLength();
+			double arcLength = rExt * thetaLength;
+			double zLength = this.getDimension(Z).getLength();
+			double area = arcLength * zLength;
+			return area;
+		}
+		case THETA:
+		{
+			/* 
+			 * For theta boundaries, it makes no difference which extreme.
+			 * Area is simply a rectangle of area (r * z).
+			 */
+			double rLength = this.getDimension(R).getLength();
+			double zLength = this.getDimension(Z).getLength();
+			double area = rLength * zLength;
+			return area;
+		}
+		case Z:
+		{
+			/* 
+			 * For z boundaries, it makes no difference which extreme.
+			 * Area is simply the area of the rMax circle, minus the area of
+			 * the rMin circle (this may be zero). Assumes rMax > rMin > 0
+			 */
+			double thetaLength = this.getDimension(THETA).getLength();
+			Dimension r = this.getDimension(R);
+			double rMin = r.getExtreme(0);
+			double rMax = r.getExtreme(1);
+			double area = thetaLength*(ExtraMath.sq(rMax)-ExtraMath.sq(rMin));
+			return area;
+		}
+		default:
+		{
+			// TODO safety
+			return Double.NaN;
+		}
+		}
+	}
+	
+	@Override
+	public double getRealSurfaceArea(DimName dimN, int extreme)
+	{
+		switch( dimN )
+		{
+		case R:
+		{
+			/* 
+			 * Area is a curved rectangle (cylinder if theta length is 2 pi).
+			 */
+			double rExt = this.getDimension(R).getRealExtreme(extreme);
+			double thetaLength = this.getDimension(THETA).getRealLength();
+			double arcLength = rExt * thetaLength;
+			double zLength = this.getDimension(Z).getRealLength();
+			double area = arcLength * zLength;
+			return area;
+		}
+		case THETA:
+		{
+			/* 
+			 * For theta boundaries, it makes no difference which extreme.
+			 * Area is simply a rectangle of area (r * z).
+			 */
+			double rLength = this.getDimension(R).getRealLength();
+			double zLength = this.getDimension(Z).getRealLength();
+			double area = rLength * zLength;
+			return area;
+		}
+		case Z:
+		{
+			/* 
+			 * For z boundaries, it makes no difference which extreme.
+			 * Area is simply the area of the rMax circle, minus the area of
+			 * the rMin circle (this may be zero). Assumes rMax > rMin > 0
+			 */
+			double thetaLength = this.getDimension(THETA).getRealLength();
+			Dimension r = this.getDimension(R);
+			double rMin = r.getRealExtreme(0);
+			double rMax = r.getRealExtreme(1);
+			double area = thetaLength*(ExtraMath.sq(rMax)-ExtraMath.sq(rMin));
+			return area;
+		}
+		default:
+		{
+			// TODO safety
+			return Double.NaN;
+		}
+		}
+	}
+	
+	/* ***********************************************************************
+	 * VOXELS
+	 * **********************************************************************/
+	
+	@Override
+	public int getTotalNumberOfVoxels()
+	{
+		int n = 1;
+		int dimTheta = this.getDimensionIndex(THETA);
+		int nR = this._resCalc[this.getDimensionIndex(R)][0].getNVoxel();
+		for ( int i = 0; i < nR; i++ )
+			n += this._resCalc[dimTheta][i].getNVoxel();
+		return n * this._resCalc[this.getDimensionIndex(Z)][0].getNVoxel();
+	}
+	
+	@Override
+	public double getVoxelVolume(double[] origin, double[] upper){
 		/* 
 		 * r: pi times this number would be the area of a ring. 
 		 */
@@ -227,119 +415,82 @@ public abstract class CylindricalShape extends PolarShape
 		return volume;
 	}
 	
-	/*************************************************************************
+	/* ***********************************************************************
 	 * SUBVOXEL POINTS
-	 ************************************************************************/
+	 * **********************************************************************/
 	
-	/*************************************************************************
+	/* ***********************************************************************
 	 * COORDINATE ITERATOR
-	 ************************************************************************/
+	 * **********************************************************************/
+
+	@Override
+	public ShapeIterator getNewIterator(int strideLength)
+	{
+		return new CylindricalShapeIterator(this, strideLength);
+	}
 	
-	/*************************************************************************
+	/* ***********************************************************************
 	 * NEIGHBOR ITERATOR
-	 ************************************************************************/
+	 * **********************************************************************/
 	
 	@Override
-	protected void resetNbhIter()
+	public double nhbCurrSharedArea()
 	{
-		/* See if we can use the inside r-shell. */
-		if ( this.setNbhFirstInNewShell(this._currentCoord[0] - 1) ) ;
-		/* See if we can take one of the theta-neighbors. */
-		else if (this.moveNbhToMinus(THETA)||this.nbhJumpOverCurrent(THETA)) ;
-		/* See if we can take one of the z-neighbors. */
-		else if (this.moveNbhToMinus(Z)||this.nbhJumpOverCurrent(Z)) ;
-		/* See if we can use the outside r-shell. */
-		else if ( this.setNbhFirstInNewShell(this._currentCoord[0] + 1) ) ;
-		/* There are no valid neighbors. */
-		else
-			this._whereIsNbh = UNDEFINED;
-		if ( this.isNbhIteratorValid() )
-		{
-			transformNbhCyclic();
-			return;
-		}
-	}
-	
-	//TODO: does it even make sense to cross the r boundary ? 
-	// Or should we just forbid cyclic r (and phi in the sphere) dimensions? 
-//	@Override
-//	protected void transformNbhCyclic() {
-//		super.transformNbhCyclic();
-//		/* lets (additionally) choose a random location on the other side of 
-//		 * the shape when crossing the radial boundary.
-//		 * This will be always zero when moving from max to min */
-//		if (this._nbhDimName == R)
-//			this._currentNeighbor[1] = ExtraMath.random.nextInt(
-//				this._resCalc[1][this._currentNeighbor[0]].getNVoxel());
-//	}
-	
-	@Override
-	public int[] nbhIteratorNext()
-	{
-		this.untransformNbhCyclic();
-		/*
-		 * In the cylindrical grid, we start the TODO
+		DimName nhbDimName = this._it.currentNhbDimName();
+		/* moving towards positive in the current dim? */
+		boolean isNhbAhead = this._it.isCurrentNhbAhead();
+		/* Integration minima and maxima, these are the lower and upper 
+		 * locations of the intersections between the current voxel and the 
+		 * neighbor voxel for each dimension. */
+		double r1 = this._it.getIntegrationMin(0),
+				r2 = this._it.getIntegrationMax(0),
+				theta1 = this._it.getIntegrationMin(1),
+				theta2 = this._it.getIntegrationMax(1),
+				z1 = this._it.getIntegrationMin(2),
+				z2 = this._it.getIntegrationMax(2);
+		/* 
+		 * Compute the area element, depending along which dimension we are 
+		 * currently moving. This is 
+		 * Integrate[r,{z,z1,z2},{theta,theta1,theta2},{r,r1,r2}]
+		 * with integration length zero for the current dimension.
 		 */
-		if ( this._currentNeighbor[0] == this._currentCoord[0] - 1 )
+		double area = 1.0;
+		switch (nhbDimName)
 		{
-			/* 
-			 * We're in the r-shell just inside that of the current coordinate.
-			 * Try increasing theta by one voxel. If this fails, move out to
-			 * the next shell. If this fails, call this method again.
-			 */
-			if ( ! this.increaseNbhByOnePolar(THETA) )
-				if ( ! this.moveNbhToMinus(THETA) )
-					return this.nbhIteratorNext();
-					
+		case R: /* theta-z plane */
+			area *= isNhbAhead ? r1 : r2;
+			area *= theta2 - theta1;
+			area *= z2 - z1;
+			break;
+		case THETA: /* r-z plane */
+			area *= ExtraMath.sq(r2) - ExtraMath.sq(r1);
+			area *= z2 - z1;
+			area /= 2;
+			break;
+		case Z: /* r-theta plane */
+			area *= ExtraMath.sq(r2) - ExtraMath.sq(r1);
+			area *= theta2 - theta1;
+			area /= 2;
+			break;
+		default: throw new IllegalArgumentException("unknown dimension " 
+											+ nhbDimName + " for cylinder");
 		}
-		else if ( this._currentNeighbor[0] == this._currentCoord[0] )
-		{
-			/* 
-			 * We're in the same r-shell as the current coordinate.
-			 */
-			if ( this._currentNeighbor[2] == this._currentCoord[2] )
-			{
-				/*
-				 * We're in the same z-slice as the current coordinate.
-				 * Try to move to the theta-plus side of the current
-				 * coordinate. If you can't, try switching to the z-minus
-				 * voxel.
-				 */
-				if ( ! this.nbhJumpOverCurrent(THETA) )
-					if ( ! this.moveNbhToMinus(Z) )
-						return this.nbhIteratorNext();
-			}
-			else if ( ! this.nbhJumpOverCurrent(Z) )
-			{
-				/*
-				 * We tried to move to the z-plus side of the current
-				 * coordinate, but since we failed we must be finished.
-				 */
-				this.moveNbhToOuterShell();
-			}
-		}
-		else 
-		{
-			/* 
-			 * We're in the r-shell just outside that of the current coordinate.
-			 * If we can't increase theta any more, then we've finished.
-			 */
-			if ( ! this.increaseNbhByOnePolar(THETA) )
-				this._whereIsNbh = UNDEFINED;
-		}
-		this.transformNbhCyclic();
-		return this._currentNeighbor;
+		return area;
 	}
 	
-	/**
-	 * \brief Try moving the neighbor iterator to the r-shell just outside that
-	 * of the current coordinate.
-	 * 
-	 * <p>Set the neighbor iterator valid flag to false if this fails.</p>
-	 */
-	protected void moveNbhToOuterShell()
+	/* ***********************************************************************
+	 * MULTIGRID CONSTRUCTION
+	 * **********************************************************************/
+	
+	@Override
+	public boolean canGenerateCoarserMultigridLayer()
 	{
-		if ( ! this.setNbhFirstInNewShell(this._currentCoord[0] + 1) )
-			this._whereIsNbh = UNDEFINED;
+		return false;
+	}
+	
+	@Override
+	public Shape generateCoarserMultigridLayer()
+	{
+		return null;
 	}
 }

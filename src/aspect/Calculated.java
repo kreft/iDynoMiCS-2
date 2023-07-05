@@ -1,11 +1,14 @@
 package aspect;
 
-import generalInterfaces.Copyable;
-import generalInterfaces.XMLable;
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
+
 import dataIO.XmlHandler;
-import dataIO.XmlRef;
+import generalInterfaces.Copyable;
+import generalInterfaces.Redirectable;
+import instantiable.Instance;
+import instantiable.Instantiable;
+import referenceLibrary.XmlRef;
+import settable.Settable;
 
 /**
  * Calculated/Secondary states contain a description of how secondary states 
@@ -16,38 +19,27 @@ import dataIO.XmlRef;
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
-public abstract class Calculated implements Copyable, XMLable
+public abstract class Calculated implements Copyable, Instantiable, Redirectable
 {
 	/**
-	 * input states
+	 * input string
 	 */
-	protected String[] _input;
+	protected String _input;
 
 	/**
-	 * method that sets the input from a comma separated String.
+	 * StateExpressions require an input string to set the expression
 	 * @param input
 	 */
 	public void setInput(String input)
 	{
-		input.replaceAll("\\s+","");
-		this._input = input.split(",");
-	}
-	
-	public void setField(String field, String value)
-	{
-		try {
-			this.getClass().getField(field).set(this, value);
-		} catch (IllegalArgumentException | IllegalAccessException | 
-				NoSuchFieldException | SecurityException e) {
-			e.printStackTrace();
-		}
+		this._input = input;
 	}
 	
 	/**
 	 * returns the input String array of this state
 	 * @return
 	 */
-	public String[] getInput()
+	public String getInput()
 	{
 		return _input;
 	}
@@ -60,43 +52,20 @@ public abstract class Calculated implements Copyable, XMLable
 		return this;
 	}
 	
-	/**
-	 * General constructor from xmlNodes, returns a new instance directly from
-	 * an xml node. Overwrite this method in implementing class if the class
-	 * needs constructor arguments (they should be stored within the Node).
-	 */
-	public static Object getNewInstance(Node xmlNode)
-	{
-		Calculated obj = (Calculated) XMLable.getNewInstance(xmlNode);
-		obj.init((Element) xmlNode);
-		return obj;
-	}
-	
-
-	public static Object getNewInstance(String input) {
-		Calculated obj = (Calculated) XMLable.getNewInstance(input);
+	public static Object instanceFromString(String objecClass, String input) {
+		Calculated obj = (Calculated) Instance.getNew(null, null, 
+				objecClass );
 		obj.init(input);
 		return obj;
 	}
 
-	public void init(Element xmlElem)
+	public void instantiate(Element xmlElem, Settable parent)
 	{
-		String input = XmlHandler.gatherAttribute(xmlElem, "input");
+		String input = XmlHandler.gatherAttribute(xmlElem, XmlRef.inputAttribute);
 		if (input != "")
 			this.setInput(input);
 		
-		String fields = XmlHandler.gatherAttribute(xmlElem, XmlRef.fields);
-		String[] f = null;
-		if (fields != "")
-		{
-			f = fields.split(",");
-			for (String field : f)
-			{
-				String[] value;
-				value = field.split("=");
-				this.setField(value[0], value[1]);
-			}
-		}
+		this.redirect(xmlElem);		
 	}
 	
 	private void init(String input) {

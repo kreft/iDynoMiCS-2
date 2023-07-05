@@ -20,38 +20,29 @@ public interface SpatialRegistry<T>
 	 * @param dimension
 	 * @return
 	 */
-	public abstract List<T> search(double[] coords, double[] dimension);
-	
-	/**
-	 * \brief TODO
-	 * 
-	 * @param coords
-	 * @param dimension
-	 * @return
-	 */
-	public abstract List<T> cyclicsearch(double[] coords, double[] dimension);
+	public abstract List<T> search(double[] lower, double[] higher);
 	
 	/**
 	 * 
 	 * @param boundingBox
 	 * @return
 	 */
-	public abstract List<T> cyclicsearch(BoundingBox boundingBox);
+	public abstract List<T> search(Area area);
 	
 	/**
 	 * 
 	 * @param boundingBox
 	 * @return
 	 */
-	public abstract List<T> cyclicsearch(List<BoundingBox> boundingBoxes);
+	public abstract List<T> search(List<BoundingBox> boundingBoxes);
 	
-	/**
-	 * \brief TODO
-	 * 
-	 * @return
-	 */
-	public abstract List<T> all();
-	
+	public default List<T> search(double[] pointLocation)
+	{
+		return this.search(pointLocation, pointLocation);
+	}
+
+	public List<T> getAll( List<T> list );
+
 	/**
 	 * \brief TODO
 	 * 
@@ -68,16 +59,7 @@ public interface SpatialRegistry<T>
 	 */
 	public abstract void insert(BoundingBox boundingBox, T entry);
 	
-	/**
-	 * 
-	 * @return
-	 */
-	public abstract T getRandom();
-	
-	/**
-	 * 
-	 * @param entry
-	 * @return
-	 */
 	public abstract boolean delete(T entry);
+	
+	public abstract void clear();
 }

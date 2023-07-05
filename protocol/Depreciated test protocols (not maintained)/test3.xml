@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+	<simulation log="DEBUG" name="mySim" outputfolder="../../Simulations"
+		comment="this is a file for testing purposes only.">
+		<timer stepSize="1.0" endOfSimulation="75.0" />
+		<general>
+		</general>
+
+		<speciesLib>
+			<!-- species/species library The species library contains all agent species 
+				in the simulations. This may include microbial species, plasmid and vector 
+				species, particle species etc. Species states are states that are in principal 
+				identical for all agents of that species. However note that iDynoMiCS 2.0 
+				does allow you to overwrite states on agent level. Thus if a state is defined 
+				both on species level and on agent level, the agent state will be used in 
+				the simulation. small test -->
+			<species name="AOB">
+				<aspect name="pigment" type="PRIMARY" class="String" value="GREEN" />
+				<speciesModule name="coccoid" />
+				<speciesModule name="stochasticMover" />
+			</species>
+			<species name="coccoid">
+				<aspect name="surfaces"			type="CALCULATED"	class="AgentSurfaces"	/>
+				<aspect name="morphology" 		type="PRIMARY" class="String" 		value="coccoid" />
+				<aspect name="volume" 		type="CALCULATED" 	class="SimpleVolumeState" 	/>
+				<aspect name="radius" 			type="CALCULATED" 	class="CoccoidRadius" />
+				<aspect name="divide" 			type="EVENT" 		class="CoccoidDivision"	/>
+				<aspect name="updateBody" 		type="EVENT" 		class="UpdateBody" />
+			</species>
+			<species name="stochasticMover">
+				<aspect name="stochasticStep" type="PRIMARY" class="Double" value="0.1" />
+				<aspect name="stochasticMove" type="EVENT" class="StochasticMove" />
+			</species>
+		</speciesLib>
+		<compartment name="second">
+			<shape class="Rectangle">
+				<dimension name="X" isCyclic="true" targetResolution="1" max="32.0"/>
+				<dimension name="Y" isCyclic="true" targetResolution="1" max="32.0"/>
+			</shape>
+			<solutes>
+				<solute name="solute1" concentration="0.0" defaultDiffusivity="1.0" biofilmDiffusivity="0.5"/>
+				<solute name="solute2" concentration="2.0" defaultDiffusivity="1.0" biofilmDiffusivity="0.5"/>
+			</solutes>
+			<reactions>
+				<reaction name="testReact">
+					<expression value="solute1 * 0.1" />
+					<stoichiometric component="solute1" coefficient="-1.0" />
+					<stoichiometric component="solute2" coefficient="0.5" />
+				</reaction>
+			</reactions>
+			<agents>
+				<agent>
+					<aspect name="species" type="PRIMARY" class="String" value="AOB" />
+					<aspect name="mass" type="PRIMARY" class="Double" value="0.2" />
+					<aspect name="density" type="PRIMARY" class="Double" value="1" />
+					<aspect name="#isLocated" type="PRIMARY" class="Boolean" value="true" />
+					<aspect name="pigment" type="PRIMARY" class="String" value="RED" />
+					<!--<state name="filialLinker" type="PRIMARY" class="Boolean" value="true" /> -->
+					<aspect name="body" type="PRIMARY" class="Body">
+						<point position="12.2, 12.2" />
+					</aspect>
+				</agent>
+				<agent>
+					<aspect name="species" type="PRIMARY" class="String" value="AOB" />
+					<aspect name="mass" type="PRIMARY" class="Double" value="0.2" />
+					<aspect name="density" type="PRIMARY" class="Double" value="1" />
+					<aspect name="#isLocated" type="PRIMARY" class="Boolean" value="true" />
+					<aspect name="pigment" type="PRIMARY" class="String" value="BLUE" />
+					<aspect name="body" type="PRIMARY" class="Body">
+						<point position="12.0, 5.3" />
+					</aspect>
+				</agent>
+				<agent>
+					<aspect name="species" type="PRIMARY" class="String" value="AOB" />
+					<aspect name="mass" type="PRIMARY" class="Double" value="0.2" />
+					<aspect name="density" type="PRIMARY" class="Double" value="1" />
+					<aspect name="#isLocated" type="PRIMARY" class="Boolean" value="true" />
+					<aspect name="pigment" type="PRIMARY" class="String" value="GREEN" />
+					<aspect name="body" type="PRIMARY" class="Body">
+						<point position="5.3, 12.2" />
+					</aspect>
+				</agent>
+			</agents>
+			<processManagers>
+			<!-- 	<process name="svgWriter" class="WriteAgentsSvg"  priority="-3"
+					firstStep="0.0" >
+					<aspect name="comparmentName" type="PRIMARY" class="String" value="second" />
+				</process>-->
+				<process name="agentGrowth" class="AgentGrowth"  priority="-0"
+					firstStep="0.0"  />
+				<process name="agentMove" class="AgentStochasticMove"
+					 priority="-1" firstStep="0.0"  />
+				<process name="agentRelax" class="AgentRelaxation"  priority="-2"
+					firstStep="0.0" >
+					<aspect name="maxMovement" type="PRIMARY" class="Double" value="0.05" />
+					<aspect name="relaxationMethod" type="PRIMARY" class="String" value="SHOVE" />
+				</process>
+				<process name="solveDiffusionTransient" class="SolveDiffusionTransient"  priority="-0"
+					firstStep="0.0" >	
+					<aspect name="soluteNames" type="PRIMARY" class="String[]" value="solute1,solute2" /> <!--  init -->
+				</process>
+				<process name="agentsOutsideDomainDepart" 
+					class="AgentsOutsideDomainDepart" priority = "1">
+				</process>
+			</processManagers>
+		</compartment>
+	</simulation>
+</document>

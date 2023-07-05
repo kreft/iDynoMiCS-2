@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+	<simulation log="NORMAL" outputfolder="../results" subfolder="nitrif_GA" name="Nitrification_case" outputskip="600">
+	<timer stepSize="0.0001" endOfSimulation="0.12" /> <!-- 10 weeks -->
+		<speciesLib>
+			<!-- species/species library The species library contains all agent species 
+				in the simulations. This may include microbial species, plasmid and vector 
+				species, particle species etc. Species states are states that are in principal 
+				identical for all agents of that species. However note that iDynoMiCS 2.0 
+				does allow you to overwrite states on agent level. Thus if a state is defined 
+				both on species level and on agent level, the agent state will be used in 
+				the simulation. small test 
+				-->
+			<species name="CanonicalAOB">
+				<aspect name="pigment" type="PRIMARY" class="String" value="RED" />
+				<aspect name="reactions" type="PRIMARY"  class="InstantiableList"> 
+					<list class="RegularReaction" nodeLabel="reaction" 
+					entryClass="RegularReaction" keyClass="String" keyLabel="name">
+						<reaction name="growth">
+							<expression value="mass * mumax * 
+									( ammonium / ( ammonium + Kam ) ) * 
+									( oxygen / ( oxygen + Kox ) )">
+								<!-- pg/µm3 --> 
+								<constant name="Kam" 	value="0.5" range="0.05,5.0" rangeFor="value" /> 
+								<constant name="Kox" 	value="0.7" range="0.07,7.0" rangeFor="value" />
+								<!-- per minute -->
+								<constant name="mumax" 	value="1.5" range="0.15,15.0" rangeFor="value" />  
+							</expression>
+							<stoichiometric component="mass" 		coefficient="1" />
+							<stoichiometric component="ammonium" 	coefficient="-6.6667" />
+							<stoichiometric component="nitrite" 	coefficient="6.6667" />
+							<stoichiometric component="oxygen" 		coefficient="-21.8667" />
+						</reaction> 
+						<reaction name="decay">
+							<expression value="mass * b ">
+								<!-- pg/µm3 --> 
+								<!-- per minute -->
+								<constant name="b" 	value="0.1" />  
+							</expression>
+							<stoichiometric component="mass" coefficient="-1.0" />
+						</reaction> 
+					</list>
+				</aspect>
+			</species>
+			
+			<species name="CanonicalNOB">
+				<aspect name="pigment" type="PRIMARY" class="String" value="BLUE" />
+				<aspect name="reactions" type="PRIMARY"  class="InstantiableList"> 
+					<list class="RegularReaction" nodeLabel="reaction" 
+					entryClass="RegularReaction" keyClass="String" keyLabel="name">
+						<reaction name="growth">
+							<expression value="mass * mumax * 
+									( nitrite / ( nitrite + Kni ) ) * 
+									( oxygen / ( oxygen + Kox ) ) * 
+									( ammonium / ( ammonium +Kam ) )">
+								<!-- pg/µm3 --> 
+								<constant name="Kni" 	value="1.5" /> 
+								<constant name="Kox" 	value="1.45" />
+								<constant name="Kam" 	value="1.00E-20" />
+								<!-- per minute -->
+								<constant name="mumax" 	value="0.5" />  
+							</expression>
+							<stoichiometric component="mass" 		coefficient="1.0" />
+							<stoichiometric component="nitrite" 	coefficient="-20.0" />
+							<stoichiometric component="nitrate" 	coefficient="20.0" />
+							<stoichiometric component="oxygen" 		coefficient="-21.8" />
+						</reaction> 
+						<reaction name="decay">
+							<expression value="mass *  b ">
+								<!-- pg/µm3 --> 
+								<!-- per minute -->
+								<constant name="b" 	value="0.12" />   
+							</expression>
+							<stoichiometric component="mass" 		coefficient="-1.0" />
+						</reaction> 
+					</list>
+				</aspect>
+			</species>
+			
+		</speciesLib>
+		<compartment name="chemostat">
+			<shape class="Dimensionless" volume="1"> <!-- 1 liter-->
+			</shape>
+			<solutes>
+				<!-- pg / µm3 -->
+				<solute name="ammonium" concentration="20.0" defaultDiffusivity="1"  />
+				<solute name="oxygen" 	concentration="8.0" defaultDiffusivity="1"  />
+				<solute name="nitrite" 	concentration="0.0" defaultDiffusivity="1"  />
+				<solute name="nitrate" 	concentration="0.0"  defaultDiffusivity="1"  />
+			</solutes>
+			<reactions>
+				<reaction name="oxygen_transfer">
+					<expression value="kla * (o2sat - oxygen)">
+						<!-- pg/µm3 --> 
+						<constant name="kla" 	value="360.0" /> 
+						<constant name="o2sat" 	value="8.0" />
+					</expression>
+					<stoichiometric component="oxygen" 		coefficient="1" />
+				</reaction> 
+			</reactions>
+			<agents>
+				<agent>
+					<aspect name="species" type="PRIMARY" class="String" value="CanonicalAOB" />
+					<!-- pg -->
+					<aspect name="mass" type="PRIMARY" class="Double" value="75.0" />
+				</agent>
+				<agent>
+					<aspect name="species" type="PRIMARY" class="String" value="CanonicalNOB" />
+					<!-- pg -->
+					<aspect name="mass" type="PRIMARY" class="Double" value="0.0" />
+				</agent>
+			</agents>
+			<processManagers>
+				<process name="solveChemostat" class="ChemostatSolver" priority="0"
+					firstStep="0.0"  timerStepSize="0.0001">
+					<aspect name="soluteNames" type="PRIMARY" class="String[]" value="ammonium,oxygen,nitrite,nitrate" />
+					<aspect name="hMax" type="PRIMARY" class="Double" value="0.0001" />
+					<aspect name="solver" type="PRIMARY" class="String" value="heun" />
+					<aspect name="tolerance" class="Double" value="1.0E-6" />
+				</process>
+				<process name="summary" class="Summary"  priority="2"
+					firstStep="0.0" timerStepSize="0.0001">
+					<aspect name="includeHeader" type="PRIMARY" class="Boolean" value="TRUE" />
+					<aspect name="tableSpecification" type="PRIMARY" class="String"
+					value="0 ~ #time | %oxygen | %ammonium | %nitrite | %nitrate" />
+					<aspect name="fileName" type="PRIMARY" class="String" value="data" />
+				</process>
+			</processManagers>
+		</compartment>
+	</simulation>
+</document>

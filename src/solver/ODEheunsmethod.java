@@ -66,6 +66,11 @@ public class ODEheunsmethod extends ODEsolver
 			if ( ! this._allowNegatives )
 				Vector.makeNonnegative(y);
 			timeRemaining -= timeStep;
+			/*
+			 * If the method using this solver has anything it needs to update
+			 * after every mini-timestep, then do this now.
+			 */
+			this._deriv.postMiniStep(y, timeStep);
 		}
 		return y;
 	}
@@ -86,6 +91,15 @@ public class ODEheunsmethod extends ODEsolver
 		Vector.addEquals(destination, y);
 	}
 	
+	protected void euler(double[] y, double dt)
+	{
+		this._deriv.firstDeriv(this.k, y);
+		Vector.timesEquals(this.k, dt);
+		Vector.addEquals(y, this.k);
+		if ( ! this._allowNegatives )
+			Vector.makeNonnegative(y);
+	}
+	
 	/**
 	 * \brief Apply a step of Heun's method.
 	 * 
@@ -95,11 +109,22 @@ public class ODEheunsmethod extends ODEsolver
 	 */
 	protected void heun(double[] y, double dt)
 	{
+		/* Any (intermediate) minor negative concentration, mass or volume can 
+		 * result in very weird behavior  */
+		if ( ! this._allowNegatives )
+			Vector.makeNonnegative(y);
 		euler(this.k, y, dt);
 		this._deriv.firstDeriv(dYdT, y);
+		if ( ! this._allowNegatives )
+			Vector.makeNonnegative(this.k);
 		this._deriv.firstDeriv(dKdT, this.k);
 		Vector.addEquals(dYdT, dKdT);
 		Vector.timesEquals(dYdT, dt/2);
+		if ( ! this._allowNegatives )
+			Vector.makeNonnegative(y);
 		Vector.addEquals(y, dYdT);
+		if ( ! this._allowNegatives )
+			Vector.makeNonnegative(y);
+
 	}
 }

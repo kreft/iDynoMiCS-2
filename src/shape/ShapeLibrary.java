@@ -7,15 +7,15 @@ import org.w3c.dom.Element;
 
 import dataIO.Log;
 import dataIO.Log.Tier;
-import dataIO.ObjectRef;
 import dataIO.XmlHandler;
-import grid.DummyGrid;
-import grid.SpatialGrid;
 import linearAlgebra.Array;
-import linearAlgebra.Vector;
+import referenceLibrary.XmlRef;
+import settable.Attribute;
+import settable.Module;
+import settable.Settable;
 import shape.Dimension.DimName;
-
-import shape.resolution.ResolutionCalculator.ResCalc;
+import shape.iterator.ShapeIterator;
+import shape.resolution.ResolutionCalculator;
 
 /**
  * \brief Collection of instanciable {@code Shape} classes.
@@ -46,9 +46,10 @@ public final class ShapeLibrary
 			super();
 		}
 		
-		@Override
-		public SpatialGrid getNewGrid(String name) {
-			return new DummyGrid(this, this._volume, name);
+		public Dimensionless(double volume)
+		{
+			super();
+			this.setTotalVolume(volume);
 		}
 
 		@Override
@@ -57,12 +58,28 @@ public final class ShapeLibrary
 		}
 		
 		@Override
-		public void init(Element xmlElem)
+		public void instantiate(Element xmlElem, Settable parent)
 		{
-			// TODO read in as a Double
-			String str = XmlHandler.attributeFromUniqueNode(
-										xmlElem, "volume", ObjectRef.STR);
-			this._volume = Double.parseDouble(str);
+			super.instantiate(xmlElem, parent);
+			
+			this._volume = XmlHandler.obtainDouble(
+					xmlElem, XmlRef.volume, this.defaultXmlTag());
+		}
+		
+		@Override
+		public Module getModule()
+		{
+			Module node = super.getModule();
+			node.add( new Attribute(XmlRef.volume, 
+						String.valueOf(this.getTotalVolume()), null, true ));
+			return node;
+		}
+		
+		public void setModule(Module node)
+		{
+			super.setModule(node);
+			this._volume = Double.parseDouble( 
+					node.getAttribute(XmlRef.volume).getValue() );
 		}
 		
 		/**
@@ -70,31 +87,41 @@ public final class ShapeLibrary
 		 * 
 		 * @param volume New volume to use.
 		 */
-		public void setVolume(double volume)
+		public void setTotalVolume(double volume)
 		{
 			this._volume = volume;
 		}
 		
-		@Override
-		public double[] getLocalPosition(double[] location)
+		public double getTotalVolume()
 		{
-			return location;
+			return this._volume;
 		}
 		
 		@Override
-		public double[] getGlobalLocation(double[] local)
+		public double getTotalRealVolume() {
+			return this._volume;
+		}
+				
+		@Override
+		public void getLocalPositionTo(double[] destination, double[] location)
 		{
-			return local;
+			/* Do nothing! */
 		}
 		
 		@Override
-		protected ResCalc getResolutionCalculator(int[] coord, int axis)
+		public void getGlobalLocationTo(double[] destination, double[] local)
+		{
+			/* Do nothing! */
+		}
+		
+		@Override
+		public ResolutionCalculator getResolutionCalculator(int[] coord, int axis)
 		{
 			return null;
 		}
 		
 		@Override
-		public void setDimensionResolution(DimName dName, ResCalc resC)
+		public void setDimensionResolution(DimName dName, ResolutionCalculator resC)
 		{
 			/* Do nothing! */
 		}
@@ -105,22 +132,15 @@ public final class ShapeLibrary
 		}
 		
 		@Override
-		public double getVoxelVolume(int[] coord)
+		public int getTotalNumberOfVoxels()
+		{
+			return 1;
+		}
+		
+		@Override
+		public double getVoxelVolume(double[] origin, double[] upper)
 		{
 			return this._volume;
-		}
-		
-		@Override
-		protected void nVoxelTo(int[] destination, int[] coords)
-		{
-			/* Dimensionless shapes have no voxels. */
-			Vector.reset(destination);
-		}
-		
-		@Override
-		protected void resetNbhIter()
-		{
-			/* Do nothing! */
 		}
 		
 		@Override
@@ -143,13 +163,13 @@ public final class ShapeLibrary
 		}
 
 		@Override
-		public double nbhCurrDistance()
+		public double nhbCurrDistance()
 		{
 			return 0.0;
 		}
 
 		@Override
-		public double nbhCurrSharedArea()
+		public double nhbCurrSharedArea()
 		{
 			return 0.0;
 		}
@@ -159,6 +179,37 @@ public final class ShapeLibrary
 		{
 			/* Do nothing! */
 		}
+
+		@Override
+		public double getBoundarySurfaceArea(DimName dimN, int extreme)
+		{
+			return 0.0;
+		}
+		
+		@Override
+		public double getRealSurfaceArea(DimName dimN, int extreme) {
+			// TODO Auto-generated method stub
+			return 0.0;
+		}
+
+		@Override
+		public ShapeIterator getNewIterator(int strideLength)
+		{
+			return null;
+		}
+		
+		@Override
+		public boolean canGenerateCoarserMultigridLayer()
+		{
+			return false;
+		}
+		
+		@Override
+		public Shape generateCoarserMultigridLayer()
+		{
+			return null;
+		}
+
 	}
 	
 	/*************************************************************************

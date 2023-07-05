@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+	<simulation name="plasmid_test" outputfolder="../results" log="NORMAL"
+		comment="this is a file for testing purposes only." randomSeed="224323"
+		configuration="config\alternative_colouring.cfg">
+		<timer stepSize="1.0" endOfSimulation="20.0" />
+		<speciesLib>
+			<!-- species/species library The species library contains all agent species 
+				in the simulations. This may include microbial species, plasmid and vector 
+				species, particle species etc. Species states are states that are in principal 
+				identical for all agents of that species. However note that iDynoMiCS 2.0 
+				does allow you to overwrite states on agent level. Thus if a state is defined 
+				both on species level and on agent level, the agent state will be used in 
+				the simulation. small test -->
+			<species name="species1">
+				<aspect name="pigment" type="PRIMARY" class="String" value="RED" />
+				<speciesModule name="coccoid" />
+				<!-- <speciesModule name="stochasticMover" /> -->
+				<speciesModule name="producer" />
+				<aspect name="fitness_cost" type="PRIMARY" class="Double" value="0.0" />
+				<aspect name="reactions" type="PRIMARY"  class="InstantiableList"> 
+					<list class="RegularReaction" nodeLabel="reaction" entryClass="RegularReaction" keyClass="String" keyLabel="name">
+						<reaction name="testReact" comment="biomass specific growth rate">
+							<expression value="mass * (1.0-fitness_cost) * mumax *(solute1 / (solute1 + k) )">
+								<constant name="k" value="0.01" />
+								<constant name="mumax" value="1.0" />
+							</expression>
+							<stoichiometric component="mass" coefficient="0.9" />
+							<stoichiometric component="solute1" coefficient="-1.0" />
+						</reaction> 
+					</list>
+				</aspect>
+			</species>
+			<species name="coccoid">
+				<aspect name="density" 			type="PRIMARY" class="Double" value="1" />
+				<aspect name="#isLocated" 		type="PRIMARY" class="Boolean" value="true" />
+				<aspect name="surfaces"			type="CALCULATED"	class="AgentSurfaces"	/>
+				<aspect name="morphology" 		type="PRIMARY" class="String" 		value="coccoid" />
+				<aspect name="volume" 			type="CALCULATED" 	class="SimpleVolumeState" />
+				<aspect name="radius" 			type="CALCULATED" 	class="CoccoidRadius" />
+				<aspect name="divide" 			type="EVENT" 		class="CoccoidDivision"	/>
+				<aspect name="divisionMass"		class="Double"		value="0.5" 				/>
+				<aspect name="updateBody" 		type="EVENT" 		class="UpdateBody" />
+				<aspect name="evaluatePull"		type="EVENT"		class="ResolveInteractionDistance" 	 />
+				<aspect name="plasmidLoss"		type="EVENT" 		class="PlasmidLoss" />
+				<aspect name="searchDist"		type="PRIMARY" class="Double"		value="0.0"  />
+			</species>
+		</speciesLib>
+
+		<compartment name="first">
+				<shape class="Rectangle" resolutionCalculator="MgFASResolution" nodeSystem="true">
+				<dimension name="X" isCyclic="true" targetResolution="2.0" max="64.0"/>
+				<dimension name="Y" isCyclic="false" targetResolution="2.0" max="64.0">
+					<boundary extreme="1" class="FixedBoundary" layerThickness="16.0">
+						<solute name="solute1" concentration="0.01" />
+					</boundary>
+				</dimension>
+			</shape>
+			<solutes>
+				<solute name="solute1" concentration="0.01" defaultDiffusivity="1E4" />
+			</solutes>
+			<reactions>
+			</reactions>
+			<agents>
+				<agent>
+					<aspect name="species" type="PRIMARY" class="String" value="species1" />
+					<aspect name="mass" type="PRIMARY" class="Double" value="0.15" />
+					<aspect name="density" type="PRIMARY" class="Double" value="1" />
+					<aspect name="pigment" type="PRIMARY" class="String" value="BLUE" />
+					<aspect name="betaLacRes" type="PRIMARY" class="HashMap">
+						<item type="PRIMARY" class="Double" value="0.5" key="transfer_probability" keyType="String" />
+						<item type="PRIMARY" class="Double" value="0.001" key="transfer_frequency" keyType="String" />
+						<item type="PRIMARY" class="Double" value="1.0" key="loss_probability" keyType="String" />
+						<item type="PRIMARY" class="Double" value="1.0" key="copy" keyType="String" />
+						<item type="PRIMARY" class="Double" value="5.0" key="pili_length" keyType="String" />
+						<item type="PRIMARY" class="String" value="GREEN" key="pigment_on_loss" keyType="String" />
+						<item type="PRIMARY" class="Double" value="8.0" key="mic_on_loss" keyType="String" />
+						<item type="PRIMARY" class="Double" value="0.0" key="fitness_cost_on_loss" keyType="String" />
+						<item type="PRIMARY" class="Double" value="0.2" key="cool_down" keyType="String" />
+						<item type="PRIMARY" class="String[]" value="mic,pigment,fitness_cost" key="aspects_change" keyType="String" />
+					</aspect>
+					<aspect name="fitness_cost" type="PRIMARY" class="Double" value="0.5" />
+					<aspect name="cool_down" type="PRIMARY" class="Double" value="0.8" />
+					<aspect name="mic" type="PRIMARY" class="Double" value="80.0" />
+					<spawn number="1" domain="64.0,32.0" />
+				</agent>
+				<agent>
+					<aspect name="species" type="PRIMARY" class="String" value="species1" />
+					<aspect name="mass" type="PRIMARY" class="Double" value="0.15" />
+					<aspect name="density" type="PRIMARY" class="Double" value="1" />
+					<aspect name="pigment" type="PRIMARY" class="String" value="RED" />
+					<aspect name="mic" type="PRIMARY" class="Double" value="8.0" />
+					<spawn number="200" domain="64.0,32.0" />
+				</agent>
+			</agents>
+			<processManagers>
+				<process name="svgWriter" class="GraphicalOutput"  priority="-4" firstStep="0.0"  timerStepSize="0.2">
+					<aspect name="solute" type="PRIMARY" class="String" value="solute1" />
+					<aspect name="maxConcentration" type="PRIMARY" class="Double" value="2.0" />
+					<aspect name="outputWriter" type="PRIMARY" class="String" value="SvgExport" />
+				</process>
+				<process name="plasmidDynamics" class="PlasmidDynamics"  priority="-3" firstStep="0.0" timerStepSize="0.5">
+					<aspect name="plasmids" type="PRIMARY" class="LinkedList">
+						<item type="PRIMARY" class="String" value="betaLacRes" />
+					</aspect>
+				</process>
+				<process name="agentRelax"	class="AgentRelaxation" priority="0" />
+				<process name="PDEWrapper" class="PDEWrapper" priority="1" />
+			</processManagers>
+		</compartment>
+	</simulation>
+</document>

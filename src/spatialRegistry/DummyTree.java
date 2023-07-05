@@ -8,7 +8,7 @@ import surface.BoundingBox;
 /**
  * A dummy spatial registry for dimensionless compartments.
  * 
- * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
 public class DummyTree<T> implements SpatialRegistry<T>
 {
@@ -18,27 +18,20 @@ public class DummyTree<T> implements SpatialRegistry<T>
 	{
 		this._emptyList = new LinkedList<T>();
 	}
-	
+
+	public List<T> getAll( List<T> list )
+	{
+		return list;
+	}
+
 	@Override
-	public List<T> search(double[] coords, double[] dimension)
+	public List<T> search(double[] low, double[] high)
 	{
 		return this._emptyList;
 	}
 
 	@Override
-	public List<T> cyclicsearch(double[] coords, double[] dimension)
-	{
-		return this._emptyList;
-	}
-
-	@Override
-	public List<T> all()
-	{
-		return this._emptyList;
-	}
-
-	@Override
-	public void insert(double[] coords, double[] dimensions, T entry)
+	public void insert(double[] low, double[] high, T entry)
 	{
 		// TODO Some sort of warning message?
 	}
@@ -50,20 +43,14 @@ public class DummyTree<T> implements SpatialRegistry<T>
 	}
 
 	@Override
-	public List<T> cyclicsearch(BoundingBox boundingBox) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public List<T> cyclicsearch(List<BoundingBox> boundingBoxes) {
+	public List<T> search(Area area) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 	
 	@Override
-	public T getRandom()
-	{
+	public List<T> search(List<BoundingBox> boundingBoxes) {
+		// TODO Auto-generated method stub
 		return null;
 	}
 	
@@ -71,5 +58,10 @@ public class DummyTree<T> implements SpatialRegistry<T>
 	public boolean delete(T entry)
 	{
 		return false;
+	}
+	
+	public void clear()
+	{
+
 	}
 }

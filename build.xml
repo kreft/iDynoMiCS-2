@@ -1,0 +1,113 @@
+<!-- Does not seem to work if jogl files are not in /lib check what is missing -->
+<project name="iDynoMiCS-2" default="dist" basedir=".">
+  <description>
+    simple example build file
+  </description>
+  <!-- set global properties for this build -->
+  <property name="src.dir"     value="src"/>
+  <property name="build.dir" location="build"/>
+  <property name="dist" location="dist"/>
+
+  <property name="classes.dir" value="${build.dir}/classes"/>
+  <property name="jar.dir" location="${build.dir}/jar"/>
+  <property name="lib.dir" location="./src/lib"/>
+  <property name="general.dir" location="./config"/>
+  <property name="jar.file" location="iDynoMiCS.jar"/>
+  <property name="main-class" location="idynomics.Idynomics"/>
+	
+	<path id="project-classpath">
+		<fileset dir="web/WEB-INF/lib" includes="*.jar" />
+		<fileset dir="${iDynoMiCS-2}/bin" includes="*.jar" />
+		<fileset dir="${iDynoMiCS-2}/common/lib" includes="*.jar" />
+		<fileset dir="${iDynoMiCS-2}/server/lib" includes="*.jar" />
+	</path>
+	
+
+	<path id="libraries.path">    
+        <fileset dir="${lib.dir}">
+            <include name="**/*.jar"/>
+        </fileset>
+    </path>
+	
+	<path id="general.path">    
+
+    </path>
+
+  <target name="init">
+    <!-- Create the time stamp -->
+    <tstamp/>
+    <!-- Create the build directory structure used by compile -->
+    <mkdir dir="${build.dir}"/>
+  </target>
+
+  <target name="compile" depends="init" description="compile the source">
+    <mkdir dir="${classes.dir}"/>
+  	
+  	<path id="lib.path.ref">
+  	    <fileset dir="lib" includes="*.jar"/>
+  	  </path>
+  	
+  	<path id="gen.path.ref">
+  	    <fileset dir="general" includes="*.cfg"/>
+  	  </path>
+  		
+    <!-- Compile the java code from ${src} into ${build} -->
+ <javac includeantruntime="false" srcdir="${src.dir}" destdir="${classes.dir}">
+    <classpath refid="libraries.path"/>
+    <classpath refid="general.path"/>
+  </javac>
+  </target>
+
+  <target name="dist" depends="compile"
+        description="generate the distribution">
+    <!-- Create the distribution directory -->
+    <mkdir dir="${build.dir}/lib"/>
+  	<mkdir dir="${build.dir}/general"/>
+
+    <!-- Put everything in ${build} into the MyProject-${DSTAMP}.jar file -->
+    <jar jarfile="${build.dir}/lib/MyProject-${DSTAMP}.jar" basedir="${classes.dir}"/>
+  </target>
+	
+	 <target name="jar" depends="compile">
+	        <mkdir dir="${jar.dir}"/>
+	 	
+	 		<mkdir dir="${classes.dir}/lib"/>
+	 		<copy todir="${classes.dir}/lib" flatten="false">
+	 		   <path refid="libraries.path"/>
+	 		</copy>
+
+	 		<mkdir dir="${classes.dir}/config"/>
+	 		<copy todir="${classes.dir}/config" flatten="false">
+	 		   <path refid="general.path"/>
+	 		</copy>
+
+	        <manifestclasspath property="manifest.classpath" jarfile="${classes.dir}">
+	            <classpath refid="libraries.path"/>
+	        	<classpath refid="general.path"/>
+	        </manifestclasspath>
+
+	        <jar destfile="${jar.dir}/${ant.project.name}.jar" basedir="${classes.dir}">
+	            <manifest>
+	            	<attribute name="Main-Class" value="idynomics.Idynomics"/>
+	                <attribute name="Class-Path" value="${manifest.classpath}"/>
+	            </manifest>
+	        </jar>  
+	    </target>
+
+	    <target name="run" depends="jar">
+	        <java fork="true" classname="${Main-Class}">
+	            <classpath>
+	                <path refid="${manifest.classpath}"/>
+	                <path location="${jar.dir}/${ant.project.name}.jar"/>
+	            </classpath>
+	    	</java>
+	        	
+	    </target>
+	
+  <target name="clean"
+        description="clean up">
+    <!-- Delete the ${build} and ${dist} directory trees -->
+    <delete dir="${classes.dir}"/>
+    <delete dir="${jar.dir}/${ant.project.name}.jar"/>
+  </target>
+</project>

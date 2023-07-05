@@ -24,6 +24,7 @@ package linearAlgebra;
  * </ul>
  * 
  * @author Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
  */
 public final class Array
 {
@@ -33,7 +34,9 @@ public final class Array
 	// NOTE arrayString.split(DELIMITER) does not work when we use "|" here!
 	// This can change, but check it works with testJUnit.LinearAlgebraTest
 	public final static String DELIMITER = "%";
-	
+
+	public final static String PRINT_DELIMITER = "% \n";
+
 	/*************************************************************************
 	 * STANDARD NEW ARRAYS
 	 ************************************************************************/
@@ -110,6 +113,11 @@ public final class Array
 	{
 		double[][][] out = new double[ni][nj][nk];
 		return setAll(out, value);
+	}
+	
+	public static Double[][][] arrayDouble(int ni, int nj, int nk)
+	{
+		return new Double[ni][nj][nk];
 	}
 
 	/**
@@ -280,6 +288,12 @@ public final class Array
 	 * @param array 3D array of {@code double}s (preserved).
 	 */
 	public static void copyTo(double[][][] destination, double[][][] array)
+	{
+		for ( int i = 0 ; i < array.length; i++ )
+			Matrix.copyTo(destination[i], array[i]);
+	}
+	
+	public static void copyTo(Double[][][] destination, Double[][][] array)
 	{
 		for ( int i = 0 ; i < array.length; i++ )
 			Matrix.copyTo(destination[i], array[i]);
@@ -1282,7 +1296,15 @@ public final class Array
 		for ( int i = 0; i < a.length; i++ )
 			Matrix.elemDivideTo(destination[i], a[i], b[i]);
 	}
-	
+
+	public static void elemRatioTo(
+			double[][][] destination, double[][][] a, double[][][] b)
+	{
+		checkDimensionsSame(destination, a, b);
+		for ( int i = 0; i < a.length; i++ )
+			Matrix.elemRatioTo(destination[i], a[i], b[i]);
+	}
+
 	/**
 	 * \brief Multiply one array by another, element-by-element.
 	 * 
@@ -1296,6 +1318,7 @@ public final class Array
 		elemDivideTo(out, a, b);
 		return a;
 	}
+
 	
 	/**
 	 * \brief Multiply one array by another, element-by-element, writing the
@@ -1412,23 +1435,108 @@ public final class Array
 	public static double[][][] subarray(double[][][] array, int iStart,
 					int iStop, int jStart, int jStop, int kStart, int kStop)
 	{
-		double[][][] out = new
-				double[iStop - iStart][jStop - jStart][kStop - kStart];
-		try
+		double[][][] out = new double[iStop+1 - iStart][jStop+1 - jStart][kStop+1 - kStart];
+		for ( int i = iStart; i <= iStop; i++ )
+			for ( int j = jStart; j <= jStop; j++ )
+				for ( int k = kStart; k <= kStop; k++ )
+					out[i - iStart][j - jStart][k - kStart] = array[i][j][k];
+		return out;
+	}
+
+	public static double[][] slice(double[][][] array, int dim, int num )
+	{
+		int a = 0, b = 0, c = 0;
+		int d = height(array);
+		int e = width(array);
+		int f = depth(array);
+		double[][] out;
+
+		if( dim == 0 )
 		{
-			for ( int i = iStart; i < iStop; i++ )
-				for ( int j = jStart; j < jStop; j++ )
-					for ( int k = kStart; k < kStop; k++ )
-						out[i][j][k] = array[i][j][k];
+			out = new double[e][f];
+				for ( int j = b; j < e; j++ )
+					for ( int k = c; k < f; k++ )
+						out[j][k] = array[num][j][k];
 		}
-		catch (ArrayIndexOutOfBoundsException e)
+		else if ( dim == 1 )
 		{
-			throw new
-					ArrayIndexOutOfBoundsException("Check subarray indices");
+			out = new double[d][f];
+			for ( int i = a; i < d; i++ )
+					for ( int k = c; k < f; k++ )
+						out[i][k] = array[i][num][k];
+		}
+		else
+		{
+			out = new double[d][e];
+			for ( int i = a; i < d; i++ )
+				for ( int j = b; j < e; j++ )
+						out[i][j] = array[i][j][num];
 		}
 		return out;
 	}
 	
+	/**
+
+	public static double[][] meanSlice(double[][][] array, int dim)
+	{
+		if (dim == 2)
+		{
+			
+		}
+	}
+	
+	**/
+	
+	/**
+	 * \brief TODO
+	 * @param out
+	 * @param iStart
+	 * @param iStop
+	 * @param jStart
+	 * @param jStop
+	 * @param kStart
+	 * @param kStop
+	 */
+	public static int[][][] subarray(int[][][] array, int iStart, int iStop, 
+			int jStart, int jStop, int kStart, int kStop) 
+	{
+		int[][][] out = new int[iStop+1 - iStart][jStop+1 - jStart][kStop+1 - kStart];
+		for ( int i = iStart; i <= iStop; i++ )
+			for ( int j = jStart; j <= jStop; j++ )
+				for ( int k = kStart; k <= kStop; k++ )
+					out[i - iStart][j - jStart][k - kStart] = array[i][j][k];
+		return out;
+	}
+
+	public static double[][][] rotate(double[][][] array, int i, int j, int k)
+	{
+		int[] old = new int[] { array.length, array[0].length, array[0][0].length };
+		int[] size = new int[] { old[i], old[j], old[k]};
+		double[][][] out = Array.array(size, 0.0);
+
+		int[] pos;
+		for ( int l = 0; l < old[0]; l++ )
+			for ( int m = 0; m < old[1]; m++ )
+				for ( int n = 0; n < old[2]; n++ )
+				{
+					pos = new int[] { l, m, n };
+					out[pos[i]][pos[j]][pos[k]] = array[l][m][n];
+				}
+		return out;
+	}
+
+	public static double[][][] superarray(double[][][] array,
+										  int iStart, int iStop,
+										  int jStart, int jStop,
+										  int kStart, int kStop)
+	{
+		double[][][] out = new double[iStop+1 - iStart][jStop+1 - jStart][kStop+1 - kStart];
+		for ( int i = Math.max(0, iStart); i < Math.min(iStop-iStart, array.length); i++ )
+			for ( int j = Math.max(0, jStart); j < Math.min(jStop-jStart, array[0].length); j++ )
+				for ( int k = Math.max(0, kStart); k < Math.min(kStop-kStart, array[0][0].length); k++ )
+					out[i-iStart][j-jStart][k-kStart] =	array[i][j][k];
+		return out;
+	}
 	/*************************************************************************
 	 * SCALARS FROM ARRAYS
 	 * Any input arrays should be unaffected.
@@ -1933,6 +2041,15 @@ public final class Array
 			array[i] = Matrix.dblFromString(matrices[i]);
 		return array;
 	}
+
+	public static float[][][] fltFromString(String arrayString)
+	{
+		String[] matrices = arrayString.split(DELIMITER);
+		float[][][] array = new float[matrices.length][][];
+		for ( int i = 0; i < matrices.length; i++ )
+			array[i] = Matrix.fltFromString(matrices[i]);
+		return array;
+	}
 	
 	/**
 	 * \brief Returns integer array in string format.
@@ -1959,6 +2076,13 @@ public final class Array
 		toString(array, out);
 		return out.toString();
 	}
+
+	public static String toString(float[][][] array)
+	{
+		StringBuffer out = new StringBuffer();
+		toString(array, out);
+		return out.toString();
+	}
 	
 	/**
 	 * \brief Converts the given <b>array</b> to {@code String}
@@ -1973,10 +2097,11 @@ public final class Array
 		for ( int i = 0; i < n; i++ )
 		{
 			Matrix.toString(array[i], buffer);
-			buffer.append(DELIMITER);
+			buffer.append(PRINT_DELIMITER);
 		}
 		Matrix.toString(array[n], buffer);
 	}
+
 	
 	/**
 	 * \brief Converts the given <b>array</b> to {@code String}
@@ -1991,7 +2116,18 @@ public final class Array
 		for ( int i = 0; i < n; i++ )
 		{
 			Matrix.toString(array[i], buffer);
-			buffer.append(DELIMITER);
+			buffer.append(PRINT_DELIMITER);
+		}
+		Matrix.toString(array[n], buffer);
+	}
+
+	public static void toString(float[][][] array, StringBuffer buffer)
+	{
+		int n = array.length - 1;
+		for ( int i = 0; i < n; i++ )
+		{
+			Matrix.toString(array[i], buffer);
+			buffer.append(PRINT_DELIMITER);
 		}
 		Matrix.toString(array[n], buffer);
 	}

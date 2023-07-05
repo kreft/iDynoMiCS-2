@@ -1,17 +1,37 @@
 package grid;
 
-import java.util.Arrays;
-import java.util.HashMap;
+import static grid.ArrayType.DIFFUSIVITY;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import org.w3c.dom.Element;
+
+import agent.Agent;
+import compartment.AgentContainer;
+import compartment.EnvironmentContainer;
+import dataIO.Log;
+import dataIO.Log.Tier;
+import expression.Expression;
+import idynomics.Idynomics;
 import dataIO.ObjectFactory;
-import dataIO.XmlRef;
+import dataIO.XmlHandler;
+import instantiable.Instantiable;
 import linearAlgebra.Array;
 import linearAlgebra.Matrix;
-import nodeFactory.ModelAttribute;
-import nodeFactory.ModelNode;
-import nodeFactory.NodeConstructor;
-import nodeFactory.ModelNode.Requirements;
+import linearAlgebra.Vector;
+import referenceLibrary.XmlRef;
+import settable.Attribute;
+import settable.Module;
+import settable.Module.Requirements;
+import settable.Settable;
 import shape.Shape;
+import surface.Voxel;
+import surface.collision.CollisionUtilities;
+import utility.ExtraMath;
+import utility.Helper;
 
 /**
  * \brief A SpatialGrid stores information about a variable over space.
@@ -31,65 +51,247 @@ import shape.Shape;
  * 
  * <p>On the boundaries of the grid, </p>
  * 
- * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
+ * @author Stefan Lang (stefan.lang@uni-jena.de)
+ * 								Friedrich-Schiller University Jena, Germany 
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
  */
-public class SpatialGrid implements NodeConstructor
-{	
+
+public class SpatialGrid implements Settable, Instantiable
+{
 	/**
-	 * Label for an array. 
+	 * The name of the variable which this grid represents.
 	 */
-	public enum ArrayType
-	{
-		/**
-		 * The concentration of, e.g., a solute.
-		 */
-		CONCN,
-		/**
-		 * The diffusion coefficient of a solute. For example, this may be
-		 * lower inside a biofilm than in the surrounding water.
-		 */
-		DIFFUSIVITY,
-		/**
-		 * A measure of how well-mixed a solute is. A diffusion-reaction should
-		 * ignore where this is above a certain threshold.
-		 */
-		WELLMIXED,
-		/**
-		 * The rate of production of this solute. Consumption is described by
-		 * negative production.
-		 */
-		PRODUCTIONRATE,
-		/**
-		 * The differential of production rate with respect to its
-		 * concentration.
-		 */
-		DIFFPRODUCTIONRATE,
-		/**
-		 * Laplacian operator.
-		 */
-		LOPERATOR;
-	}
-	
+	protected String _name;
+	/**
+	 * 
+	 */
+	protected Shape _shape;
 	/**
 	 * Dictionary of arrays according to their type. Note that not all types
 	 * may be occupied.
 	 */
-	protected HashMap<ArrayType, double[][][]> _array
-									= new HashMap<ArrayType, double[][][]>();
-									
-	protected Shape _shape;
+	protected Map<ArrayType, double[][][]> _array = 
+			new HashMap<ArrayType, double[][][]>();
+	/**
+	 * TODO
+	 */
+	protected double _wellmixedFlow = 0.0;
 	
-	protected String _name;
+	/**
+	 * identifies what compartment hosts this grid
+	 */
+	protected Settable _parentNode;
 	
-	/*************************************************************************
+	/* ***********************************************************************
+	 * Diffusivity setting
+	 * **********************************************************************/
+
+	/**
+	 * Diffusivity for the suspension.
+	 */
+	protected double _defaultDiffusivity;
+	/**
+	 * Diffusivity for the biofilm.
+	 */
+	protected Double _biofilmDiffusivity;
+	/**
+	 * Indicates the minimum concentration of biomass in a grid cell before a
+	 * grid cell is considered part of a biofilm rather than suspension
+	 * (set to 0.0 for compatibility with iDynoMiCS 1).
+	 */
+	// TODO this is not currently used
+	protected double _threshold;
+	
+	protected DiffusivityType _diffusivity;
+	
+	public enum DiffusivityType
+	{
+		ALL_SAME,
+		
+		BIOMASS_SCALED
+	}
+	
+	public double voxelVolume()
+	{
+		return this.getShape().getCurrVoxelVolume();
+	}
+
+	/**
+	 * Temporary get diff for pde wrapper
+	 * @return
+	 */
+	@Deprecated
+	public double getDiffusivity()
+	{
+		return this._defaultDiffusivity;
+	}
+
+	public void updateDiffusivity(
+			EnvironmentContainer env, AgentContainer agents)
+	{
+		/*
+		 * Reset the diffusivity array.
+		 */
+		this.newArray(DIFFUSIVITY, this._defaultDiffusivity);
+		if (this._diffusivity == DiffusivityType.BIOMASS_SCALED)
+		{
+			/*
+			 * Iterate over the array, updating each voxel as it is visited.
+			 */
+			Shape shape = env.getShape();
+			int nDim = shape.getNumberOfDimensions();
+			double[] location = new double[nDim];
+			double[] upper = new double[nDim];
+			int[] coord = shape.resetIterator();
+			while ( shape.isIteratorValid() )
+			{
+				/* Find all agents that overlap with this voxel. */
+				shape.voxelOriginTo(location, coord);
+				
+				/* FIXME this assumes Cartesian grids  */
+				shape.voxelUpperCornerTo(upper, coord);
+				
+				Voxel vox = new Voxel(location, upper);
+				vox.init(_shape.getCollision());
+
+				List<Agent> nhbs = CollisionUtilities.getCollidingAgents(
+						vox, agents.treeSearch( location, upper ) );
+				/* If there are any agents in this voxel, update the 
+				 * diffusivity. */
+				if ( ! nhbs.isEmpty() )
+				{
+					/* TODO Calculate the total biomass/concentration, see if 
+					 * above the threshold */
+					this.setValueAt(DIFFUSIVITY, coord, 
+							this._biofilmDiffusivity);
+				}
+				/* Move onto the next voxel. */
+				coord = shape.iteratorNext();
+			}
+		}
+	}
+	
+	/* ***********************************************************************
 	 * CONSTRUCTORS
-	 ************************************************************************/
-	
-	public SpatialGrid(Shape shape, String name)
+	 * **********************************************************************/
+
+	/**
+	 * \brief Construct a new grid.
+	 * NOTE only used by dummy grid
+	 * 
+	 * @param shape Shape of the grid.
+	 * @param name Name of the variable this represents.
+	 */
+	public SpatialGrid(Shape shape, String name, Settable parent)
 	{
 		this._shape = shape;
 		this._name = name;
+		this._parentNode = parent;
 	}
+	
+	/**
+	 * NOTE Only used by unit tests, consider restructuring tests
+	 * @param shape
+	 * @param name
+	 * @param environment
+	 */
+	public SpatialGrid(String name, double concentration, Settable parent)
+	{
+		this._shape = ((EnvironmentContainer) parent).getShape();
+		this._name = name;
+		this._parentNode = parent;
+		this.newArray(ArrayType.CONCN, concentration);
+		this._defaultDiffusivity = 1.0;
+		this._diffusivity = DiffusivityType.ALL_SAME;
+	}
+	
+	public SpatialGrid(Element xmlElem, Settable parent)
+	{
+		this.instantiate(xmlElem, parent);
+	}
+	
+	public SpatialGrid() { 
+		
+	}
+
+	public void instantiate(Element xmlElem, Settable parent)
+	{
+		/* Set associated object, naming and initial values */
+		this._shape = ((EnvironmentContainer) parent).getShape();
+		this._parentNode = parent;
+		this._name = XmlHandler.obtainAttribute(xmlElem, 
+				XmlRef.nameAttribute, this.defaultXmlTag());
+		
+		/* TODO should every grid always be instantiated as CONCN grid? */
+		this.newArray(ArrayType.CONCN, 0.0);
+
+		String conc = XmlHandler.obtainAttribute((Element) xmlElem, 
+			XmlRef.concentration, this.defaultXmlTag());
+		if( Helper.formatParseable(conc))
+			this.setAllTo(ArrayType.CONCN,new Expression( conc ).format( 
+					Idynomics.unitSystem ));
+		else
+			this.setTo(ArrayType.CONCN, conc);
+	
+		
+		((EnvironmentContainer) parent).addSolute(this);
+		
+		/* Set default and biofilm diffusivity */
+		Double diffusivity = XmlHandler.obtainDouble(xmlElem,
+				XmlRef.defaultDiffusivity, this.defaultXmlTag());
+		this._defaultDiffusivity = Double.valueOf(diffusivity);
+		diffusivity = XmlHandler.gatherDouble(xmlElem,
+				XmlRef.biofilmDiffusivity);
+		
+		/* identify whether biofilm diffusivity should be considered identical
+		 * to default diffusivity (in this case there is no need to identify
+		 * the biofilm region */
+		if ( diffusivity == null || diffusivity == this._defaultDiffusivity )
+		{
+			this._diffusivity = DiffusivityType.ALL_SAME;
+			this._biofilmDiffusivity = this._defaultDiffusivity;
+		}
+		else
+		{
+			this._biofilmDiffusivity = diffusivity;
+			this._diffusivity = DiffusivityType.BIOMASS_SCALED;
+		}
+		
+		// TODO threshold
+	}
+
+	/* ***********************************************************************
+	 * 							BASIC GETTERS & SETTERS
+	 * ***********************************************************************/
+	
+	/**
+	 * @return The name of the variable this grid represents.
+	 */
+	public String getName()
+	{
+		return this._name;
+	}
+	
+	/**
+	 * @return The shape of this grid.
+	 */
+	public Shape getShape()
+	{
+		return this._shape;
+	}
+	
+	/**
+	 * @return Types of all arrays present in this grid.
+	 */
+	public Set<ArrayType> getAllArrayTypes()
+	{
+		return this._array.keySet();
+	}
+	
+	/* ***********************************************************************
+	 * 							ARRAY INITIALISATION
+	 * ***********************************************************************/
 	
 	/**
 	 * \brief Initialise an array of the given <b>type</b> and fill all voxels
@@ -129,7 +331,7 @@ public class SpatialGrid implements NodeConstructor
 	/**
 	 * \brief Whether this grid has an array of the type specified.
 	 * 
-	 * @param type Type of array sought (e.g. CONCN).
+	 * @param type Type of array sought.
 	 * @return {@code true} if this array is already initialised in this grid,
 	 * {@code false} otherwise.
 	 */
@@ -138,87 +340,20 @@ public class SpatialGrid implements NodeConstructor
 		return this._array.containsKey(type);
 	}
 
-	public Shape getShape()
-	{
-		return this._shape;
-	}
-
 	/**
-	 * \brief TODO
+	 * \brief Get a copy of an array held in this grid.
 	 * 
-	 * @return
+	 * @param type The type of array required.
+	 * @return Copy of this array.
 	 */
 	public double[][][] getArray(ArrayType type)
 	{
 		return Array.copy(this._array.get(type));
 	}
 
-	
-	/*************************************************************************
-	 * VOXEL GETTERS & SETTERS
-	 ************************************************************************/
-	
-	/**
-	 * \brief Gets the value of one coordinate on the given array type.
-	 * 
-	 * @param type Type of array to get from.
-	 * @param coord Coordinate on this array to get.
-	 * @return double value at this coordinate on this array.
-	 */
-	public double getValueAt(ArrayType type, int[] coord)
-	{
-		if ( this._array.containsKey(type) )
-			return this._array.get(type)[coord[0]][coord[1]][coord[2]];
-		else
-			//TODO: safety?
-			return Double.NaN;
-	}
-	
-	/**
-	 * \brief TODO
-	 * 
-	 * @param type
-	 * @param coord
-	 * @param value
-	 */
-	public void setValueAt(ArrayType type, int[] coord, double value)
-	{
-		if ( this._array.containsKey(type) )
-			this._array.get(type)[coord[0]][coord[1]][coord[2]] = value;
-		// TODO safety?
-	}
-	
-	/**
-	 * \brief TODO
-	 * 
-	 * @param type
-	 * @param coord
-	 * @param value
-	 */
-	public void addValueAt(ArrayType type, int[] coord, double value)
-	{
-		if ( this._array.containsKey(type) )
-			this._array.get(type)[coord[0]][coord[1]][coord[2]] += value;
-		// TODO safety?
-	}
-	
-	/**
-	 * \brief TODO
-	 * 
-	 * @param type
-	 * @param coord
-	 * @param value
-	 */
-	public void timesValueAt(ArrayType type, int[] coord, double value)
-	{
-		if ( this._array.containsKey(type) )
-			this._array.get(type)[coord[0]][coord[1]][coord[2]] *= value;
-		// TODO safety?
-	}
-	
-	/*************************************************************************
-	 * ARRAY SETTERS
-	 ************************************************************************/
+	/* ***********************************************************************
+	 * 							ARRAY SETTERS
+	 * ***********************************************************************/
 	
 	/**
 	 * \brief Set all values in the array specified to the <b>value</b> given.
@@ -232,10 +367,21 @@ public class SpatialGrid implements NodeConstructor
 	}
 	
 	/**
-	 * \brief TODO
+	 * \brief Reset all values in the array specified to zero.
 	 * 
-	 * @param type
-	 * @param array
+	 * @param type Type of the array to reset.
+	 */
+	public void reset(ArrayType type)
+	{
+		this.setAllTo(type, 0.0);
+	}
+	
+	/**
+	 * \brief Overwrite all values in the array specified to those of the array
+	 * given, discarding all old values.
+	 * 
+	 * @param type Type of the array to set.
+	 * @param array Array of values to use.
 	 */
 	public void setTo(ArrayType type, double[][][] array)
 	{
@@ -243,22 +389,28 @@ public class SpatialGrid implements NodeConstructor
 	}
 	
 	/**
-	 * \brief set array from string
-	 * FIXME ARRAY, MATRIX, VECTOR?
-	 * @param type
-	 * @param array
+	 * \brief Set an array from a string.
+	 * 
+	 * @param type Type of the array to set.
+	 * @param array String representation of the values in this array: either
+	 * a single value, or conforming to the approach used in the
+	 * {@code linearAlgebra} package.
 	 */
 	public void setTo(ArrayType type, String array)
 	{
-		if (array.contains(Matrix.DELIMITER))
-			setTo( type, Array.dblFromString(array) );
+		if ( array.contains(Vector.DELIMITER) || 
+				array.contains(Matrix.DELIMITER) ||
+				array.contains(Array.DELIMITER) )
+		{
+			this.setTo( type, Array.dblFromString(array) );
+		}
 		else
-			setAllTo( type, Double.valueOf(array) );
+			this.setAllTo( type, Double.valueOf(array) );
 	}
 	/**
-	 * \brief TODO
+	 * \brief Force all values in the given array type to be at least zero.
 	 * 
-	 * @param type
+	 * @param type Type of the array to use.
 	 */
 	public void makeNonnegative(ArrayType type)
 	{
@@ -295,9 +447,9 @@ public class SpatialGrid implements NodeConstructor
 		Array.timesEquals(this._array.get(type), value);
 	}
 	
-	/*************************************************************************
-	 * ARRAY GETTERS
-	 ************************************************************************/
+	/* ***********************************************************************
+	 * 							ARRAY GETTERS
+	 * ***********************************************************************/
 	
 	/**
 	 * \brief Get the greatest value in the given array.
@@ -345,130 +497,363 @@ public class SpatialGrid implements NodeConstructor
 		return Array.sum(this._array.get(type));
 	}
 	
-	/*************************************************************************
-	 * TWO-ARRAY METHODS
-	 ************************************************************************/
+	/**
+	 * \brief Get the norm of the values in the array of given <b>type</b>.
+	 * 
+	 * @param type Type of the array to use.
+	 * @return Norm of all the elements of the array <b>type</b>.
+	 */
+	public double getNorm(ArrayType type)
+	{
+		return Array.norm(this._array.get(type));
+	}
 	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param array
+	 * @param type
+	 * @return
+	 */
+	public double getTotalAbsDiffWith(double[][][] array, ArrayType type)
+	{
+		return Array.totalAbsDifference(array, this.getArray(type));
+	}
+	
+	/* ***********************************************************************
+	 * 							TWO ARRAY METHODS
+	 * ***********************************************************************/
+	
+	/**
+	 * \brief Add all elements of one array to those of another,
+	 * element-by-element.
+	 * 
+	 * @param destination Type of array to be overwritten with its own values
+	 * plus those of <b>source</b>.
+	 * @param source Type of array to use in incrementing <b>destination</b>.
+	 * The values of this array are preserved in this method.
+	 */
 	public void addArrayToArray(ArrayType destination, ArrayType source)
 	{
 		Array.addEquals(this._array.get(destination), this._array.get(source));
 	}
 	
-	/*************************************************************************
-	 * LOCATION GETTERS
-	 ************************************************************************/
+	/**
+	 * \brief Subtract all elements of one array from those of another,
+	 * element-by-element.
+	 * 
+	 * @param destination Type of array to be overwritten with its own values
+	 * minus those of <b>source</b>.
+	 * @param source Type of array to use in decreasing <b>destination</b>.
+	 * The values of this array are preserved in this method.
+	 */
+	public void subtractArrayFromArray(ArrayType destination, ArrayType source)
+	{
+		Array.minusEquals(this._array.get(destination),this._array.get(source));
+	}
+
+	/* ***********************************************************************
+	 * 							VOXEL GETTERS & SETTERS
+	 * ***********************************************************************/
 	
 	/**
+	 * \brief Gets the value of one coordinate on the given array type.
 	 * 
-	 * @param name
-	 * @param location
-	 * @return
+	 * @param type Type of array to get from.
+	 * @param coord Coordinate on this array to get.
+	 * @return double value at this coordinate on this array.
 	 */
-	public double getValueAt(ArrayType type, double[] location)
+	public double getValueAt(ArrayType type, int[] coord)
 	{
-		return this.getValueAt(type, this._shape.getCoords(location));
+		if ( this._array.containsKey(type) )
+			return this._array.get(type)[coord[0]][coord[1]][coord[2]];
+		else
+		{
+			if ( Log.shouldWrite(Tier.CRITICAL) )
+				Log.out(Tier.CRITICAL, this.getClass().getSimpleName() + 
+						" returning " + Double.NaN);
+			return Double.NaN;
+		}
 	}
-		
+	
 	/**
-	 * \brief Get the value of the given array in the 
+	 * \brief Sets the value of one voxel on the given array type.
 	 * 
-	 * @param type
-	 * @return
+	 * @param type Type of array to set in.
+	 * @param coord Coordinate of the voxel.
+	 * @param value New value for the voxel.
+	 */
+	public void setValueAt(ArrayType type, int[] coord, double value)
+	{
+		this._array.get(type)[coord[0]][coord[1]][coord[2]] = value;
+	}
+	
+	/**
+	 * \brief Increases the value of one voxel on the given array type.
+	 * 
+	 * @param type Type of array to set in.
+	 * @param coord Coordinate of the voxel.
+	 * @param value Value to increase the voxel's current value by.
+	 */
+	public void addValueAt(ArrayType type, int[] coord, double value)
+	{
+		this._array.get(type)[coord[0]][coord[1]][coord[2]] += value;
+	}
+	
+	/**
+	 * \brief Multiplies the value of one voxel on the given array type.
+	 * 
+	 * @param type Type of array to set in.
+	 * @param coord Coordinate of the voxel.
+	 * @param value Value to multiply the voxel's current value by.
+	 */
+	public void timesValueAt(ArrayType type, int[] coord, double value)
+	{
+		this._array.get(type)[coord[0]][coord[1]][coord[2]] *= value;
+	}
+	
+	/* ***********************************************************************
+	 * 							ITERATION
+	 * ***********************************************************************/
+	
+	/**
+	 * \brief Get the value of the given array where the current iterator voxel
+	 * is.
+	 * 
+	 * @param type Type of array to get from.
+	 * @return {@code double} value voxel.
 	 */
 	public double getValueAtCurrent(ArrayType type)
 	{
 		return this.getValueAt(type, this._shape.iteratorCurrent());
 	}
-	
+
 	/**
-	 * \brief TODO
+	 * \brief Set the value at the voxel where the iterator is currently
+	 * located.
 	 * 
-	 * @param type
-	 * @return
-	 */
-	public double getValueAtNhb(ArrayType type)
-	{
-		if (this._shape.isNhbIteratorInside())
-			return this.getValueAt(type, this._shape.nbhIteratorCurrent());
-		else
-			throw new IndexOutOfBoundsException(
-					"tried to get grid value at neighbour"
-							+ Arrays.toString(this._shape.nbhIteratorCurrent())
-							+ " of current coordinate "
-							+ Arrays.toString(this._shape.iteratorCurrent())
-							+ ". But the neighbour is not inside the grid");
-	}
-	
-	/**
-	 * \brief TODO
-	 * 
-	 * @param type
-	 * @param value
+	 * @param type Type of array to set the value for.
+	 * @param value 
 	 */
 	public void setValueAtCurrent(ArrayType type, double value)
 	{
 		this.setValueAt(type, this._shape.iteratorCurrent(), value);
 	}
-			
+
 	/**
+	 * \brief Get the value of the given array where the neighbor iterator
+	 * voxel is.
 	 * 
-	 * TODO safety if neighbor iterator or arrays are not initialised.
-	 * 
-	 * @return
+	 * @param type Type of array to get from.
+	 * @return {@code double} value voxel.
 	 */
-	public double getFluxWithNeighbor(String soluteName)
+	public double getValueAtNhb(ArrayType type)
 	{
-		Shape shape = this._shape;
-		// FIXME an invalid neighbor is not the same as one on the boundary!!!
-		if ( shape.isNhbIteratorInside() )
+		if ( this._shape.isNbhIteratorInside() )
+			return this.getValueAt(type, this._shape.nbhIteratorCurrent());
+		else
 		{
-			/*
-			 * First find the difference in concentration.
-			 */
-			double out = this.getValueAtNhb(ArrayType.CONCN)
+			throw new IndexOutOfBoundsException(
+					"Tried to get grid value at neighbor "
+							+ Vector.toString(this._shape.nbhIteratorCurrent())
+							+ " of current coordinate "
+							+ Vector.toString(this._shape.iteratorCurrent())
+							+ ", but the neighbour is not inside the grid.");
+		}
+	}
+	
+	/**
+	 * \brief Calculate the mass flow from the neighbor voxel into the current
+	 * iterator voxel (may be negative).
+	 * 
+	 * <p>The flux from the neighboring voxel into the current one is given by
+	 * the formula <br><i>(c<sub>nhb</sub> - c<sub>itr</sub>) *
+	 * (D<sub>nhb</sub><sup>-1</sup>+ D<sub>itr</sub><sup>-1</sup>)<sup>-1</sup>
+	 *  * d<sub>nhb,itr</sub><sup>-1</sup></i><br>
+	 * where subscript <i>itr</i> denotes the current iterator voxel and
+	 * <i>nhb</i> the current neighbor voxel, and
+	 * <ul>
+	 * <li><i>c</i> is voxel concentration</li>
+	 * <li><i>D</i> is voxel diffusivity</li>
+	 * <li><i>d</i> is distance between centres of two voxels</li>
+	 * </ul>
+	 * The flux has units of mass or mole per area per unit time.</p>
+	 * 
+	 * <p>Note that we use the harmonic mean diffusivity, rather than the
+	 * arithmetic or geometric.</p>
+	 * 
+	 * <p>The flow from the neighboring voxel into the current one is then
+	 * the flux multiplied by the shared surface area, i.e.
+	 * <i>flux * SA<sub>nhb,itr</sub></i> where <i>SA</i> is shared surface
+	 * area of two voxels. Flow has units of mass/mole per unit time, and so
+	 * should be divided by the volume of the current iterator voxel to give
+	 * the rate of change of concentration to this voxel due to diffusive 
+	 * flow.</p>
+	 * 
+	 * TODO Rob [8June2016]: I need to find the reference for this.
+	 * 
+	 * @return Diffusive flow from the neighbor voxel into the current iterator
+	 * voxel, in units of mass (or mole) per time.
+	 */
+	// TODO safety if neighbor iterator or arrays are not initialised.
+	public double getDiffusionFromNeighbor()
+	{
+		if ( this._shape.isNbhIteratorInside() )
+		{
+			/* Difference in concentration. */
+			double concnDiff = this.getValueAtNhb(ArrayType.CONCN)
 					- this.getValueAtCurrent(ArrayType.CONCN);
-			/*
-			 * Then multiply this by the average diffusivity.
-			 */
-			out *= meanDiffusivity(
-				this.getValueAtCurrent(ArrayType.DIFFUSIVITY),
-				this.getValueAtNhb(ArrayType.DIFFUSIVITY));
-			/*
-			 * Finally, multiply by the surface are the two voxels share (in
-			 * square microns).
-			 */
-			// TODO Rob: I need to change this
-			out /= shape.nbhCurrSharedArea();
-			return out;
+			/* Average diffusivity. */
+			double diffusivity = ExtraMath.harmonicMean(
+					this.getValueAtCurrent(ArrayType.DIFFUSIVITY),
+					this.getValueAtNhb(ArrayType.DIFFUSIVITY));
+			/* Surface are the two voxels share (in square microns). */
+			double sArea = this._shape.nhbCurrSharedArea();
+			/* Centre-centre distance. */
+			double dist = this._shape.nhbCurrDistance();
+			/* Calculate the the flux from these values. */
+			double flux = concnDiff * diffusivity / dist ;
+			double flow = flux * sArea;
+			/* Disabled Debug message
+			if ( Log.shouldWrite(Tier.DEBUG) )
+			{
+				Log.out(Tier.DEBUG, "    concnDiff is "+concnDiff);
+				Log.out(Tier.DEBUG, "    diffusivity is "+diffusivity);
+				Log.out(Tier.DEBUG, "    distance is "+dist);
+				Log.out(Tier.DEBUG, "  => flux is "+flux);
+				Log.out(Tier.DEBUG, "    surface area is "+sArea);
+				Log.out(Tier.DEBUG, "  => flow is "+flow);
+			}
+			*/
+			return flow;
+		}
+		else if ( this._shape.isIteratorValid() )
+		{
+			double flow = 
+					this._shape.nbhIteratorOutside().getDiffusiveFlow(this);
+			return flow;
 		}
 		else
 		{
-			double flux = shape.nbhIteratorOutside()
-							.getGridMethod(soluteName).getBoundaryFlux(this);
-			//System.out.println("method: "+flux); //bughunt
-			return flux;
+			Log.out(Tier.CRITICAL,
+					"Trying to get flux with an invalid neighbor: current "+
+					Vector.toString(this._shape.iteratorCurrent())+
+					", neighbor "+
+					Vector.toString(this._shape.nbhIteratorCurrent()));
+			return Double.NaN;
 		}
 	}
 	
-	private static double meanDiffusivity(double a, double b)
+	/**
+	 * \brief Calculate the time-scale of the diffusion from the neighbor voxel
+	 * into the current iterator voxel (always positive).
+	 * 
+	 * <p>The time-scale from the neighboring voxel into the current one is 
+	 * given by the formula <i>SA<sub>nhb,itr</sub> * V<sub>itr</sub> *
+	 * (D<sub>nhb</sub><sup>-1</sup>+ D<sub>itr</sub><sup>-1</sup>)<sup>-1</sup>
+	 *  * d<sub>nhb,itr</sub><sup>-1</sup></i>
+	 * where subscript <i>itr</i> denotes the current iterator voxel and
+	 * <i>nhb</i> the current neighbor voxel, and
+	 * <ul>
+	 * <li><i>SA</i> is shared surface area of two voxels</li>
+	 * <li><i>V</i> is voxel volume</li>
+	 * <li><i>D</i> is voxel diffusivity</li>
+	 * <li><i>d</i> is distance between centres of two voxels</li>
+	 * </ul>
+	 * 
+	 * @return Time-scale of the diffusive flow from the neighbor voxel into
+	 * the current iterator voxel, in units of time.
+	 */
+	public double getDiffusiveTimeScaleWithNeighbor()
 	{
-		if ( a == 0.0 || b == 0.0 )
-			return 0.0;
-		if ( a == Double.POSITIVE_INFINITY )
-			return b;
-		if ( b == Double.POSITIVE_INFINITY )
-			return a;
-		/*
-		 * This is a computationally nicer way of getting the harmonic mean:
-		 * 2 / ( (1/a) + (1/b))
-		 */
-		return 2.0 * ( a * b ) / ( a + b );
+		if ( this._shape.isNbhIteratorInside() )
+		{
+			/* Average diffusivity. */
+			double diffusivity = ExtraMath.harmonicMean(
+					this.getValueAtCurrent(ArrayType.DIFFUSIVITY),
+					this.getValueAtNhb(ArrayType.DIFFUSIVITY));
+			/* Surface are the two voxels share (in square microns). */
+			double sArea = this._shape.nhbCurrSharedArea();
+			/* Centre-centre distance. */
+			double dist = this._shape.nhbCurrDistance();
+			/* Current voxel volume. */
+			double volume = this._shape.getCurrVoxelVolume();
+			/* Calculate the the timescale from these values. */
+			return dist * volume * diffusivity / sArea;
+		}
+		else if ( this._shape.isIteratorValid() )
+		{
+			/* Average diffusivity. */
+			double diffusivity = this.getValueAtCurrent(ArrayType.DIFFUSIVITY);
+			/* Surface are the two voxels share (in square microns). */
+			double sArea = this._shape.nhbCurrSharedArea();
+			/* Centre-centre distance. */
+			double dist = this._shape.nhbCurrDistance();
+			/* Current voxel volume. */
+			double volume = this._shape.getCurrVoxelVolume();
+			/* Calculate the the timescale from these values. */
+			return dist * volume * diffusivity / sArea;
+		}
+		else
+		{
+			return Double.NaN;
+		}
 	}
 	
-	/*************************************************************************
-	 * REPORTING
-	 ************************************************************************/
+	/**
+	 * \brief Increase the grid's tally of mass flow into a well-mixed region.
+	 * 
+	 * @param flow Flow in units of mass (or moles) per time.
+	 */
+	public void increaseWellMixedMassFlow(double flow)
+	{
+		this._wellmixedFlow += flow;
+	}
 	
+	/**
+	 * @return This grid's tally of mass flow into a well-mixed region, in
+	 * units of mass (or moles) per time.
+	 */
+	public double getWellMixedMassFlow()
+	{
+		return this._wellmixedFlow;
+	}
+
+	/**
+	 * Reset this grid's tally of flow into a well-mixed region.
+	 */
+	public void resetWellMixedMassFlow()
+	{
+		this._wellmixedFlow = 0.0;
+	}
+	
+	/* ***********************************************************************
+	 * 							LOCATION GETTERS
+	 * ***********************************************************************/
+	
+	/**
+	 * \brief  Gets the value of one voxel on the given array type.
+	 * 
+	 * @param type Type of array required.
+	 * @param location Vector of position in continuous space.
+	 * @return Value of the given <b>type</b> in the voxel containing
+	 * <b>location</b>.
+	 */
+	public double getValueAt(ArrayType type, double[] location)
+	{
+		return this.getValueAt(type, this._shape.getCoords(location));
+	}
+	
+	/* ***********************************************************************
+	 * 							REPORTING
+	 * ***********************************************************************/
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param row
+	 * @param buffer
+	 */
 	public void rowToBuffer(double[] row, StringBuffer buffer)
 	{
 		for ( int i = 0; i < row.length - 1; i++ )
@@ -476,6 +861,12 @@ public class SpatialGrid implements NodeConstructor
 		buffer.append(row[row.length-1]);
 	}
 	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param matrix
+	 * @param buffer
+	 */
 	public void matrixToBuffer(double[][] matrix, StringBuffer buffer)
 	{
 		for ( int i = 0; i < matrix.length - 1; i++ )
@@ -491,6 +882,12 @@ public class SpatialGrid implements NodeConstructor
 		rowToBuffer(matrix[matrix.length - 1], buffer);
 	}
 	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param type
+	 * @return
+	 */
 	public StringBuffer arrayAsBuffer(ArrayType type)
 	{
 		StringBuffer out = new StringBuffer();
@@ -498,6 +895,8 @@ public class SpatialGrid implements NodeConstructor
 		for ( int i = 0; i < array.length - 1; i++ )
 		{
 			matrixToBuffer(array[i], out);
+			// NOTE Rob [16June2016]: Consider always appending \n, as this can
+			// be confusing in polar shapes.
 			if ( array[i].length == 1 )
 				out.append(", ");
 			else
@@ -507,49 +906,91 @@ public class SpatialGrid implements NodeConstructor
 		return out;
 	}
 	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param type
+	 * @return
+	 */
+	// TODO explain why this is different to linearAlgebra.Array.toString()
 	public String arrayAsText(ArrayType type)
 	{
 		return this.arrayAsBuffer(type).toString();
 	}
+	
+	/* ***********************************************************************
+	 * 							MODEL NODES
+	 * ***********************************************************************/
 
 	@Override
-	public ModelNode getNode() {
-		ModelNode modelNode = new ModelNode(XmlRef.solute, this);
-		modelNode.requirement = Requirements.ZERO_TO_FEW;
+	public Module getModule()
+	{
+		Module modelNode = new Module(XmlRef.solute, this);
+		modelNode.setRequirements(Requirements.ZERO_TO_MANY);
 		
-		modelNode.title = this._name;
+		modelNode.setTitle(this._name);
 		
-		modelNode.add(new ModelAttribute(XmlRef.nameAttribute, 
+		modelNode.add(new Attribute(XmlRef.nameAttribute, 
 				this._name, null, true ));
 		
-		modelNode.add(new ModelAttribute(XmlRef.concentration, 
-//				arrayAsText(ArrayType.CONCN), null, true ));
-				ObjectFactory.stringRepresentation(this.getArray(ArrayType.CONCN)), null, true ));
+		modelNode.add(new Attribute(XmlRef.concentration, 
+				ObjectFactory.stringRepresentation(
+				this.getArray( ArrayType.CONCN )), null, true ));
+		
+		modelNode.add(new Attribute(XmlRef.defaultDiffusivity, 
+				String.valueOf(this._defaultDiffusivity), null, true ));
+		
+		modelNode.add(new Attribute(XmlRef.biofilmDiffusivity, 
+				String.valueOf(this._biofilmDiffusivity), null, true ));
 		
 		return modelNode;
 	}
 
 	@Override
-	public void setNode(ModelNode node) {
-		// TODO Auto-generated method stub
+	public void setModule(Module node)
+	{
+		this._name = node.getAttribute( XmlRef.nameAttribute ).getValue();
+		this.setTo(ArrayType.CONCN, 
+				node.getAttribute(XmlRef.concentration).getValue());
 		
-	}
-
-	@Override
-	public NodeConstructor newBlank() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void addChildObject(NodeConstructor childObject) {
-		// TODO Auto-generated method stub
+		this._defaultDiffusivity = Double.valueOf( node.getAttribute( 
+				XmlRef.defaultDiffusivity ).getValue());
 		
+		Double biof = Double.valueOf( node.getAttribute( 
+				XmlRef.biofilmDiffusivity ).getValue());
+		if (Helper.isNullOrEmpty(biof) || biof.equals(this._defaultDiffusivity))
+		{
+			this._diffusivity = DiffusivityType.ALL_SAME;
+			this._biofilmDiffusivity = this._defaultDiffusivity;
+		}
+		else
+		{
+			this._diffusivity = DiffusivityType.BIOMASS_SCALED;
+			this._biofilmDiffusivity = biof;
+		}
+			
+	}
+
+	public void removeModule(String specifier) 
+	{
+		((EnvironmentContainer) this._parentNode).removeSolute(this);
 	}
 
 	@Override
-	public String defaultXmlTag() {
-		// TODO Auto-generated method stub
-		return null;
+	public String defaultXmlTag()
+	{
+		return XmlRef.solute;
+	}
+
+	@Override
+	public void setParent(Settable parent) 
+	{
+		this._parentNode = parent;
+	}
+	
+	@Override
+	public Settable getParent() 
+	{
+		return this._parentNode;
 	}
 }

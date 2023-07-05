@@ -2,31 +2,29 @@
  * 
  */
 package expression;
-
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
+
+import aspect.AspectInterface;
 
 /**
  * \brief Abstract class for any component of a mathematical expression.
  * 
- * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
-public abstract class Component
+public abstract class Component extends Elemental
 {
+	
+	public Component(Type type) {
+		super(type);
+	}
+
 	/**
 	 * Making a component negative is a convenient shorthand for subtracting it
 	 * from zero. 
 	 */
 	private boolean _isNegative;
-	
-	/**
-	 * \brief Get the name of this component.
-	 * 
-	 * @return {@code String} name of this component.
-	 */
-	public abstract String getName();
-	
+
 	/**
 	 * \brief Report the evaluation of this mathematical expression as a
 	 * {@code String}. 
@@ -44,7 +42,7 @@ public abstract class Component
 	 * mathematical expression.
 	 */
 	public abstract String reportEvaluation(Map<String, Double> variables);
-	
+
 	/**
 	 * \brief Evaluate this mathematical expression.
 	 * 
@@ -52,7 +50,21 @@ public abstract class Component
 	 * @return Real number value of the evaluation of this mathematical
 	 * expression.
 	 */
-	public abstract double getValue(Map<String, Double> variables);
+	public double getValue(Map<String, Double> variables)
+	{
+		double out = this.calculateValue(variables);
+		return ( this._isNegative ) ? -out : out;
+	}
+	
+	/**
+	 * \brief Internal helper method for {@link #getValue(Map)}: that deals
+	 * with {@link #_isNegative}, so this doesn't have to.
+	 * 
+	 * @param variables Dictionary of variable names with associated values.
+	 * @return Real number value of the evaluation of this mathematical
+	 * expression, when assumed positive.
+	 */
+	protected abstract double calculateValue(Map<String, Double> variables);
 	
 	/**
 	 * \brief Differentiate this mathematical expression with respect to the
@@ -84,28 +96,4 @@ public abstract class Component
 	{
 		this._isNegative = ! this._isNegative;
 	}
-	
-	/**
-	 * \brief Get a list of names for all the variables in this mathematical
-	 * expression.
-	 * 
-	 * @return List of names of variables. Order is irrelevant.
-	 */
-	public List<String> getAllVariablesNames()
-	{
-		List<String> names = new ArrayList<String>();
-		this.appendVariablesNames(names);
-		return names;
-	}
-	
-	/**
-	 * \brief Helper method for {@link #getAllVariableNames()}. 
-	 * 
-	 * <p>Gets sub-components to add their variable names to the list given to
-	 * them.</p>
-	 * 
-	 * @param names List of names of variables so far found in this
-	 * {@code Component}.
-	 */
-	protected abstract void appendVariablesNames(List<String> names);
 }

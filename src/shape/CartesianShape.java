@@ -1,15 +1,19 @@
 package shape;
 
-import static shape.Shape.WhereAmI.*;
+import static shape.Dimension.DimName.X;
+import static shape.Dimension.DimName.Y;
+import static shape.Dimension.DimName.Z;
 
 import dataIO.Log;
 import dataIO.Log.Tier;
 import linearAlgebra.Array;
 import linearAlgebra.Vector;
-import static shape.Dimension.DimName;
-import static shape.Dimension.DimName.*;
+import shape.Dimension.DimName;
 import shape.ShapeConventions.SingleVoxel;
-import shape.resolution.ResolutionCalculator.ResCalc;
+import shape.iterator.CartesianShapeIterator;
+import shape.iterator.ShapeIterator;
+import shape.resolution.MultigridResolution;
+import shape.resolution.ResolutionCalculator;
 
 /**
  * \brief Abstract subclass of {@code Shape} that handles the important methods
@@ -24,234 +28,268 @@ public abstract class CartesianShape extends Shape
 	/**
 	 * Array of resolution calculators used by all linear {@code Shape}s.
 	 */
-	protected ResCalc[] _resCalc = new ResCalc[3];
+	protected ResolutionCalculator[] _resCalc = new ResolutionCalculator[3];
 	
 	
-	/*************************************************************************
+	/* ***********************************************************************
 	 * CONSTRUCTION
-	 ************************************************************************/
+	 * **********************************************************************/
 	
 	public CartesianShape()
 	{
-		/*
-		 * Fill the resolution calculators with dummies for now: they should
-		 * be overwritten later.
-		 */
-		//TODO Stefan: Why do we need this?
-		// 			   Shouldn't ResCalc be null if no dimension is specified?
-		for ( int i = 0; i < 3; i++ )
+		int i = 0;
+		for ( DimName d : new DimName[]{X, Y, Z} )
 		{
-			SingleVoxel sV = new SingleVoxel();
-			sV.init(1.0, 1.0);
-			this._resCalc[i] = sV;
+			/*
+			 * These are the dimension names for any Cartesian shape. Assume
+			 * they are all insignificant to begin with.
+			 */
+			Dimension dimension = new Dimension(false, d);
+			this._dimensions.put(d, dimension);
+			/*
+			 * Fill the resolution calculators with dummies for now: they
+			 * should be overwritten later.
+			 */
+			this._resCalc[i] = new SingleVoxel(dimension);
+			i++;
 		}
 		/*
-		 * These are the dimension names for any Cartesian shape. Assume they
-		 * are all insignificant to begin with.
+		 * By default assume that we should use an iterator with step length 1.
 		 */
-		for ( DimName d : new DimName[]{X, Y, Z} )
-			this._dimensions.put(d, new Dimension(false, d));
-		
+		this.setNewIterator(1);
 	}
 	
 	@Override
-	public double[][][] getNewArray(double initialValue) {
-		int[] nVoxel = this.updateCurrentNVoxel();
-		/* we need at least length 1 in each dimension for the array */
-		return Array.array(nVoxel[0] == 0 ? 1 : nVoxel[0], 
-							nVoxel[1] == 0 ? 1 : nVoxel[1], 
-							nVoxel[2] == 0 ? 1 : nVoxel[2], initialValue);
+	public double[][][] getNewArray(double initialValue)
+	{
+
+		int[] nElement = new int[3];
+		/* We need at least length 1 in each dimension for the array. */
+		for ( int dim = 0; dim < 3; dim ++ )
+			nElement[dim] = Math.max(this._resCalc[dim].getNElement(), 1);
+		return Array.array(nElement, initialValue);
 	}
 	
-	/*************************************************************************
+	@Override
+	public ShapeIterator getNewIterator(int strideLength)
+	{
+		return new CartesianShapeIterator(this, strideLength);
+	}
+	
+	/* ***********************************************************************
 	 * BASIC SETTERS & GETTERS
-	 ************************************************************************/
+	 * **********************************************************************/
 	
 	@Override
-	public double[] getLocalPosition(double[] location)
+	public double getTotalVolume()
 	{
-		return location;
+		double out = 1.0;
+		for ( Dimension dim : this._dimensions.values() )
+			out *= dim.getLength();
+		return out;
 	}
 	
 	@Override
-	public double[] getGlobalLocation(double[] local)
+	public double getTotalRealVolume()
 	{
-		return local;
+		double out = 1.0;
+		for ( Dimension dim : this._dimensions.values() )
+			out *= dim.getRealLength();
+		return out;
 	}
 	
-	/*************************************************************************
+	public void setTotalVolume( double volume)
+	{
+		Log.out(Tier.CRITICAL, "Cannot adjust Cartesian shape volume" );
+	}
+	
+	@Override
+	public void getLocalPositionTo(double[] destination, double[] location)
+	{
+		Vector.copyTo(destination, location);
+	}
+	
+	@Override
+	public void getGlobalLocationTo(double[] destination, double[] local)
+	{
+		Vector.copyTo(destination, local);
+	}
+	
+	/* ***********************************************************************
 	 * DIMENSIONS
-	 ************************************************************************/
+	 * **********************************************************************/
 	
 	@Override
-	public void setDimensionResolution(DimName dName, ResCalc resC)
+	public void setDimensionResolution(DimName dName, ResolutionCalculator resC)
 	{
 		int index = this.getDimensionIndex(dName);
 		this._resCalc[index] = resC;
 	}
 	
 	@Override
-	protected ResCalc getResolutionCalculator(int[] coord, int axis)
+	public ResolutionCalculator getResolutionCalculator(int[] coord, int axis)
 	{
 		/* Coordinate is irrelevant here. */
 		return this._resCalc[axis];
 	}
 	
-	/*************************************************************************
+	/* ***********************************************************************
 	 * LOCATIONS
-	 ************************************************************************/
+	 * **********************************************************************/
 	
-	/*************************************************************************
+	/* ***********************************************************************
 	 * SURFACES
-	 ************************************************************************/
+	 * **********************************************************************/
 	
 	@Override
 	public void setSurfaces()
 	{
 		for ( DimName dim : this._dimensions.keySet() )
 			if ( this._dimensions.get(dim).isSignificant() )
-				this.setPlanarSurfaces(dim);
+				this.setPlanarSurface(dim);
 	}
 	
-	/*************************************************************************
+	/* ***********************************************************************
 	 * BOUNDARIES
-	 ************************************************************************/
-	
-	/*************************************************************************
-	 * VOXELS
-	 ************************************************************************/
+	 * **********************************************************************/
 	
 	@Override
-	public double getVoxelVolume(int[] coord)
+	public double getBoundarySurfaceArea(DimName dimN, int extreme)
+	{
+		double area = 1.0;
+		for ( DimName iDimN : this._dimensions.keySet() )
+		{
+			if ( iDimN.equals(dimN) )
+				continue;
+			area *= this.getDimension(iDimN).getLength();
+		}
+		return area;
+	}
+	
+	@Override
+	public double getRealSurfaceArea(DimName dimN, int extreme)
+	{
+		double area = 1.0;
+		for ( DimName iDimN : this._dimensions.keySet() )
+		{
+			if ( iDimN.equals(dimN) )
+				continue;
+			area *= this.getDimension(iDimN).getRealLength();
+		}
+		return area;
+	}
+	
+	/* ***********************************************************************
+	 * VOXELS
+	 * **********************************************************************/
+	
+	@Override
+	public int getTotalNumberOfVoxels()
+	{
+		int n = 1;
+		for ( int i = 0; i < 3; i++ )
+			n *= this._resCalc[i].getNVoxel();
+		return n;
+	}
+	
+	@Override
+	public double getVoxelVolume(double[] origin, double[] upper)
 	{
 		double out = 1.0;
-		ResCalc rC;
 		for ( int dim = 0; dim < getNumberOfDimensions(); dim++ )
-		{
-			rC = this.getResolutionCalculator(coord, dim);
-			out *= rC.getResolution(coord[dim]);
-		}
+			out *= upper[dim] - origin[dim];
 		return out;
 	}
 	
-	/*************************************************************************
-	 * SUBVOXEL POINTS
-	 ************************************************************************/
+	@Override
+	public double nhbCurrSharedArea()
+	{
+		double area = 1.0;
+		ResolutionCalculator rC;
+		int index;
+		int[] currentCoord = this._it.iteratorCurrent();
+		for ( DimName dim : this.getDimensionNames() )
+		{
+			// FIXME here we implicitly assume that insignificant dimensions
+			// have dummy length of one
+			if ( dim.equals(this._it.currentNhbDimName())
+					|| ! this.getDimension(dim).isSignificant() )
+				continue;
+			index = this.getDimensionIndex(dim);
+			rC = this.getResolutionCalculator(currentCoord, index);
+			area *= rC.getResolution();
+		}
+		return area;
+	}
 	
-	/*************************************************************************
-	 * COORDINATE ITERATOR
-	 ************************************************************************/
-	
-	/*************************************************************************
-	 * NEIGHBOR ITERATOR
-	 ************************************************************************/
+	/* ***********************************************************************
+	 * MULTIGRID CONSTRUCTION
+	 * **********************************************************************/
 	
 	@Override
-	protected void resetNbhIter()
+	public boolean canGenerateCoarserMultigridLayer()
 	{
-		Log.out(NHB_ITER_LEVEL, " Resetting nhb iter: current coord is "+
-				Vector.toString(this._currentNeighbor));
-		this._whereIsNbh = UNDEFINED;
-		for ( DimName dim : this._dimensions.keySet() )
+		/*
+		 * Acceptable resolution calculators are MultigridResolution and
+		 * SingleVoxel. There must be at least one MultigridResolution with
+		 * more than 2 voxels to be worth generating a multigrid.
+		 */
+		int multigridCount = 0;
+		for (ResolutionCalculator resCalc : this._resCalc)
 		{
-			/* Skip insignificant dimensions. */
-			if ( ! this.getDimension(dim).isSignificant() )
-				continue;
-			/* See if we can take one of the neighbors. */
-			if ( this.moveNbhToMinus(dim) || this.nbhJumpOverCurrent(dim) )
+			if ( resCalc instanceof MultigridResolution)
 			{
-				this._nbhDimName = dim;
-				this.transformNbhCyclic();
-				Log.out(NHB_ITER_LEVEL, "   returning transformed neighbor at "
-						+Vector.toString(this._currentNeighbor)+
-						": status "+this._whereIsNbh);
-				return;
+				if ( resCalc.getNVoxel() > 2 )
+					multigridCount++;
+				continue;
 			}
+			if ( resCalc instanceof SingleVoxel )
+				continue;
+			return false;
 		}
+		return multigridCount > 0;
 	}
 	
 	@Override
-	public int[] nbhIteratorNext()
+	public Shape generateCoarserMultigridLayer()
 	{
-		Log.out(NHB_ITER_LEVEL, " Looking for next nhb of "+
-				Vector.toString(this._currentCoord));
-		this.untransformNbhCyclic();
-		int nbhIndex = this.getDimensionIndex(this._nbhDimName);
-		Log.out(NHB_ITER_LEVEL, "   untransformed neighbor at "+
-				Vector.toString(this._currentNeighbor)+
-				", trying along "+this._nbhDimName);
-		if ( ! this.nbhJumpOverCurrent(this._nbhDimName))
+		Shape out;
+		try
 		{
-			/*
-			 * If we're in X or Y, try to move up one.
-			 * If we're already in Z, then stop.
-			 */
-			nbhIndex++;
-			if ( nbhIndex < 3 )
+			out = this.getClass().newInstance();
+		}
+		catch (Exception e)
+		{
+			return null;
+		}
+		
+		ResolutionCalculator newResCalc;
+		DimName dimName;
+		Dimension dimension;
+		for ( int i = 0; i < 3; i++ )
+		{
+			dimName = this.getDimensionName(i);
+			dimension = this.getDimension(dimName);
+			if ( this._resCalc[i] instanceof SingleVoxel )
+				out.setDimensionResolution(dimName, this._resCalc[i]);
+			else if ( this._resCalc[i] instanceof MultigridResolution )
 			{
-				this._nbhDimName = this.getDimensionName(nbhIndex);
-				Log.out(NHB_ITER_LEVEL, "   jumped into dimension "
-						+this._nbhDimName);
-				if ( ! moveNbhToMinus(this._nbhDimName) )
-					return nbhIteratorNext();
+				newResCalc = ((MultigridResolution)this._resCalc[i])
+						.getCoarserResolution();
+				out.setDimensionResolution(dimName, newResCalc);
+				if ( dimension.isCyclic() )
+					out.makeCyclic(dimName);
 			}
 			else
+				return null;
+			
+			if ( ! dimension.isCyclic() )
 			{
-				this._whereIsNbh = UNDEFINED;
+				out.setBoundary(dimName, 0, dimension.getBoundary(0));
+				out.setBoundary(dimName, 1, dimension.getBoundary(1));
 			}
 		}
 		
-		this.transformNbhCyclic();
-		return this._currentNeighbor;
-	}
-	
-	@Override
-	public double nbhCurrDistance()
-	{
-		Tier level = Tier.BULK;
-		Log.out(level, "  calculating distance between voxels "+
-				Vector.toString(this._currentCoord)+" and "+
-				Vector.toString(this._currentNeighbor));
-		int i = this.getDimensionIndex(this._nbhDimName);
-		ResCalc rC = this.getResolutionCalculator(this._currentCoord, i);
-		double out = rC.getResolution(this._currentCoord[i]);
-		if ( this.isNhbIteratorInside() )
-		{
-			/* If the neighbor is inside the array, use the mean resolution. */
-			out += rC.getResolution(this._currentNeighbor[i]);
-			return 0.5 * out;
-		}
-		if ( this.isNbhIteratorValid() )
-		{
-			/* If the neighbor is on a defined boundary, use the current 
-				coord's resolution. */
-			Log.out(level, "    distance is "+out);
-			return out;
-		}
-		/* If the neighbor is on an undefined boundary, return infinite
-			distance (this should never happen!) */
-		Log.out(level, "    undefined distance!");
-		return Double.POSITIVE_INFINITY;
-	}
-	
-	@Override
-	public double nbhCurrSharedArea()
-	{
-		double area = 1.0;
-		int nDim = this.getNumberOfDimensions();
-		ResCalc rC;
-		int index;
-		for ( DimName dim : this.getDimensionNames() )
-		{
-			if ( dim.equals(this._nbhDimName) 
-					|| !this.getDimension(dim).isSignificant() )
-				continue;
-			index = this.getDimensionIndex(dim);
-			rC = this.getResolutionCalculator(this._currentCoord, index);
-			/* Need to be careful about insignificant axes. */
-			area *= ( index >= nDim ) ? rC.getResolution(0) :
-								rC.getResolution(this._currentCoord[index]);
-		}
-		return area;
+		return out;
 	}
 }

@@ -1,29 +1,38 @@
 package shape;
 
+
 import static shape.Dimension.DimName.PHI;
 import static shape.Dimension.DimName.R;
 import static shape.Dimension.DimName.THETA;
-import static shape.Shape.WhereAmI.INSIDE;
-import static shape.Shape.WhereAmI.UNDEFINED;
 
 import dataIO.Log;
+import dataIO.Log.Tier;
 import linearAlgebra.Vector;
 import shape.Dimension.DimName;
-import shape.resolution.ResolutionCalculator.ResCalc;
+import shape.ShapeConventions.SingleVoxel;
+import shape.iterator.ShapeIterator;
+import shape.iterator.SphericalShapeIterator;
+import shape.resolution.ResolutionCalculator;
 import surface.Ball;
 import surface.Point;
 import utility.ExtraMath;
 
-public abstract class SphericalShape extends PolarShape
+public abstract class SphericalShape extends Shape
 {
+	/**
+	 * The value of 1/3. Division is computationally costly, so calculate this
+	 * once.
+	 */
+	private final static double ONE_THIRD = (1.0/3.0);
+	
 	/**
 	 * Collection of resolution calculators for each dimension.
 	 */
-	protected ResCalc[][][] _resCalc;
+	protected ResolutionCalculator[][][] _resCalc;
 	
-	/*************************************************************************
+	/* ***********************************************************************
 	 * CONSTRUCTION
-	 ************************************************************************/
+	 * **********************************************************************/
 	
 	public SphericalShape()
 	{
@@ -31,31 +40,34 @@ public abstract class SphericalShape extends PolarShape
 		/*
 		 * Set up the array of resolution calculators.
 		 */
-		this._resCalc = new ResCalc[3][][];
-		/* radius */
-		this._resCalc[0] = new ResCalc[1][];
-		this._resCalc[0][0] = new ResCalc[1];
-		/* phi */
-		this._resCalc[1] = new ResCalc[1][];
-		/* theta will depend on phi, so leave for now. */
+		this._resCalc = new ResolutionCalculator[3][][];
 		/*
 		 * Set up the dimensions.
 		 */
 		Dimension dim;
-		/* There is no need for an r-min boundary. */
-		dim = new Dimension();
+		/* There is no need for an r-min boundary. 
+		 * R must always be significant and non-cyclic */
+		dim = new Dimension(true, R); 
 		dim.setBoundaryOptional(0);
 		this._dimensions.put(R, dim);
+		this._resCalc[getDimensionIndex(R)] = new ResolutionCalculator[1][1];
+		this._resCalc[getDimensionIndex(R)][0][0] = new SingleVoxel(dim);
 		/*
-		 * Set full angular dimensions by default, can be overwritten later.
+		 * Phi must always be significant and non-cyclic.
 		 */
-		dim = new Dimension();
-		dim.setLength(Math.PI);
+		dim = new Dimension(true, PHI);
 		this._dimensions.put(PHI, dim);
-		dim = new Dimension();
-		dim.setCyclic();
-		dim.setLength(2 * Math.PI);
+		this._resCalc[getDimensionIndex(PHI)] = new ResolutionCalculator[1][1];
+		this._resCalc[getDimensionIndex(PHI)][0][0] = new SingleVoxel(dim);
+		/*
+		 * The phi-dimension is insignificant, unless told otherwise later.
+		 */
+		dim = new Dimension(false, THETA);
 		this._dimensions.put(THETA, dim);
+		this._resCalc[getDimensionIndex(THETA)] = new ResolutionCalculator[1][1];
+		this._resCalc[getDimensionIndex(THETA)][0][0] = new SingleVoxel(dim);
+		
+		this._it = this.getNewIterator();
 	}
 	
 	@Override
@@ -79,33 +91,168 @@ public abstract class SphericalShape extends PolarShape
 		return a;
 	}
 	
-	/*************************************************************************
+	@Override
+	public ShapeIterator getNewIterator(int strideLength)
+	{
+		return new SphericalShapeIterator(this, strideLength);
+	}
+	
+	/* ***********************************************************************
 	 * BASIC SETTERS & GETTERS
-	 ************************************************************************/
+	 * **********************************************************************/
 	
 	@Override
-	public double[] getLocalPosition(double[] location)
+	public double getTotalVolume()
 	{
-		return Vector.spherify(location);
+		/*
+		 * Volume of a complete sphere: (4/3) pi * r^3
+		 * (2/3) * theta gives the angle (pi in complete cylinder).
+		 * Need to subtract the inner cylinder from the outer one, hence
+		 * rFactor = rMax^3 - rMin^3
+		 */
+		Dimension r = this.getDimension(R);
+		double rMin = r.getExtreme(0);
+		double rMax = r.getExtreme(1);
+		double thetaLength = this.getDimension(THETA).getLength();
+		/*
+		 * 
+		 */
+		double sphereFactor = 2.0 * ONE_THIRD * thetaLength;
+		double volMax = sphereFactor * ExtraMath.cube(rMax);
+		double volMin = sphereFactor * ExtraMath.cube(rMin);
+		/*
+		 * The tricky bit if for non-standard values of phi:
+		 */
+		Dimension phi = this.getDimension(PHI);
+		double phiMin = phi.getExtreme(0);
+		
+		if ( phiMin <= 0.0 )
+		{
+			volMax -= volConeCap(rMax, thetaLength, phiMin);
+			volMin -= volConeCap(rMin, thetaLength, phiMin);
+		}
+		else
+		{
+			volMax = volConeCap(rMax, thetaLength, phiMin);
+			volMin = volConeCap(rMin, thetaLength, phiMin);
+		}
+		double phiMax = phi.getExtreme(1);
+		if ( phiMax >= 0.0 )
+		{
+			volMax -= volConeCap(rMax, thetaLength, phiMax);
+			volMin -= volConeCap(rMin, thetaLength, phiMax);
+		}
+		else
+		{
+			volMax = volConeCap(rMax, thetaLength, phiMax) - volMax;
+			volMin = volConeCap(rMin, thetaLength, phiMax) - volMin;
+		}
+		return volMax - volMin;
 	}
 	
 	@Override
-	public double[] getGlobalLocation(double[] local)
+	public double getTotalRealVolume()
 	{
-		return Vector.unspherify(local);
+		/*
+		 * Volume of a complete sphere: (4/3) pi * r^3
+		 * (2/3) * theta gives the angle (pi in complete cylinder).
+		 * Need to subtract the inner cylinder from the outer one, hence
+		 * rFactor = rMax^3 - rMin^3
+		 */
+		Dimension r = this.getDimension(R);
+		double rMin = r.getRealExtreme(0);
+		double rMax = r.getRealExtreme(1);
+		double thetaLength = this.getDimension(THETA).getRealLength();
+		/*
+		 * 
+		 */
+		double sphereFactor = 2.0 * ONE_THIRD * thetaLength;
+		double volMax = sphereFactor * ExtraMath.cube(rMax);
+		double volMin = sphereFactor * ExtraMath.cube(rMin);
+		/*
+		 * The tricky bit if for non-standard values of phi:
+		 */
+		Dimension phi = this.getDimension(PHI);
+		double phiMin = phi.getRealExtreme(0);
+		
+		if ( phiMin <= 0.0 )
+		{
+			volMax -= volConeCap(rMax, thetaLength, phiMin);
+			volMin -= volConeCap(rMin, thetaLength, phiMin);
+		}
+		else
+		{
+			volMax = volConeCap(rMax, thetaLength, phiMin);
+			volMin = volConeCap(rMin, thetaLength, phiMin);
+		}
+		double phiMax = phi.getRealExtreme(1);
+		if ( phiMax >= 0.0 )
+		{
+			volMax -= volConeCap(rMax, thetaLength, phiMax);
+			volMin -= volConeCap(rMin, thetaLength, phiMax);
+		}
+		else
+		{
+			volMax = volConeCap(rMax, thetaLength, phiMax) - volMax;
+			volMin = volConeCap(rMin, thetaLength, phiMax) - volMin;
+		}
+		return volMax - volMin;
 	}
 	
-	/*************************************************************************
+	public void setTotalVolume( double volume)
+	{
+		Log.out(Tier.CRITICAL, "Cannot adjust Spherical shape volume" );
+	}
+	
+	private static final double volConeCap(double r, double theta, double phi)
+	{
+		/* No point doing the calculation if we know it will be zero. */
+		if ( r == 0.0 )
+			return 0.0;
+		/* If this is a hemisphere, the result is easy to calculate. */
+		if ( phi == 0.0 )
+			return theta * ONE_THIRD * ExtraMath.cube(r);
+		/*
+		 * h is the distance from the center of the sphere, along the axis, to
+		 * where the cone and cap meet.
+		 * 
+		 * The volume of a cone is (pi/3) * r^2 * h
+		 * http://mathworld.wolfram.com/Cone.html
+		 * 
+		 * The volume of a spherical cap is pi * h^2 * ( r - h/3)
+		 * http://mathworld.wolfram.com/SphericalCap.html
+		 */
+		double sinPhi = Math.sin(phi);
+		double h = r * ( 1.0 - sinPhi );
+		double cone = ExtraMath.sq(r) * h * ONE_THIRD;
+		double cap = ExtraMath.sq(h) * (r - (ONE_THIRD * h) );
+		/* If theta is 2 pi (i.e. a full circle), then theta/2 will be pi */
+		return 0.5 * theta * ( cap + cone );
+	}
+	
+	@Override
+	public void getLocalPositionTo(double[] destination, double[] location)
+	{
+		Vector.spherifyTo(destination, location);
+	}
+	
+	@Override
+	public void getGlobalLocationTo(double[] destination, double[] local)
+	{
+		Vector.unspherifyTo(destination, local);
+	}
+	
+	/* ***********************************************************************
 	 * DIMENSIONS
-	 ************************************************************************/
+	 * **********************************************************************/
 	
 	@Override
-	public void setDimensionResolution(DimName dName, ResCalc resC)
+	public void setDimensionResolution(DimName dName, ResolutionCalculator resC)
 	{
 		int index = this.getDimensionIndex(dName);
-		ResCalc radiusC = this._resCalc[0][0][0];
+		ResolutionCalculator radiusC = this._resCalc[0][0][0];
 		int nShell;
-		ResCalc focalResCalc;
+		ResolutionCalculator focalResCalc;
 		/*
 		 * How we initialise this resolution calculator depends on the
 		 * dimension it is used for.
@@ -121,17 +268,22 @@ public abstract class SphericalShape extends PolarShape
 		}
 		case PHI:
 		{
-			if ( radiusC == null )
+			/* If R only stores a single voxel, it is most 
+			 * probably not set already -> check again later */
+			if ( radiusC.getNVoxel() == 1 )
 			{
 				this._rcStorage.put(dName, resC);
 				return;
 			}
 			nShell = radiusC.getNVoxel();
-			this._resCalc[1][0] = new ResCalc[nShell];
+			int rMin = (int)this.getDimension(R).getExtreme(0);
+			this._resCalc[1][0] = new ResolutionCalculator[nShell];
 			for ( int i = 0; i < nShell; i++ )
 			{
-				focalResCalc = (ResCalc) resC.copy();
-				focalResCalc.setResolution(scaleResolutionForShell(i, resC.getResolution(0)));
+				focalResCalc = (ResolutionCalculator) resC.copy();
+				double res = ShapeHelper.scaleResolutionForShell(
+						rMin+i, resC.getResolution());
+				focalResCalc.setResolution(res);
 				this._resCalc[1][0][i] = focalResCalc;
 			}
 			/* Check if theta is waiting for phi before returning. */
@@ -140,8 +292,10 @@ public abstract class SphericalShape extends PolarShape
 		}
 		case THETA:
 		{
-			ResCalc[] phiC = this._resCalc[1][0];
-			if ( radiusC == null || phiC == null )
+			ResolutionCalculator[] phiC = this._resCalc[1][0];
+			/* If R or PHI only store a single voxel, they are most 
+			 * probably not set already -> check again later */
+			if ( radiusC.getNVoxel() == 1 || phiC[phiC.length - 1].getNVoxel() == 1 )
 			{
 				this._rcStorage.put(dName, resC);
 				return;
@@ -151,22 +305,30 @@ public abstract class SphericalShape extends PolarShape
 			 * resolution calculators.
 			 */
 			nShell = radiusC.getNVoxel();
-			this._resCalc[2] = new ResCalc[nShell][];
+			
+			/* NOTE For varying resolution this has to be adjusted */
+			int rMin = (int) (this.getDimension(R).getExtreme(0) 
+					/ radiusC.getResolution());
+			this._resCalc[2] = new ResolutionCalculator[nShell][];
 			/* Iterate over the shells. */
 			int nRing;
 			for ( int shell = 0; shell < nShell; shell++ )
 			{
 				/* Prepare the array of ResCalcs for this shell. */
 				nRing = phiC[shell].getNVoxel();
-				this._resCalc[2][shell] = new ResCalc[nRing];
+				/* NOTE For varying resolution this has to be adjusted */
+				int phiMin = (int)(this.getDimension(PHI).getExtreme(0) 
+						/ phiC[shell].getResolution());
+				this._resCalc[2][shell] = new ResolutionCalculator[nRing];
 				/* Iterate over the rings in this shell. */
 				for ( int ring = 0; ring < nRing; ring++ )
 				{
-					focalResCalc = (ResCalc) resC.copy();
-					/* For varying resolution this will not work anymore */
-					focalResCalc.setResolution(scaleResolutionForRing(shell,
-							ring, phiC[shell].getResolution(0),
-							resC.getResolution(0)));
+					focalResCalc = (ResolutionCalculator) resC.copy();
+					/* NOTE For varying resolution this will not work anymore */
+					double res = ShapeHelper.scaleResolutionForRing(rMin+shell,
+							phiMin+ring, phiC[shell].getResolution(),
+							resC.getResolution());
+					focalResCalc.setResolution(res);
 					this._resCalc[2][shell][ring] = focalResCalc;
 				}
 			}
@@ -179,7 +341,7 @@ public abstract class SphericalShape extends PolarShape
 	}
 	
 	@Override
-	protected ResCalc getResolutionCalculator(int[] coord, int axis)
+	public ResolutionCalculator getResolutionCalculator(int[] coord, int axis)
 	{
 		switch ( axis )
 		{
@@ -194,13 +356,13 @@ public abstract class SphericalShape extends PolarShape
 		}
 	}
 	
-	/*************************************************************************
+	/* ***********************************************************************
 	 * LOCATIONS
-	 ************************************************************************/
+	 * **********************************************************************/
 	
-	/*************************************************************************
+	/* ***********************************************************************
 	 * SURFACES
-	 ************************************************************************/
+	 * **********************************************************************/
 	
 	public void setSurfaces()
 	{
@@ -213,253 +375,306 @@ public abstract class SphericalShape extends PolarShape
 		if ( radius > 0.0 )
 		{
 			outbound = new Ball( new Point(centre) , radius);
-			outbound.bounding = false;
-			this._surfaces.put(outbound, dim.getBoundary(0));
+			outbound.init(_defaultCollision);
+			dim.setSurface(outbound, 0);
 		}
 		/* Outer radius always exists. */
 		radius = dim.getExtreme(1);
 		outbound = new Ball( new Point(centre) , radius);
+		outbound.init(_defaultCollision);
 		outbound.bounding = true;
-		this._surfaces.put(outbound, dim.getBoundary(1));
+		//this._surfaces.put(outbound, dim.getBoundary(1));
+		dim.setSurface(outbound, 1);
 	}
 	
-	/*************************************************************************
+	/* ***********************************************************************
 	 * BOUNDARIES
-	 ************************************************************************/
-	
-	/*************************************************************************
-	 * VOXELS
-	 ************************************************************************/
+	 * **********************************************************************/
 	
 	@Override
-	public double getVoxelVolume(int[] coord)
+	public double getBoundarySurfaceArea(DimName dimN, int extreme)
 	{
-		// mathematica: Integrate[r^2 sin p,{p,p1,p1+dp},{t,t1,t1+dt},{r,r1,r1+dr}] 
-		double[] loc1 = getVoxelOrigin(coord);
-		double[] loc2 = getVoxelUpperCorner(coord);
-		double[] dloc = new double[3];
-		Vector.minusTo(dloc, loc2, loc1);
-		/* theta */
-		double out = dloc[0] * dloc[2];
-		/* r */
-		out *= 3 * ExtraMath.sq(loc1[0]) + 3 * loc1[0] * dloc[0] 
-														+ ExtraMath.sq(dloc[0]);
-		/* phi */
-		out *= Math.sin(dloc[1] / 2) * Math.sin(loc1[1] + dloc[1] / 2);
-		return out * 2 / 3;
-	}
-	
-	/*************************************************************************
-	 * SUBVOXEL POINTS
-	 ************************************************************************/
-	
-	/*************************************************************************
-	 * COORDINATE ITERATOR
-	 ************************************************************************/
-	
-	/*************************************************************************
-	 * NEIGHBOR ITERATOR
-	 ************************************************************************/
-	
-	@Override
-	protected void resetNbhIter()
-	{
-		/* See if we can use the inside r-shell. */
-		if ( this.setNbhFirstInNewShell( this._currentCoord[0] - 1 ) 
-			&& this.setNbhFirstInNewRing( this._currentNeighbor[1] ) ) ;
-		/* 
-		 * See if we can take one of the phi-minus-neighbors of the current 
-		 * r-shell. 
-		 */
-		else if ( this.setNbhFirstInNewShell( this._currentCoord[0]) 
-					&& this.setNbhFirstInNewRing( this._currentCoord[1] - 1) ) ;
-		/* 
-		 * See if we can take one of the theta-neighbors in the current r-shell.
-		 */
-		else if ( this.moveNbhToMinus(THETA) || this.nbhJumpOverCurrent(THETA) ) ;
-		/* See if we can take one of the phi-plus-neighbors. */
-		else if ( this.setNbhFirstInNewRing( this._currentCoord[1] + 1) ) ;
-		
-		/* See if we can use the outside r-shell. */
-		else if ( this.setNbhFirstInNewShell( this._currentCoord[0] + 1 ) 
-					&& this.setNbhFirstInNewRing( this._currentNeighbor[1] ) ) ;
-		/* There are no valid neighbors. */
-		else
-			this._whereIsNbh = UNDEFINED;
-		if ( this.isNbhIteratorValid() )
+		switch( dimN )
 		{
-			transformNbhCyclic();
-			return;
+		case R:
+		{
+			/* 
+			 * Area is a cross-over between an spherical segment and a
+			 * spherical lune. See
+			 * http://mathworld.wolfram.com/SphericalSegment.html
+			 * equation (15) and 
+			 * http://mathworld.wolfram.com/SphericalWedge.html
+			 * equation (2) for inspiration.
+			 */
+			/* In a full sphere: thetaLength = 2 * pi */
+			double rExt = this.getDimension(R).getExtreme(extreme);
+			double thetaLength = this.getDimension(THETA).getLength();
+			Dimension phi = this.getDimension(PHI);
+			double phiMin = phi.getExtreme(0);
+			double phiMax = phi.getExtreme(1);
+			/* In a full sphere: h = 2 * rExt */
+			double h = rExt * ( Math.sin(phiMax) - Math.sin(phiMin) );
+			/* In a full sphere: area = 2 * pi * rExt * 2 * rExt */
+			double area = thetaLength * rExt * h;
+			return area;
 		}
-	}
-	
-	@Override
-	public int[] nbhIteratorNext()
-	{
-		this.untransformNbhCyclic();
-		/*
-		 * In the spherical shape, we start the TODO
-		 */
-		if ( this._currentNeighbor[0] == this._currentCoord[0] - 1 )
+		case THETA:
+		{
+			/* 
+			 * For theta boundaries, it makes no difference which extreme.
+			 * The area is essentially half that of a circle with circular
+			 * segments above phiMax and below phiMin removed (if appropriate).
+			 * See http://mathworld.wolfram.com/CircularSegment.html for
+			 * inspiration.
+			 */
+			// TODO this section could do with some streamlining!
+			Dimension r = this.getDimension(R);
+			double rMin = r.getExtreme(0);
+			double rMax = r.getExtreme(1);
+			Dimension phi = this.getDimension(PHI);
+			double phiMin = phi.getExtreme(0);
+			double phiMax = phi.getExtreme(1);
+			double maxSegment, minSegment;
+			/* */
+			double areaMax = ExtraMath.areaOfACircle(rMax);
+			maxSegment = ExtraMath.areaOfACircleSegment(rMax, phiMax);
+			minSegment = ExtraMath.areaOfACircleSegment(rMax, phiMin);
+			if ( phiMax > 0.0 )
+				areaMax -= maxSegment;
+			else
+				areaMax = maxSegment;
+			if ( phiMin < 0.0 )
+				areaMax -= minSegment;
+			else
+				areaMax = minSegment - maxSegment;
+			/* */
+			double areaMin = ExtraMath.areaOfACircle(rMin);
+			minSegment = ExtraMath.areaOfACircleSegment(rMin, phiMax);
+			minSegment = ExtraMath.areaOfACircleSegment(rMin, phiMin);
+			if ( phiMax > 0.0 )
+				areaMin -= maxSegment;
+			else
+				areaMin = maxSegment;
+			if ( phiMin < 0.0 )
+				areaMin -= minSegment;
+			else
+				areaMin = minSegment - maxSegment;
+			return areaMax - areaMin;
+		}
+		case PHI:
 		{
 			/*
-			 * We're in the r-shell just inside that of the current coordinate.
+			 * This is the area of a cone
+			 * 
 			 */
-			int curR = this._currentCoord[0];
-			/* Try increasing theta by one voxel. */
-			if ( ! this.increaseNbhByOnePolar(THETA) )
-			{
-				/* Try moving out to the next ring. This must exist! */
-				if ( ! this.increaseNbhByOnePolar(PHI) ||
-										! this.setNbhFirstInNewRing(
-												this._currentNeighbor[1]) )
-				{
-					/* 
-					 * The current coordinate must be the only voxel in that 
-					 * ring. If that fails, try the phi-minus ring.
-					 */
-					if ( ! this.setNbhFirstInNewShell(curR) || 
-									! this.setNbhFirstInNewRing(
-											this._currentNeighbor[1] ) )
-					{
-						/*
-						 * If this fails, the phi-ring must be invalid, so try
-						 * to move to the theta-minus neighbor in the current
-						 * phi-ring.
-						 * If this fails call this method again.
-						 */
-						if ( ! this.moveNbhToMinus(THETA) )
-							return this.nbhIteratorNext();
-					}
-				}
-			}
+			double phiExt =  this.getDimension(PHI).getExtreme(extreme);
+			Dimension r = this.getDimension(R);
+			double rMin = r.getExtreme(0);
+			double rMax = r.getExtreme(1);
+			double thetaLength = this.getDimension(THETA).getLength();
+			double thetaScalar = thetaLength / (2.0 * Math.PI);
+			
+			double maxCone = ExtraMath.lateralAreaOfACone(rMax, phiExt);
+			double minCone = ExtraMath.lateralAreaOfACone(rMin, phiExt);
+			double area = thetaScalar * (maxCone - minCone);
+			return area;
 		}
-		else if ( this._currentNeighbor[0] == this._currentCoord[0] )
+		default:
 		{
-			/* 
-			 * We're in the same r-shell as the current coordinate.
-			 */
-			if ( this._currentNeighbor[1] == this._currentCoord[1] - 1 )
-			{
-				/*
-				 * We're in the phi-ring just inside that of the 
-				 * current coordinate.
-				 * Try increasing theta by one voxel. If this fails, move out
-				 * to the next ring. If this fails, call this method again.
-				 */
-				if ( ! this.increaseNbhByOnePolar(THETA) )
-					if ( ! this.moveNbhToMinus(THETA) )
-						return this.nbhIteratorNext();
-			}
-			else if ( this._currentNeighbor[1] == this._currentCoord[1] )
-			{
-				/*
-				 * We're in the same phi-ring as the current coordinate.
-				 * Try to jump to the theta-plus side of the current
-				 * coordinate. If you can't, try switching to the phi-plus
-				 * ring.
-				 */
-				if ( ! this.nbhJumpOverCurrent(THETA) )
-					if ( ! this.setNbhFirstInNewRing(this._currentCoord[1]+1) )
-						return this.nbhIteratorNext();
-			}
-			else 
-			{
-				/* 
-				 * We're in the phi-ring just above that of the current
-				 * coordinate. 
-				 */
-				int rPlus = this._currentCoord[0] + 1;
-				int nbhPhi = this._currentCoord[1] + 1;
-				/* Try increasing theta by one voxel. */
-				if ( ! this.increaseNbhByOnePolar(THETA) )
-				{
-					/* Move out to the next shell or the next rings. */
-					if (! this.setNbhFirstInNewShell(rPlus) ||
-									! this.setNbhFirstInNewRing(nbhPhi) )
-					{
-						if ( ! this.increaseNbhByOnePolar(PHI) ||
-								! this.setNbhFirstInNewRing(
-										this._currentNeighbor[1]) )
-						{
-							if (!this.increaseNbhByOnePolar(PHI) ||
-									! this.setNbhFirstInNewRing(
-											this._currentNeighbor[1]) )
-							{
-								this._whereIsNbh = UNDEFINED;
-							}
-						}
-					}
-				}
-			}
+			// TODO safety
+			return Double.NaN;
 		}
-		else 
-		{
-			/* 
-			 * We're in the r-shell just outside that of the current coordinate.
-			 * If we can't increase phi and theta any more, then we've finished.
-			 */
-			if ( ! this.increaseNbhByOnePolar(THETA) )
-				if ( ! this.increaseNbhByOnePolar(PHI) ||
-						! this.setNbhFirstInNewRing(this._currentNeighbor[1]) )
-				{
-					this._whereIsNbh = UNDEFINED;
-				}
 		}
-		this.transformNbhCyclic();
-		return this._currentNeighbor;
 	}
 	
-	/**
-	 * TODO
-	 * 
-	 * @param shellIndex
-	 * @return
-	 */
-	protected boolean setNbhFirstInNewRing(int ringIndex)
+	@Override
+	public double getRealSurfaceArea(DimName dimN, int extreme)
 	{
-		Log.out(NHB_ITER_LEVEL, "  trying to set neighbor in new ring "+
-				ringIndex);
-		this._currentNeighbor[1] = ringIndex;
-		/*
-		 * We must be on a ring inside the array: not even a defined boundary
-		 * will do here.
-		 */
-		if ( this.whereIsNhb(R) != INSIDE )
-			return false;
-		/*
-		 * First check that the new ring is inside the grid. If we're on a
-		 * defined boundary, the theta coordinate is irrelevant.
-		 */
-		if ( (this._whereIsNbh = this.whereIsNhb(PHI)) != INSIDE ){
-			this._nbhDimName = PHI;
-			if (this.whereIsNhb(PHI) != UNDEFINED)
-				return true;
-			else return false;
+		switch( dimN )
+		{
+		case R:
+		{
+			/* 
+			 * Area is a cross-over between an spherical segment and a
+			 * spherical lune. See
+			 * http://mathworld.wolfram.com/SphericalSegment.html
+			 * equation (15) and 
+			 * http://mathworld.wolfram.com/SphericalWedge.html
+			 * equation (2) for inspiration.
+			 */
+			/* In a full sphere: thetaLength = 2 * pi */
+			double rExt = this.getDimension(R).getRealExtreme(extreme);
+			double thetaLength = this.getDimension(THETA).getRealLength();
+			Dimension phi = this.getDimension(PHI);
+			double phiMin = phi.getRealExtreme(0);
+			double phiMax = phi.getRealExtreme(1);
+			/* In a full sphere: h = 2 * rExt */
+			double h = rExt * ( Math.sin(phiMax) - Math.sin(phiMin) );
+			/* In a full sphere: area = 2 * pi * rExt * 2 * rExt */
+			double area = thetaLength * rExt * h;
+			return area;
 		}
+		case THETA:
+		{
+			/* 
+			 * For theta boundaries, it makes no difference which extreme.
+			 * The area is essentially half that of a circle with circular
+			 * segments above phiMax and below phiMin removed (if appropriate).
+			 * See http://mathworld.wolfram.com/CircularSegment.html for
+			 * inspiration.
+			 */
+			// TODO this section could do with some streamlining!
+			Dimension r = this.getDimension(R);
+			double rMin = r.getRealExtreme(0);
+			double rMax = r.getRealExtreme(1);
+			Dimension phi = this.getDimension(PHI);
+			double phiMin = phi.getRealExtreme(0);
+			double phiMax = phi.getRealExtreme(1);
+			double maxSegment, minSegment;
+			/* */
+			double areaMax = ExtraMath.areaOfACircle(rMax);
+			maxSegment = ExtraMath.areaOfACircleSegment(rMax, phiMax);
+			minSegment = ExtraMath.areaOfACircleSegment(rMax, phiMin);
+			if ( phiMax > 0.0 )
+				areaMax -= maxSegment;
+			else
+				areaMax = maxSegment;
+			if ( phiMin < 0.0 )
+				areaMax -= minSegment;
+			else
+				areaMax = minSegment - maxSegment;
+			/* */
+			double areaMin = ExtraMath.areaOfACircle(rMin);
+			minSegment = ExtraMath.areaOfACircleSegment(rMin, phiMax);
+			minSegment = ExtraMath.areaOfACircleSegment(rMin, phiMin);
+			if ( phiMax > 0.0 )
+				areaMin -= maxSegment;
+			else
+				areaMin = maxSegment;
+			if ( phiMin < 0.0 )
+				areaMin -= minSegment;
+			else
+				areaMin = minSegment - maxSegment;
+			return areaMax - areaMin;
+		}
+		case PHI:
+		{
+			/*
+			 * This is the area of a cone
+			 * 
+			 */
+			double phiExt =  this.getDimension(PHI).getRealExtreme(extreme);
+			Dimension r = this.getDimension(R);
+			double rMin = r.getRealExtreme(0);
+			double rMax = r.getRealExtreme(1);
+			double thetaLength = this.getDimension(THETA).getRealLength();
+			double thetaScalar = thetaLength / (2.0 * Math.PI);
+			
+			double maxCone = ExtraMath.lateralAreaOfACone(rMax, phiExt);
+			double minCone = ExtraMath.lateralAreaOfACone(rMin, phiExt);
+			double area = thetaScalar * (maxCone - minCone);
+			return area;
+		}
+		default:
+		{
+			// TODO safety
+			return Double.NaN;
+		}
+		}
+	}
+	
+	/* ***********************************************************************
+	 * VOXELS
+	 * **********************************************************************/
+	
+	@Override
+	public int getTotalNumberOfVoxels()
+	{
+		int n = 1;
+		int dimTheta = this.getDimensionIndex(THETA);
+		int dimPhi = this.getDimensionIndex(PHI);
+		int nR = this._resCalc[this.getDimensionIndex(R)][0][0].getNVoxel();
+		for ( int i = 0; i < nR; i++ )
+		{
+			int nPhi = this._resCalc[dimPhi][i][0].getNVoxel();
+			for ( int j = 0; j < nPhi; j++ )
+				n += this._resCalc[dimTheta][i][j].getNVoxel();
+		}
+		return n;
+	}
+	
+	@Override
+	public double getVoxelVolume(double[] origin, double[] upper)
+	{
+		/* R */
+		double vol = ExtraMath.cube(origin[0]) - ExtraMath.cube(upper[0]);	
+		/* PHI */
+		vol *= Math.cos(origin[1]) - Math.cos(upper[1]);
+		/* THETA */
+		vol *= origin[2] - upper[2];
+		return vol / 3.0;
+	}
+	
+	@Override
+	public double nhbCurrSharedArea()
+	{
+		DimName nhbDimName = this._it.currentNhbDimName();
+		/* moving towards positive in the current dim? */
+		boolean isNhbAhead = this._it.isCurrentNhbAhead();
 
-		ResCalc rC = this.getResolutionCalculator(this._currentCoord, 2);
-		/*
-		 * We're on an intermediate ring, so find the voxel which has the
-		 * current coordinate's minimum theta angle inside it.
+		/* Integration minima and maxima, these are the lower and upper 
+		 * locations of the intersections between the current voxel and the 
+		 * neighbor voxel for each dimension. */
+		double r1 = this._it.getIntegrationMin(0),
+				r2 = this._it.getIntegrationMax(0),
+				phi1 = this._it.getIntegrationMin(1),
+				phi2 = this._it.getIntegrationMax(1),
+				theta1 = this._it.getIntegrationMin(2),
+				theta2 = this._it.getIntegrationMax(2);
+		/* 
+		 * Compute the area element, depending along which dimension we are 
+		 * currently moving. This is 
+		 * Integrate[r^2 sin p,{phi,phi1,phi2},{theta,theta1,theta2},{r,r1,r2}] 
+		 * with integration length zero for the current dimension.
 		 */
-		double theta = rC.getCumulativeResolution(this._currentCoord[2] - 1);
-		
-		rC = this.getResolutionCalculator(this._currentNeighbor, 2);
-		
-		int new_index = rC.getVoxelIndex(theta);
-		if (new_index == this._currentCoord[2])
-			return false;
-		
-		this._currentNeighbor[2] = new_index;
-		
-		this._nbhDimName = this._currentCoord[1] == this._currentNeighbor[1] ?
-					THETA : PHI;
-		
-		int dimIdx = getDimensionIndex(this._nbhDimName);
-		this._nbhDirection = 
-				this._currentCoord[dimIdx]
-						< this._currentNeighbor[dimIdx] ? 1 : 0;
-		return true;
+		double area = 1.0;
+		switch (nhbDimName)
+		{
+		case R: /* phi-theta plane */
+			area *= ExtraMath.sq(isNhbAhead ? r1 : r2);
+			area *= theta2 - theta1;
+			area *= Math.cos(phi1) - Math.cos(phi2);
+			break;
+		case PHI: /* r-theta plane */
+			area *= Math.sin(isNhbAhead ? phi1 : phi2);
+			area *= ExtraMath.cube(r1) - ExtraMath.cube(r2);
+			area *= theta1 - theta2;
+			area /= 3;
+			break;
+		case THETA: /* phi-r plane */
+			area *= ExtraMath.cube(r2) - ExtraMath.cube(r1);
+			area *= Math.cos(phi1) - Math.cos(phi2);
+			area /= 3;
+			break;
+		default: throw new IllegalArgumentException("unknown dimension " 
+											+ nhbDimName + " for sphere");
+		}
+		return area;
+	}
+	
+	/* ***********************************************************************
+	 * MULTIGRID CONSTRUCTION
+	 * **********************************************************************/
+	
+	@Override
+	public boolean canGenerateCoarserMultigridLayer()
+	{
+		return false;
+	}
+	
+	@Override
+	public Shape generateCoarserMultigridLayer()
+	{
+		return null;
 	}
 }

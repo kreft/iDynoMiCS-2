@@ -3,24 +3,33 @@
  */
 package solver;
 
+import static grid.ArrayType.CHANGERATE;
+import static grid.ArrayType.CONCN;
+import static grid.ArrayType.DIFFUSIVITY;
+import static grid.ArrayType.PRODUCTIONRATE;
+
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.Map;
 
-import dataIO.Log;
-import dataIO.Log.Tier;
-
-import static dataIO.Log.Tier.*;
 import grid.SpatialGrid;
-import shape.Shape;
-
-import static grid.SpatialGrid.ArrayType.*;
 
 /**
  * \brief TODO
  * 
- * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ * FIXME: please include a small description, what kind of pde solver is used
+ * here? Is it a known and documented algorithm?
+ * 
+ * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
 public class PDEexplicit extends PDEsolver
 {
+	/**
+	 * 
+	 */
+	protected Map<String,Double> _wellMixedChanges = 
+			new HashMap<String,Double>();
+	
 	/**
 	 * \brief TODO
 	 * 
@@ -30,36 +39,36 @@ public class PDEexplicit extends PDEsolver
 		
 	}
 	
-	/**
+	/*
 	 * <p>Requires the arrays "diffusivity" and "concentration" to
 	 * be pre-filled in each SpatialGrid.</p>
 	 * 
-	 * <p><b>[Rob 13Aug2015]</b> Time step is at most 10% of dx<sup>2</sup>/D,
-	 * as this works well in tests.</p>
-	 * 
+	 * Maximal time step is the inverse of the maximal diffusivity times the
+	 * maximal flux potential times the number of dimensions.
 	 * 
 	 * TODO Rob[23Feb2016]: Jan has suggested that we check for variables
 	 * converging and then focus on the variables that are still changing.
 	 */
 	@Override
-	public void solve(HashMap<String, SpatialGrid> variables, double tFinal)
+	public void solve(Collection<SpatialGrid> variables,
+			SpatialGrid commonGrid, double tFinal)
 	{
-		Tier level = BULK;
 		/*
 		 * Find the largest time step that suits all variables.
 		 */
 		double dt = tFinal;
-		Log.out(level, "PDEexplicit starting with ministep size "+dt);
-		SpatialGrid var;
+
 		int nIter = 1;
-		for ( String varName : this._variableNames )
+		for ( SpatialGrid var : variables )
 		{
-			var = variables.get(varName);
-			dt = Math.min(dt, 0.1 * var.getShape().getMaxFluxPotential()  /
-					 var.getMin(DIFFUSIVITY));
-			Log.out(level, "PDEexplicit: variable \""+varName+
-					"\" has min flux "+var.getShape().getMaxFluxPotential() +
-					" and diffusivity "+var.getMin(DIFFUSIVITY));
+			double inverseMaxT = var.getMax(DIFFUSIVITY);
+			inverseMaxT *= var.getShape().getMaxFluxPotential();
+			inverseMaxT *= var.getShape().getNumberOfDimensions() * 2.0;
+			// FIXME testing why solute concentrations explode sometimes
+			// FIXME decreasing time step  a bit further seems to fix exploding solute concentrations
+			/* divide by 3 since all simulations are pseudo 3D */
+			dt =  Math.min(dt, 1.0 / inverseMaxT);
+
 		}
 		/* If the mini-timestep is less than tFinal, split it up evenly. */
 		if ( dt < tFinal )
@@ -67,78 +76,76 @@ public class PDEexplicit extends PDEsolver
 			nIter = (int) Math.ceil(tFinal/dt);
 			dt = tFinal/nIter;
 		}
-		Log.out(level, "PDEexplicit using ministep size "+dt);
 		/*
 		 * Iterate over all mini-timesteps.
 		 */
 		for ( int iter = 0; iter < nIter; iter++ )
 		{
-			Log.out(level, "Ministep "+iter+": "+(iter+1)*dt);
+			/* Update reaction rates, etc. */
 			this._updater.prestep(variables, dt);
-			for ( String varName : this._variableNames )
+			for ( SpatialGrid var : variables )
 			{
-				Log.out(level, " Variable: "+varName);
-				var = variables.get(varName);
-				var.newArray(LOPERATOR);
-				this.addFluxes(varName, var);
-				Log.out(level, "  Total value of fluxes: "+
-						var.getTotal(LOPERATOR));
-				Log.out(level, "  Total value of production rate array: "+
-						var.getTotal(PRODUCTIONRATE));
-				var.addArrayToArray(LOPERATOR, PRODUCTIONRATE);
-				var.timesAll(LOPERATOR, dt);
-				var.addArrayToArray(CONCN, LOPERATOR);
+				var.newArray(CHANGERATE);
+				this.applyDiffusion(var, commonGrid);
+				var.addArrayToArray(CHANGERATE, PRODUCTIONRATE);
+				var.timesAll(CHANGERATE, dt);
+				var.addArrayToArray(CONCN, CHANGERATE);
 				if ( ! this._allowNegatives )
 					var.makeNonnegative(CONCN);
 			}
+		}
+		/*
+		 * Now scale the well-mixed flow rates and apply them to the grid.
+		 * Here, we can simply divide by the number of iterations, since they
+		 * were all of equal time length.
+		 */
+		double totalFlow, scaledFlow;
+		for ( SpatialGrid var : variables )
+		{
+			totalFlow = this.getWellMixedFlow(var.getName());
+			scaledFlow = totalFlow / nIter;
+			var.increaseWellMixedMassFlow(scaledFlow);
+			this.resetWellMixedFlow(var.getName());
 		}
 	}
 	
-	public void solve(Shape aShape, HashMap<String, 
-										SpatialGrid> variables, double tFinal)
+	/* ***********************************************************************
+	 * WELL-MIXED CHANGES
+	 * **********************************************************************/
+	
+	@Override
+	protected double getWellMixedFlow(String name)
 	{
-		/*
-		 * Find the largest time step that suits all variables.
-		 */
-		double dt = tFinal;
-		Log.out(DEBUG, "PDEexplicit starting with ministep size "+dt);
-		SpatialGrid var;
-		int nIter = 1;
+		if ( this._wellMixedChanges.containsKey(name) )
+			return this._wellMixedChanges.get(name);
+		return 0.0;
+	}
+	
+	@Override
+	protected void increaseWellMixedFlow(String name, double flow)
+	{
+		this._wellMixedChanges.put(name, flow + this.getWellMixedFlow(name));
+	}
+	
+	/**
+	 * \brief Reset the well-mixed flow tally for the given variable.
+	 * 
+	 * @param name Variable name.
+	 */
+	protected void resetWellMixedFlow(String name)
+	{
+		this._wellMixedChanges.put(name, 0.0);
+	}
+
+	@Override
+	public void setAbsoluteTolerance(double tol) {
+		// TODO Auto-generated method stub
 		
-		double minDiffusivity = Double.MAX_VALUE;
-		for ( String varName : this._variableNames )
-		{
-			var = variables.get(varName);
-			minDiffusivity = Math.min(minDiffusivity, var.getMin(DIFFUSIVITY));
-			Log.out(DEBUG, "PDEexplicit: variable \""+varName+
-							"\" has min diffusivity "+var.getMin(DIFFUSIVITY));
-		}
-		dt = 0.1 * aShape.getMaxFluxPotential() / minDiffusivity;
-		/* If the mini-timestep is less than tFinal, split it up evenly. */
-		if ( dt < tFinal )
-		{
-			nIter = (int) Math.ceil(tFinal/dt);
-			dt = tFinal/nIter;
-		}
-		Log.out(DEBUG, "PDEexplicit using ministep size "+dt);
-		/*
-		 * Iterate over all mini-timesteps.
-		 */
-		for ( int iter = 0; iter < nIter; iter++ )
-		{
-			Log.out(BULK, "Ministep "+iter+": "+(iter+1)*dt);
-			this._updater.prestep(variables, dt);
-			for ( String varName : this._variableNames )
-			{
-				var = variables.get(varName);
-				var.newArray(LOPERATOR);
-				addFluxes(varName, var);
-				var.addArrayToArray(LOPERATOR, PRODUCTIONRATE);
-				var.timesAll(LOPERATOR, dt);
-				var.addArrayToArray(CONCN, LOPERATOR);
-				if ( ! this._allowNegatives )
-					var.makeNonnegative(CONCN);
-			}
-		}
+	}
+
+	@Override
+	public void setRelativeTolerance(double tol) {
+		// TODO Auto-generated method stub
+		
 	}
 }

@@ -1,8 +1,16 @@
 package surface;
 
+import org.w3c.dom.Element;
+
 import dataIO.ObjectFactory;
 import generalInterfaces.Copyable;
 import generalInterfaces.HasBoundingBox;
+import referenceLibrary.XmlRef;
+import settable.Attribute;
+import settable.Module;
+import shape.Shape;
+import utility.Helper;
+import utility.StandardizedImportMethods;
 
 /**
  * \brief TODO
@@ -19,6 +27,8 @@ public class Ball extends Surface implements HasBoundingBox, Copyable
 	 * Radius of this sphere.
 	 */
 	public double _radius;
+	
+	private BoundingBox boundingBox = new BoundingBox();
 
 	/*************************************************************************
 	 * CONSTRUCTORS
@@ -62,6 +72,16 @@ public class Ball extends Surface implements HasBoundingBox, Copyable
 	{
 		this(center, 0.0);
 	}
+	
+	public Ball(Element xmlElem)
+	{
+		if( !Helper.isNullOrEmpty( xmlElem ))
+		{
+			this._point = StandardizedImportMethods.
+					pointImport(xmlElem, this, 1)[0];
+			this._radius = Double.valueOf( xmlElem.getAttribute(XmlRef.radius));
+		}
+	}
 
 	@Override
 	public Object copy()
@@ -70,6 +90,8 @@ public class Ball extends Surface implements HasBoundingBox, Copyable
 		double r = (double) ObjectFactory.copy(this._radius);
 		return new Ball(p, r);
 	}
+	
+
 	
 	/*************************************************************************
 	 * SIMPLE GETTERS & SETTERS
@@ -88,27 +110,51 @@ public class Ball extends Surface implements HasBoundingBox, Copyable
 		return this._point.getPosition();
 	}
 
+	/**
+	 * 
+	 * @param position
+	 */
+	public void setCenter(double[] position)
+	{
+		this._point.setPosition(position);
+	}
+
 	public double getRadius()
 	{
 		return this._radius;
 	}
 
-	public void set(double radius, double notUsed)
+	public void setRadius(double radius)
 	{
 		this._radius = radius;
+	}
+	
+	public Module appendToModule(Module modelNode) 
+	{
+		modelNode.add(new Attribute(XmlRef.radius, 
+				String.valueOf(this._radius), null, false ));
+
+		modelNode.add(_point.getModule() );
+		return modelNode;
 	}
 
 	/*************************************************************************
 	 * BOUNDING BOX
 	 ************************************************************************/
-	
-	public BoundingBox boundingBox(double margin)
+
+	public BoundingBox boundingBox(double margin, Shape shape)
 	{
-		return new BoundingBox(this.getCenter(), this._radius, margin);
+		return boundingBox.get(this.getCenter(), this._radius, margin);
 	}
 
-	public BoundingBox boundingBox()
+	public BoundingBox boundingBox(Shape shape)
 	{
-		return new BoundingBox(this.getCenter(), this._radius);
+		return boundingBox.get(this.getCenter(), this._radius);
+	}
+
+	@Override
+	public int dimensions() 
+	{
+		return this._point.nDim();
 	}
 }

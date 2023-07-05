@@ -2,6 +2,11 @@ package surface;
 
 import java.util.HashMap;
 
+import generalInterfaces.HasBoundingBox;
+import settable.Module;
+import shape.Shape;
+import surface.collision.Collision;
+
 /**
  * \brief TODO
  * 
@@ -19,7 +24,9 @@ public abstract class Surface
 		SPHERE,
 		ROD,
 		PLANE,
-		// INFINITECYLINDER
+		VOXEL,
+		CUBOID,
+		// CYLINDER NOTE for cylindrical domains
 	}
 	
 	/**
@@ -34,10 +41,12 @@ public abstract class Surface
 	protected Collision _collisionDomain;
 
 	/**
-	 * Map of surfaces with which collisions need to be ignored.
+	 * Map of surfaces with which collisions need to be ignored. Neighboring
+	 * surfaces in the same body (like a bendable rod) would need to be ignored
+	 * since otherwise the intentionally overlapping segments would repel each
+	 * other.
 	 */
 	// TODO implement
-	// TODO Rob [17/5/2016]: Please give some explanation of the purpose.
 	public HashMap<Integer, Surface> _collisionIgnored = new HashMap<Integer, Surface>();
 
 	/**
@@ -55,14 +64,11 @@ public abstract class Surface
 	{
 		this._collisionDomain = collisionDomain;
 	}
+	
 
-	/**
-	 * 
-	 * @param a
-	 * @param b
-	 */
-	// FIXME Rob [17/5/2016]: This is a very vague method, consider replacing.
-	public abstract void set(double a, double b);
+	public abstract Module appendToModule(Module modelNode);
+	
+	public abstract int dimensions();
 
 	/**
 	 * @return the surface type
@@ -88,13 +94,29 @@ public abstract class Surface
 	}
 
 	/**
-	 * writes the resulting force from this collision to the force vector of
-	 * the mass points of thes two involved surface objects
+	 * \brief Writes the resulting force from this collision to the force vector of
+	 * the mass points of the two involved surface objects
+	 * 
+	 * <p>This method always also sets the internal variables _flip and dP of 
+	 * {@link #_collisionDomain}. It may also set s and t, depending on the
+	 * surface types.</p>
+	 * 
 	 * @param surface
 	 */
-	public void collisionWith(Surface surface)
+	public boolean collisionWith(Surface surface)
 	{
-		this._collisionDomain.distance(this, surface);
+		return this._collisionDomain.intersect(this, surface, 0.0);
 	}
 
+	/**
+	 * return a bounding box with margin if applicable for surface
+	 * @param margin
+	 * @return
+	 */
+	public BoundingBox getBox(double margin, Shape shape)
+	{
+		if (this instanceof HasBoundingBox)
+			return ((HasBoundingBox) this).boundingBox(margin, shape) ;
+		return null;
+	}
 }

@@ -3,7 +3,7 @@
  */
 package solver;
 
-import java.util.HashMap;
+import java.util.Collection;
 
 import grid.SpatialGrid;
 
@@ -25,8 +25,8 @@ public interface PDEupdater
 	 * 
 	 * @param variables Dictionary of variables, each given by its name and the
 	 * {@code SpatialGrid} that contains its values over space.
-	 * @param dt Size of the mini-timestep.
+	 * @param dt Size of the mini-timestep. Not used by steady-state solvers.
 	 */
-	default void prestep(HashMap<String, SpatialGrid> variables, double dt)
+	default void prestep(Collection<SpatialGrid> variables, double dt)
 	{ }
 }

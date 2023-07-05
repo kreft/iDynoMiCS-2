@@ -1,41 +1,45 @@
 package aspect.event;
 
-//FIXME this class is for testing purposes only!!!
-import agent.Agent;
 import aspect.AspectInterface;
 import aspect.Event;
-import aspect.AspectRef;
-import utility.Helper;
+import referenceLibrary.AspectRef;
 
 /**
- * TODO: We are going to do this different (integrate into ODE/PDE), this event
- * is simplified and not correct.
- * Simple event that increases the agents mass according to its growth rate
- * and the time step
+ * \brief Agent growth where the agent has only one kind of biomass.
+ * 
+ * <p>For more complex growth, consider using the event InternalProduction
+ * instead.</p>
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
- * 
- * NOTE: input "mass" "growthRate"
+ * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
  */
-public class SimpleGrowth extends Event {
-
+public class SimpleGrowth extends Event
+{
 	public String MASS = AspectRef.agentMass;
 	public String GROWTH_RATE = AspectRef.growthRate;
-	public SimpleGrowth()
-	{
-		setInput("mass,growthRate");
-	}
 
-	// TODO switch over to the internal production paradigm
-	public void start(AspectInterface initiator, AspectInterface compliant, Double timeStep)
+	@Override
+	public void start(AspectInterface initiator, 
+			AspectInterface compliant, Double timeStep)
 	{
-		Agent agent = (Agent) initiator;
-		// TODO: We are going to do this different (integrate into ODE/PDE)
-		// this method is just for testing purposes.
-		// simple ask the agents at what rate they grow, they should than figure
-		// this out from their local conditions
-		double newMass = (double) Helper.setIfNone(agent.get(GROWTH_RATE), 0.0) * timeStep + 
-									(double) agent.get(MASS);
-		agent.set(MASS, newMass);
+		/*
+		 * Get the agent's mass and growth rate as scalars (for vectors,
+		 * consider using the event InternalProduction instead).
+		 */
+		Double mass = initiator.getDouble(this.MASS);
+		Double growthRate = initiator.getDouble(this.GROWTH_RATE);
+		/*
+		 * If either of these are undefined, or there is no growth, then there
+		 * is nothing more to do.
+		 */
+		if ( mass == null || growthRate == null || growthRate == 0.0 )
+			return;
+		/*
+		 * Assume the growth rate to be representative of the whole time step,
+		 * and apply the change in mass. Now that this growth rate has been
+		 * applied, remove the aspect so that it does not get applied again.
+		 */
+		initiator.set(this.MASS, mass + (growthRate * timeStep));
+		initiator.reg().remove(this.GROWTH_RATE);
 	}
 }
