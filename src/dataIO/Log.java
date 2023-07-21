@@ -272,4 +272,9 @@ public class Log
 	{
 		GuiConsole.scroll();
 	}
+
+	public static String stringValue()
+	{
+		return _logFile.toString();
+	}
 }

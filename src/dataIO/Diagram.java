@@ -86,17 +86,18 @@ public class Diagram
 		{
 			String reacDesc = r.getName()+ "_" + reactions.get(r);
 			this._diagramFile.write(reacDesc + "\n");
-			Map<String,Double> sto = r.getStoichiometryAtStdConcentration();
-			String product;
-			for ( String s : r.getReactantNames() )
-			{
-				product = s.equals(AspectRef.agentMass) || s.equalsIgnoreCase(
-						AspectRef.biomass) ? reactions.get(r) : s;
-				if ( sto.get(s) < 0 )
-					this._diagramFile.write(product +" -> " + reacDesc + "\n");
-				else
-					this._diagramFile.write(reacDesc +" -> " + product + "\n");
-			}
+			// TODO disable for stoichiomtry changes
+//			Map<String,Double> sto = r.getStoichiometryAtStdConcentration();
+//			String product;
+//			for ( String s : r.getReactantNames() )
+//			{
+//				product = s.equals(AspectRef.agentMass) || s.equalsIgnoreCase(
+//						AspectRef.biomass) ? reactions.get(r) : s;
+//				if ( sto.get(s) < 0 )
+//					this._diagramFile.write(product +" -> " + reacDesc + "\n");
+//				else
+//					this._diagramFile.write(reacDesc +" -> " + product + "\n");
+//			}
 		}
 	}
 

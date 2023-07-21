@@ -6,6 +6,7 @@ import aspect.AspectInterface;
 import dataIO.XmlHandler;
 import idynomics.Global;
 import linearAlgebra.Vector;
+import referenceLibrary.AspectRef;
 import referenceLibrary.XmlRef;
 import settable.Settable;
 import surface.collision.CollisionFunction;
@@ -68,7 +69,26 @@ public class HerzSoftSphere implements CollisionFunction
 		 */
 		if ( var.getDistance() < -0.001 )
 		{
-			double kn = 1.33333333 * Math.sqrt( var.radiusEffective ) * forceScalar();
+			double kn;
+			if( first != null && second != null &&
+					first.isAspect( AspectRef.youngsModulus) &&
+					first.isAspect( AspectRef.poissonRatio ) &&
+					second.isAspect( AspectRef.youngsModulus) &&
+					second.isAspect( AspectRef.poissonRatio ) ) {
+				double a = first.getDouble(AspectRef.youngsModulus);
+				double b = first.getDouble(AspectRef.youngsModulus);
+				double eeff = 1 / (
+						( (1-Math.pow( first.getDouble( AspectRef.poissonRatio ),2 ) ) / a) +
+						( (1-Math.pow( second.getDouble( AspectRef.poissonRatio ),2 ) ) / b) );
+				/* alternate form:
+				Double eeff = a * b / ( -a * Math.pow(second.getDouble( AspectRef.poissonRatio ),2 )
+						+ a -b* Math.pow(first.getDouble( AspectRef.poissonRatio ),2 ) + b );
+				 */
+				kn = 1.33333333 * Math.sqrt(var.radiusEffective) * eeff;
+			}
+			else {
+				kn = 1.33333333 * Math.sqrt(var.radiusEffective) * forceScalar();
+			}
 			
 			double c = kn * Math.pow(-var.getDistance(), 1.5 );
 			/* dP is overwritten here. */

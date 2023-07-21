@@ -325,6 +325,13 @@ public final class Vector
 		toString(vector, out);
 		return out.toString();
 	}
+
+	public static String toString(float[] vector)
+	{
+		StringBuffer out = new StringBuffer();
+		toString(vector, out);
+		return out.toString();
+	}
 	
 	/**
 	 * \brief Converts the given <b>vector</b> to {@code String}
@@ -352,6 +359,19 @@ public final class Vector
 	 * @param buffer String buffer (faster than String).
 	 */
 	public static void toString(double[] vector, StringBuffer buffer)
+	{
+		int n = vector.length - 1;
+		if ( n < 0 )
+			return;
+		for ( int i = 0; i < n; i++ )
+		{
+			buffer.append(vector[i]);
+			buffer.append(DELIMITER);
+		}
+		buffer.append(vector[n]);
+	}
+
+	public static void toString(float[] vector, StringBuffer buffer)
 	{
 		int n = vector.length - 1;
 		if ( n < 0 )

@@ -3,10 +3,7 @@ package compartment;
 import static dataIO.Log.Tier.CRITICAL;
 import static dataIO.Log.Tier.DEBUG;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 import agent.Agent;
 import agent.Body;
@@ -60,15 +57,14 @@ public class AgentContainer implements Settable
 	private SpatialRegistry<Agent> _agentTree;
 
 	/**
-	 * Synchronized list, list is cheaper to access than an agent tree
-	 * (iterating over all agents), synchronized for thread safety
+	 *
 	 */
 	private List<Agent> _locatedAgentList = new ArrayList<Agent>();
 
 	/**
 	 * All agents without a spatial location are stored in here.
 	 */
-	protected LinkedList<Agent> _agentList = new LinkedList<Agent>();
+	protected ArrayList<Agent> _agentList = new ArrayList<Agent>();
 
 	/**
 	 * All dead agents waiting for their death to be recorded as output before
@@ -102,7 +98,7 @@ public class AgentContainer implements Settable
 	/**
 	 * \brief Construct an {@code AgentContainer} from a {@code Shape}.
 	 * 
-	 * @param aShape {@code Shape} object (see shape.ShapeLibrary).
+	 * 
 	 */
 	public AgentContainer(Compartment comp)
 	{
@@ -214,7 +210,7 @@ public class AgentContainer implements Settable
 	 */
 	public List<Agent> getAllLocatedAgents()
 	{
-		ArrayList<Agent> out = 
+		ArrayList<Agent> out =
 				new ArrayList<Agent>(this._locatedAgentList.size() );
 		out.addAll( this._locatedAgentList );
 		return out;
@@ -252,6 +248,13 @@ public class AgentContainer implements Settable
 		LinkedList<PhysicalObject> out = new LinkedList<PhysicalObject>();
 		out.addAll(this._physicalObjects);
 		return out;
+	}
+
+	public void agentListScale(int size)
+	{
+		ArrayList<Agent> temp = new ArrayList<Agent>(size);
+		temp.addAll(this._agentList);
+		this._agentList = temp;
 	}
 
 	/* ***********************************************************************
@@ -505,17 +508,18 @@ public class AgentContainer implements Settable
 	 */
 	public void addAgent(Agent agent)
 	{
+		this.addAgent(agent, false);
+	}
+	public void addAgent(Agent agent, boolean load)
+	{
 		if ( IsLocated.isLocated(agent) && this.getShape().getNumberOfDimensions() > 0 )
-			this.addLocatedAgent(agent);
+			this.addLocatedAgent(agent, load);
 		else
 		{
 			this._agentList.add(agent);
 			// Should we do this? Needs review
 			//agent.simplifyLocation();
 		}
-		
-		Body agentBody = (Body) agent.get(AspectRef.agentBody);
-		List<Point> points = agentBody.getPoints();
 	}
 
 	/**
@@ -526,14 +530,27 @@ public class AgentContainer implements Settable
 	 */
 	protected void addLocatedAgent(Agent anAgent)
 	{
+		addLocatedAgent(anAgent, false);
+	}
+
+	protected void addLocatedAgent(Agent anAgent, boolean load)
+	{
 		if( Idynomics.simulator.active())
 			anAgent.event(AspectRef.agentUpdateBody); /* hard coded should not be here */
-		this._locatedAgentList.add(anAgent);
+		if( !load )
+			this._locatedAgentList.add(anAgent);
 		this.treeInsert(anAgent);
 	}
 
+	public void initLocatedAgentList()
+	{
+		this._locatedAgentList = this._agentTree.getAll(new ArrayList<Agent>());
+	}
+
+
 	public void update() 
 	{
+		this.initLocatedAgentList();
 		for( Agent a : this.getAllAgents())
 			a.event(AspectRef.agentUpdateBody);
 	}

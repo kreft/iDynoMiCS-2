@@ -131,13 +131,15 @@ public class Global extends ParameterSet
 	/**
 	 * Version description.
 	 */
-	public static String version_description = "version_description";
+	public static String version_description = "July 2023";
 	
 	/**
 	* Version number of this iteration of iDynoMiCS - required by update
 	* procedure.
+	 *
+	 * suggested Major.Minor.YYMMDD
 	*/
-	public static String version_number = "version_number";
+	public static String version_number = "2.0.230703";
 	
 	/**
 	 * default output location
@@ -252,6 +254,8 @@ public class Global extends ParameterSet
 	 * Supplementary property files to be loaded in after default.
 	 */
 	public static String[] supplementary_property_files;
+
+	public static int agentsToSplit = 500_000;
 
 	/**************************************************************************
 	 * Appearance

@@ -221,7 +221,7 @@ public class AgentRelaxation extends ProcessManager
 				0.1 );
 
 		this.moveGranularity = Helper.setIfNone( this.getDouble(AspectRef.moveGranularity),
-				0.3 );
+				0.05 );
 
 		this.shoveFactor = Helper.setIfNone( this.getDouble(AspectRef.shoveFactor),
 				1.25 );
@@ -356,6 +356,8 @@ public class AgentRelaxation extends ProcessManager
 		}
 		/* Leave with a clean spatial tree. */
 		this._agents.refreshSpatialRegistry();
+		if( this.st != 0.0 )
+			Log.out( Tier.EXPRESSIVE, "residualStress " + this.st);
 
 		if( Log.shouldWrite( Tier.EXPRESSIVE ) )
 		{
@@ -421,11 +423,31 @@ public class AgentRelaxation extends ProcessManager
 				}
 			}
 
-			if ( this._iterator.maxOverlap() > -maxAgentOverlap)
+			boolean stressed = false;
+
+			if ( this._iterator.maxOverlap() < -maxAgentOverlap)
 			{
 				// system relaxed can stop loop
-				return 0.0;
+				stressed = true;
 			}
+
+			if ( this._stressThreshold > 0.0 )
+			{
+				double f, fMax = 0.0;
+				for( Agent agent : agents)
+					for( Point p : ((Body) agent.get(BODY)).getPoints())
+					{
+						f = Vector.normEuclid( p.getForce() );
+						if( f > fMax )
+							fMax = f;
+					}
+				if ( fMax > this._stressThreshold )
+					stressed = true;
+				this.st = fMax;
+			}
+			/* if both thresholds are set, both need to be met in order to not be stressed */
+			if( !stressed )
+				return 0.0;
 
 			/* NOTE: stochastic movement really should only be used with static dt.
 			 *
@@ -628,7 +650,7 @@ public class AgentRelaxation extends ProcessManager
 				/* update overlap number for step size scaling
 				 this might make less sense for torsion springs */
 				if( s instanceof LinearSpring) {
-					_iterator.updateOverlap( Math.abs( distOrAngle*0.5 ) );
+					_iterator.updateOverlap( Math.abs( distOrAngle ) );
 				}
 				else if( s instanceof TorsionSpring )
 				{
@@ -661,7 +683,7 @@ public class AgentRelaxation extends ProcessManager
 		if ( tMech < compresionDuration || compresionDuration == 0.0 )
 		{
 			/* note should be mass per point */
-			double fg = agent.getDouble(MASS) * 1e-12 * 35.316e9 /* 1E16 */ * Global.density_difference;
+			double fg = agent.getDouble(MASS) * /* 1e-12 * 35.316e9 */ 1E9 * Global.density_difference;
 			double[] fgV;
 			
 			if( this._shape.isOriented() )

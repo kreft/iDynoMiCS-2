@@ -620,6 +620,8 @@ public class Expression extends Component implements Settable
 				new Power(Arithmetic.ten(), flipSign((Component) calc.get(next))));
 		case ("LOG"): 
 			return new Logarithm((Component) calc.get(next),Arithmetic.ten());
+		case ("LOGE"):
+			return new Logarithm((Component) calc.get(next),Arithmetic.euler());
 		case ("SIGN"): 
 			return 	new Sign((Component) calc.get(next));
 		case ("SIGN-"): 
@@ -700,6 +702,7 @@ public class Expression extends Component implements Settable
 		case("SQRT"):
 		case("SQRT-"):
 		case ("LOG"):
+		case ("LOGE"):
 		case("SIGN"):
 		case("SIGN-"):
 		case ("NOT"): 

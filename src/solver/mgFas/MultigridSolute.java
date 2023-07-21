@@ -12,9 +12,11 @@ package solver.mgFas;
 import dataIO.Log;
 import idynomics.Global;
 import processManager.library.PDEWrapper;
+import shape.subvoxel.IntegerArray;
 import utility.ExtraMath;
 import linearAlgebra.Array;
 
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -414,7 +416,8 @@ public class MultigridSolute
 		/* Diminishing change in residual, the solver seems to have stopped converging. */
 		if ( Log.shouldWrite(Log.Tier.DEBUG) ||
 				almostEqual( _res[order], locResidual,locResidual * 1e-6 ) ) {
-			Log.out( Log.Tier.CRITICAL, this.soluteName + " stagnant Vcycle in "
+			/* This doesn't need to be a problem and often is resolved in the following vCycle. */
+			Log.out( Log.Tier.NORMAL, this.soluteName + " stagnant Vcycle in "
 					+ this.getClass().getSimpleName() + " residual res: " + locResidual );
 		}
 		this._res[order] = locResidual;
@@ -745,6 +748,30 @@ public class MultigridSolute
 						_conc[order].grid[_i][_j][_k] = sBulk;
 					}
 				}
+	}
+
+	/**
+	 * fetch a collection of all valid coordinates for this order
+	 *
+	 * Storing this might provide a speed bump
+	 * @param order
+	 * @return
+	 */
+	public Collection<IntegerArray> fetchCoords(int order) {
+		int maxI = _conc[order].getGridSizeI();
+		int maxJ = _conc[order].getGridSizeJ();
+		int maxK = _conc[order].getGridSizeK();
+		LinkedList<IntegerArray> coords = new LinkedList<IntegerArray>();
+
+		for (_i = 1; _i <= maxI; _i++)
+			for (_j = 1; _j <= maxJ; _j++)
+				for (_k = 1; _k <= maxK; _k++) {
+					coords.add(new IntegerArray(new int[] {
+							Integer.valueOf(_i),
+							Integer.valueOf(_j),
+							Integer.valueOf(_k) }));
+				}
+		return coords;
 	}
 
 	/**

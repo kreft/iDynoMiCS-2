@@ -18,25 +18,25 @@ import surface.Point;
 public class CoccoidDivision extends DivisionMethod
 {
 	/**
-	 * \brief Shift the bodies of <b>mother</b> to <b>daughter</b> in space, so
+	 * \brief Shift the bodies of <b>parent</b> to <b>child</b> in space, so
 	 * that they do not overlap.
 	 * 
-	 * @param mother An agent.
-	 * @param daughter Another agent, whose body overlaps a lot with that of
-	 * <b>mother</b>.
+	 * @param parent An agent.
+	 * @param child Another agent, whose body overlaps a lot with that of
+	 * <b>parent</b>.
 	 */
-	protected void shiftBodies(Agent mother, Agent daughter)
+	protected void shiftBodies(Agent parent, Agent child)
 	{
-		Body momBody = (Body) mother.get(AspectRef.agentBody);
-		Body daughterBody = (Body) daughter.get(AspectRef.agentBody);
+		Body parentBody = (Body) parent.get(AspectRef.agentBody);
+		Body childBody = (Body) child.get(AspectRef.agentBody);
 
-		double[] originalPos = momBody.getPosition(0);
+		double[] originalPos = parentBody.getPosition(0);
 		double[] shift = Vector.randomPlusMinus(originalPos.length, 
-				0.5*mother.getDouble(AspectRef.bodyRadius));
+				0.5*parent.getDouble(AspectRef.bodyRadius));
 
-		Point p = momBody.getPoints().get(0);
+		Point p = parentBody.getPoints().get(0);
 		p.setPosition(Vector.add(originalPos, shift));
-		Point q = daughterBody.getPoints().get(0);
+		Point q = childBody.getPoints().get(0);
 		q.setPosition(Vector.minus(originalPos, shift));
 	}
 }

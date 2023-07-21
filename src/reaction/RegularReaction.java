@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import aspect.AspectInterface;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
@@ -57,7 +58,7 @@ public class RegularReaction
 	 * unaffected (stoichiometry = 0, or unlisted) by the reaction.
 	 */
 	private InstantiableMap<String,Double> _stoichiometry = new InstantiableMap<String,Double>(
-			String.class, Double.class, XmlRef.component, XmlRef.coefficient, 
+			String.class, Double.class, XmlRef.component, XmlRef.coefficient,
 			XmlRef.stoichiometry, XmlRef.stoichiometric, true);
 	/**
 	 * The mathematical expression describing the rate at which this reaction
@@ -225,7 +226,7 @@ public class RegularReaction
 	@Override
 	public Collection<String> getReactantNames()
 	{
-		return this.getStoichiometryAtStdConcentration().keySet();
+		return this._stoichiometry.keySet();
 	}
 	
 	/* (non-Javadoc)
@@ -239,7 +240,7 @@ public class RegularReaction
 			this._constituents = new ArrayList<String>();
 			this._constituents.addAll(this.getVariableNames());
 		}
-		for(String s : this.getStoichiometryAtStdConcentration().keySet() )
+		for(String s : this._stoichiometry.keySet() )
 			if(! _constituents.contains(s) )
 				this._constituents.add(s);
 		return this._constituents;
@@ -281,27 +282,13 @@ public class RegularReaction
 	}
 	
 	/* (non-Javadoc)
-	 * @see reaction.ReactionInterface#getStoichiometryAtStdConcentration()
-	 */
-	@Override
-	public Map<String,Double> getStoichiometryAtStdConcentration()
-	{
-		return this._stoichiometry;
-	}
-	
-	/* (non-Javadoc)
 	 * @see reaction.ReactionInterface#getProductionRate(java.util.Map, java.lang.String)
 	 */
 	@Override
-	public double getProductionRate(Map<String, Double> concentrations, 
-														String reactantName)
+	public double getProductionRate(Map<String, Double> concentrations, String reactantName, AspectInterface subject)
 	{
 		checkNegatives(concentrations);
-//		reaction_tally++;
-//		if( reaction_tally/1000.0 == Math.round(reaction_tally/1000.0) && Log.shouldWrite(Log.Tier.DEBUG))
-//			Log.out(Log.Tier.DEBUG, reaction_tally + " reactions");
-		return this.getStoichiometry(reactantName) * 
-											this.getRate(concentrations);
+		return this.getStoichiometry(reactantName) * this.getRate(concentrations);
 	}
 	
 	private void checkNegatives( Map<String, Double> concentrations )
@@ -309,7 +296,8 @@ public class RegularReaction
 		for ( String s : concentrations.keySet() )
 		{
 			if( concentrations.get(s) < 0.0 )
-				System.out.println( this.getClass().getSimpleName() + " detecteded negative concentration "+ s + " "  + concentrations.get(s) );
+				System.out.println( this.getClass().getSimpleName() +
+						" detecteded negative concentration "+ s + " "  + concentrations.get(s) );
 		}
 	}
 	

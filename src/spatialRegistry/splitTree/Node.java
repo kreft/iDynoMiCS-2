@@ -99,6 +99,15 @@ public class Node<T> extends Area
 		return _entries;
 	}
 
+
+	public List<T> getAll(List<T> list) {
+		for( Entry<T> e : this.getEntries() )
+			list.add( e.getEntry() );
+		for( Node<T> n : this._nodes )
+			n.getAll(list);
+		return list;
+	}
+
 	/**
 	 * \brief: remove entry from this node's entry list
  	 * does not remove the entry from child nodes!

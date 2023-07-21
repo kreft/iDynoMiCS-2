@@ -3,9 +3,11 @@ package processManager.library;
 import static grid.ArrayType.CONCN;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
+import idynomics.Idynomics;
 import org.w3c.dom.Element;
 
 import agent.Agent;
@@ -151,11 +153,15 @@ public class GraphicalOutput extends ProcessManager
 		
 		this.palette = new Palette( String.valueOf( 
 				this.getOr( AspectRef.colourPalette, Global.default_palette) ) );
+
+		HashMap<String, float[]> gradients = null;
+		if( this.reg().isGlobalAspect(AspectRef.gradientSpecification) )
+			gradients = (HashMap<String, float[]>) this.getValue(AspectRef.gradientSpecification);
 		
 		/* In the future we may want to change the default to "species" */
 		colSpec = new ColourSpecification(palette, (String)
 				 this.getOr( AspectRef.colourSpecification, 
-						 Global.default_colour_specification));
+						 Global.default_colour_specification), gradients, Idynomics.simulator.getCompartment( this._compartmentName) );
 
 		double[] filt = this.getDoubleA( AspectRef.filter );
 		if( !Helper.isNullOrEmpty( filt ) )
