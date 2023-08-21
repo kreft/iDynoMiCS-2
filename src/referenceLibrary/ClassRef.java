@@ -492,6 +492,12 @@ public class ClassRef
 	public final static String agentsArriveInChemostat = 
 			processManager.library.AgentsArriveInChemostat.class.getName();
 	
+	/**
+	 * Structure analysis process manager
+	 */
+	public final static String structureAnalysis =
+			processManager.library.StructureAnalysis.class.getName();
+	
 	/* ************************************************************************
 	 * IdynoMiCS main classes
 	 */
