@@ -296,7 +296,7 @@ public final class Helper
 	public static boolean confirmation(String input)
 	{
 		for ( String s : confirmations )
-			if ( s == input )
+			if ( input.equals(s) )
 				return true;
 		return false;
 	}
@@ -309,7 +309,7 @@ public final class Helper
 	public static boolean rejection(String input)
 	{
 		for ( String s : rejections )
-			if ( s == input )
+			if ( input.equals(s) )
 				return true;
 		return false;
 	}
