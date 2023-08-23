@@ -104,17 +104,35 @@ public class AnalysisTrait extends ProcessManager {
 					combList.get(i)[0], combList.get(i)[1]);
 			int[] distBA = raster.distanceVector(
 					combList.get(i)[1], combList.get(i)[0]);
-			
-			builder.append( Vector.DELIMITER );
-			builder.append( raster.averageDist( distAB ) );
-			
+
+			if( distAB != null ) {
+				builder.append(Vector.DELIMITER);
+				builder.append(raster.averageDist(distAB));
+			}
+			else
+			{
+				builder.append(Vector.DELIMITER);
+				builder.append(Double.NaN);
+			}
+
+			if( distBA != null ) {
 			builder.append( Vector.DELIMITER );
 			builder.append( raster.averageDist( distBA ) );
+			}
+			else
+			{
+				builder.append(Vector.DELIMITER);
+				builder.append(Double.NaN);
+			}
 			
 			builder.append( Vector.DELIMITER );
 			for ( int j = 0; j < colocalizationSteps.length; j++)
-				builder.append( Vector.toString( raster.colocalization( 
-						distAB, distBA, colocalizationSteps[j] ) ) + "," );
+				builder.append(
+						(( distBA != null && distAB != null) ?
+								Vector.toString( raster.colocalization(
+										distAB, distBA, colocalizationSteps[j] ) )
+								: Double.NaN+Vector.DELIMITER+Double.NaN) +
+								(j < colocalizationSteps.length-1 ? Vector.DELIMITER : "" ) );
 			
 			line = builder.toString().substring( 0, builder.length()-1 );
 		}
