@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Collections;
 
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GLAutoDrawable;
@@ -267,9 +268,11 @@ public class AgentMediator implements CommandMediator {
 		 * when we want to disable depth test we draw the domain here
 		 */
 //		draw(_shape);
-        
+
+		List<Agent> sortedAgents = this._agents.getAllLocatedAgents();
+		Collections.sort(sortedAgents, new Agent.AgentComparator());
 		/* get the surfaces from the agents */
-		for ( Agent a : this._agents.getAllLocatedAgents() )
+		for ( Agent a : sortedAgents)
 		{
 
 			/* cycle through the agent surfaces */

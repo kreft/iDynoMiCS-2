@@ -16,7 +16,7 @@ public class SamplerLaunch implements Launchable {
 		boolean customSampling = false;
 
 		int p, r;
-		if ( args == null || args.length == 1 || args[1] == null )
+		if ( args == null || args.length <= 1 || args[1] == null )
 		{
 			samplingChoice = Sampler.SampleMethod.valueOf( 
 					Helper.obtainInput(	Sampler.SampleMethod.values(), 
@@ -61,7 +61,7 @@ public class SamplerLaunch implements Launchable {
 		}
 		else if ( ( samplingChoice == Sampler.SampleMethod.SIMPLE ||
 					samplingChoice == Sampler.SampleMethod.LHC )	&&
-				( args == null || args.length <= 4 || (args.length == 5 && args[4] == null) ) )
+				( args == null || args.length <= 4 || args[4] == null ) )
 		{
 			boolean force_round = Helper.obtainInput("Force rounding?",true);
 			if( force_round )
