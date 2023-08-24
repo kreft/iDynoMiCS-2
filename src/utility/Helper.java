@@ -309,7 +309,7 @@ public final class Helper
 	public static boolean rejection(String input)
 	{
 		for ( String s : rejections )
-			if ( s == input )
+			if (input.equals(s))
 				return true;
 		return false;
 	}
