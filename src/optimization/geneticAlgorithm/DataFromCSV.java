@@ -6,6 +6,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.TreeMap;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import dataIO.CsvImport;
@@ -95,9 +96,11 @@ public class DataFromCSV
 	{
 		double[][] outData = null; 
 		
+		
+		// user input the file name: currently bioflm.csv
 		try (Stream<Path> dataFilePaths = Files.find(
 				Paths.get(genFolderPath), 2, (p, bfa) -> 
-				p.getFileName().toString().equalsIgnoreCase("data.csv")))
+				p.getFileName().toString().equalsIgnoreCase("bioflm.csv")))
 		{
 			String[] fileNames = dataFilePaths.map(path -> 
 					path.toString()).toArray(String[]::new);
@@ -106,7 +109,7 @@ public class DataFromCSV
 			{
 				// get the row number from the folder name
 				int rowIdx = Integer.parseInt(s.substring(s.lastIndexOf("_")+1)
-						.split(File.separator)[0]) - 1;
+						.split(Pattern.quote(System.getProperty("file.separator")))[0]) - 1;
 				
 				if( Log.shouldWrite(Tier.DEBUG))
 					Log.out(Tier.DEBUG, s);

@@ -96,11 +96,11 @@ public class GeneticAlgorithmLaunch implements Launchable {
 			Log.out(Tier.NORMAL, "pervious: " + prev + " current: " + generation);
 			
 			double[][] outMatrix = DataFromCSV.getOutput( 
-					Idynomics.global.outputRoot + "/" + Idynomics.global.subFolderStruct +
+					rootFolder + "/" + Idynomics.global.subFolderStruct +
 					"/result/gen_"+ prev +"/");
-			
+			Log.out(Tier.NORMAL, "outMatrix:"+outMatrix.length);
 			double[][] inMatrix = DataFromCSV.getInput( 
-					Idynomics.global.outputRoot + "/" + Idynomics.global.subFolderStruct  +
+					rootFolder + "/" + Idynomics.global.subFolderStruct  +
 					"/input/gen_"+ prev +"/xVal.csv" );
 			
 			constraints.add( new Bound( xmlc.getBounds()[0], false) );
