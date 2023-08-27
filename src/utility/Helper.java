@@ -776,7 +776,7 @@ public final class Helper
 			new Expression( strParse );
 		}
 		catch (NumberFormatException | StringIndexOutOfBoundsException
-				| NullPointerException f)
+				| NullPointerException | StackOverflowError f)
 		{
 			return false;
 		}
@@ -794,7 +794,7 @@ public final class Helper
 			new Expression( strParse ).format( Idynomics.unitSystem );
 		}
 		catch (NumberFormatException | StringIndexOutOfBoundsException
-				| NullPointerException f)
+				| NullPointerException | StackOverflowError f)
 		{
 			return false;
 		}
