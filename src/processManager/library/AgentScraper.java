@@ -22,7 +22,8 @@ import utility.Helper;
  * Simple process that removes agents above a certain height.
  * This can be used to maintain a maximum thickness for a biofilm.
  * 
- * Author - Tim Foster trf896@student.bham.ac.uk
+ * Author - Tim Foster trf896@student.bham.ac.uk,
+ * Bastiaan Cockx @BastiaanCockx (baco@dtu.dk), DTU, Denmark.
  *
  */
 

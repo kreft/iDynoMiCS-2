@@ -15,8 +15,7 @@ import dataIO.Log.Tier;
 public class AspectRef
 {
 
-
-	public static String[] getAllOptions()
+    public static String[] getAllOptions()
 	{
 		Field[] fields = AspectRef.class.getFields();
 		String[] options = new String[fields.length];
@@ -721,4 +720,6 @@ public class AspectRef
 
 	public static String youngsModulus = "youngsModulus";
 	public static String poissonRatio = "poissonRatio";
+
+	public static String centerPointRemoval = "centerPointRemoval";
 }
