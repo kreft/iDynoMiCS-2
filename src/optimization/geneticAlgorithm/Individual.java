@@ -83,12 +83,14 @@ public class Individual {
                 /* Create random gene */
             	double[] temp = Vector.copy(_inputs);
             	Object c = constraints.toArray()[i];
+		Double parSpaceScalar = 1.0;
             	if (c instanceof Bound) {
-            		
+            		Double[] parBounds = ((Bound)c).bounds()
+			parSpaceScalar = parBounds[1]-parBounds[0];
             	}
-            	temp[i] = this.get(i) + ExtraMath.getNormRand() * scale;
+            	temp[i] = this.get(i) + ExtraMath.getNormRand() * scale * parSpaceScalar;
             	while ( ! Constraint.allMet(constraints, temp) )
-            		temp[i] = this.get(i) + ExtraMath.getNormRand() * scale;
+            		temp[i] = this.get(i) + ExtraMath.getNormRand() * scale * parSpaceScalar;
                 this.set(i, temp[i]);
             }
         }
