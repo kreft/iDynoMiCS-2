@@ -6,6 +6,7 @@ import dataIO.Log;
 import dataIO.Log.Tier;
 import linearAlgebra.Vector;
 import optimization.TestModel;
+import optimization.constraint.Bound;
 import optimization.constraint.Constraint;
 import optimization.objectiveFunction.ObjectiveFunction;
 import utility.ExtraMath;
@@ -81,6 +82,10 @@ public class Individual {
             {
                 /* Create random gene */
             	double[] temp = Vector.copy(_inputs);
+            	Object c = constraints.toArray()[i];
+            	if (c instanceof Bound) {
+            		
+            	}
             	temp[i] = this.get(i) + ExtraMath.getNormRand() * scale;
             	while ( ! Constraint.allMet(constraints, temp) )
             		temp[i] = this.get(i) + ExtraMath.getNormRand() * scale;
