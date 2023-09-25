@@ -27,8 +27,8 @@ public class CumulativeDistribution implements ObjectiveFunction {
 		for (int i = 0; i < n; i++)
 		{
 			z[i] = (x[i] - _mean[i])/_sd[i];
-			double temp =(1/Math.sqrt(2*Math.PI))*Math.exp((0-Math.pow(z[i],2))/2);
-			out += temp/n;
+			double temp = Math.exp((0-Math.pow(z[i],2))/2);
+			out += (1-temp)/n;
 		}
 		
 		return out;
