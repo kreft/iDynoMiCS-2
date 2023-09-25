@@ -3,8 +3,7 @@ package optimization;
 import dataIO.Log;
 import dataIO.Log.Tier;
 import optimization.geneticAlgorithm.Population;
-import optimization.objectiveFunction.MeanSquareError;
-import optimization.objectiveFunction.ObjectiveFunction;
+import optimization.objectiveFunction.*;
 import sensitivityAnalysis.ProtocolCreater;
 
 /**
@@ -15,10 +14,21 @@ import sensitivityAnalysis.ProtocolCreater;
  */
 public class GeneticAlgorithm {
 
-	public static ObjectiveFunction getOp( double[] dataVector )
+	public static ObjectiveFunction getOp( double[][] dataMatrix, String objectiveFunctionName )
 	{
-		ObjectiveFunction of = new MeanSquareError();
-    	of.setData( dataVector );
+		ObjectiveFunction of = new MeanSquareError();;
+		switch (objectiveFunctionName) {
+		case "MeanSquare":
+			of = new MeanSquareError();
+			break;
+		case "QuadraticLoss":
+			of = new QuadraticLossFunction();
+			break;
+		case "CDF":
+			of = new CumulativeDistribution();
+			break;
+		}
+    	of.setData( dataMatrix );
     	return of;
 	}
 	

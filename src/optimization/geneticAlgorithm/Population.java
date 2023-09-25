@@ -161,7 +161,6 @@ public class Population {
         Individual fittest = _individuals[0];
         for (Individual i : _individuals)
         {
-        	Log.out("individual: "+i.toString() +"\nMSQ: "+i.loss(_of));
             if (fittest.loss( _of ) > i.loss( _of ) )
             {
                 fittest = i;

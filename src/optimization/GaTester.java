@@ -22,11 +22,11 @@ public class GaTester {
     	
     	TestModel mod = new TestModel();
     	double[] tp = new double[] { 1.0, 2.0, 3.0, 4.0 };
-    	double[] measured = new double[] { 
+    	double[][] measured = new double[][] {{ 
     			mod.getMeasurment(1.0, 0.01), 
     			mod.getMeasurment(2.0, 0.01), 
     			mod.getMeasurment(3.0, 0.01), 
-    			mod.getMeasurment(4.0, 0.01) };
+    			mod.getMeasurment(4.0, 0.01) }};
  
     	qlf.setData( measured );
     	
@@ -43,7 +43,7 @@ public class GaTester {
         
         pop = solve(qlf,  fitnessThreshold,  pop,  generationCount , tp);
         System.out.println( pop.fittest() );
-        System.out.println("measured: " + Vector.toString(measured));
+        System.out.println("measured: " + Vector.toString(measured[0]));
 	}
 	
 	public static Population solve(ObjectiveFunction op, double fitnessThreshold, 

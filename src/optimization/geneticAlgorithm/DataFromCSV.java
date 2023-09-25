@@ -53,6 +53,26 @@ public class DataFromCSV
 
 	
 	/**
+	 * parse data, storing timepoints to extract the simulation
+	 * output data at correct time points.
+	 * 
+	 * @param data matrix
+	 * @return
+	 */
+	public static double[] parseData(double[][] obsData)
+	{
+		int p=0;
+		for (int i = 0; i < obsData.length; i++)
+			for (int j = 1; j < obsData[i].length; j++)
+				if ( !Double.isNaN(obsData[i][j]) )
+				{
+					_dataPoints.put( new DataFromCSV().new DataPoint(obsData[i][0],j,p++), 
+							obsData[i][j] );
+				}
+		return Vector.vector( _dataPoints.values() );
+	}
+	
+	/**
 	 * Get observed data, storing timepoints to extract the simulation
 	 * output data at correct time points.
 	 * 
@@ -62,13 +82,7 @@ public class DataFromCSV
 	public double[] getData(String dataPath)
 	{
 		double[][] obsData = CsvImport.getDblMatrixFromCSV(dataPath);
-		int p=0;
-		for (int i = 0; i < obsData.length; i++)
-			for (int j = 1; j < obsData[i].length; j++)
-				if ( !Double.isNaN(obsData[i][j]) )
-					_dataPoints.put( new DataPoint( obsData[i][0],j,p++), 
-							obsData[i][j] );
-		return Vector.vector( _dataPoints.values() );
+		return parseData(obsData);
 
 	}
 	
@@ -86,6 +100,25 @@ public class DataFromCSV
 	}
 	
 	/**
+	 * parse data, storing timepoints to extract the simulation
+	 * output data at correct time points.
+	 * 
+	 * @param data matrix
+	 * @return
+	 */
+	public static double[] parseMeanSD(double[][] obsData)
+	{
+		int p=0;
+		for (int j = 0; j < obsData[0].length; j++)
+			if ( !Double.isNaN(obsData[0][j]) )
+			{
+					_dataPoints.put( new DataFromCSV().new DataPoint(100.0,j,p++), 
+							obsData[0][j] );
+			}
+		return Vector.vector( _dataPoints.values() );
+	}
+	
+	/**
 	 * Get output data formatted to match timepoints in observed data
 	 * Each row represents output data from a single run
 	 * 
@@ -100,7 +133,7 @@ public class DataFromCSV
 		// user input the file name: currently bioflm.csv
 		try (Stream<Path> dataFilePaths = Files.find(
 				Paths.get(genFolderPath), 2, (p, bfa) -> 
-				p.getFileName().toString().equalsIgnoreCase("bioflm.csv")))
+				p.getFileName().toString().equalsIgnoreCase("outFile.csv")))
 		{
 			String[] fileNames = dataFilePaths.map(path -> 
 					path.toString()).toArray(String[]::new);

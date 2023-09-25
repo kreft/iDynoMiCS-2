@@ -26,6 +26,7 @@ public class GeneticAlgorithmLaunch implements Launchable {
 		int generation = 0;
 		double fitnessThreshold = 0;
 		int maxIter = 0;
+		String objectiveFunctionName = "MeanSquareError";
 
 		if ( args == null || args.length == 1 || args[1] == null )
 		{
@@ -63,6 +64,12 @@ public class GeneticAlgorithmLaunch implements Launchable {
 		}
 		else
 			maxIter = Integer.valueOf( args[6] );
+		if ( args == null || args.length == 7 || args[7] == null )
+		{
+			System.out.print("No Error function specified! \n");
+		}
+		else
+			objectiveFunctionName = args[7];
 		/*
 		 *  TODO error function etc, GA parameters
 		 */
@@ -89,12 +96,20 @@ public class GeneticAlgorithmLaunch implements Launchable {
 			
 			Collection<Constraint> constraints = new LinkedList<Constraint>();
 			
-			DataFromCSV csvIn = new DataFromCSV();
-			double[] dataVector = csvIn.getData(dataFile);
+//			DataFromCSV csvIn = new DataFromCSV();
+			double[][] dataMatrix = DataFromCSV.getInput(dataFile);
+//			double[] dataVector = csvIn.getData(dataFile);
 			int prev = generation-1;
 			
 			Log.out(Tier.NORMAL, "pervious: " + prev + " current: " + generation);
 			
+			ObjectiveFunction op = GeneticAlgorithm.getOp( dataMatrix, objectiveFunctionName );
+			if (op.toString().contains("CumulativeDistribution")) {
+				DataFromCSV.parseMeanSD(dataMatrix);
+			}
+			else {
+				DataFromCSV.parseData(dataMatrix);
+			}
 			double[][] outMatrix = DataFromCSV.getOutput( 
 					rootFolder + "/" + Idynomics.global.subFolderStruct +
 					"/result/gen_"+ prev +"/");
@@ -109,7 +124,6 @@ public class GeneticAlgorithmLaunch implements Launchable {
 	    	System.out.println(Vector.toString( xmlc.getBounds()[0]));
 	    	System.out.println(Vector.toString( xmlc.getBounds()[1]));
 			
-			ObjectiveFunction op = GeneticAlgorithm.getOp( dataVector );
 			Population pop = new Population( op, inMatrix, outMatrix, constraints);
 						
 			GeneticAlgorithm.step(op, fitnessThreshold, pop, generation, maxIter, xmlc);

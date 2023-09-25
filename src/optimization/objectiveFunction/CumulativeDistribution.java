@@ -9,56 +9,28 @@ package optimization.objectiveFunction;
  */
 public class CumulativeDistribution implements ObjectiveFunction {
 	
-	private double[] _data;
+	private double[] _mean;
+	private double[] _sd;
 	
-	public void setData( double[] data )
+	public void setData( double[][] data )
 	{
-		this._data = data;
+		this._mean = data[0];
+		this._sd = data[1];
 	}
 	
 	public double loss(double[] x)
 	{
 		double out = 0.0;
-		double[] z = {};
-		double sd = SD(x);
+		double[] z = new double[x.length];
+		int n = _mean.length;
 		
-		for (int i = 0; i < _data.length; i++)
+		for (int i = 0; i < n; i++)
 		{
-			z[i] = (x[i] - _data[i])/sd;
+			z[i] = (x[i] - _mean[i])/_sd[i];
 			double temp =(1/Math.sqrt(2*Math.PI))*Math.exp((0-Math.pow(z[i],2))/2);
-			out += temp;
+			out += temp/n;
 		}
 		
 		return out;
-	}
-	
-	public double SD(double[] x)
-	{
-		double sum = 0.0;
-		double standardDeviation = 0.0;
-		double mn = mean(x);
-		
-		int n = x.length;
-		
-		for (int i = 0; i < n; i++)
-			sum += Math.pow(x[i] - mn, 2);
-		
-		standardDeviation = Math.sqrt(sum/n);
-		
-		return standardDeviation;
-	}
-	
-	public double mean(double[] x)
-	{
-		double sum = 0.0;
-		double meanValue = 0.0;
-		
-		int n = x.length;
-		
-		for (int i = 0; i < n; i++)
-			sum += x[i];
-		
-		meanValue = sum/n;
-		return meanValue;
 	}
 }

@@ -14,7 +14,7 @@ public interface ObjectiveFunction {
 	 * 
 	 * @param data vector
 	 */
-	public void setData( double[] data );
+	public void setData( double[][] data );
 	
 	/**
 	 * \brief evaluate loss function and score the fit of x with the set data.

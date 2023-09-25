@@ -1,5 +1,7 @@
 package optimization.objectiveFunction;
 
+import optimization.geneticAlgorithm.DataFromCSV;
+
 /**
  * \brief the quadratic loss function returns the Sum of the quadratic error of
  * x and the dataset.
@@ -11,9 +13,9 @@ public class QuadraticLossFunction implements ObjectiveFunction {
 	
 	private double[] _data;
 	
-	public void setData( double[] data )
+	public void setData( double[][] data )
 	{
-		this._data = data;
+		this._data = DataFromCSV.parseData(data);
 	}
 	
 	public double loss(double[] x)

@@ -1,5 +1,7 @@
 package optimization.objectiveFunction;
 
+import optimization.geneticAlgorithm.DataFromCSV;
+
 /**
  * \brief returns the mean square error of the provided data set and a given x 
  * set.
@@ -11,9 +13,9 @@ public class MeanSquareError implements ObjectiveFunction {
 	
 	private double[] _data;
 	
-	public void setData( double[] data )
+	public void setData( double[][] data )
 	{
-		this._data = data;
+		this._data = DataFromCSV.parseData(data);
 	}
 	
 	public double loss(double[] x)

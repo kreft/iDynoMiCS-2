@@ -76,18 +76,23 @@ public class Individual {
     public void mutate(double probability, double scale, 
     		Collection<Constraint> constraints) 
     {
+    	Object lBounds = constraints.toArray()[0];
+    	Object uBounds = constraints.toArray()[1];
+    	double[] parBoundsLower = null;
+    	double[] parBoundsUpper = null;
+    	if (lBounds instanceof Bound && uBounds instanceof Bound) {
+    		parBoundsLower = ((Bound)lBounds).bound();
+    		parBoundsUpper = ((Bound)uBounds).bound();
+    	}
         for (int i = 0; i < this.size(); i++) 
         {
             if (Math.random() <= probability) 
             {
                 /* Create random gene */
             	double[] temp = Vector.copy(_inputs);
-            	Object c = constraints.toArray()[i];
-		Double parSpaceScalar = 1.0;
-            	if (c instanceof Bound) {
-            		Double[] parBounds = ((Bound)c).bounds()
-			parSpaceScalar = parBounds[1]-parBounds[0];
-            	}
+            	double parSpaceScalar = 1.0;
+            	if (parBoundsUpper != null && parBoundsLower != null)
+            		parSpaceScalar = parBoundsUpper[i]-parBoundsLower[i];
             	temp[i] = this.get(i) + ExtraMath.getNormRand() * scale * parSpaceScalar;
             	while ( ! Constraint.allMet(constraints, temp) )
             		temp[i] = this.get(i) + ExtraMath.getNormRand() * scale * parSpaceScalar;
