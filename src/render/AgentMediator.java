@@ -12,6 +12,7 @@ import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.glu.GLU;
 import com.jogamp.opengl.glu.GLUquadric;
 import com.jogamp.opengl.math.Quaternion;
+import com.jogamp.opengl.math.Vec3f;
 import com.jogamp.opengl.util.gl2.GLUT;
 
 import agent.Agent;
@@ -194,7 +195,7 @@ public class AgentMediator implements CommandMediator {
 	
 	/**
 	 * assign agent container via the constructor
-	 * @param agents
+	 * @param c: Compartment to be rendered.
 	 */
 	public AgentMediator(Compartment c)
 	{
@@ -581,10 +582,10 @@ public class AgentMediator implements CommandMediator {
 		Quaternion quat = new Quaternion();
 		/* this will create a quaternion, so that we rotate from looking
 		 * along the Z-axis (which is the default orientation) */
-		quat.setLookAt(Vector.toFloat(direc), _orthoZ, _orthoX, _orthoY, _orthoZ);
+		quat.setLookAt( new Vec3f(Vector.toFloat(direc)), new Vec3f(_orthoZ), new Vec3f(_orthoX),  new Vec3f(_orthoY),  new Vec3f(_orthoZ));
 		/* transform the quaternion into a rotation matrix and apply it */
 		//TODO: is there a way to make openGL use the quaternion directly?
-		_gl.glMultMatrixf(quat.toMatrix(_rotTemp, 0), 0);
+		_gl.glMultMatrixf(quat.toMatrix(_rotTemp), 0);
 	}
 	
 	private void drawVoxel(Shape shape, int[] coord)

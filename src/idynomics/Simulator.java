@@ -122,7 +122,7 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable,
 		String seed = XmlHandler.gatherAttribute(xmlElem, XmlRef.seed);
 
 		if ( ! Helper.isNullOrEmpty(seed) )
-			ExtraMath.initialiseRandomNumberGenerator(Long.valueOf(seed));
+			ExtraMath.initialiseRandomNumberGenerator(Double.valueOf(seed).longValue());
 		else
 			seed = String.valueOf( ExtraMath.seed );
 		Log.out("Random seed: " + seed);

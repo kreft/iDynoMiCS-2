@@ -19,7 +19,7 @@ import linearAlgebra.Vector;
 import processManager.ProcessManager;
 
 /**
- * 
+ * FIXME AB and BA are inverted?
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
  *
  */
