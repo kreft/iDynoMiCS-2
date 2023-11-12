@@ -41,8 +41,8 @@
 			</species>		
 		</speciesLib>
 		<compartment name="chemostat" priority="2" >
-			<shape class="Dimensionless" volume="1.0e5">
-				<boundary  class="constantConcentrationToChemostat" volumeFlowRate="100.0">
+			<shape class="Dimensionless" volume="1.0e4">
+				<boundary  class="constantConcentrationToChemostat" volumeFlowRate="10.0">
 				<solute name="glucose" concentration="2.0" defaultDiffusivity="36000"  />
 				</boundary>
 				<boundary  class="chemostatOut" constantVolume="true" agentRemoval="true" >
@@ -74,7 +74,7 @@
 					<aspect name="fileName" type="PRIMARY" class="String" value="data" />
 				</process>
 				<process name="flowDeparture"
-					class="DepartureByFlow" priority = "1" volumeFlowRate="100.0">
+					class="DepartureByFlow" priority = "1" volumeFlowRate="10.0">
 				</process>
 			</processManagers>
 		</compartment>
