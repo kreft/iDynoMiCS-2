@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document>
 	<simulation log="NORMAL" outputfolder="../results" name="thin_cell_layer"  randomSeed="224324231">
-	<timer stepSize="1.0" endOfSimulation="5.0" />
+	<timer stepSize="1.0" endOfSimulation="1.0" />
 		<speciesLib>
 			<!-- species/species library The species library contains all agent species 
 				in the simulations. This may include microbial species, plasmid and vector 
@@ -21,7 +21,7 @@
 				<aspect name="radius" type="CALCULATED" class="CoccoidRadius" 		/>
 			</species>
 
-			<species name="yst">
+			<species name="species1">
 			<speciesModule name="coccoid" />
 				<aspect name="pigment" type="PRIMARY" class="String" value="PURPLE" />
 				<aspect name="reactions" type="PRIMARY"  class="InstantiableList"> 
