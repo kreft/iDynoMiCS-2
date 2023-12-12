@@ -15,8 +15,7 @@ import dataIO.Log.Tier;
 public class AspectRef
 {
 
-
-	public static String[] getAllOptions()
+    public static String[] getAllOptions()
 	{
 		Field[] fields = AspectRef.class.getFields();
 		String[] options = new String[fields.length];
@@ -560,7 +559,21 @@ public class AspectRef
 	 */
 	public static final String regionDepth = "regionDepth";
 
-	
+	/**
+	 * specify target compartment by name.
+	 */
+	public static final String compartmentName = "compartmentName";
+
+	/**
+	 * Array of filters for spatial analysis
+	 */
+	public static final String filterSet = "filterSet";
+
+	/**
+	 * set of distances to do colocalization analysis for.
+	 */
+	public static final String colocalizationSteps = "colocalizationSteps";
+
 	/**
 	 * The name of a dimension (X, Y or Z)
 	 */
@@ -707,4 +720,6 @@ public class AspectRef
 
 	public static String youngsModulus = "youngsModulus";
 	public static String poissonRatio = "poissonRatio";
+
+	public static String centerPointRemoval = "centerPointRemoval";
 }

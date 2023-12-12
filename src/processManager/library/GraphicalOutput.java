@@ -2,10 +2,7 @@ package processManager.library;
 
 import static grid.ArrayType.CONCN;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 import idynomics.Idynomics;
 import org.w3c.dom.Element;
@@ -261,8 +258,10 @@ public class GraphicalOutput extends ProcessManager
 		/*
 		 * ^^
 		 */
-		
-		for ( Agent a: _agents.getAllLocatedAgents() )
+		List<Agent> sortedAgents = this._agents.getAllLocatedAgents();
+		Collections.sort(sortedAgents, new Agent.AgentComparator());
+
+		for ( Agent a: sortedAgents )
 			if ( a.isAspect(BODY) )
 			{
 				List<Surface> surfaces = ((Body) a.getValue(BODY)).getSurfaces();

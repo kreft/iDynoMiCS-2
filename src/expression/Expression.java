@@ -361,6 +361,9 @@ public class Expression extends Component implements Settable
 		/* 
 		 * Do the operator stuff here, in the same order that they appear in
 		 * OPERATORS.
+		 * FIXME: we should group operators according to PEMDAS order instead of going 1 by 1
+		 *  eg. if multiplication comes after division in an expression it should not be handled first!
+		 * 	for now always use breakets to make sure evaluation order is correct.
 		 */
 		for ( String oper : OPERATORS )
 			for ( Integer i : eval.keySet() )
