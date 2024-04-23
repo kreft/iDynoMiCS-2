@@ -15,7 +15,8 @@ import utility.ExtraMath;
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
-public class UpdateBody extends Event
+public class
+UpdateBody extends Event
 {
 	
 	public String BODY = AspectRef.agentBody;

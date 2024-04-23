@@ -294,6 +294,12 @@ public class ClassRef
 	 */
 	public final static String plasmidLoss =
 			aspect.event.PlasmidLoss.class.getName();
+
+	/**
+	 * mass transfer from parent cell to bud.
+	 */
+	public final static String buddingMassTransfer =
+			aspect.event.BuddingMassTransfer.class.getName();
 	
 	/* ************************************************************************
 	 * Agents, Species and aspect modules
@@ -733,7 +739,12 @@ public class ClassRef
 	 */
 	public final static String string =
 			String.class.getName();
-	
+
+	/**
+	 * Integer
+	 */
+	public final static String integer =
+			Integer.class.getName();
 	/**		
 	* String FIXME?? not sure whether java standard types should even be here, see also objectRef
 	*/		
@@ -762,6 +773,9 @@ public class ClassRef
 	
 	public static final String fillialDivision = 
 			aspect.event.FillialDivision.class.getName();
+
+	public static final String buddingDivision =
+			aspect.event.BuddingDivision.class.getName();
 	
 	public static final String torsionSPring = 
 			surface.link.TorsionSpring.class.getName();

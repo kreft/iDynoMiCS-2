@@ -87,7 +87,6 @@ public class Body implements Copyable, Instantiable, Settable
 	 */
 	protected List<Link> _links = new CopyOnWriteArrayList<Link>();
 
-
 	/*************************************************************************
 	 * CONSTRUCTORS
 	 ************************************************************************/

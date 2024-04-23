@@ -105,6 +105,11 @@ public abstract interface AspectInterface
 	{
 		this.reg().set(key, aspect);
 	}
+
+	public default void delete(String key)
+	{
+		this.reg().remove(key);
+	}
 	
 	/**
 	 * get value or use default if the aspect is not set

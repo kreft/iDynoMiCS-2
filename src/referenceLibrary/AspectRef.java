@@ -15,7 +15,6 @@ import dataIO.Log.Tier;
 public class AspectRef
 {
 
-
 	public static String[] getAllOptions()
 	{
 		Field[] fields = AspectRef.class.getFields();
@@ -702,9 +701,18 @@ public class AspectRef
 
 	public static final String max = "max";
 
-	public static String functionLimit = "functionLimit" ;
+	public static final String functionLimit = "functionLimit" ;
 
+	public static final String partners = "partners";
 
-	public static String youngsModulus = "youngsModulus";
-	public static String poissonRatio = "poissonRatio";
+	public static final String recipientType = "recipientType";
+
+	public static final String tranferMassType = "tranferMassType";
+	public static final String agentType = "agentType";
+
+	public static final String massTransferLimit = "massTransferLimit";
+
+	public static final String youngsModulus = "youngsModulus";
+	public static final String poissonRatio = "poissonRatio";
+	public static String agentMassTransfer = "agentMassTransfer";
 }

@@ -89,6 +89,8 @@ public abstract class ProcessDiffusion extends ProcessManager
 	public String EXCRETE_EPS = AspectRef.agentExcreteEps;
 	
 	public String DIFFERENTIATE = AspectRef.agentDifferentiation;
+
+	public String TRANSFERPROCESS = AspectRef.agentMassTransfer;
 	/**
 	 * Aspect name for the {@code coordinateMap} used for establishing which
 	 * voxels a located {@code Agent} covers.
@@ -216,6 +218,7 @@ public abstract class ProcessDiffusion extends ProcessManager
 		{
 			agent.event(EXCRETE_EPS);
 			agent.event(DIFFERENTIATE);
+			agent.event(TRANSFERPROCESS);
 			/* agents cannot access the shape aster division so we'll have to do
 			 * this here for now. */
 			for ( Point point: ( (Body) agent.get(AspectRef.agentBody) ).getPoints() )

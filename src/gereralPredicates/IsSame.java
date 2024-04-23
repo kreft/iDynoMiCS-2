@@ -20,7 +20,9 @@ public class IsSame implements Predicate<Object>
 	@Override
 	public boolean test(Object t) 
 	{
-		return (_object.equals(t));
+		if( t == null )
+			return false;
+		return (_object.equals(t)) || _object.equals(t.toString());
 	}
 	
 	/**

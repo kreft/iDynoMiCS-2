@@ -17,7 +17,8 @@ public class XmlRef
 {
 
 
-	public static String[] getAllOptions()
+
+    public static String[] getAllOptions()
 	{
 		Field[] fields = XmlRef.class.getFields();
 		String[] options = new String[fields.length];
@@ -688,5 +689,7 @@ public class XmlRef
 	public static String forceFunction = "forceFunction";
 
 	public static String collisionDictionary = "collisionDictionary";
+
+	public static String partnerMap = "partnerMap";
 
 }

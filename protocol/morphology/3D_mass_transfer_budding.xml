@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+	<simulation name="Bud_transfer" outputfolder="../results" log="EXPRESSIVE" randomSeed="124324235"
+		comment="this is a file for testing purposes only.">
+		<!-- minutes -->
+		<timer stepSize="30.0 [min]" endOfSimulation="42 [day]" />
+		<speciesLib>
+			<species name="yeast_bud">
+				<speciesModule name="coccoid" />
+				<speciesModule name="diferentiator" />
+				<aspect name="agentType" class="String" value="attachedBud" />
+				<aspect name="reactions" type="PRIMARY"  class="InstantiableList"> 
+					<list class="RegularReaction" nodeLabel="reaction" 
+					entryClass="RegularReaction" keyClass="String" keyLabel="name">
+						<reaction name="growth">
+							<expression value="biomass * mumax * 
+									( COD / ( COD + Ks ) ) * 
+									( oxygen / ( oxygen + Kox ) )">
+								<constant name="Ks" 	value="2.4 [g/m+3]" /> 
+								<constant name="Kox" 	value="0.6 [g/m+3]" />
+								<constant name="mumax" 	value="2.0 [d-1]" />  
+							</expression>
+							<stoichiometric component="biomass" coefficient="1.0" />
+							<stoichiometric component="COD" 	coefficient="-2.63" />
+							<stoichiometric component="oxygen"  coefficient="-1.40" />
+						</reaction> 
+						<reaction name="decay">
+							<expression value="biomass * ( b )">
+								<constant name="b" 	value="1.0E-5" /> 
+							</expression>
+							<stoichiometric component="biomass" 		coefficient="-1.0" />
+						</reaction> 
+					</list>
+				</aspect>
+			</species>
+			<species name="yeast_mature">
+				<speciesModule name="coccoid" />
+				<speciesModule name="diferentiator" />
+				<aspect name="unlinkProbabillity" class="double" value="0.333" />
+				<aspect name="agentMassTransfer" class="buddingMassTransfer" />
+				<aspect name="recipientType" class="String" value="attachedBud" />
+				<aspect name="massTransferLimit" class="Double" value="1.8" />
+				<aspect name="reactions" type="PRIMARY"  class="InstantiableList"> 
+					<list class="RegularReaction" nodeLabel="reaction" 
+					entryClass="RegularReaction" keyClass="String" keyLabel="name">
+						<reaction name="growth">
+							<expression value="biomass * mumax * 
+									( COD / ( COD + Ks ) ) * 
+									( oxygen / ( oxygen + Kox ) )">
+								<constant name="Ks" 	value="2.4 [g/m+3]" /> 
+								<constant name="Kox" 	value="0.6 [g/m+3]" />
+								<constant name="mumax" 	value="2.0 [d-1]" />  
+							</expression>
+							<stoichiometric component="biomass" coefficient="1.0" />
+							<stoichiometric component="COD" 	coefficient="-2.63" />
+							<stoichiometric component="oxygen"  coefficient="-1.40" />
+						</reaction> 
+						<reaction name="decay">
+							<expression value="biomass * ( b )">
+								<constant name="b" 	value="1.2E-5" /> 
+							</expression>
+							<stoichiometric component="biomass" 		coefficient="-1.0" />
+						</reaction> 
+					</list>
+				</aspect>
+			</species>
+			<species name="coccoid">
+				<aspect name="density" 				class="Double" 		value="0.015" />
+				<aspect name="surfaces" 			class="AgentSurfaces" />
+				<aspect name="divisionMass" 		class="Double" 		value="2.0" />
+				<aspect name="mumMassFrac" 			class="Double" 		value="0.80" />
+				<aspect name="divide" 				class="BuddingDivision" />
+				<aspect name="directionalDivision"	class="Boolean" 	value="true" />
+				<aspect name="updateBody" 			class="UpdateBody" />
+				<aspect name="volume" 				class="SimpleVolumeState" />
+				<aspect name="radius" 				class="CoccoidRadius" />
+				<aspect name="torsionStiffness" 	class="Double" 		value="0.8 [fN]" />
+				<aspect name="torsionFunction" 		class="Expression" 	value="stiffness * dif" />
+				<aspect name="linearStiffness" 		class="Double" 		value="0.56 [fN]" />
+				<aspect name="linearFunction" 		class="Expression" 	value="stiffness * dh " />
+			</species>
+			<species name="diferentiator">
+				<aspect name="differentiate" class="Differentiate" />
+				<aspect name="differentiationMap" class="InstantiableMap">
+					<map entryClass="String" keyType="String">
+						<item key="parent == 1.0" value="yeast_mature"  />
+						<item key="parent == 0.0" value="yeast_bud"  />
+					</map>
+				</aspect>
+			</species>
+
+		</speciesLib>
+		<compartment name="Compartment3D">
+			<shape class="Cuboid" resolutionCalculator="MgFASResolution" nodeSystem="true">
+				<!-- µm -->
+				<dimension name="X" isCyclic="true" 	targetResolution="16.0" max="256.0"/>
+				<dimension name="Y" isCyclic="false" targetResolution="16.0" max="256.0">
+					<boundary extreme="1" class="FixedBoundary" layerThickness="32.0">
+						<solute name="COD" concentration="1.0 [mg/l]" />
+						<solute name="oxygen" concentration="8.74 [mg/l]" />
+					</boundary>
+				</dimension>
+				<dimension name="Z" isCyclic="true" 	targetResolution="16.0" max="256.0"/>
+			</shape>
+			<solutes>
+				<solute name="COD"  	concentration="1.0 [mg/l]" defaultDiffusivity="2000.0 [um+2/s]" />
+				<solute name="oxygen" 	concentration="8.74 [mg/l]" defaultDiffusivity="2000.0 [um+2/s]"/>
+			</solutes>
+			<reactions>
+			</reactions>
+			<agents>
+				<agent identity="6" >
+					<aspect name="species" type="PRIMARY" class="String" value="yeast_bud" />
+					<aspect name="body" class="Body" >
+						<body morphology="COCCOID" >
+							<point position="128.0,128.0,128.0" />
+						</body>
+					</aspect>
+					<aspect  name="mass" class="InstantiableMap">
+						<map entryClass="Double" keyType="String">
+							<item key="biomass" value="2.0"  />
+							<item key="inert" value="0.0"  />
+						</map>
+					</aspect>
+				</agent>
+			</agents>			
+			<processManagers>
+				<process name="agentRelax"	class="AgentRelaxation" priority="0" />
+				<process name="PDEWrapper" class="PDEWrapper" priority="1" />
+			</processManagers>
+		</compartment>
+	</simulation>
+</document>

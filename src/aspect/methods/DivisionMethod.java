@@ -28,6 +28,10 @@ public abstract class DivisionMethod extends Event {
 		/* Transfer an appropriate amount of mass from mother to daughter. */
 		DivisionMethod.transferMass(initiator, compliant);
 
+		/* reset parent tag if any */
+		if(compliant.isAspect("parent"))
+			compliant.set("parent",0.0);
+
 		/* Update their bodies, if they have them. */
 		if ( initiator.isAspect(AspectRef.agentBody) &&
 				initiator.isAspect(AspectRef.bodyRadius) )
@@ -86,8 +90,8 @@ public abstract class DivisionMethod extends Event {
 		double mumMassFrac = 0.5;
 		/* 5% seems like an appropriate default for cv */
 		double mumMassFracCV = 0.05; 
-		if ( initiator.isAspect(AspectRef.mumMassFracCV) )
-			mumMassFrac = initiator.getDouble(AspectRef.mumMassFracCV);
+		if ( initiator.isAspect(AspectRef.mumMassFrac) )
+			mumMassFrac = initiator.getDouble(AspectRef.mumMassFrac);
 		if ( initiator.isAspect(AspectRef.mumMassFracCV) )
 			mumMassFracCV = initiator.getDouble(AspectRef.mumMassFracCV);
 		mumMassFrac = ExtraMath.deviateFromCV(mumMassFrac, mumMassFracCV);
