@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document>
-	<simulation name="Bud_transfer" outputfolder="../results" log="EXPRESSIVE" randomSeed="124324235"
+	<simulation name="Bud" outputfolder="../results" log="EXPRESSIVE" randomSeed="1234"
 		comment="this is a file for testing purposes only.">
 		<!-- minutes -->
 		<timer stepSize="30.0 [min]" endOfSimulation="42 [day]" />
@@ -8,8 +8,6 @@
 			<species name="yeast_bud">
 				<speciesModule name="coccoid" />
 				<speciesModule name="diferentiator" />
-				<aspect name="unlinkProbabillity" class="double" value="0.333" />
-				<aspect name="agentType" class="String" value="attachedBud" />
 				<aspect name="reactions" type="PRIMARY"  class="InstantiableList"> 
 					<list class="RegularReaction" nodeLabel="reaction" 
 					entryClass="RegularReaction" keyClass="String" keyLabel="name">
@@ -37,10 +35,6 @@
 			<species name="yeast_mature">
 				<speciesModule name="coccoid" />
 				<speciesModule name="diferentiator" />
-				<aspect name="unlinkProbabillity" class="double" value="0.333" />
-				<aspect name="agentMassTransfer" class="buddingMassTransfer" />
-				<aspect name="recipientType" class="String" value="attachedBud" />
-				<aspect name="massTransferLimit" class="Double" value="1.8" />
 				<aspect name="reactions" type="PRIMARY"  class="InstantiableList"> 
 					<list class="RegularReaction" nodeLabel="reaction" 
 					entryClass="RegularReaction" keyClass="String" keyLabel="name">
@@ -50,7 +44,7 @@
 									( oxygen / ( oxygen + Kox ) )">
 								<constant name="Ks" 	value="2.4 [g/m+3]" /> 
 								<constant name="Kox" 	value="0.6 [g/m+3]" />
-								<constant name="mumax" 	value="2.0 [d-1]" />  
+								<constant name="mumax" 	value="0.12 [d-1]" />  
 							</expression>
 							<stoichiometric component="biomass" coefficient="1.0" />
 							<stoichiometric component="COD" 	coefficient="-2.63" />
@@ -66,19 +60,19 @@
 				</aspect>
 			</species>
 			<species name="coccoid">
-				<aspect name="density" 				class="Double" 		value="0.015" />
-				<aspect name="surfaces" 			class="AgentSurfaces" />
-				<aspect name="divisionMass" 		class="Double" 		value="2.0" />
-				<aspect name="mumMassFrac" 			class="Double" 		value="0.80" />
-				<aspect name="divide" 				class="BuddingDivision" />
-				<aspect name="directionalDivision"	class="Boolean" 	value="true" />
-				<aspect name="updateBody" 			class="UpdateBody" />
-				<aspect name="volume" 				class="SimpleVolumeState" />
-				<aspect name="radius" 				class="CoccoidRadius" />
-				<aspect name="torsionStiffness" 	class="Double" 		value="0.8 [fN]" />
-				<aspect name="torsionFunction" 		class="Expression" 	value="stiffness * dif" />
-				<aspect name="linearStiffness" 		class="Double" 		value="0.56 [fN]" />
-				<aspect name="linearFunction" 		class="Expression" 	value="stiffness * dh " />
+				<aspect name="density" 				type="PRIMARY" 		class="Double" 		value="0.015" />
+				<aspect name="surfaces" 			type="CALCULATED" 	class="AgentSurfaces" />
+				<aspect name="divisionMass" 		type="PRIMARY" 		class="Double" 		value="2.0" />
+				<aspect name="mumMassFrac" 			type="PRIMARY" 		class="Double" 		value="0.80" />
+				<aspect name="divide" 				type="EVENT" 		class="BuddingDivision" />
+				<aspect name="directionalDivision"						class="Boolean" 	value="true" />
+				<aspect name="updateBody" 			type="EVENT" 		class="UpdateBody" />
+				<aspect name="volume" 				type="CALCULATED" 	class="SimpleVolumeState" />
+				<aspect name="radius" 				type="CALCULATED" 	class="CoccoidRadius" />
+				<aspect name="torsionStiffness" 						class="Double" 		value="0.8 [fN]" />
+				<aspect name="torsionFunction" 							class="Expression" 	value="stiffness * dif" />
+				<aspect name="linearStiffness" 							class="Double" 		value="0.56 [fN]" />
+				<aspect name="linearFunction" 							class="Expression" 	value="stiffness * dh " />
 			</species>
 			<species name="diferentiator">
 				<aspect name="differentiate" class="Differentiate" />
@@ -126,11 +120,7 @@
 				</agent>
 			</agents>			
 			<processManagers>
-				<process name="agentRelax"	class="AgentRelaxation" priority="0" >
-					<aspect name="maxAgentOverlap" class="Double" value="0.4 [um]" />
-					<aspect name="moveGranularity" class="Double" value="0.33" />
-					<aspect name="maxMovement" class="Double" value="3.0" />
-				</process>
+				<process name="agentRelax"	class="AgentRelaxation" priority="0" />
 				<process name="PDEWrapper" class="PDEWrapper" priority="1" />
 				<process name="svgWriter" class="GraphicalOutput"  priority="-3">
 					<aspect name="solute" type="PRIMARY" class="String" value="COD" />

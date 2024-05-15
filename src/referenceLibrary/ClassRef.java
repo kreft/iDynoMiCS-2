@@ -204,6 +204,10 @@ public class ClassRef
 	public final static String localConcentration =
 			aspect.calculated.LocalConcentration.class.getName();
 
+	public final static String randomFactor =
+			aspect.calculated.RandomFactor.class.getName();
+
+
 	/* ************************************************************************
 	 * Class reference library : Aspects - Event
 	 */

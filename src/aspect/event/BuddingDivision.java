@@ -99,23 +99,13 @@ public class BuddingDivision extends DivisionMethod
 					break;
 				}
 			double[] direction = null;
-			Link link = iniBody.getLinks().get(0);
-			for( Link l : iniBody.getLinks() )
-				if(l.getMembers().contains(Idynomics.simulator.findAgent( parent ))) // select parent link FIXME: update link objects to safe parent id for speedup
-					link = l;
-			AspectInterface other = null;
-
-			/* identify tip direction */
-			for( AspectInterface a : link.getMembers())
-				if( a != initiator )
-				{
-					other = a;
-					direction = ((Body) a.getValue( AspectRef.agentBody )).
+			Agent p = Idynomics.simulator.findAgent( parent );
+					direction = ((Body) p.getValue( AspectRef.agentBody )).
 							getClosePoint( iniBody.getCenter(shape), shape).getPosition();
 					double[] diff = Vector.minus( iniBody.getCenter(shape), direction );
-					direction = Vector.add(iniBody.getCenter(shape), Vector.flip(diff) );
-				}
-			Body othBody = (Body) other.getValue( AspectRef.agentBody );
+					direction = Vector.add(iniBody.getCenter(shape), diff );
+
+			Body othBody = (Body) p.getValue( AspectRef.agentBody );
 			
 			double[] oriPos = iniBody.getClosePoint(
 					othBody.getCenter( shape ), shape ).getPosition();
@@ -135,7 +125,7 @@ public class BuddingDivision extends DivisionMethod
 					q.setPosition( Vector.add( oriPos, 
 							Vector.times( shift, rs )));
 			}
-			Link.torsion((Agent) other, initiator, compliant);
+			Link.torsion(p, initiator, compliant);
 
 		}
 		else

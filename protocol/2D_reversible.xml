@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+	<simulation name="simple_biofilm" outputfolder="../results" log="NORMAL">
+		<timer stepSize="3 [h]" endOfSimulation="10 [d]" />
+		<speciesLib>
+			<species name="bacterium">
+				<speciesModule name="coccoid" />
+				<aspect name="reactions" class="InstantiableList"> 
+					<list nodeLabel="reaction" entryClass="RegularReaction">
+						<reaction name="growth">
+							<expression value="mass*mumax*(solute/(solute+Ks))*((oxygen/(oxygen+Kox))">
+								<constant name="Ks" value="2.4[g/m+3]" /> 
+								<constant name="Kox" value="0.6[g/m+3]" />
+								<constant name="mumax" value="2.05[d-1]" />  
+							</expression>
+							<stoichiometric component="mass" coefficient="1.0" />
+							<stoichiometric component="oxygen" coefficient="-18.0" />
+							<stoichiometric component="solute" coefficient="-4.2" />
+						</reaction> 
+					</list>
+				</aspect>
+			</species>
+			<species name="coccoid">
+				<aspect name="density" class="Double" value="0.15" />
+				<aspect name="surfaces" class="AgentSurfaces" />
+				<aspect name="morphology" class="String" value="coccoid" />
+				<aspect name="volume" class="SimpleVolumeState" />
+				<aspect name="radius" class="CylinderRadius" />
+				<aspect name="divide" class="CoccoidDivision" />
+				<aspect name="divisionMass" class="Double" value="0.2 [pg]" />
+				<aspect name="updateBody" class="UpdateBody" />
+			</species>
+		</speciesLib>
+		<compartment name="biofilm-compartment">
+			<shape class="Rectangle" resolutionCalculator="MgFASResolution" nodeSystem="true">
+				<dimension name="X" isCyclic="true" targetResolution="8.0" max="32.0"/>
+				<dimension name="Y" isCyclic="false" targetResolution="8.0" max="32.0">
+				</dimension>
+			</shape>
+			<solutes>
+				<solute name="h" 	concentration="0.15" defaultDiffusivity="1"  />
+				<solute name="oh" 	concentration="1.0e-10" defaultDiffusivity="1"  />
+				<solute name="f" 	concentration="0.05" defaultDiffusivity="1"  />
+				<solute name="hf" 	concentration="0.05" defaultDiffusivity="1"  />
+				<solute name="cn" 	concentration="0.05" defaultDiffusivity="1"  />
+				<solute name="hcn" 	concentration="0.05" defaultDiffusivity="1"  />
+				<solute name="a" 	concentration="0.05" defaultDiffusivity="1"  />
+				<solute name="ha" 	concentration="0.05" defaultDiffusivity="1"  />
+			</solutes>
+			<reactions>
+				<reaction name="formic_acid">
+					<expression value="(h*f)/hf-Ka" >
+						<constant name="Ka" 	value="7.2e-4" /> 
+					</expression>
+					<stoichiometric component="h" coefficient="-1.0" />
+					<stoichiometric component="f" coefficient="-1.0" />
+					<stoichiometric component="hf" coefficient="1.0" />
+				</reaction>
+				<reaction name="hydrogen_cyanide">
+					<expression value="(h*cn)/hcn-Ka" >
+						<constant name="Ka" 	value="6.2E-10" /> 
+					</expression>
+					<stoichiometric component="h" coefficient="-1.0" />
+					<stoichiometric component="cn" coefficient="-1.0" />
+					<stoichiometric component="hcn" coefficient="1.0" />
+				</reaction>	
+				<reaction name="generic_acid">
+					<expression value="(h*a)/ha-Ka" >
+						<constant name="Ka" 	value="1.6E-10" /> 
+					</expression>
+					<stoichiometric component="h" coefficient="-1.0" />
+					<stoichiometric component="a" coefficient="-1.0" />
+					<stoichiometric component="ha" coefficient="1.0" />
+				</reaction>
+				<reaction name="water_diso">
+					<expression value="(h*oh)-Kw" >
+						<constant name="Kw" 	value="1.0E-14" /> 
+					</expression>
+					<stoichiometric component="h" coefficient="-1.0" />
+					<stoichiometric component="oh" coefficient="-1.0" />
+				</reaction>
+			</reactions>
+			<spawn class="randomSpawner" domain="32.0, 1.0" priority="0" number="0" morphology="COCCOID">
+				<templateAgent>
+					<aspect name="species" class="String" value="bacterium" />
+					<aspect name="mass" class="Double" value="0.2" />
+				</templateAgent>
+			</spawn>
+			<processManagers>
+				<process name="agentRelax"	class="AgentRelaxation" priority="0" />
+				<process name="PDEWrapper" class="PDEWrapper" priority="1" firstStep="0.0">
+					<aspect name="solverResidualRatioThreshold" class="Double" value="1.0E-9" />
+					<aspect name="autoVcycleAdjust" class="Boolean" value="true" />
+				</process>
+			</processManagers>
+		</compartment>
+	</simulation>
+</document>

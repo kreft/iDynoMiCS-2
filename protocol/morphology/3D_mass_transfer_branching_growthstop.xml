@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document>
-	<simulation name="Bud_transfer" outputfolder="../results" log="EXPRESSIVE" randomSeed="124324235"
+	<simulation name="Bud_transfer" outputfolder="../results" log="EXPRESSIVE" randomSeed="1234"
 		comment="this is a file for testing purposes only.">
 		<!-- minutes -->
 		<timer stepSize="30.0 [min]" endOfSimulation="42 [day]" />
@@ -8,7 +8,7 @@
 			<species name="yeast_bud">
 				<speciesModule name="coccoid" />
 				<speciesModule name="diferentiator" />
-				<aspect name="unlinkProbabillity" class="double" value="0.5" />
+				<aspect name="unlinkProbabillity" class="double" value="0.0" />
 				<aspect name="agentType" class="String" value="attachedBud" />
 				<aspect name="reactions" type="PRIMARY"  class="InstantiableList"> 
 					<list class="RegularReaction" nodeLabel="reaction" 
@@ -37,10 +37,11 @@
 			<species name="yeast_mature">
 				<speciesModule name="coccoid" />
 				<speciesModule name="diferentiator" />
-				<aspect name="unlinkProbabillity" class="double" value="1.0" />
+				<aspect name="unlinkProbabillity" class="double" value="0.0" />
 				<aspect name="agentMassTransfer" class="buddingMassTransfer" />
 				<aspect name="recipientType" class="String" value="attachedBud" />
 				<aspect name="massTransferLimit" class="Double" value="1.8" />
+				<aspect name="growthStop" class="randomFactor" />
 				<aspect name="reactions" type="PRIMARY"  class="InstantiableList"> 
 					<list class="RegularReaction" nodeLabel="reaction" 
 					entryClass="RegularReaction" keyClass="String" keyLabel="name">
@@ -65,6 +66,25 @@
 					</list>
 				</aspect>
 			</species>
+			<species name="yeast_old">
+				<speciesModule name="coccoid" />
+				<aspect name="unlinkProbabillity" class="double" value="0.0" />
+				<aspect name="agentMassTransfer" class="buddingMassTransfer" />
+				<aspect name="recipientType" class="String" value="attachedBud" />
+				<aspect name="massTransferLimit" class="Double" value="1.8" />
+				<aspect name="reactions" type="PRIMARY"  class="InstantiableList"> 
+					<list class="RegularReaction" nodeLabel="reaction" 
+					entryClass="RegularReaction" keyClass="String" keyLabel="name">
+						<reaction name="maintenance">
+							<expression value="biomass * ( b )">
+								<constant name="b" 	value="1.2E-5" /> 
+							</expression>
+							<stoichiometric component="COD" 	coefficient="-2.63" />
+							<stoichiometric component="oxygen"  coefficient="-1.40" />
+						</reaction> 
+					</list>
+				</aspect>
+			</species>
 			<species name="coccoid">
 				<aspect name="density" 				class="Double" 		value="0.015" />
 				<aspect name="surfaces" 			class="AgentSurfaces" />
@@ -81,9 +101,11 @@
 				<aspect name="linearFunction" 		class="Expression" 	value="stiffness * dh " />
 			</species>
 			<species name="diferentiator">
+				<aspect name="growthStop" class="double" value="0.0" />
 				<aspect name="differentiate" class="Differentiate" />
 				<aspect name="differentiationMap" class="InstantiableMap">
 					<map entryClass="String" keyType="String">
+						<item key="growthStop GT 0.99" value="yeast_old"  />
 						<item key="parent == 1.0" value="yeast_mature"  />
 						<item key="parent == 0.0" value="yeast_bud"  />
 					</map>
@@ -92,7 +114,7 @@
 
 		</speciesLib>
 		<compartment name="Compartment3D">
-			<shape class="Rectangle" resolutionCalculator="MgFASResolution" nodeSystem="true">
+			<shape class="Cuboid" resolutionCalculator="MgFASResolution" nodeSystem="true">
 				<!-- µm -->
 				<dimension name="X" isCyclic="true" 	targetResolution="16.0" max="256.0"/>
 				<dimension name="Y" isCyclic="false" targetResolution="16.0" max="256.0">
@@ -101,6 +123,7 @@
 						<solute name="oxygen" concentration="8.74 [mg/l]" />
 					</boundary>
 				</dimension>
+				<dimension name="Z" isCyclic="true" 	targetResolution="16.0" max="256.0"/>
 			</shape>
 			<solutes>
 				<solute name="COD"  	concentration="1.0 [mg/l]" defaultDiffusivity="2000.0 [um+2/s]" />
@@ -113,7 +136,7 @@
 					<aspect name="species" type="PRIMARY" class="String" value="yeast_bud" />
 					<aspect name="body" class="Body" >
 						<body morphology="COCCOID" >
-							<point position="128.0,128.0" />
+							<point position="128.0,128.0,128.0" />
 						</body>
 					</aspect>
 					<aspect  name="mass" class="InstantiableMap">
@@ -125,8 +148,20 @@
 				</agent>
 			</agents>			
 			<processManagers>
-				<process name="agentRelax"	class="AgentRelaxation" priority="0" />
+				<process name="agentRelax"	class="AgentRelaxation" priority="0" >
+					<aspect name="maxAgentOverlap" class="Double" value="0.4 [um]" />
+					<aspect name="moveGranularity" class="Double" value="0.33" />
+					<aspect name="maxMovement" class="Double" value="3.0" />
+				</process>
 				<process name="PDEWrapper" class="PDEWrapper" priority="1" />
+				<process name="svgWriter" class="GraphicalOutput"  priority="-3">
+					<aspect name="solute" type="PRIMARY" class="String" value="COD" />
+					<aspect name="maxConcentration" type="PRIMARY" class="Double" value="1.0 [mg/l]" />
+					<aspect name="outputWriter" type="PRIMARY" class="String" value="SvgExport" />
+				</process>
+				<process name="povWriter" class="GraphicalOutput"  priority="-3" firstStep="0.0" >
+				<aspect name="outputWriter" type="PRIMARY" class="String" value="PovExport" />
+			</process>
 			</processManagers>
 		</compartment>
 	</simulation>
