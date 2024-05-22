@@ -16,8 +16,6 @@ import dataIO.Log.Tier;
 public class XmlRef
 {
 
-
-
     public static String[] getAllOptions()
 	{
 		Field[] fields = XmlRef.class.getFields();
@@ -350,8 +348,11 @@ public class XmlRef
 	 * Indicates a solute concentration.
 	 */
 	public final static String concentration = "concentration";
-	
-	
+
+	/**
+	 * Indicates pKa value(s) of solute.
+	 */
+	public final static String pKa = "pKa";
 	/**
 	 * The name of the compartment from which an arrivals lounge originates
 	 */

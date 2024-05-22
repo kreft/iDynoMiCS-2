@@ -104,7 +104,9 @@ public class SpatialGrid implements Settable, Instantiable
 	protected double _threshold;
 	
 	protected DiffusivityType _diffusivity;
-	
+
+	protected double[] _pKa;
+
 	public enum DiffusivityType
 	{
 		ALL_SAME,
@@ -257,6 +259,12 @@ public class SpatialGrid implements Settable, Instantiable
 			this._biofilmDiffusivity = diffusivity;
 			this._diffusivity = DiffusivityType.BIOMASS_SCALED;
 		}
+
+		String temp = XmlHandler.gatherAttribute(xmlElem, XmlRef.pKa);
+
+		this._pKa = (Helper.isNullOrEmpty(temp) ? null : (double[]) ObjectFactory.loadObject( temp,
+				double[].class.getSimpleName() ));
+
 		
 		// TODO threshold
 	}

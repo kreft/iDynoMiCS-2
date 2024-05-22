@@ -63,7 +63,7 @@ public class ChemostatSolver extends ProcessManager
 	 */
 	protected int _n;
 	
-	protected boolean diableBulk = false;
+	protected boolean disableBulk = false;
 	
 	/* ***********************************************************************
 	 * CONSTRUCTORS
@@ -80,7 +80,7 @@ public class ChemostatSolver extends ProcessManager
 		this._solutes = soluteNames;
 		this._n = this._solutes == null ? 0 : this._solutes.length;
 		if (this.isAspect(DISABLE_BULK_DYNAMICS))
-			this.diableBulk = this.getBoolean(DISABLE_BULK_DYNAMICS);
+			this.disableBulk = this.getBoolean(DISABLE_BULK_DYNAMICS);
 	}
 	
 	/* ***********************************************************************
@@ -158,7 +158,7 @@ public class ChemostatSolver extends ProcessManager
 		/*
 		 * Update the environment
 		 */
-		if( !this.diableBulk )
+		if( !this.disableBulk)
 		{
 			for ( int i = 0; i < this._n; i++ )
 				this._environment.setAllConcentration( this._solutes[i], yODE[i]);
