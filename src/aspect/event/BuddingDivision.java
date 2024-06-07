@@ -2,6 +2,7 @@ package aspect.event;
 
 import agent.Agent;
 import agent.Body;
+import analysis.FilterLogic;
 import aspect.AspectInterface;
 import aspect.methods.DivisionMethod;
 import idynomics.Idynomics;
@@ -13,6 +14,7 @@ import shape.Shape;
 import surface.Point;
 import surface.link.Link;
 import utility.ExtraMath;
+import utility.Helper;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -24,6 +26,185 @@ import java.util.Map;
 public class BuddingDivision extends DivisionMethod
 {
 	private double shiftFrac = 0.01;
+	private boolean randomization = true;
+
+	public void start(AspectInterface initiator,
+					  AspectInterface compliant, Double timeStep)
+	{
+		if ( ! this.shouldChange( initiator )) {
+			super.start(initiator, compliant, timeStep);
+			return;
+		}
+
+		if ( initiator.isAspect( AspectRef.agentBody ) && ((Body)
+				initiator.getValue( AspectRef.agentBody )).getMorphology()
+				!= Body.Morphology.BACILLUS )
+		{
+			shiftMorphology( (Agent) initiator );
+			updateAgents( (Agent) initiator, null );
+		}
+
+		super.start(initiator, compliant, timeStep);
+	}
+
+	protected boolean shouldChange( AspectInterface initiator )
+	{
+		boolean shift = false;
+		if( initiator.isAspect("shiftCondition"))
+			shift = FilterLogic.filterFromString( initiator.getString("shiftCondition") ).match( initiator );
+		return shift;
+	}
+
+	protected void shiftMorphology( Agent initiator )
+	{
+		double rs = initiator.getDouble( AspectRef.bodyRadius ) * shiftFrac;
+		Shape shape = initiator.getCompartment().getShape();
+		Body iniBody = (Body) initiator.get( AspectRef.agentBody );
+		Body otABody = null;
+		Body otBBody = null;
+		Point q = null, p = null;
+		double[] originalPos, shiftA, shiftB;
+		AspectInterface otherA = null;
+		AspectInterface otherB = null;
+		Link linkA = null;
+		Link linkB = null;
+
+		if(  initiator.getBoolean( AspectRef.directionalDivision ) &!
+				iniBody.getLinks().isEmpty())
+		{
+			double[] directionA = null;
+			double[] directionB = null;
+
+			for( Link l : iniBody.getLinks() )
+				if(l.getMembers().size() < 3)
+					if( linkA == null )
+						linkA = l;
+					else
+						linkB = l;
+
+			for( AspectInterface a : linkA.getMembers())
+				if( a != initiator && otherA == null )
+				{
+					otherA = a;
+					directionA = ((Body) a.getValue(AspectRef.agentBody)).
+							getClosePoint( iniBody.getCenter( shape ), shape ).
+							getPosition();
+
+					otABody = (Body) otherA.getValue( AspectRef.agentBody );
+				}
+
+			if( linkB != null )
+				for( AspectInterface a : linkB.getMembers())
+					if( a != initiator && otherB == null )
+					{
+						otherB = a;
+						directionB = ((Body) a.getValue( AspectRef.agentBody )).
+								getClosePoint(iniBody.getCenter(shape), shape ).
+								getPosition();
+
+						otBBody = (Body) otherB.getValue(
+								AspectRef.agentBody );
+					}
+
+
+			originalPos = iniBody.getClosePoint( otABody.getCenter( shape ),
+					shape ).getPosition();
+			shiftA = initiator.getCompartment().getShape().
+					getMinDifferenceVector(	directionA, originalPos );
+
+			if( randomization )
+				Vector.addEquals( shiftA, Vector.times(
+						Vector.randomPlusMinus( directionA ) , rs ));
+
+			if( linkB != null )
+				shiftB = initiator.getCompartment().getShape().
+						getMinDifferenceVector(	directionB, originalPos);
+			else
+				shiftB = Vector.times(shiftA, -1.0);
+
+			if( randomization )
+				Vector.addEquals( shiftB, Vector.times(
+						Vector.randomPlusMinus( directionA ) , rs ));
+
+			p = iniBody.getClosePoint(otABody.getCenter(shape), shape);
+			q = new Point(p);
+
+			p.setPosition( shape.applyBoundaries(
+					Vector.add( originalPos, Vector.times( shiftA, rs ))));
+			q.setPosition( shape.applyBoundaries(
+					Vector.add( originalPos, Vector.times( shiftB, rs ))));
+
+			/* reshape */
+			iniBody.getPoints().add( new Point( q ));
+			iniBody.getSurfaces().clear();
+			iniBody.assignMorphology( Body.Morphology.BACILLUS.name() );
+			iniBody.constructBody( 1.0,
+					initiator.getDouble( AspectRef.transientRadius ));
+
+			for(Link l : iniBody.getLinks() )
+			{
+				if(l.getMembers().size() > 2)
+				{
+					iniBody.getLinks().remove(l);
+				}
+			}
+
+			if( otherA != null)
+			{
+				for(Link l : otABody.getLinks() )
+				{
+					int i;
+					i = l.getMembers().indexOf(initiator);
+					l.setPoint(i, iniBody.getClosePoint( otABody.getCenter(
+							shape ), shape ));
+				}
+			}
+
+			if ( otherB != null )
+			{
+				for(Link l : otBBody.getLinks() )
+				{
+					int i;
+					i = l.getMembers().indexOf(initiator);
+					l.setPoint(i, iniBody.getClosePoint( otBBody.getCenter(
+							shape ), shape ));
+				}
+			}
+		}
+		else
+		{
+			/* if we are not linked yet */
+			originalPos = iniBody.getPosition(0);
+			shiftA = Vector.randomPlusMinus(originalPos.length,
+					initiator.getDouble( AspectRef.bodyRadius ));
+
+			if( randomization )
+				Vector.addEquals( shiftA, Vector.times(
+						Vector.randomPlusMinus( originalPos ) , rs ));
+
+			p = iniBody.getPoints().get(0);
+			q = new Point(p);
+
+			p.setPosition( shape.applyBoundaries(
+					Vector.add( originalPos, Vector.times( shiftA, rs))) );
+			q.setPosition( shape.applyBoundaries(
+					Vector.minus( originalPos, Vector.times( shiftA, rs))) );
+
+			/* reshape */
+			iniBody.getPoints().add( new Point( q ));
+			iniBody.getSurfaces().clear();
+			iniBody.assignMorphology( Body.Morphology.BACILLUS.name() );
+			iniBody.constructBody( 0.1,
+					initiator.getDouble( AspectRef.transientRadius ));
+		}
+
+		if( otherA != null)
+			Link.torsion( (Agent) otherA, initiator, initiator );
+		if( otherB != null)
+			Link.torsion( (Agent) otherB, initiator, initiator );
+	}
+
+
 	/**
 	 * \brief Shift the bodies of <b>initiator</b> to <b>compliant</b> in space, so
 	 * that they do not overlap and assign filial links.

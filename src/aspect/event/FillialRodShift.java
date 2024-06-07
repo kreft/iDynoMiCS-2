@@ -50,7 +50,7 @@ public class FillialRodShift extends DivisionMethod
 		return (variable > threshold);
 	}
 	
-	protected boolean shouldDevide( AspectInterface initiator )
+	protected boolean shouldDivide( AspectInterface initiator )
 	{
 
 		Object iniMass = initiator.getValue( AspectRef.agentMass );
