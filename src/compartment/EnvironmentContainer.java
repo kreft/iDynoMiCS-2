@@ -124,6 +124,13 @@ public class EnvironmentContainer implements CanPrelaunchCheck, Settable
 		sg.newArray(CONCN, initialConcn);
 		this.addSolute(sg);
 	}
+
+	public void addSpecial(String gridName, double initialvalue)
+	{
+		SpatialGrid sg = new SpatialGrid(this._shape, gridName, this);
+		sg.newArray(CONCN, initialvalue);
+		this.addSpecial(sg);
+	}
 	
 	/**
 	 * \brief TODO
@@ -216,6 +223,14 @@ public class EnvironmentContainer implements CanPrelaunchCheck, Settable
 				return true;
 		return false;
 	}
+
+	public boolean isSpecialName(String name)
+	{
+		for ( SpatialGrid sg : this._special )
+			if ( sg.getName().equals(name) )
+				return true;
+		return false;
+	}
 	
 	/**
 	 * @return The SpatialGrid representation for every solute present in this
@@ -226,7 +241,11 @@ public class EnvironmentContainer implements CanPrelaunchCheck, Settable
 		return this._solutes;
 	}
 
-	
+
+	public Collection<SpatialGrid> getSpesials()
+	{
+		return this._special;
+	}
 	/**
 	 * @return All of this {@code Compartment}'s extracellular reactions.
 	 */
@@ -602,6 +621,8 @@ public class EnvironmentContainer implements CanPrelaunchCheck, Settable
 		modelNode.add( this.getSolutesNode() );
 		/* Add the reactions node. */
 		modelNode.add( this.getReactionNode() );
+		/* Add special grid node. */
+		modelNode.add( this.getSpecialNode() );
 		return modelNode;	
 	}
 	
@@ -626,6 +647,25 @@ public class EnvironmentContainer implements CanPrelaunchCheck, Settable
 		modelNode.addChildSpec( ClassRef.spatialGrid, 
 				null, Module.Requirements.ZERO_TO_MANY );
 		
+		return modelNode;
+	}
+
+	private Module getSpecialNode()
+	{
+		/* The special node. */
+		Module modelNode = new Module(XmlRef.grids, this);
+		modelNode.setTitle(XmlRef.grids);
+		modelNode.setRequirements(Requirements.EXACTLY_ONE);
+		/*
+		 * add special nodes, yet only if the environment has been initiated, when
+		 * creating a new compartment solutes can be added later
+		 */
+		for ( String grid : this.getGridNames(this._special) )
+			modelNode.add( this.getSpecialGrid(grid).getModule() );
+
+		modelNode.addChildSpec( ClassRef.spatialGrid,
+				null, Module.Requirements.ZERO_TO_MANY );
+
 		return modelNode;
 	}
 	

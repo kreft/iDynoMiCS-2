@@ -16,6 +16,7 @@ import dataIO.Log.Tier;
 public class XmlRef
 {
 
+
     public static String[] getAllOptions()
 	{
 		Field[] fields = XmlRef.class.getFields();
@@ -89,7 +90,8 @@ public class XmlRef
 	 * Indicates a solute.
 	 */
 	public final static String solute = "solute";
-	
+
+
 	/**
 	 * Method for setting the diffusivity array of a solute's spatial grid.
 	 */
@@ -410,6 +412,9 @@ public class XmlRef
 	 * TODO
 	 */
 	public final static String solutes = "solutes";
+
+
+	public final static String grids = "grids";
 
 	/**
 	 * Seed for the random number generator.

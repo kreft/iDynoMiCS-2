@@ -1,10 +1,8 @@
 package processManager.library;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
+import grid.SpatialGrid;
 import org.w3c.dom.Element;
 
 import agent.Agent;
@@ -21,10 +19,8 @@ import processManager.ProcessMethods;
 import reaction.Reaction;
 import reaction.RegularReaction;
 import referenceLibrary.AspectRef;
-import solver.ODEderivatives;
-import solver.ODEheunsmethod;
-import solver.ODErosenbrock;
-import solver.ODEsolver;
+import solver.*;
+import solver.mgFas.SoluteGrid;
 import utility.Helper;
 
 /**
@@ -64,6 +60,8 @@ public class ChemostatSolver extends ProcessManager
 	protected int _n;
 	
 	protected boolean disableBulk = false;
+
+	protected PHsolver pHsolver = null;
 	
 	/* ***********************************************************************
 	 * CONSTRUCTORS
@@ -81,6 +79,22 @@ public class ChemostatSolver extends ProcessManager
 		this._n = this._solutes == null ? 0 : this._solutes.length;
 		if (this.isAspect(DISABLE_BULK_DYNAMICS))
 			this.disableBulk = this.getBoolean(DISABLE_BULK_DYNAMICS);
+
+		Collection<SpatialGrid> solutes = this._environment.getSolutes();
+		for ( SpatialGrid s : solutes )
+		{
+			double[] pkas = s.getpKa();
+			if( pkas != null )
+			{
+				for( int i = 0; i <= pkas.length; i++)
+				{
+					this._environment.addSpecial((s.getName() + "___" + i), 0.0);
+				}
+				if( !this._environment.isSpecialName("pH") )
+					this._environment.addSpecial("pH", 7.0);
+				this.pHsolver = new PHsolver();
+			}
+		}
 	}
 	
 	/* ***********************************************************************
@@ -165,7 +179,9 @@ public class ChemostatSolver extends ProcessManager
 			this._environment.getShape().setTotalVolume( yODE[ _n ] );
 			if( Log.shouldWrite(Tier.DEBUG) )
 				Log.out(Tier.DEBUG, "new volume: " + yODE[ _n ] );
-			}
+
+			pHsolver.solve(this._environment);
+		}
 		
 		/* 
 		 * Update the agents 

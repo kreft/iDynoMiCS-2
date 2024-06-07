@@ -851,6 +851,11 @@ public class SpatialGrid implements Settable, Instantiable
 	{
 		return this.getValueAt(type, this._shape.getCoords(location));
 	}
+
+	public double[] getpKa()
+	{
+		return this._pKa;
+	}
 	
 	/* ***********************************************************************
 	 * 							REPORTING
@@ -963,9 +968,13 @@ public class SpatialGrid implements Settable, Instantiable
 		
 		this._defaultDiffusivity = Double.valueOf( node.getAttribute( 
 				XmlRef.defaultDiffusivity ).getValue());
-		
-		Double biof = Double.valueOf( node.getAttribute( 
+
+		/* 0.0 if we are looking at special grids */
+		Double biof = 0.0;
+		if( this._defaultDiffusivity != 0.0 )
+			biof = Double.valueOf( node.getAttribute(
 				XmlRef.biofilmDiffusivity ).getValue());
+
 		if (Helper.isNullOrEmpty(biof) || biof.equals(this._defaultDiffusivity))
 		{
 			this._diffusivity = DiffusivityType.ALL_SAME;
