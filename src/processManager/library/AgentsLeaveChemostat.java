@@ -15,9 +15,8 @@ import utility.Helper;
  * Probability-based removal process for dimensionless compartments. User should
  * provide a detachment rate (Per minute) at which agents leave the compartment.
  * This should in theory be based on the size of area they are leaving through.
- * 
- * @author Tim Foster
  *
+ * Based on AgentDetachment
  */
 
 public class AgentsLeaveChemostat extends ProcessDeparture
