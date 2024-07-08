@@ -1,0 +1,1069 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+	<simulation name="gutModelTransverseColon" outputfolder="../results" log="EXPRESSIVE"
+		comment="this is a file for testing purposes only.">
+		<!-- minutes -->
+		<timer stepSize="30.0" endOfSimulation="432000.0" />
+		<speciesLib>
+			<species name="epithelium">
+				<aspect name="surfaces"			type="CALCULATED"	class="AgentSurfaces"	  />
+				<aspect name="volume" 			type="PRIMARY" 		class="Double" 		value="4.0" />
+				<aspect name="divide" 			type="EVENT" 		class="CuboidDivision"		 />
+				<aspect name="#isEpithelial" 	type="PRIMARY" 		class="Boolean" value="true" />
+				<aspect name="epsExcretion" 	type="EVENT"		class="ExcreteEPS" 	 />
+				<aspect name="maxInternalEPS" 	type="PRIMARY" 		class="Double" value="4.0" />
+				<aspect name="epsSpecies" 		type="PRIMARY" 		class="String" value="particleEPS" />
+				<aspect name="apicalFace"		type="CALCULATED" 	class="CuboidApicalFace" />
+				<aspect name="reactions" type="PRIMARY" class="InstantiableList">
+					<list class="RegularReaction" nodeLabel="reaction" entryClass="RegularReaction" keyClass="String" keyLabel="name">
+						<reaction name="butyrate_respiration" reactionType="transfer">
+							<expression value = "(mumax * butyrate * biomass)
+								/ ( Kb  + butyrate)" >
+								<constant name="mumax" 	value="4.5e-5 [min-1]" />
+								<constant name="Kb" 	value="0.287 [mg/l]" />
+							</expression>
+							<stoichiometric component="co2@compartment" coefficient="1.0" />
+							<stoichiometric component="biomass@agent" coefficient="0.06534" />
+							<stoichiometric component="butyrate@compartment" coefficient="-0.25" />
+						</reaction> 
+						<reaction name="butyrate_diffusion_into_body" reactionType="Transfer">
+							<expression value = "((butyrate@compartment - butyrate@body)
+								/ (cell_thickness)) * diffusivity" >
+								<constant name="cell_thickness" 	value="25.0" />
+								<constant name="diffusivity" 	value="1.21E-9 [m+2/s]" />
+							</expression>
+							<stoichiometric component="butyrate@body" coefficient="1.0" />
+							<stoichiometric component="butyrate@compartment" coefficient="-1.0" />
+						</reaction> 
+						<reaction name="glucose_diffusion_into_body" reactionType="Transfer">
+							<expression value = "((glucose@compartment - glucose@body)
+								/ (cell_thickness)) * diffusivity" >
+								<constant name="cell_thickness" 	value="25.0" />
+								<constant name="diffusivity" 	value="9.58E-10 [m+2/s]" />
+							</expression>
+							<stoichiometric component="glucose@body" coefficient="1.0" />
+							<stoichiometric component="glucose@compartment" coefficient="-1.0" />
+						</reaction> 
+						<reaction name="acetate_diffusion_into_body" reactionType="Transfer">
+							<expression value = "((acetate@compartment - acetate@body)
+								/ (cell_thickness)) * diffusivity" >
+								<constant name="cell_thickness" 	value="25.0" />
+								<constant name="diffusivity" 	value="1.67E-9 [m+2/s]" />
+							</expression>
+							<stoichiometric component="acetate@body" coefficient="1.0" />
+							<stoichiometric component="acetate@compartment" coefficient="-1.0" />
+						</reaction> 
+						<reaction name="lactate_diffusion_into_body" reactionType="Transfer">
+							<expression value = "((lactate@compartment - lactate@body)
+								/ (cell_thickness)) * diffusivity" >
+								<constant name="cell_thickness" 	value="25.0" />
+								<constant name="diffusivity" 	value="1.39E-9 [m+2/s]" />
+							</expression>
+							<stoichiometric component="lactate@body" coefficient="1.0" />
+							<stoichiometric component="lactate@compartment" coefficient="-1.0" />
+						</reaction> 
+						<reaction name="propionate_diffusion_into_body" reactionType="Transfer">
+							<expression value = "((propionate@compartment - propionate@body)
+								/ (cell_thickness)) * diffusivity" >
+								<constant name="cell_thickness" 	value="25.0" />
+								<constant name="diffusivity" 	value="1.39E-9 [m+2/s]" />
+							</expression>
+							<stoichiometric component="propionate@body" coefficient="1.0" />
+							<stoichiometric component="propionate@compartment" coefficient="-1.0" />
+						</reaction> 
+					</list>
+				</aspect>
+			</species>
+			<species name="gobletCell">
+				<aspect name="surfaces"			type="CALCULATED"	class="AgentSurfaces"	  />
+				<aspect name="volume" 			type="PRIMARY" 		class="Double" 		value="4.0" />
+				<aspect name="divide" 			type="EVENT" 		class="CuboidDivision"		 />
+				<aspect name="#isEpithelial" 	type="PRIMARY" 		class="Boolean" value="true" />
+				<aspect name="epsExcretion" 	type="EVENT"		class="ExcreteEPS" 	 />
+				<aspect name="maxInternalEPS" 	type="PRIMARY" 		class="Double" value="4.0" />
+				<aspect name="epsSpecies" 		type="PRIMARY" 		class="String" value="particleEPS" />
+				<aspect name="apicalFace"		type="CALCULATED" 	class="CuboidApicalFace" />
+				<aspect name="reactions" type="PRIMARY" class="InstantiableList">
+					<list class="RegularReaction" nodeLabel="reaction" entryClass="RegularReaction" keyClass="String" keyLabel="name">
+						<reaction name="butyrate_respiration_and_eps_production" reactionType="transfer">
+							<expression value = "(mumax * butyrate * biomass)
+								/ ( Kb  + butyrate)" >
+								<constant name="mumax" 	value="4.5e-5 [min-1]" />
+								<constant name="Kb" 	value="0.287 [mg/l]" />
+							</expression>
+							<stoichiometric component="co2@compartment" coefficient="1.0" />
+							<stoichiometric component="biomass@agent" coefficient="0.052272" />
+							<stoichiometric component="eps@agent" coefficient="0.013068" />
+							<stoichiometric component="butyrate@compartment" coefficient="-0.25" />
+						</reaction> 
+						<reaction name="butyrate_diffusion_into_body" reactionType="Transfer">
+							<expression value = "((butyrate@compartment - butyrate@body)
+								/ (cell_thickness)) * diffusivity" >
+								<constant name="cell_thickness" 	value="25.0" />
+								<constant name="diffusivity" 	value="1.21E-9 [m+2/s]" />
+							</expression>
+							<stoichiometric component="butyrate@body" coefficient="1.0" />
+							<stoichiometric component="butyrate@compartment" coefficient="-1.0" />
+						</reaction> 
+						<reaction name="glucose_diffusion_into_body" reactionType="Transfer">
+							<expression value = "((glucose@compartment - glucose@body)
+								/ (cell_thickness)) * diffusivity" >
+								<constant name="cell_thickness" 	value="25.0" />
+								<constant name="diffusivity" 	value="9.58E-10 [m+2/s]" />
+							</expression>
+							<stoichiometric component="glucose@body" coefficient="1.0" />
+							<stoichiometric component="glucose@compartment" coefficient="-1.0" />
+						</reaction> 
+						<reaction name="acetate_diffusion_into_body" reactionType="Transfer">
+							<expression value = "((acetate@compartment - acetate@body)
+								/ (cell_thickness)) * diffusivity" >
+								<constant name="cell_thickness" 	value="25.0" />
+								<constant name="diffusivity" 	value="1.67E-9 [m+2/s]" />
+							</expression>
+							<stoichiometric component="acetate@body" coefficient="1.0" />
+							<stoichiometric component="acetate@compartment" coefficient="-1.0" />
+						</reaction> 
+						<reaction name="lactate_diffusion_into_body" reactionType="Transfer">
+							<expression value = "((lactate@compartment - lactate@body)
+								/ (cell_thickness)) * diffusivity" >
+								<constant name="cell_thickness" 	value="25.0" />
+								<constant name="diffusivity" 	value="1.39E-9 [m+2/s]" />
+							</expression>
+							<stoichiometric component="lactate@body" coefficient="1.0" />
+							<stoichiometric component="lactate@compartment" coefficient="-1.0" />
+						</reaction> 
+						<reaction name="propionate_diffusion_into_body" reactionType="Transfer">
+							<expression value = "((propionate@compartment - propionate@body)
+								/ (cell_thickness)) * diffusivity" >
+								<constant name="cell_thickness" 	value="25.0" />
+								<constant name="diffusivity" 	value="1.39E-9 [m+2/s]" />
+							</expression>
+							<stoichiometric component="propionate@body" coefficient="1.0" />
+							<stoichiometric component="propionate@compartment" coefficient="-1.0" />
+						</reaction> 
+					</list>
+				</aspect>
+			</species>
+			<species name="particleEPS">
+				<aspect name="density" 			type="PRIMARY" 		class="Double" value="0.01" />
+				<aspect name="#isLocated" 		type="PRIMARY" 		class="Boolean" value="true" />
+				<aspect name="surfaces"			type="CALCULATED"	class="AgentSurfaces" />
+				<aspect name="morphology" 		type="PRIMARY" 		class="String" />
+				<aspect name="volume" 			type="CALCULATED" 	class="SimpleVolumeState" />
+				<aspect name="radius" 			type="CALCULATED" 	class="CoccoidRadius" />
+				<aspect name="updateBody" 		type="EVENT" 		class="UpdateBody" />
+				<aspect name="reactions" type="PRIMARY"  class="InstantiableList"> 
+					<list class="RegularReaction" nodeLabel="reaction" 
+					entryClass="RegularReaction" keyClass="String" keyLabel="name">
+						<reaction name="decay">
+							<expression value = "kd * mass">
+								<constant name="kd" 	value="0.05 [hour-1]" /> 
+							</expression>
+							<stoichiometric component = "biomass" coefficient = "-1.0" />
+							<stoichiometric component = "polysaccharide" coefficient = "1.0" />
+						</reaction> 
+					</list>
+				</aspect>
+			</species>
+			<species name="acetogen">
+				<speciesModule name="coccoid" />
+				<aspect name="reactions" type="PRIMARY"  class="InstantiableList"> 
+					<list class="RegularReaction" nodeLabel="reaction" 
+					entryClass="RegularReaction" keyClass="String" keyLabel="name">
+						<reaction name="homoacetogenesis">
+							<expression value = "kmh2a * (( hydrogen * biomass)
+								/ ( Ksh2a  + hydrogen))" >
+								<constant name="kmh2a" 	value="1.941729133 [day-1]" /> 
+								<constant name="Ksh2a" 	value="0.0034 [g/l]" /> 
+							</expression>
+							<stoichiometric component="hydrogen" coefficient="-1.0" />
+							<stoichiometric component="biomass" coefficient="2.410218" />
+							<stoichiometric component="acetate" coefficient="4.259499" />
+							<stoichiometric component="co2" coefficient="-10.915179" />
+						</reaction> 
+						<reaction name="decay">
+							<expression value = "kd * biomass">
+								<constant name="kd" 	value="0.01 [hour-1]" /> 
+							</expression>
+							<stoichiometric component = "biomass" coefficient = "-1.0" />
+						</reaction> 
+					</list>
+				</aspect>
+			</species>
+			
+			<species name="methanogen">
+				<speciesModule name="coccoid" />
+				<aspect name="reactions" type="PRIMARY"  class="InstantiableList"> 
+					<list class="RegularReaction" nodeLabel="reaction" 
+					entryClass="RegularReaction" keyClass="String" keyLabel="name">
+						<reaction name="methanogenesis">
+							<expression value = "IpH@IpH * kmh2m * (( hydrogen * biomass)
+								/ ( Ksh2m  + hydrogen))">
+								<constant name="kmh2m" 	value="0.40286 [day-1]" /> 
+								<constant name="Ksh2m" 	value="3.13E-6 [g/l]" /> 
+							</expression>
+							<stoichiometric component="hydrogen" coefficient="-1.0" />
+							<stoichiometric component="biomass" coefficient="3.475198" />
+							<stoichiometric component="methane" coefficient="0.755853" />
+							<stoichiometric component="co2" coefficient="-9.823661" />
+						</reaction> 
+						<reaction name="decay">
+							<expression value = "kd * biomass">
+								<constant name="kd" 	value="0.01 [hour-1]" /> 
+							</expression>
+							<stoichiometric component = "biomass" coefficient = "-1.0" />
+						</reaction> 
+					</list>
+				</aspect>
+			</species>
+
+			<species name="LUB">
+				<speciesModule name="coccoid" />
+				<aspect name="reactions" type="PRIMARY"  class="InstantiableList"> 
+					<list class="RegularReaction" nodeLabel="reaction" 
+					entryClass="RegularReaction" keyClass="String" keyLabel="name">
+						<reaction name="lactateUtilisation">
+							<expression value = "kmla * (( lactate * biomass)
+								/ ( Ksla  + lactate))" >
+								<constant name="kmla" 	value="82.10832 [day-1]" /> 
+								<constant name="Ksla" 	value="0.59687 [g/l]" /> 
+							</expression>
+							<stoichiometric component="lactate" coefficient="-1.0" />
+							<stoichiometric component="biomass" coefficient="0.150533" />
+							<stoichiometric component="hydrogen" coefficient="0.008952" />
+							<stoichiometric component="acetate" coefficient="0.088662" />
+							<stoichiometric component="propionate" coefficient="0.219575" />
+							<stoichiometric component="butyrate" coefficient="0.195604" />
+							<stoichiometric component="co2" coefficient="0.26895" />
+						</reaction> 
+						<reaction name="decay">
+							<expression value = "kd * biomass">
+								<constant name="kd" 	value="0.01 [hour-1]" /> 
+							</expression>
+							<stoichiometric component = "biomass" coefficient = "-1.0" />
+						</reaction> 
+					</list>
+				</aspect>
+			</species>
+
+			<species name="GUB">
+				<speciesModule name="coccoid" />
+				<aspect name="reactions" type="PRIMARY"  class="InstantiableList"> 
+					<list class="RegularReaction" nodeLabel="reaction" 
+					entryClass="RegularReaction" keyClass="String" keyLabel="name">
+						<reaction name="hydrolysis">
+							<expression value = "khydz * (( polysaccharide * biomass)
+								/ (( Kxz * biomass ) + polysaccharide))" >
+								<constant name="khydz" 	value="10.61947 [day-1]" /> 
+								<constant name="Kxz" 	value="29.99 [g/l]" /> 
+							</expression>
+							<stoichiometric component="glucose" coefficient="0.9" />
+							<stoichiometric component="polysaccharide" coefficient="-1.0" />
+						</reaction> 
+						<reaction name="glucoseUtilisation">
+							<expression value = "kmsu * (( glucose * biomass)
+								/ ( Kssu + glucose))" >
+								<constant name="kmsu" 	value="12.61593 [day-1]" /> 
+								<constant name="Kssu" 	value="0.468 [g/l]" /> 
+							</expression>
+							<stoichiometric component="glucose" coefficient="-1.0" />
+							<stoichiometric component="biomass" coefficient="0.075333" />
+							<stoichiometric component="lactate" coefficient="0.249722" />
+							<stoichiometric component="hydrogen" coefficient="0.016128" />
+							<stoichiometric component="acetate" coefficient="0.189157" />
+							<stoichiometric component="propionate" coefficient="0.098773" />
+							<stoichiometric component="butyrate" coefficient="0.13215" />
+							<stoichiometric component="co2" coefficient="0.26895" />
+						</reaction> 
+						<reaction name="decay">
+							<expression value = "kd * biomass">
+								<constant name="kd" 	value="0.01 [hour-1]" /> 
+							</expression>
+							<stoichiometric component = "biomass" coefficient = "-1.0" />
+						</reaction> 
+					</list>
+				</aspect>
+			</species>
+
+			<species name="coccoid">
+				<!-- pg / µm^3-->
+				<aspect name="density" 		type="PRIMARY" 		class="Double" 				value="1.5e-2" />
+				<aspect name="#isLocated" 	type="PRIMARY" 		class="Boolean" 			value="true" />
+				<aspect name="surfaces"		type="CALCULATED"	class="AgentSurfaces"		/>
+				<aspect name="volume" 		type="CALCULATED" 	class="SimpleVolumeState" 	/>
+				<aspect name="radius" 		type="CALCULATED" 	class="CoccoidRadius" 		/>
+				<aspect name="divide" 		type="EVENT" 		class="CoccoidDivision"		/>
+				<!-- Dry division mass (pg) -->
+				<aspect name="divisionMass"	class="Double"		value="25.0" 				/>
+				<aspect name="updateBody" 	type="EVENT" 		class="UpdateBody" 			/>
+				<aspect name="evaluatePull"	type="EVENT"		class="ResolveInteractionDistance" 	 />
+				<aspect name="produce" type="EVENT"	class="InternalProduction" 	 />
+				<!-- µm -->
+				<aspect name="searchDist"	type="PRIMARY"		class="Double"				value="0.0"  />
+			</species>
+		</speciesLib>
+		<compartment name="proximalColonLumen">
+			<shape class="Dimensionless" volume="1.0368e9 [um+3]">
+				<boundary  class="constantConcentrationToChemostat" volumeFlowRate="3.77e-3 [l/day]">
+				<!-- Rob's protocol -->
+				<solute name="polysaccharide" concentration="6.00E-06" defaultDiffusivity="1.0E-10 [m+2/s]" />
+				<!-- Suhaimi et al., 2015, Glucose diffusivity in cell culture medium -->
+				<solute name="glucose" 		concentration="6.0E-7" defaultDiffusivity="9.58E-10 [m+2/s]" />
+				<!-- Sallee and Dietschy, 1973, Determinants of intestinal mucosal uptake of
+				short- and medium-chain fatty acids and alcohols" -->
+				<solute name="acetate" 		concentration="6.0E-7" defaultDiffusivity="1.67E-9 [m+2/s]"/>
+				<!-- Sallee and Dietschy, 1973, Determinants of intestinal mucosal uptake of
+				short- and medium-chain fatty acids and alcohols" -->
+				<solute name="lactate" 		concentration="6.0E-7" defaultDiffusivity="1.39E-9 [m+2/s]"/>
+				<!-- Jahne et al., 1987, Measurement of the diffusion coefficients of sparingly
+				soluble gases in water -->
+				<solute name="hydrogen" 	concentration="6.0E-7" defaultDiffusivity="6.23E-9 [m+2/s]"/>
+				<!-- Sallee and Dietschy, 1973, Determinants of intestinal mucosal uptake of
+				short- and medium-chain fatty acids and alcohols" -->
+				<solute name="propionate" 	concentration="6.0E-7" defaultDiffusivity="1.39E-9 [m+2/s]"/>
+				<!-- Sallee and Dietschy, 1973, Determinants of intestinal mucosal uptake of
+				short- and medium-chain fatty acids and alcohols" -->
+				<solute name="butyrate" 	concentration="6.0E-7" defaultDiffusivity="1.21E-9 [m+2/s]"/>
+				<!-- Unver and Himmelblau, 1964, Diffusion coefficients of CO2, C2H4, C3H6, and C4H8
+				in water from 6° to 65°" -->
+				<solute name="co2"		 	concentration="6.0E-7" defaultDiffusivity="2.38E-9 [m+2/s]"/>
+				<!-- Witherspoon and Saraf, 1965, Diffusion of methane, ethane, propane and
+				n-butane in water from 25 to 43°" -->
+				<solute name="methane"	 	concentration="6.0E-7" defaultDiffusivity="2.12E-9 [m+2/s]"/>
+				</boundary>
+				<boundary  class="chemostatToChemostat" volumeFlowRate="-3.77e-3 [l/day]" agentRemoval="true"
+					partnerCompartment="transverseColonLumen" dominant="true">
+				</boundary> 
+			</shape>
+			<solutes>
+				<!-- pg / µm3 -->
+				<solute name="polysaccharide" concentration="6.00E-06" defaultDiffusivity="1.0E-10 [m+2/s]" />
+				<!-- Suhaimi et al., 2015, Glucose diffusivity in cell culture medium -->
+				<solute name="glucose" 		concentration="6.0E-7" defaultDiffusivity="9.58E-10 [m+2/s]" />
+				<!-- Sallee and Dietschy, 1973, Determinants of intestinal mucosal uptake of
+				short- and medium-chain fatty acids and alcohols" -->
+				<solute name="acetate" 		concentration="6.0E-7" defaultDiffusivity="1.67E-9 [m+2/s]"/>
+				<!-- Sallee and Dietschy, 1973, Determinants of intestinal mucosal uptake of
+				short- and medium-chain fatty acids and alcohols" -->
+				<solute name="lactate" 		concentration="6.0E-7" defaultDiffusivity="1.39E-9 [m+2/s]"/>
+				<!-- Jahne et al., 1987, Measurement of the diffusion coefficients of sparingly
+				soluble gases in water -->
+				<solute name="hydrogen" 	concentration="6.0E-7" defaultDiffusivity="6.23E-9 [m+2/s]"/>
+				<!-- Sallee and Dietschy, 1973, Determinants of intestinal mucosal uptake of
+				short- and medium-chain fatty acids and alcohols" -->
+				<solute name="propionate" 	concentration="6.0E-7" defaultDiffusivity="1.39E-9 [m+2/s]"/>
+				<!-- Sallee and Dietschy, 1973, Determinants of intestinal mucosal uptake of
+				short- and medium-chain fatty acids and alcohols" -->
+				<solute name="butyrate" 	concentration="6.0E-7" defaultDiffusivity="1.21E-9 [m+2/s]"/>
+				<!-- Unver and Himmelblau, 1964, Diffusion coefficients of CO2, C2H4, C3H6, and C4H8
+				in water from 6° to 65°" -->
+				<solute name="co2"		 	concentration="6.0E-7" defaultDiffusivity="2.38E-9 [m+2/s]"/>
+				<!-- Witherspoon and Saraf, 1965, Diffusion of methane, ethane, propane and
+				n-butane in water from 25 to 43°" -->
+				<solute name="methane"	 	concentration="6.0E-7" defaultDiffusivity="2.12E-9 [m+2/s]"/>
+			</solutes>
+			<processManagers>
+				<process name="solveChemostat" class="ChemostatSolver" priority="0">
+					<aspect name="soluteNames" type="PRIMARY" class="String[]"
+						value="polysaccharide,glucose,acetate,lactate,hydrogen,propionate,butyrate,co2,methane" />
+					<aspect name="hMax" type="PRIMARY" class="Double" value="60.0" />
+					<aspect name="solver" type="PRIMARY" class="String" value="heun" />
+					<aspect name="tolerance" class="Double" value="1.0E-6" />
+				</process>
+				<process name="arrival" class="AgentsArriveInChemostat" priority="-1"
+				firstStep="0.0">
+					<aspect name="originNames" type="PRIMARY" class="InstantiableList">
+						<list class="InstantiableList" nodeLabel="origin" entryClass="String" keyClass="String" keyLabel="name">
+							<origin name="mucosa" value="proximalColonMucosa"/>
+						</list>
+					</aspect>
+				</process>
+				<process name="flowDeparture"
+					class="DepartureByFlow" priority = "1" volumeFlowRate="-3.77e-3 [l/day]">
+					<aspect name="destinationNames" type="PRIMARY" class="InstantiableMap" >
+						<map entryClass="Double" keyType="String">
+							<item key="transverseColonLumen" value="1.0"/>
+						</map>
+					</aspect>
+				</process>
+				<process name="departure" class="AgentsLeaveChemostat" priority = "0"
+					firstStep="0.0">
+					<aspect name="detachmentRate" type="PRIMARY" class="Double" value="0.01"/>
+					<aspect name="destinationNames" type="PRIMARY" class="InstantiableMap" >
+						<map entryClass="Double" keyType="String">
+							<item key="proximalColonMucosa" value="1.0"/>
+						</map>
+					</aspect>
+				</process>
+				<process name="death" class="AgentDeath" priority = "0"
+					firstStep="0.0">
+					<aspect name="deathMass" type="PRIMARY" class="Double" value="0.05"/>
+				</process>
+			</processManagers>
+		</compartment>
+		<compartment name="transverseColonLumen">
+			<shape class="Dimensionless" volume="1.0368e9 [um+3]">
+				<boundary  class="chemostatToChemostat" volumeFlowRate="-3.77e-3 [l/day]" agentRemoval="true"
+					partnerCompartment="distalColonLumen" dominant="true">
+				</boundary> 
+			</shape>
+			<solutes>
+				<!-- pg / µm3 -->
+				<solute name="polysaccharide" concentration="6.00E-06" defaultDiffusivity="1.0E-10 [m+2/s]" />
+				<!-- Suhaimi et al., 2015, Glucose diffusivity in cell culture medium -->
+				<solute name="glucose" 		concentration="6.0E-7" defaultDiffusivity="9.58E-10 [m+2/s]" />
+				<!-- Sallee and Dietschy, 1973, Determinants of intestinal mucosal uptake of
+				short- and medium-chain fatty acids and alcohols" -->
+				<solute name="acetate" 		concentration="6.0E-7" defaultDiffusivity="1.67E-9 [m+2/s]"/>
+				<!-- Sallee and Dietschy, 1973, Determinants of intestinal mucosal uptake of
+				short- and medium-chain fatty acids and alcohols" -->
+				<solute name="lactate" 		concentration="6.0E-7" defaultDiffusivity="1.39E-9 [m+2/s]"/>
+				<!-- Jahne et al., 1987, Measurement of the diffusion coefficients of sparingly
+				soluble gases in water -->
+				<solute name="hydrogen" 	concentration="6.0E-7" defaultDiffusivity="6.23E-9 [m+2/s]"/>
+				<!-- Sallee and Dietschy, 1973, Determinants of intestinal mucosal uptake of
+				short- and medium-chain fatty acids and alcohols" -->
+				<solute name="propionate" 	concentration="6.0E-7" defaultDiffusivity="1.39E-9 [m+2/s]"/>
+				<!-- Sallee and Dietschy, 1973, Determinants of intestinal mucosal uptake of
+				short- and medium-chain fatty acids and alcohols" -->
+				<solute name="butyrate" 	concentration="6.0E-7" defaultDiffusivity="1.21E-9 [m+2/s]"/>
+				<!-- Unver and Himmelblau, 1964, Diffusion coefficients of CO2, C2H4, C3H6, and C4H8
+				in water from 6° to 65°" -->
+				<solute name="co2"		 	concentration="6.0E-7" defaultDiffusivity="2.38E-9 [m+2/s]"/>
+				<!-- Witherspoon and Saraf, 1965, Diffusion of methane, ethane, propane and
+				n-butane in water from 25 to 43°" -->
+				<solute name="methane"	 	concentration="6.0E-7" defaultDiffusivity="2.12E-9 [m+2/s]"/>
+			</solutes>
+			<processManagers>
+				<process name="solveChemostat" class="ChemostatSolver" priority="0">
+					<aspect name="soluteNames" type="PRIMARY" class="String[]"
+						value="polysaccharide,glucose,acetate,lactate,hydrogen,propionate,butyrate,co2,methane" />
+					<aspect name="hMax" type="PRIMARY" class="Double" value="60.0" />
+					<aspect name="solver" type="PRIMARY" class="String" value="heun" />
+					<aspect name="tolerance" class="Double" value="1.0E-6" />
+				</process>
+				<process name="arrival" class="AgentsArriveInChemostat" priority="-1"
+				firstStep="0.0">
+				<aspect name="originNames" type="PRIMARY" class="InstantiableList">
+					<list class="InstantiableList" nodeLabel="origin" entryClass="String" keyClass="String" keyLabel="name">
+						<origin name="mucosa" value="transverseColonMucosa"/>
+						<origin name="upstream" value="proximalColonLumen"/>
+					</list>
+				</aspect>
+				</process>
+				<process name="flowDeparture"
+					class="DepartureByFlow" priority = "1" volumeFlowRate="-3.77e-3 [l/day]">
+					<aspect name="destinationNames" type="PRIMARY" class="InstantiableMap" >
+						<map entryClass="Double" keyType="String">
+							<item key="distalColonLumen" value="1.0"/>
+						</map>
+					</aspect>
+				</process>
+				<process name="departure" class="AgentsLeaveChemostat" priority = "0"
+					firstStep="0.0">
+					<aspect name="detachmentRate" type="PRIMARY" class="Double" value="0.01"/>
+					<aspect name="destinationNames" type="PRIMARY" class="InstantiableMap" >
+						<map entryClass="Double" keyType="String">
+							<item key="transverseColonMucosa" value="1.0"/>
+						</map>
+					</aspect>
+				</process>
+				<process name="death" class="AgentDeath" priority = "0"
+					firstStep="0.0">
+					<aspect name="deathMass" type="PRIMARY" class="Double" value="0.05"/>
+				</process>
+			</processManagers>
+		</compartment>
+		<compartment name="distalColonLumen">
+			<shape class="Dimensionless" volume="1.0368e9 [um+3]">
+				<boundary  class="chemostatOut" volumeFlowRate="-3.77e-3 [l/day]" agentRemoval="true">
+				</boundary> 
+			</shape>
+			<solutes>
+				<!-- pg / µm3 -->
+				<solute name="polysaccharide" concentration="6.00E-06" defaultDiffusivity="1.0E-10 [m+2/s]" />
+				<!-- Suhaimi et al., 2015, Glucose diffusivity in cell culture medium -->
+				<solute name="glucose" 		concentration="6.0E-7" defaultDiffusivity="9.58E-10 [m+2/s]" />
+				<!-- Sallee and Dietschy, 1973, Determinants of intestinal mucosal uptake of
+				short- and medium-chain fatty acids and alcohols" -->
+				<solute name="acetate" 		concentration="6.0E-7" defaultDiffusivity="1.67E-9 [m+2/s]"/>
+				<!-- Sallee and Dietschy, 1973, Determinants of intestinal mucosal uptake of
+				short- and medium-chain fatty acids and alcohols" -->
+				<solute name="lactate" 		concentration="6.0E-7" defaultDiffusivity="1.39E-9 [m+2/s]"/>
+				<!-- Jahne et al., 1987, Measurement of the diffusion coefficients of sparingly
+				soluble gases in water -->
+				<solute name="hydrogen" 	concentration="6.0E-7" defaultDiffusivity="6.23E-9 [m+2/s]"/>
+				<!-- Sallee and Dietschy, 1973, Determinants of intestinal mucosal uptake of
+				short- and medium-chain fatty acids and alcohols" -->
+				<solute name="propionate" 	concentration="6.0E-7" defaultDiffusivity="1.39E-9 [m+2/s]"/>
+				<!-- Sallee and Dietschy, 1973, Determinants of intestinal mucosal uptake of
+				short- and medium-chain fatty acids and alcohols" -->
+				<solute name="butyrate" 	concentration="6.0E-7" defaultDiffusivity="1.21E-9 [m+2/s]"/>
+				<!-- Unver and Himmelblau, 1964, Diffusion coefficients of CO2, C2H4, C3H6, and C4H8
+				in water from 6° to 65°" -->
+				<solute name="co2"		 	concentration="6.0E-7" defaultDiffusivity="2.38E-9 [m+2/s]"/>
+				<!-- Witherspoon and Saraf, 1965, Diffusion of methane, ethane, propane and
+				n-butane in water from 25 to 43°" -->
+				<solute name="methane"	 	concentration="6.0E-7" defaultDiffusivity="2.12E-9 [m+2/s]"/>
+			</solutes>
+			<processManagers>
+				<process name="solveChemostat" class="ChemostatSolver" priority="0">
+					<aspect name="soluteNames" type="PRIMARY" class="String[]"
+						value="polysaccharide,glucose,acetate,lactate,hydrogen,propionate,butyrate,co2,methane" />
+					<aspect name="hMax" type="PRIMARY" class="Double" value="60.0" />
+					<aspect name="solver" type="PRIMARY" class="String" value="heun" />
+					<aspect name="tolerance" class="Double" value="1.0E-6" />
+				</process>
+				<process name="arrival" class="AgentsArriveInChemostat" priority="-1"
+				firstStep="0.0">
+				<aspect name="originNames" type="PRIMARY" class="InstantiableList">
+					<list class="InstantiableList" nodeLabel="origin" entryClass="String" keyClass="String" keyLabel="name">
+						<origin name="mucosa" value="distalColonMucosa"/>
+						<origin name="upstream" value="transverseColonLumen"/>
+					</list>
+				</aspect>
+				</process>
+				<process name="flowDeparture"
+					class="DepartureByFlow" priority = "1" volumeFlowRate="-3.77e-3 [l/day]">
+				</process>
+				<process name="departure" class="AgentsLeaveChemostat" priority = "0"
+					firstStep="0.0">
+					<aspect name="detachmentRate" type="PRIMARY" class="Double" value="0.01"/>
+					<aspect name="destinationNames" type="PRIMARY" class="InstantiableMap" >
+						<map entryClass="Double" keyType="String">
+							<item key="distalColonMucosa" value="1.0"/>
+						</map>
+					</aspect>
+				</process>
+				<process name="death" class="AgentDeath" priority = "0"
+					firstStep="0.0">
+					<aspect name="deathMass" type="PRIMARY" class="Double" value="0.05"/>
+				</process>
+			</processManagers>
+		</compartment>
+		<compartment name="proximalColonMucosa">
+			<shape class="Cuboid" resolutionCalculator="MgFASResolution" nodeSystem="false">
+				<!-- µm -->
+				<dimension name="X" isCyclic="true" 	targetResolution="20.0" max="320.0"/>
+				<dimension name="Y" isCyclic="false" 	targetResolution="20.0" max="320.0">
+					<boundary extreme="1" class="BiofilmBoundaryLayer" partnerCompartment="proximalColonLumen" layerThickness = "4.0"/>
+					<boundary class="EpithelialBoundary" extreme="0" partnerCompartment="body"/>
+				</dimension>
+				<dimension name="Z" isCyclic="true" 	targetResolution="20.0" max="320.0"/>
+			</shape>
+			<solutes>
+				<!-- Initial concentrations pg / µm2 -->
+				<solute name="polysaccharide" concentration="6.00E-06" defaultDiffusivity="1.0E-10 [m+2/s]" />
+				<!-- Suhaimi et al., 2015, Glucose diffusivity in cell culture medium -->
+				<solute name="glucose" 		concentration="6.0E-7" defaultDiffusivity="9.58E-10 [m+2/s]" />
+				<!-- Sallee and Dietschy, 1973, Determinants of intestinal mucosal uptake of
+				short- and medium-chain fatty acids and alcohols" -->
+				<solute name="acetate" 		concentration="6.0E-7" defaultDiffusivity="1.67E-9 [m+2/s]"/>
+				<!-- Sallee and Dietschy, 1973, Determinants of intestinal mucosal uptake of
+				short- and medium-chain fatty acids and alcohols" -->
+				<solute name="lactate" 		concentration="6.0E-7" defaultDiffusivity="1.39E-9 [m+2/s]"/>
+				<!-- Jahne et al., 1987, Measurement of the diffusion coefficients of sparingly
+				soluble gases in water -->
+				<solute name="hydrogen" 	concentration="6.0E-7" defaultDiffusivity="6.23E-9 [m+2/s]"/>
+				<!-- Sallee and Dietschy, 1973, Determinants of intestinal mucosal uptake of
+				short- and medium-chain fatty acids and alcohols" -->
+				<solute name="propionate" 	concentration="6.0E-7" defaultDiffusivity="1.39E-9 [m+2/s]"/>
+				<!-- Sallee and Dietschy, 1973, Determinants of intestinal mucosal uptake of
+				short- and medium-chain fatty acids and alcohols" -->
+				<solute name="butyrate" 	concentration="6.0E-7" defaultDiffusivity="1.21E-9 [m+2/s]"/>
+				<!-- Unver and Himmelblau, 1964, Diffusion coefficients of CO2, C2H4, C3H6, and C4H8
+				in water from 6° to 65°" -->
+				<solute name="co2"		 	concentration="6.0E-7" defaultDiffusivity="2.38E-9 [m+2/s]"/>
+				<!-- Witherspoon and Saraf, 1965, Diffusion of methane, ethane, propane and
+				n-butane in water from 25 to 43°" -->
+				<solute name="methane"	 	concentration="6.0E-7" defaultDiffusivity="2.12E-9 [m+2/s]"/>
+			</solutes>
+			<agents>
+			<epithelium class = "Epithelium" dimension = "Y" extreme = "0">
+					<spawn class="differentiatedEpithelialLayerSpawner" domain="0.0, 0.0, 0.0; 320.0, 0.0, 320.0" cellShape="10.0, 0.0, 10.0" priority="0">
+						<templateAgent number="300">
+							<aspect name="volumeDistribution" type="PRIMARY" class="HashMap">
+							</aspect>
+							<aspect name="species" type="PRIMARY" class="String" value="gobletCell" />
+							<aspect  name="mass" class="InstantiableMap">
+								<map entryClass="Double" keyType="String">
+									<item key="biomass" value="1.0"  />
+								</map>
+							</aspect>
+							<aspect name="eps" type="PRIMARY" class="Double" value="0.0" />
+						</templateAgent>
+						<templateAgent number="724">
+							<aspect name="volumeDistribution" type="PRIMARY" class="HashMap">
+							</aspect>
+							<aspect name="species" type="PRIMARY" class="String" value="epithelium" />
+							<aspect  name="mass" class="InstantiableMap">
+								<map entryClass="Double" keyType="String">
+									<item key="biomass" value="1.0"  />
+								</map>
+							</aspect>
+							<aspect name="eps" type="PRIMARY" class="Double" value="0.0" />
+						</templateAgent>
+					</spawn>
+				</epithelium>
+
+			</agents>
+			<spawn class="randomSpawner" domain="320.0, 10.0, 320.0" priority="0" number="20" morphology="COCCOID">
+				<templateAgent>
+					<aspect name="species" type="PRIMARY" class="String" value="GUB" />
+					<aspect  name="mass" class="InstantiableMap">
+						<map entryClass="Double" keyType="String">
+							<item key="biomass" value="10.0"  />
+						</map>
+					</aspect>
+				</templateAgent>
+			</spawn>
+			<spawn class="randomSpawner" domain="320.0, 10.0, 320.0" priority="0" number="20" morphology="COCCOID">
+				<templateAgent>
+					<aspect name="species" type="PRIMARY" class="String" value="LUB" />
+					<aspect  name="mass" class="InstantiableMap">
+						<map entryClass="Double" keyType="String">
+							<item key="biomass" value="10.0"  />
+						</map>
+					</aspect>
+				</templateAgent>
+			</spawn>
+			<spawn class="randomSpawner" domain="320.0, 10.0, 320.0" priority="0" number="20" morphology="COCCOID">
+				<templateAgent>
+					<aspect name="species" type="PRIMARY" class="String" value="acetogen" />
+					<aspect  name="mass" class="InstantiableMap">
+						<map entryClass="Double" keyType="String">
+							<item key="biomass" value="10.0"  />
+						</map>
+					</aspect>
+				</templateAgent>
+			</spawn>
+			<spawn class="randomSpawner" domain="320.0, 10.0, 320.0" priority="0" number="20" morphology="COCCOID">
+				<templateAgent>
+					<aspect name="species" type="PRIMARY" class="String" value="methanogen" />
+					<aspect  name="mass" class="InstantiableMap">
+						<map entryClass="Double" keyType="String">
+							<item key="biomass" value="10.0"  />
+						</map>
+					</aspect>
+				</templateAgent>
+			</spawn>
+			<processManagers>
+				<!-- minute -->
+				<process name="agentRelax"	class="AgentRelaxation" priority="1"
+					firstStep="0.0">
+					<!-- µm -->
+					<aspect name="maxMovement" 		type="PRIMARY" class="Double" value="0.5" />
+					<aspect name="relaxationMethod" type="PRIMARY" class="String" value="EULER" />
+					<aspect name="stressThreshold" type="PRIMARY" class="Double" value="1000.0" />
+				</process>
+				<!-- minute -->
+				<process name="PDEWrapper" class="PDEWrapper"  priority="2">
+					<aspect name="solverResidualRatioThreshold" class="Double" value="1.0E-3" />
+					<aspect name="autoVcycleAdjust" class="Boolean" value="true" />
+				</process>
+				<process name="biofilmBoundaryDeparture"
+					class="AgentsInBoundaryLayerDepart" priority = "1">
+					<aspect name="destinationNames" type="PRIMARY" class="InstantiableMap" >
+						<map entryClass="Double" keyType="String">
+							<item key="proximalColonMucosa" value="1.0"/>
+						</map>
+					</aspect>
+				</process>
+				<process name="floatingDeparture" class="FloatingAgentDeparture" priority="3">
+					<aspect name="searchDist" type="PRIMARY" class="Double" value="1.0" />
+					<aspect name="fewNeighboursRemoval" type="PRIMARY" class="Integer" value="1" />
+					<aspect name="fewNeighboursRemovalProbability" type="PRIMARY" class="Double" value="0.02" />
+					<aspect name="destinationNames" type="PRIMARY" class="InstantiableMap" >
+						<map entryClass="Double" keyType="String">
+							<item key="proximalColonLumen" value="1.0"/>
+						</map>
+					</aspect>
+				</process>
+				<process name="arrival" class="AgentAttachmentRandomWalk" priority = "0" >
+					<aspect name="dimensionName" type="PRIMARY" class="String" value="Y" />
+					<aspect name="extreme" type="PRIMARY" class="Integer" value="1" />
+					<aspect name="stepSize" type="PRIMARY" class="Double" value="2.0" />
+					<aspect name="#curPullDist" type="PRIMARY" class="Double" value="1.0" />
+					<aspect name="originNames" type="PRIMARY" class="InstantiableList">
+					<list class="InstantiableList" nodeLabel="origin" entryClass="String" keyClass="String" keyLabel="name">
+						<origin name="origin" value="proximalColonLumen"/>
+					</list>
+				</aspect>
+				</process>
+				<process name="death" class="AgentDeath" priority = "0"
+					firstStep="0.0">
+					<aspect name="deathMass" type="PRIMARY" class="Double" value="0.05"/>
+				</process>
+				<process name="povWriter" class="GraphicalOutput"  priority="-5"
+					firstStep="0.0"  timerStepSize="120.0">
+					<aspect name="outputWriter" type="PRIMARY" class="String" value="PovExport" />
+				</process>
+			</processManagers>
+		</compartment>
+		<compartment name="transverseColonMucosa">
+			<shape class="Cuboid" resolutionCalculator="MgFASResolution" nodeSystem="false">
+				<!-- µm -->
+				<dimension name="X" isCyclic="true" 	targetResolution="20.0" max="320.0"/>
+				<dimension name="Y" isCyclic="false" 	targetResolution="20.0" max="320.0">
+					<boundary extreme="1" class="BiofilmBoundaryLayer" partnerCompartment="transverseColonLumen" layerThickness = "4.0"/>
+					<boundary class="EpithelialBoundary" extreme="0" partnerCompartment="body"/>
+				</dimension>
+				<dimension name="Z" isCyclic="true" 	targetResolution="20.0" max="320.0"/>
+			</shape>
+			<solutes>
+				<!-- Initial concentrations pg / µm2 -->
+				<solute name="polysaccharide" concentration="6.00E-06" defaultDiffusivity="1.0E-10 [m+2/s]" />
+				<!-- Suhaimi et al., 2015, Glucose diffusivity in cell culture medium -->
+				<solute name="glucose" 		concentration="6.0E-7" defaultDiffusivity="9.58E-10 [m+2/s]" />
+				<!-- Sallee and Dietschy, 1973, Determinants of intestinal mucosal uptake of
+				short- and medium-chain fatty acids and alcohols" -->
+				<solute name="acetate" 		concentration="6.0E-7" defaultDiffusivity="1.67E-9 [m+2/s]"/>
+				<!-- Sallee and Dietschy, 1973, Determinants of intestinal mucosal uptake of
+				short- and medium-chain fatty acids and alcohols" -->
+				<solute name="lactate" 		concentration="6.0E-7" defaultDiffusivity="1.39E-9 [m+2/s]"/>
+				<!-- Jahne et al., 1987, Measurement of the diffusion coefficients of sparingly
+				soluble gases in water -->
+				<solute name="hydrogen" 	concentration="6.0E-7" defaultDiffusivity="6.23E-9 [m+2/s]"/>
+				<!-- Sallee and Dietschy, 1973, Determinants of intestinal mucosal uptake of
+				short- and medium-chain fatty acids and alcohols" -->
+				<solute name="propionate" 	concentration="6.0E-7" defaultDiffusivity="1.39E-9 [m+2/s]"/>
+				<!-- Sallee and Dietschy, 1973, Determinants of intestinal mucosal uptake of
+				short- and medium-chain fatty acids and alcohols" -->
+				<solute name="butyrate" 	concentration="6.0E-7" defaultDiffusivity="1.21E-9 [m+2/s]"/>
+				<!-- Unver and Himmelblau, 1964, Diffusion coefficients of CO2, C2H4, C3H6, and C4H8
+				in water from 6° to 65°" -->
+				<solute name="co2"		 	concentration="6.0E-7" defaultDiffusivity="2.38E-9 [m+2/s]"/>
+				<!-- Witherspoon and Saraf, 1965, Diffusion of methane, ethane, propane and
+				n-butane in water from 25 to 43°" -->
+				<solute name="methane"	 	concentration="6.0E-7" defaultDiffusivity="2.12E-9 [m+2/s]"/>
+			</solutes>
+			<agents>
+			<epithelium class = "Epithelium" dimension = "Y" extreme = "0">
+					<spawn class="differentiatedEpithelialLayerSpawner" domain="0.0, 0.0, 0.0; 320.0, 0.0, 320.0" cellShape="10.0, 0.0, 10.0" priority="0">
+						<templateAgent number="300">
+							<aspect name="volumeDistribution" type="PRIMARY" class="HashMap">
+							</aspect>
+							<aspect name="species" type="PRIMARY" class="String" value="gobletCell" />
+							<aspect  name="mass" class="InstantiableMap">
+								<map entryClass="Double" keyType="String">
+									<item key="biomass" value="1.0"  />
+								</map>
+							</aspect>
+							<aspect name="eps" type="PRIMARY" class="Double" value="0.0" />
+						</templateAgent>
+						<templateAgent number="724">
+							<aspect name="volumeDistribution" type="PRIMARY" class="HashMap">
+							</aspect>
+							<aspect name="species" type="PRIMARY" class="String" value="epithelium" />
+							<aspect  name="mass" class="InstantiableMap">
+								<map entryClass="Double" keyType="String">
+									<item key="biomass" value="1.0"  />
+								</map>
+							</aspect>
+							<aspect name="eps" type="PRIMARY" class="Double" value="0.0" />
+						</templateAgent>
+					</spawn>
+				</epithelium>
+
+			</agents>
+			<spawn class="randomSpawner" domain="320.0, 10.0, 320.0" priority="0" number="20" morphology="COCCOID">
+				<templateAgent>
+					<aspect name="species" type="PRIMARY" class="String" value="GUB" />
+					<aspect  name="mass" class="InstantiableMap">
+						<map entryClass="Double" keyType="String">
+							<item key="biomass" value="10.0"  />
+						</map>
+					</aspect>
+				</templateAgent>
+			</spawn>
+			<spawn class="randomSpawner" domain="320.0, 10.0, 320.0" priority="0" number="20" morphology="COCCOID">
+				<templateAgent>
+					<aspect name="species" type="PRIMARY" class="String" value="LUB" />
+					<aspect  name="mass" class="InstantiableMap">
+						<map entryClass="Double" keyType="String">
+							<item key="biomass" value="10.0"  />
+						</map>
+					</aspect>
+				</templateAgent>
+			</spawn>
+			<spawn class="randomSpawner" domain="320.0, 10.0, 320.0" priority="0" number="20" morphology="COCCOID">
+				<templateAgent>
+					<aspect name="species" type="PRIMARY" class="String" value="acetogen" />
+					<aspect  name="mass" class="InstantiableMap">
+						<map entryClass="Double" keyType="String">
+							<item key="biomass" value="10.0"  />
+						</map>
+					</aspect>
+				</templateAgent>
+			</spawn>
+			<spawn class="randomSpawner" domain="320.0, 10.0, 320.0" priority="0" number="20" morphology="COCCOID">
+				<templateAgent>
+					<aspect name="species" type="PRIMARY" class="String" value="methanogen" />
+					<aspect  name="mass" class="InstantiableMap">
+						<map entryClass="Double" keyType="String">
+							<item key="biomass" value="10.0"  />
+						</map>
+					</aspect>
+				</templateAgent>
+			</spawn>
+			<processManagers>
+				<!-- minute -->
+				<process name="agentRelax"	class="AgentRelaxation" priority="1"
+					firstStep="0.0">
+					<!-- µm -->
+					<aspect name="maxMovement" 		type="PRIMARY" class="Double" value="5.0" />
+					<aspect name="relaxationMethod" type="PRIMARY" class="String" value="EULER" />
+					<aspect name="stressThreshold" type="PRIMARY" class="Double" value="1000.0" />
+				</process>
+				<!-- minute -->
+				<process name="PDEWrapper" class="PDEWrapper"  priority="2">
+					<aspect name="absoluteTolerance" type="PRIMARY" class="Double" value="1.0e-15" />
+					<aspect name="relativeTolerance" type="PRIMARY" class="Double" value="1.0e-10" />
+					<aspect name="vCycles" class="Integer" value="20" />
+					<aspect name="preSteps" class="Integer" value="10" />
+					<aspect name="coarseSteps" class="Integer" value="3" />
+					<aspect name="postSteps" class="Integer" value="10" />
+					<aspect name="autoVcycleAdjust" class="Boolean" value="true" /> /> 
+				</process>
+				<process name="biofilmBoundaryDeparture"
+					class="AgentsInBoundaryLayerDepart" priority = "1">
+					<aspect name="destinationNames" type="PRIMARY" class="InstantiableMap" >
+						<map entryClass="Double" keyType="String">
+							<item key="transverseColonLumen" value="1.0"/>
+						</map>
+					</aspect>
+				</process>
+				<process name="floatingDeparture" class="FloatingAgentDeparture" priority="3">
+					<aspect name="searchDist" type="PRIMARY" class="Double" value="1.0" />
+					<aspect name="fewNeighboursRemoval" type="PRIMARY" class="Integer" value="1" />
+					<aspect name="fewNeighboursRemovalProbability" type="PRIMARY" class="Double" value="0.02" />
+					<aspect name="destinationNames" type="PRIMARY" class="InstantiableMap" >
+						<map entryClass="Double" keyType="String">
+							<item key="transverseColonLumen" value="1.0"/>
+						</map>
+					</aspect>
+				</process>
+				<process name="arrival" class="AgentAttachmentRandomWalk" priority = "0" >
+					<aspect name="dimensionName" type="PRIMARY" class="String" value="Y" />
+					<aspect name="extreme" type="PRIMARY" class="Integer" value="1" />
+					<aspect name="stepSize" type="PRIMARY" class="Double" value="2.0" />
+					<aspect name="originNames" type="PRIMARY" class="InstantiableList">
+					<list class="InstantiableList" nodeLabel="origin" entryClass="String" keyClass="String" keyLabel="name">
+						<origin name="origin" value="transverseColonLumen"/>
+					</list>
+				</aspect>
+				</process>
+				<process name="death" class="AgentDeath" priority = "0"
+					firstStep="0.0">
+					<aspect name="deathMass" type="PRIMARY" class="Double" value="0.05"/>
+				</process>
+				<process name="povWriter" class="GraphicalOutput"  priority="-5"
+					firstStep="0.0"  timerStepSize="120.0">
+					<aspect name="outputWriter" type="PRIMARY" class="String" value="PovExport" />
+				</process>
+			</processManagers>
+		</compartment>
+		<compartment name="distalColonMucosa">
+			<shape class="Cuboid" resolutionCalculator="MgFASResolution" nodeSystem="false">
+				<!-- µm -->
+				<dimension name="X" isCyclic="true" 	targetResolution="20.0" max="320.0"/>
+				<dimension name="Y" isCyclic="false" 	targetResolution="20.0" max="320.0">
+					<boundary extreme="1" 	class="BiofilmBoundaryLayer" partnerCompartment="distalColonLumen" layerThickness = "4.0"/>
+					<boundary class="EpithelialBoundary" extreme="0" partnerCompartment="body"/>
+				</dimension>
+				<dimension name="Z" isCyclic="true" 	targetResolution="20.0" max="320.0"/>
+			</shape>
+			<solutes>
+				<!-- Initial concentrations pg / µm2 -->
+				<solute name="polysaccharide" concentration="6.00E-06" defaultDiffusivity="1.0E-10 [m+2/s]" />
+				<!-- Suhaimi et al., 2015, Glucose diffusivity in cell culture medium -->
+				<solute name="glucose" 		concentration="6.0E-7" defaultDiffusivity="9.58E-10 [m+2/s]" />
+				<!-- Sallee and Dietschy, 1973, Determinants of intestinal mucosal uptake of
+				short- and medium-chain fatty acids and alcohols" -->
+				<solute name="acetate" 		concentration="6.0E-7" defaultDiffusivity="1.67E-9 [m+2/s]"/>
+				<!-- Sallee and Dietschy, 1973, Determinants of intestinal mucosal uptake of
+				short- and medium-chain fatty acids and alcohols" -->
+				<solute name="lactate" 		concentration="6.0E-7" defaultDiffusivity="1.39E-9 [m+2/s]"/>
+				<!-- Jahne et al., 1987, Measurement of the diffusion coefficients of sparingly
+				soluble gases in water -->
+				<solute name="hydrogen" 	concentration="6.0E-7" defaultDiffusivity="6.23E-9 [m+2/s]"/>
+				<!-- Sallee and Dietschy, 1973, Determinants of intestinal mucosal uptake of
+				short- and medium-chain fatty acids and alcohols" -->
+				<solute name="propionate" 	concentration="6.0E-7" defaultDiffusivity="1.39E-9 [m+2/s]"/>
+				<!-- Sallee and Dietschy, 1973, Determinants of intestinal mucosal uptake of
+				short- and medium-chain fatty acids and alcohols" -->
+				<solute name="butyrate" 	concentration="6.0E-7" defaultDiffusivity="1.21E-9 [m+2/s]"/>
+				<!-- Unver and Himmelblau, 1964, Diffusion coefficients of CO2, C2H4, C3H6, and C4H8
+				in water from 6° to 65°" -->
+				<solute name="co2"		 	concentration="6.0E-7" defaultDiffusivity="2.38E-9 [m+2/s]"/>
+				<!-- Witherspoon and Saraf, 1965, Diffusion of methane, ethane, propane and
+				n-butane in water from 25 to 43°" -->
+				<solute name="methane"	 	concentration="6.0E-7" defaultDiffusivity="2.12E-9 [m+2/s]"/>
+			</solutes>
+			<agents>
+			<epithelium class = "Epithelium" dimension = "Y" extreme = "0">
+					<spawn class="differentiatedEpithelialLayerSpawner" domain="0.0, 0.0, 0.0; 320.0, 0.0, 320.0" cellShape="10.0, 0.0, 10.0" priority="0">
+						<templateAgent number="300">
+							<aspect name="volumeDistribution" type="PRIMARY" class="HashMap">
+							</aspect>
+							<aspect name="species" type="PRIMARY" class="String" value="gobletCell" />
+							<aspect  name="mass" class="InstantiableMap">
+								<map entryClass="Double" keyType="String">
+									<item key="biomass" value="1.0"  />
+								</map>
+							</aspect>
+							<aspect name="eps" type="PRIMARY" class="Double" value="0.0" />
+						</templateAgent>
+						<templateAgent number="724">
+							<aspect name="volumeDistribution" type="PRIMARY" class="HashMap">
+							</aspect>
+							<aspect name="species" type="PRIMARY" class="String" value="epithelium" />
+							<aspect  name="mass" class="InstantiableMap">
+								<map entryClass="Double" keyType="String">
+									<item key="biomass" value="1.0"  />
+								</map>
+							</aspect>
+							<aspect name="eps" type="PRIMARY" class="Double" value="0.0" />
+						</templateAgent>
+					</spawn>
+				</epithelium>
+			</agents>
+			<spawn class="randomSpawner" domain="320.0, 10.0, 320.0" priority="0" number="20" morphology="COCCOID">
+				<templateAgent>
+					<aspect name="species" type="PRIMARY" class="String" value="GUB" />
+					<aspect  name="mass" class="InstantiableMap">
+						<map entryClass="Double" keyType="String">
+							<item key="biomass" value="10.0"  />
+						</map>
+					</aspect>
+				</templateAgent>
+			</spawn>
+			<spawn class="randomSpawner" domain="320.0, 10.0, 320.0" priority="0" number="20" morphology="COCCOID">
+				<templateAgent>
+					<aspect name="species" type="PRIMARY" class="String" value="LUB" />
+					<aspect  name="mass" class="InstantiableMap">
+						<map entryClass="Double" keyType="String">
+							<item key="biomass" value="10.0"  />
+						</map>
+					</aspect>
+				</templateAgent>
+			</spawn>
+			<spawn class="randomSpawner" domain="320.0, 10.0, 320.0" priority="0" number="20" morphology="COCCOID">
+				<templateAgent>
+					<aspect name="species" type="PRIMARY" class="String" value="acetogen" />
+					<aspect  name="mass" class="InstantiableMap">
+						<map entryClass="Double" keyType="String">
+							<item key="biomass" value="10.0"  />
+						</map>
+					</aspect>
+				</templateAgent>
+			</spawn>
+			<spawn class="randomSpawner" domain="320.0, 10.0, 320.0" priority="0" number="20" morphology="COCCOID">
+				<templateAgent>
+					<aspect name="species" type="PRIMARY" class="String" value="methanogen" />
+					<aspect  name="mass" class="InstantiableMap">
+						<map entryClass="Double" keyType="String">
+							<item key="biomass" value="10.0"  />
+						</map>
+					</aspect>
+				</templateAgent>
+			</spawn>
+			<processManagers>
+				<!-- minute -->
+				<process name="agentRelax"	class="AgentRelaxation" priority="1"
+					firstStep="0.0">
+					<!-- µm -->
+					<aspect name="maxMovement" 		type="PRIMARY" class="Double" value="0.5" />
+					<aspect name="relaxationMethod" type="PRIMARY" class="String" value="EULER" />
+					<aspect name="stressThreshold" type="PRIMARY" class="Double" value="1000.0" />
+				</process>
+				<!-- minute -->
+				<process name="PDEWrapper" class="PDEWrapper"  priority="2">
+					<aspect name="absoluteTolerance" type="PRIMARY" class="Double" value="1.0e-15" />
+					<aspect name="relativeTolerance" type="PRIMARY" class="Double" value="1.0e-10" />
+					<aspect name="vCycles" class="Integer" value="20" />
+					<aspect name="preSteps" class="Integer" value="10" />
+					<aspect name="coarseSteps" class="Integer" value="3" />
+					<aspect name="postSteps" class="Integer" value="10" />
+					<aspect name="autoVcycleAdjust" class="Boolean" value="true" /> /> 
+				</process>
+				<process name="biofilmBoundaryDeparture"
+					class="AgentsInBoundaryLayerDepart" priority = "1">
+					<aspect name="destinationNames" type="PRIMARY" class="InstantiableMap" >
+						<map entryClass="Double" keyType="String">
+							<item key="distalColonLumen" value="1.0"/>
+						</map>
+					</aspect>
+				</process>
+				<process name="floatingDeparture" class="FloatingAgentDeparture" priority="3">
+					<aspect name="searchDist" 	type="PRIMARY" class="Double" value="1.0" />
+					<aspect name="fewNeighboursRemoval" type="PRIMARY" class="Integer" value="1" />
+					<aspect name="fewNeighboursRemovalProbability" type="PRIMARY" class="Double" value="0.02" />
+					<aspect name="destinationNames" type="PRIMARY" class="InstantiableMap" >
+						<map entryClass="Double" keyType="String">
+							<item key="distalColonLumen" value="1.0"/>
+						</map>
+					</aspect>
+				</process>
+				<process name="arrival" class="AgentAttachmentRandomWalk" priority = "0" >
+					<aspect name="dimensionName" type="PRIMARY" class="String" value="Y" />
+					<aspect name="extreme" type="PRIMARY" class="Integer" value="1" />
+					<aspect name="stepSize" type="PRIMARY" class="Double" value="2.0" />
+					<aspect name="originNames" type="PRIMARY" class="InstantiableList">
+					<list class="InstantiableList" nodeLabel="origin" entryClass="String" keyClass="String" keyLabel="name">
+						<origin name="origin" value="distalColonLumen"/>
+					</list>
+				</aspect>
+				</process>
+				<process name="death" class="AgentDeath" priority = "0"
+					firstStep="0.0">
+					<aspect name="deathMass" type="PRIMARY" class="Double" value="0.05"/>
+				</process>
+				<process name="povWriter" class="GraphicalOutput"  priority="-5"
+					firstStep="0.0"  timerStepSize="120.0">
+					<aspect name="outputWriter" type="PRIMARY" class="String" value="PovExport" />
+				</process>
+			</processManagers>
+		</compartment>
+		<compartment name="body">
+			<shape class="Dimensionless" volume="8.5e8">
+			</shape>
+			<solutes>
+				<!-- Initial concentrations pg / µm2 -->
+				<solute name="polysaccharide" concentration="6.00E-06" defaultDiffusivity="1.0E-10 [m+2/s]" />
+				<!-- Suhaimi et al., 2015, Glucose diffusivity in cell culture medium -->
+				<solute name="glucose" 		concentration="6.0E-7" defaultDiffusivity="9.58E-10 [m+2/s]" />
+				<!-- Sallee and Dietschy, 1973, Determinants of intestinal mucosal uptake of
+				short- and medium-chain fatty acids and alcohols" -->
+				<solute name="acetate" 		concentration="6.0E-7" defaultDiffusivity="1.67E-9 [m+2/s]"/>
+				<!-- Sallee and Dietschy, 1973, Determinants of intestinal mucosal uptake of
+				short- and medium-chain fatty acids and alcohols" -->
+				<solute name="lactate" 		concentration="6.0E-7" defaultDiffusivity="1.39E-9 [m+2/s]"/>
+				<!-- Jahne et al., 1987, Measurement of the diffusion coefficients of sparingly
+				soluble gases in water -->
+				<solute name="hydrogen" 	concentration="6.0E-7" defaultDiffusivity="6.23E-9 [m+2/s]"/>
+				<!-- Sallee and Dietschy, 1973, Determinants of intestinal mucosal uptake of
+				short- and medium-chain fatty acids and alcohols" -->
+				<solute name="propionate" 	concentration="6.0E-7" defaultDiffusivity="1.39E-9 [m+2/s]"/>
+				<!-- Sallee and Dietschy, 1973, Determinants of intestinal mucosal uptake of
+				short- and medium-chain fatty acids and alcohols" -->
+				<solute name="butyrate" 	concentration="6.0E-7" defaultDiffusivity="1.21E-9 [m+2/s]"/>
+				<!-- Unver and Himmelblau, 1964, Diffusion coefficients of CO2, C2H4, C3H6, and C4H8
+				in water from 6° to 65°" -->
+				<solute name="co2"		 	concentration="6.0E-7" defaultDiffusivity="2.38E-9 [m+2/s]"/>
+				<!-- Witherspoon and Saraf, 1965, Diffusion of methane, ethane, propane and
+				n-butane in water from 25 to 43°" -->
+				<solute name="methane"	 	concentration="6.0E-7" defaultDiffusivity="2.12E-9 [m+2/s]"/>
+			</solutes>
+			<processManagers>
+				<process name="solveChemostat" class="ChemostatSolver" priority="0">
+					<aspect name="soluteNames" type="PRIMARY" class="String[]" 
+						value="polysaccharide,glucose,acetate,lactate,hydrogen,propionate,butyrate,co2,methane" />
+					<aspect name="hMax" type="PRIMARY" class="Double" value="60.0" />
+					<aspect name="solver" type="PRIMARY" class="String" value="heun" />
+					<aspect name="tolerance" class="Double" value="1.0E-6" />
+				</process>
+			</processManagers>
+		</compartment>
+	</simulation>
+</document>

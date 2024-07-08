@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+	<simulation log="CRITICAL" outputfolder="../results" name="biofilm_no_growth"  randomSeed="224324231">
+	<timer stepSize="10 [s]" endOfSimulation="20.0" />
+		<speciesLib>
+			<!-- species/species library The species library contains all agent species 
+				in the simulations. This may include microbial species, plasmid and vector 
+				species, particle species etc. Species states are states that are in principal 
+				identical for all agents of that species. However note that iDynoMiCS 2.0 
+				does allow you to overwrite states on agent level. Thus if a state is defined 
+				both on species level and on agent level, the agent state will be used in 
+				the simulation. small test 
+				-->
+			<species name="coccoid">
+				<aspect name="density" type="PRIMARY" class="Double" value="15.0" />
+				<aspect name="surfaces" type="CALCULATED" class="AgentSurfaces" />
+				<aspect name="divisionMass" type="PRIMARY" class="Double" value="20.0" />
+				<aspect name="divide" type="EVENT" class="CoccoidDivision"	/>
+				<aspect name="updateBody" type="EVENT" class="UpdateBody" />
+				<aspect name="volume" type="CALCULATED" class="SimpleVolumeState" 	/>
+				<aspect name="radius" type="CALCULATED" class="CoccoidRadius" 		/>
+			</species>
+
+			<species name="GUB">
+			<speciesModule name="coccoid" />
+				<aspect name="reactions" type="PRIMARY"  class="InstantiableList"> 
+					<list class="RegularReaction" nodeLabel="reaction" 
+					entryClass="RegularReaction" keyClass="String" keyLabel="name">
+						<reaction name="hydrolysis">
+							<expression value = "khydz * (( polysaccharide * (biomass/113))
+								/ (Kxz + polysaccharide))" >
+								<constant name="khydz" 	value="1200 [day-1]" /> 
+								<constant name="Kxz" 	value="29.99 [g/l]" /> 
+							</expression>
+							<stoichiometric component="glucose" coefficient="0.9" />
+							<stoichiometric component="polysaccharide" coefficient="-1.0" />
+						</reaction> 
+					</list>
+				</aspect>
+			</species>		
+		</speciesLib>
+		<compartment name="proximalColonLumen" priority="2" >
+			<shape class="Dimensionless" volume="1.0368e9 [um+3]">
+				<boundary  class="constantConcentrationToChemostat" volumeFlowRate="3.77e-3 [l/day]">
+				<solute name="glucose" concentration="0.0" defaultDiffusivity="36000"  />
+				<solute name="polysaccharide" concentration="16.6666 [g/l]" defaultDiffusivity="1.0E-10 [m+2/s]" />
+				</boundary>
+				<boundary  class="chemostatOut" constantVolume="true" agentRemoval="false" >
+				</boundary> 
+			</shape>
+			<solutes>
+				<!-- pg / µm3 -->
+				<solute name="glucose" concentration="0.0" defaultDiffusivity="36000"  />
+				<solute name="polysaccharide" concentration="16.6666 [g/l]" defaultDiffusivity="1.0E-10 [m+2/s]" />
+			</solutes>
+			<spawn class="randomSpawner" domain="320.0, 10.0, 320.0" priority="0" number="60" morphology="COCCOID">
+				<templateAgent>
+					<aspect name="species" type="PRIMARY" class="String" value="GUB" />
+					<aspect  name="mass" class="InstantiableMap">
+						<map entryClass="Double" keyType="String">
+							<item key="biomass" value="10.0"  />
+						</map>
+					</aspect>
+				</templateAgent>
+			</spawn>
+			<processManagers>
+				<process name="solveChemostat" class="ChemostatSolver" priority="0"
+					firstStep="0.0" timerStepSize="2.0">
+					<aspect name="hMax" type="PRIMARY" class="Double" value="5.0" />
+					<aspect name="solver" type="PRIMARY" class="String" value="heun" />
+					<aspect name="tolerance" class="Double" value="1.0E-6" />
+				</process>
+			</processManagers>
+		</compartment>
+		<compartment name="biofilm" priority="1" tree="SPLITTREE">
+			<shape class="Cuboid" resolutionCalculator="MgFASResolution" nodeSystem="false">
+				<!-- µm -->
+				<dimension name="X" isCyclic="true" 	targetResolution="20.0" max="320.0"/>
+				<dimension name="Y" isCyclic="false" 	targetResolution="20.0" max="320.0">
+					<boundary extreme="1" class="BiofilmBoundaryLayer" partnerCompartment="proximalColonLumen" layerThickness = "4.0"/>
+					<boundary extreme="0" class="SolidBoundary" />
+				</dimension>
+				<dimension name="Z" isCyclic="true" 	targetResolution="20.0" max="320.0"/>
+			</shape>
+			<solutes>
+				<!-- pg / µm3 -->
+				<solute name="glucose" concentration="0.0" defaultDiffusivity="36000"  />
+				<solute name="polysaccharide" concentration="16.6666 [g/l]" defaultDiffusivity="1.0E-10 [m+2/s]" />
+			</solutes>
+			<spawn class="randomSpawner" domain="320.0, 10.0, 320.0" priority="0" number="60" morphology="COCCOID">
+				<templateAgent>
+					<aspect name="species" type="PRIMARY" class="String" value="GUB" />
+					<aspect  name="mass" class="InstantiableMap">
+						<map entryClass="Double" keyType="String">
+							<item key="biomass" value="10.0"  />
+						</map>
+					</aspect>
+				</templateAgent>
+			</spawn>
+			<processManagers>				
+				<!-- ms -->
+				<process name="PDEWrapper" class="PDEWrapper" priority="1" firstStep="0.0">
+					<aspect name="solverResidualRatioThreshold" class="Double" value="1.0E-4" />
+					<aspect name="autoVcycleAdjust" class="Boolean" value="true" />
+					<record name="record" solute = "polysaccharide" class="RecordKeeper">
+						<aspect name="solute"	type = "PRIMARY" class="String"	 value = "polysaccharide" />
+						<aspect name="order" 	type = "PRIMARY" class="Integer" value = "3" />
+						<aspect name="interval" type = "PRIMARY" class = "Integer" value = "1" />
+						<aspect name="type" 	type = "PRIMARY" class = "String" value = "concentration" />
+						<aspect name="difference" 	type = "PRIMARY" class = "String" value = "real" />
+					</record>
+					<!-- µm^2 ms^-1-->
+				</process>
+				<process name="summary" class="Summary"  priority="2"
+					firstStep="0.0">
+					<aspect name="includeHeader" type="PRIMARY" class="Boolean" value="TRUE" />
+					<aspect name="fileName" type="PRIMARY" class="String" value="chemostat" />
+					<aspect name="tableSpecification" type="PRIMARY" class="String"
+					value="mass ? species == Catalyst | %polysaccharide" />
+					<aspect name="fileName" type="PRIMARY" class="String" value="data" />
+				</process>
+			</processManagers>
+		</compartment>		
+	</simulation>
+</document>
