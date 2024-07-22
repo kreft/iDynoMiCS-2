@@ -6,3 +6,13 @@ eGUT will be published under the [CeCILL license V2](http://www.cecill.info/inde
 
 ## getting started
 read more about eGUT in the eGUT [wiki](https://github.com/Secondus2/eGUT/wiki).
+
+
+## protocols referenced in publications
+The following directories contain protocols mentioned in publications:
+
+protocol/Benchmark_3_protocols
+
+protocol/MIMic
+
+protocol/catalyst_systems_eGUT_publication

@@ -23,6 +23,7 @@
 								<constant name="Kb" 	value="0.287 [mg/l]" />
 							</expression>
 							<stoichiometric component="co2@compartment" coefficient="1.0" />
+							<stoichiometric component="biomass@agent" coefficient="0.06534" />
 							<stoichiometric component="butyrate@compartment" coefficient="-0.25" />
 						</reaction> 
 					</list>
@@ -46,7 +47,8 @@
 								<constant name="Kb" 	value="0.287 [mg/l]" />
 							</expression>
 							<stoichiometric component="co2@compartment" coefficient="1.0" />
-							<stoichiometric component="eps@agent" coefficient="0.03267" />
+							<stoichiometric component="biomass@agent" coefficient="0.052272" />
+							<stoichiometric component="eps@agent" coefficient="0.013068" />
 							<stoichiometric component="butyrate@compartment" coefficient="-0.25" />
 						</reaction> 
 					</list>
@@ -65,7 +67,7 @@
 					entryClass="RegularReaction" keyClass="String" keyLabel="name">
 						<reaction name="decay">
 							<expression value = "kd * mass">
-								<constant name="kd" 	value="0.02 [hour-1]" /> 
+								<constant name="kd" 	value="0.05 [hour-1]" /> 
 							</expression>
 							<stoichiometric component = "mass" coefficient = "-1.0" />
 							<stoichiometric component = "polysaccharide" coefficient = "1.0" />
@@ -198,8 +200,8 @@
 			</species>
 		</speciesLib>
 		<compartment name="proximalColonLumen">
-			<shape class="Dimensionless" volume="10368000.0 [um+3]">
-				<boundary  class="constantConcentrationToChemostat" volumeFlowRate="15449006.6 [um+3/day]">
+			<shape class="Dimensionless" volume="1.0368e9 [um+3]">
+				<boundary  class="constantConcentrationToChemostat" volumeFlowRate="9.6254e-8 [um+3/day]">
 				<!-- Rob's protocol -->
 				<solute name="polysaccharide" concentration="16.6666 [g/l]" defaultDiffusivity="1.0E-10 [m+2/s]" />
 				<!-- Sallee and Dietschy, 1973, Determinants of intestinal mucosal uptake of
@@ -218,7 +220,7 @@
 				n-butane in water from 25 to 43°" -->
 				<solute name="methane"	 	concentration="0.0" defaultDiffusivity="2.12E-9 [m+2/s]"/>
 				</boundary>
-				<boundary  class="chemostatToChemostat" volumeFlowRate="-15449006.6 [um+3/day]" agentRemoval="true"
+				<boundary  class="chemostatToChemostat" volumeFlowRate="-9.6254e-8 [um+3/day]" agentRemoval="true"
 					partnerCompartment="transverseColonLumen" dominant="true">
 				</boundary> 
 			</shape>
@@ -258,7 +260,7 @@
 					</aspect>
 				</process>
 				<process name="flowDeparture"
-					class="DepartureByFlow" priority = "1" volumeFlowRate="-15449006.6 [um+3/day]">
+					class="DepartureByFlow" priority = "1" volumeFlowRate="-9.6254e-8 [um+3/day]">
 					<aspect name="destinationNames" type="PRIMARY" class="InstantiableMap" >
 						<map entryClass="Double" keyType="String">
 							<item key="transverseColonLumen" value="1.0"/>
@@ -287,8 +289,8 @@
 			</processManagers>
 		</compartment>
 		<compartment name="transverseColonLumen">
-			<shape class="Dimensionless" volume="10368000.0 [um+3]">
-				<boundary  class="chemostatToChemostat" volumeFlowRate="-15449006.6 [um+3/day]" agentRemoval="true"
+			<shape class="Dimensionless" volume="1.0368e9 [um+3]">
+				<boundary  class="chemostatToChemostat" volumeFlowRate="-9.6254e-8 [um+3/day]" agentRemoval="true"
 					partnerCompartment="distalColonLumen" dominant="true">
 				</boundary> 
 			</shape>
@@ -329,7 +331,7 @@
 				</aspect>
 				</process>
 				<process name="flowDeparture"
-					class="DepartureByFlow" priority = "1" volumeFlowRate="-15449006.6 [um+3/day]">
+					class="DepartureByFlow" priority = "1" volumeFlowRate="-9.6254e-8 [um+3/day]">
 					<aspect name="destinationNames" type="PRIMARY" class="InstantiableMap" >
 						<map entryClass="Double" keyType="String">
 							<item key="distalColonLumen" value="1.0"/>
@@ -358,8 +360,8 @@
 			</processManagers>
 		</compartment>
 		<compartment name="distalColonLumen">
-			<shape class="Dimensionless" volume="10368000.0 [um+3]">
-				<boundary  class="chemostatOut" volumeFlowRate="-15449006.6 [um+3/day]" agentRemoval="true">
+			<shape class="Dimensionless" volume="1.0368e9 [um+3]">
+				<boundary  class="chemostatOut" volumeFlowRate="-9.6254e-8 [um+3/day]" agentRemoval="true">
 				</boundary> 
 			</shape>
 			<solutes>
@@ -399,7 +401,7 @@
 				</aspect>
 				</process>
 				<process name="flowDeparture"
-					class="DepartureByFlow" priority = "1" volumeFlowRate="-15449006.6 [um+3/day]">
+					class="DepartureByFlow" priority = "1" volumeFlowRate="-9.6254e-8 [um+3/day]">
 				</process>
 				<process name="departure" class="AgentsLeaveChemostat" priority = "0"
 					firstStep="0.0">
@@ -425,12 +427,12 @@
 		<compartment name="proximalColonMucosa">
 			<shape class="Cuboid" resolutionCalculator="MgFASResolution" nodeSystem="false">
 				<!-- µm -->
-				<dimension name="X" isCyclic="true" 	targetResolution="4.0" max="32.0"/>
-				<dimension name="Y" isCyclic="false" 	targetResolution="4.0" max="256.0">
-					<boundary extreme="1" class="BiofilmBoundaryLayer" partnerCompartment="proximalColonLumen" layerThickness = "6.0"/>
+				<dimension name="X" isCyclic="true" 	targetResolution="10.0" max="320.0"/>
+				<dimension name="Y" isCyclic="false" 	targetResolution="10.0" max="320.0">
+					<boundary extreme="1" class="BiofilmBoundaryLayer" partnerCompartment="proximalColonLumen" layerThickness = "10.0"/>
 					<boundary class="EpithelialBoundary" extreme="0" partnerCompartment="body"/>
 				</dimension>
-				<dimension name="Z" isCyclic="true" 	targetResolution="4.0" max="32.0"/>
+				<dimension name="Z" isCyclic="true" 	targetResolution="10.0" max="320.0"/>
 			</shape>
 			<solutes>
 				<!-- Initial concentrations pg / µm2 -->
@@ -453,25 +455,25 @@
 			</solutes>
 			<agents>
 			<epithelium class = "Epithelium" dimension = "Y" extreme = "0">
-					<spawn class="differentiatedEpithelialLayerSpawner" domain="0.0, 0.0, 0.0; 32.0, 0.0, 32.0" cellShape="8.0, 0.0, 8.0" priority="0">
-						<templateAgent number="5">
+					<spawn class="differentiatedEpithelialLayerSpawner" domain="0.0, 0.0, 0.0; 320.0, 0.0, 320.0" cellShape="10.0, 0.0, 10.0" priority="0">
+						<templateAgent number="300">
 							<aspect name="volumeDistribution" type="PRIMARY" class="HashMap">
 							</aspect>
 							<aspect name="species" type="PRIMARY" class="String" value="gobletCell" />
 							<aspect  name="mass" class="InstantiableMap">
 								<map entryClass="Double" keyType="String">
-									<item key="biomass" value="214.8"  />
+									<item key="biomass" value="1.0"  />
 								</map>
 							</aspect>
 							<aspect name="eps" type="PRIMARY" class="Double" value="5.0" />
 						</templateAgent>
-						<templateAgent number="11">
+						<templateAgent number="724">
 							<aspect name="volumeDistribution" type="PRIMARY" class="HashMap">
 							</aspect>
 							<aspect name="species" type="PRIMARY" class="String" value="epithelium" />
 							<aspect  name="mass" class="InstantiableMap">
 								<map entryClass="Double" keyType="String">
-									<item key="biomass" value="214.8"  />
+									<item key="biomass" value="1.0"  />
 								</map>
 							</aspect>
 							<aspect name="eps" type="PRIMARY" class="Double" value="0.0" />
@@ -480,25 +482,25 @@
 				</epithelium>
 
 			</agents>
-			<spawn class="randomSpawner" domain="32.0, 100.0, 32.0" priority="0" number="60" morphology="COCCOID">
+			<spawn class="randomSpawner" domain="320.0, 10.0, 320.0" priority="0" number="120" morphology="COCCOID">
 				<templateAgent>
 					<aspect name="species" type="PRIMARY" class="String" value="GUB" />
 					<aspect  name="mass" class="Double" value="10.0" />
 				</templateAgent>
 			</spawn>
-			<spawn class="randomSpawner" domain="32.0, 100.0, 32.0" priority="0" number="60" morphology="COCCOID">
+			<spawn class="randomSpawner" domain="320.0, 10.0, 320.0" priority="0" number="120" morphology="COCCOID">
 				<templateAgent>
 					<aspect name="species" type="PRIMARY" class="String" value="LUB" />
 					<aspect  name="mass" class="Double" value="10.0" />
 				</templateAgent>
 			</spawn>
-			<spawn class="randomSpawner" domain="32.0, 100.0, 32.0" priority="0" number="60" morphology="COCCOID">
+			<spawn class="randomSpawner" domain="320.0, 10.0, 320.0" priority="0" number="120" morphology="COCCOID">
 				<templateAgent>
 					<aspect name="species" type="PRIMARY" class="String" value="acetogen" />
 					<aspect  name="mass" class="Double" value="10.0" />
 				</templateAgent>
 			</spawn>
-			<spawn class="randomSpawner" domain="32.0, 100.0, 32.0" priority="0" number="60" morphology="COCCOID">
+			<spawn class="randomSpawner" domain="320.0, 10.0, 320.0" priority="0" number="120" morphology="COCCOID">
 				<templateAgent>
 					<aspect name="species" type="PRIMARY" class="String" value="methanogen" />
 					<aspect  name="mass" class="Double" value="10.0" />
@@ -506,7 +508,7 @@
 			</spawn>
 			<processManagers>
 				<!-- minute -->
-				<process name="agentRelax"	class="AgentRelaxation" priority="3"
+				<process name="agentRelax"	class="AgentRelaxation" priority="1"
 					firstStep="0.0">
 					<!-- µm -->
 					<aspect name="maxMovement" 		type="PRIMARY" class="Double" value="0.1" />
@@ -539,7 +541,7 @@
 				<process name="arrival" class="AgentAttachmentRandomWalk" priority = "0" >
 					<aspect name="dimensionName" type="PRIMARY" class="String" value="Y" />
 					<aspect name="extreme" type="PRIMARY" class="Integer" value="1" />
-					<aspect name="stepSize" type="PRIMARY" class="Double" value="4.0" />
+					<aspect name="stepSize" type="PRIMARY" class="Double" value="2.0" />
 					<aspect name="#curPullDist" type="PRIMARY" class="Double" value="1.0" />
 					<aspect name="originNames" type="PRIMARY" class="InstantiableList">
 					<list class="InstantiableList" nodeLabel="origin" entryClass="String" keyClass="String" keyLabel="name">
@@ -547,35 +549,32 @@
 					</list>
 				</aspect>
 				</process>
-				<process name="death" class="AgentDeath" priority = "4"
+				<process name="death" class="AgentDeath" priority = "0"
 					firstStep="0.0">
 					<aspect name="deathMass" type="PRIMARY" class="Double" value="0.01"/>
 				</process>
-				<process name="povWriter" class="GraphicalOutput"  priority="-3"
+				<process name="povWriter" class="GraphicalOutput"  priority="-5"
 					firstStep="0.0"  timerStepSize="24.0 [hour]">
 					<aspect name="outputWriter" type="PRIMARY" class="String" value="PovExport" />
 				</process>
-				<process name="summary" class="Summary"  priority="-4"
+				<process name="summary" class="Summary"  priority="2"
 					firstStep="0.0">
 					<aspect name="includeHeader" type="PRIMARY" class="Boolean" value="TRUE" />
 					<aspect name="fileName" type="PRIMARY" class="String" value="proximalColonMucosa" />
 					<aspect name="tableSpecification" type="PRIMARY" class="String"
 					value="mass ? species == GUB |mass ? species == LUB |mass ? species == acetogen |mass ? species == methanogen |mass ? species == particleEPS " />
 				</process>
-				<process name="scrape" class="AgentScraper" priority="-2">
-					<aspect name="maxThickness" type="PRIMARY" class="Double" value="150.0" />
-				</process>
 			</processManagers>
 		</compartment>
 		<compartment name="transverseColonMucosa">
 			<shape class="Cuboid" resolutionCalculator="MgFASResolution" nodeSystem="false">
 				<!-- µm -->
-				<dimension name="X" isCyclic="true" 	targetResolution="4.0" max="32.0"/>
-				<dimension name="Y" isCyclic="false" 	targetResolution="4.0" max="256.0">
-					<boundary extreme="1" class="BiofilmBoundaryLayer" partnerCompartment="transverseColonLumen" layerThickness = "6.0"/>
+				<dimension name="X" isCyclic="true" 	targetResolution="10.0" max="320.0"/>
+				<dimension name="Y" isCyclic="false" 	targetResolution="10.0" max="320.0">
+					<boundary extreme="1" class="BiofilmBoundaryLayer" partnerCompartment="transverseColonLumen" layerThickness = "10.0"/>
 					<boundary class="EpithelialBoundary" extreme="0" partnerCompartment="body"/>
 				</dimension>
-				<dimension name="Z" isCyclic="true" 	targetResolution="4.0" max="32.0"/>
+				<dimension name="Z" isCyclic="true" 	targetResolution="10.0" max="320.0"/>
 			</shape>
 			<solutes>
 				<!-- Initial concentrations pg / µm2 -->
@@ -598,25 +597,25 @@
 			</solutes>
 			<agents>
 			<epithelium class = "Epithelium" dimension = "Y" extreme = "0">
-					<spawn class="differentiatedEpithelialLayerSpawner" domain="0.0, 0.0, 0.0; 32.0, 0.0, 32.0" cellShape="8.0, 0.0, 8.0" priority="0">
-						<templateAgent number="5">
+					<spawn class="differentiatedEpithelialLayerSpawner" domain="0.0, 0.0, 0.0; 320.0, 0.0, 320.0" cellShape="10.0, 0.0, 10.0" priority="0">
+						<templateAgent number="300">
 							<aspect name="volumeDistribution" type="PRIMARY" class="HashMap">
 							</aspect>
 							<aspect name="species" type="PRIMARY" class="String" value="gobletCell" />
 							<aspect  name="mass" class="InstantiableMap">
 								<map entryClass="Double" keyType="String">
-									<item key="biomass" value="214.8"  />
+									<item key="biomass" value="1.0"  />
 								</map>
 							</aspect>
 							<aspect name="eps" type="PRIMARY" class="Double" value="5.0" />
 						</templateAgent>
-						<templateAgent number="11">
+						<templateAgent number="724">
 							<aspect name="volumeDistribution" type="PRIMARY" class="HashMap">
 							</aspect>
 							<aspect name="species" type="PRIMARY" class="String" value="epithelium" />
 							<aspect  name="mass" class="InstantiableMap">
 								<map entryClass="Double" keyType="String">
-									<item key="biomass" value="214.8"  />
+									<item key="biomass" value="1.0"  />
 								</map>
 							</aspect>
 							<aspect name="eps" type="PRIMARY" class="Double" value="0.0" />
@@ -625,25 +624,25 @@
 				</epithelium>
 
 			</agents>
-			<spawn class="randomSpawner" domain="32.0, 100.0, 32.0" priority="0" number="60" morphology="COCCOID">
+			<spawn class="randomSpawner" domain="320.0, 10.0, 320.0" priority="0" number="120" morphology="COCCOID">
 				<templateAgent>
 					<aspect name="species" type="PRIMARY" class="String" value="GUB" />
 					<aspect  name="mass" class="Double" value="10.0" />
 				</templateAgent>
 			</spawn>
-			<spawn class="randomSpawner" domain="32.0, 100.0, 32.0" priority="0" number="60" morphology="COCCOID">
+			<spawn class="randomSpawner" domain="320.0, 10.0, 320.0" priority="0" number="120" morphology="COCCOID">
 				<templateAgent>
 					<aspect name="species" type="PRIMARY" class="String" value="LUB" />
 					<aspect  name="mass" class="Double" value="10.0" />
 				</templateAgent>
 			</spawn>
-			<spawn class="randomSpawner" domain="32.0, 100.0, 32.0" priority="0" number="60" morphology="COCCOID">
+			<spawn class="randomSpawner" domain="320.0, 10.0, 320.0" priority="0" number="120" morphology="COCCOID">
 				<templateAgent>
 					<aspect name="species" type="PRIMARY" class="String" value="acetogen" />
 					<aspect  name="mass" class="Double" value="10.0" />
 				</templateAgent>
 			</spawn>
-			<spawn class="randomSpawner" domain="32.0, 100.0, 32.0" priority="0" number="60" morphology="COCCOID">
+			<spawn class="randomSpawner" domain="320.0, 10.0, 320.0" priority="0" number="120" morphology="COCCOID">
 				<templateAgent>
 					<aspect name="species" type="PRIMARY" class="String" value="methanogen" />
 					<aspect  name="mass" class="Double" value="10.0" />
@@ -651,7 +650,7 @@
 			</spawn>
 			<processManagers>
 				<!-- minute -->
-				<process name="agentRelax"	class="AgentRelaxation" priority="3"
+				<process name="agentRelax"	class="AgentRelaxation" priority="1"
 					firstStep="0.0">
 					<!-- µm -->
 					<aspect name="maxMovement" 		type="PRIMARY" class="Double" value="0.1" />
@@ -684,7 +683,7 @@
 				<process name="arrival" class="AgentAttachmentRandomWalk" priority = "0" >
 					<aspect name="dimensionName" type="PRIMARY" class="String" value="Y" />
 					<aspect name="extreme" type="PRIMARY" class="Integer" value="1" />
-					<aspect name="stepSize" type="PRIMARY" class="Double" value="4.0" />
+					<aspect name="stepSize" type="PRIMARY" class="Double" value="2.0" />
 					<aspect name="#curPullDist" type="PRIMARY" class="Double" value="1.0" />
 					<aspect name="originNames" type="PRIMARY" class="InstantiableList">
 					<list class="InstantiableList" nodeLabel="origin" entryClass="String" keyClass="String" keyLabel="name">
@@ -692,7 +691,7 @@
 					</list>
 				</aspect>
 				</process>
-				<process name="death" class="AgentDeath" priority = "4"
+				<process name="death" class="AgentDeath" priority = "0"
 					firstStep="0.0">
 					<aspect name="deathMass" type="PRIMARY" class="Double" value="0.01"/>
 				</process>
@@ -700,27 +699,24 @@
 					firstStep="0.0"  timerStepSize="24.0 [hour]">
 					<aspect name="outputWriter" type="PRIMARY" class="String" value="PovExport" />
 				</process>
-				<process name="summary" class="Summary"  priority="-4"
+				<process name="summary" class="Summary"  priority="2"
 					firstStep="0.0">
 					<aspect name="includeHeader" type="PRIMARY" class="Boolean" value="TRUE" />
 					<aspect name="fileName" type="PRIMARY" class="String" value="transverseColonMucosa" />
 					<aspect name="tableSpecification" type="PRIMARY" class="String"
 					value="mass ? species == GUB |mass ? species == LUB |mass ? species == acetogen |mass ? species == methanogen |mass ? species == particleEPS " />
 				</process>
-				<process name="scrape" class="AgentScraper" priority="-2">
-					<aspect name="maxThickness" type="PRIMARY" class="Double" value="150.0" />
-				</process>
 			</processManagers>
 		</compartment>
 		<compartment name="distalColonMucosa">
 			<shape class="Cuboid" resolutionCalculator="MgFASResolution" nodeSystem="false">
 				<!-- µm -->
-				<dimension name="X" isCyclic="true" 	targetResolution="4.0" max="32.0"/>
-				<dimension name="Y" isCyclic="false" 	targetResolution="4.0" max="256.0">
-					<boundary extreme="1" 	class="BiofilmBoundaryLayer" partnerCompartment="distalColonLumen" layerThickness = "6.0"/>
+				<dimension name="X" isCyclic="true" 	targetResolution="10.0" max="320.0"/>
+				<dimension name="Y" isCyclic="false" 	targetResolution="10.0" max="320.0">
+					<boundary extreme="1" 	class="BiofilmBoundaryLayer" partnerCompartment="distalColonLumen" layerThickness = "10.0"/>
 					<boundary class="EpithelialBoundary" extreme="0" partnerCompartment="body"/>
 				</dimension>
-				<dimension name="Z" isCyclic="true" 	targetResolution="4.0" max="32.0"/>
+				<dimension name="Z" isCyclic="true" 	targetResolution="10.0" max="320.0"/>
 			</shape>
 			<solutes>
 				<!-- Initial concentrations pg / µm2 -->
@@ -743,25 +739,25 @@
 			</solutes>
 			<agents>
 			<epithelium class = "Epithelium" dimension = "Y" extreme = "0">
-					<spawn class="differentiatedEpithelialLayerSpawner" domain="0.0, 0.0, 0.0; 32.0, 0.0, 32.0" cellShape="8.0, 0.0, 8.0" priority="0">
-						<templateAgent number="5">
+					<spawn class="differentiatedEpithelialLayerSpawner" domain="0.0, 0.0, 0.0; 320.0, 0.0, 320.0" cellShape="10.0, 0.0, 10.0" priority="0">
+						<templateAgent number="300">
 							<aspect name="volumeDistribution" type="PRIMARY" class="HashMap">
 							</aspect>
 							<aspect name="species" type="PRIMARY" class="String" value="gobletCell" />
 							<aspect  name="mass" class="InstantiableMap">
 								<map entryClass="Double" keyType="String">
-									<item key="biomass" value="214.8"  />
+									<item key="biomass" value="1.0"  />
 								</map>
 							</aspect>
 							<aspect name="eps" type="PRIMARY" class="Double" value="5.0" />
 						</templateAgent>
-						<templateAgent number="11">
+						<templateAgent number="724">
 							<aspect name="volumeDistribution" type="PRIMARY" class="HashMap">
 							</aspect>
 							<aspect name="species" type="PRIMARY" class="String" value="epithelium" />
 							<aspect  name="mass" class="InstantiableMap">
 								<map entryClass="Double" keyType="String">
-									<item key="biomass" value="214.8"  />
+									<item key="biomass" value="1.0"  />
 								</map>
 							</aspect>
 							<aspect name="eps" type="PRIMARY" class="Double" value="0.0" />
@@ -769,25 +765,25 @@
 					</spawn>
 				</epithelium>
 			</agents>
-			<spawn class="randomSpawner" domain="32.0, 100.0, 32.0" priority="0" number="60" morphology="COCCOID">
+			<spawn class="randomSpawner" domain="320.0, 10.0, 320.0" priority="0" number="120" morphology="COCCOID">
 				<templateAgent>
 					<aspect name="species" type="PRIMARY" class="String" value="GUB" />
 					<aspect  name="mass" class="Double" value="10.0" />
 				</templateAgent>
 			</spawn>
-			<spawn class="randomSpawner" domain="32.0, 100.0, 32.0" priority="0" number="60" morphology="COCCOID">
+			<spawn class="randomSpawner" domain="320.0, 10.0, 320.0" priority="0" number="120" morphology="COCCOID">
 				<templateAgent>
 					<aspect name="species" type="PRIMARY" class="String" value="LUB" />
 					<aspect  name="mass" class="Double" value="10.0" />
 				</templateAgent>
 			</spawn>
-			<spawn class="randomSpawner" domain="32.0, 100.0, 32.0" priority="0" number="60" morphology="COCCOID">
+			<spawn class="randomSpawner" domain="320.0, 10.0, 320.0" priority="0" number="120" morphology="COCCOID">
 				<templateAgent>
 					<aspect name="species" type="PRIMARY" class="String" value="acetogen" />
 					<aspect  name="mass" class="Double" value="10.0" />
 				</templateAgent>
 			</spawn>
-			<spawn class="randomSpawner" domain="32.0, 100.0, 32.0" priority="0" number="60" morphology="COCCOID">
+			<spawn class="randomSpawner" domain="320.0, 10.0, 320.0" priority="0" number="120" morphology="COCCOID">
 				<templateAgent>
 					<aspect name="species" type="PRIMARY" class="String" value="methanogen" />
 					<aspect  name="mass" class="Double" value="10.0" />
@@ -795,7 +791,7 @@
 			</spawn>
 			<processManagers>
 				<!-- minute -->
-				<process name="agentRelax"	class="AgentRelaxation" priority="3"
+				<process name="agentRelax"	class="AgentRelaxation" priority="1"
 					firstStep="0.0">
 					<!-- µm -->
 					<aspect name="maxMovement" 		type="PRIMARY" class="Double" value="0.1" />
@@ -828,7 +824,7 @@
 				<process name="arrival" class="AgentAttachmentRandomWalk" priority = "0" >
 					<aspect name="dimensionName" type="PRIMARY" class="String" value="Y" />
 					<aspect name="extreme" type="PRIMARY" class="Integer" value="1" />
-					<aspect name="stepSize" type="PRIMARY" class="Double" value="4.0" />
+					<aspect name="stepSize" type="PRIMARY" class="Double" value="2.0" />
 					<aspect name="#curPullDist" type="PRIMARY" class="Double" value="1.0" />
 					<aspect name="originNames" type="PRIMARY" class="InstantiableList">
 					<list class="InstantiableList" nodeLabel="origin" entryClass="String" keyClass="String" keyLabel="name">
@@ -836,7 +832,7 @@
 					</list>
 				</aspect>
 				</process>
-				<process name="death" class="AgentDeath" priority = "4"
+				<process name="death" class="AgentDeath" priority = "0"
 					firstStep="0.0">
 					<aspect name="deathMass" type="PRIMARY" class="Double" value="0.01"/>
 				</process>
@@ -844,15 +840,12 @@
 					firstStep="0.0"  timerStepSize="24.0 [hour]">
 					<aspect name="outputWriter" type="PRIMARY" class="String" value="PovExport" />
 				</process>
-				<process name="summary" class="Summary"  priority="-4"
+				<process name="summary" class="Summary"  priority="2"
 					firstStep="0.0">
 					<aspect name="includeHeader" type="PRIMARY" class="Boolean" value="TRUE" />
 					<aspect name="fileName" type="PRIMARY" class="String" value="distalColonMucosa" />
 					<aspect name="tableSpecification" type="PRIMARY" class="String"
 					value="mass ? species == GUB |mass ? species == LUB |mass ? species == acetogen |mass ? species == methanogen |mass ? species == particleEPS " />
-				</process>
-				<process name="scrape" class="AgentScraper" priority="-2">
-					<aspect name="maxThickness" type="PRIMARY" class="Double" value="150.0" />
 				</process>
 			</processManagers>
 		</compartment>

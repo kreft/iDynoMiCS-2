@@ -1,0 +1,331 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+	<simulation log="NORMAL" outputfolder="../results" name="biofilm_no_growth"  randomSeed="224324231">
+	<timer stepSize="1.0" endOfSimulation="5.0" />
+		<speciesLib>
+			<!-- species/species library The species library contains all agent species 
+				in the simulations. This may include microbial species, plasmid and vector 
+				species, particle species etc. Species states are states that are in principal 
+				identical for all agents of that species. However note that iDynoMiCS 2.0 
+				does allow you to overwrite states on agent level. Thus if a state is defined 
+				both on species level and on agent level, the agent state will be used in 
+				the simulation. small test 
+				-->
+			<species name="coccoid">
+				<aspect name="density" type="PRIMARY" class="Double" value="15.0" />
+				<aspect name="surfaces" type="CALCULATED" class="AgentSurfaces" />
+				<aspect name="divisionMass" type="PRIMARY" class="Double" value="20.0" />
+				<aspect name="divide" type="EVENT" class="CoccoidDivision"	/>
+				<aspect name="updateBody" type="EVENT" class="UpdateBodySurfaceScaled" />
+				<aspect name="volume" type="CALCULATED" class="SimpleVolumeState" 	/>
+				<aspect name="radius" type="CALCULATED" class="CoccoidRadius" 		/>
+			</species>
+
+			<species name="Catalyst">
+			<speciesModule name="coccoid" />
+				<aspect name="pigment" type="PRIMARY" class="String" value="PURPLE" />
+				<aspect name="reactions" type="PRIMARY"  class="InstantiableList"> 
+					<list class="RegularReaction" nodeLabel="reaction" 
+					entryClass="RegularReaction" keyClass="String" keyLabel="name">
+						<reaction name="growth">
+							<expression value="mass * k * glucose">
+								<!-- pg/µm3 --> 
+								<constant name="k" 	value="100.0" />
+							</expression>
+							<stoichiometric component="glucose" coefficient="-1.0" />
+						</reaction> 
+					</list>
+				</aspect>
+			</species>		
+		</speciesLib>
+		<compartment name="biofilm" priority="1" tree="SPLITTREE">
+			<shape class="Rectangle" resolutionCalculator="MgFASResolution" nodeSystem="true">
+				<!-- µm -->
+				<dimension name="X" isCyclic="true" targetResolution="1.0" max="16.0"/>
+				<dimension name="Y" isCyclic="false" targetResolution="1.0" max="16.0">
+					<boundary extreme="1" class="FixedBoundary" layerThickness="9.0" >
+						<solute name="glucose" concentration="2.00E-06" defaultDiffusivity="36000"  />
+					</boundary>
+				</dimension>
+			</shape>
+			<solutes>
+				<!-- pg / µm3 -->
+				<solute name="glucose" concentration="2.0E-6" defaultDiffusivity="36000"  />
+			</solutes>
+			<agents>
+				<agent>
+					<aspect name="#isLocated" type="PRIMARY" class="Boolean" value="true" />
+					<aspect name="mass" type="PRIMARY" class="Double" value="2.0" />			
+					<aspect name="species" type="PRIMARY" class="String" value="Catalyst" />
+					<aspect name="body" type="PRIMARY" class="Body">
+						<point position="0.25, 0.25" />
+					</aspect>
+				</agent>
+				<agent>
+					<aspect name="#isLocated" type="PRIMARY" class="Boolean" value="true" />
+					<aspect name="mass" type="PRIMARY" class="Double" value="2.0" />			
+					<aspect name="species" type="PRIMARY" class="String" value="Catalyst" />
+					<aspect name="body" type="PRIMARY" class="Body">
+						<point position="0.75, 0.25" />
+					</aspect>
+				</agent>
+				<agent>
+					<aspect name="#isLocated" type="PRIMARY" class="Boolean" value="true" />
+					<aspect name="mass" type="PRIMARY" class="Double" value="2.0" />			
+					<aspect name="species" type="PRIMARY" class="String" value="Catalyst" />
+					<aspect name="body" type="PRIMARY" class="Body">
+						<point position="1.25, 0.25" />
+					</aspect>
+				</agent>
+				<agent>
+					<aspect name="#isLocated" type="PRIMARY" class="Boolean" value="true" />
+					<aspect name="mass" type="PRIMARY" class="Double" value="2.0" />			
+					<aspect name="species" type="PRIMARY" class="String" value="Catalyst" />
+					<aspect name="body" type="PRIMARY" class="Body">
+						<point position="1.75, 0.25" />
+					</aspect>
+				</agent>
+				<agent>
+					<aspect name="#isLocated" type="PRIMARY" class="Boolean" value="true" />
+					<aspect name="mass" type="PRIMARY" class="Double" value="2.0" />			
+					<aspect name="species" type="PRIMARY" class="String" value="Catalyst" />
+					<aspect name="body" type="PRIMARY" class="Body">
+						<point position="2.25, 0.25" />
+					</aspect>
+				</agent>
+				<agent>
+					<aspect name="#isLocated" type="PRIMARY" class="Boolean" value="true" />
+					<aspect name="mass" type="PRIMARY" class="Double" value="2.0" />			
+					<aspect name="species" type="PRIMARY" class="String" value="Catalyst" />
+					<aspect name="body" type="PRIMARY" class="Body">
+						<point position="2.75, 0.25" />
+					</aspect>
+				</agent>
+				<agent>
+					<aspect name="#isLocated" type="PRIMARY" class="Boolean" value="true" />
+					<aspect name="mass" type="PRIMARY" class="Double" value="2.0" />			
+					<aspect name="species" type="PRIMARY" class="String" value="Catalyst" />
+					<aspect name="body" type="PRIMARY" class="Body">
+						<point position="3.25, 0.25" />
+					</aspect>
+				</agent>
+				<agent>
+					<aspect name="#isLocated" type="PRIMARY" class="Boolean" value="true" />
+					<aspect name="mass" type="PRIMARY" class="Double" value="2.0" />			
+					<aspect name="species" type="PRIMARY" class="String" value="Catalyst" />
+					<aspect name="body" type="PRIMARY" class="Body">
+						<point position="3.75, 0.25" />
+					</aspect>
+				</agent>
+				<agent>
+					<aspect name="#isLocated" type="PRIMARY" class="Boolean" value="true" />
+					<aspect name="mass" type="PRIMARY" class="Double" value="2.0" />			
+					<aspect name="species" type="PRIMARY" class="String" value="Catalyst" />
+					<aspect name="body" type="PRIMARY" class="Body">
+						<point position="4.25, 0.25" />
+					</aspect>
+				</agent>
+				<agent>
+					<aspect name="#isLocated" type="PRIMARY" class="Boolean" value="true" />
+					<aspect name="mass" type="PRIMARY" class="Double" value="2.0" />			
+					<aspect name="species" type="PRIMARY" class="String" value="Catalyst" />
+					<aspect name="body" type="PRIMARY" class="Body">
+						<point position="4.75, 0.25" />
+					</aspect>
+				</agent>
+				<agent>
+					<aspect name="#isLocated" type="PRIMARY" class="Boolean" value="true" />
+					<aspect name="mass" type="PRIMARY" class="Double" value="2.0" />			
+					<aspect name="species" type="PRIMARY" class="String" value="Catalyst" />
+					<aspect name="body" type="PRIMARY" class="Body">
+						<point position="5.25, 0.25" />
+					</aspect>
+				</agent>
+				<agent>
+					<aspect name="#isLocated" type="PRIMARY" class="Boolean" value="true" />
+					<aspect name="mass" type="PRIMARY" class="Double" value="2.0" />			
+					<aspect name="species" type="PRIMARY" class="String" value="Catalyst" />
+					<aspect name="body" type="PRIMARY" class="Body">
+						<point position="5.75, 0.25" />
+					</aspect>
+				</agent>
+				<agent>
+					<aspect name="#isLocated" type="PRIMARY" class="Boolean" value="true" />
+					<aspect name="mass" type="PRIMARY" class="Double" value="2.0" />			
+					<aspect name="species" type="PRIMARY" class="String" value="Catalyst" />
+					<aspect name="body" type="PRIMARY" class="Body">
+						<point position="6.25, 0.25" />
+					</aspect>
+				</agent>
+				<agent>
+					<aspect name="#isLocated" type="PRIMARY" class="Boolean" value="true" />
+					<aspect name="mass" type="PRIMARY" class="Double" value="2.0" />			
+					<aspect name="species" type="PRIMARY" class="String" value="Catalyst" />
+					<aspect name="body" type="PRIMARY" class="Body">
+						<point position="6.75, 0.25" />
+					</aspect>
+				</agent>
+				<agent>
+					<aspect name="#isLocated" type="PRIMARY" class="Boolean" value="true" />
+					<aspect name="mass" type="PRIMARY" class="Double" value="2.0" />			
+					<aspect name="species" type="PRIMARY" class="String" value="Catalyst" />
+					<aspect name="body" type="PRIMARY" class="Body">
+						<point position="7.25, 0.25" />
+					</aspect>
+				</agent>
+				<agent>
+					<aspect name="#isLocated" type="PRIMARY" class="Boolean" value="true" />
+					<aspect name="mass" type="PRIMARY" class="Double" value="2.0" />			
+					<aspect name="species" type="PRIMARY" class="String" value="Catalyst" />
+					<aspect name="body" type="PRIMARY" class="Body">
+						<point position="7.75, 0.25" />
+					</aspect>
+				</agent>
+				<agent>
+					<aspect name="#isLocated" type="PRIMARY" class="Boolean" value="true" />
+					<aspect name="mass" type="PRIMARY" class="Double" value="2.0" />			
+					<aspect name="species" type="PRIMARY" class="String" value="Catalyst" />
+					<aspect name="body" type="PRIMARY" class="Body">
+						<point position="8.25, 0.25" />
+					</aspect>
+				</agent>
+				<agent>
+					<aspect name="#isLocated" type="PRIMARY" class="Boolean" value="true" />
+					<aspect name="mass" type="PRIMARY" class="Double" value="2.0" />			
+					<aspect name="species" type="PRIMARY" class="String" value="Catalyst" />
+					<aspect name="body" type="PRIMARY" class="Body">
+						<point position="8.75, 0.25" />
+					</aspect>
+				</agent>
+				<agent>
+					<aspect name="#isLocated" type="PRIMARY" class="Boolean" value="true" />
+					<aspect name="mass" type="PRIMARY" class="Double" value="2.0" />			
+					<aspect name="species" type="PRIMARY" class="String" value="Catalyst" />
+					<aspect name="body" type="PRIMARY" class="Body">
+						<point position="9.25, 0.25" />
+					</aspect>
+				</agent>
+				<agent>
+					<aspect name="#isLocated" type="PRIMARY" class="Boolean" value="true" />
+					<aspect name="mass" type="PRIMARY" class="Double" value="2.0" />			
+					<aspect name="species" type="PRIMARY" class="String" value="Catalyst" />
+					<aspect name="body" type="PRIMARY" class="Body">
+						<point position="9.75, 0.25" />
+					</aspect>
+				</agent>
+				<agent>
+					<aspect name="#isLocated" type="PRIMARY" class="Boolean" value="true" />
+					<aspect name="mass" type="PRIMARY" class="Double" value="2.0" />			
+					<aspect name="species" type="PRIMARY" class="String" value="Catalyst" />
+					<aspect name="body" type="PRIMARY" class="Body">
+						<point position="10.25, 0.25" />
+					</aspect>
+				</agent>
+				<agent>
+					<aspect name="#isLocated" type="PRIMARY" class="Boolean" value="true" />
+					<aspect name="mass" type="PRIMARY" class="Double" value="2.0" />			
+					<aspect name="species" type="PRIMARY" class="String" value="Catalyst" />
+					<aspect name="body" type="PRIMARY" class="Body">
+						<point position="10.75, 0.25" />
+					</aspect>
+				</agent>
+				<agent>
+					<aspect name="#isLocated" type="PRIMARY" class="Boolean" value="true" />
+					<aspect name="mass" type="PRIMARY" class="Double" value="2.0" />			
+					<aspect name="species" type="PRIMARY" class="String" value="Catalyst" />
+					<aspect name="body" type="PRIMARY" class="Body">
+						<point position="11.25, 0.25" />
+					</aspect>
+				</agent>
+				<agent>
+					<aspect name="#isLocated" type="PRIMARY" class="Boolean" value="true" />
+					<aspect name="mass" type="PRIMARY" class="Double" value="2.0" />			
+					<aspect name="species" type="PRIMARY" class="String" value="Catalyst" />
+					<aspect name="body" type="PRIMARY" class="Body">
+						<point position="11.75, 0.25" />
+					</aspect>
+				</agent>
+				<agent>
+					<aspect name="#isLocated" type="PRIMARY" class="Boolean" value="true" />
+					<aspect name="mass" type="PRIMARY" class="Double" value="2.0" />			
+					<aspect name="species" type="PRIMARY" class="String" value="Catalyst" />
+					<aspect name="body" type="PRIMARY" class="Body">
+						<point position="12.25, 0.25" />
+					</aspect>
+				</agent>
+				<agent>
+					<aspect name="#isLocated" type="PRIMARY" class="Boolean" value="true" />
+					<aspect name="mass" type="PRIMARY" class="Double" value="2.0" />			
+					<aspect name="species" type="PRIMARY" class="String" value="Catalyst" />
+					<aspect name="body" type="PRIMARY" class="Body">
+						<point position="12.75, 0.25" />
+					</aspect>
+				</agent>
+				<agent>
+					<aspect name="#isLocated" type="PRIMARY" class="Boolean" value="true" />
+					<aspect name="mass" type="PRIMARY" class="Double" value="2.0" />			
+					<aspect name="species" type="PRIMARY" class="String" value="Catalyst" />
+					<aspect name="body" type="PRIMARY" class="Body">
+						<point position="13.25, 0.25" />
+					</aspect>
+				</agent>
+				<agent>
+					<aspect name="#isLocated" type="PRIMARY" class="Boolean" value="true" />
+					<aspect name="mass" type="PRIMARY" class="Double" value="2.0" />			
+					<aspect name="species" type="PRIMARY" class="String" value="Catalyst" />
+					<aspect name="body" type="PRIMARY" class="Body">
+						<point position="13.75, 0.25" />
+					</aspect>
+				</agent>
+				<agent>
+					<aspect name="#isLocated" type="PRIMARY" class="Boolean" value="true" />
+					<aspect name="mass" type="PRIMARY" class="Double" value="2.0" />			
+					<aspect name="species" type="PRIMARY" class="String" value="Catalyst" />
+					<aspect name="body" type="PRIMARY" class="Body">
+						<point position="14.25, 0.25" />
+					</aspect>
+				</agent>
+				<agent>
+					<aspect name="#isLocated" type="PRIMARY" class="Boolean" value="true" />
+					<aspect name="mass" type="PRIMARY" class="Double" value="2.0" />			
+					<aspect name="species" type="PRIMARY" class="String" value="Catalyst" />
+					<aspect name="body" type="PRIMARY" class="Body">
+						<point position="14.75, 0.25" />
+					</aspect>
+				</agent>
+				<agent>
+					<aspect name="#isLocated" type="PRIMARY" class="Boolean" value="true" />
+					<aspect name="mass" type="PRIMARY" class="Double" value="2.0" />			
+					<aspect name="species" type="PRIMARY" class="String" value="Catalyst" />
+					<aspect name="body" type="PRIMARY" class="Body">
+						<point position="15.25, 0.25" />
+					</aspect>
+				</agent>
+				<agent>
+					<aspect name="#isLocated" type="PRIMARY" class="Boolean" value="true" />
+					<aspect name="mass" type="PRIMARY" class="Double" value="2.0" />			
+					<aspect name="species" type="PRIMARY" class="String" value="Catalyst" />
+					<aspect name="body" type="PRIMARY" class="Body">
+						<point position="15.75, 0.25" />
+					</aspect>
+				</agent>
+			</agents>
+			<processManagers>				
+				<!-- ms -->
+				<process name="PDEWrapper" class="PDEWrapper" priority="1" firstStep="0.0">
+					<aspect name="solverResidualRatioThreshold" class="Double" value="1.0E-5" />
+					<aspect name="autoVcycleAdjust" class="Boolean" value="true" />
+					<!-- µm^2 ms^-1-->
+				</process>
+				<process name="summary" class="Summary"  priority="2"
+					firstStep="0.0" timerStepSize="2.0">
+					<aspect name="includeHeader" type="PRIMARY" class="Boolean" value="TRUE" />
+					<aspect name="fileName" type="PRIMARY" class="String" value="chemostat" />
+					<aspect name="tableSpecification" type="PRIMARY" class="String"
+					value="mass ? species == Catalyst | %glucose" />
+					<aspect name="fileName" type="PRIMARY" class="String" value="data" />
+				</process>
+			</processManagers>
+		</compartment>		
+	</simulation>
+</document>

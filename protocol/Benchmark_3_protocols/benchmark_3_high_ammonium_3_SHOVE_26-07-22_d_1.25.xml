@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document>
-	<simulation name="benchmark3" outputfolder="../results" log="EXPRESSIVE"
+	<simulation name="benchmark3" outputfolder="/D:/Tim_Foster/Simulation_results" log="EXPRESSIVE" randomSeed="12432495"
 		comment="this is a file for testing purposes only.">
 		<!-- minutes -->
-		<timer stepSize="6.0" endOfSimulation="432000.0" />
+		<timer stepSize="12.0" endOfSimulation="120.0[day]" />
 		<speciesLib>
 			<species name="heterotroph">
 				<speciesModule name="coccoid" />
@@ -87,56 +87,57 @@
 
 			<species name="coccoid">
 				<!-- pg / µm^3-->
-				<aspect name="density" 		type="PRIMARY" 		class="Double" 				value="1.5e-2" />
+				<aspect name="density" 		type="PRIMARY" 		class="Double" 				value="1.25e-2" />
 				<aspect name="#isLocated" 	type="PRIMARY" 		class="Boolean" 			value="true" />
 				<aspect name="surfaces"		type="CALCULATED"	class="AgentSurfaces"		/>
+				<aspect name="morphology" 	type="PRIMARY" 		class="String" 				value="coccoid" />
 				<aspect name="volume" 		type="CALCULATED" 	class="SimpleVolumeState" 	/>
-				<aspect name="radius" 		type="CALCULATED" 	class="CoccoidRadius" 		/>
+				<aspect name="radius" 		type="CALCULATED" 	class="CylinderRadius" 		/>
 				<aspect name="divide" 		type="EVENT" 		class="CoccoidDivision"		/>
 				<!-- Dry division mass (pg) -->
-				<aspect name="divisionMass"	class="Double"		value="16.507" 				/>
-				<aspect name="updateBody" 	type="EVENT" 		class="UpdateBody" 			/>
+				<aspect name="divisionMass"	class="Double"		value="4.0" 				/>
+				<aspect name="updateBody" 	type="EVENT" 		class="UpdateBodySurfaceScaled" 			/>
 				<aspect name="evaluatePull"	type="EVENT"		class="ResolveInteractionDistance" 	 />
 				<!-- µm -->
 				<aspect name="searchDist"	type="PRIMARY"		class="Double"				value="0.0"  />
 			</species>
 		</speciesLib>
 		<compartment name="chemostat">
-			<shape class="Dimensionless" volume="8.5e7">
-				<boundary  class="constantConcentrationToChemostat" volumeFlowRate="9.444E5">
-				<solute name="ammonium" concentration="6.00E-06"/>
+			<shape class="Dimensionless" volume="4.0e6">
+				<boundary  class="constantConcentrationToChemostat" volumeFlowRate="4.444E4">
+				<solute name="ammonium" concentration="3.0E-5"/>
 				<solute name="oxygen" 	concentration="1.0E-5"/>
 				<solute name="COD" 	concentration="3.0E-5" />
 				</boundary>
-				<boundary  class="chemostatOut" volumeFlowRate="9.444E5" agentRemoval="false" >
+				<boundary  class="chemostatOut" volumeFlowRate="-4.444E4" agentRemoval="false" >
 				</boundary> 
 			</shape>
 			<solutes>
 				<!-- pg / µm3 -->
-				<solute name="ammonium" concentration="6.0E-06" defaultDiffusivity="118055.556"  />
+				<solute name="ammonium" concentration="3.0E-5" defaultDiffusivity="118055.556"  />
 				<solute name="oxygen" 	concentration="1.0E-5" defaultDiffusivity="138888.889"  />
 				<solute name="COD" 	concentration="3.0E-5" defaultDiffusivity="69444.444"  />
 			</solutes>
 			<processManagers>
 				<process name="solveChemostat" class="ChemostatSolver" priority="0"
-					firstStep="0.0"  timerStepSize="60.0">
-					<aspect name="soluteNames" type="PRIMARY" class="String[]" value="ammonium,oxygen,COD" />
+					firstStep="0.0">
+					<aspect name="soluteNames" type="PRIMARY" class="String[]" value="ammonium,COD" />
 					<aspect name="hMax" type="PRIMARY" class="Double" value="60.0" />
 					<aspect name="solver" type="PRIMARY" class="String" value="heun" />
 					<aspect name="tolerance" class="Double" value="1.0E-6" />
 				</process>
-				<process name="arrival" class="AgentsArriveInChemostat" priority="-1"
-				firstStep="0.0">
-				<aspect name="originNames" type="PRIMARY" class="InstantiableList">
-					<list class="InstantiableList" nodeLabel="origin" entryClass="String" keyClass="String" keyLabel="name">
-						<origin name="origin" value="first"/>
-					</list>
-				</aspect>
+				<process name="summary" class="Summary"  priority="2"
+					firstStep="0.0" timerStepSize="240.0">
+					<aspect name="includeHeader" type="PRIMARY" class="Boolean" value="TRUE" />
+					<aspect name="fileName" type="PRIMARY" class="String" value="chemostat_high_ammonium_3" />
+					<aspect name="tableSpecification" type="PRIMARY" class="String"
+					value="%COD | %ammonium" />
+					<aspect name="fileName" type="PRIMARY" class="String" value="data" />
 				</process>
 			</processManagers>
 		</compartment>
-		<compartment name="first">
-			<shape class="Rectangle">
+		<compartment name="biofilm">
+			<shape class="Rectangle" resolutionCalculator="MgFASResolution" nodeSystem="true">
 				<!-- µm -->
 				<dimension name="X" isCyclic="true" 	targetResolution="20.0" max="320.0"/>
 				<dimension name="Y" isCyclic="false" 	targetResolution="20.0" max="640.0">
@@ -146,24 +147,23 @@
 			<solutes>
 				<!-- Initial concentrations pg / µm2 -->
 				<solute name="COD"  	concentration="3e-5" defaultDiffusivity="69444.444" />
-				<solute name="ammonium" concentration="6e-6" defaultDiffusivity="118055.556"/>
+				<solute name="ammonium"  concentration="3.0E-5" defaultDiffusivity="118055.556"/>
 				<solute name="oxygen" 	concentration="1e-5" defaultDiffusivity="138888.889"/>
 			</solutes>
 			<reactions>
 			</reactions>
-			<spawn class="randomSpawner" domain="320.0, 40.0" priority="0" number="10" morphology="COCCOID">
+			<spawn class="randomSpawner" domain="320.0, 160.0" priority="0" number="50" morphology="COCCOID">
 				<templateAgent>
 					<aspect name="species" type="PRIMARY" class="String" value="heterotroph" />
 					<aspect  name="mass" class="InstantiableMap">
 						<map entryClass="Double" keyType="String">
 							<item key="biomass" value="10.0"  />
 							<item key="inert" value="0.0"  />
-							<item key="blueComponent" value="0.0"  />
 						</map>
 					</aspect>
 				</templateAgent>
 			</spawn>
-			<spawn class="randomSpawner" domain="320.0, 40.0" priority="0" number="10" morphology="COCCOID">
+			<spawn class="randomSpawner" domain="320.0, 160.0" priority="0" number="50" morphology="COCCOID">
 				<templateAgent>
 					<aspect name="species" type="PRIMARY" class="String" value="autotroph" />
 					<aspect  name="mass" class="InstantiableMap">
@@ -179,51 +179,35 @@
 				<process name="agentRelax"	class="AgentRelaxation" priority="0"
 					firstStep="0.0">
 					<!-- µm -->
-					<aspect name="maxMovement" 		type="PRIMARY" class="Double" value="0.5" />
-					<aspect name="relaxationMethod" type="PRIMARY" class="String" value="EULER" />
+					<aspect name="maxMovement" 		type="PRIMARY" class="Double" value="6.0" />
+					<aspect name="relaxationMethod" type="PRIMARY" class="String" value="SHOVE" />
 					<aspect name="stressThreshold" type="PRIMARY" class="Double" value="1000.0" />
+					<aspect name="shoveFactor"		type="PRIMARY" class="Double" value="1.05" />
+					<aspect name="maxAgentOverlap" class="Double" value="3.0" />
 				</process>
 				<!-- minute -->
-				<process name="SolveDiffusionSteadyState" class="SolveDiffusionSteadyState" priority="-1"
+				<process name="PDEWrapper" class="PDEWrapper" priority="1" firstStep="0.0">
+					<aspect name="absoluteTolerance" type="PRIMARY" class="Double" value="1.0e-15" />
+					<aspect name="relativeTolerance" type="PRIMARY" class="Double" value="1.0e-10" />
+					<aspect name="vCycles" class="Integer" value="100" />
+					<aspect name="preSteps" class="Integer" value="20" />
+					<aspect name="coarseSteps" class="Integer" value="10" />
+					<aspect name="postSteps" class="Integer" value="30" />
+					<aspect name="autoVcycleAdjust" class="Boolean" value="true" />
+					
+					<!-- µm^2 ms^-1-->
+				</process>
+				<process name="scrape" class="AgentScraper" priority="-2"
 					firstStep="0.0">
-					<!-- In principle they are not all the same but all in the 
-					same order of magnitude ~ 2.0e-4 m2.day-1 values here in 
-					µm^2/ minute-->
+					<aspect name="maxThickness" type="PRIMARY" class="Double" value="500.0" />
 				</process>
-				<process name="svgWriter" class="GraphicalOutput"  priority="-3"
-					firstStep="0.0"  timerStepSize="1440.0">
-					<aspect name="solute" type="PRIMARY" class="String" value="oxygen" />
-					<aspect name="maxConcentration" type="PRIMARY" class="Double" value="1e-5" />
-					<aspect name="outputWriter" type="PRIMARY" class="String" value="SvgExport" />
-				</process>
-				<process name="svgWriter" class="GraphicalOutput"  priority="-3"
-					firstStep="0.0"  timerStepSize="1440.0">
-					<aspect name="solute" type="PRIMARY" class="String" value="ammonium" />
-					<aspect name="maxConcentration" type="PRIMARY" class="Double" value="6e-6" />
-					<aspect name="outputWriter" type="PRIMARY" class="String" value="SvgExport" />
-				</process>
-				<process name="scrape" class="AgentScraper" priority="2"
-					firstStep="0.0"  timerStepSize="6.0">
-					<aspect name="maxThickness" type="PRIMARY" class="Double" value="50.0" />
-					<aspect name="destinationNames" type="PRIMARY" class="InstantiableMap" >
-						<map entryClass="Double" keyType="String">
-							<item key="chemostat" value="1.0"/>
-						</map>
-					</aspect>
-				</process>
-				<process name="svgWriter" class="GraphicalOutput"  priority="-3"
-					firstStep="0.0"  timerStepSize="1440.0">
-					<aspect name="solute" type="PRIMARY" class="String" value="COD" />
-					<aspect name="maxConcentration" type="PRIMARY" class="Double" value="3e-5" />
-					<aspect name="outputWriter" type="PRIMARY" class="String" value="SvgExport" />
-				</process>
-				<process name="biofilmBoundaryDeparture"
-					class="AgentsInBoundaryLayerDepart" priority = "1">
-					<aspect name="destinationNames" type="PRIMARY" class="InstantiableMap" >
-						<map entryClass="Double" keyType="String">
-							<item key="chemostat" value="1.0"/>
-						</map>
-					</aspect>
+				<process name="summary" class="Summary"  priority="2"
+					firstStep="0.0" timerStepSize="240.0">
+					<aspect name="includeHeader" type="PRIMARY" class="Boolean" value="TRUE" />
+					<aspect name="fileName" type="PRIMARY" class="String" value="biofilm_high_ammonium_3_SHOVE_d_1.25" />
+					<aspect name="tableSpecification" type="PRIMARY" class="String"
+					value="biomass@mass ? species == heterotroph | inert@mass ? species == heterotroph | biomass@mass ? species == autotroph | inert@mass ? species == autotroph" />
+					<aspect name="fileName" type="PRIMARY" class="String" value="data" />
 				</process>
 			</processManagers>
 		</compartment>

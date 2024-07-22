@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+<simulation randomSeed="2700571439418289173" name="mimic_simulation" outputfolder="C:/results" log="NORMAL" comment="null" >
+	<timer currentTime="0.0" stepSize="60.0" endOfSimulation="15840.0" />
+ 	<speciesLib >
+		<species name="EcN" >
+			<modules nodeLabel="speciesModule" value="name" entryClass="String" />
+ 			<aspect name="divide" class="CoccoidDivision" />
+ 			<aspect name="reactions" class="InstantiableList" >
+				<list nodeLabel="reaction" value="value" entryClass="RegularReaction" >
+					<reaction name="growth" >
+						<expression value="mass*mumax*(GlcNAC/(GLcNAC+Ks))" >
+							<constants >
+								<constant name="Ks" value="0.1571 [g/l]" />
+ 								<constant name="mumax" value="8.983E-3" />
+ 							</constants>
+						</expression>
+						<stoichiometry >
+							<stoichiometric component="GlcNAC" coefficient="-25.18" />
+ 							<stoichiometric component="mass" coefficient="1.0" />
+ 						</stoichiometry>
+					</reaction>
+				</list>
+			</aspect>
+			<aspect name="divisionMass" class="Double" value="72.5 [ug]" />
+ 		</species>
+		<species name="ST" >
+			<modules nodeLabel="speciesModule" value="name" entryClass="String" />
+ 			<aspect name="divide" class="CoccoidDivision" />
+ 			<aspect name="reactions" class="InstantiableList" >
+				<list nodeLabel="reaction" value="value" entryClass="RegularReaction" >
+					<reaction name="growth" >
+						<expression value="mass*mumax*(GlcNAC/(GlcNAC+Ks))" >
+							<constants >
+								<constant name="Ks" value="0.2 [g/l]" />
+ 								<constant name="mumax" value="1.445E-2" />
+ 							</constants>
+						</expression>
+						<stoichiometry >
+							<stoichiometric component="GlcNAC" coefficient="-5.04" />
+ 							<stoichiometric component="mass" coefficient="1.0" />
+ 						</stoichiometry>
+					</reaction>
+				</list>
+			</aspect>
+			<aspect name="divisionMass" class="Double" value="72.5 [ug]" />
+ 		</species>
+	</speciesLib>
+	<chemicalLib />
+ 	<compartment name="Bioreactor" priority="2147483647" scale="1.0" tree="SPLITTREE" >
+		<shape class="Dimensionless" resolutionCalculator="null" volume="250.0 [ml]" >
+			<boundary class="ConstantConcentrationToChemostat" volumeFlowRate="250.0 [ml/day]" >
+				<solute name="GlcNAC" concentration="5.53025 [g/l]" />
+ 			</boundary>
+			<boundary class="ChemostatOut" volumeFlowRate="-250.0 [ml/day]" agentRemoval="true" constantVolume="true" />
+ 		</shape>
+		<environment >
+			<solutes >
+				<solute name="GlcNAC" concentration="5.53025 [g/l]" defaultDiffusivity="1.0" biofilmDiffusivity="1.0" />
+ 			</solutes>
+			<reactions nodeLabel="reaction" entryClass="RegularReaction" />
+ 		</environment>
+
+			<spawn class="randomSpawner" number="20" morphology="COCCOID" domain="320.0, 10.0, 320.0">
+				<templateAgent number="20">
+					<aspect name="volumeDistribution" type="PRIMARY" class="HashMap">
+					</aspect>
+					<aspect name="species" type="PRIMARY" class="String" value="EcN" />
+					<aspect name="mass" type="PRIMARY" class="Double" value="40.0 [ug]" />
+					<aspect name="density" type="PRIMARY" class="Double" value="1" />
+				</templateAgent>
+			</spawn>
+			<spawn class="randomSpawner" number="20" morphology="COCCOID" domain="320.0, 10.0, 320.0">
+				<templateAgent number="20">
+					<aspect name="volumeDistribution" type="PRIMARY" class="HashMap">
+					</aspect>
+					<aspect name="species" type="PRIMARY" class="String" value="EcN" />
+					<aspect name="mass" type="PRIMARY" class="Double" value="60.0 [ug]" />
+					<aspect name="density" type="PRIMARY" class="Double" value="1" />
+				</templateAgent>
+			</spawn>
+			<spawn class="randomSpawner" number="31" morphology="COCCOID" domain="320.0, 10.0, 320.0">
+				<templateAgent number="31">
+					<aspect name="volumeDistribution" type="PRIMARY" class="HashMap">
+					</aspect>
+					<aspect name="species" type="PRIMARY" class="String" value="EcN" />
+					<aspect name="mass" type="PRIMARY" class="Double" value="50.0 [ug]" />
+					<aspect name="density" type="PRIMARY" class="Double" value="1" />
+				</templateAgent>
+			</spawn>
+			<spawn class="randomSpawner" number="700" morphology="COCCOID" domain="320.0, 10.0, 320.0">
+				<templateAgent number="700">
+					<aspect name="volumeDistribution" type="PRIMARY" class="HashMap">
+					</aspect>
+					<aspect name="species" type="PRIMARY" class="String" value="ST" />
+					<aspect name="mass" type="PRIMARY" class="Double" value="40.0 [ug]" />
+					<aspect name="density" type="PRIMARY" class="Double" value="1" />
+				</templateAgent>
+			</spawn>
+			<spawn class="randomSpawner" number="700" morphology="COCCOID" domain="320.0, 10.0, 320.0">
+				<templateAgent number="700">
+					<aspect name="volumeDistribution" type="PRIMARY" class="HashMap">
+					</aspect>
+					<aspect name="species" type="PRIMARY" class="String" value="ST" />
+					<aspect name="mass" type="PRIMARY" class="Double" value="60.0 [ug]" />
+					<aspect name="density" type="PRIMARY" class="Double" value="1" />
+				</templateAgent>
+			</spawn>
+			<spawn class="randomSpawner" number="999" morphology="COCCOID" domain="320.0, 10.0, 320.0">
+				<templateAgent number="999">
+					<aspect name="volumeDistribution" type="PRIMARY" class="HashMap">
+					</aspect>
+					<aspect name="species" type="PRIMARY" class="String" value="ST" />
+					<aspect name="mass" type="PRIMARY" class="Double" value="50.0 [ug]" />
+					<aspect name="density" type="PRIMARY" class="Double" value="1" />
+				</templateAgent>
+			</spawn>
+		<processManagers >
+			<process name="summary" class="Summary" priority="2" timerStepSize="60.0" firstStep="60.0" >
+				<aspect name="fileName" class="String" value="data" />
+ 				<aspect name="tableSpecification" class="String" value="0 ~ %volume | count  ? species == EcN | count ?  species == ST | mass  ? species == EcN | mass ?  species == ST | %GlcNAC" />
+ 				<aspect name="includeHeader" class="Boolean" value="true" />
+ 			</process>
+			<process name="solveChemostat" class="ChemostatSolver" priority="0" timerStepSize="1.0" firstStep="60.0" >
+				<aspect name="soluteNames" class="String[]" value="GlcNAC" />
+ 				<aspect name="hMax" class="Double" value="0.1" />
+ 				<aspect name="tolerance" class="Double" value="1.0E-6" />
+ 				<aspect name="solver" class="String" value="heun" />
+ 			</process>
+			<process name="flowDeparture" class="DepartureByFlow" priority="1" timerStepSize="60.0" firstStep="60.0" volumeFlowRate="-250.0 [ml/day]"/>
+ 		</processManagers>
+	</compartment>
+</simulation>
+</document>

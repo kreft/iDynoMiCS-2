@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document>
-	<simulation log="CRITICAL" outputfolder="../results" name="chemostat_with_growth"  randomSeed="224324231">
+	<simulation log="EXPRESSIVE" outputfolder="../results" name="chemostat_with_growth"  randomSeed="224324231">
 	<timer stepSize="10.0" endOfSimulation="200000.0" />
 		<speciesLib>
 			<!-- species/species library The species library contains all agent species 
@@ -14,9 +14,9 @@
 			<species name="coccoid">
 				<aspect name="density" type="PRIMARY" class="Double" value="15.0" />
 				<aspect name="surfaces" type="CALCULATED" class="AgentSurfaces" />
-				<aspect name="divisionMass" type="PRIMARY" class="Double" value="0.5" />
+				<aspect name="divisionMass" type="PRIMARY" class="Double" value="10.0" />
 				<aspect name="divide" type="EVENT" class="CoccoidDivision"	/>
-				<aspect name="updateBody" type="EVENT" class="UpdateBodySurfaceScaled" />
+				<aspect name="updateBody" type="EVENT" class="UpdateBody" />
 				<aspect name="volume" type="CALCULATED" class="SimpleVolumeState" 	/>
 				<aspect name="radius" type="CALCULATED" class="CoccoidRadius" 		/>
 			</species>
@@ -51,23 +51,24 @@
 			</shape>
 			<solutes>
 				<!-- pg / µm3 -->
-				<solute name="glucose" concentration="2.0" defaultDiffusivity="36000"  />
+				<solute name="glucose" concentration="0.5" defaultDiffusivity="36000"  />
 			</solutes>
 			<agents>
 				<agent>
 					<aspect name="species" type="PRIMARY" class="String" value="Catalyst" />
 					<aspect name="mass" type="PRIMARY" class="Double" value="10.0" />
+					<aspect name="body" type="PRIMARY" class="Body" morphology="COCCOID"/>
 				</agent>
 			</agents>
 			<processManagers>
 				<process name="solveChemostat" class="ChemostatSolver" priority="0"
-					firstStep="0.0" timerStepSize="1.0">
+					firstStep="0.0">
 					<aspect name="hMax" type="PRIMARY" class="Double" value="5.0" />
 					<aspect name="solver" type="PRIMARY" class="String" value="heun" />
 					<aspect name="tolerance" class="Double" value="1.0E-6" />
 				</process>
 				<process name="summary" class="Summary"  priority="2"
-					firstStep="0.0" timerStepSize="1.0">
+					firstStep="0.0">
 					<aspect name="includeHeader" type="PRIMARY" class="Boolean" value="TRUE" />
 					<aspect name="fileName" type="PRIMARY" class="String" value="chemostat" />
 					<aspect name="tableSpecification" type="PRIMARY" class="String"
