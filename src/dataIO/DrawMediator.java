@@ -1,5 +1,6 @@
 package dataIO;
 
+import java.util.Collections;
 import java.util.List;
 
 import agent.Agent;
@@ -202,7 +203,9 @@ public class DrawMediator {
 		
 		
 		/* Draw all located agents. */
-		for ( Agent a: _agents.getAllLocatedAgents() )
+		List<Agent> sortedAgents = _agents.getAllLocatedAgents();
+		Collections.sort(sortedAgents, new Agent.AgentComparator());
+		for ( Agent a: sortedAgents )
 			if ( a.isAspect(BODY) )
 			{
 				List<Surface> surfaces = ((Body) a.getValue(BODY)).getSurfaces();

@@ -133,7 +133,7 @@ public class Render implements GLEventListener, Runnable {
     private boolean _dispFps = false;
     
     private Font font = new Font("consolas", Font.PLAIN, 10);
-    private TextRenderer textRenderer = new TextRenderer(font);
+
     /*
      * screendump
      */
@@ -171,6 +171,7 @@ public class Render implements GLEventListener, Runnable {
 	     }
 	     if ( this._dispFps )
 	     {
+			 TextRenderer textRenderer = new TextRenderer(font);
 	    	 textRenderer.setColor(Color.YELLOW);
 	    	 textRenderer.setSmoothing(true);
 	         gl.glLoadIdentity();

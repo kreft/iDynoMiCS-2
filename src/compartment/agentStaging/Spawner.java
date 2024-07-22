@@ -54,6 +54,13 @@ public abstract class Spawner implements Settable, Instantiable, AspectInterface
 	 * the Spawner super class.
 	 */
 	protected BoundingBox _spawnDomain = new BoundingBox();
+
+	public static class spawnComparator implements java.util.Comparator<Spawner> {
+		@Override
+		public int compare(Spawner a, Spawner b) {
+			return a.getPriority() - b.getPriority();
+		}
+	}
 	
 	public void instantiate(Element xmlElem, Settable parent)
 	{

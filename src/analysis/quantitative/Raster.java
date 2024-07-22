@@ -60,7 +60,7 @@ public class Raster {
 	/**
 	 * Include additional debug and visual analysis output
 	 */
-	private boolean _verbose = false;
+	private boolean _verbose = true;
 	
 	/* raster sizes including margins (rX and rY) and actual size */
 	private int rX, rY;
@@ -143,6 +143,8 @@ public class Raster {
 	 */
 	public void rasterize( double voxelLength ) 
 	{
+		/* ensure up-to-date spatial tree */
+		_agentContainer.refreshSpatialRegistry();
 		/* domain dimension lengths */
 		double[] dimLengths = _shape.getDimensionLengths();
 		
@@ -177,7 +179,7 @@ public class Raster {
 					( (Body) a.get( AspectRef.agentBody ) ).getSurfaces() )
 				{
 					if ( _shape.getCollision().
-							intersect( s, v, 0.0 ) &! colliders.contains(a) )
+							intersect( v, s,0.0 )  ) //&! colliders.contains(a)
 					{
 						colliders.add(a);
 						break;

@@ -278,6 +278,7 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable, C
 		 */
 		Spawner spawner;
 		TreeMap<Integer,Spawner> spawners = new TreeMap<Integer,Spawner>();
+		List<Spawner> spawnerList = new LinkedList<Spawner>();
 		for ( Element e : XmlHandler.getElements( xmlElem, XmlRef.spawnNode) )
 		{
 			if ( e.hasAttribute( XmlRef.classAttribute ) )
@@ -294,9 +295,12 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable, C
 								+ "by simulator.");
 				}
 				spawners.put(priority, spawner);
+				spawnerList.add(spawner);
 			}
 		}
-		/* verify whether this always returns in correct order (it should) */
+
+
+		Collections.sort(spawnerList, new Spawner.spawnComparator());
 		for( Spawner s : spawners.values() )
 			s.spawn();
 		

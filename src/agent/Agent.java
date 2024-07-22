@@ -42,6 +42,13 @@ public class Agent implements AspectInterface, Settable, Instantiable
 	protected static int UNIQUE_ID = 0;
 	protected int _uid;
 
+	public static class AgentComparator implements java.util.Comparator<Agent> {
+		@Override
+		public int compare(Agent a, Agent b) {
+			return a._uid - b._uid;
+		}
+	}
+
 	/**
 	 * The compartment the agent is currently in
 	 */

@@ -5,7 +5,7 @@ import idynomics.Idynomics;
 public class ProtocolLaunch implements Launchable {
 
 	@Override
-	public void initialize(String[] args) 
+	public void initialize(String[] args)
 	{
 		for ( int i = 1; i < args.length; i++ )
 		{
@@ -13,6 +13,11 @@ public class ProtocolLaunch implements Launchable {
 				break;
 			Idynomics.setupSimulator( args[i] );
 			Idynomics.launchSimulator();
+			try {
+				Idynomics.simThread.join();
+			} catch (InterruptedException e) {
+				throw new RuntimeException(e);
+			}
 		}
 	}
 

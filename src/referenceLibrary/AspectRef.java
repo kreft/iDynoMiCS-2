@@ -730,6 +730,6 @@ public class AspectRef
 	public static final String soluteMasses = "soluteMasses";
 	
 	public static final String thresholdVolume = "thresholdVolume";
-	
+  
 	public static String centerPointRemoval = "centerPointRemoval";
 }
