@@ -218,6 +218,11 @@ public class XmlRef
 	public final static String agents = "agents";
 
 	/**
+	 * Contains all epithelial agents in an epithelium
+	 */
+	public final static String epithelium = "epithelium";
+	
+	/**
 	 * Encapsulates the environment (solutes, environmental reactions, etc) for
 	 * one compartment.
 	 */
@@ -432,6 +437,8 @@ public class XmlRef
 	 */
 	public final static String partnerCompartment = "partnerCompartment";
 
+	public final static String dominant = "dominant";
+	
 	/**
 	 * TODO
 	 */
@@ -627,6 +634,10 @@ public class XmlRef
 	public static final String halfReaction = "halfReaction";
 
 	public static final String metabolicReaction = "metabolicReaction";
+	
+	public static final String transferReaction = "transferReaction";
+	
+	public static final String reactionType = "reactionType";
 
 
 	/**

@@ -40,7 +40,7 @@ public class SoluteAtSite {
 				this.site = "agent";
 			}
 			
-			if (this.siteName.equalsIgnoreCase("compartment"))
+			else if (this.siteName.equalsIgnoreCase("compartment"))
 			{
 				this.site = "compartment";
 			}
