@@ -260,7 +260,6 @@ public class ChemostatSolver extends ProcessManager
 						for ( int i = 0; i < _n; i++ )
 						{
 							dydt[i] += volFlowRate * (y[i]/y[_n]);
-							dydt[i] += aBoundary.getTransportFlux( _solutes[i] );
 						}
 					}
 					else if ( volFlowRate > 0.0 )
@@ -270,7 +269,6 @@ public class ChemostatSolver extends ProcessManager
 						for ( int i = 0; i < _n; i++ )
 						{
 							dydt[i] += aBoundary.getMassFlowRate( _solutes[i] );
-							dydt[i] += aBoundary.getTransportFlux( _solutes[i] );
 						}
 					}
 					else
@@ -280,7 +278,6 @@ public class ChemostatSolver extends ProcessManager
 						for ( int i = 0; i < _n; i++ )
 						{
 							dydt[i] += aBoundary.getMassFlowRate( _solutes[i] );
-							dydt[i] += aBoundary.getTransportFlux( _solutes[i] );
 						}
 					}
 					if ( volFlowRate != 0.0 )
