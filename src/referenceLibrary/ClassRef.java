@@ -336,6 +336,9 @@ public class ClassRef
 	public final static String body =
 			agent.Body.class.getName();
 	
+	public final static String epithelium = 
+			compartment.Epithelium.class.getName();
+	
 	/* ************************************************************************
 	 * Process managers
 	 */
@@ -501,6 +504,12 @@ public class ClassRef
 			processManager.library.DepartureByFlow.class.getName();
 	
 	/**
+	 * Agent death based on threshold mass
+	 */
+	public final static String agentDeath = 
+			processManager.library.AgentDeath.class.getName();
+	
+	/**
 	 * writes tables in csv
 	 */
 	public final static String tableWriter =
@@ -588,6 +597,9 @@ public class ClassRef
 	
 	public final static String solidBoundary =
 			boundary.spatialLibrary.SolidBoundary.class.getName();
+	
+	public final static String epithelialBoundary =
+			boundary.spatialLibrary.EpithelialBoundary.class.getName();
 	
 	/* ************************************************************************
 	 * shape classes
@@ -714,9 +726,6 @@ public class ClassRef
 	public static final String reaction =
 			reaction.RegularReaction.class.getName();
 	
-	//public static final String transportReaction = 
-	//		reaction.SurfaceReaction.class.getName();
-	
 	/**
 	 * TODO
 	 */
@@ -803,5 +812,8 @@ public class ClassRef
 	
 	public static final String recordKeeper = 
 			solver.mgFas.RecordKeeper.class.getName();
+	
+	public static final String instantChange = 
+			processManager.library.InstantChange.class.getName();
 
 }
