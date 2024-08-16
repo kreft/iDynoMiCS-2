@@ -76,6 +76,14 @@ public abstract class Boundary implements Settable, Instantiable
 	 */
 	private Settable _parentNode;
 	
+	/**
+	 * This boolean determines whether solutes are removed along with outflow
+	 * of the solvent (e.g. water). In most boundaries, this should be true,
+	 * but in boundaries that represent semi-permeable membranes, it should
+	 * be false.
+	 */
+	protected boolean _soluteRemoval;
+	
 	/* ***********************************************************************
 	 * CONSTRUCTORS
 	 * **********************************************************************/
@@ -371,6 +379,12 @@ public abstract class Boundary implements Settable, Instantiable
 		this.additionalPartnerUpdate();
 	}
 	
+	public boolean soluteRemoval()
+	{
+		return this._soluteRemoval;
+	}
+	
+	
 	/**
 	 * Method for doing any additional pre-step updates that are specific to
 	 * the concrete sub-class of Boundary.
@@ -413,6 +427,8 @@ public abstract class Boundary implements Settable, Instantiable
 			modelNode.add( new Attribute( XmlRef.volumeFlowRate, String.valueOf( this._volumeFlowRate ), null, true ));
 		// TODO
 		// modelNode.requirement = Requirements.?
+		modelNode.add( new Attribute( XmlRef.soluteRemoval, String.valueOf( 
+				this._soluteRemoval ), null, true ));
 		return modelNode;
 	}
 

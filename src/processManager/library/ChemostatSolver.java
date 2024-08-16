@@ -255,9 +255,20 @@ public class ChemostatSolver extends ProcessManager
 					if ( volFlowRate < 0.0 )
 					{
 						/* outflows at bulk concentrations */
+						
+						// Solvent (dydt [_n ]) will always flow out
 						dydt [_n ] += volFlowRate;
-						for ( int i = 0; i < _n; i++ )
-							dydt[i] += volFlowRate * (y[i]/y[_n]);
+						
+						/* 
+						 * Solutes will flow out at an equivalent rate
+						 * if the boundary has solute removal
+						 */
+						if (aBoundary.soluteRemoval())
+						{
+							for ( int i = 0; i < _n; i++ )
+								dydt[i] += volFlowRate * (y[i]/y[_n]);
+						}
+						
 					}
 					else if ( volFlowRate > 0.0 )
 					{

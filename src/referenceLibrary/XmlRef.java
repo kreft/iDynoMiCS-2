@@ -565,12 +565,12 @@ public class XmlRef
 	 * chemostat volume flowrate for constant chemostat volume
 	 */
 	public static final String constantVolume = "constantVolume";
-
-	/**
-	 * Toggle boundary agent removal on or of
-	 */
-	public static final String agentRemoval = "agentRemoval";
 	
+	/**
+	 * This parameter determines whether solutes are removed along with the
+	 * solvent during outflow.
+	 */
+	public static final String soluteRemoval = "soluteRemoval";
 	/**
 	 * Indicates sub folder (set for SA or GA).
 	 */

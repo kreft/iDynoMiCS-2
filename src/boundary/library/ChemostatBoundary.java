@@ -15,20 +15,9 @@ import settable.Module;
  */
 public abstract class ChemostatBoundary extends Boundary {
 	
-	protected boolean _agentRemoval = true;
-	
 	public ChemostatBoundary()
 	{
 		super();
-	}
-	
-	@Override
-	public Module getModule()
-	{
-		Module mod = super.getModule();
-		mod.add( new Attribute( XmlRef.agentRemoval, String.valueOf( 
-				this._agentRemoval ), null, true ));
-		return mod;
 	}
 
 }
