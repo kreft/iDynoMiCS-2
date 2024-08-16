@@ -22,8 +22,10 @@ import linearAlgebra.Array;
 import linearAlgebra.Vector;
 import processManager.ProcessDiffusion;
 import processManager.library.PDEWrapper;
+import solver.PHsolver;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 
@@ -58,6 +60,8 @@ public class Multigrid
 	 * in the simulation protocol file. Taken from simulator object.
 	 */
 	protected LinkedList<SoluteGrid> _soluteList;
+
+	protected LinkedList<SoluteGrid> _specialList;
 
 	/**
 	 * List of solutes that are used by THIS solver.
@@ -98,6 +102,9 @@ public class Multigrid
 	 * Number of solutes SOLVED by THIS solver
 	 */
 	protected int nSolute;
+
+
+	protected MultigridSolute[] _specials;
 	
 	private HashMap<String, Boolean> _relaxationMap = new HashMap<String, Boolean>();
 
@@ -144,6 +151,9 @@ public class Multigrid
 	/**
 	 * 
 	 */
+
+	PHsolver pHsolver = new PHsolver();
+
 	public void init(Domain domain, EnvironmentContainer environment,
 					 AgentContainer agents, PDEWrapper manager,
 					 int vCycles, int preSteps, int coarseSteps, int postSteps, boolean autoAdjust)
@@ -160,12 +170,17 @@ public class Multigrid
 		/* Reference all the solutes declared in this system. */
 		_soluteList = new LinkedList<SoluteGrid>();
 
+		_specialList = new LinkedList<SoluteGrid>();
+
 		/* TODO paradigm for if we only want to solve for a subset of solutes
 		*  TODO did iDyno 1 store other things in the solute list? It seems
 		*   that there are multiple lists all representing solutes..
 		*/
 		for ( SpatialGrid s : environment.getSolutes() )
 			_soluteList.add( new SoluteGrid(domain, s.getName(), s, null ));
+
+		for ( SpatialGrid s : environment.getSpesials() )
+			_specialList.add( new SoluteGrid(domain, s.getName(), s, null ));
 
 		/* Now for each solver, reactions are specified. Add these reactions
 		 * and list the solutes that these modify.
@@ -185,6 +200,9 @@ public class Multigrid
 		allReac = new SoluteGrid[nSolute];
 		allDiffReac = new SoluteGrid[nSolute];
 
+		int nSpecial = this._environment.getSpesials().size();
+		this._specials = new MultigridSolute[nSpecial];
+
 		/* TODO: here both bLayer and diffusivity initiate from the same grid like in iDyno 1
 		*  but both construct a new conc-grid. */
 		_bLayer = new MultigridSolute(_soluteList.get(0), "boundary layer", manager);
@@ -199,6 +217,15 @@ public class Multigrid
 				_solute[i] = new MultigridSolute(_soluteList.get(i),
 												_diffusivity, _bLayer, sBulk, manager);
 				_soluteIndex.add(i); //TODO figure out how solute index was used, adding it here to help program run
+		}
+
+		int j = 0;
+		for (SpatialGrid s: environment.getSpesials())
+		{
+			sBulk = s.getAverage(ArrayType.CONCN);
+			_specials[j] = new MultigridSolute(_specialList.get(j),
+					_diffusivity, _bLayer, sBulk, manager);
+			j++;
 		}
 
 		for (int iSolute : _soluteIndex)
@@ -238,6 +265,7 @@ public class Multigrid
 	{
 		initializeConcentrationFields();
 		solveDiffusionReaction();
+//		System.out.println(_specials[0].realGrid);
 	}
 
 	public void initializeConcentrationFields()
@@ -266,8 +294,7 @@ public class Multigrid
 //			_biomass[i].restrictToCoarsest();
 //		}
 
-		for (int iSolute : _soluteIndex)
-			_solute[iSolute].readBulk();
+		this.updateBulk();
 	}
 
 	/**
@@ -302,12 +329,23 @@ public class Multigrid
 		for (int iSolute : _soluteIndex)
 			_solute[iSolute].applyComputation();
 
+		for (MultigridSolute spec : _specials)
+			spec.applyComputation();
+
 		/* flash current concentration to iDyno 2 concentration grids */
 		for(int iSolute: _soluteIndex)
 		{
 			double[][][] out = MultigridUtils.removePadding(
 					_solute[iSolute].realGrid.grid );
 			this._environment.getSoluteGrid( this._solute[iSolute].soluteName ).
+					setTo(ArrayType.CONCN, out );
+		}
+
+		for(MultigridSolute spec : _specials)
+		{
+			double[][][] out = MultigridUtils.removePadding(
+					spec.realGrid.grid );
+			this._environment.getSpecialGrid( spec.soluteName ).
 					setTo(ArrayType.CONCN, out );
 		}
 	}
@@ -319,6 +357,10 @@ public class Multigrid
 	{
 		for (int iSolute : _soluteIndex)
 			_solute[iSolute].resetMultigridCopies();
+
+		/* FIXME */
+		for(MultigridSolute spec : _specials)
+			spec.resetMultigridCopies();
 
 		int smoothingScalar = 1; // before 4
 		boolean breakVCycle = false;
@@ -370,7 +412,7 @@ public class Multigrid
 
 					for (int iSolute : _soluteIndex)
 						_solute[iSolute].downward1(order, outer);
-					
+
 					updateReacRateAndDiffRate(order-1);
 					
 					for (int iSolute : _soluteIndex)
@@ -455,8 +497,28 @@ public class Multigrid
 
 		/* Refresh the bulk concentration of the multigrids.
 		*/
-		for (int iSolute : _soluteIndex)
+		HashMap<String,Double> solMap = new HashMap<String,Double>();
+		for (int iSolute : _soluteIndex) {
 			_solute[iSolute].readBulk();
+			solMap.put(_solute[iSolute].soluteName, _solute[iSolute].sBulk);
+		}
+
+		Collection<SpatialGrid> solutes = this._environment.getSolutes();
+		HashMap<String,double[]> pKaMap = new HashMap<String,double[]>();
+
+		for ( SpatialGrid s : solutes ) {
+			if( s.getpKa() != null ) {
+				pKaMap.put(s.getName(), s.getpKa());
+			}
+		}
+
+		if (! pKaMap.isEmpty()) {
+			HashMap<String,Double> specialMap = pHsolver.solve(_environment, solMap, pKaMap);
+			for( SoluteGrid s : this._specialList) {
+				s.updateBulk(specialMap.get(s.gridName));
+				//			s.refreshBoundary();
+			}
+		}
 	}
 	
 	/**
@@ -589,7 +651,7 @@ public class Multigrid
 	{
 		double[] temp = new double[(allSolute[0]._is3D ? 3 : 2)];
 		Vector.addEquals(temp, this._solute[0]._conc[resorder]._reso );
-		((PDEWrapper) this._manager).applyReactions(this._solute, resorder, allReac, temp,
+		((PDEWrapper) this._manager).applyReactions(this._solute, this._specials, resorder, allReac, temp,
 				Math.pow( this._solute[0]._conc[resorder]._reso, (allSolute[0]._is3D ? 3.0 : 2.0) ));
 
 		/* synchronise cyclic reaction nodes */

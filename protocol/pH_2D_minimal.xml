@@ -1,22 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document>
-	<simulation name="pH_testing" outputfolder="../results" log="NORMAL">
+	<simulation name="pH_2D" outputfolder="../results" log="NORMAL">
 		<timer stepSize="3 [h]" endOfSimulation="10 [d]" />
 		<speciesLib>
 			<species name="bacterium">
 				<speciesModule name="coccoid" />
 				<aspect name="reactions" class="InstantiableList"> 
 					<list nodeLabel="reaction" entryClass="RegularReaction">
-						<reaction name="growth">
-							<expression value="mass*mumax*(solute/(solute+Ks))*((oxygen/(oxygen+Kox))">
-								<constant name="Ks" value="2.4[g/m+3]" /> 
-								<constant name="Kox" value="0.6[g/m+3]" />
-								<constant name="mumax" value="2.05[d-1]" />  
-							</expression>
-							<stoichiometric component="mass" coefficient="1.0" />
-							<stoichiometric component="oxygen" coefficient="-18.0" />
-							<stoichiometric component="solute" coefficient="-4.2" />
-						</reaction> 
 					</list>
 				</aspect>
 			</species>
@@ -36,14 +26,16 @@
 				<dimension name="X" isCyclic="true" targetResolution="2.0" max="32.0"/>
 				<dimension name="Y" isCyclic="false" targetResolution="2.0" max="64.0">
 					<boundary extreme="1" class="FixedBoundary" layerThickness="32.0">
-						<solute name="solute" concentration="1.0 [mg/l]" />
-						<solute name="oxygen" concentration="8.74 [mg/l]" />
+						<solute name="f" 	concentration="0.1"  />
+						<solute name="cn" 	concentration="0.1"  />
+						<solute name="a" 	concentration="0.1"  />
 					</boundary>
 				</dimension>
 			</shape>
 			<solutes>
-				<solute name="solute" concentration="1.0 [mg/l]" pKa="5.0" defaultDiffusivity="2000.0 [um+2/s]" biofilmDiffusivity="1500.0 [um+2/s]" />
-				<solute name="oxygen" concentration="8.74 [mg/l]" defaultDiffusivity="2000.0 [um+2/s]" biofilmDiffusivity="1500.0 [um+2/s]" />
+				<solute name="f" 	pKa="7.2e-4"	concentration="0.1" defaultDiffusivity="2000.0 [um+2/s]" biofilmDiffusivity="1500.0 [um+2/s]"  />
+				<solute name="cn"	pKa="6.2E-10" 	concentration="0.1" defaultDiffusivity="2000.0 [um+2/s]" biofilmDiffusivity="1500.0 [um+2/s]"  />
+				<solute name="a" 	pKa="1.6E-10"	concentration="0.1" defaultDiffusivity="2000.0 [um+2/s]" biofilmDiffusivity="1500.0 [um+2/s]" />
 			</solutes>
 			<spawn class="randomSpawner" domain="32.0, 1.0" priority="0" number="30" morphology="COCCOID">
 				<templateAgent>

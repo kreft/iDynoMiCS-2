@@ -14,7 +14,9 @@ import bookkeeper.KeeperEntry;
 import boundary.Boundary;
 import boundary.WellMixedBoundary;
 import dataIO.ObjectFactory;
+import grid.ArrayType;
 import idynomics.Global;
+import linearAlgebra.Vector;
 import org.w3c.dom.Element;
 
 import compartment.AgentContainer;
@@ -28,6 +30,7 @@ import referenceLibrary.AspectRef;
 import referenceLibrary.XmlRef;
 import shape.Shape;
 import shape.subvoxel.IntegerArray;
+import solver.PHsolver;
 import solver.mgFas.Domain;
 import solver.mgFas.Multigrid;
 import solver.mgFas.SolverGrid;
@@ -186,12 +189,18 @@ public class PDEWrapper extends ProcessDiffusion
         setupAgentDistributionMaps(this._agents.getShape());
     }
 
-    public void applyReactions(MultigridSolute[] sols, int resorder, SolverGrid[] reacGrid, double[] resolution,
+    public void applyReactions(MultigridSolute[] sols, MultigridSolute[] specials, int resorder, SolverGrid[] reacGrid, double[] resolution,
                                double voxelVolume)
     {
+        /*
+        pH calculation
+         */
+
+        applySpecialReactions(sols, specials, resorder);
+        /* FIXME specials */
         applyEnvReactions( sols, resorder );
         for( Agent agent : this._agents.getAllAgents() )
-            applyAgentReactions(agent, sols, resorder, reacGrid, resolution, voxelVolume);
+            applyAgentReactions(agent, sols, specials, resorder, reacGrid, resolution, voxelVolume);
     }
 
     /**
@@ -206,7 +215,7 @@ public class PDEWrapper extends ProcessDiffusion
      * altered by this method).
      */
     private void applyAgentReactions(
-            Agent agent, MultigridSolute[] concGrid, int resorder, SolverGrid[] reacGrid, double[] resolution,
+            Agent agent, MultigridSolute[] concGrid, MultigridSolute[] specials, int resorder, SolverGrid[] reacGrid, double[] resolution,
             double voxelVolume)
     {
         /*
@@ -233,8 +242,8 @@ public class PDEWrapper extends ProcessDiffusion
          * Now look at all the voxels this agent covers.
          */
         Map<String,Double> concns = new HashMap<String,Double>();
-        SolverGrid solute;
-        MultigridSolute mGrid;
+        SolverGrid solute, special;
+        MultigridSolute mGrid, sGrid;
         double concn, productRate, volume, perVolume;
 
         double[] center = ((Body) agent.get(AspectRef.agentBody)).getCenter(shape);
@@ -259,9 +268,14 @@ public class PDEWrapper extends ProcessDiffusion
             for ( String varName : r.getConstituentNames() )
             {
                 mGrid = FindGrid(concGrid, varName);
+                sGrid = FindGrid(specials, varName);
                 if ( mGrid != null ) {
                     solute = mGrid._conc[resorder];
                     concn = solute.getValueAt(coord.get(), true);
+                }
+                else if ( sGrid != null ) {
+                    special = sGrid._conc[resorder];
+                    concn = special.getValueAt(coord.get(), true);
                 }
                 else if ( biomass.containsKey(varName) )
                 {
@@ -342,6 +356,8 @@ public class PDEWrapper extends ProcessDiffusion
                 if ( mGrid != null )
                 {
                     solute = mGrid._conc[resorder];
+
+                    /* FIXME we may have to use unpadded here, test and correct */
                     concns.put( s, solute.getValueAt(coord, true));
                 }
             }
@@ -358,6 +374,9 @@ public class PDEWrapper extends ProcessDiffusion
                             {
                                 solute = mGrid._reac[resorder];
                                 productRate = r.getProductionRate(concns, s, null);
+
+
+                                /* FIXME we may have to use unpadded here, test and correct */
                                 solute.addValueAt( productRate, coord, true );
 //                                System.out.println(productRate);
                             }
@@ -366,6 +385,70 @@ public class PDEWrapper extends ProcessDiffusion
         }
     }
 
+    protected void applySpecialReactions(MultigridSolute[] concGrid, MultigridSolute[] specialGrid, int resorder) {
+
+        Shape shape = this._environment.getShape();
+        PHsolver solver = new PHsolver();
+        /*
+         * Construct the "concns" dictionary once, so that we don't have to
+         * re-enter the solute names for every voxel coordinate.
+         */
+        Collection<String> soluteNames = this._environment.getSoluteNames();
+        HashMap<String,Double> concns = new HashMap<String,Double>();
+        for ( String soluteName : soluteNames )
+            concns.put(soluteName, 0.0);
+        /*
+         * Iterate over the spatial discretization of the environment,
+         * applying extracellular reactions as required.
+         */
+        SolverGrid solute;
+        MultigridSolute mGrid;
+
+        SolverGrid special = null;
+        MultigridSolute sGrid;
+        // TODO test
+
+        Collection<SpatialGrid> solutes = this._environment.getSolutes();
+        /* FIXME: use for initial guess */
+        Collection<SpatialGrid> grids =this._environment.getSpesials();
+
+        HashMap<String,double[]> pKaMap = new HashMap<String,double[]>();
+
+        for ( SpatialGrid s : solutes ) {
+            if( s.getpKa() != null ) {
+                pKaMap.put(s.getName(), s.getpKa());
+            }
+        }
+
+        for ( IntegerArray position : concGrid[0].fetchCoords(resorder) )
+        {
+            int[] coord = position.get();
+            /* Get the solute concentrations in this grid voxel. */
+            for ( String s : soluteNames )
+            {
+                mGrid = FindGrid(concGrid, s);
+                if ( mGrid != null )
+                {
+                    solute = mGrid._conc[resorder];
+
+                    /* FIXME is not padded correct here? */
+                    concns.put( s, solute.getValueAt(coord, false));
+                }
+            }
+
+            if(! pKaMap.isEmpty()) {
+                HashMap<String, Double> specialMap = solver.solve(this._environment, concns, pKaMap);
+
+                sGrid = FindGrid(specialGrid, "pH");
+                if (sGrid != null) {
+                    special = sGrid._conc[resorder];
+                    /* FIXME is not padded correct here? */
+                    special.setValueAt(specialMap.get("pH"), coord, false);
+//                System.out.println("co: " + Vector.toString(coord) + " val: " + specialMap.get("pH"));
+                }
+            }
+        }
+    }
     private void applyAgentGrowth(Agent agent)
     {
         /*
@@ -416,6 +499,11 @@ public class PDEWrapper extends ProcessDiffusion
                     if ( this._environment.isSoluteName( varName ) )
                     {
                         solute = this._environment.getSoluteGrid( varName );
+                        concn = solute.getValueAt( CONCN, coord.get() );
+                    }
+                    else if ( this._environment.isSpecialName( varName ) )
+                    {
+                        solute = this._environment.getSpecialGrid( varName );
                         concn = solute.getValueAt( CONCN, coord.get() );
                     }
                     else if (biomass.containsKey( varName ) )

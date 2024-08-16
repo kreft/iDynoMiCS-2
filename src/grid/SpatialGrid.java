@@ -105,7 +105,7 @@ public class SpatialGrid implements Settable, Instantiable
 	
 	protected DiffusivityType _diffusivity;
 
-	protected double[] _pKa;
+	protected double[] _pKa = null;
 
 	public enum DiffusivityType
 	{

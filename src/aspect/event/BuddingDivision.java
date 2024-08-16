@@ -53,6 +53,7 @@ public class BuddingDivision extends DivisionMethod
 		if( initiator.isAspect("shiftCondition"))
 			shift = FilterLogic.filterFromString( initiator.getString("shiftCondition") ).match( initiator );
 		return shift;
+//		return false;
 	}
 
 	protected void shiftMorphology( Agent initiator )
@@ -313,6 +314,18 @@ public class BuddingDivision extends DivisionMethod
 		{
 			randomPlacement(rs, initiator, iniBody, comBody);
 		}
+
+		/* reshape */
+		iniBody.getSurfaces().clear();
+		iniBody.assignMorphology( Body.Morphology.COCCOID.name() );
+		iniBody.constructBody( 0.0,
+				initiator.getDouble( AspectRef.bodyRadius ));
+
+		comBody.getSurfaces().clear();
+		comBody.assignMorphology( Body.Morphology.COCCOID.name() );
+		comBody.constructBody(0.0,
+				compliant.getDouble( AspectRef.bodyRadius ));
+
 		Link.linear( initiator, compliant );
 	}
 

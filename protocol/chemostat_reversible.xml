@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+	<simulation log="DEBUG" outputfolder="../results" name="acidBase">
+	<timer stepSize="1.0" endOfSimulation="2000.0" />
+		<compartment name="chemostat">
+			<shape class="Dimensionless" volume="1.0" />
+			<solutes>
+				<solute name="h" 	concentration="0.15" defaultDiffusivity="1"  />
+				<solute name="oh" 	concentration="1.0e-10" defaultDiffusivity="1"  />
+				<solute name="f" 	concentration="0.05" defaultDiffusivity="1"  />
+				<solute name="hf" 	concentration="0.05" defaultDiffusivity="1"  />
+				<solute name="cn" 	concentration="0.05" defaultDiffusivity="1"  />
+				<solute name="hcn" 	concentration="0.05" defaultDiffusivity="1"  />
+				<solute name="a" 	concentration="0.05" defaultDiffusivity="1"  />
+				<solute name="ha" 	concentration="0.05" defaultDiffusivity="1"  />
+			</solutes>
+			<reactions>
+				<reaction name="formic_acid">
+					<expression value="(h*f)/hf-Ka" >
+						<constant name="Ka" 	value="7.2e-4" /> 
+					</expression>
+					<stoichiometric component="h" coefficient="-1.0" />
+					<stoichiometric component="f" coefficient="-1.0" />
+					<stoichiometric component="hf" coefficient="1.0" />
+				</reaction>
+				<reaction name="hydrogen_cyanide">
+					<expression value="(h*cn)/hcn-Ka" >
+						<constant name="Ka" 	value="6.2E-10" /> 
+					</expression>
+					<stoichiometric component="h" coefficient="-1.0" />
+					<stoichiometric component="cn" coefficient="-1.0" />
+					<stoichiometric component="hcn" coefficient="1.0" />
+				</reaction>	
+				<reaction name="generic_acid">
+					<expression value="(h*a)/ha-Ka" >
+						<constant name="Ka" 	value="1.6E-10" /> 
+					</expression>
+					<stoichiometric component="h" coefficient="-1.0" />
+					<stoichiometric component="a" coefficient="-1.0" />
+					<stoichiometric component="ha" coefficient="1.0" />
+				</reaction>
+				<reaction name="water_diso">
+					<expression value="(h*oh)-Kw" >
+						<constant name="Kw" 	value="1.0E-14" /> 
+					</expression>
+					<stoichiometric component="h" coefficient="-1.0" />
+					<stoichiometric component="oh" coefficient="-1.0" />
+				</reaction>
+			</reactions>
+			<processManagers>
+				<process name="solveChemostat" class="ChemostatSolver" priority="0"
+					firstStep="0.0" >
+					<aspect name="tolerance" type="PRIMARY" class="Double" value="1.0e-14" />
+					<aspect name="hMax" type="PRIMARY" class="Double" value="1.0e-3" />
+					<aspect name="solver" type="PRIMARY" class="String" value="rosenbrock" />
+				</process>
+				<process name="summary" class="Summary"  priority="2"
+					firstStep="0.0">
+					<aspect name="includeHeader" type="PRIMARY" class="Boolean" value="TRUE" />
+					<aspect name="fileName" type="PRIMARY" class="String" value="chemostat" />
+					<aspect name="tableSpecification" type="PRIMARY" class="String"
+					value="%h | %oh | %f | %hf | %cn | %hcn | %a | %ha" />
+					<aspect name="fileName" type="PRIMARY" class="String" value="data" />
+				</process>
+			</processManagers>
+		</compartment>
+	</simulation>
+</document>

@@ -2,6 +2,7 @@ package processManager.library;
 
 import java.util.*;
 
+import grid.ArrayType;
 import grid.SpatialGrid;
 import org.w3c.dom.Element;
 
@@ -180,7 +181,21 @@ public class ChemostatSolver extends ProcessManager
 			if( Log.shouldWrite(Tier.DEBUG) )
 				Log.out(Tier.DEBUG, "new volume: " + yODE[ _n ] );
 
-			pHsolver.solve(this._environment);
+			Collection<SpatialGrid> solutes = this._environment.getSolutes();
+			HashMap<String,Double> solMap = new HashMap<String,Double>();
+			HashMap<String,double[]> pKaMap = new HashMap<String,double[]>();
+
+			for ( SpatialGrid s : solutes ) {
+				solMap.put(s.getName(),s.getAverage(ArrayType.CONCN));
+				if( s.getpKa() != null ) {
+					pKaMap.put(s.getName(), s.getpKa());
+				}
+			}
+
+			if (! pKaMap.isEmpty()) {
+				HashMap<String, Double> specialMap = pHsolver.solve(_environment, solMap, pKaMap);
+				pHsolver.solve(this._environment);
+			}
 		}
 		
 		/* 
@@ -261,7 +276,10 @@ public class ChemostatSolver extends ProcessManager
 						new HashMap<String, Double>();
 				for( int i = 0; i < _n; i++ )
 					soluteMap.put( _solutes[i], y[i]/y[_n] );
-				
+				HashMap<String, Double> specialMap = new HashMap<String, Double>();
+				for( SpatialGrid s : environment.getSpesials())
+					specialMap.put(s.getName(),s.getAverage(ArrayType.CONCN));
+
 				/*
 				 * In and out flows
 				 */
@@ -335,6 +353,7 @@ public class ChemostatSolver extends ProcessManager
 					Map<String,Double> reactionMap = 
 							new HashMap<String, Double>();
 					reactionMap.putAll( soluteMap );
+					reactionMap.putAll( specialMap );
 
 					for (Reaction aReac : reactions)
 					{
@@ -345,7 +364,7 @@ public class ChemostatSolver extends ProcessManager
 							{
 								if ( a.isAspect( var ) )
 									reactionMap.put( var, a.getDouble( var) );
-								else if ( ! soluteMap.containsKey( var ) )
+								else if ( ! (soluteMap.containsKey( var ) || specialMap.containsKey( var )) )
 									reactionMap.put(var , 0.0);
 							}
 						

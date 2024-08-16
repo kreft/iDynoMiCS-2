@@ -46,8 +46,8 @@ public abstract class Surface
 	 * since otherwise the intentionally overlapping segments would repel each
 	 * other.
 	 */
-	// TODO implement
-	public HashMap<Integer, Surface> _collisionIgnored = new HashMap<Integer, Surface>();
+	// TODO implement (Note hashmaps have a large memmory footprint)
+	public HashMap<Integer, Surface> _collisionIgnored = null;
 
 	/**
 	 * Used for boundaries, if a surface is bounding other objects are retained

@@ -312,12 +312,25 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable, C
 		 * Potential imports
 		 */
 		Collection<Element> imports = XmlHandler.getElements( agents, XmlRef.xmlImport);
+		Runtime r = Runtime.getRuntime();
+		System.gc();
+		System.runFinalization();
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			throw new RuntimeException(e);
+		}
+		System.out.println((r.totalMemory()- r.freeMemory()));
 		for ( Element e : imports ) {
 			Element imported = XmlHandler.loadDocument(e.getAttribute(XmlRef.valueAttribute));
 			for (Element a : XmlHandler.getElements(imported, XmlRef.agent)) {
 				this.agents.addAgent(new Agent(a, this), true);
+				System.out.println((r.totalMemory()- r.freeMemory()));
 			}
 		}
+		System.gc();
+		System.runFinalization();
+		System.out.println((r.totalMemory()-r.freeMemory()));
 
 		/*
 		 * Read in agents.
@@ -325,7 +338,7 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable, C
 			for (Element a : XmlHandler.getElements(agents, XmlRef.agent)) {
 				this.agents.addAgent(new Agent(a, this), true);
 			}
-		
+
 		this.agents.update();
 		
 		if( Log.shouldWrite(Tier.EXPRESSIVE))

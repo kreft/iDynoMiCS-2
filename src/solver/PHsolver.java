@@ -59,6 +59,29 @@ public class PHsolver {
 
     }
 
+    public HashMap<String,Double> solve(EnvironmentContainer environment, HashMap<String,Double> solMap, HashMap<String,double[]> pKaMap) {
+
+        /* FIXME obtain fom pKaMap */
+        int nPKa = 0;
+        for ( SpatialGrid s : environment.getSolutes() ) {
+            if( s.getpKa() != null ) {
+                nPKa += s.getpKa().length;
+            }
+        }
+        NonLinearFunction myFun = new NonLinearFunction();
+        myFun.setPkaMap(pKaMap);
+        myFun.setSolMap(solMap);
+
+        NonlinearEquationSolver solver = chemTestnoLin(( nPKa+1 ) * 2,0, myFun,false);
+
+        double pH = -Math.log10(solver.getX().get(0,0));
+
+        HashMap<String,Double> specialMap = new HashMap<String, Double>();
+        specialMap.put("pH", -Math.log10(solver.getX().get(0,0)));
+        /* FIXME also put protonation states of solutes */
+        return specialMap;
+    }
+
     public class NonLinearFunction implements ObjectiveFunctionNonLinear {
         int b = 8;
         double kw = 1.0E-14;
@@ -74,7 +97,7 @@ public class PHsolver {
         }
 
         public int numVars() {
-            return 2 + _solMap.size() * 2;
+            return 2 + _solMap.size()*2;
         }
 
         @Override
@@ -188,7 +211,7 @@ public class PHsolver {
         nonlinearSolver.solve(new DMatrixRMaj(initialGuess));
         if(Log.shouldWrite(Log.Tier.EXPRESSIVE)) {
             Log.out(Log.Tier.EXPRESSIVE,(System.nanoTime() - now) / 1e6 + " ms");
-            Log.out(Log.Tier.EXPRESSIVE,nonlinearSolver.getResults().toString());
+            Log.out(Log.Tier.EXPRESSIVE, nonlinearSolver.getResults().toString());
             nonlinearSolver.getX().print("%.15f");
         }
         

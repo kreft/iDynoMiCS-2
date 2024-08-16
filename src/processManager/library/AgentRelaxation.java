@@ -342,13 +342,17 @@ public class AgentRelaxation extends ProcessManager
 
 			/* NOTE that with proper boundary surfaces for any compartment
 			 * shape this should never yield any difference, it is here as a
-			 * fail safe
-			 *
-			 * FIXME this seems to result in crashes
+			 * failsafe
 			 * */
 			for(Agent agent : allAgents)
-				for ( Point point: ( (Body) agent.get(BODY) ).getPoints() )
-					point.setPosition( this._shape.applyBoundaries( point.getPosition() ) );
+				for ( Point point: ( (Body) agent.get(BODY) ).getPoints() ) {
+				/* TODO: Uncomment if you are noticing crashes here,
+				    known problem that can occur here: multitude of divisions at once.
+					if( Vector.detectRisk( point.getPosition() ) )
+						System.out.println("Agent point with potential issue detected in AgentRelaxation");
+				*/
+					point.setPosition(this._shape.applyBoundaries(point.getPosition()));
+				}
 
 			nstep++;
 			if( dtMech == 0.0 )
