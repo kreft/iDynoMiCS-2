@@ -181,6 +181,11 @@ public final class GuiMenu
 		menuItem.getAccessibleContext().setAccessibleDescription(
 				"Draw raster to file");
 		menu.add(menuItem);
+
+		menuItem = new JMenuItem(new GuiMenu.OccuranceMap());
+		menuItem.getAccessibleContext().setAccessibleDescription(
+				"Draw agent occurance to file");
+		menu.add(menuItem);
 		/*
 		 * Draw species diagram
 		 */
@@ -518,6 +523,39 @@ public final class GuiMenu
 			}
 		}
 		
+	}
+
+	public static class OccuranceMap extends AbstractAction
+	{
+
+		/**
+		 *
+		 */
+		private static final long serialVersionUID = 3011117385035501302L;
+
+		public OccuranceMap()
+		{
+			super("OccuranceMap");
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			if (Helper.compartmentAvailable())
+			{
+				if ( Helper.selectSpatialCompartment() == null )
+					Log.printToScreen("No spatial compartment available.",
+							false );
+				{
+					Raster raster = new Raster(
+							Helper.selectSpatialCompartment(), true );
+					raster.rasterize( Double.valueOf(
+							Helper.obtainInput( null, "Raster scale" ) ) );
+					raster.plot( raster.occuranceMap(Helper.obtainInput( null, "filter")) , 1.0,
+							Helper.obtainInput( null, "filename") );
+				}
+			}
+		}
+
 	}
 	
 	public static class Draw extends AbstractAction
