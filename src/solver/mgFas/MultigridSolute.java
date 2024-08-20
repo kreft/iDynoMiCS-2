@@ -161,7 +161,7 @@ public class MultigridSolute
 	/**
 	 * 
 	 */
-	public final Double BLTHRESH = 0.1;
+	public static final Double BLTHRESH = 0.1;
 	
 	/**
 	 * 

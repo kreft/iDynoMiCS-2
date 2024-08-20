@@ -90,7 +90,7 @@ public class InstantChange extends ProcessManager {
 		
 		if (this._thresholdVolume != 0.0)
 		{
-			if (this._currentVolume < this._thresholdVolume)
+			if (this._currentVolume >= this._thresholdVolume)
 				return;
 		}
 		
