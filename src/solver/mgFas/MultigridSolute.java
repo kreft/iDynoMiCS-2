@@ -126,37 +126,37 @@ public class MultigridSolute
 	 * Should be ok not to fill this with zeros at initialisation, as it should
 	 * be filled in fillDiff() before it's ever called.
 	 */
-	private static final double[][][] _diff = new double[3][3][3];
+	private final double[][][] _diff = new double[3][3][3];
 	
 	/**
 	 * 
 	 */
-	private static double[][][] u;
+	private double[][][] u;
 	
 	/**
 	 * 
 	 */
-	private static double[][][] rd;
+	private double[][][] rd;
 	
 	/**
 	 * 
 	 */
-	private static double[][][] bl;
+	private double[][][] bl;
 	
 	/**
 	 * 
 	 */
-	private static int _i;
+	private int _i;
 	
 	/**
 	 * 
 	 */
-	private static int _j;
+	private int _j;
 	
 	/**
 	 * 
 	 */
-	private static int _k;
+	private int _k;
 	
 	/**
 	 * 
@@ -166,22 +166,22 @@ public class MultigridSolute
 	/**
 	 * 
 	 */
-	private static int maxOrder;
+	private int maxOrder;
 	
 	/**
 	 * Size of original solute grid in I direction
 	 */
-	private static int _nI;
+	private int _nI;
 	
 	/**
 	 * Size of original solute grid in J direction
 	 */
-	private static int _nJ;
+	private int _nJ;
 	
 	/**
 	 * Size of original solute grid in K direction
 	 */
-	private static int _nK;
+	private int _nK;
 
 	private PDEWrapper manager;
 	

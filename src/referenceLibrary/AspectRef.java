@@ -720,6 +720,16 @@ public class AspectRef
 
 	public static String youngsModulus = "youngsModulus";
 	public static String poissonRatio = "poissonRatio";
+	
+	public static final String volumeChange = "volumeChange";
 
+	public static final String volumeTarget = "volumeTarget" ;
+	
+	public static final String soluteConcentrations = "soluteConcentrations";
+	
+	public static final String soluteMasses = "soluteMasses";
+	
+	public static final String thresholdVolume = "thresholdVolume";
+  
 	public static String centerPointRemoval = "centerPointRemoval";
 }
