@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import grid.ArrayType;
 import org.w3c.dom.Element;
 
 import agent.Agent;
@@ -296,10 +297,11 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable, C
 				spawners.put(priority, spawner);
 			}
 		}
+
 		/* verify whether this always returns in correct order (it should) */
 		for( Spawner s : spawners.values() )
 			s.spawn();
-		
+
 		if( Log.shouldWrite(Tier.EXPRESSIVE))
 			Log.out(Tier.EXPRESSIVE, "Compartment " + this.name + 
 					" initialised with " + this.agents.getNumAllAgents() +
@@ -307,30 +309,17 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable, C
 
 
 		Element agents = XmlHandler.findUniqueChild(xmlElem, XmlRef.agents);
-
 		/*
 		 * Potential imports
 		 */
 		Collection<Element> imports = XmlHandler.getElements( agents, XmlRef.xmlImport);
-		Runtime r = Runtime.getRuntime();
-		System.gc();
-		System.runFinalization();
-		try {
-			Thread.sleep(1000);
-		} catch (InterruptedException e) {
-			throw new RuntimeException(e);
-		}
-		System.out.println((r.totalMemory()- r.freeMemory()));
 		for ( Element e : imports ) {
 			Element imported = XmlHandler.loadDocument(e.getAttribute(XmlRef.valueAttribute));
 			for (Element a : XmlHandler.getElements(imported, XmlRef.agent)) {
 				this.agents.addAgent(new Agent(a, this), true);
-				System.out.println((r.totalMemory()- r.freeMemory()));
 			}
 		}
-		System.gc();
-		System.runFinalization();
-		System.out.println((r.totalMemory()-r.freeMemory()));
+
 
 		/*
 		 * Read in agents.
@@ -340,7 +329,7 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable, C
 			}
 
 		this.agents.update();
-		
+
 		if( Log.shouldWrite(Tier.EXPRESSIVE))
 			Log.out(Tier.EXPRESSIVE, "Compartment "+this.name+" initialised with "+ 
 					this.agents.getNumAllAgents()+" agents");
@@ -353,6 +342,25 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable, C
 		for ( Element e : XmlHandler.getElements(solutes, XmlRef.solute))
 		{
 			new SpatialGrid( e, this.environment);
+		}
+
+		/*
+		 * load special grids
+		 */
+		/* FIXME could be refined */
+		for ( SpatialGrid s : environment.getSolutes() )
+		{
+			double[] pkas = s.getpKa();
+			if( pkas != null )
+			{
+				for( int i = 0; i <= pkas.length; i++)
+				{
+					if( !environment.isSpecialName(s.getName() + "___" + i))
+						environment.addSpecial((s.getName() + "___" + i), s.getAverage(ArrayType.CONCN));
+				}
+				if( !environment.isSpecialName("pH") )
+					environment.addSpecial("pH", 7.0);
+			}
 		}
 		/*
 		 * Load extra-cellular reactions.

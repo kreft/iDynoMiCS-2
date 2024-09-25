@@ -17,6 +17,7 @@ public class XmlRef
 {
 
 
+
     public static String[] getAllOptions()
 	{
 		Field[] fields = XmlRef.class.getFields();
@@ -355,6 +356,12 @@ public class XmlRef
 	 * Indicates pKa value(s) of solute.
 	 */
 	public final static String pKa = "pKa";
+
+	/**
+	 * Indicates the charge of the fully protonated form of the solute.
+	 */
+	public final static String maxCharge = "maxCharge";
+	
 	/**
 	 * The name of the compartment from which an arrivals lounge originates
 	 */

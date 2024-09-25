@@ -78,7 +78,6 @@ public class EnvironmentContainer implements CanPrelaunchCheck, Settable
 	public EnvironmentContainer(Shape aShape)
 	{
 		this._shape = aShape;
-		addSpecial("pH", 7.0);
 	}
 	
 	/**

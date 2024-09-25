@@ -106,6 +106,7 @@ public class SpatialGrid implements Settable, Instantiable
 	protected DiffusivityType _diffusivity;
 
 	protected double[] _pKa = null;
+	private double _maxCharge = 0.0;
 
 	public enum DiffusivityType
 	{
@@ -261,10 +262,12 @@ public class SpatialGrid implements Settable, Instantiable
 		}
 
 		String temp = XmlHandler.gatherAttribute(xmlElem, XmlRef.pKa);
-
 		this._pKa = (Helper.isNullOrEmpty(temp) ? null : (double[]) ObjectFactory.loadObject( temp,
 				double[].class.getSimpleName() ));
 
+		temp = XmlHandler.gatherAttribute(xmlElem, XmlRef.maxCharge);
+		this._maxCharge = (Helper.isNullOrEmpty(temp) ? 0.0 : (double) ObjectFactory.loadObject( temp,
+				double.class.getSimpleName() ));
 		
 		// TODO threshold
 	}
@@ -856,7 +859,12 @@ public class SpatialGrid implements Settable, Instantiable
 	{
 		return this._pKa;
 	}
-	
+
+	public double getmaxCharge()
+	{
+		return this._maxCharge;
+	}
+
 	/* ***********************************************************************
 	 * 							REPORTING
 	 * ***********************************************************************/

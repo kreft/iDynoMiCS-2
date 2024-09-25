@@ -57,7 +57,7 @@ public strictfp class Idynomics
 	 * iDynoMiCS internal unit system.
 	 */
 	final static public Map<SI,GenericTrio<SI, String, Double>> unitSystem = 
-			Unit.formatMap("pg","µm","min");
+			Unit.formatMap("pg","µm","min","amol");
 	
 	/**
 	 * global parameters

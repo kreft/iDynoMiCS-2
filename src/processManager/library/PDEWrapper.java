@@ -395,6 +395,7 @@ public class PDEWrapper extends ProcessDiffusion
          */
         Collection<String> soluteNames = this._environment.getSoluteNames();
         HashMap<String,Double> concns = new HashMap<String,Double>();
+        HashMap<String,Double> specConcns = new HashMap<String,Double>();
         for ( String soluteName : soluteNames )
             concns.put(soluteName, 0.0);
         /*
@@ -404,7 +405,7 @@ public class PDEWrapper extends ProcessDiffusion
         SolverGrid solute;
         MultigridSolute mGrid;
 
-        SolverGrid special = null;
+        SolverGrid special;
         MultigridSolute sGrid;
         // TODO test
 
@@ -436,15 +437,37 @@ public class PDEWrapper extends ProcessDiffusion
                 }
             }
 
-            if(! pKaMap.isEmpty()) {
-                HashMap<String, Double> specialMap = solver.solve(this._environment, concns, pKaMap);
+            /* Get specials in this grid voxel (used for initial guess). */
+            for ( SpatialGrid grid : this._environment.getSpesials() )
+            {
+                String s = grid.getName();
+                mGrid = FindGrid(specialGrid, s);
+                if ( mGrid != null )
+                {
+                    special = mGrid._conc[resorder];
 
-                sGrid = FindGrid(specialGrid, "pH");
-                if (sGrid != null) {
-                    special = sGrid._conc[resorder];
                     /* FIXME is not padded correct here? */
-                    special.setValueAt(specialMap.get("pH"), coord, false);
-//                System.out.println("co: " + Vector.toString(coord) + " val: " + specialMap.get("pH"));
+                    specConcns.put( s, special.getValueAt(coord, false));
+                }
+            }
+
+
+            if(! pKaMap.isEmpty()) {
+                HashMap<String, Double> specialMap = solver.solve(this._environment, concns, specConcns, pKaMap);
+//                sGrid = FindGrid(specialGrid, "pH");
+//                if (sGrid != null) {
+//                    special = sGrid._conc[resorder];
+//                    /* FIXME is not padded correct here? */
+//                    special.setValueAt(specialMap.get("pH"), coord, false);
+////                System.out.println("co: " + Vector.toString(coord) + " val: " + specialMap.get("pH"));
+//                }
+                for( String g : specialMap.keySet()) {
+                    sGrid = FindGrid(specialGrid, g);
+                    if (sGrid != null) {
+                        special = sGrid._conc[resorder];
+                        /* FIXME is not padded correct here? */
+                        special.setValueAt(specialMap.get(g), coord, false);
+                    }
                 }
             }
         }

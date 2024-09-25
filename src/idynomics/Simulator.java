@@ -328,7 +328,6 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable,
 		 * 
 		 */
 		this.timer.step();
-
 		if( Log.shouldWrite(Tier.NORMAL ) && Global.log_memory_use )
 			Log.out( "Memory: " + (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory())/1048576 + " MB" );
 

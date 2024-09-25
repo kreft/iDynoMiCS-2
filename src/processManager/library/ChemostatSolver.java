@@ -87,12 +87,6 @@ public class ChemostatSolver extends ProcessManager
 			double[] pkas = s.getpKa();
 			if( pkas != null )
 			{
-				for( int i = 0; i <= pkas.length; i++)
-				{
-					this._environment.addSpecial((s.getName() + "___" + i), 0.0);
-				}
-				if( !this._environment.isSpecialName("pH") )
-					this._environment.addSpecial("pH", 7.0);
 				this.pHsolver = new PHsolver();
 			}
 		}
@@ -183,19 +177,77 @@ public class ChemostatSolver extends ProcessManager
 
 			Collection<SpatialGrid> solutes = this._environment.getSolutes();
 			HashMap<String,Double> solMap = new HashMap<String,Double>();
+			HashMap<String,Double> specMap = new HashMap<String,Double>();
 			HashMap<String,double[]> pKaMap = new HashMap<String,double[]>();
 
+			/** updated version */
+			int numStructs=1;
 			for ( SpatialGrid s : solutes ) {
-				solMap.put(s.getName(),s.getAverage(ArrayType.CONCN));
-				if( s.getpKa() != null ) {
-					pKaMap.put(s.getName(), s.getpKa());
+				if( s.getpKa() != null)
+					numStructs++;
+			}
+			PKstruct[] pkSolutes = new PKstruct[numStructs];
+			int pkSol = 1;
+			for ( SpatialGrid s : solutes ) {
+				if( s.getpKa() != null) {
+					pkSolutes[pkSol] = new PKstruct();
+					pkSolutes[pkSol].solute = s.getName();
+					pkSolutes[pkSol].conc = s.getAverage(ArrayType.CONCN);
+					pkSolutes[pkSol].pKa = s.getpKa();
+					pkSolutes[pkSol].maxCharge = s.getmaxCharge();
+					pkSolutes[pkSol].pStates = new double[pkSolutes[pkSol].pKa.length+1];
+					int nPstate = 0;
+					while( nPstate < pkSolutes[pkSol].pStates.length ) {
+						SpatialGrid spec = this._environment.getSpecialGrid(pkSolutes[pkSol].solute + "___" +nPstate);
+						pkSolutes[pkSol].pStates[nPstate] = spec.getAverage(ArrayType.CONCN);
+						nPstate++;
+					}
+				}
+				pkSol++;
+			}
+			pkSolutes[0] = new PKstruct();
+			pkSolutes[0].solute = "pH";
+			pkSolutes[0].conc = this._environment.getSpecialGrid(pkSolutes[0].solute).getAverage(ArrayType.CONCN);
+
+			pkSolutes = pHsolver.solve(pkSolutes);
+			if (true) {
+				pkSol = 1;
+				for( SpatialGrid s : solutes) {
+					int nPstate = 0;
+					while( nPstate < pkSolutes[pkSol].pStates.length ) {
+						SpatialGrid spec = this._environment.getSpecialGrid(pkSolutes[pkSol].solute + "___" +nPstate);
+						spec.setAllTo(ArrayType.CONCN, pkSolutes[pkSol].pStates[nPstate]);
+						nPstate++;
+					}
+					pkSol++;
+				}
+				/* store pH */
+				SpatialGrid spec = this._environment.getSpecialGrid(pkSolutes[0].solute);
+				spec.setAllTo(ArrayType.CONCN, pkSolutes[0].conc);
+				if (Log.shouldWrite(Tier.EXPRESSIVE)) {
+					Log.out(Tier.EXPRESSIVE,"pH: " + String.valueOf( pkSolutes[0].conc ));
 				}
 			}
 
-			if (! pKaMap.isEmpty()) {
-				HashMap<String, Double> specialMap = pHsolver.solve(_environment, solMap, pKaMap);
-				pHsolver.solve(this._environment);
-			}
+//			for ( SpatialGrid s : solutes ) {
+//				solMap.put(s.getName(),s.getAverage(ArrayType.CONCN));
+//				if( s.getpKa() != null ) {
+//					pKaMap.put(s.getName(), s.getpKa());
+//				}
+//			}
+//
+//			for ( SpatialGrid s : this._environment.getSpesials() ) {
+//				specMap.put(s.getName(),s.getAverage(ArrayType.CONCN));
+//			}
+
+//			if (! pKaMap.isEmpty()) {
+//				HashMap<String, Double> specialMap = pHsolver.solve(_environment, solMap, specMap, pKaMap);
+////				pHsolver.solve(this._environment);
+//				for( String g : specialMap.keySet()) {
+//					SpatialGrid specialGrid = _environment.getSpecialGrid(g);
+//					specialGrid.setAllTo(ArrayType.CONCN, specialMap.get(g));
+//				}
+//			}
 		}
 		
 		/* 

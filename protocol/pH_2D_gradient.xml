@@ -40,9 +40,9 @@
 				</dimension>
 			</shape>
 			<solutes>
-				<solute name="f" 	pKa="7.2e-4"	concentration="0.1" defaultDiffusivity="20.0 [um+2/s]" biofilmDiffusivity="15.0 [um+2/s]"  />
-				<solute name="cn"	pKa="6.2E-10" 	concentration="0.1" defaultDiffusivity="20.0 [um+2/s]" biofilmDiffusivity="15.0 [um+2/s]"  />
-				<solute name="a" 	pKa="1.6E-10"	concentration="0.1" defaultDiffusivity="20.0 [um+2/s]" biofilmDiffusivity="15.0 [um+2/s]" />
+				<solute name="f" 	pKa="3.142667504"	concentration="0.1" defaultDiffusivity="20.0 [um+2/s]" biofilmDiffusivity="15.0 [um+2/s]"  />
+				<solute name="cn"	pKa="9.207608311" 	concentration="0.1" defaultDiffusivity="20.0 [um+2/s]" biofilmDiffusivity="15.0 [um+2/s]"  />
+				<solute name="a" 	pKa="9.795880017"	concentration="0.1" defaultDiffusivity="20.0 [um+2/s]" biofilmDiffusivity="15.0 [um+2/s]" />
 			</solutes>
 			<spawn class="randomSpawner" domain="32.0, 10.0" priority="0" number="200" morphology="COCCOID">
 				<templateAgent>
