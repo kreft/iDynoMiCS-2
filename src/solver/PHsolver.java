@@ -77,7 +77,7 @@ public class PHsolver {
         myFun.setPKstructs(pkSolutes);
         myFun.setInitial(pkSolutes);
         NonlinearEquationSolver solver = chemTestnoLin(nVar,1, myFun,false);
-        double pH = -Math.log10(solver.getX().get(0,0) * siUnit.modifier());
+        double pH = solver.getX().get(0,0);
 
 //        HashMap<String,Double> specialMap = new HashMap<String, Double>();
 //        int i=0;
@@ -96,7 +96,7 @@ public class PHsolver {
         for (PKstruct struct : pkSolutes) {
             if( struct.pStates != null) {
                 for (double d : struct.pStates) {
-                    struct.pStates[j++] = solver.getX().get(i++, 0);
+                    struct.pStates[j++] = pow10(-solver.getX().get(i++, 0));
                 }
             }
             j=0;
@@ -153,12 +153,12 @@ public class PHsolver {
             }
             this.initial = new Double[nvar];
             int i = 0;
-            initial[i++] = (pKsolutes[0].conc == 7.0 ? 0.01 : Math.pow(10.0,-pKsolutes[0].conc) * microUnit.modifier() );
-            initial[i++] = (pKsolutes[0].conc == 7.0 ? 0.01 : Math.pow(10.0,-(14.0-pKsolutes[0].conc)) * microUnit.modifier() );
+            initial[i++] = -Math.log10(pKsolutes[0].conc == 7.0 ? 0.01 : Math.pow(10.0,-pKsolutes[0].conc) * microUnit.modifier() );
+            initial[i++] = -Math.log10(pKsolutes[0].conc == 7.0 ? 0.01 : Math.pow(10.0,-(14.0-pKsolutes[0].conc)) * microUnit.modifier() );
             for (PKstruct struct : pKsolutes) {
                 if( struct.pStates != null) {
                     for (double d : struct.pStates)
-                        initial[i++] = d;
+                        initial[i++] = -Math.log10(d);
                 }
             }
         }
@@ -182,7 +182,8 @@ public class PHsolver {
                 double h = x.get(0, 0);
                 double oh = x.get(1, 0);
 
-                fun.set(0, 0, ((h * oh) - kw));
+//                fun.set(0, 0, ((h * oh) - kw));
+                fun.set(0, 0, h + oh - 14);
 //                System.out.println(((h * oh) - kw));
                 double[] s = new double[b - 2];
                 int j = 2;
@@ -191,9 +192,9 @@ public class PHsolver {
                     if (p.pStates != null) {
                         for (double d : p.pStates) {
                             if (d == 0.0)
-                                initial[j] = p.conc / p.pStates.length;
+                                initial[j] = -Math.log10(p.conc / p.pStates.length);
                             else
-                                initial[j] = d;
+                                initial[j] = -Math.log10(d);
                             j++;
                         }
                     }
@@ -205,7 +206,8 @@ public class PHsolver {
                         for (double d : p.pKa) {
                             s[i] = x.get(j, 0);
                             s[i + 1] = x.get(j + 1, 0);
-                            fun.set(k++, 0, (((h * s[i]) / s[i + 1]) - Math.pow(10,-d)));
+//                            fun.set(k++, 0, (((h * s[i]) / s[i + 1]) - Math.pow(10,-d)));
+                            fun.set(k++, 0, h + s[i] - s[i + 1] - d);
 //                            System.out.println((h * s[i]) / s[i + 1] - Math.pow(10,-d));
                             i++;
                             j++;
@@ -223,8 +225,8 @@ public class PHsolver {
                         double neg = 0;
                         for( double d : struct.pStates ) {
                             if ( s[i] < 0.0 )
-                                neg += s[i];
-                            sum += s[i++];
+                                neg += pow10(-s[i]);
+                            sum += pow10(-s[i++]);
 
                         }
                         /* punish negative concentrations by neg^n Math.pow(neg,n) +*/
@@ -241,7 +243,7 @@ public class PHsolver {
                     if (p.pStates != null) {
                         molCharge = p.pStates.length - (1.0 + p.maxCharge);
                         for (double d : p.pStates) {
-                            charge += (s[i] * molCharge);
+                            charge += (pow10(-s[i]) * molCharge);
                             i++;
                             molCharge -= 1.0;
                         }
@@ -250,7 +252,7 @@ public class PHsolver {
                 }
 //                System.out.println(h - oh - charge);
 //                System.out.println(h + " " + oh + " " +  charge);
-                fun.set(1, 0, h - oh - charge);
+                fun.set(1, 0, pow10(-h) - pow10(-oh) - charge);
 
                 return fun;
             } else if (_pKaMap != null) {
