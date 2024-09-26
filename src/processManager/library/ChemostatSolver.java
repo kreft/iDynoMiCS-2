@@ -192,7 +192,7 @@ public class ChemostatSolver extends ProcessManager
 				if( s.getpKa() != null) {
 					pkSolutes[pkSol] = new PKstruct();
 					pkSolutes[pkSol].solute = s.getName();
-					pkSolutes[pkSol].conc = s.getAverage(ArrayType.CONCN);
+					pkSolutes[pkSol].conc = s.getAverage(ArrayType.CONCN)/s.getMolarWeight(); // convert mass concentration to molar concentration.
 					pkSolutes[pkSol].pKa = s.getpKa();
 					pkSolutes[pkSol].maxCharge = s.getmaxCharge();
 					pkSolutes[pkSol].pStates = new double[pkSolutes[pkSol].pKa.length+1];
@@ -216,7 +216,7 @@ public class ChemostatSolver extends ProcessManager
 					int nPstate = 0;
 					while( nPstate < pkSolutes[pkSol].pStates.length ) {
 						SpatialGrid spec = this._environment.getSpecialGrid(pkSolutes[pkSol].solute + "___" +nPstate);
-						spec.setAllTo(ArrayType.CONCN, pkSolutes[pkSol].pStates[nPstate]);
+						spec.setAllTo(ArrayType.CONCN, pkSolutes[pkSol].pStates[nPstate]); // protonation state concentration stored in molar concentrations.
 						nPstate++;
 					}
 					pkSol++;

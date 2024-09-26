@@ -265,7 +265,6 @@ public class Multigrid
 	{
 		initializeConcentrationFields();
 		solveDiffusionReaction();
-//		System.out.println(_specials[0].realGrid);
 	}
 
 	public void initializeConcentrationFields()

@@ -106,7 +106,12 @@ public class SpatialGrid implements Settable, Instantiable
 	protected DiffusivityType _diffusivity;
 
 	protected double[] _pKa = null;
+
+	/* the charge of the maximum protonation state considered for the simulation */
 	private double _maxCharge = 0.0;
+
+	/* if not set we assume the solute is already provided in mole/volume for the pH solver */
+	private double _molarWeight = 1.0;
 
 	public enum DiffusivityType
 	{
@@ -267,6 +272,10 @@ public class SpatialGrid implements Settable, Instantiable
 
 		temp = XmlHandler.gatherAttribute(xmlElem, XmlRef.maxCharge);
 		this._maxCharge = (Helper.isNullOrEmpty(temp) ? 0.0 : (double) ObjectFactory.loadObject( temp,
+				double.class.getSimpleName() ));
+
+		temp = XmlHandler.gatherAttribute(xmlElem, XmlRef.molarWeight);
+		this._molarWeight = (Helper.isNullOrEmpty(temp) ? 1.0 : (double) ObjectFactory.loadObject( temp,
 				double.class.getSimpleName() ));
 		
 		// TODO threshold
@@ -863,6 +872,11 @@ public class SpatialGrid implements Settable, Instantiable
 	public double getmaxCharge()
 	{
 		return this._maxCharge;
+	}
+
+	public double getMolarWeight()
+	{
+		return this._molarWeight;
 	}
 
 	/* ***********************************************************************

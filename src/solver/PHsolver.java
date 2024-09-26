@@ -7,8 +7,11 @@ import grid.SpatialGrid;
 import optimization.functionImplementation.ObjectiveFunctionNonLinear;
 import optimization.functionImplementation.Options;
 import org.ejml.data.DMatrixRMaj;
+import org.ejml.ops.MatrixIO;
 import solvers.NonlinearEquationSolver;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.LinkedList;
 
@@ -25,10 +28,6 @@ public class PHsolver {
     public void PHSolver()
     {
 
-    }
-
-    private double pow10(double a){
-        return Math.pow(10,a);
     }
 
     public HashMap<String,Double> solve(EnvironmentContainer environment, HashMap<String,Double> solMap,
@@ -50,7 +49,7 @@ public class PHsolver {
         if( specMap != null)
             myFun.setInitial(specMap);
 
-        NonlinearEquationSolver solver = chemTestnoLin(( nPKa+1 ) * 2,0, myFun,false);
+        NonlinearEquationSolver solver = chemTestnoLin(( nPKa+1 ) * 2,1, myFun,false);
         double pH = -Math.log10(solver.getX().get(0,0) * siUnit.modifier());
 
         HashMap<String,Double> specialMap = new HashMap<String, Double>();
@@ -76,8 +75,8 @@ public class PHsolver {
         NonLinearFunction myFun = new NonLinearFunction();
         myFun.setPKstructs(pkSolutes);
         myFun.setInitial(pkSolutes);
-        NonlinearEquationSolver solver = chemTestnoLin(nVar,1, myFun,false);
-        double pH = solver.getX().get(0,0);
+        NonlinearEquationSolver solver = chemTestnoLin(nVar,0, myFun,false);
+        double pH = -Math.log10(solver.getX().get(0,0) * siUnit.modifier());
 
 //        HashMap<String,Double> specialMap = new HashMap<String, Double>();
 //        int i=0;
@@ -96,7 +95,7 @@ public class PHsolver {
         for (PKstruct struct : pkSolutes) {
             if( struct.pStates != null) {
                 for (double d : struct.pStates) {
-                    struct.pStates[j++] = pow10(-solver.getX().get(i++, 0));
+                    struct.pStates[j++] = solver.getX().get(i++, 0);
                 }
             }
             j=0;
@@ -153,12 +152,12 @@ public class PHsolver {
             }
             this.initial = new Double[nvar];
             int i = 0;
-            initial[i++] = -Math.log10(pKsolutes[0].conc == 7.0 ? 0.01 : Math.pow(10.0,-pKsolutes[0].conc) * microUnit.modifier() );
-            initial[i++] = -Math.log10(pKsolutes[0].conc == 7.0 ? 0.01 : Math.pow(10.0,-(14.0-pKsolutes[0].conc)) * microUnit.modifier() );
+            initial[i++] = (pKsolutes[0].conc == 7.0 ? 0.01 : Math.pow(10.0,-pKsolutes[0].conc) * microUnit.modifier() );
+            initial[i++] = (pKsolutes[0].conc == 7.0 ? 0.01 : Math.pow(10.0,-(14.0-pKsolutes[0].conc)) * microUnit.modifier() );
             for (PKstruct struct : pKsolutes) {
                 if( struct.pStates != null) {
                     for (double d : struct.pStates)
-                        initial[i++] = -Math.log10(d);
+                        initial[i++] = d;
                 }
             }
         }
@@ -174,31 +173,36 @@ public class PHsolver {
         @Override
         public DMatrixRMaj getF(DMatrixRMaj x) {
             if ( _pkSolutes != null ) {
-                /* number of vars to solve for (+2 for h and oh) */
+                /* number of vars = total number of protonation states +2 for h and oh */
                 b = getInitial().length;
-
                 DMatrixRMaj fun = new DMatrixRMaj(b, 1);
-                /* set variables and define equilibria */
+                /* "negs" used to push the objective function away from negative concentrations */
+                double negs = 0.0;
+                for( int l = 0; l < b; l++) {
+                    double temp = x.get(l, 0);
+                    if( temp < 0.0 )
+                        negs += temp;
+                }
+                negs = negs*1E2;
+                /* Water dissociation */
                 double h = x.get(0, 0);
                 double oh = x.get(1, 0);
-
-//                fun.set(0, 0, ((h * oh) - kw));
-                fun.set(0, 0, h + oh - 14);
-//                System.out.println(((h * oh) - kw));
+                fun.set(0, 0, ((h * oh) - kw) + negs);
+                /* initial guess if no prior pStates exist, distribute the mass evenly over the protonation states */
                 double[] s = new double[b - 2];
                 int j = 2;
                 for( PKstruct p : _pkSolutes) {
-                    /* initial guess, use last, if none 50% of total */
                     if (p.pStates != null) {
                         for (double d : p.pStates) {
                             if (d == 0.0)
-                                initial[j] = -Math.log10(p.conc / p.pStates.length);
+                                initial[j] = p.conc / p.pStates.length;
                             else
-                                initial[j] = -Math.log10(d);
+                                initial[j] = d;
                             j++;
                         }
                     }
                 }
+                /* Solute dissociation equations (pH equilibria) */
                 int i = 0, k = 2;
                 j = 2;
                 for( PKstruct p : _pkSolutes) {
@@ -206,53 +210,38 @@ public class PHsolver {
                         for (double d : p.pKa) {
                             s[i] = x.get(j, 0);
                             s[i + 1] = x.get(j + 1, 0);
-//                            fun.set(k++, 0, (((h * s[i]) / s[i + 1]) - Math.pow(10,-d)));
-                            fun.set(k++, 0, h + s[i] - s[i + 1] - d);
-//                            System.out.println((h * s[i]) / s[i + 1] - Math.pow(10,-d));
+                            fun.set(k++, 0, (((h * s[i+1]) / s[i]) - Math.pow(10,-d)) + negs);
                             i++;
                             j++;
                         }
-                        /* move one over to the next solute */
+                        /* hop over to the next solute */
                         i++;
                         j++;
                     }
                 }
-                /* mass balance */
+                /* mass balances */
                 i = 0;
-                for (PKstruct struct : _pkSolutes) {
-                    if (struct.pKa != null ) {
-                        double sum = 0;
-                        double neg = 0;
-                        for( double d : struct.pStates ) {
-                            if ( s[i] < 0.0 )
-                                neg += pow10(-s[i]);
-                            sum += pow10(-s[i++]);
-
+                for (PKstruct p : _pkSolutes) {
+                    if (p.pKa != null ) {
+                        double sum = 0.0;
+                        for( double d : p.pStates ) {
+                            sum += s[i++];
                         }
-                        /* punish negative concentrations by neg^n Math.pow(neg,n) +*/
-                        fun.set(k++, 0,  (sum - struct.conc));
+                        fun.set(k++, 0, (sum - p.conc) + negs);
                     }
                 }
-                /* charge balance FIXME do we need extra info on pState charges? */
+                /* charge balance */
                 double charge = 0.0;
-
-                charge = 0.0;
                 i = 0;
-                double molCharge = 1.0;
-                for( PKstruct p : _pkSolutes) {
+                for (PKstruct p : _pkSolutes) {
                     if (p.pStates != null) {
-                        molCharge = p.pStates.length - (1.0 + p.maxCharge);
-                        for (double d : p.pStates) {
-                            charge += (pow10(-s[i]) * molCharge);
-                            i++;
-                            molCharge -= 1.0;
+                        double molCharge = p.maxCharge;
+                        while (molCharge > p.maxCharge - p.pStates.length) {
+                            charge += (s[i++] * molCharge--);
                         }
                     }
-                    /* move one over to the next solute */
                 }
-//                System.out.println(h - oh - charge);
-//                System.out.println(h + " " + oh + " " +  charge);
-                fun.set(1, 0, pow10(-h) - pow10(-oh) - charge);
+                fun.set(1, 0, h - oh + charge + negs);
 
                 return fun;
             } else if (_pKaMap != null) {
@@ -380,18 +369,23 @@ public class PHsolver {
         options.setAlgorithm(solver);
         options.setSaveIterationDetails(true);
         options.setAllTolerances(1e-14);
-        options.setMaxStep(1000);
-        options.setMaxIterations(1000);
+        options.setMaxStep(2000);
+        options.setMaxIterations(2000);
         NonlinearEquationSolver nonlinearSolver = new NonlinearEquationSolver(f, options);
         //solve and print output
         nonlinearSolver.solve(new DMatrixRMaj(initialGuess));
         if(Log.shouldWrite(Log.Tier.EXPRESSIVE)) {
-            Log.out(Log.Tier.EXPRESSIVE,(System.nanoTime() - now) / 1e6 + " ms");
-            Log.out(Log.Tier.EXPRESSIVE, nonlinearSolver.getResults().toString());
-            nonlinearSolver.getX().print("%.15f");
+            Log.out(Log.Tier.EXPRESSIVE,"pH " + nonlinearSolver.getResults().toString() +
+                    matrixToString(nonlinearSolver.getX(), "%6.3e") + (System.nanoTime() - now) / 1e6 + " ms");
         }
         
         return nonlinearSolver;
+    }
+
+    public String matrixToString(DMatrixRMaj m, String format) {
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        MatrixIO.print(new PrintStream(stream), m, format);
+        return stream.toString();
     }
 
 }

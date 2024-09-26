@@ -361,6 +361,11 @@ public class XmlRef
 	 * Indicates the charge of the fully protonated form of the solute.
 	 */
 	public final static String maxCharge = "maxCharge";
+
+	/**
+	 * Molar weight of the solute.
+	 */
+	public final static String molarWeight = "molarWeight";
 	
 	/**
 	 * The name of the compartment from which an arrivals lounge originates
