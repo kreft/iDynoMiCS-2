@@ -8,8 +8,11 @@
 				<aspect name="reactions" class="InstantiableList"> 
 					<list nodeLabel="reaction" entryClass="RegularReaction">
 						<reaction name="growth">
-							<expression value="mass*f*Kf*pH">
-								<constant name="Kf" value="0.02" /> 
+							<expression value="mass*((umax*c)/(Kc+c))*#e^-(Kph*((pH-pHopt)^2.0))">
+								<constant name="Kc" value="0.1" /> 
+								<constant name="umax" value="0.1" /> 
+								<constant name="Kph" value="0.1" /> 
+								<constant name="pHopt" value="6.0" /> 
 							</expression>
 							<stoichiometric component="f" coefficient="50.0" />
 							<stoichiometric component="c" coefficient="-1.0" />

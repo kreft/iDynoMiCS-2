@@ -7,11 +7,11 @@
 		<compartment name="chemostat">
 			<shape class="Dimensionless" volume="1 [L]">
 				<boundary  class="constantConcentrationToChemostat" volumeFlowRate="0.1 [L/h]">
-				<solute name="Am" 	concentration="17.031 [g/m+3]" />
+				<solute name="Ammonia" 	concentration="17.0 [mg/L]" />
 				</boundary>
 			</shape>
 			<solutes>
-				<solute name="Am" 	pKa="9.25"	maxCharge="1.0" concentration="17.031 [g/m+3]" defaultDiffusivity="1"  molarWeight="17.031 [g/mol]" />
+				<solute name="Ammonia" concentration="17.0 [mg/L]" pKa="9.25" molarWeight="17.031 [g/mol]" maxCharge="1.0" />
 			</solutes>
 			<reactions>
 			</reactions>

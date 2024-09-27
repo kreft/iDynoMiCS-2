@@ -7,11 +7,11 @@
 		<compartment name="chemostat">
 			<shape class="Dimensionless" volume="1 [L]">
 				<boundary  class="constantConcentrationToChemostat" volumeFlowRate="0.1 [L/h]">
-				<solute name="phosphoricAcid" 	concentration="0.001 [mol/m+3]"  />
+				<solute name="phosphoricAcid" concentration="0.1 [mmol/L]"  />
 				</boundary>
 			</shape>
 			<solutes>
-				<solute name="phosphoricAcid" 	pKa="2.15,7.2,12.35"	concentration="0.001 [mol/m+3]" defaultDiffusivity="1"  />
+				<solute name="phosphoricAcid" pKa="2.15,7.2,12.35" concentration="0.1 [mmol/L]" />
 			</solutes>
 			<reactions>
 			</reactions>

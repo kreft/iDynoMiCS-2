@@ -255,9 +255,9 @@ public class SpatialGrid implements Settable, Instantiable
 		((EnvironmentContainer) parent).addSolute(this);
 		
 		/* Set default and biofilm diffusivity */
-		Double diffusivity = XmlHandler.obtainDouble(xmlElem,
-				XmlRef.defaultDiffusivity, this.defaultXmlTag());
-		this._defaultDiffusivity = Double.valueOf(diffusivity);
+		Double diffusivity = XmlHandler.gatherDouble(xmlElem,
+				XmlRef.defaultDiffusivity);
+		this._defaultDiffusivity = Double.valueOf(Helper.setIfNone(diffusivity,1.0));
 		diffusivity = XmlHandler.gatherDouble(xmlElem,
 				XmlRef.biofilmDiffusivity);
 		
