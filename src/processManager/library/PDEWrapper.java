@@ -353,132 +353,53 @@ public class PDEWrapper extends ProcessDiffusion {
     }
 
     protected void applySpecialReactions(MultigridSolute[] concGrid, MultigridSolute[] specialGrid, int resorder) {
-
-        Shape shape = this._environment.getShape();
-        PHsolver solver = new PHsolver();
+        /* TODO re-use PKstructs for increased efficiency */
         PHsolver pHsolver = new PHsolver();
-        /*
-         * Construct the "concns" dictionary once, so that we don't have to
-         * re-enter the solute names for every voxel coordinate.
-         */
-        Collection<String> soluteNames = this._environment.getSoluteNames();
-        HashMap<String, Double> concns = new HashMap<String, Double>();
-        HashMap<String, Double> specConcns = new HashMap<String, Double>();
-        for (String soluteName : soluteNames)
-            concns.put(soluteName, 0.0);
-        /*
-         * Iterate over the spatial discretization of the environment,
-         * applying extracellular reactions as required.
-         */
-        SolverGrid solute;
-        MultigridSolute mGrid;
-
-        SolverGrid special;
-        MultigridSolute sGrid;
-        // TODO test
-
         Collection<SpatialGrid> solutes = this._environment.getSolutes();
-        /* FIXME: use for initial guess */
-        Collection<SpatialGrid> grids = this._environment.getSpesials();
-
-        HashMap<String, double[]> pKaMap = new HashMap<String, double[]>();
-
-        for (SpatialGrid s : solutes) {
-            if (s.getpKa() != null) {
-                pKaMap.put(s.getName(), s.getpKa());
-            }
-        }
-
-
         for (IntegerArray position : concGrid[0].fetchCoords(resorder)) {
             int[] coord = position.get();
-            /* Get the solute concentrations in this grid voxel. */
-            for (String s : soluteNames) {
-                mGrid = FindGrid(concGrid, s);
-                if (mGrid != null) {
-                    solute = mGrid._conc[resorder];
-
-                    /* FIXME is not padded correct here? */
-                    concns.put(s, solute.getValueAt(coord, false));
-                }
-            }
-
-            /* Get specials in this grid voxel (used for initial guess). */
-            for (SpatialGrid grid : this._environment.getSpesials()) {
-                String s = grid.getName();
-                mGrid = FindGrid(specialGrid, s);
-                if (mGrid != null) {
-                    special = mGrid._conc[resorder];
-
-                    /* FIXME is not padded correct here? */
-                    specConcns.put(s, special.getValueAt(coord, false));
-                }
-            }
-
-
-            if (!pKaMap.isEmpty()) {
-                HashMap<String, Double> specialMap = solver.solve(this._environment, concns, specConcns, pKaMap);
-//                sGrid = FindGrid(specialGrid, "pH");
-//                if (sGrid != null) {
-//                    special = sGrid._conc[resorder];
-//                    /* FIXME is not padded correct here? */
-//                    special.setValueAt(specialMap.get("pH"), coord, false);
-////                System.out.println("co: " + Vector.toString(coord) + " val: " + specialMap.get("pH"));
-//                }
-                for (String g : specialMap.keySet()) {
-                    sGrid = FindGrid(specialGrid, g);
-                    if (sGrid != null) {
-                        special = sGrid._conc[resorder];
-                        /* FIXME is not padded correct here? */
-                        special.setValueAt(specialMap.get(g), coord, false);
-                    }
-                }
-            }
-
-
-            /** updated version */
             int numStructs = 1;
             for (SpatialGrid s : solutes) {
                 if (s.getpKa() != null)
                     numStructs++;
             }
-            PKstruct[] pkSolutes = new PKstruct[numStructs];
-            int pkSol = 1;
-            for (SpatialGrid s : solutes) {
-                if (s.getpKa() != null) {
-                    pkSolutes[pkSol] = new PKstruct();
-                    pkSolutes[pkSol].solute = s.getName();
-                    pkSolutes[pkSol].conc = getConc(concGrid, s.getName(), coord, resorder) / s.getMolarWeight(); // convert mass concentration to molar concentration.
-                    pkSolutes[pkSol].pKa = s.getpKa();
-                    pkSolutes[pkSol].maxCharge = s.getmaxCharge();
-                    pkSolutes[pkSol].pStates = new double[pkSolutes[pkSol].pKa.length + 1];
-                    int nPstate = 0;
-                    while (nPstate < pkSolutes[pkSol].pStates.length) {
-                        SpatialGrid spec = this._environment.getSpecialGrid(pkSolutes[pkSol].solute + "___" + nPstate);
-                        pkSolutes[pkSol].pStates[nPstate] = getConc(specialGrid,spec.getName(), coord, resorder);
-                        nPstate++;
+            if (numStructs > 1) {
+                PKstruct[] pkSolutes = new PKstruct[numStructs];
+                int pkSol = 1;
+                for (SpatialGrid s : solutes) {
+                    if (s.getpKa() != null) {
+                        pkSolutes[pkSol] = new PKstruct();
+                        pkSolutes[pkSol].solute = s.getName();
+                        pkSolutes[pkSol].conc = getConc(concGrid, s.getName(), coord, resorder) / s.getMolarWeight(); // convert mass concentration to molar concentration.
+                        pkSolutes[pkSol].pKa = s.getpKa();
+                        pkSolutes[pkSol].maxCharge = s.getmaxCharge();
+                        pkSolutes[pkSol].pStates = new double[pkSolutes[pkSol].pKa.length + 1];
+                        int nPstate = 0;
+                        while (nPstate < pkSolutes[pkSol].pStates.length) {
+                            SpatialGrid spec = this._environment.getSpecialGrid(pkSolutes[pkSol].solute + "___" + nPstate);
+                            pkSolutes[pkSol].pStates[nPstate] = getConc(specialGrid, spec.getName(), coord, resorder);
+                            nPstate++;
+                        }
+                        pkSol++;
                     }
                 }
-                pkSol++;
-            }
-            pkSolutes[0] = new PKstruct();
-            pkSolutes[0].solute = "pH";
-            pkSolutes[0].conc = getConc(specialGrid, pkSolutes[0].solute, coord, resorder);
-
-            pkSolutes = pHsolver.solve(pkSolutes);
-            if (true) {
+                pkSolutes[0] = new PKstruct();
+                pkSolutes[0].solute = "pH";
+                pkSolutes[0].conc = getConc(specialGrid, pkSolutes[0].solute, coord, resorder);
+                /* solve */
+                pkSolutes = pHsolver.solve(pkSolutes);
                 pkSol = 1;
-                for (SpatialGrid s : solutes) {
+                while (pkSol < pkSolutes.length) {
                     int nPstate = 0;
                     while (nPstate < pkSolutes[pkSol].pStates.length) {
                         SpatialGrid spec = this._environment.getSpecialGrid(pkSolutes[pkSol].solute + "___" + nPstate);
-                        setConc(specialGrid,spec.getName(), coord, resorder,pkSolutes[pkSol].pStates[nPstate]);
+                        setConc(specialGrid, spec.getName(), coord, resorder, pkSolutes[pkSol].pStates[nPstate]);
                         nPstate++;
                     }
                     pkSol++;
                 }
                 /* store pH */
-                setConc(specialGrid,pkSolutes[0].solute, coord, resorder, pkSolutes[0].conc);
+                setConc(specialGrid, pkSolutes[0].solute, coord, resorder, pkSolutes[0].conc);
             }
         }
     }

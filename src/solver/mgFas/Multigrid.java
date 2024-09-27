@@ -23,6 +23,7 @@ import linearAlgebra.Vector;
 import processManager.ProcessDiffusion;
 import processManager.library.PDEWrapper;
 import solver.PHsolver;
+import solver.PKstruct;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -501,21 +502,47 @@ public class Multigrid
 			_solute[iSolute].readBulk();
 			solMap.put(_solute[iSolute].soluteName, _solute[iSolute].sBulk);
 		}
-
 		Collection<SpatialGrid> solutes = this._environment.getSolutes();
-		HashMap<String,double[]> pKaMap = new HashMap<String,double[]>();
 
+		/* NOTE if we have any activity in the bulk this is simulated in a chemostat compartment, hence this single
+		* pH evaluation here is mostly there for aesthetic purposes and to not confuse the user with default values. */
+		int numStructs=1;
 		for ( SpatialGrid s : solutes ) {
-			if( s.getpKa() != null ) {
-				pKaMap.put(s.getName(), s.getpKa());
-			}
+			if( s.getpKa() != null)
+				numStructs++;
 		}
+		if( numStructs > 1) {
+			PKstruct[] pkSolutes = new PKstruct[numStructs];
+			int pkSol = 1;
+			for (SpatialGrid s : solutes) {
+				if (s.getpKa() != null) {
+					pkSolutes[pkSol] = new PKstruct();
+					pkSolutes[pkSol].solute = s.getName();
+					pkSolutes[pkSol].conc = s.getAverage(ArrayType.CONCN) / s.getMolarWeight(); // convert mass concentration to molar concentration.
+					pkSolutes[pkSol].pKa = s.getpKa();
+					pkSolutes[pkSol].maxCharge = s.getmaxCharge();
+					pkSolutes[pkSol].pStates = new double[pkSolutes[pkSol].pKa.length + 1];
+					int nPstate = 0;
+					while (nPstate < pkSolutes[pkSol].pStates.length) {
+						SpatialGrid spec = this._environment.getSpecialGrid(pkSolutes[pkSol].solute + "___" + nPstate);
+						pkSolutes[pkSol].pStates[nPstate] = spec.getAverage(ArrayType.CONCN);
+						nPstate++;
+					}
+					pkSol++;
+				}
+			}
+			pkSolutes[0] = new PKstruct();
+			pkSolutes[0].solute = "pH";
+			pkSolutes[0].conc = this._environment.getSpecialGrid(pkSolutes[0].solute).getAverage(ArrayType.CONCN);
 
-		if (! pKaMap.isEmpty()) {
-			HashMap<String,Double> specialMap = pHsolver.solve(_environment, solMap, pKaMap);
-			for( SoluteGrid s : this._specialList) {
-				s.updateBulk(specialMap.get(s.gridName));
-				//			s.refreshBoundary();
+			pkSolutes = pHsolver.solve(pkSolutes);
+
+			for (SoluteGrid s : this._specialList) {
+				for (PKstruct p : pkSolutes) {
+					if (p.solute.equals(s.gridName))
+						s.updateBulk(p.conc);
+					break;
+				}
 			}
 		}
 	}

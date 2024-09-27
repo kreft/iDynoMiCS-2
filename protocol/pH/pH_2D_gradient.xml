@@ -7,6 +7,13 @@
 				<speciesModule name="coccoid" />
 				<aspect name="reactions" class="InstantiableList"> 
 					<list nodeLabel="reaction" entryClass="RegularReaction">
+						<reaction name="growth">
+							<expression value="mass*f*Kf">
+								<constant name="Kf" value="0.02" /> 
+							</expression>
+							<stoichiometric component="f" coefficient="-10.0" />
+							<stoichiometric component="mass" coefficient="0.01" />
+						</reaction> 
 					</list>
 				</aspect>
 			</species>
@@ -17,7 +24,7 @@
 				<aspect name="volume" class="SimpleVolumeState" />
 				<aspect name="radius" class="CylinderRadius" />
 				<aspect name="divide" class="CoccoidDivision" />
-				<aspect name="divisionMass" class="Double" value="0.2 [pg]" />
+				<aspect name="divisionMass" class="Double" value="0.5 [pg]" />
 				<aspect name="updateBody" class="UpdateBody" />
 			</species>
 		</speciesLib>
@@ -33,18 +40,21 @@
 				</dimension>
 			</shape>
 			<solutes>
-				<solute name="f" 	pKa="3.142667504"	concentration="0.1" defaultDiffusivity="2000.0 [um+2/s]" biofilmDiffusivity="1500.0 [um+2/s]"  />
-				<solute name="cn"	pKa="9.207608311" 	concentration="0.1" defaultDiffusivity="2000.0 [um+2/s]" biofilmDiffusivity="1500.0 [um+2/s]"  />
-				<solute name="a" 	pKa="9.795880017"	concentration="0.1" defaultDiffusivity="2000.0 [um+2/s]" biofilmDiffusivity="1500.0 [um+2/s]" />
+				<solute name="f" 	pKa="3.142667504"	concentration="0.1" defaultDiffusivity="20.0 [um+2/s]" biofilmDiffusivity="15.0 [um+2/s]"  />
+				<solute name="cn"	pKa="9.207608311" 	concentration="0.1" defaultDiffusivity="20.0 [um+2/s]" biofilmDiffusivity="15.0 [um+2/s]"  />
+				<solute name="a" 	pKa="9.795880017"	concentration="0.1" defaultDiffusivity="20.0 [um+2/s]" biofilmDiffusivity="15.0 [um+2/s]" />
 			</solutes>
-			<spawn class="randomSpawner" domain="32.0, 1.0" priority="0" number="30" morphology="COCCOID">
+			<spawn class="randomSpawner" domain="32.0, 10.0" priority="0" number="200" morphology="COCCOID">
 				<templateAgent>
 					<aspect name="species" class="String" value="bacterium" />
 					<aspect name="mass" class="Double" value="0.2" />
 				</templateAgent>
 			</spawn>
 			<processManagers>
-				<process name="agentRelax"	class="AgentRelaxation" priority="0" />
+				<process name="agentRelax"	class="AgentRelaxation" priority="0" >
+					<aspect name="maxAgentOverlap" class="Double" value="0.25 [um]" />
+					<aspect name="moveGranularity" class="Double" value="0.25" />
+				</process>
 				<process name="PDEWrapper" class="PDEWrapper" priority="1" />
 			</processManagers>
 		</compartment>

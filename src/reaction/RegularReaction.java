@@ -287,6 +287,7 @@ public class RegularReaction
 	@Override
 	public double getProductionRate(Map<String, Double> concentrations, String reactantName, AspectInterface subject)
 	{
+		/* NOTE skips pH */
 		checkNegatives(concentrations);
 		return this.getStoichiometry(reactantName) * this.getRate(concentrations);
 	}
@@ -295,7 +296,7 @@ public class RegularReaction
 	{
 		for ( String s : concentrations.keySet() )
 		{
-			if( concentrations.get(s) < 0.0 )
+			if( concentrations.get(s) < 0.0 &! s.equals("pH") )
 				System.out.println( this.getClass().getSimpleName() +
 						" detecteded negative concentration "+ s + " "  + concentrations.get(s) );
 		}
