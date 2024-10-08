@@ -187,7 +187,7 @@ public abstract class ResolutionCalculator implements Copyable, Instantiable
 	public int getNodeIndex(double location, boolean allowUpperEdges)
 	{
 		if ( location < this._dimension.getExtreme(0) ||
-				location >= this._dimension.getExtreme(1) )
+				location > this._dimension.getExtreme(1) )
 		{
 			if (allowUpperEdges && location == this._dimension.getExtreme(1))
 				location -= this._resolution;
@@ -204,7 +204,7 @@ public abstract class ResolutionCalculator implements Copyable, Instantiable
 	public int getNodeIndex(double location, double resolution)
 	{
 		if ( location < this._dimension.getExtreme(0) ||
-				location >= this._dimension.getExtreme(1) )
+				location > this._dimension.getExtreme(1) )
 		{
 			throw new IllegalArgumentException("Location out of range");
 		}

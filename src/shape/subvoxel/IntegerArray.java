@@ -1,7 +1,7 @@
 package shape.subvoxel;
 
 /**
- * Integer Array is a simple in[] wrapper object which can be used as 
+ * Integer Array is a simple int[] wrapper object which can be used as 
  * identifying key in Map objects (for example to identify coordinates).
  * 
  * Note this object should remain as light and simple as possible, for any other
@@ -23,7 +23,8 @@ public class IntegerArray
 	{
 		this.set(array);
 	}
-	
+
+	/** this should be improved **/
 	@Override
 	public int hashCode()
 	{

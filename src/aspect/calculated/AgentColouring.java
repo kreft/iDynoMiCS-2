@@ -17,6 +17,7 @@ import utility.Helper;
  *
  */
 
+@Deprecated
 public class AgentColouring extends Calculated {
 	
 	public String RED = AspectRef.redComponent;

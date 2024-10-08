@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 
+import aspect.AspectInterface;
 import org.w3c.dom.Element;
 
 import dataIO.XmlHandler;
@@ -227,16 +228,10 @@ public class MetabolicReaction
 		concns.put("uMax", maxGrowth(concns) );
 		return this._kinetic.getValue( concns );
 	}
-	
-	@Override
-	public Map<String, Double> getStoichiometryAtStdConcentration() 
-	{
-		return getStoichiometry(null);
-	}
 
 	@Override
-	public double getProductionRate(Map<String, Double> concns, 
-			String reactantName)
+	public double getProductionRate(Map<String, Double> concns,
+									String reactantName, AspectInterface subject)
 	{
 		return this.getStoichiometry( concns, reactantName ) * 
 				this.getRate( concns );

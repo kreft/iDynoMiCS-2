@@ -69,7 +69,9 @@ public class Node<T> extends Area
 			{
 				this.getEntries().add(entry);
 				if( this.size() > this._tree.maxEntries &! this._atomic )
-					split();
+				{
+						split();
+				}
 			}
 			else
 			{
@@ -95,6 +97,15 @@ public class Node<T> extends Area
 	 */
 	private List<Entry<T>> getEntries() {
 		return _entries;
+	}
+
+
+	public List<T> getAll(List<T> list) {
+		for( Entry<T> e : this.getEntries() )
+			list.add( e.getEntry() );
+		for( Node<T> n : this._nodes )
+			n.getAll(list);
+		return list;
 	}
 
 	/**

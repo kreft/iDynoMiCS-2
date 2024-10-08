@@ -20,6 +20,8 @@ import dataIO.FileHandler;
 import dataIO.FolderOperations;
 import dataIO.Log;
 import dataIO.Log.Tier;
+import expression.Expression;
+import expression.arithmetic.Unit;
 import idynomics.Global;
 import idynomics.Idynomics;
 import idynomics.PostProcess;
@@ -290,11 +292,11 @@ public final class GuiActions
 				if( path.toLowerCase().contains(".xml"))
 				{
 					exi = true;
-					out = path.toLowerCase().replaceAll(".xml", "");
+					out = path.toLowerCase().replaceAll(".xml", ".exi");
 				} else if( path.toLowerCase().contains(".exi"))
 				{
 					exi = false;
-					out = path.toLowerCase().replaceAll(".exi", "");
+					out = path.toLowerCase().replaceAll(".exi", ".xml");
 				}
 				Idynomics.setupSimulator( f.getAbsolutePath() );
 				Idynomics.simulator.saveSimulationState(out, exi);
@@ -305,6 +307,24 @@ public final class GuiActions
 		{
 			Log.out("post-processing cancelled by user");
 		} 		
+	}
+
+	public static void convertUnits()
+	{
+		Log.out( " -- Unit conversion assistant --");
+		String input = Helper.obtainInput("", "input value (fx: 1 [m/s])", false, true);
+		if( Helper.isNullOrEmpty(input))
+		{
+			Log.out( "Canceled by user");
+			return;
+		}
+		Expression e = new Expression(input);
+		Log.out("Input: \t\t"+ input);
+		Log.out("SI: \t\t"+ e.getValue(true) * e.getUnit().modifier() + " [" + e.getUnit().unit() + "]" );
+		Log.out("iDynoMiCS base units: \t" + e.getValue(false) );
+		String format = Helper.obtainInput( "", "output format (fx: um/min)", false, true);
+		if( !Helper.isNullOrEmpty(format))
+			Log.out( e.getValue( format ) + " " + format );
 	}
 	
 	public static void checkProtocol()

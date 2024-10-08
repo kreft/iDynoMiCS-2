@@ -13,7 +13,7 @@ import surface.Point;
  */
 public interface Spring extends Instantiable, Settable {
 	
-	public void applyForces(Shape shape);
+	public double applyForces(Shape shape);
 
 	public void setRestValue(double restValue);
 	

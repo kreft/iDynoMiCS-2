@@ -281,7 +281,8 @@ public abstract class ProcessDeparture extends ProcessManager {
 
 				for (Point p : body.getPoints())
 				{
-					this._shape.applyBoundaries(p.getPosition());
+					p.setPosition(this._shape.applyBoundaries(
+							p.getPosition() ));
 
 					if (!this._shape.isInside(p.getPosition()))
 					{

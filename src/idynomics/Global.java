@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import expression.Expression;
 import org.w3c.dom.Element;
 
 import dataIO.Log;
@@ -22,7 +23,7 @@ import utility.Helper;
 public class Global extends ParameterSet
 {
 
-	/**************************************************************************
+    /**************************************************************************
 	 * Constructing and loading
 	 *************************************************************************/
 	
@@ -130,13 +131,15 @@ public class Global extends ParameterSet
 	/**
 	 * Version description.
 	 */
-	public static String version_description = "version_description";
+	public static String version_description = "November 2023";
 	
 	/**
 	* Version number of this iteration of iDynoMiCS - required by update
 	* procedure.
+	 *
+	 * suggested Major.Minor.YYMMDD
 	*/
-	public static String version_number = "version_number";
+	public static String version_number = "2.0.231109";
 	
 	/**
 	 * default output location
@@ -159,12 +162,14 @@ public class Global extends ParameterSet
 	/**
 	 * enable bookkeeping.
 	 */
-	public static boolean bookkeeping = true;
+	public static boolean bookkeeping = false;
 	
 	/**
 	 * enable csv bookkeeping
 	 */
-	public static boolean csv_bookkeeping = true;
+	public static boolean csv_bookkeeping = false;
+
+	public static boolean log_memory_use = true;
 	
 	/**
 	 * the default color specification for graphical output, NOTE in the future
@@ -249,6 +254,8 @@ public class Global extends ParameterSet
 	 * Supplementary property files to be loaded in after default.
 	 */
 	public static String[] supplementary_property_files;
+
+	public static int agentsToSplit = 500_000;
 
 	/**************************************************************************
 	 * Appearance
@@ -344,7 +351,7 @@ public class Global extends ParameterSet
 	/* 
 	 * Default maximum displacement per step, set default if none.
 	 */
-	public static double mechanical_max_movement = 0.01;
+	public static double mechanical_max_movement = 1.0;
 	
 	/* 
 	 * Default maximum displacement per step, set default if none.
@@ -382,4 +389,11 @@ public class Global extends ParameterSet
 	 * Number of digits (including leading zeros) in file numbering
 	 */
 	public static int file_number_of_digits = 5;
+
+	/**
+	 * fall back spine function for if nothing is set TODO it may be a better option to just
+	 * warn and instruct the user, function might not be the best as a default
+	 */
+	public static Expression fallback_spinefunction =
+			new Expression( "stiffness * ( dh + SIGN(dh) * dh * dh * 100.0 )" );
 }

@@ -2,10 +2,9 @@ package processManager.library;
 
 import static grid.ArrayType.CONCN;
 
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
+import idynomics.Idynomics;
 import org.w3c.dom.Element;
 
 import agent.Agent;
@@ -27,6 +26,7 @@ import shape.CartesianShape;
 import shape.CylindricalShape;
 import shape.Dimension.DimName;
 import shape.Shape;
+import surface.Rod;
 import surface.Surface;
 import utility.ExtraMath;
 import utility.Helper;
@@ -97,6 +97,8 @@ public class GraphicalOutput extends ProcessManager
 	
 	protected ColourSpecification colSpec;
 
+	protected double[] filter;
+
 	
 	/*************************************************************************
 	 * CONSTRUCTORS
@@ -124,11 +126,15 @@ public class GraphicalOutput extends ProcessManager
 		/* ArrayType to plot (CONCN if unspecified_ */
 		str = (String) this.getOr(ARRAY_TYPE, CONCN.toString());
 		this._arrayType = ArrayType.valueOf(str);
+
+		String filename = this.getString( AspectRef.fileName );
+		if( Helper.isNullOrEmpty(filename))
+			filename = "agents";
 		
 		/* Output naming */
 		this._prefix = this._compartmentName + "_";
 		if ( this._solute == null )
-			this._prefix += "agents";
+			this._prefix += filename;
 		else
 			this._prefix += this._solute + "_" + this._arrayType.toString();
 
@@ -144,12 +150,19 @@ public class GraphicalOutput extends ProcessManager
 		
 		this.palette = new Palette( String.valueOf( 
 				this.getOr( AspectRef.colourPalette, Global.default_palette) ) );
+
+		HashMap<String, float[]> gradients = null;
+		if( this.reg().isGlobalAspect(AspectRef.gradientSpecification) )
+			gradients = (HashMap<String, float[]>) this.getValue(AspectRef.gradientSpecification);
 		
 		/* In the future we may want to change the default to "species" */
-		 colSpec = new ColourSpecification(palette, (String)
+		colSpec = new ColourSpecification(palette, (String)
 				 this.getOr( AspectRef.colourSpecification, 
-						 Global.default_colour_specification));
+						 Global.default_colour_specification), gradients, Idynomics.simulator.getCompartment( this._compartmentName) );
 
+		double[] filt = this.getDoubleA( AspectRef.filter );
+		if( !Helper.isNullOrEmpty( filt ) )
+			this._graphics.setFilter( filter = filt );
 	}
 	
 	private Collection<String> options()
@@ -245,14 +258,30 @@ public class GraphicalOutput extends ProcessManager
 		/*
 		 * ^^
 		 */
-		
-		for ( Agent a: _agents.getAllLocatedAndEpithelialAgents() )
+		List<Agent> sortedAgents = this._agents.getAllLocatedAndEpithelialAgents();
+		Collections.sort(sortedAgents, new Agent.AgentComparator());
+
+		for ( Agent a: sortedAgents )
 			if ( a.isAspect(BODY) )
 			{
 				List<Surface> surfaces = ((Body) a.getValue(BODY)).getSurfaces();
-				for( Surface s : surfaces)
-//					this._graphics.draw(s, a.getValue(PIGMENT)); 
-					this._graphics.draw(s, colSpec.colorize(a)); 
+				/* update multi-point surfaces to use their closest shadow/projection point
+				rather than computational domain point to have correct rendering over periodic
+				boundaries
+				 */
+				for( Surface s : surfaces) {
+					Surface renderObject = s;
+					if( s instanceof Rod) {
+						Rod r = (Rod) s;
+						Rod projection = new Rod(r);
+						projection._points[0].setPosition( Helper.searchClosestCyclicShadowPoint(
+								this._shape,
+								projection._points[0].getPosition(),
+								projection._points[1].getPosition() ) );
+						renderObject = projection;
+					}
+					this._graphics.draw(renderObject, colSpec.colorize(a));
+				}
 				
 					
 			}

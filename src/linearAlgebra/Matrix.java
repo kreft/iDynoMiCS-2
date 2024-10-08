@@ -396,6 +396,15 @@ public final class Matrix
 			matrix[i] = Vector.dblFromString(rows[i]);
 		return matrix;
 	}
+
+	public static float[][] fltFromString(String matrixString)
+	{
+		String[] rows = matrixString.split(DELIMITER);
+		float[][] matrix = new float[rows.length][];
+		for ( int i = 0; i < rows.length; i++ )
+			matrix[i] = Vector.fltFromString(rows[i]);
+		return matrix;
+	}
 	
 	/**
 	 * \brief Returns integer matrix in string format.
@@ -423,7 +432,20 @@ public final class Matrix
 		return out.toString();
 	}
 
+	public static String toString(float[][] matrix)
+	{
+		StringBuffer out = new StringBuffer();
+		toString(matrix, out);
+		return out.toString();
+	}
 	public static String toString(double[][] matrix, String delimiter)
+	{
+		StringBuffer out = new StringBuffer();
+		toString(matrix, out, delimiter);
+		return out.toString();
+	}
+
+	public static String toString(float[][] matrix, String delimiter)
 	{
 		StringBuffer out = new StringBuffer();
 		toString(matrix, out, delimiter);
@@ -466,7 +488,23 @@ public final class Matrix
 		Vector.toString(matrix[n], buffer);
 	}
 
+	public static void toString(float[][] matrix, StringBuffer buffer, String delimiter)
+	{
+		int n = matrix.length - 1;
+		for ( int i = 0; i < n; i++ )
+		{
+			Vector.toString(matrix[i], buffer);
+			buffer.append(delimiter);
+		}
+		Vector.toString(matrix[n], buffer);
+	}
+
 	public static void toString(double[][] matrix, StringBuffer buffer)
+	{
+		toString(matrix, buffer, DELIMITER);
+	}
+
+	public static void toString(float[][] matrix, StringBuffer buffer)
 	{
 		toString(matrix, buffer, DELIMITER);
 	}

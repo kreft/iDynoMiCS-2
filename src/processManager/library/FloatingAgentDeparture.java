@@ -16,6 +16,8 @@ import processManager.ProcessDeparture;
 import referenceLibrary.AspectRef;
 import surface.Surface;
 import surface.collision.Collision;
+import utility.ExtraMath;
+import utility.Helper;
 
 /**
  * This process manager removes groups of floating agents from a spatial
@@ -33,11 +35,40 @@ public class FloatingAgentDeparture extends ProcessDeparture {
 	
 	private double _searchDistance;
 	
+	public static String FEWNEIGHBOURSREMOVAL = 
+			AspectRef.fewNeighboursRemoval;
+	
+	/**
+	 * Optional - defines number of neighbours considered "few"
+	 */
+	private int _fewNeighboursRemoval;
+	
+	public static String FEWNEIGHBOURSREMOVALPROB = 
+			AspectRef.fewNeighboursRemovalProbability;
+	
+	/**
+	 * Optional - defines probability of an agent with "few" neighbours
+	 * being removed
+	 */
+	private double _fewNeighboursRemovalProbability;
+	
 	public void init(Element xmlElem, EnvironmentContainer environment, 
 			AgentContainer agents, String compartmentName)
 	{
 		super.init(xmlElem, environment, agents, compartmentName);
 		this._searchDistance = this.getDouble(SEARCH_DISTANCE);
+		
+		if (!Helper.isNullOrEmpty(this.getInt(FEWNEIGHBOURSREMOVAL)))
+		{
+			this._fewNeighboursRemoval =
+					this.getInt(FEWNEIGHBOURSREMOVAL);
+		}
+		
+		if (!Helper.isNullOrEmpty(this.getDouble(FEWNEIGHBOURSREMOVALPROB)))
+		{
+			this._fewNeighboursRemovalProbability =
+					this.getDouble(FEWNEIGHBOURSREMOVALPROB);
+		}
 	}
 	
 	
@@ -296,6 +327,18 @@ public class FloatingAgentDeparture extends ProcessDeparture {
 				{
 					attachedBins.add(receivingBin);
 					unattachedBins.remove(receivingBin);
+				}
+			}
+			
+			if (!Helper.isNullOrEmpty(this._fewNeighboursRemoval))
+			{
+				if (trueNeighbours.size() <= this._fewNeighboursRemoval)
+				{
+					if( ExtraMath.getUniRandDbl() <
+							this._fewNeighboursRemovalProbability )
+					{
+						agentsToRemove.add(focalAgent);
+					}
 				}
 			}
 		}

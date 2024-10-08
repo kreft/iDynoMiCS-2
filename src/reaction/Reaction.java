@@ -1,5 +1,7 @@
 package reaction;
 
+import aspect.AspectInterface;
+
 import java.util.Collection;
 import java.util.Map;
 
@@ -32,15 +34,9 @@ public interface Reaction {
 	Collection<String> getConstituentNames();
 
 	/**
-	 * @return This reaction's whole stoichiometric dictionary (given standard 
-	 * concentrations of 1 mol/L at pH 7.0).
-	 */
-	Map<String, Double> getStoichiometryAtStdConcentration();
-
-	/**
 	 * @return the production rate of a given chemical species.
 	 */
-	double getProductionRate(Map<String, Double> concentrations, 
-			String reactantName);
+	double getProductionRate(Map<String, Double> concentrations,
+							 String reactantName, AspectInterface subject);
 
 }

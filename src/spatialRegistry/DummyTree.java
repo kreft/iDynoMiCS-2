@@ -19,6 +19,11 @@ public class DummyTree<T> implements SpatialRegistry<T>
 		this._emptyList = new LinkedList<T>();
 	}
 
+	public List<T> getAll( List<T> list )
+	{
+		return list;
+	}
+
 	@Override
 	public List<T> search(double[] low, double[] high)
 	{

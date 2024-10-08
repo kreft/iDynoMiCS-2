@@ -45,8 +45,10 @@ public class Differentiate extends Event
 					initiator.reg().removeModules();
 					initiator.reg().addModule( diffs[0] );
 					
-					if( initiator.isAspect(XmlRef.species) )
+					if( initiator.isAspect(XmlRef.species) ) {
 						initiator.set(XmlRef.species, diffs[0]);
+					}
+
 				}
 			}
 		}

@@ -12,9 +12,11 @@ package solver.mgFas;
 import dataIO.Log;
 import idynomics.Global;
 import processManager.library.PDEWrapper;
+import shape.subvoxel.IntegerArray;
 import utility.ExtraMath;
 import linearAlgebra.Array;
 
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -124,37 +126,37 @@ public class MultigridSolute
 	 * Should be ok not to fill this with zeros at initialisation, as it should
 	 * be filled in fillDiff() before it's ever called.
 	 */
-	private static final double[][][] _diff = new double[3][3][3];
+	private final double[][][] _diff = new double[3][3][3];
 	
 	/**
 	 * 
 	 */
-	private static double[][][] u;
+	private double[][][] u;
 	
 	/**
 	 * 
 	 */
-	private static double[][][] rd;
+	private double[][][] rd;
 	
 	/**
 	 * 
 	 */
-	private static double[][][] bl;
+	private double[][][] bl;
 	
 	/**
 	 * 
 	 */
-	private static int _i;
+	private int _i;
 	
 	/**
 	 * 
 	 */
-	private static int _j;
+	private int _j;
 	
 	/**
 	 * 
 	 */
-	private static int _k;
+	private int _k;
 	
 	/**
 	 * 
@@ -164,22 +166,22 @@ public class MultigridSolute
 	/**
 	 * 
 	 */
-	private static int maxOrder;
+	private int maxOrder;
 	
 	/**
 	 * Size of original solute grid in I direction
 	 */
-	private static int _nI;
+	private int _nI;
 	
 	/**
 	 * Size of original solute grid in J direction
 	 */
-	private static int _nJ;
+	private int _nJ;
 	
 	/**
 	 * Size of original solute grid in K direction
 	 */
-	private static int _nK;
+	private int _nK;
 
 	private PDEWrapper manager;
 	
@@ -390,15 +392,14 @@ public class MultigridSolute
 		double smallestConc = MultigridUtils.smallestNonZero( this._conc[order].grid ,
 				NEGLIGIBLE * NEGLIGIBLE ); // only for reporting
 
-		if ( Log.shouldWrite( Log.Tier.EXPRESSIVE ) )
-			System.out.println( this.soluteName + " order: " + order +
-					", ratio: " + maxRatio + ", smallest concentration: " +
-					smallestConc + ", max local residual: " + locResidual );
+//		if ( Log.shouldWrite( Log.Tier.EXPRESSIVE ) )
+//			System.out.println( this.soluteName + " order: " + order +
+//					", ratio: " + maxRatio + ", smallest concentration: " +
+//					smallestConc + ", max local residual: " + locResidual );
 
 		if ( Log.shouldWrite(Log.Tier.DEBUG) ) {
 			Log.out(Log.Tier.DEBUG,
-					this.getClass().getSimpleName() + " vCycle stagnated:\n "
-							+ "\torder: " + order + ", ratio: " + maxRatio
+							"\torder: " + order + ", ratio: " + maxRatio
 							+ ", \n\tsmallest concentration: " + smallestConc
 							+ ", \n\tmax local residual: " + locResidual);
 		}
@@ -415,7 +416,8 @@ public class MultigridSolute
 		/* Diminishing change in residual, the solver seems to have stopped converging. */
 		if ( Log.shouldWrite(Log.Tier.DEBUG) ||
 				almostEqual( _res[order], locResidual,locResidual * 1e-6 ) ) {
-			Log.out( Log.Tier.CRITICAL, this.soluteName + " stagnant Vcycle in "
+			/* This doesn't need to be a problem and often is resolved in the following vCycle. */
+			Log.out( Log.Tier.NORMAL, this.soluteName + " stagnant Vcycle in "
 					+ this.getClass().getSimpleName() + " residual res: " + locResidual );
 		}
 		this._res[order] = locResidual;
@@ -746,6 +748,30 @@ public class MultigridSolute
 						_conc[order].grid[_i][_j][_k] = sBulk;
 					}
 				}
+	}
+
+	/**
+	 * fetch a collection of all valid coordinates for this order
+	 *
+	 * Storing this might provide a speed bump
+	 * @param order
+	 * @return
+	 */
+	public Collection<IntegerArray> fetchCoords(int order) {
+		int maxI = _conc[order].getGridSizeI();
+		int maxJ = _conc[order].getGridSizeJ();
+		int maxK = _conc[order].getGridSizeK();
+		LinkedList<IntegerArray> coords = new LinkedList<IntegerArray>();
+
+		for (_i = 1; _i <= maxI; _i++)
+			for (_j = 1; _j <= maxJ; _j++)
+				for (_k = 1; _k <= maxK; _k++) {
+					coords.add(new IntegerArray(new int[] {
+							Integer.valueOf(_i),
+							Integer.valueOf(_j),
+							Integer.valueOf(_k) }));
+				}
+		return coords;
 	}
 
 	/**

@@ -15,7 +15,9 @@ import dataIO.Log.Tier;
  */
 public class XmlRef
 {
-    public static String[] getAllOptions()
+
+
+	public static String[] getAllOptions()
 	{
 		Field[] fields = XmlRef.class.getFields();
 		String[] options = new String[fields.length];
@@ -436,7 +438,10 @@ public class XmlRef
 	 * Name of the compartment for a boundary's partner boundary.
 	 */
 	public final static String partnerCompartment = "partnerCompartment";
-
+	
+	/**
+	 * TODO
+	 */
 	public final static String dominant = "dominant";
 	
 	/**
@@ -701,4 +706,11 @@ public class XmlRef
 	public static final String record = "record";
 
 	public static String nodeSystem = "nodeSystem";
+
+	public static String xmlImport = "import";
+
+	public static String forceFunction = "forceFunction";
+
+	public static String collisionDictionary = "collisionDictionary";
+
 }

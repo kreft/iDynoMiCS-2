@@ -41,6 +41,8 @@ public interface SpatialRegistry<T>
 		return this.search(pointLocation, pointLocation);
 	}
 
+	public List<T> getAll( List<T> list );
+
 	/**
 	 * \brief TODO
 	 * 

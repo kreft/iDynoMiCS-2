@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+	<simulation name="AobNob_big7" outputfolder="../results" log="EXPRESSIVE" randomSeed="12432423"
+		comment="this is a file for testing purposes only.">
+		<!-- minutes -->
+		<timer stepSize="1.0 [d]" endOfSimulation="300.0[day]" />
+		<speciesLib>
+			<species name="AOO">
+				<speciesModule name="coccoid" />
+				<speciesModule name="producer" />
+				<speciesModule name="bacterium" />
+				<aspect name="reactions" type="PRIMARY"  class="InstantiableList"> 
+					<list class="RegularReaction" nodeLabel="reaction" 
+					entryClass="RegularReaction" keyClass="String" keyLabel="name">
+						<reaction name="growth">
+							<expression value="mass * mumax * 
+									( ammonium / ( ammonium + Kam ) ) * 
+									( oxygen / ( oxygen + Kox ) )">
+								<!-- pg/µm3 --> 
+								<constant name="Kam" 	value="2.4 [g/m+3]" /> 
+								<constant name="Kox" 	value="0.6 [g/m+3]" />
+								<!-- per minute -->
+								<constant name="mumax" 	value="2.05 [d-1]" />  
+							</expression>
+							<stoichiometric component="mass" 		coefficient="1.0" />
+							<stoichiometric component="eps" 		coefficient="0.33" />
+							<stoichiometric component="ammonium" 	coefficient="-6.7497" />
+							<stoichiometric component="nitrite" 	coefficient="6.6667" />
+							<stoichiometric component="oxygen" 		coefficient="-21.867" />
+						</reaction> 
+						<reaction name="decay">
+							<expression value="mass * b"> <!-- before (b + d) -->
+								<constant name="b" 	value="0.13 [d-1]" />  
+								<!-- <constant name="d" 	value="1.0E-5" />  -->
+							</expression>
+							<stoichiometric component="mass" 		coefficient="-1.0" />
+						</reaction>
+					</list>
+				</aspect>
+			</species>
+			
+			<species name="NOO">
+				<speciesModule name="coccoid" />
+				<speciesModule name="producer" />
+				<speciesModule name="bacterium" />
+				<aspect name="reactions" type="PRIMARY"  class="InstantiableList"> 
+					<list class="RegularReaction" nodeLabel="reaction" 
+					entryClass="RegularReaction" keyClass="String" keyLabel="name">
+						<reaction name="growth">
+							<expression value="mass * mumax * 
+									( nitrite / ( nitrite + Kni ) ) * 
+									( oxygen / ( oxygen + Kox ) ) * 
+									( ammonium / ( ammonium +Kam ) )">
+								<!-- pg/µm3 --> 
+								<constant name="Kni" 	value="5.5 [g/m+3]" /> 
+								<constant name="Kox" 	value="2.2 [g/m+3]" />
+								<constant name="Kam" 	value="0.01 [g/m+3]" />
+								<!-- per minute -->
+								<constant name="mumax" 	value="1.45 [d-1]" />  
+							</expression>
+							<stoichiometric component="mass" 		coefficient="1.0" />
+							<stoichiometric component="eps" 		coefficient="0.33" />
+							<stoichiometric component="ammonium" 	coefficient="-0.08" />
+							<stoichiometric component="nitrite" 	coefficient="-24.3902439" />
+							<stoichiometric component="nitrate" 	coefficient="24.3902439" />
+							<stoichiometric component="oxygen" 		coefficient="-26.80" />
+						</reaction> 
+						<reaction name="decay">
+							<expression value="mass * b"> <!-- before (b + d) -->
+								<constant name="b" 	value="0.06 [d-1]" />  
+								<!-- <constant name="d" 	value="1.0E-5" />  -->
+							</expression>
+							<stoichiometric component="mass" 		coefficient="-1.0" />
+						</reaction>
+					</list>
+				</aspect>
+			</species>
+			
+			<species name="bacterium">
+				<aspect name="differentiate" class="Differentiate" />
+				<aspect name="differentiationMap" class="InstantiableMap">
+					<map entryClass="String" keyType="String">
+						<item key="mass LT 0.4" value="inert"  />
+					</map>
+				</aspect>
+			</species>
+			
+			<species name="inert">
+			<speciesModule name="coccoid" />
+				<aspect name="pigment" type="PRIMARY" class="String" value="GRAY" />
+			</species>
+			
+			<species name="producer">
+				<aspect name="randomize" class="String" value="mass" 	 />
+				<aspect name="factor" class="Double" value="0.3"	 />
+				<aspect name="produce" class="InternalProduction" 	 />
+				<aspect name="epsExcretion" class="ExcreteEPSCumulative" 	 />
+				<aspect name="maxInternalEPS" class="Double" value="0.5" />
+				<aspect name="epsDist" class="Double" value="0.5" />
+				<aspect name="epsSpecies" class="String" value="particleEPS" />
+			</species>
+			
+			<species name="particleEPS">
+				<speciesModule name="coccoid" />
+				<aspect name="volume" class="SimpleVolumeState" />
+				<aspect name="divisionMass" class="Double" value="1.0" />
+			</species>
+
+			<species name="coccoid">
+				<!-- pg / µm^3-->
+				<aspect name="density" 		type="PRIMARY" 		class="Double" 				value="3.0e-1" />
+				<aspect name="#isLocated" 	type="PRIMARY" 		class="Boolean" 			value="true" />
+				<aspect name="surfaces"		type="CALCULATED"	class="AgentSurfaces"		/>
+				<aspect name="morphology" 	type="PRIMARY" 		class="String" 				value="coccoid" />
+				<aspect name="volume" 		type="CALCULATED" 	class="SimpleVolumeState" 	/>
+				<aspect name="radius" 		type="CALCULATED" 	class="CoccoidRadius" 		/>
+				<aspect name="divide" 		type="EVENT" 		class="CoccoidDivision"		/>
+				<!-- Dry division mass (pg) -->
+				<aspect name="divisionMass"	class="Double"		value="2.0" 				/>
+				<aspect name="updateBody" 	type="EVENT" 		class="UpdateBody" 			/>
+				<aspect name="searchDist"	type="PRIMARY"		class="Double"				value="0.5"  />
+			</species>
+		</speciesLib>
+		<compartment name="biofilm"  priority="1">
+			<shape class="Cuboid" resolutionCalculator="MgFASResolution" nodeSystem="true">
+				<!-- µm -->
+				<dimension name="X" isCyclic="true" 	targetResolution="15.625" max="500.0"/>
+				<dimension name="Y" isCyclic="false" 	targetResolution="15.625" max="500.0">
+					<boundary extreme="1" class="FixedBoundary" layerThickness = "62.5">
+						<solute name="ammonium" concentration="1.0 [mg/l]" />
+						<solute name="oxygen" 	concentration="8.74 [mg/l]" />
+						<solute name="nitrite" 	concentration="1.0 [mg/l]" />
+						<solute name="nitrate" 	concentration="1.0 [mg/l]" />
+					</boundary>
+				</dimension>
+				<dimension name="Z" isCyclic="true" 	targetResolution="15.625" max="500.0"/>
+			</shape>
+			<solutes>
+				<!-- Initial concentrations pg / µm2 -->
+				<solute name="ammonium" concentration="1.0 [mg/l]" defaultDiffusivity="118055.556" />
+				<solute name="oxygen" 	concentration="8.74 [mg/l]" defaultDiffusivity="138888.889" />
+				<solute name="nitrite" 	concentration="1.0 [mg/l]" defaultDiffusivity="118055.556" />
+				<solute name="nitrate" 	concentration="1.0 [mg/l]" defaultDiffusivity="118055.556" />
+			</solutes>
+			<reactions>
+			</reactions>
+			<spawn class="randomSpawner" domain="500.0, 2.0, 500.0" priority="0" number="1000" morphology="COCCOID">
+				<templateAgent>
+					<aspect name="species" type="PRIMARY" class="String" value="AOO" />
+					<aspect  name="mass" class="Double" value="1.0"  />
+					<aspect  name="eps" class="Double" value="0.0"  />
+				</templateAgent>
+			</spawn>
+			<spawn class="randomSpawner" domain="500.0, 2.0, 500.0" priority="0" number="1000" morphology="COCCOID">
+				<templateAgent>
+					<aspect name="species" type="PRIMARY" class="String" value="NOO" />
+					<aspect  name="mass" class="Double" value="1.0"  />
+					<aspect  name="eps" class="Double" value="0.0"  />
+				</templateAgent>
+			</spawn>
+			<processManagers>
+				<!-- minute -->
+				<process name="agentRelax"	class="AgentRelaxation" priority="0"
+					firstStep="0.0">
+					<!-- µm -->
+					<aspect name="maxMovement" 		 class="Double" value="0.5" />
+					<aspect name="relaxationMethod"  class="String" value="EULER" />
+					<aspect name="moveGranularity" class="Double" value="0.1" />
+					<aspect name="maxAgentOverlap" class="Double" value="1.0" />
+				</process>
+				<!-- minute -->
+				<process name="PDEWrapper" class="PDEWrapper" priority="1" firstStep="0.0">
+					<aspect name="solverResidualRatioThreshold" class="Double" value="1.0E-3" />
+					<aspect name="autoVcycleAdjust" class="Boolean" value="true" />
+					<!-- µm^2 ms^-1-->
+				</process>
+				<process name="povWriter" class="GraphicalOutput"  priority="-3"
+					firstStep="0.0">
+					<aspect name="outputWriter" type="PRIMARY" class="String" value="PovExport" />
+				</process>
+				<process name="summary" class="Summary"  priority="2"
+					firstStep="0.0">
+					<aspect name="includeHeader" type="PRIMARY" class="Boolean" value="TRUE" />
+					<aspect name="fileName" type="PRIMARY" class="String" value="bioflm" />
+					<aspect name="tableSpecification" type="PRIMARY" class="String"
+					value="mass ? species == AOO | mass  ? species == NOO | mass  ? species == particleEPS | mass  ? species == inert" />
+				</process>
+			</processManagers>
+		</compartment>
+	</simulation>
+</document>

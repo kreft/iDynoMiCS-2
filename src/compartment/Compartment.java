@@ -289,9 +289,12 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable, C
 		 */
 		Spawner spawner;
 		TreeMap<Integer,Spawner> spawners = new TreeMap<Integer,Spawner>();
-		for ( Element e : 
-			XmlHandler.getDirectChildElements(xmlElem, XmlRef.spawnNode) )
+
+		List<Spawner> spawnerList = new LinkedList<Spawner>();
+		for ( Element e : XmlHandler.getDirectChildElements( xmlElem, XmlRef.spawnNode) )
 		{
+			if ( e.hasAttribute( XmlRef.classAttribute ) )
+			{
 				spawner = (Spawner) Instance.getNew(e, this);
 				/* check for duplicate priority */
 				int priority = Helper.nextAvailableKey(
@@ -304,9 +307,15 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable, C
 								+ "by simulator.");
 				}
 				spawners.put(priority, spawner);
-
+				spawnerList.add(spawner);
+			}
 		}
-		/* verify whether this always returns in correct order (it should) */
+		
+
+
+		Collections.sort(spawnerList, new Spawner.spawnComparator());
+		
+		
 		for( Spawner s : spawners.values() )
 			s.spawn();
 		
@@ -315,12 +324,26 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable, C
 					" initialised with " + this.agents.getNumAllAgents() +
 					" agents.");
 
+
+		Element agents = XmlHandler.findUniqueChild(xmlElem, XmlRef.agents);
+
+		/*
+		 * Potential imports
+		 */
+		Collection<Element> imports = XmlHandler.getElements( agents, XmlRef.xmlImport);
+		for ( Element e : imports ) {
+			Element imported = XmlHandler.loadDocument(e.getAttribute(XmlRef.valueAttribute));
+			for (Element a : XmlHandler.getElements(imported, XmlRef.agent)) {
+				this.agents.addAgent(new Agent(a, this), true);
+			}
+		}
+
 		/*
 		 * Read in agents.
 		 */
-		Element agents = XmlHandler.findUniqueChild(xmlElem, XmlRef.agents);
-		for ( Element e : XmlHandler.getElements( agents, XmlRef.agent) )
-			this.addAgent(new Agent( e, this ));
+			for (Element a : XmlHandler.getElements(agents, XmlRef.agent)) {
+				this.agents.addAgent(new Agent(a, this), true);
+			}
 		
 		for ( Element e : XmlHandler.getElements( agents, XmlRef.epithelium ))
 		{
@@ -362,19 +385,19 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable, C
 					(ProcessManager) Instance.getNew(e, this, (String[])null));
 		}
 		
-		for ( Element e : XmlHandler.getElements(
-				xmlElem, XmlRef.arrivalProcesses) )
-		{
-			this.addProcessManager(
-					(ProcessManager) Instance.getNew(e, this, (String[])null));
-		}
-
-		for ( Element e : XmlHandler.getElements(
-				xmlElem, XmlRef.departureProcesses) )
-		{
-			this.addProcessManager(
-					(ProcessManager) Instance.getNew(e, this, (String[])null));
-		}
+//		for ( Element e : XmlHandler.getElements(
+//				xmlElem, XmlRef.arrivalProcesses) )
+//		{
+//			this.addProcessManager(
+//					(ProcessManager) Instance.getNew(e, this, (String[])null));
+//		}
+//
+//		for ( Element e : XmlHandler.getElements(
+//				xmlElem, XmlRef.departureProcesses) )
+//		{
+//			this.addProcessManager(
+//					(ProcessManager) Instance.getNew(e, this, (String[])null));
+//		}
 
 		for ( Element e : XmlHandler.getElements(xmlElem,XmlRef.physicalObject))
 		{

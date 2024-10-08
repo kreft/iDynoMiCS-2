@@ -10,6 +10,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
+
 import org.w3c.dom.Element;
 import agent.Agent;
 import agent.Body;
@@ -24,7 +25,6 @@ import dataIO.XmlHandler;
 import dataIO.Log.Tier;
 import grid.SpatialGrid;
 import idynomics.Global;
-import idynomics.Idynomics;
 import instantiable.Instance;
 import linearAlgebra.Vector;
 import reaction.Reaction;
@@ -244,7 +244,7 @@ public abstract class ProcessDiffusion extends ProcessManager
 	 */
 	protected void applyEnvReactions(Collection<SpatialGrid> solutes)
 	{
-		Collection<RegularReaction> reactions = this._environment.getReactions();
+		Collection<Reaction> reactions = this._environment.getReactions();
 		if ( reactions.isEmpty() )
 		{
 			if( Log.shouldWrite(Tier.NORMAL) )
@@ -301,7 +301,7 @@ public abstract class ProcessDiffusion extends ProcessManager
 					{
 						if ( product.equals(soluteGrid.getName()) )
 						{
-							productRate = r.getProductionRate( concns, product);
+							productRate = r.getProductionRate( concns, product, null);
 							soluteGrid.addValueAt(PRODUCTIONRATE,
 									coord, productRate);
 							totals.put(product,
@@ -337,6 +337,23 @@ public abstract class ProcessDiffusion extends ProcessManager
 	public void setupAgentDistributionMaps(Shape shape)
 	{
 		int nDim = this._agents.getNumDims();
+		int initial = 2;
+		float loading = 1.0f;
+
+		/** avoid a massive amount of default size hashmaps if not needed **/
+		switch( _distributionMethod ) {
+			case MIDPOINT:
+				/* default case */
+				break;
+			case COLLISION:
+				/* up to as many voxels 1 agent can hit */
+				initial = 4;
+				break;
+			case SUBGRID:
+				/* many points */
+				initial = 16;
+				loading = 0.75f;
+		}
 		
 		/*
 		 * Reset the agent biomass distribution maps.
@@ -347,8 +364,8 @@ public abstract class ProcessDiffusion extends ProcessManager
 			if ( a.isAspect(VD_TAG) )
 				mapOfMaps = (Map<Shape, HashMap<IntegerArray,Double>>)a.get(VD_TAG);
 			else
-				mapOfMaps = new HashMap<Shape, HashMap<IntegerArray,Double>>();
-			mapOfMaps.put(shape, new HashMap<IntegerArray,Double>());
+				mapOfMaps = new HashMap<Shape, HashMap<IntegerArray,Double>>(initial,loading);
+			mapOfMaps.put(shape, new HashMap<IntegerArray,Double>(initial,loading));
 			a.set(VD_TAG, mapOfMaps);
 		}
 		double[] location;

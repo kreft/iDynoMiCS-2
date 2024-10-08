@@ -13,10 +13,10 @@ import utility.Helper;
 
 /**
  * Probability-based removal process for dimensionless compartments. User should
- * provide a detachment rate (Agents per minute).
- * 
- * @author Tim
+ * provide a detachment rate (Per minute) at which agents leave the compartment.
+ * This should in theory be based on the size of area they are leaving through.
  *
+ * Based on AgentDetachment
  */
 
 public class AgentsLeaveChemostat extends ProcessDeparture
@@ -44,9 +44,6 @@ public class AgentsLeaveChemostat extends ProcessDeparture
 	 * Agents A can be expressed as:
 	 * 
 	 * dA/dt = -rA -> A(t) = A(0)*exp(-rt)
-	 * 
-	 * We only consider removal from the biofilm surface and refer to this as 
-	 * detachment.
 	 */
 	@Override
 	public LinkedList<Agent> agentsDepart()
