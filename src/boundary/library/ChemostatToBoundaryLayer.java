@@ -4,6 +4,7 @@
 package boundary.library;
 import org.w3c.dom.Element;
 
+import boundary.Boundary;
 import boundary.spatialLibrary.BiofilmBoundaryLayer;
 import settable.Settable;
 
@@ -13,7 +14,7 @@ import settable.Settable;
  * 
  * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
-public class ChemostatToBoundaryLayer extends ChemostatBoundary
+public class ChemostatToBoundaryLayer extends Boundary
 {
 	/**
 	 * \brief This boundary's behaviour for grabbing agents to be removed by

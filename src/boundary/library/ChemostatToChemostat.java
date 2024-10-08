@@ -16,7 +16,7 @@ import utility.Helper;
  * 
  * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
-public class ChemostatToChemostat extends ChemostatBoundary
+public class ChemostatToChemostat extends Boundary
 {
 	/**
 	 * \brief This boundary's behaviour for grabbing agents to be removed by
