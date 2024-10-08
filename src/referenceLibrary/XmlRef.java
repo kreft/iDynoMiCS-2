@@ -570,7 +570,7 @@ public class XmlRef
 	 * This parameter determines whether solutes are removed along with the
 	 * solvent during outflow.
 	 */
-	public static final String soluteRemoval = "soluteRemoval";
+	public static final String soluteRetention = "soluteRetention";
 	/**
 	 * Indicates sub folder (set for SA or GA).
 	 */

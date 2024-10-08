@@ -37,8 +37,8 @@ public class ChemostatToChemostat extends ChemostatBoundary
 		if (! XmlHandler.hasAttribute(xmlElement, XmlRef.constantVolume))
 			this.setVolumeFlowRate( XmlHandler.obtainDouble( 
 					xmlElement, XmlRef.volumeFlowRate, this.defaultXmlTag()));
-		this._soluteRemoval = Helper.setIfNone( XmlHandler.gatherBoolean(
-				xmlElement, XmlRef.soluteRemoval ), true);
+		this._soluteRetention = Helper.setIfNone( XmlHandler.gatherBoolean(
+				xmlElement, XmlRef.soluteRetention ), false);
 	}
 
 	

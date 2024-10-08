@@ -50,8 +50,8 @@ public class ChemostatOut extends ChemostatBoundary
 					xmlElement, XmlRef.volumeFlowRate, this.defaultXmlTag()));
 		else
 			this.constantVolume = true;
-		this._soluteRemoval = Helper.setIfNone( XmlHandler.gatherBoolean(
-				xmlElement, XmlRef.soluteRemoval ), true);
+		this._soluteRetention = Helper.setIfNone( XmlHandler.gatherBoolean(
+				xmlElement, XmlRef.soluteRetention ), false);
 	}
 	
 	@Override

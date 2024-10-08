@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document>
-	<simulation name="NoSoluteRemovalTest" outputfolder="../results" log="EXPRESSIVE"
+	<simulation name="SoluteRetentionTest" outputfolder="../results" log="EXPRESSIVE"
 		comment="this is a file for testing purposes only.">
 		<!-- minutes -->
 		<timer stepSize="1.0" endOfSimulation="9.0" />
 		<compartment name="test">
 			<shape class="Dimensionless" volume="0.4[l]">
-				<boundary  class="chemostatOut" volumeFlowRate="-0.04[l]" soluteRemoval="false">
+				<boundary  class="chemostatOut" volumeFlowRate="-0.04[l]" soluteRetention="true">
 				</boundary> 
 			</shape>
 			<solutes>

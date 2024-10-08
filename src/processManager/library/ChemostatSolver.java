@@ -263,7 +263,7 @@ public class ChemostatSolver extends ProcessManager
 						 * Solutes will flow out at an equivalent rate
 						 * if the boundary has solute removal
 						 */
-						if (aBoundary.soluteRemoval())
+						if (!aBoundary.soluteRetention())
 						{
 							for ( int i = 0; i < _n; i++ )
 								dydt[i] += volFlowRate * (y[i]/y[_n]);
