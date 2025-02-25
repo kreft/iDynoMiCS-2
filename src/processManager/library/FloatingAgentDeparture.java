@@ -136,7 +136,7 @@ public class FloatingAgentDeparture extends ProcessDeparture {
 		Boolean attached;
 		
 		
-		for ( Agent focalAgent : this._agents.getAllAgents() )
+		for ( Agent focalAgent : this._agents.getAllNonEpithelialAgents() )
 		{
 			/*
 			 * By default, agents are assumed to be floating.

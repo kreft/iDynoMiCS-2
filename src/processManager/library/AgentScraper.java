@@ -64,7 +64,7 @@ public class AgentScraper extends ProcessDeparture {
 
 		/* scrape agents based on their mass point position */
 		if(this._centerPointRemoval) {
-			List<Agent> allAgents = this._agents.getAllAgents();
+			List<Agent> allAgents = this._agents.getAllNonEpithelialAgents();
 
 			for (Agent a : allAgents) {
 				List<Point> points = ((Body) a.getValue(AspectRef.agentBody)).

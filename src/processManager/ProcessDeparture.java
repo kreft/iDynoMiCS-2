@@ -271,7 +271,7 @@ public abstract class ProcessDeparture extends ProcessManager {
 
 		if (this._shape.getNumberOfDimensions() > 0)
 		{
-			for (Agent a : this._agents.getAllAgents())
+			for (Agent a : this._agents.getAllNonEpithelialAgents())
 			{
 
 				/*

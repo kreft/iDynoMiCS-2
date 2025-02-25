@@ -153,7 +153,10 @@ public abstract class ProcessManager implements Instantiable, AspectInterface,
 		/* Initial time to step. */
 		double time = Idynomics.simulator.timer.getCurrentTime();
 		if ( XmlHandler.hasAttribute(p, XmlRef.processFirstStep) )
-			time = Double.valueOf(p.getAttribute(XmlRef.processFirstStep) );
+		{
+			time = XmlHandler.obtainDouble(p, XmlRef.processFirstStep,
+					this.defaultXmlTag());
+		}
 		this.setTimeForNextStep(time);
 		/* Time step size. */
 		time = Idynomics.simulator.timer.getTimeStepSize();
