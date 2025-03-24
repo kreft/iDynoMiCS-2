@@ -567,7 +567,7 @@ public class Body implements Copyable, Instantiable, Settable
 				if (spineLength <= 0.0)
 				{
 					Idynomics.simulator.interupt("Rod cell rest spine length"
-							+ "so to value of " + spineLength + ". Length "
+							+ "set to value of " + spineLength + ". Length "
 							+ "should be greater than 0 to avoid errors. "
 							+ "Consider changing parameters for rod cells "
 							+ "to make them longer.");
