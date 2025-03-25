@@ -131,15 +131,15 @@ public class Global extends ParameterSet
 	/**
 	 * Version description.
 	 */
-	public static String version_description = "November 2023";
+	public static String version_description = "March 2025";
 	
 	/**
-	* Version number of this iteration of iDynoMiCS - required by update
+	* Version number of this iteration of eGUT - required by update
 	* procedure.
 	 *
 	 * suggested Major.Minor.YYMMDD
 	*/
-	public static String version_number = "2.0.231109";
+	public static String version_number = "1.2.250325";
 	
 	/**
 	 * default output location
