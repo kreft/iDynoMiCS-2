@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+	<simulation name="bacilli" outputfolder="../results" log="NORMAL" 
+		randomSeed="42"	comment="this is a file for testing purposes only.">
+		
+		<timer stepSize="0.5 [h]" endOfSimulation="5.0 [d]" />
+		
+		<speciesLib>
+			<!-- species/species library The species library contains all agent species 
+				in the simulations. This may include microbial species, plasmid and vector 
+				species, particle species etc. Species states are states that are in principal 
+				identical for all agents of that species. However note that iDynoMiCS 2.0 
+				does allow you to overwrite states on agent level. Thus if a state is defined 
+				both on species level and on agent level, the agent state will be used in 
+				the simulation. small test -->
+			<species name="rAOB">
+				<aspect name="reactions" type="PRIMARY"  class="InstantiableList"> 
+ 					<list class="RegularReaction" nodeLabel="reaction" entryClass="RegularReaction" keyClass="String" keyLabel="name">
+						<reaction name="testReact">
+							<expression value="mass * solute1 * k">
+								<constant name="k" value="90.0" />
+							</expression>
+							<stoichiometric component="mass" coefficient="1.0" />
+							<stoichiometric component="solute1" coefficient="-5.0" />
+							<stoichiometric component="solute2" coefficient="0.5" />
+						</reaction> 
+ 					</list>
+				</aspect>
+				<speciesModule name="rod" />
+			</species>
+			<species name="rOne" >
+				<speciesModule name="rAOB" />
+			</species>
+			<species name="rTwo" >
+				<speciesModule name="rAOB" />
+			</species>
+			<species name="rod">
+				<aspect name="surfaces"		class="AgentSurfaces"	  />
+				<aspect name="volume" 		class="SimpleVolumeState" 	/>
+				<aspect name="radius" 		class="Double" 					value="0.3" />
+				<aspect name="divisionMass" class="Double" 					value="0.6" />
+				<aspect name="divide" 		class="RodDivision"		 />
+				<aspect name="#isLocated" 	class="Boolean" value="true" />
+				<aspect name="updateBody" 	class="UpdateBody" 	 />
+				<aspect name="directionalDivision" class="Boolean" value="true" />
+				<aspect name="agentSpineFunction" class="Expression" value="stiffness * dh"/>
+				<aspect name="spineStiffness" class="Double" value="0.56 [fN]" />
+			</species>
+		</speciesLib>
+		<compartment name="second">
+			<orientation variable="0.0,0.0,1.0" />
+			<shape class="Cuboid" resolutionCalculator="MgFASResolution" nodeSystem="true">
+				<dimension name="X" isCyclic="true" targetResolution="2.0" max="32.0">
+				</dimension> 
+				<dimension name="Y" isCyclic="true" targetResolution="2.0" max="32.0">
+				</dimension> 
+				<dimension name="Z" isCyclic="false" targetResolution="2.0" max="32.0">
+					<boundary extreme="1" class="BiofilmBoundaryLayer" partnerCompartment="chemostat" layerThickness = "4.0"/>
+				</dimension> 
+			</shape>
+			<solutes>
+				<solute name="solute1" concentration="8.74 [mg/l]" defaultDiffusivity="138888.889"  />
+				<solute name="solute2" concentration="0.0" defaultDiffusivity="138888.889"  />
+			</solutes>
+			<reactions>
+			</reactions>
+			<agents>
+				<agent>				
+					<aspect name="species" class="String" value="rOne" />
+					<aspect name="mass" class="Double" value="0.5" />
+					<aspect name="density" class="Double" value="1" />
+					<spawn number="1" domain="32.0,32.0,0.1" points="2" />
+				</agent>
+				<agent>		
+					<aspect name="species" class="String" value="rTwo" />
+					<aspect name="mass" class="Double" value="0.5" />
+					<aspect name="density" class="Double" value="1" />
+					<spawn number="1" domain="32.0,32.0,0.1" points="2" />
+				</agent>
+			</agents>
+			<processManagers>
+				<process name="svgWriter" class="GraphicalOutput"  priority="-3"
+					firstStep="0.0">
+					<aspect name="outputWriter" type="PRIMARY" class="String" value="SvgExport" />
+				</process>
+				<process name="povWriter" class="GraphicalOutput"  priority="-3"
+					firstStep="0.0">
+					<aspect name="outputWriter" type="PRIMARY" class="String" value="PovExport" />
+				</process>
+				<process name="agentRelax"	class="AgentRelaxation" priority="0"
+					firstStep="0.0">
+					<!-- µm -->
+					<aspect name="maxMovement" 		 class="Double" value="0.5" />
+					<aspect name="relaxationMethod"  class="String" value="EULER" />
+					<aspect name="moveGranularity" class="Double" value="0.1" />
+					<aspect name="maxAgentOverlap" class="Double" value="0.5" />
+					<aspect name="gravity_testing" class="Boolean" value="true" />
+					<aspect name="stressThreshold" class="Double" value="0.03 [fN]" />
+				</process>
+				<process name="PDEWrapper" class="PDEWrapper" priority="1" firstStep="0.0">
+					<aspect name="solverResidualRatioThreshold" class="Double" value="1.0E-3" />
+					<aspect name="autoVcycleAdjust" class="Boolean" value="true" />
+					<!-- µm^2 ms^-1-->
+				</process>
+			</processManagers>
+		</compartment>
+		<compartment name="chemostat" priority="2">
+			<shape class="Dimensionless" volume="4.0e15" /> 
+			<solutes>
+				<solute name="solute1" 	concentration="8.74 [mg/l]" defaultDiffusivity="138888.889" />
+				<solute name="solute2" 	concentration="0.0 [mg/l]" defaultDiffusivity="138888.889" />
+			</solutes>
+			<processManagers>
+				<process name="solveChemostat" class="ChemostatSolver" priority="0"
+					firstStep="0.0">
+					<aspect name="soluteNames" type="PRIMARY" class="String[]" value="solute2" />
+					<aspect name="hMax" type="PRIMARY" class="Double" value="0.1" />
+					<aspect name="solver" type="PRIMARY" class="String" value="heun" />
+					<aspect name="tolerance" class="Double" value="1.0E-6" />
+				</process>
+			</processManagers>
+		</compartment>
+	</simulation>
+</document>

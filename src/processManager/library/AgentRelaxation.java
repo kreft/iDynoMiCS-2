@@ -58,7 +58,6 @@ public class AgentRelaxation extends ProcessManager
 	
 	public String BODY = AspectRef.agentBody;
 	public String RADIUS = AspectRef.bodyRadius;
-	public String VOLUME = AspectRef.agentVolume;
 	public String DIVIDE = AspectRef.agentDivision;
 	public String MASS = AspectRef.agentMass;
 	
@@ -181,13 +180,13 @@ public class AgentRelaxation extends ProcessManager
 	 * limit duration of biofilm compression 
 	 */
 	private double compresionDuration = 0.0;
-	
+
 	/**
 	 * TODO check whether implementation is finished
 	 * Default spine function, fall back for if none is defined by the agent.
 	 */
-	private Expression _spineFunction = 
-			new Expression( "stiffness * ( dh + SIGN(dh) * dh * dh * 100.0 )" );
+	//private Expression _spineFunction =
+	//		new Expression( "stiffness * ( dh + SIGN(dh) * dh * dh * 100.0 )" );
 	
 	private Boolean _decompression;
 	
@@ -202,6 +201,9 @@ public class AgentRelaxation extends ProcessManager
 	double vs;
 	/* highest force in the system */
 	double st;
+
+	Double pull = null;
+	Double searchDist = null;
 
 	double maxAgentOverlap = 0.1;
 
@@ -223,7 +225,7 @@ public class AgentRelaxation extends ProcessManager
 				0.1 );
 
 		this.moveGranularity = Helper.setIfNone( this.getDouble(AspectRef.moveGranularity),
-				0.3 );
+				0.05 );
 
 		this.shoveFactor = Helper.setIfNone( this.getDouble(AspectRef.shoveFactor),
 				1.25 );
@@ -278,13 +280,6 @@ public class AgentRelaxation extends ProcessManager
 		this.compresionDuration = Helper.setIfNone( 
 				this.getDouble(COMPRESSION_DURATION), 0.0 );
 		
-		/* Set default spine function for rod type agents, this function is
-		 * used if it is not overwritten by the agent, obtain
-		 * ComponentExpression from process manager otherwise fall back default
-		 * is used. */
-		if ( ! Helper.isNullOrEmpty( this.getValue(SPINE_FUNCTION) ) )
-			this._spineFunction = new Expression((String) this.getValue(SPINE_FUNCTION));
-		
 		/* Include decompression */
 		this._decompression = Helper.setIfNone( this.getBoolean(DECOMPRESSION), 
 				false);
@@ -324,7 +319,8 @@ public class AgentRelaxation extends ProcessManager
 
 		/* Mechanical relaxation */
 		while( tMech < this.getTimeStepSize() && nstep < this._maxIter) 
-		{	
+		{
+			Log.setStatus( "Mechanical Relaxation: " + nstep );
 			this._agents.refreshSpatialRegistry();
 			this._iterator.resetOverlap();
 
@@ -364,15 +360,17 @@ public class AgentRelaxation extends ProcessManager
 		}
 		/* Leave with a clean spatial tree. */
 		this._agents.refreshSpatialRegistry();
+		if( this.st != 0.0 )
+			Log.out( Tier.EXPRESSIVE, "residualStress " + this.st);
 
 		if( Log.shouldWrite( Tier.EXPRESSIVE ) )
 		{
 			if (nstep == this._maxIter )
 				Log.out( Tier.EXPRESSIVE, this.getName() +
-						" stop condition iterations: " + this._maxIter);
+						" stop condition max cycles: " + this._maxIter);
 			else
 				Log.out( Tier.EXPRESSIVE, this.getName() +
-						" reached relaxation criteria, iterations: " + nstep );
+						" reached relaxation criteria, cycles: " + nstep );
 		}
 	}
 
@@ -429,11 +427,31 @@ public class AgentRelaxation extends ProcessManager
 				}
 			}
 
-			if ( this._iterator.maxOverlap() > -maxAgentOverlap)
+			boolean stressed = false;
+
+			if ( this._iterator.maxOverlap() < -maxAgentOverlap)
 			{
 				// system relaxed can stop loop
-				return 0.0;
+				stressed = true;
 			}
+
+			if ( this._stressThreshold > 0.0 )
+			{
+				double f, fMax = 0.0;
+				for( Agent agent : agents)
+					for( Point p : ((Body) agent.get(BODY)).getPoints())
+					{
+						f = Vector.normEuclid( p.getForce() );
+						if( f > fMax )
+							fMax = f;
+					}
+				if ( fMax > this._stressThreshold )
+					stressed = true;
+				this.st = fMax;
+			}
+			/* if both thresholds are set, both need to be met in order to not be stressed */
+			if( !stressed )
+				return 0.0;
 
 			/* NOTE: stochastic movement really should only be used with static dt.
 			 *
@@ -471,10 +489,11 @@ public class AgentRelaxation extends ProcessManager
 										   AgentContainer aContainer, boolean hs)
 	{
 		Collection<Agent> out = new LinkedList<Agent>();
+		Body body;
 		/* Calculate forces. */
 		for ( Agent agent: agents )
 		{
-			Body body = (Body) agent.get(AspectRef.agentBody);
+			body = (Body) agent.get(AspectRef.agentBody);
 			List<Surface> agentSurfs = body.getSurfaces();
 
 			if( hs )
@@ -487,7 +506,6 @@ public class AgentRelaxation extends ProcessManager
 			
 			/* spring operations */
 			springEvaluation(agent, body);
-			
 			/* Look for neighbors and resolve collisions */
 			neighboorhoodEvaluation(agent, agentSurfs, aContainer);
 			/*
@@ -558,7 +576,7 @@ public class AgentRelaxation extends ProcessManager
 	private Collection<Agent> neighboorhoodEvaluation(Agent agent, List<Surface> surfaces,
 										 AgentContainer agentContainer, boolean hs)
 	{
-		double searchDist = (agent.isAspect(SEARCH_DIST) ?
+		searchDist = (agent.isAspect(SEARCH_DIST) ?
 				agent.getDouble(SEARCH_DIST) : 0.0);
 		
 		/* Perform neighborhood search and perform collision detection and
@@ -570,7 +588,6 @@ public class AgentRelaxation extends ProcessManager
 			{
 				/* obtain maximum distance for which pulls should be considered
 				 */
-				Double pull = null;
 				if( searchDist != 0.0 )
 				{
 					agent.event(PULL_EVALUATION, neighbour);
@@ -581,8 +598,8 @@ public class AgentRelaxation extends ProcessManager
 
 				/* pass this agents and neighbor surfaces as well as the pull
 				 * region to the collision iterator to update the net forces. */
-				this._iterator.collision(surfaces, agent, 
-						((Body) neighbour.get(BODY)).getSurfaces(), neighbour, 
+				this._iterator.collision(surfaces, agent,
+						((Body) neighbour.get(BODY)).getSurfaces(), neighbour,
 						pull);
 			}
 		return nhbs;
@@ -621,10 +638,10 @@ public class AgentRelaxation extends ProcessManager
 						Expression spineFun;
 						if ( !Helper.isNullOrEmpty( a.getValue(
 								AspectRef.agentSpineFunction )))
-							spineFun = new Expression((String) 
-									a.getValue(AspectRef.agentSpineFunction ));
+							spineFun = (Expression)
+									a.getValue(AspectRef.agentSpineFunction );
 						else
-							spineFun = this._spineFunction;
+							spineFun = Global.fallback_spinefunction;
 						s.setSpringFunction( spineFun );
 					}
 					else if( s instanceof TorsionSpring )
@@ -643,9 +660,19 @@ public class AgentRelaxation extends ProcessManager
 						s.setSpringFunction( torsFun );
 					}
 				}
-				s.applyForces(this._shape);
-				if(Log.shouldWrite(Tier.DEBUG))
-					Log.out(Tier.DEBUG,s.toString());
+				double distOrAngle = s.applyForces(this._shape);
+
+				/* update overlap number for step size scaling
+				 this might make less sense for torsion springs */
+				if( s instanceof LinearSpring) {
+					_iterator.updateOverlap( Math.abs( distOrAngle ) );
+				}
+				else if( s instanceof TorsionSpring )
+				{
+					_iterator.updateOverlap( Math.abs( distOrAngle*0.1 ) );
+				}
+//				if(Log.shouldWrite(Tier.DEBUG))
+//					Log.out(Tier.DEBUG,s.toString());
 			}
 		}
 	}
@@ -671,7 +698,7 @@ public class AgentRelaxation extends ProcessManager
 		if ( tMech < compresionDuration || compresionDuration == 0.0 )
 		{
 			/* note should be mass per point */
-			double fg = agent.getDouble(MASS) * 1e-12 * 35.316e9 /* 1E16 */ * Global.density_difference;
+			double fg = agent.getDouble(MASS) * /* 1e-12 * 35.316e9 */ 1E9 * Global.density_difference;
 			double[] fgV;
 			
 			if( this._shape.isOriented() )

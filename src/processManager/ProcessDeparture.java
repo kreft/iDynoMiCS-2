@@ -271,7 +271,7 @@ public abstract class ProcessDeparture extends ProcessManager {
 
 		if (this._shape.getNumberOfDimensions() > 0)
 		{
-			for (Agent a : this._agents.getAllAgents())
+			for (Agent a : this._agents.getAllNonEpithelialAgents())
 			{
 
 				/*
@@ -281,7 +281,8 @@ public abstract class ProcessDeparture extends ProcessManager {
 
 				for (Point p : body.getPoints())
 				{
-					this._shape.applyBoundaries(p.getPosition());
+					p.setPosition(this._shape.applyBoundaries(
+							p.getPosition() ));
 
 					if (!this._shape.isInside(p.getPosition()))
 					{

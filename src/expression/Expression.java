@@ -361,6 +361,9 @@ public class Expression extends Component implements Settable
 		/* 
 		 * Do the operator stuff here, in the same order that they appear in
 		 * OPERATORS.
+		 * FIXME: we should group operators according to PEMDAS order instead of going 1 by 1
+		 *  eg. if multiplication comes after division in an expression it should not be handled first!
+		 * 	for now always use breakets to make sure evaluation order is correct.
 		 */
 		for ( String oper : OPERATORS )
 			for ( Integer i : eval.keySet() )
@@ -620,6 +623,8 @@ public class Expression extends Component implements Settable
 				new Power(Arithmetic.ten(), flipSign((Component) calc.get(next))));
 		case ("LOG"): 
 			return new Logarithm((Component) calc.get(next),Arithmetic.ten());
+		case ("LOGE"):
+			return new Logarithm((Component) calc.get(next),Arithmetic.euler());
 		case ("SIGN"): 
 			return 	new Sign((Component) calc.get(next));
 		case ("SIGN-"): 
@@ -700,6 +705,7 @@ public class Expression extends Component implements Settable
 		case("SQRT"):
 		case("SQRT-"):
 		case ("LOG"):
+		case ("LOGE"):
 		case("SIGN"):
 		case("SIGN-"):
 		case ("NOT"): 
@@ -759,6 +765,19 @@ public class Expression extends Component implements Settable
 	public double getValue()
 	{
 		return this.format( Idynomics.unitSystem );
+	}
+
+	public double getValue(String format)
+	{
+		return this.getUnit().format( format ) * this.getValue(true);
+	}
+
+	public double getValue( boolean originalFormating )
+	{
+		if( originalFormating )
+			return this.getValue( new HashMap<String,Double>() );
+		else
+			return getValue();
 	}
 	
 	/**

@@ -34,6 +34,15 @@ public class SplitTree<T> implements SpatialRegistry<T>
 	
 	private double[] _lengths;
 
+	/**
+	 * FIXME implement
+	 * @param list
+	 * @return
+	 */
+	public List<T> getAll( List<T> list )
+	{
+		return this.node.getAll(list);
+	}
 	
 	public SplitTree(int max, 
 			double[] low, double[] high, boolean[] periodic)

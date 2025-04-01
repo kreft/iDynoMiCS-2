@@ -13,6 +13,7 @@ import dataIO.Log.Tier;
 import dataIO.XmlHandler;
 import generalInterfaces.Copyable;
 import generalInterfaces.HasBoundingBox;
+import idynomics.Idynomics;
 import instantiable.Instance;
 import instantiable.Instantiable;
 import linearAlgebra.Matrix;
@@ -241,6 +242,7 @@ public class Body implements Copyable, Instantiable, Settable
 			default: 
 				break;
 		}
+		this.constructBody();
 	}
 	
 	public Body(Morphology morphology, Point[] points, double length,
@@ -562,6 +564,15 @@ public class Body implements Copyable, Instantiable, Settable
 		{
 			if (s instanceof Rod)
 			{
+				if (spineLength <= 0.0)
+				{
+					Idynomics.simulator.interupt("Rod cell rest spine length"
+							+ "set to value of " + spineLength + ". Length "
+							+ "should be greater than 0 to avoid errors. "
+							+ "Consider changing parameters for rod cells "
+							+ "to make them longer.");
+				}
+				
 				this.spine.setRestValue(spineLength);
 				((Rod) s).setLength(spineLength);
 				((Rod) s).setRadius(radius);

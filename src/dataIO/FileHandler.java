@@ -1,15 +1,9 @@
 package dataIO;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -179,6 +173,7 @@ public class FileHandler
 	// make a new file with unique name.
 	public void fnew(String file)
 	{
+		_file = file;
 		if ( Global.write_to_disc ) 
 		{
 			if ( file.split("/").length > 1 )
@@ -254,6 +249,31 @@ public class FileHandler
 					Log.printToScreen(e.toString(), false);
 					Log.printToScreen("skipped line: " + text, false);
 				}
+			}
+		}
+	}
+
+	public void write(StringWriter StringWriter)
+	{
+		if ( Global.write_to_disc )
+		{
+			if ( this._encoding) {
+					outputBuffer.append(StringWriter.toString());
+			}
+			else
+			{
+				String text = "";
+				try {
+					text = StringWriter.toString();
+					this._output.write(text);
+					if (this._flushAll)
+						this._output.flush();
+
+				} catch (IOException e) {
+					Log.printToScreen(e.toString(), false);
+					Log.printToScreen("skipped line: " + text, false);
+				}
+
 			}
 		}
 	}
@@ -338,5 +358,14 @@ public class FileHandler
 	public boolean isReady()
 	{
 		return ( this._output != null );
+	}
+
+	public String toString()
+	{
+		Collection<String> file = this.fopen(_file);
+		StringBuffer out = new StringBuffer();
+		for( String s : file )
+			out.append(s);
+		return out.toString();
 	}
 }

@@ -43,6 +43,13 @@ public class Agent implements AspectInterface, Settable, Instantiable
 	protected static int UNIQUE_ID = 0;
 	protected int _uid;
 
+	public static class AgentComparator implements java.util.Comparator<Agent> {
+		@Override
+		public int compare(Agent a, Agent b) {
+			return a._uid - b._uid;
+		}
+	}
+
 	/**
 	 * The compartment the agent is currently in
 	 */
@@ -52,7 +59,7 @@ public class Agent implements AspectInterface, Settable, Instantiable
 	 * The aspect registry
 	 */
 	protected AspectReg _aspectRegistry = new AspectReg();
-	private Settable _parentNode;
+
 	
 	private Epithelium _epithelium;
 	
@@ -169,7 +176,6 @@ public class Agent implements AspectInterface, Settable, Instantiable
 		this._compartment = (Compartment) parent.getParent();
 		loadAspects(xmlElement);
 		this.initiate();
-		this._parentNode = parent;
 	}
 		
 	/* FIXME work in progress */
@@ -226,8 +232,8 @@ public class Agent implements AspectInterface, Settable, Instantiable
 	public Agent(Agent agent)
 	{
 		this._aspectRegistry.duplicate(agent);
-		this.initiate();
 		this._compartment = agent.getCompartment();
+		this.initiate();
 	}
 
 	/*************************************************************************
@@ -361,6 +367,8 @@ public class Agent implements AspectInterface, Settable, Instantiable
 	 * Agent's with only one point will have their location co-ordinates
 	 * simplified to zeros. Agent's with multiple points will have each 
 	 * co-ordinate reduced by the lowest value in that dimension.
+	 * 
+	 * Review whether this is useful
 	 */
 	public void simplifyLocation()
 	{
@@ -443,13 +451,13 @@ public class Agent implements AspectInterface, Settable, Instantiable
 	@Override
 	public void setParent(Settable parent) 
 	{
-		this._parentNode = parent;
+		//this._parentNode = parent;
 	}
 	
 	@Override
 	public Settable getParent() 
 	{
-		return this._parentNode;
+		return this._compartment;
 	}
 	
 	public Epithelium getEpithelium()

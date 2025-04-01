@@ -151,6 +151,12 @@ public class ClassRef
 			aspect.calculated.SimpleVolumeState.class.getName();
 	
 	/**
+	 * structured volume state
+	 */
+	public final static String structuredVolumeState =
+			aspect.calculated.StructuredVolumeState.class.getName();
+	
+	/**
 	 * class reference to the StateExpression
 	 */
 	public final static String expressionAspect = 
@@ -194,6 +200,12 @@ public class ClassRef
 	 */
 	public final static String agentMassProportion =
 			aspect.calculated.StructuredBiomassCalculation.class.getName();
+
+	public final static String localConcentrations =
+			aspect.calculated.LocalConcentrations.class.getName();
+
+	public final static String localConcentration =
+			aspect.calculated.LocalConcentration.class.getName();
 
 	/* ************************************************************************
 	 * Class reference library : Aspects - Event
@@ -520,6 +532,13 @@ public class ClassRef
 	 */
 	public final static String agentsArriveInChemostat = 
 			processManager.library.AgentsArriveInChemostat.class.getName();
+
+	public final static String analysis =
+			processManager.library.Analysis.class.getName();
+
+	public final static String analysisTrait =
+			processManager.library.AnalysisTrait.class.getName();
+	
 	
 	/* ************************************************************************
 	 * IdynoMiCS main classes
@@ -725,7 +744,11 @@ public class ClassRef
 	 */
 	public static final String reaction =
 			reaction.RegularReaction.class.getName();
-	
+
+	public static final String flexibleReaction =
+			reaction.FlexibleReaction.class.getName();
+
+
 	/**
 	 * TODO
 	 */
@@ -767,7 +790,7 @@ public class ClassRef
 			String.class.getName();
 	
 	/**		
-	* String		
+	* String FIXME?? not sure whether java standard types should even be here, see also objectRef
 	*/		
 	public final static String doub =		
 				Double.class.getName();
@@ -788,7 +811,7 @@ public class ClassRef
 	public static final String chemical = 
 			chemical.Chemical.class.getName();
 
-	public static final String orientation = 
+	public static final String orientation =
 			linearAlgebra.Orientation.class.getName();
 	
 	

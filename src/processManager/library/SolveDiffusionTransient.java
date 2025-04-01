@@ -211,29 +211,30 @@ public class SolveDiffusionTransient extends ProcessDiffusion
 				 * variables (although there is likely to be a large overlap).
 				 */
 				
-				for ( String product : r.getReactantNames() )
+				for ( String productName : r.getReactantNames() )
 				{
 					double quantity;
-					productRate = r.getProductionRate(concns,product);
 					
-					if ( this._environment.isSoluteName(product) )
+					productRate = r.getProductionRate(concns,productName, agent);
+					
+					if ( this._environment.isSoluteName(productName) )
 					{
-						solute = this._environment.getSoluteGrid(product);
+						solute = this._environment.getSoluteGrid(productName);
 						quantity = 
 								productRate * volume * this.getTimeStepSize();
 						solute.addValueAt(PRODUCTIONRATE, coord.get(), quantity
 								);
 					}
-					else if ( newBiomass.containsKey(product) )
+					else if ( newBiomass.containsKey(productName) )
 					{
 						quantity = 
 								productRate * this.getTimeStepSize() * volume;
-						newBiomass.put(product, newBiomass.get(product)
+						newBiomass.put(productName, newBiomass.get(productName)
 								+ quantity );
 					}
 					/* FIXME this can create conflicts if users try to mix mass-
 					 * maps and simple mass aspects	 */
-					else if ( agent.isAspect(product) )
+					else if ( agent.isAspect(productName) )
 					{
 						/*
 						 * Check if the agent has other mass-like aspects
@@ -241,7 +242,7 @@ public class SolveDiffusionTransient extends ProcessDiffusion
 						 */
 						quantity = 
 								productRate * this.getTimeStepSize() * volume;
-						newBiomass.put(product, agent.getDouble(product)
+						newBiomass.put(productName, agent.getDouble(productName)
 								+ quantity);
 					}
 					else
@@ -249,16 +250,16 @@ public class SolveDiffusionTransient extends ProcessDiffusion
 						quantity = 
 								productRate * this.getTimeStepSize() * volume;
 						//TODO quick fix If not defined elsewhere add it to the map
-						newBiomass.put(product, quantity);
+						newBiomass.put(productName, quantity);
 						System.out.println("agent reaction catched " + 
-								product);
+								productName);
 						// TODO safety?
 
 					}
 					if( Global.bookkeeping )
 						agent.getCompartment().registerBook(
 								EventType.REACTION, 
-								product, 
+								productName, 
 								String.valueOf( agent.identity() ), 
 								String.valueOf( quantity ), null );
 				}

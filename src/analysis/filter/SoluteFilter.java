@@ -16,6 +16,13 @@ public class SoluteFilter implements Filter
 		this._compartment = compartment;
 		this._solute = filter.split("%")[1];
 	}
+
+	/**
+	 * TODO: investigate overlap with specs EnvironmentSpecification
+	 * @param subject
+	 * @param format
+	 * @return
+	 */
 	@Override
 	public String stringValue(AspectInterface subject, String format) {
 		if ( this._solute.equals( XmlRef.volume ) )

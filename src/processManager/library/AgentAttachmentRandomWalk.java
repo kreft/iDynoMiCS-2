@@ -255,8 +255,6 @@ public class AgentAttachmentRandomWalk extends ProcessArrival {
 				}
 				
 				}
-				
-				this._agents.addAgent( agent );
 			}
 			
 			//If the compartment is not empty...
@@ -273,6 +271,8 @@ public class AgentAttachmentRandomWalk extends ProcessArrival {
 				this.relocateAgent(agent, points);
 			}
 		}
+		for (Agent agent : arrivals)
+			this._agents.addAgent( agent );
 	}
 	
 	
@@ -376,6 +376,13 @@ public class AgentAttachmentRandomWalk extends ProcessArrival {
 				}
 			}
 			
+			/**
+			 * This can trigger if agent is above the domain in the
+			 * dimension it is "falling" through after just one
+			 * moveAlongDimension. Rework, or find way to ignore a
+			 * dimension.
+			 * 
+			 */
 			else
 				return false;
 		}
@@ -406,7 +413,8 @@ public class AgentAttachmentRandomWalk extends ProcessArrival {
 			 * the compartment.
 			 */
 			for (Point p : points)
-				this._shape.applyBoundaries( p.getPosition() );
+				p.setPosition(this._shape.applyBoundaries(
+						p.getPosition() ));
 			
 			/*
 			 * Look for boundaries
@@ -421,8 +429,6 @@ public class AgentAttachmentRandomWalk extends ProcessArrival {
 					{
 						//If agent has hit a solid spatial boundary, add it to
 						//the compartment.
-						this._agents.addAgent( agent );
-						
 						break attachmentLoop;
 					}
 				}
@@ -455,14 +461,12 @@ public class AgentAttachmentRandomWalk extends ProcessArrival {
 					this._agents.agentSearch(agent, this._pull);
 			if (neighbours.size() > 1)
 			{
-				this._agents.addAgent( agent );
 				break attachmentLoop;
 			}
 			
 			oldPoints.clear();
 			
 			oldPoints = this.copyPoints(points);
-			
 		}
 	}
 	

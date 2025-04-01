@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+	<simulation name="simple" outputfolder="../results" log="EXPRESSIVE" randomSeed="12">
+		<timer stepSize="1 [s]" endOfSimulation="1000 [s]" />
+		<speciesLib>
+			<species name="basicAgent">
+				<speciesModule name="coccoid" />
+			</species>
+			<species name="coccoid">
+				<aspect name="randomize" class="String" value="mass" 	 />
+				<aspect name="factor" class="Double" value="0.5"	 />
+				<aspect name="density" 		class="Double" value="1.5e-2" />
+				<aspect name="#isLocated" 	class="Boolean" value="true" />
+				<aspect name="surfaces"		class="AgentSurfaces"		/>
+				<aspect name="morphology" 	class="String" value="coccoid" />
+				<aspect name="volume" 		class="SimpleVolumeState" 	/>
+				<aspect name="radius" 		class="CylinderRadius" 		/>
+				<aspect name="updateBody" 	class="UpdateBody" 			/>
+			</species>
+		</speciesLib>
+		<compartment name="test">
+			<shape class="Rectangle" resolutionCalculator="MgFASResolution" nodeSystem="true">
+				<dimension name="X" isCyclic="true" 	targetResolution="20.0" max="640.0"/>
+				<dimension name="Y" isCyclic="false" 	targetResolution="20.0" max="640.0" />
+			</shape>
+			<solutes/>
+			<spawn class="randomSpawner" domain="640.0, 20.0" priority="0" number="500" morphology="COCCOID">
+				<templateAgent>
+					<aspect name="species" class="String" value="basicAgent" />
+					<aspect name="mass" class="Double" value="2.0"/>
+				</templateAgent>
+			</spawn>
+			<processManagers>
+				<process name="agentRelax"	class="AgentRelaxation" priority="0" firstStep="0.0">
+					<aspect name="stressThreshold" class="Double" value="0.0000001 [fN]" />
+					<aspect name="maxIterations" class="Integer" value="1" />
+					maxIterations
+				</process>
+				<process name="povWriter" class="GraphicalOutput"  priority="1"
+					firstStep="0.0" >
+					<aspect name="outputWriter" type="PRIMARY" class="String" value="PovExport" />
+				</process>
+			</processManagers>
+		</compartment>
+	</simulation>
+</document>

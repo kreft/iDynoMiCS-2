@@ -18,6 +18,10 @@ import referenceLibrary.XmlRef;
  * aspects from xml.
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
+ *
+ * TODO: investigate mixed use of primitive and object type such as double and Double
+ * advantage of object type might be that it does not directly lead to a crash if it happens to be
+ * set to null.
  */
 public abstract interface AspectInterface
 {
@@ -140,9 +144,9 @@ public abstract interface AspectInterface
 	 * @param aspect
 	 * @return
 	 */
-	public default Double[] getDoubleA(String aspect)
+	public default double[] getDoubleA(String aspect)
 	{
-		return (Double[]) this.reg().getValue(this, aspect);
+		return (double[]) this.reg().getValue(this, aspect);
 	}
 	
 	/**

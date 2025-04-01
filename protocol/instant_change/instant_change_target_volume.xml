@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+	<simulation name="testing_instant_change_target_volume" outputfolder="../results" log="EXPRESSIVE"
+		comment="this is a file for testing purposes only.">
+		<!-- minutes -->
+		<timer stepSize="1.0" endOfSimulation="9.0" />
+		<compartment name="second">
+			<shape class="Dimensionless" volume="0.4[l]">
+				<boundary  class="chemostatOut" volumeFlowRate="-0.1 [l/min]" />
+			</shape>
+			<solutes>
+				<!-- pg / µm3 -->
+				<solute name="polysaccharide" concentration="6.00E-06" defaultDiffusivity="1.0E-10 [m+2/s]" />
+			</solutes>
+			<processManagers>
+				<process name="solveChemostat" class="ChemostatSolver" priority="0">
+					<aspect name="soluteNames" type="PRIMARY" class="String[]"
+						value="polysaccharide" />
+					<aspect name="hMax" type="PRIMARY" class="Double" value="60.0" />
+					<aspect name="solver" type="PRIMARY" class="String" value="heun" />
+					<aspect name="tolerance" class="Double" value="1.0E-6" />
+				</process>
+				<process name="intermittentDilution" class="InstantChange" timerStepSize="2.0" priority="1">
+					<aspect  name="volumeTarget" class="Double" value="0.4 [l]" />
+					<aspect  name="soluteConcentrations" class="InstantiableMap">
+						<map entryClass="Double" keyType="String">
+							<item key="polysaccharide" value="0.0"  />
+						</map>
+					</aspect>
+				</process>
+			</processManagers>
+		</compartment>
+	</simulation>
+</document>

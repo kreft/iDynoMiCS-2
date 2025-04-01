@@ -271,53 +271,6 @@ public abstract class SpatialBoundary extends Boundary
 		}
 	}
 	
-	/* ***********************************************************************
-	 * AGENT TRANSFERS
-	 * **********************************************************************/
-	
-	/**
-	 * \brief Helper method for placing agents in the arrivals lounge at random
-	 * locations along the boundary surface.
-	 * 
-	 * <p>Non-located agents are added to the agent container and removed from
-	 * the arrivals lounge, so that all remaining agents are located.</p>
-	 * 
-	 * @param agentCont The {@code AgentContainer} that should accept the 
-	 * {@code Agent}s.
-	 */
-	protected void placeAgentsRandom()
-	{
-		for ( Agent anAgent : this._arrivalsLounge )
-		{
-			if (IsLocated.isLocated(anAgent) )
-				{
-				placeAgentRandom(anAgent);
-				}
-			else
-				{
-				this._arrivalsLounge.remove(anAgent);
-				this._agents.addAgent(anAgent);
-				}
-		}
-	}
-	
-	protected void placeAgentRandom(Agent anAgent)
-	{
-		double[] newLoc;
-		Shape aShape = this._agents.getShape();
-		Tier level = Tier.DEBUG;
-		Body body;
-		newLoc = aShape.getRandomLocationOnBoundary(
-				this._dim, this._extreme);
-		if ( Log.shouldWrite(level) )
-		{
-			Log.out(level, "Placing agent (UID: "+anAgent.identity()+
-					") at random location: "+ newLoc.toString());
-		}
-		body = (Body) anAgent.get(AspectRef.agentBody);
-		body.relocate(newLoc);
-	}
-	
 	/* ************************************************************************
 	 * MODEL NODE
 	 * ***********************************************************************/
@@ -329,7 +282,8 @@ public abstract class SpatialBoundary extends Boundary
 		String str = xmlElem.getAttribute("extreme");
 		this._extreme = Dimension.extremeToInt(str);
 	}
-	
+
+	// FIXME are we handling partner boundaries?
 	@Override
 	public Module getModule()
 	{

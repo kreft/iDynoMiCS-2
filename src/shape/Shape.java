@@ -575,6 +575,10 @@ public abstract class Shape implements
 				return dim.getLength();
 			}
 		}
+		
+		if( Log.shouldWrite(Tier.CRITICAL))
+			Log.out(Tier.CRITICAL, "Dimension " + dimension.getName() +
+					" not found. Returning length zero.");
 		return 0;
 	}
 	
@@ -600,14 +604,24 @@ public abstract class Shape implements
 		}
 	}
 
+	//FIXME not sure wether this is correct
 	public int getDimensionVoxelCount( int dimension )
 	{
 		DimName d = this.getDimensionName( dimension );
 		if( d != null && this instanceof CartesianShape )
 		{
-			return ((CartesianShape) this)._resCalc[2].getNVoxel();
+			return ((CartesianShape) this)._resCalc[dimension].getNVoxel();
 		}
 		return 0;
+	}
+
+	public int[] getDimensionVoxelCount()
+	{
+		int[] out = new int[this._dimensions.size()];
+		for( int j = 0; j < out.length; j++) {
+			out[j] = ((CartesianShape) this)._resCalc[j].getNElement();
+		}
+		return out;
 	}
 
 	/**
@@ -843,7 +857,7 @@ public abstract class Shape implements
 		}
 		return true;
 	}
-	
+
 
 	/**
 	 * \brief Check if a given location is inside this shape.

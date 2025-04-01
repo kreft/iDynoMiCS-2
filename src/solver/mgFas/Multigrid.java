@@ -356,6 +356,7 @@ public class Multigrid
 			// V-cycle loop.
 			for (int v = 0; v < _vCycles; v++)
 			{
+				Log.setStatus( "Reaction and Diffusion: " + v );
 				vc++;
 				// Downward stroke of V.
 				while ( order > 0 )

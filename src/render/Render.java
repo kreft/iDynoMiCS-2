@@ -133,7 +133,7 @@ public class Render implements GLEventListener, Runnable {
     private boolean _dispFps = false;
     
     private Font font = new Font("consolas", Font.PLAIN, 10);
-    private TextRenderer textRenderer = new TextRenderer(font);
+
     /*
      * screendump
      */
@@ -171,6 +171,7 @@ public class Render implements GLEventListener, Runnable {
 	     }
 	     if ( this._dispFps )
 	     {
+			 TextRenderer textRenderer = new TextRenderer(font);
 	    	 textRenderer.setColor(Color.YELLOW);
 	    	 textRenderer.setSmoothing(true);
 	         gl.glLoadIdentity();
@@ -301,7 +302,7 @@ public class Render implements GLEventListener, Runnable {
 		
 		/* shading and rendering settings */
 		gl.glShadeModel(GL2.GL_SMOOTH);
-		gl.glClearColor(0.0f, 0.5f, 0.5f, 0.5f);
+		gl.glClearColor(1.0f, 1.0f, 1.0f, 1.0f); // background color
 		gl.glClearDepth(1.0f);
 		gl.glEnable(GL2.GL_DEPTH_TEST);
 		gl.glDepthFunc(GL2.GL_LEQUAL);

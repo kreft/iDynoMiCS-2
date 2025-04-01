@@ -4,7 +4,12 @@ import org.w3c.dom.Element;
 
 import boundary.Boundary;
 import compartment.Compartment;
+import dataIO.XmlHandler;
+import referenceLibrary.XmlRef;
+import settable.Attribute;
+import settable.Module;
 import settable.Settable;
+import utility.Helper;
 
 /**
  * \brief Connective boundary linking one dimensionless compartment to another.
@@ -25,8 +30,16 @@ public class ChemostatToChemostat extends ChemostatBoundary
 
 	@Override
 	public void instantiate(Element xmlElement, Settable parent) {
-		// TODO Auto-generated method stub
-		
+		super.instantiate(xmlElement, parent);
+		this._dominant = Boolean.parseBoolean(
+				XmlHandler.gatherAttribute(xmlElement,
+				XmlRef.dominant));
+		if (! XmlHandler.hasAttribute(xmlElement, XmlRef.constantVolume))
+			this.setVolumeFlowRate( XmlHandler.obtainDouble( 
+					xmlElement, XmlRef.volumeFlowRate, this.defaultXmlTag()));
+		this._agentRemoval = Helper.setIfNone( Boolean.valueOf( 
+				XmlHandler.gatherAttribute( xmlElement, XmlRef.agentRemoval ) ), 
+				false);
 	}
 
 	
@@ -59,6 +72,16 @@ public class ChemostatToChemostat extends ChemostatBoundary
 	{
 		Boundary cIn = this.makePartnerBoundary();
 		comp.addBoundary(cIn);
+	}
+	
+	@Override
+	public Module getModule()
+	{
+		Module mod = super.getModule();
+		if( this._dominant)
+			mod.add( new Attribute( XmlRef.dominant, String.valueOf( 
+					this._dominant ), null, true ));
+		return mod;
 	}
 
 	/* ***********************************************************************

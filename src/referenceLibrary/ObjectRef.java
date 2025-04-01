@@ -14,6 +14,7 @@ import dataIO.Log.Tier;
  */
 public final class ObjectRef
 {
+
 	public static String[] getAllOptions()
 	{
 		Field[] fields = ObjectRef.class.getFields();
@@ -74,6 +75,13 @@ public final class ObjectRef
 	 * Double array, i.e. a 3-dimensional collection of real numbers.
 	 */
 	public final static String DBL_ARRY = DBL_MATR+"[]";
+
+
+	public static final String FLT = "Float";
+	public static final String FLT_VECT = FLT+"[]";
+	public static final String FLT_MATR = FLT_VECT+"[]";
+	public static final String FLT_ARRY = FLT_MATR+"[]";
+
 	/**
 	 * InstantiableList, Instantiable version of java LinkedList
 	 */
