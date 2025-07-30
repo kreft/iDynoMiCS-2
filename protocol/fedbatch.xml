@@ -100,24 +100,28 @@
 			<reactions>
 			</reactions>
 			<agents>
-				<agent>
-					<aspect name="species" type="PRIMARY" class="String" value="CanonicalAOB" />
-					<!-- pg -->
-					<aspect name="mass" class="InstantiableMap">
-						<map entryClass="Double" keyType="String">
-							<item key="bioMass" value="0.2E10"  />
-						</map>
-					</aspect>
-				</agent>
-				<agent>
-					<aspect name="species" type="PRIMARY" class="String" value="CanonicalNOB" />
-					<!-- pg -->
-					<aspect name="mass" class="InstantiableMap">
-						<map entryClass="Double" keyType="String">
-							<item key="bioMass" value="0.2E10"  />
-						</map>
-					</aspect>
-				</agent>
+				<spawn class="nonSpatialSpawner" priority="0" number="10" morphology="COCCOID">
+					<templateAgent>
+						<aspect name="species" type="PRIMARY" class="String" value="CanonicalAOB" />
+						<!-- pg -->
+						<aspect name="mass" class="InstantiableMap">
+							<map entryClass="Double" keyType="String">
+								<item key="bioMass" value="0.2E9"  />
+							</map>
+						</aspect>
+					</templateAgent>
+				</spawn>
+				<spawn class="nonSpatialSpawner" priority="0" number="10" morphology="COCCOID">
+					<templateAgent>
+						<aspect name="species" type="PRIMARY" class="String" value="CanonicalNOB" />
+						<!-- pg -->
+						<aspect name="mass" class="InstantiableMap">
+							<map entryClass="Double" keyType="String">
+								<item key="bioMass" value="0.2E9"  />
+							</map>
+						</aspect>
+					</templateAgent>
+				</spawn>
 			</agents>
 			<processManagers>
 				<process name="solveChemostat" class="ChemostatSolver" priority="0"
@@ -131,7 +135,7 @@
 					firstStep="0.0" timerStepSize="60.0">
 					<aspect name="includeHeader" type="PRIMARY" class="Boolean" value="TRUE" />
 					<aspect name="tableSpecification" type="PRIMARY" class="String"
-					value="0 ~ %volume | mass  ? species == CanonicalAOB | mass ?  species == CanonicalNOB | %oxygen | %ammonium | %nitrite | %nitrate" />
+					value="0 ~ %volume | bioMass@mass  ? species == CanonicalAOB | bioMass@mass ?  species == CanonicalNOB | %oxygen | %ammonium | %nitrite | %nitrate" />
 					<aspect name="fileName" type="PRIMARY" class="String" value="data" />
 				</process>
 			</processManagers>

@@ -15,8 +15,7 @@ import utility.ExtraMath;
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
-public class UpdateBody extends Event
-{
+public class UpdateBody extends Event {
 	
 	public String BODY = AspectRef.agentBody;
 	public String RADIUS = AspectRef.bodyRadius;
@@ -37,119 +36,85 @@ public class UpdateBody extends Event
 		}
 		
 		// TODO cleanup
-		if (body.getMorphology() == Morphology.COCCOID)
-		{
+		if (body.getMorphology() == Morphology.COCCOID) {
 			body.update( initiator.getDouble(RADIUS), 0.0,
 					initiator);
 		}
 		
-		else
-		{
+		else {
 			Object volume = initiator.getValue(VOLUME);
 			
 			double r = initiator.getDouble(RADIUS);
 			
-			if (!(volume instanceof Map))
-			{
+			if (!(volume instanceof Map)) {
 				double volumeDouble = (double) volume;
-				
 				/*
 				 * Volume of the cylinder part of the capsule shape
 				 */
 				double cylinderVolume = volumeDouble - 
 						ExtraMath.volumeOfASphere( r );
-				
 				l = ExtraMath.lengthOfACylinder( cylinderVolume, r );
-				
-				if (l > 0.0)
-				{
+				if (l > 0.0) {
 					body.update( initiator.getDouble(RADIUS), l, initiator);
 				}
-				
 				/*
 				 * If the agent is too small to take on rod shape, just make
 				 * it a coccoid
 				 */
-				else
-				{
-					body.update( ExtraMath.radiusOfASphere(volumeDouble), 0.0,
-							initiator);
+				else {
+					body.update( ExtraMath.radiusOfASphere(volumeDouble), 0.0, initiator);
 				}
-				
 			}
-			
-			else
-			{
+			else {
 				Map<String, Double> volumeMap = 
 						(HashMap<String, Double>) volume;
 				double cellVolume = 0.0;
 				double epsVolume = 0.0;
 				
-				for (String component : volumeMap.keySet())
-				{
+				for (String component : volumeMap.keySet()) {
 					if (component.equals(this.EPS))
 						epsVolume += volumeMap.get(component);
 					else
 						cellVolume += volumeMap.get(component);
 				}
-				
 				/*
 				 * If no EPS, do the same simple method as above
 				 */
-				if (epsVolume == 0.0)
-				{
-					double cylinderVolume = cellVolume - 
-							ExtraMath.volumeOfASphere( r );
-					
+				if (epsVolume == 0.0) {
+					double cylinderVolume = cellVolume - ExtraMath.volumeOfASphere( r );
 					l = ExtraMath.lengthOfACylinder( cylinderVolume, r );
-					
-					if (l > 0.0)
-					{
+					if (l > 0.0) {
 						body.update( initiator.getDouble(RADIUS), l, initiator);
 					}
-					
-					else
-					{
+					else {
 						body.update( ExtraMath.radiusOfASphere(cellVolume), 0.0,
 								initiator);
 					}
-					
 				}
-				
-				
-				else
-				{
+				else {
 					double totalVolume = cellVolume + epsVolume;
-					
 					/*
 					 * Volume of the cylinder part of the capsule shape,
 					 * calculated using only the cell volume
 					 */
 					double cylinderVolume = cellVolume - 
 							ExtraMath.volumeOfASphere( r );
-					
 					l = ExtraMath.lengthOfACylinder( cylinderVolume, r );
-					
-					if (l > 0.0)
-					{
+					if (l > 0.0) {
 						/*
 						 * Recalculate radius using the total volume including
 						 * EPS
 						 */
 						double radiusWithEPS = ExtraMath.radiusOfACapsule(
 								totalVolume, l);
-						
 						body.update( radiusWithEPS, l, initiator);
 					}
-					
-					else
-					{
+					else {
 						body.update( ExtraMath.radiusOfASphere(totalVolume),
 								0.0, initiator);
 					}
 				}
 			}
 		}
-		
 	}
 }

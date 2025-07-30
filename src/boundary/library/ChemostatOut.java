@@ -23,7 +23,7 @@ import utility.Helper;
  * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  * @author Sankalp Arya (sankalp.arya@nottingham.ac.uk), University of Nottingham, U.K.
  */
-public class ChemostatOut extends ChemostatBoundary
+public class ChemostatOut extends Boundary
 {
 	/**
 	 * \brief This boundary's behaviour for grabbing agents to be removed by
@@ -50,9 +50,8 @@ public class ChemostatOut extends ChemostatBoundary
 					xmlElement, XmlRef.volumeFlowRate, this.defaultXmlTag()));
 		else
 			this.constantVolume = true;
-		this._agentRemoval = Helper.setIfNone( Boolean.valueOf( 
-				XmlHandler.gatherAttribute( xmlElement, XmlRef.agentRemoval ) ), 
-				false);
+		this._soluteRetention = Helper.setIfNone( XmlHandler.gatherBoolean(
+				xmlElement, XmlRef.soluteRetention ), false);
 	}
 	
 	@Override

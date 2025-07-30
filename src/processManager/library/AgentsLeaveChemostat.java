@@ -21,10 +21,10 @@ import utility.Helper;
 
 public class AgentsLeaveChemostat extends ProcessDeparture
 {
-	
-	private String DETACHMENT_RATE = AspectRef.detachmentRate;
-	
-	private double _detachmentRate;
+
+	final String REMOVAL_RATE = AspectRef.removalRate;
+
+	private double _removalRate;
 	
 
 	@Override
@@ -32,10 +32,9 @@ public class AgentsLeaveChemostat extends ProcessDeparture
 				AgentContainer agents, String compartmentName)
 	{
 		super.init(xmlElem, environment, agents, compartmentName);
-		
 		/* FIXME replace with obtain value as they are case dependent */
-		this._detachmentRate = Helper.setIfNone( 
-				this.getDouble( DETACHMENT_RATE ), 0.1 );
+		this._removalRate = Helper.setIfNone(
+				this.getDouble(REMOVAL_RATE), 0.0 );
 	}
 	
 	/**
@@ -51,7 +50,7 @@ public class AgentsLeaveChemostat extends ProcessDeparture
 		LinkedList<Agent> departures = new LinkedList<Agent>();
 		List<Agent> agentList = _agents.getAllLocatedAgents();
 		double e = Math.exp( ( - this.getTimeStepSize() *
-				this._detachmentRate)); 
+				this._removalRate));
 		for ( Agent a : agentList )
 		{
 			if( ExtraMath.getUniRandDbl() > e )

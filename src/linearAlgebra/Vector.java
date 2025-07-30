@@ -3601,6 +3601,34 @@ public final class Vector
 		return out;
 	}
 
+	public static boolean detectRisk(double[] vector)
+	{
+		if( vector == null) {
+			Log.out(Tier.CRITICAL, "Vector is null");
+			return true;
+		}
+		for ( double d: vector ) {
+			Double dd = new Double(d);
+			if( dd == null ) {
+				Log.out(Tier.CRITICAL, "Vector includes null");
+				return true;
+			}
+			if( dd.isNaN() ) {
+				Log.out(Tier.CRITICAL, "Vector includes NaN");
+				return true;
+			}
+			if( dd.isInfinite() ) {
+				Log.out(Tier.CRITICAL, "Vector includes Inf");
+				return true;
+			}
+		}
+		if(normEuclid(vector) == 0.0) {
+			Log.out(Tier.CRITICAL, "norm is zero");
+			return true;
+		}
+		return false;
+	}
+
 	/**
 	 * get dimensions of array
 	 * @param array

@@ -40,7 +40,7 @@ public class ReportDensity extends ProcessManager
         /**
          * include bacsim agent file interpretation
          */
-        String bacSimfile = getString(AspectRef.fileName);
+        String bacSimfile = this.isAspect(AspectRef.fileName) ? getString(AspectRef.fileName) : null;
         if( ! Helper.isNullOrEmpty(bacSimfile) ) {
             Double agentDensity = getDouble( AspectRef.agentDensity );
             density.read(bacSimfile, agentDensity); // 0.29

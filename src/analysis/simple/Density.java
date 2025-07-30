@@ -50,7 +50,7 @@ public class Density {
                 i++;
             }
             //FIXME also make this work for agents with simple mass.
-            _field[coord[0]][coord[1]] += a.getDouble("biomass@mass");
+            _field[coord[0]][coord[1]] += a.isAspect("biomass@mass") ? a.getDouble("biomass@mass") : 0.0;
         }
     }
 

@@ -75,8 +75,8 @@
 			</solutes>
 			<reactions>
 			</reactions>
-			<spawn class="distributedSpawner" domain="32.0, 0.2" priority="1" number="256" morphology="COCCOID">
-				<aspect name="orient" type="PRIMARY" class="Double[]" value="0.0, 1.0" />
+			<spawn class="distributedSpawner" domain="32.0, 0.0" priority="1" number="256" morphology="COCCOID">
+				<aspect name="orient" type="PRIMARY" class="Double[]" value="1.0, 1.0" />
 				<aspect name="spacing" type="PRIMARY" class="Double[]" value="2.0, 2.0" />
 				<templateAgent>
 					<aspect name="species" type="PRIMARY" class="String" value="EColi" />

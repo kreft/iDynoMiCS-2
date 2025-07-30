@@ -129,7 +129,20 @@ public class SpatialGrid implements Settable, Instantiable
 	protected double _threshold;
 	
 	protected DiffusivityType _diffusivity;
-	
+
+	protected double[] _pKa = null;
+
+	/* the charge of the maximum protonation state considered for the simulation */
+
+	private double _defaultCharge = 0.0;
+	private double _defaultMolarWeight = 1.0;
+	private double _maxCharge = _defaultCharge;
+
+	/* if not set we assume the solute is already provided in mole/volume for the pH solver */
+	private double _molarWeight = _defaultMolarWeight;
+
+
+
 	public enum DiffusivityType
 	{
 		ALL_SAME,
@@ -216,13 +229,16 @@ public class SpatialGrid implements Settable, Instantiable
 		this._shape = shape;
 		this._name = name;
 		this._parentNode = parent;
+		this._defaultDiffusivity = 1.0;
+		this._biofilmDiffusivity = this._defaultDiffusivity;
+		this._diffusivity = DiffusivityType.ALL_SAME;
 	}
 	
 	/**
 	 * NOTE Only used by unit tests, consider restructuring tests
-	 * @param shape
 	 * @param name
-	 * @param environment
+	 * @param concentration
+	 * @param parent
 	 */
 	public SpatialGrid(String name, double concentration, Settable parent)
 	{
@@ -231,6 +247,7 @@ public class SpatialGrid implements Settable, Instantiable
 		this._parentNode = parent;
 		this.newArray(ArrayType.CONCN, concentration);
 		this._defaultDiffusivity = 1.0;
+		this._biofilmDiffusivity = this._defaultDiffusivity;
 		this._diffusivity = DiffusivityType.ALL_SAME;
 	}
 	
@@ -238,12 +255,21 @@ public class SpatialGrid implements Settable, Instantiable
 	{
 		this.instantiate(xmlElem, parent);
 	}
+
+	public SpatialGrid(Element xmlElem, Settable parent, boolean special)
+	{
+		this.instantiate(xmlElem, parent, special);
+	}
 	
 	public SpatialGrid() { 
 		
 	}
 
 	public void instantiate(Element xmlElem, Settable parent)
+	{
+		instantiate(xmlElem, parent, false);
+	}
+	public void instantiate(Element xmlElem, Settable parent, boolean special)
 	{
 		/* Set associated object, naming and initial values */
 		this._shape = ((EnvironmentContainer) parent).getShape();
@@ -261,31 +287,42 @@ public class SpatialGrid implements Settable, Instantiable
 					Idynomics.unitSystem ));
 		else
 			this.setTo(ArrayType.CONCN, conc);
-	
-		
-		((EnvironmentContainer) parent).addSolute(this);
-		
-		/* Set default and biofilm diffusivity */
-		Double diffusivity = XmlHandler.obtainDouble(xmlElem,
-				XmlRef.defaultDiffusivity, this.defaultXmlTag());
-		this._defaultDiffusivity = Double.valueOf(diffusivity);
+
+		/* Set default and biofilm diffusivity FIXME theoretically this next part is not needed for special grids */
+		Double diffusivity = XmlHandler.gatherDouble(xmlElem,
+				XmlRef.defaultDiffusivity);
+		this._defaultDiffusivity = Double.valueOf(Helper.setIfNone(diffusivity, 1.0));
 		diffusivity = XmlHandler.gatherDouble(xmlElem,
 				XmlRef.biofilmDiffusivity);
-		
+
 		/* identify whether biofilm diffusivity should be considered identical
 		 * to default diffusivity (in this case there is no need to identify
 		 * the biofilm region */
-		if ( diffusivity == null || diffusivity == this._defaultDiffusivity )
-		{
+		if (diffusivity == null || diffusivity == this._defaultDiffusivity) {
 			this._diffusivity = DiffusivityType.ALL_SAME;
 			this._biofilmDiffusivity = this._defaultDiffusivity;
-		}
-		else
-		{
+		} else {
 			this._biofilmDiffusivity = diffusivity;
 			this._diffusivity = DiffusivityType.BIOMASS_SCALED;
 		}
-		
+	
+		if(special)
+			((EnvironmentContainer) parent).addSpecial(this);
+		else {
+			((EnvironmentContainer) parent).addSolute(this);
+
+			String temp = XmlHandler.gatherAttribute(xmlElem, XmlRef.pKa);
+			this._pKa = (Helper.isNullOrEmpty(temp) ? null : (double[]) ObjectFactory.loadObject(temp,
+					double[].class.getSimpleName()));
+
+			temp = XmlHandler.gatherAttribute(xmlElem, XmlRef.maxCharge);
+			this._maxCharge = (Helper.isNullOrEmpty(temp) ? _defaultCharge : (double) ObjectFactory.loadObject(temp,
+					double.class.getSimpleName()));
+
+			temp = XmlHandler.gatherAttribute(xmlElem, XmlRef.molarWeight);
+			this._molarWeight = (Helper.isNullOrEmpty(temp) ? _defaultMolarWeight : (double) ObjectFactory.loadObject(temp,
+					double.class.getSimpleName()));
+		}
 		// TODO threshold
 	}
 
@@ -891,7 +928,22 @@ public class SpatialGrid implements Settable, Instantiable
 	{
 		return this.getValueAt(type, this._shape.getCoords(location));
 	}
-	
+
+	public double[] getpKa()
+	{
+		return this._pKa;
+	}
+
+	public double getmaxCharge()
+	{
+		return this._maxCharge;
+	}
+
+	public double getMolarWeight()
+	{
+		return this._molarWeight;
+	}
+
 	/* ***********************************************************************
 	 * 							REPORTING
 	 * ***********************************************************************/
@@ -984,13 +1036,27 @@ public class SpatialGrid implements Settable, Instantiable
 		modelNode.add(new Attribute(XmlRef.concentration, 
 				ObjectFactory.stringRepresentation(
 				this.getArray( ArrayType.CONCN )), null, true ));
-		
-		modelNode.add(new Attribute(XmlRef.defaultDiffusivity, 
-				String.valueOf(this._defaultDiffusivity), null, true ));
-		
-		modelNode.add(new Attribute(XmlRef.biofilmDiffusivity, 
-				String.valueOf(this._biofilmDiffusivity), null, true ));
-		
+
+		if( this._defaultDiffusivity != 1.0 )
+			modelNode.add(new Attribute(XmlRef.defaultDiffusivity,
+					String.valueOf(this._defaultDiffusivity), null, true ));
+
+		if( this._biofilmDiffusivity != 1.0)
+			modelNode.add(new Attribute(XmlRef.biofilmDiffusivity,
+					String.valueOf(this._biofilmDiffusivity), null, true ));
+
+		if( this._pKa != null)
+			modelNode.add(new Attribute(XmlRef.pKa,
+					Vector.toString(this._pKa), null, true ));
+
+		if( this._maxCharge != this._defaultCharge)
+			modelNode.add(new Attribute(XmlRef.maxCharge,
+					String.valueOf(this._maxCharge), null, true ));
+
+		if( this._molarWeight != this._defaultMolarWeight)
+			modelNode.add(new Attribute(XmlRef.molarWeight,
+					String.valueOf(this._molarWeight), null, true ));
+
 		return modelNode;
 	}
 
@@ -1000,23 +1066,24 @@ public class SpatialGrid implements Settable, Instantiable
 		this._name = node.getAttribute( XmlRef.nameAttribute ).getValue();
 		this.setTo(ArrayType.CONCN, 
 				node.getAttribute(XmlRef.concentration).getValue());
-		
-		this._defaultDiffusivity = Double.valueOf( node.getAttribute( 
-				XmlRef.defaultDiffusivity ).getValue());
-		
-		Double biof = Double.valueOf( node.getAttribute( 
-				XmlRef.biofilmDiffusivity ).getValue());
-		if (Helper.isNullOrEmpty(biof) || biof.equals(this._defaultDiffusivity))
-		{
+
+		this._defaultDiffusivity = Double.parseDouble(
+				node.getOptionalAttribute(XmlRef.defaultDiffusivity, 1.0) );
+
+		this._biofilmDiffusivity = Double.parseDouble(
+				node.getOptionalAttribute(XmlRef.biofilmDiffusivity, this._defaultDiffusivity) );
+
+		if (this._biofilmDiffusivity.equals(this._defaultDiffusivity))
 			this._diffusivity = DiffusivityType.ALL_SAME;
-			this._biofilmDiffusivity = this._defaultDiffusivity;
-		}
 		else
-		{
 			this._diffusivity = DiffusivityType.BIOMASS_SCALED;
-			this._biofilmDiffusivity = biof;
-		}
-			
+
+		String temp = node.getOptionalAttribute(XmlRef.pKa, "");
+		this._pKa = (Helper.isNullOrEmpty(temp) ? null : (double[])  ObjectFactory.loadObject(temp,
+				double[].class.getSimpleName()));
+
+		this._maxCharge = Double.parseDouble( node.getOptionalAttribute(XmlRef.maxCharge, _defaultCharge) );
+		this._molarWeight = Double.parseDouble( node.getOptionalAttribute(XmlRef.molarWeight, _defaultMolarWeight) );
 	}
 
 	public void removeModule(String specifier) 

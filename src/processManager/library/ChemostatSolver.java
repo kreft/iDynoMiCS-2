@@ -1,10 +1,9 @@
 package processManager.library;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
+import grid.ArrayType;
+import grid.SpatialGrid;
 import org.w3c.dom.Element;
 
 import agent.Agent;
@@ -21,10 +20,7 @@ import processManager.ProcessMethods;
 import reaction.Reaction;
 import reaction.RegularReaction;
 import referenceLibrary.AspectRef;
-import solver.ODEderivatives;
-import solver.ODEheunsmethod;
-import solver.ODErosenbrock;
-import solver.ODEsolver;
+import solver.*;
 import utility.Helper;
 
 /**
@@ -63,7 +59,9 @@ public class ChemostatSolver extends ProcessManager
 	 */
 	protected int _n;
 	
-	protected boolean diableBulk = false;
+	protected boolean disableBulk = false;
+
+	protected PHsolver pHsolver = null;
 	
 	/* ***********************************************************************
 	 * CONSTRUCTORS
@@ -80,7 +78,17 @@ public class ChemostatSolver extends ProcessManager
 		this._solutes = soluteNames;
 		this._n = this._solutes == null ? 0 : this._solutes.length;
 		if (this.isAspect(DISABLE_BULK_DYNAMICS))
-			this.diableBulk = this.getBoolean(DISABLE_BULK_DYNAMICS);
+			this.disableBulk = this.getBoolean(DISABLE_BULK_DYNAMICS);
+
+		Collection<SpatialGrid> solutes = this._environment.getSolutes();
+		for ( SpatialGrid s : solutes )
+		{
+			double[] pkas = s.getpKa();
+			if( pkas != null )
+			{
+				this.pHsolver = new PHsolver();
+			}
+		}
 	}
 	
 	/* ***********************************************************************
@@ -158,14 +166,66 @@ public class ChemostatSolver extends ProcessManager
 		/*
 		 * Update the environment
 		 */
-		if( !this.diableBulk )
+		if( !this.disableBulk)
 		{
 			for ( int i = 0; i < this._n; i++ )
 				this._environment.setAllConcentration( this._solutes[i], yODE[i]);
 			this._environment.getShape().setTotalVolume( yODE[ _n ] );
 			if( Log.shouldWrite(Tier.DEBUG) )
 				Log.out(Tier.DEBUG, "new volume: " + yODE[ _n ] );
+
+			/* pH dynamics */
+			Collection<SpatialGrid> solutes = this._environment.getSolutes();
+			int numStructs=1;
+			for ( SpatialGrid s : solutes ) {
+				if( s.getpKa() != null)
+					numStructs++;
 			}
+			if( numStructs > 1) {
+				PKstruct[] pkSolutes = new PKstruct[numStructs];
+				int pkSol = 1;
+				for (SpatialGrid s : solutes) {
+					if (s.getpKa() != null) {
+						pkSolutes[pkSol] = new PKstruct();
+						pkSolutes[pkSol].solute = s.getName();
+						pkSolutes[pkSol].conc = s.getAverage(ArrayType.CONCN) / s.getMolarWeight(); // convert mass concentration to molar concentration.
+						pkSolutes[pkSol].pKa = s.getpKa();
+						pkSolutes[pkSol].maxCharge = s.getmaxCharge();
+						pkSolutes[pkSol].pStates = new double[pkSolutes[pkSol].pKa.length + 1];
+						int nPstate = 0;
+						while (nPstate < pkSolutes[pkSol].pStates.length) {
+							SpatialGrid spec = this._environment.getSpecialGrid(pkSolutes[pkSol].solute + "___" + nPstate);
+							pkSolutes[pkSol].pStates[nPstate] = spec.getAverage(ArrayType.CONCN);
+							nPstate++;
+						}
+					}
+					pkSol++;
+				}
+				pkSolutes[0] = new PKstruct();
+				pkSolutes[0].solute = "pH";
+				pkSolutes[0].conc = this._environment.getSpecialGrid(pkSolutes[0].solute).getAverage(ArrayType.CONCN);
+
+				pkSolutes = pHsolver.solve(pkSolutes);
+				if (true) {
+					pkSol = 1;
+					while (pkSol < pkSolutes.length) {
+						int nPstate = 0;
+						while (nPstate < pkSolutes[pkSol].pStates.length) {
+							SpatialGrid spec = this._environment.getSpecialGrid(pkSolutes[pkSol].solute + "___" + nPstate);
+							spec.setAllTo(ArrayType.CONCN, pkSolutes[pkSol].pStates[nPstate]); // protonation state concentration stored in molar concentrations.
+							nPstate++;
+						}
+						pkSol++;
+					}
+					/* store pH */
+					SpatialGrid spec = this._environment.getSpecialGrid(pkSolutes[0].solute);
+					spec.setAllTo(ArrayType.CONCN, pkSolutes[0].conc);
+					if (Log.shouldWrite(Tier.EXPRESSIVE)) {
+						Log.out(Tier.EXPRESSIVE, "pH: " + pkSolutes[0].conc);
+					}
+				}
+			}
+		}
 		
 		/* 
 		 * Update the agents 
@@ -245,7 +305,10 @@ public class ChemostatSolver extends ProcessManager
 						new HashMap<String, Double>();
 				for( int i = 0; i < _n; i++ )
 					soluteMap.put( _solutes[i], y[i]/y[_n] );
-				
+				HashMap<String, Double> specialMap = new HashMap<String, Double>();
+				for( SpatialGrid s : environment.getSpecials())
+					specialMap.put(s.getName(),s.getAverage(ArrayType.CONCN));
+
 				/*
 				 * In and out flows
 				 */
@@ -255,11 +318,20 @@ public class ChemostatSolver extends ProcessManager
 					if ( volFlowRate < 0.0 )
 					{
 						/* outflows at bulk concentrations */
+						
+						// Solvent (dydt [_n ]) will always flow out
 						dydt [_n ] += volFlowRate;
-						for ( int i = 0; i < _n; i++ )
+						
+						/* 
+						 * Solutes will flow out at an equivalent rate
+						 * if the boundary has solute removal
+						 */
+						if (!aBoundary.soluteRetention())
 						{
-							dydt[i] += volFlowRate * (y[i]/y[_n]);
+							for ( int i = 0; i < _n; i++ )
+								dydt[i] += volFlowRate * (y[i]/y[_n]);
 						}
+						
 					}
 					else if ( volFlowRate > 0.0 )
 					{
@@ -325,6 +397,7 @@ public class ChemostatSolver extends ProcessManager
 					Map<String,Double> reactionMap = 
 							new HashMap<String, Double>();
 					reactionMap.putAll( soluteMap );
+					reactionMap.putAll( specialMap );
 
 					for (Reaction aReac : reactions)
 					{
@@ -335,8 +408,15 @@ public class ChemostatSolver extends ProcessManager
 							{
 								if ( a.isAspect( var ) )
 									reactionMap.put( var, a.getDouble( var) );
-								else if ( ! soluteMap.containsKey( var ) )
+								else if ( ! (soluteMap.containsKey( var ) || specialMap.containsKey( var )) )
+								{
+									// We have this option in order to facilitate components that can play a role but
+									// may not yet exist at the start of a simulation, for example microbial storage
+									// compounds.
+									Log.out(Tier.CRITICAL , "Requested variable \"" + var +
+											"\" is not (yet) defined, check the spelling, returning 0.0.");
 									reactionMap.put(var , 0.0);
+								}
 							}
 						
 						reactionMap.putAll( agentMap );						

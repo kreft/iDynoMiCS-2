@@ -497,6 +497,14 @@ public class Unit {
 				this.mutation( SI.mol, update );
 				this.modifier *= Math.pow( 1.0e-15, power );
 				break;
+			case "amol" :
+				this.mutation( SI.mol, update );
+				this.modifier *= Math.pow( 1.0e-18, power );
+				break;
+			case "zmol" :
+			this.mutation( SI.mol, update );
+			this.modifier *= Math.pow( 1.0e-21, power );
+			break;
 		
 		///////////////////////////////////////////////////////////////////////
 		// Derived units

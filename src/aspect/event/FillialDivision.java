@@ -17,7 +17,6 @@ import utility.ExtraMath;
  */
 public class FillialDivision extends DivisionMethod
 {
-
 	private boolean randomization = true;
 	private double shiftFrac = 0.05;
 	/**

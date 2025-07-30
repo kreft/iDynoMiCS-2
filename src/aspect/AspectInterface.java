@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import dataIO.Log;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -34,8 +35,7 @@ public abstract interface AspectInterface
 	/**
 	 * \brief Load all aspects from xmlNode into anything that implements the
 	 * StateObject interface.
-	 * 
-	 * @param aspectReg
+	 *
 	 * @param xmlNode
 	 */
 	public default void loadAspects(Node xmlNode)
@@ -104,6 +104,11 @@ public abstract interface AspectInterface
 	{
 		this.reg().set(key, aspect);
 	}
+
+	public default void delete(String key)
+	{
+		this.reg().remove(key);
+	}
 	
 	/**
 	 * get value or use default if the aspect is not set
@@ -135,7 +140,14 @@ public abstract interface AspectInterface
 	 */
 	public default Double getDouble(String aspect)
 	{
-		return (Double) this.reg().getValue(this, aspect);
+		try {
+			return (Double) this.reg().getValue(this, aspect);
+		}
+		catch(java.lang.ClassCastException e) {
+			Log.out(Log.Tier.CRITICAL, "Cannot cast "+ aspect +" to Double.");
+			Log.out(Log.Tier.DEBUG, e.toString());
+			return null;
+		}
 	}
 	
 	/**
@@ -146,7 +158,14 @@ public abstract interface AspectInterface
 	 */
 	public default double[] getDoubleA(String aspect)
 	{
+		try {
 		return (double[]) this.reg().getValue(this, aspect);
+		}
+		catch(java.lang.ClassCastException e) {
+			Log.out(Log.Tier.CRITICAL, "Cannot cast "+ aspect +" to Double array.");
+			Log.out(Log.Tier.DEBUG, e.toString());
+			return null;
+		}
 	}
 	
 	/**
@@ -157,7 +176,14 @@ public abstract interface AspectInterface
 	 */
 	public default String getString(String aspect)
 	{
+		try {
 		return (String) this.reg().getValue(this, aspect);
+		}
+		catch(java.lang.ClassCastException e) {
+			Log.out(Log.Tier.CRITICAL, "Cannot cast "+ aspect +" to String.");
+			Log.out(Log.Tier.DEBUG, e.toString());
+			return null;
+		}
 	}
 	
 	/**
@@ -168,7 +194,14 @@ public abstract interface AspectInterface
 	 */
 	public default String[] getStringA(String aspect)
 	{
-		return (String[]) this.reg().getValue(this, aspect);
+		try {
+			return (String[]) this.reg().getValue(this, aspect);
+		}
+		catch(java.lang.ClassCastException e) {
+			Log.out(Log.Tier.CRITICAL, "Cannot cast "+ aspect +" to String array.");
+			Log.out(Log.Tier.DEBUG, e.toString());
+			return null;
+		}
 	}
 	
 	/**
@@ -179,7 +212,14 @@ public abstract interface AspectInterface
 	 */
 	public default Integer getInt(String aspect)
 	{
-		return (Integer) this.reg().getValue(this, aspect);
+		try {
+			return (Integer) this.reg().getValue(this, aspect);
+		}
+		catch(java.lang.ClassCastException e) {
+			Log.out(Log.Tier.CRITICAL, "Cannot cast "+ aspect +" to Integer.");
+			Log.out(Log.Tier.DEBUG, e.toString());
+			return null;
+		}
 	}
 	
 	/**
@@ -190,7 +230,14 @@ public abstract interface AspectInterface
 	 */
 	public default Integer[] getIntA(String aspect)
 	{
-		return (Integer[]) this.reg().getValue(this, aspect);
+		try {
+			return (Integer[]) this.reg().getValue(this, aspect);
+		}
+		catch(java.lang.ClassCastException e) {
+			Log.out(Log.Tier.CRITICAL, "Cannot cast "+ aspect +" to Integer array.");
+			Log.out(Log.Tier.DEBUG, e.toString());
+			return null;
+		}
 	}
 	
 	/**
@@ -203,7 +250,14 @@ public abstract interface AspectInterface
 	 */
 	public default Float getFloat(String aspect)
 	{
-		return (Float) this.reg().getValue(this, aspect);
+		try {
+			return (Float) this.reg().getValue(this, aspect);
+		}
+		catch(java.lang.ClassCastException e) {
+			Log.out(Log.Tier.CRITICAL, "Cannot cast "+ aspect +" to Float.");
+			Log.out(Log.Tier.DEBUG, e.getStackTrace().toString());
+			return null;
+		}
 	}
 	
 	/**
@@ -216,7 +270,14 @@ public abstract interface AspectInterface
 	 */
 	public default Float[] getFloatA(String aspect)
 	{
-		return (Float[]) this.reg().getValue(this, aspect);
+		try {
+			return (Float[]) this.reg().getValue(this, aspect);
+		}
+		catch(java.lang.ClassCastException e) {
+			Log.out(Log.Tier.CRITICAL, "Cannot cast "+ aspect +" to Float.");
+			Log.out(Log.Tier.DEBUG, e.toString());
+			return null;
+		}
 	}
 	
 	/**
@@ -227,10 +288,16 @@ public abstract interface AspectInterface
 	 */
 	public default Boolean getBoolean(String aspect)
 	{
-		Boolean out = (Boolean) this.reg().getValue(this, aspect);
-		if( out == null )
+		Boolean out = null;
+		try {
+			out = (Boolean) this.reg().getValue(this, aspect);
+		}
+		catch(java.lang.ClassCastException e) {
+			Log.out(Log.Tier.CRITICAL, "Cannot cast "+ aspect +" to Boolean.");
+			Log.out(Log.Tier.DEBUG, e.toString());
 			return null;
-		return out;
+		}
+        return out;
 	}
 	
 	/**
@@ -241,7 +308,14 @@ public abstract interface AspectInterface
 	 */
 	public default Boolean[] getBooleanA(String aspect)
 	{
-		return (Boolean[]) this.reg().getValue(this, aspect);
+		try {
+			return (Boolean[]) this.reg().getValue(this, aspect);
+		}
+		catch(java.lang.ClassCastException e) {
+			Log.out(Log.Tier.CRITICAL, "Cannot cast "+ aspect +" to Boolean array.");
+			Log.out(Log.Tier.DEBUG, e.toString());
+			return null;
+		}
 	}
 
 	public default Map<String, Double> getVariables(Collection<String> variables)

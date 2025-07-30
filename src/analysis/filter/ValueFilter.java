@@ -25,7 +25,7 @@ public class ValueFilter implements Filter
 	@Override
 	public String stringValue(AspectInterface subject, String format)
 	{
-		Object obj = subject.getValue(this.property);
+		Object obj = subject.isAspect( this.property) ? subject.getValue(this.property) : null;
 		if( obj instanceof String )
 			return (String) obj;
 		else if ( obj instanceof Expression )

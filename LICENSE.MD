@@ -19,7 +19,7 @@ The following licenses don't express explicit confirmation that they are upstrea
 
 <h1 id="components">Licensed components of iDynoMiCS 2 (third party components)</h1>
 
-## JAMA *(linear algebra)*
+# JAMA *(linear algebra)*
 Website link [here](http://math.nist.gov/javanumerics/jama/)
 
 **Reference Implementation.** The implementation of JAMA downloadable from this site is meant to be a reference implementation only. As such, it is pedagogical in nature. The algorithms employed are similar to those of the classic Wilkinson and Reinsch Handbook, i.e. the same algorithms used in EISPACK, LINPACK and MATLAB. Matrices are stored internally as native Java arrays (i.e., double\[][]). The coding style is straightforward and readable. While the reference implementation itself should provide reasonable execution speed for small to moderate size applications, we fully expect software vendors and Java VMs to provide versions which are optimized for particular environments.
@@ -28,7 +28,7 @@ Website link [here](http://math.nist.gov/javanumerics/jama/)
 
 **Copyright Notice** This software is a cooperative product of The MathWorks and the National Institute of Standards and Technology (NIST) which has been released to the public domain. Neither The MathWorks nor NIST assumes any responsibility whatsoever for its use by other parties, and makes no guarantees, expressed or implied, about its quality, reliability, or any other characteristic.
 
-## R-Tree *(spatial registry)*
+# R-Tree *(spatial registry)*
 
 Copyright 2010 Russ Weeks rweeks@newbrightidea.com
 
@@ -66,15 +66,20 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
-# gl Render #
+# gl Render
 
 classes based on lessons from:
 http://nehe.gamedev.net/tutorial/creating_an_opengl_window_win32/13001/
 
-## Mersenne Twister *(random number generator)*
+# Mersenne Twister *(random number generator)*
 Copied from iDynoMiCS 1, only minor changes made (tidying).
 
 This library is free software; you can redistribute it and/or modify it under the terms of the **GNU Lesser General Public License** as published by the Free Software Foundation; either version 2.1 of the License, or (at your option) any later version.
+
+# DasOptimization
+DasOptimization (V1.0) is a lightweight, robust and scalable library capable of solving a system of nonlinear equations and nonlinear unconstrained optimization. The library is developed by Design, Innovation and Simulation Lab. of the Ohio State University and is available under the Apache-2.0 license, see https://github.com/aniltrkkn/DasOptimization?tab=Apache-2.0-1-ov-file for more details.
+
+https://github.com/aniltrkkn/DasOptimization
 
 # JOGL
 The JOGL source code is mostly licensed under the 'New BSD 2-Clause License',

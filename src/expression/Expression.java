@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import linearAlgebra.Vector;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
@@ -92,6 +93,7 @@ public class Expression extends Component implements Settable
 					"^", 	// power
 					"SQRT-", // square root minus
 					"SQRT", // square root
+					"TRAPEZOID", // Trapezoid function, used for pH corner
 					"*-", 	// multiplication minus
 					"*", 	// multiplication
 					"/-", 	// division minus
@@ -350,9 +352,12 @@ public class Expression extends Component implements Settable
 			// 1, 2, 10, etc) will not be recognised.
 			else if ( Helper.dblParseable( term ) )
 				calc.put(i, new Constant(term, Double.parseDouble(term)));
-			/*
-			 * Variables, hashmap-defined constants.
-			 */
+			else if ( Helper.vectParseable(term) ) {
+				calc.put(i, new ConstantVector(Vector.dblFromString(term)));
+				/*
+				 * Variables, hashmap-defined constants.
+				 */
+			}
 			else if ( this._constants.containsKey(term) )
 				calc.put(i, new Constant(term, this._constants.get(term)));
 			else if ( ! term.isEmpty() )
@@ -572,14 +577,11 @@ public class Expression extends Component implements Settable
 	}
 	
 	/**
-	 * \brief Combine two components into one.
 	 * 
 	 * @param operator String tag for a kind of operator.
-	 * @param prev Index for the first character of the left-hand component in
-	 * the original {@link #_expression} string.
-	 * @param next Index for the first character of the right-hand component in
-	 * the original {@link #_expression} string.
-	 * @return New component combining the previous and next components.
+	 * @param here
+	 * @param calc
+	 * @return New Elemental combining the previous and next components.
 	 */
 	private static Elemental constructComponent(String operator,
 			int here, TreeMap<Integer,Elemental> calc)
@@ -629,6 +631,8 @@ public class Expression extends Component implements Settable
 			return 	new Sign((Component) calc.get(next));
 		case ("SIGN-"): 
 			return new Sign(flipSign((Component) calc.get(next)));
+		case ("TRAPEZOID"):
+			return new Trapezoid((Component) calc.get(prev), (ConstantVector) calc.get(next));
 		case ("-"): 
 			// TODO here we should really just change the sign of next
 			// Bas [16.06.16] component.changeSign does not seem to work
@@ -696,8 +700,9 @@ public class Expression extends Component implements Settable
 		case ("AND"): 
 		case ("OR"): 
 		case ("XOR"): 
-		case ("XNOR"): 
-			if ( calc.containsKey( prev ) )
+		case ("XNOR"):
+		case ("TRAPEZOID"):
+				if ( calc.containsKey( prev ) )
 				calc.remove( prev );
 			if ( calc.containsKey( next ) )
 				calc.remove( next );

@@ -97,7 +97,6 @@ public class Body implements Copyable, Instantiable, Settable
 	 */
 	protected List<Link> _links = new CopyOnWriteArrayList<Link>();
 
-
 	/*************************************************************************
 	 * CONSTRUCTORS
 	 ************************************************************************/
@@ -135,7 +134,6 @@ public class Body implements Copyable, Instantiable, Settable
 
 	/**
 	 * Rod
-	 * @param rod
 	 */
 	public Body(Point[] points, double spineLength, double radius)
 	{
@@ -194,7 +192,7 @@ public class Body implements Copyable, Instantiable, Settable
 	 * Body with random second point
 	 * 
 	 * @param morphology
-	 * @param domain
+	 * @param position
 	 * @param radius
 	 * @param length
 	 */
@@ -209,7 +207,8 @@ public class Body implements Copyable, Instantiable, Settable
 	 * body at position
 	 * 
 	 * @param morphology
-	 * @param domain
+	 * @param positionA
+	 * @param positionB
 	 * @param radius
 	 * @param length
 	 */
@@ -566,8 +565,8 @@ public class Body implements Copyable, Instantiable, Settable
 			{
 				if (spineLength <= 0.0)
 				{
-					Idynomics.simulator.interupt("Rod cell rest spine length"
-							+ "set to value of " + spineLength + ". Length "
+					Idynomics.simulator.interupt("iDynoMiCS detected a rod cell with a rest "
+							+ "spine length of " + spineLength + ". The length "
 							+ "should be greater than 0 to avoid errors. "
 							+ "Consider changing parameters for rod cells "
 							+ "to make them longer.");

@@ -26,12 +26,12 @@ public class Timer implements Instantiable, Settable
 	/**
 	 * TODO
 	 */
-	private int _iteration;
+	private int _iteration = 1;
 	
 	/**
 	 * TODO
 	 */
-	private double _now;
+	private double _now = 0.0;
 	
 	/**
 	 * TODO
@@ -47,8 +47,7 @@ public class Timer implements Instantiable, Settable
 		
 	public Timer()
 	{
-		this._iteration = 1;
-		this._now = 0.0;
+
 	}
 		
 	public void instantiate(Element xmlElem, Settable parent)
@@ -57,10 +56,6 @@ public class Timer implements Instantiable, Settable
 		this.setCurrentTime( Helper.setIfNone( XmlHandler.gatherDouble(
 				xmlElem, XmlRef.currentTime ), 0.0 ) );
 		
-		this.setCurrentIteration( Integer.valueOf( Helper.setIfNone( 
-				XmlHandler.gatherAttribute(
-						xmlElem, XmlRef.currentIter ), "1" ) ) );
-		
 		/* Get the time step. */
 		this.setTimeStepSize( XmlHandler.obtainDouble (
 				xmlElem, XmlRef.timerStepSize, this.defaultXmlTag() ) );
@@ -68,7 +63,12 @@ public class Timer implements Instantiable, Settable
 		/* Get the total time span. */
 		this.setEndOfSimulation( XmlHandler.obtainDouble (
 				xmlElem, XmlRef.endOfSimulation, this.defaultXmlTag() ) );
-		
+
+		this.setCurrentIteration( Integer.valueOf( Helper.setIfNone(
+				XmlHandler.gatherAttribute(
+						xmlElem, XmlRef.currentIter ), String.valueOf( this._iteration + // if we want to start counting from 0 we only need to update _iteraion
+						Math.round( this.getCurrentTime()/this.getTimeStepSize() ) ) ) ) );
+
 		if ( XmlHandler.hasAttribute(xmlElem, XmlRef.outputskip) )
 			Idynomics.global.outputskip = Integer.valueOf( 
 					XmlHandler.obtainAttribute( xmlElem, XmlRef.outputskip, 

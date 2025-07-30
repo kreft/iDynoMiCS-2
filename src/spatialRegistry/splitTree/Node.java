@@ -259,7 +259,7 @@ public class Node<T> extends Area
 	private boolean isAtomic(double[] low, double[] high)
 	{
 		return ( high[this._tree.longest] - low[this._tree.longest] < 
-				Global.atomic_length);
+				this._tree._atom);
 
 	}
 }

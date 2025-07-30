@@ -131,7 +131,8 @@ public class Global extends ParameterSet
 	/**
 	 * Version description.
 	 */
-	public static String version_description = "March 2025";
+	public static String version_description = "April 2025";
+
 	
 	/**
 	* Version number of this iteration of eGUT - required by update
@@ -139,7 +140,7 @@ public class Global extends ParameterSet
 	 *
 	 * suggested Major.Minor.YYMMDD
 	*/
-	public static String version_number = "1.2.250325";
+	public static String version_number = "2.0.250416";
 	
 	/**
 	 * default output location
@@ -365,9 +366,12 @@ public class Global extends ParameterSet
 	public static double mechanical_low_stress_skip = 0.0;
 	
 	/**
-	 * {@Link SplitTree} atomic length, the smallest length scale for leafnodes
+	 * {@Link SplitTree} atomic length, the smallest length scale (fraction of domain length) for leaf nodes.
+	 * Normally this should only go into effect when there is a relatively large number of agents intersecting
+	 *
+	 * Note: for very large domains decreasing this to 0.01 or so may speed up the simulation.
 	 */
-	public static double atomic_length = 0.05;
+	public static double atomic_length = 0.02;
 	
 	/**
 	 * {@Link Decompress} fraction of local stress traversing outwards in
@@ -396,4 +400,9 @@ public class Global extends ParameterSet
 	 */
 	public static Expression fallback_spinefunction =
 			new Expression( "stiffness * ( dh + SIGN(dh) * dh * dh * 100.0 )" );
+
+	/**
+	 * Enable concurrent calculation (can be used for pH calculations in spatial compartment).
+	 */
+	public static boolean concurrent_calculation = true;
 }

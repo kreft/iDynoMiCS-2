@@ -89,7 +89,7 @@ public class ClassRef
 	
 	/**
 	 * Get the simplified name from a class full path specification String
-	 * @param String class including path
+	 * @param name
 	 * @return String
 	 */
 	public static String simplify(String name)
@@ -207,6 +207,10 @@ public class ClassRef
 	public final static String localConcentration =
 			aspect.calculated.LocalConcentration.class.getName();
 
+	public final static String randomFactor =
+			aspect.calculated.RandomFactor.class.getName();
+
+
 	/* ************************************************************************
 	 * Class reference library : Aspects - Event
 	 */
@@ -306,6 +310,12 @@ public class ClassRef
 	 */
 	public final static String plasmidLoss =
 			aspect.event.PlasmidLoss.class.getName();
+
+	/**
+	 * mass transfer from parent cell to bud.
+	 */
+	public final static String buddingMassTransfer =
+			aspect.event.BuddingMassTransfer.class.getName();
 	
 	/**
 	 * the differential interaction force event
@@ -565,7 +575,10 @@ public class ClassRef
 	
 	public final static String distributedSpawner =
 			compartment.agentStaging.DistributedSpawner.class.getName();
-	
+
+	public final static String nonSpatialSpawner =
+			compartment.agentStaging.NonSpatialSpawner.class.getName();
+
 	public final static String epithelialLayerSpawner = 
 			compartment.agentStaging.EpithelialLayerSpawner.class.getName();
 	
@@ -788,7 +801,12 @@ public class ClassRef
 	 */
 	public final static String string =
 			String.class.getName();
-	
+
+	/**
+	 * Integer
+	 */
+	public final static String integer =
+			Integer.class.getName();
 	/**		
 	* String FIXME?? not sure whether java standard types should even be here, see also objectRef
 	*/		
@@ -817,6 +835,9 @@ public class ClassRef
 	
 	public static final String fillialDivision = 
 			aspect.event.FillialDivision.class.getName();
+
+	public static final String buddingDivision =
+			aspect.event.BuddingDivision.class.getName();
 	
 	public static final String torsionSPring = 
 			surface.link.TorsionSpring.class.getName();

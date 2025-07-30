@@ -12,6 +12,7 @@ import idynomics.Global;
 import idynomics.Idynomics;
 import instantiable.Instance;
 import referenceLibrary.XmlRef;
+import utility.Helper;
 
 /**
  * \brief TODO
@@ -361,6 +362,18 @@ public class Module
 				return a;
 		}
 		return null;
+	}
+
+	public String getOptionalAttribute(String attribute, String defaultValue) {
+		Attribute temp = this.getAttribute(attribute);
+		if (Helper.isNullOrEmpty(temp))
+			return defaultValue;
+		else
+			return temp.getValue();
+	}
+
+	public String getOptionalAttribute(String attribute, Object defaultValue) {
+		return getOptionalAttribute(attribute, String.valueOf(defaultValue));
 	}
 	
 	/**

@@ -33,7 +33,7 @@ public abstract class ComponentBoolean extends Elemental {
 	
 
 	@Override
-	public double getValue(Map<String, Double> variables) 
+	public double getValue(Map<String, Double> variables)
 	{
 		return (this.calculateBoolean(variables) ? 1.0 : 0.0);
 	}	

@@ -38,7 +38,7 @@ public class Multiplication extends ComponentDouble
 	}
 	
 	@Override
-	public Object evaluate(AspectInterface subject) 
+	public Object evaluate(AspectInterface subject)
 	{
 		return (double) this._a.evaluate(subject) * (double) this._b.evaluate(subject);
 	}

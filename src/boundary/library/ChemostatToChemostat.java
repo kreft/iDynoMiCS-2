@@ -16,7 +16,7 @@ import utility.Helper;
  * 
  * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
-public class ChemostatToChemostat extends ChemostatBoundary
+public class ChemostatToChemostat extends Boundary
 {
 	/**
 	 * \brief This boundary's behaviour for grabbing agents to be removed by
@@ -37,9 +37,8 @@ public class ChemostatToChemostat extends ChemostatBoundary
 		if (! XmlHandler.hasAttribute(xmlElement, XmlRef.constantVolume))
 			this.setVolumeFlowRate( XmlHandler.obtainDouble( 
 					xmlElement, XmlRef.volumeFlowRate, this.defaultXmlTag()));
-		this._agentRemoval = Helper.setIfNone( Boolean.valueOf( 
-				XmlHandler.gatherAttribute( xmlElement, XmlRef.agentRemoval ) ), 
-				false);
+		this._soluteRetention = Helper.setIfNone( XmlHandler.gatherBoolean(
+				xmlElement, XmlRef.soluteRetention ), false);
 	}
 
 	

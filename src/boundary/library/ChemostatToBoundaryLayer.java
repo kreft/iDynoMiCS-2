@@ -3,6 +3,7 @@
  */
 package boundary.library;
 
+import boundary.Boundary;
 import boundary.spatialLibrary.BiofilmBoundaryLayer;
 
 /**
@@ -11,7 +12,7 @@ import boundary.spatialLibrary.BiofilmBoundaryLayer;
  * 
  * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
-public class ChemostatToBoundaryLayer extends ChemostatBoundary
+public class ChemostatToBoundaryLayer extends Boundary
 {
 	/**
 	 * \brief This boundary's behaviour for grabbing agents to be removed by

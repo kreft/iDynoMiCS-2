@@ -114,7 +114,7 @@ public abstract class MultigridUtils {
 					uc[ic][jc][kc] *= nfac;
 					uc[ic][jc][kc] += 0.5f*u[i][j][k];
 					if ( Double.valueOf( uc[ic][jc][kc] ).isNaN() )
-						System.out.print(1);
+						System.out.print( "MultigridUtils restrict NaN detected" );
 				}
 		coarseGrid.refreshBoundary();
 	}

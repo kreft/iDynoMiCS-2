@@ -60,7 +60,7 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable,
 	 */
 	public Timer timer;
 	
-	public boolean interupt = true;
+	public boolean interrupt = false;
 	
 	public boolean stopAction = false;
 	/**
@@ -89,6 +89,7 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable,
 		
 	public Simulator()
 	{
+		Idynomics.simulator = this;
 		/* Just for unit tests initialize random number generator here */
 		if( ExtraMath.random == null )
     		ExtraMath.initialiseRandomNumberGenerator();
@@ -115,6 +116,7 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable,
 	
 	public void instantiate(Element xmlElem, Settable parent)
 	{
+		try {
 		/* 
 		 * Retrieve seed from xml file and initiate random number generator with
 		 * that seed.
@@ -174,7 +176,11 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable,
 			compartment.checkBoundaryConnections(this._compartments);
 			compartment.checkAgentDeparture();
 		}
-		this.interupt = false;
+		} catch(java.lang.NullPointerException e) {
+			Log.out(Tier.CRITICAL,"Instantiation canceled due to null pointer exception");
+			Log.out(Log.Tier.DEBUG, e.toString());
+			this.interrupt = true;
+		}
 	}
 	
 	/* ***********************************************************************
@@ -313,7 +319,7 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable,
 		for ( Compartment c : this._compartments )
 		{
 			c.step();
-			if(this.interupt)
+			if(this.interrupt)
 				return;
 		}
 
@@ -328,8 +334,7 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable,
 		 * 
 		 */
 		this.timer.step();
-
-		if( Log.shouldWrite(Tier.NORMAL ) && Global.log_memory_use )
+		if( Log.shouldWrite(Tier.DEBUG ) && Global.log_memory_use )
 			Log.out( "Memory: " + (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory())/1048576 + " MB" );
 
 		long agents = 0;
@@ -387,13 +392,14 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable,
 
 	public void run()
 	{
+
 		this.initialRun();
 		
 		/* Run the simulation. */
-		while ( this.timer.isRunning() && !this.interupt && !this.stopAction )
+		while ( this.timer.isRunning() && !this.interrupt && !this.stopAction )
 			this.step();
 		
-		if ( this.interupt )
+		if ( this.interrupt)
 		{
 			tic = (System.currentTimeMillis() - tic) * 0.001;
 			Log.out(Tier.NORMAL, "Simulation terminated in "+ tic +" seconds\n"+
@@ -435,13 +441,14 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable,
 	
 	public void interupt(String message)
 	{
-		this.interupt = true;
+		Log.out(Tier.CRITICAL, message);
+		this.interrupt = true;
 	}
 	
 
 	public boolean active() 
 	{
-		return !this.interupt;
+		return !this.interrupt;
 	}
 	
 	/* ***********************************************************************
@@ -487,6 +494,8 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable,
 	
 	public boolean isReadyForLaunch()
 	{
+		if (!this.active())
+			return false;
 		/* Check the log file is initialised. */
 		// TODO
 		/* Check the random number generator is initialised. */

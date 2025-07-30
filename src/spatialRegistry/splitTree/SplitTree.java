@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
+import idynomics.Global;
 import linearAlgebra.Vector;
 import spatialRegistry.Area;
 import spatialRegistry.Entry;
@@ -34,6 +35,8 @@ public class SplitTree<T> implements SpatialRegistry<T>
 	
 	private double[] _lengths;
 
+	protected double _atom;
+
 	/**
 	 * FIXME implement
 	 * @param list
@@ -52,6 +55,7 @@ public class SplitTree<T> implements SpatialRegistry<T>
 		
 		this.maxEntries = max;
 		this.longest = longest(low, high);
+		this._atom = (high[this.longest] - low[this.longest]) * Global.atomic_length;
 		this.childnodes = 1 << low.length;
 		this.combinations = this.combinations(low.length);
 		this.node = new Node<T>(low, high, this);

@@ -21,7 +21,7 @@ public class XmlExport
 	/**
 	 * Counter for documents created by this object: ensures unique file names.
 	 */
-	protected int _fileCounter = 0;
+	protected int _fileCounter = Idynomics.simulator.timer.getCurrentIteration();
 	
 	/**
 	 * TODO

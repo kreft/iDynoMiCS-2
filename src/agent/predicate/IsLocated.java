@@ -32,7 +32,7 @@ public class IsLocated  implements Predicate<Agent> {
 	public static boolean isLocated(Agent agent)
 	{
 		// also check whether we are in a chemostat
-		return ( agent.get(AspectRef.agentBody) != null );
+		return ( agent.isAspect(AspectRef.agentBody) );
 //				( agent.getBoolean(AspectRef.isLocated) );
 	}
 	/**

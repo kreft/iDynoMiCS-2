@@ -60,7 +60,7 @@ public class ReactionDiffusionMgFas implements Testable {
 		/* set height of the biofilm and the diffusion boundary layer */
 		int hBiofilm = 10, hDBL = (int) (hBiofilm+bLayer), x=0;
 		/* packing density of catalyst *cylinders* */
-		double pakcing = 0.75;
+		double pakcing = 0.7;
 		/* max accepted Mean absolute relative error. As it is quite difficult
 		 * to get to precisely line-out the biofilm height with the grid and to
 		 * get a precise packing density typically 15% would be a good result */

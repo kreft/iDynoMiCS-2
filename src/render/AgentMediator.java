@@ -108,7 +108,7 @@ public class AgentMediator implements CommandMediator {
 	/**
 	 * 
 	 */
-	public int definition = 3;
+	public int definition = 4;
 	/**
 	 * Default slices / stacks to subdivide polar objects.
 	 * TODO we really want to have this separate for small and large objects
@@ -233,7 +233,7 @@ public class AgentMediator implements CommandMediator {
 			_domainMaxima[_shape.getDimensionIndex(dn)] = max;
 		}
 		if (this._shape instanceof CartesianShape)
-			this._kickback = 1.5f * this._kickback;
+			this._kickback = 1.2f * this._kickback;
 		else
 			this._kickback = 3.0f * this._kickback;		
 	}

@@ -8,7 +8,7 @@ import expression.Elemental;
 
 public class LogicLessThan extends ComponentBoolean {
 
-	public LogicLessThan(Elemental a, Elemental b) 
+	public LogicLessThan(Elemental a, Elemental b)
 	{		
 		super(a, b);
 		this._expr = "<";

@@ -68,12 +68,13 @@ public class Diagram
 		for ( Agent a : comp.agents.getAllAgents() )
 		{
 			String spec = a.getString( XmlRef.species );
-			Object agentReactions = a.getValue( XmlRef.reactions );
-			if ( agentReactions != null)
-				for ( Reaction r : (List<Reaction>) agentReactions )
-					if ( ! reactions.keySet().contains( r ) )
-						reactions.put( r , a.getString( XmlRef.species ));
-			if ( ! species.contains( a.getString( spec ) ) )
+
+			if ( a.isAspect( XmlRef.reactions ) ) {
+				for (Reaction r : (List<Reaction>) a.getValue( XmlRef.reactions ) )
+					if (!reactions.keySet().contains(r))
+						reactions.put(r, a.getString(XmlRef.species));
+			}
+			if ( ! species.contains( a.isAspect( spec ) ? a.getString( spec ) : null ) )
 				this._diagramFile.write( spec + " \n");
 		}
 

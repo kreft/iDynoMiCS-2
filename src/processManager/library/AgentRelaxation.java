@@ -81,7 +81,7 @@ public class AgentRelaxation extends ProcessManager
 	public String DECOMPRESSION_CELL_LENGTH = AspectRef.decompressionCellLength;
 	private String DECOMPRESSION_THRESHOLD = AspectRef.decompressionThreshold;
 	
-	
+
 	/**
 	 * Available relaxation methods.
 	 */
@@ -221,78 +221,98 @@ public class AgentRelaxation extends ProcessManager
 	{
 		super.init(xmlElem, environment, agents, compartmentName);
 
-		this.maxAgentOverlap = Helper.setIfNone( this.getDouble(AspectRef.maxAgentOverlap),
-				0.1 );
+		/* FIXME: these defaults should be set as global */
+		this.maxAgentOverlap = this.isAspect(AspectRef.maxAgentOverlap)
+				? this.getDouble(AspectRef.maxAgentOverlap)
+				: 0.1;
 
-		this.moveGranularity = Helper.setIfNone( this.getDouble(AspectRef.moveGranularity),
-				0.05 );
+		this.moveGranularity = this.isAspect(AspectRef.moveGranularity)
+				? this.getDouble(AspectRef.moveGranularity)
+				: 0.25;
 
-		this.shoveFactor = Helper.setIfNone( this.getDouble(AspectRef.shoveFactor),
-				1.25 );
+		this.shoveFactor = this.isAspect(AspectRef.shoveFactor)
+				? this.getDouble(AspectRef.shoveFactor)
+				: 1.25;
 
-		/* Obtaining relaxation parameters. 
+		/* Obtaining relaxation parameters.
 		 * Base time step */
-		this._dtBase = Helper.setIfNone( this.getDouble(BASE_DT), 
-				Global.mechanical_base_step );
-		
+		this._dtBase = this.isAspect(AspectRef.collisionBaseDT)
+				? this.getDouble(AspectRef.collisionBaseDT)
+				: Global.mechanical_base_step;
+
 		/* Maximum displacement per step, set default if none */
-		this._maxMove = Helper.setIfNone( this.getDouble(MAX_MOVEMENT), 
-				Global.mechanical_max_movement );
-		
+		this._maxMove = this.isAspect(AspectRef.collisionMaxMOvement)
+				? this.getDouble(AspectRef.collisionMaxMOvement)
+				: Global.mechanical_max_movement;
+
 		/* Maximum displacement per step, set default if none */
-		this._maxIter = (Integer) Helper.setIfNone( this.getInt(MAX_ITERATIONS), 
-				Global.mechanical_max_iterations );
-		
+		this._maxIter = this.isAspect(AspectRef.maxIterations)
+				? this.getInt(AspectRef.maxIterations)
+				: Global.mechanical_max_iterations;
+
 		/* Set relaxation method, set default if none */
-		this._method = Method.valueOf( Helper.setIfNone(
-				this.getString(RELAXATION_METHOD), Method.EULER.toString() ) );
+		this._method = Method.valueOf(
+				this.isAspect(AspectRef.collisionRelaxationMethod)
+						? this.getString(AspectRef.collisionRelaxationMethod)
+						: Method.EULER.toString()
+		);
 
 		/* force static dt */
-		this._dtStatic = Helper.setIfNone( 
-				this.getBoolean(STATIC_TIMESTEP), false );
-		
+		this._dtStatic = this.isAspect(AspectRef.staticAgentTimeStep)
+				? this.getBoolean(AspectRef.staticAgentTimeStep)
+				: false;
+
 		/* Shape of associated compartment */
 		this._shape = agents.getShape();
-		
-		/* Surface objects of compartment, FIXME discovered circle returns a 
+
+		/* Surface objects of compartment, FIXME discovered circle returns a
 		 * rod type shape (2 points) instead of circle (2d sphere, 1 point). */
 		this._shapeSurfs  = this._shape.getSurfaces();
 
 		/* FIXME: we have to initiate collision scalar different, currently it is only possible trough globals. */
 		if( this._method == Method.SHOVE )
-		{
 			Global.collision_scalar = 1.0;
-		}
-		
+
 		/* Collision iterator */
-		this._iterator = new Collision( this.getString(COLLISION_FUNCTION),
-				this.getString(ATTRACTION_FUNCTION), this._shape);
-		
-		/* Stress threshold, used to skip remaining steps on very low stress,
-		 * 0.0 by default */
-		this._stressThreshold = Helper.setIfNone( 
-				this.getDouble(LOW_STRESS_SKIP), 0.0 );
-		
+		this._iterator = new Collision(
+				this.isAspect(AspectRef.collisionFunction) ? this.getString(AspectRef.collisionFunction) : null,
+				this.isAspect(AspectRef.attractionFunction) ? this.getString(AspectRef.attractionFunction) : null,
+				this._shape
+		);
+
+		/* Stress threshold, used to skip remaining steps on very low stress  */
+		this._stressThreshold = this.isAspect(AspectRef.stressThreshold)
+				? this.getDouble(AspectRef.stressThreshold)
+				: 0.0;
+
 		/* Include gravity / buoyancy ( experimental ) */
-		this._gravity = Helper.setIfNone( this.getBoolean(GRAVITY), false);
+		this._gravity = this.isAspect(AspectRef.gravity_testing)
+				? this.getBoolean(AspectRef.gravity_testing)
+				: false;
 
 		/* Limit the duration of biofilm compression */
-		this.compresionDuration = Helper.setIfNone( 
-				this.getDouble(COMPRESSION_DURATION), 0.0 );
-		
+		this.compresionDuration = this.isAspect(AspectRef.LimitCompressionDuration)
+				? this.getDouble(AspectRef.LimitCompressionDuration)
+				: 0.0;
+
 		/* Include decompression */
-		this._decompression = Helper.setIfNone( this.getBoolean(DECOMPRESSION), 
-				false);
+		this._decompression = this.isAspect(AspectRef.agentDecompression)
+				? this.getBoolean(AspectRef.agentDecompression)
+				: false;
 
 		if ( this._decompression )
-			decompressionMatrix = new Decompress( 
+			decompressionMatrix = new Decompress(
 					this._agents.getShape().getDimensionLengths(),
-					Helper.setIfNone(this.getDouble(DECOMPRESSION_CELL_LENGTH), //possibly change to must set since very depended on case.
-					0.0 ), Helper.setIfNone(this.getDouble(DECOMPRESSION_THRESHOLD), 
-					this._stressThreshold ), 
+					this.isAspect(AspectRef.decompressionCellLength)
+							? this.getDouble(AspectRef.decompressionCellLength)
+							: 0.0,
+					this.isAspect(AspectRef.decompressionThreshold)
+							? this.getDouble(AspectRef.decompressionThreshold)
+							: this._stressThreshold,
 					this._agents.getShape().getIsCyclicNaturalOrderIncludingVirtual(),
 					(double) this.getOr(AspectRef.traversingFraction, Global.traversing_fraction),
-					(double) this.getOr(AspectRef.dampingFactor, Global.damping_factor));
+					(double) this.getOr(AspectRef.dampingFactor, Global.damping_factor)
+			);
 	}
 
 	/* ************************************************************************
@@ -307,11 +327,10 @@ public class AgentRelaxation extends ProcessManager
 		Collection<Agent> allAgents = this._agents.getAllLocatedAgents();
 
 		/* With higher order ODE solvers, we need additional space to write. */
-		switch ( _method )
-		{
+		switch ( _method ) {
 		case HEUN :
 			for( Agent agent : allAgents )
-				for ( Point point: ( (Body) agent.get(BODY) ).getPoints() )
+				for ( Point point: ( (Body) agent.get(AspectRef.agentBody) ).getPoints() )
 					point.initialiseC(2);
 		default:
 			//by default, we do nothing.
@@ -331,28 +350,32 @@ public class AgentRelaxation extends ProcessManager
 				decompressionMatrix.buildDirectionMatrix();
 
 			for(Agent agent : allAgents )
-				if ( agent.isAspect(STOCHASTIC_STEP) )
-					agent.event(STOCHASTIC_MOVE, dtMech);
+				if ( agent.isAspect(AspectRef.agentStochasticStep) )
+					agent.event(AspectRef.agentStochasticMove, dtMech);
 
 			move( allAgents, dtMech );
 
 			if( Log.shouldWrite(Tier.DEBUG) )
 			{
 				for (Agent agent : allAgents)
-					for (Point point : ((Body) agent.get(BODY)).getPoints())
+					for (Point point : ((Body) agent.get(AspectRef.agentBody)).getPoints())
 						if (Double.isNaN(point.getPosition()[0]))
 							Log.out(Tier.DEBUG, "encountered NaN in agent Relaxation.");
 			}
 
 			/* NOTE that with proper boundary surfaces for any compartment
 			 * shape this should never yield any difference, it is here as a
-			 * fail safe
-			 *
-			 * FIXME this seems to result in crashes
+			 * failsafe
 			 * */
 			for(Agent agent : allAgents)
-				for ( Point point: ( (Body) agent.get(BODY) ).getPoints() )
-					point.setPosition( this._shape.applyBoundaries( point.getPosition() ) );
+				for ( Point point: ( (Body) agent.get(AspectRef.agentBody) ).getPoints() ) {
+				/* TODO: Uncomment if you are noticing crashes here,
+				    known problem that can occur here: multitude of divisions at once.
+					if( Vector.detectRisk( point.getPosition() ) )
+						System.out.println("Agent point with potential issue detected in AgentRelaxation");
+				*/
+					point.setPosition(this._shape.applyBoundaries(point.getPosition()));
+				}
 
 			nstep++;
 			if( dtMech == 0.0 )
@@ -382,8 +405,8 @@ public class AgentRelaxation extends ProcessManager
 			case SHOVE :
 			{
 				for ( Agent agent : agents )
-					for ( Point point: ( (Body) agent.get(BODY) ).getPoints() )
-						point.shove( this.maxAgentOverlap, this.shoveFactor, agent.getDouble(RADIUS) );
+					for ( Point point: ( (Body) agent.get(AspectRef.agentBody) ).getPoints() )
+						point.shove( this.maxAgentOverlap, this.shoveFactor, agent.getDouble(AspectRef.bodyRadius) );
 				/* NOTE: is stopped when {@link _stressThreshold} is reached
 				 * TODO add max iter for shove? */
 				break;
@@ -391,8 +414,8 @@ public class AgentRelaxation extends ProcessManager
 			case EULER :
 			{
 				for ( Agent agent : agents )
-					for ( Point point: ( (Body) agent.get(BODY) ).getPoints() )
-						point.euStep( dtMech, agent.getDouble(RADIUS) );
+					for ( Point point: ( (Body) agent.get(AspectRef.agentBody) ).getPoints() )
+						point.euStep( dtMech, agent.getDouble(AspectRef.bodyRadius) );
 				tMech += dtMech;
 				break;
 			}
@@ -400,12 +423,12 @@ public class AgentRelaxation extends ProcessManager
 			 * be careful.  */
 			case HEUN :
 				for(Agent agent : agents )
-					for ( Point point: ( (Body) agent.get(BODY) ).getPoints() )
-						point.heun1( dtMech, agent.getDouble(RADIUS) );
+					for ( Point point: ( (Body) agent.get(AspectRef.agentBody) ).getPoints() )
+						point.heun1( dtMech, agent.getDouble(AspectRef.bodyRadius) );
 				this.updateForces( agents, this._agents ); // subset
 				for(Agent agent : agents )
-					for ( Point point: ( (Body) agent.get(BODY) ).getPoints() )
-						point.heun2( dtMech, agent.getDouble(RADIUS) );
+					for ( Point point: ( (Body) agent.get(AspectRef.agentBody) ).getPoints() )
+						point.heun2( dtMech, agent.getDouble(AspectRef.bodyRadius) );
 				tMech += dtMech;
 				break;
 		}
@@ -420,8 +443,8 @@ public class AgentRelaxation extends ProcessManager
 			double ts;
 			vs = 0.0;
 			for(Agent agent : agents ) {
-				radius = agent.getDouble(RADIUS);
-				for ( Point point : ( (Body) agent.get(BODY) ).getPoints() ) {
+				radius = agent.getDouble(AspectRef.bodyRadius);
+				for ( Point point : ( (Body) agent.get(AspectRef.agentBody) ).getPoints() ) {
 					if ( ( ts = Vector.normSquare( point.dxdt(radius) ) ) > vs )
 						vs = ts;
 				}
@@ -439,7 +462,7 @@ public class AgentRelaxation extends ProcessManager
 			{
 				double f, fMax = 0.0;
 				for( Agent agent : agents)
-					for( Point p : ((Body) agent.get(BODY)).getPoints())
+					for( Point p : ((Body) agent.get(AspectRef.agentBody)).getPoints())
 					{
 						f = Vector.normEuclid( p.getForce() );
 						if( f > fMax )
@@ -459,10 +482,10 @@ public class AgentRelaxation extends ProcessManager
 			 * the highest velocity object in the system accounting for
 			 * stochastic movement to. */
 			for( Agent agent : agents )
-				if ( agent.isAspect( STOCHASTIC_DIRECTION ) )
+				if ( agent.isAspect( AspectRef.agentStochasticDirection ) )
 				{
 					double[] move =
-							(double[]) agent.get( STOCHASTIC_DIRECTION );
+							(double[]) agent.get( AspectRef.agentStochasticDirection );
 					vs = Math.max( Vector.dotProduct( move, move ), vs );
 				}
 
@@ -497,12 +520,8 @@ public class AgentRelaxation extends ProcessManager
 			List<Surface> agentSurfs = body.getSurfaces();
 
 			if( hs )
-			{
-				for( Point p : ((Body) agent.get(BODY)).getPoints())
-				{
+				for( Point p : ((Body) agent.get(AspectRef.agentBody)).getPoints())
 					p.resetForce();
-				}
-			}
 			
 			/* spring operations */
 			springEvaluation(agent, body);
@@ -531,7 +550,7 @@ public class AgentRelaxation extends ProcessManager
 				gravityEvaluation(agent, body);
 
 			if ( this._decompression )
-				for( Point p : ((Body) agent.get(BODY)).getPoints())
+				for( Point p : ((Body) agent.get(AspectRef.agentBody)).getPoints())
 				{
 					decompressionMatrix.addPressure(
 							p.getPosition(), Vector.normEuclid(p.getForce()));
@@ -578,7 +597,6 @@ public class AgentRelaxation extends ProcessManager
 	{
 		searchDist = (agent.isAspect(SEARCH_DIST) ?
 				agent.getDouble(SEARCH_DIST) : 0.0);
-		
 		/* Perform neighborhood search and perform collision detection and
 		 * response. */
 		Collection<Agent> nhbs = agentContainer.agentSearch(agent, searchDist);
@@ -590,8 +608,10 @@ public class AgentRelaxation extends ProcessManager
 				 */
 				if( searchDist != 0.0 )
 				{
-					agent.event(PULL_EVALUATION, neighbour);
-					pull = agent.getDouble(CURRENT_PULL_DISTANCE);
+					agent.event(AspectRef.collisionPullEvaluation, neighbour);
+					/* Here we are pulling the object imidiatly (even if it is null) and checking for it's
+					* existense later to prevent unnescisary overhead for this frequently called segment */
+					pull = (Double) agent.reg().getValue(agent, AspectRef.collisionCurrentPullDistance, false);
 				}
 				if ( pull == null || pull.isNaN() )
 					pull = 0.0;
@@ -599,7 +619,7 @@ public class AgentRelaxation extends ProcessManager
 				/* pass this agents and neighbor surfaces as well as the pull
 				 * region to the collision iterator to update the net forces. */
 				this._iterator.collision(surfaces, agent,
-						((Body) neighbour.get(BODY)).getSurfaces(), neighbour,
+						((Body) neighbour.get(AspectRef.agentBody)).getSurfaces(), neighbour,
 						pull);
 			}
 		return nhbs;
@@ -631,7 +651,7 @@ public class AgentRelaxation extends ProcessManager
 				if( !s.ready())
 				{
 					/* possible change to set vars */
-					s.setStiffness( Helper.setIfNone( a.getDouble(STIFFNESS), 
+					s.setStiffness( Helper.setIfNone( a.getDouble(AspectRef.spineStiffness),
 							1.0));
 					if( s instanceof LinearSpring)
 					{
@@ -698,7 +718,7 @@ public class AgentRelaxation extends ProcessManager
 		if ( tMech < compresionDuration || compresionDuration == 0.0 )
 		{
 			/* note should be mass per point */
-			double fg = agent.getDouble(MASS) * /* 1e-12 * 35.316e9 */ 1E9 * Global.density_difference;
+			double fg = agent.getDouble(AspectRef.agentMass) * /* 1e-12 * 35.316e9 */ 1E9 * Global.density_difference;
 			double[] fgV;
 			
 			if( this._shape.isOriented() )

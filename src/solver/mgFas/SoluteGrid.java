@@ -408,4 +408,9 @@ public class SoluteGrid extends SolverGrid
 	{
 		this._recordKeeper.add(r);
 	}
+
+	public String toString()
+	{
+		return Array.toString(this.grid);
+	}
 }

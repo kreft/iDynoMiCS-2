@@ -458,6 +458,11 @@ public final class GuiMenu
 			if (Helper.compartmentAvailable())
 			{
 				String table = GuiConsole.requestInput("Table logic");
+				if (Helper.isNullOrEmpty(table))
+				{
+					Log.out(Tier.NORMAL,"Query canceled");
+					return; // skip the rest of the method.
+				}
 				table = table.replaceAll("\\s+","");
 				FilteredTable tab = new FilteredTable(table);
 				Log.printToScreen(tab.display(), false);

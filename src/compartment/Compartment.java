@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import grid.ArrayType;
 import org.w3c.dom.Element;
 
 import agent.Agent;
@@ -366,6 +367,31 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable, C
 		{
 			new SpatialGrid( e, this.environment);
 		}
+
+		Element specials = XmlHandler.findUniqueChild(xmlElem, XmlRef.grids);
+		for ( Element e : XmlHandler.getElements(specials, XmlRef.solute))
+		{
+			new SpatialGrid(e, this.environment, true);
+		}
+
+		/*
+		 * create missing special grids
+		 */
+		/* FIXME could be refined */
+		for ( SpatialGrid s : environment.getSolutes() )
+		{
+			double[] pkas = s.getpKa();
+			if( pkas != null )
+			{
+				for( int i = 0; i <= pkas.length; i++)
+				{
+					if( !environment.isSpecialName(s.getName() + "___" + i))
+						environment.addSpecial((s.getName() + "___" + i), s.getAverage(ArrayType.CONCN));
+				}
+				if( !environment.isSpecialName("pH") )
+					environment.addSpecial("pH", 7.0);
+			}
+		}
 		/*
 		 * Load extra-cellular reactions.
 		 */
@@ -510,7 +536,7 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable, C
 	/**
 	 * \brief Add the given agent to this compartment.
 	 * 
-	 * @param Agent Agent to add.
+	 * @param agent Agent to add.
 	 */
 	public void addAgent(Agent agent)
 	{
@@ -612,7 +638,7 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable, C
 	/**
 	 * This method gets a list of arriving agents that originated in a
 	 * particular compartment. It is typically called by arrival processes.
-	 * @param originatingCompartment
+	 * @param origin
 	 * @return
 	 */
 	public LinkedList<Agent> getArrivals (String origin)

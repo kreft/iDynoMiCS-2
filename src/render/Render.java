@@ -115,7 +115,7 @@ public class Render implements GLEventListener, Runnable {
 	/* 
 	 * Light sources 
 	 */
-    private float[] lightPosition = {800.0f, 800.0f, 800.0f, 1f};
+    private float[] lightPosition = {1200.0f, 1200.0f, 1200.0f, 1f};
     private float[] lightAmbient = {0.5f, 0.5f, 0.5f, 1f};
     private float[] LightDiffuse = {0.5f, 0.5f, 0.5f, 1f};
     
@@ -160,6 +160,11 @@ public class Render implements GLEventListener, Runnable {
 		*/
 		gl.glClear(GL2.GL_COLOR_BUFFER_BIT | GL2.GL_DEPTH_BUFFER_BIT);
 
+		/* test auto definition */
+		int definition_update = Math.round( (float) Math.log(150_000.0f / dist ) );
+		if( definition_update < 10 && definition_update > 2)
+			((AgentMediator) this._commandMediator).definition = definition_update;
+
 	     // fps
 	     double currentTime = System.currentTimeMillis();
 	     nbFrames++;
@@ -172,7 +177,7 @@ public class Render implements GLEventListener, Runnable {
 	     if ( this._dispFps )
 	     {
 			 TextRenderer textRenderer = new TextRenderer(font);
-	    	 textRenderer.setColor(Color.YELLOW);
+	    	 textRenderer.setColor(Color.BLACK);
 	    	 textRenderer.setSmoothing(true);
 	         gl.glLoadIdentity();
 	         gl.glTranslatef(0f, 0f, -5.0f);
@@ -181,7 +186,10 @@ public class Render implements GLEventListener, Runnable {
 	         textRenderer.beginRendering(drawable.getSurfaceWidth(), drawable.getSurfaceHeight());
 	  
 	         textRenderer.draw( _fps + " fps", 10, y - font.getSize());
-	         
+
+			 y-=15;
+			 textRenderer.draw( definition_update + " render definition", 10, y - font.getSize());
+
 	         Map<String,String> solutes = 
 	        		 ((AgentMediator) this._commandMediator).soluteColors;
 	         for( String c : solutes.keySet())
@@ -189,11 +197,9 @@ public class Render implements GLEventListener, Runnable {
 	        	 y-=15;
 	        	 textRenderer.draw( solutes.get(c)+ ": " + c, 10, y - font.getSize());
 	         }
-	         
-	         
 	         textRenderer.endRendering();
 	     }
-			
+
 		/*
 		 * start new identity
 		 */
@@ -231,11 +237,11 @@ public class Render implements GLEventListener, Runnable {
 		hDist = Math.sin(_tilt+0.0001) * dist;
 		gl.glMatrixMode(GL2.GL_PROJECTION);
 		gl.glLoadIdentity();
-		
+
 		/* camera perspective */
-		_glu.gluPerspective( 25.0f, _aspectRatio, 
-				1.0, _commandMediator.kickback() + 1000.0 );
-		
+		_glu.gluPerspective( 20.0f, _aspectRatio,
+				dist * 0.5f, dist * 1.5f + Math.abs( _zoom ) * 1000.0f );
+
 		/* 
 		 * camera position, direction and rotation 
 		 */
@@ -734,7 +740,8 @@ public class Render implements GLEventListener, Runnable {
 			@Override
 			public void actionPerformed(ActionEvent g) {
 				System.out.println("def_add");
-				((AgentMediator) r._commandMediator).definition++;
+				if( ((AgentMediator) r._commandMediator).definition < 10 )
+					((AgentMediator) r._commandMediator).definition++;
 			}
 		});
 		
@@ -742,11 +749,12 @@ public class Render implements GLEventListener, Runnable {
 		inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_X, 0), "def_sub") ;
 		actionMap.put("def_sub", new AbstractAction(){
 			private static final long serialVersionUID = 346448974654345823L;
-			
+
 			@Override
 			public void actionPerformed(ActionEvent g) {
 				System.out.println("def_sub");
-				((AgentMediator) r._commandMediator).definition--;
+				if( ((AgentMediator) r._commandMediator).definition > 2 )
+					((AgentMediator) r._commandMediator).definition--;
 			}
 		});	
 		

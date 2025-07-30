@@ -13,7 +13,7 @@ public class CsvExport
 	/**
 	 * TODO
 	 */
-	protected int _filewriterfilenr = 0;
+	protected int _filewriterfilenr = 1;
 	/**
 	 * TODO
 	 */
@@ -48,9 +48,9 @@ public class CsvExport
 	 */
 	public void createFile(String prefix)
 	{
-		String fileString = Idynomics.global.outputLocation + prefix + "/" 
-				+ prefix + "_" + DigitFilenr(_filewriterfilenr)  
-				+ "_" + Idynomics.simulator.timer.getCurrentIteration() + ".csv";
+		String fileString = Idynomics.global.outputLocation + prefix + "/"
+				+ prefix + "_" + DigitFilenr(Idynomics.simulator.timer.getCurrentIteration())
+				+ "_" + DigitFilenr(_filewriterfilenr) + ".csv";
 		_csvFile.fnew(fileString);
 	}
 	

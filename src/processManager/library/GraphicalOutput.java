@@ -121,13 +121,13 @@ public class GraphicalOutput extends ProcessManager
 		this._shape = agents.getShape();
 		
 		/* If any, solute to plot */
-		this._solute = this.getString(SOLUTE_NAME);
+		this._solute = this.isAspect(SOLUTE_NAME) ? this.getString(SOLUTE_NAME) : null;
 		
 		/* ArrayType to plot (CONCN if unspecified_ */
 		str = (String) this.getOr(ARRAY_TYPE, CONCN.toString());
 		this._arrayType = ArrayType.valueOf(str);
 
-		String filename = this.getString( AspectRef.fileName );
+		String filename = this.isAspect(AspectRef.fileName) ? this.getString( AspectRef.fileName ) : null;
 		if( Helper.isNullOrEmpty(filename))
 			filename = "agents";
 		
@@ -160,7 +160,7 @@ public class GraphicalOutput extends ProcessManager
 				 this.getOr( AspectRef.colourSpecification, 
 						 Global.default_colour_specification), gradients, Idynomics.simulator.getCompartment( this._compartmentName) );
 
-		double[] filt = this.getDoubleA( AspectRef.filter );
+		double[] filt = this.isAspect( AspectRef.filter) ? this.getDoubleA( AspectRef.filter ) : null;
 		if( !Helper.isNullOrEmpty( filt ) )
 			this._graphics.setFilter( filter = filt );
 	}
@@ -180,8 +180,8 @@ public class GraphicalOutput extends ProcessManager
 	@Override
 	protected void internalStep()
 	{
-		if ( this.getInt(AspectRef.fileNumber) != null )
-			this._graphics.setFileNumber(this.getInt(AspectRef.fileNumber));
+		if ( this.isAspect( AspectRef.fileNumber) )
+			this._graphics.setFileNumber( this.getInt(AspectRef.fileNumber));
 		/* Initiate new file. */
 		this._graphics.createFile(this._prefix);
 		

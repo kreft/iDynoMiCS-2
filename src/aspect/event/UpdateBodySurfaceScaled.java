@@ -31,8 +31,7 @@ import utility.ExtraMath;
 public class UpdateBodySurfaceScaled extends Event {
 	
 	private boolean warned = false;
-	
-	public String MASS = AspectRef.agentMass;
+		public String MASS = AspectRef.agentMass;
 	public String REPRESENTED_DENSITY = AspectRef.agentRepresentedDensity;
 	public String RADIUS = AspectRef.bodyRadius;
 	public String VOLUME = AspectRef.agentVolume;
@@ -46,31 +45,22 @@ public class UpdateBodySurfaceScaled extends Event {
 		Body body = (Body) initiator.getValue(this.BODY);
 		Object volume = initiator.getValue(this.VOLUME);
 		Compartment comp = anAgent.getCompartment();
-		
-		if ( comp.getNumDims() != 2)
-		{
+		if ( comp.getNumDims() != 2) {
 			if(!warned && Log.shouldWrite(Tier.CRITICAL))
 				Log.out( Tier.CRITICAL, "Warning! standard scaling method for "
 						+ "non 2D compartment: " + comp.getNumDims() + 
 						" dimensional domain in " +	
 						this.getClass().getSimpleName() );
-			
 			/* standard agent body */
-			
 			UpdateBody updateBody = new UpdateBody();
-			
 			updateBody.start(initiator, compliant, timeStep);
-			
 			this.warned = true;
 		}
-		else
-		{
+		else {
 			double zLen = comp.getShape().getDimension(DimName.Z).getLength();
 			switch(body.getMorphology()) {
 			  case COCCOID:
-				  
-				  if (!(volume instanceof Map))
-				  {
+				  if (!(volume instanceof Map)) {
 					  double volumeDouble = (double) volume;
 					  /*
 					   * Do we need to use zLen and ExtraMath here?
@@ -80,108 +70,73 @@ public class UpdateBodySurfaceScaled extends Event {
 					  body.update( ExtraMath.radiusOfACylinder(
 							  volumeDouble, zLen ), 0.0, initiator);
 				  }
-				  
-				  else
-				  {
+				  else {
 					  body.update( initiator.getDouble(RADIUS), 0.0,
 								initiator);
 				  }
-				  
 				  break;
-				  
 			  case BACILLUS:
 				  double r = initiator.getDouble(RADIUS);
-				  
-				  if (!(volume instanceof Map))
-				  {
+				  if (!(volume instanceof Map)) {
 					  double volumeDouble = (double) volume;
-					  
-					  /*
+					   /*
 					   * Same question as above here
 					   */
-					  
 					  double l = (volumeDouble - ExtraMath.
 							  volumeOfACylinder(r, zLen)) /(zLen * 2 * r);
-					  
-					  if (l > 0.0)
-					  {
+					  if (l > 0.0) {
 						  body.update(r, l , initiator);
 					  }
-					  
 					  /*
 					   * If the rod would have a length less than 0, just make
 					   * it effectively a coccoid, without changing its
 					   * morphology aspect.
 					   */
-					  else
-					  {
+					  else {
 						  body.update( ExtraMath.radiusOfACylinder(
 								  volumeDouble, zLen ), 0.0, initiator);
 					  }
-					  
 				  }
-				  
-				  else
-				  {
+				  else {
 					  Map<String, Double> volumeMap = 
 							  (HashMap<String, Double>) volume;
-					  
 					  double cellVolume = 0.0;
 					  double epsVolume = 0.0;
-					  for (String component : volumeMap.keySet())
-					  {
+					  for (String component : volumeMap.keySet()) {
 						  if (component.equals(this.EPS))
 							  epsVolume += volumeMap.get(component);
 						  else
 							  cellVolume += volumeMap.get(component);
 					  }
-					  
-					  if (epsVolume == 0.0)
-					  {
+					  if (epsVolume == 0.0) {
 						  double rectangleVolume = cellVolume - 
 								  ExtraMath.volumeOfACylinder( r, 1.0 );
-						  
 						  double l = rectangleVolume / (2 * r);
-						  
-						  if (l > 0.0)
-						  {
+						  if (l > 0.0) {
 							  body.update( initiator.getDouble(RADIUS),
 									  l, initiator);
 						  }
-						  
-						  else
-						  {
+						  else {
 							  body.update( ExtraMath.radiusOfACylinder(
 									  cellVolume, zLen ), 0.0, initiator);
 						  }
 					  }
-					  
-					  else
-					  {
+					  else {
 						  double totalVolume = cellVolume + epsVolume;
-						  
-						  double rectangleVolume = cellVolume - 
+						  double rectangleVolume = cellVolume -
 								  ExtraMath.volumeOfACylinder( r, 1.0 );
-						  
 						  double l = rectangleVolume / (2 * r);
-						  
-						  if (l > 0.0)
-						  {
+						  if (l > 0.0) {
 							  double radiusWithEPS = 
 									 ExtraMath.radiusOfAStadium(totalVolume, l);
-							  
 							  body.update( radiusWithEPS, l, initiator);
 						  }
-						  
-						  else
-						  {
+						  else {
 							  body.update( ExtraMath.radiusOfACylinder(
 									  totalVolume, zLen ), 0.0, initiator);
 						  }
 					  }
-					  
 				  }
-				  
 				  break;
 			  default:
 				  Log.out(Tier.CRITICAL, this.getClass().getSimpleName()

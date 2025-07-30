@@ -36,7 +36,7 @@ public class SpecificationFilter implements Filter
 
 	public boolean match(AspectInterface subject)
 	{
-		return test.test(subject.getValue(property));
+		return test.test(subject.isAspect( this.property) ? subject.getValue(property) : null );
 	}
 
 }

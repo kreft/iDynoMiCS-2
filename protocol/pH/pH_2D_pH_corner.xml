@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+	<simulation name="pH_2D_sens" outputfolder="../results" log="NORMAL">
+		<timer stepSize="3 [h]" endOfSimulation="1 [d]" />
+		<speciesLib>
+			<species name="bacterium">
+				<speciesModule name="coccoid" />
+				<aspect name="reactions" class="InstantiableList"> 
+					<list nodeLabel="reaction" entryClass="RegularReaction">
+						<reaction name="growth">
+							<expression value="mass*((umax*c)/(Kc+c))*pH TRAPEZOID 0.0,3.0,7.0,9.0">
+								<constant name="Kc" value="0.1" /> 
+								<constant name="umax" value="0.1" /> 
+								<constant name="Kph" value="0.1" /> 
+								<constant name="pHopt" value="6.0" /> 
+							</expression>
+							<stoichiometric component="f" coefficient="50.0" />
+							<stoichiometric component="c" coefficient="-1.0" />
+							<stoichiometric component="mass" coefficient="0.01" />
+						</reaction> 
+					</list>
+				</aspect>
+			</species>
+			<species name="coccoid">
+				<aspect name="density" class="Double" value="0.15" />
+				<aspect name="surfaces" class="AgentSurfaces" />
+				<aspect name="morphology" class="String" value="coccoid" />
+				<aspect name="volume" class="SimpleVolumeState" />
+				<aspect name="radius" class="CylinderRadius" />
+				<aspect name="divide" class="CoccoidDivision" />
+				<aspect name="divisionMass" class="Double" value="0.5 [pg]" />
+				<aspect name="updateBody" class="UpdateBody" />
+			</species>
+		</speciesLib>
+		<compartment name="biofilm-compartment">
+			<shape class="Rectangle" resolutionCalculator="MgFASResolution" nodeSystem="true">
+				<dimension name="X" isCyclic="true" targetResolution="4.0" max="16.0"/>
+				<dimension name="Y" isCyclic="false" targetResolution="4.0" max="32.0">
+					<boundary extreme="1" class="FixedBoundary" layerThickness="16.0">
+						<solute name="c" 	concentration="0.10"  />
+						<solute name="f" 	concentration="0.10"  />
+						<solute name="cn" 	concentration="0.10"  />
+						<solute name="a" 	concentration="0.10"  />
+					</boundary>
+				</dimension>
+			</shape>
+			<solutes>
+				<solute name="c" concentration="0.10" defaultDiffusivity="20.0 [um+2/s]" biofilmDiffusivity="15.0 [um+2/s]"  />
+				<solute name="f" 	pKa="3.142667504"	concentration="0.10" defaultDiffusivity="20.0 [um+2/s]" biofilmDiffusivity="15.0 [um+2/s]"  />
+				<solute name="cn"	pKa="9.207608311" 	concentration="0.10" defaultDiffusivity="20.0 [um+2/s]" biofilmDiffusivity="15.0 [um+2/s]"  />
+				<solute name="a" 	pKa="9.795880017"	concentration="0.10" defaultDiffusivity="20.0 [um+2/s]" biofilmDiffusivity="15.0 [um+2/s]" />
+			</solutes>
+			<spawn class="randomSpawner" domain="16.0, 5.0" priority="0" number="50" morphology="COCCOID">
+				<templateAgent>
+					<aspect name="species" class="String" value="bacterium" />
+					<aspect name="mass" class="Double" value="0.2" />
+				</templateAgent>
+			</spawn>
+			<processManagers>
+				<process name="agentRelax"	class="AgentRelaxation" priority="0" >
+					<aspect name="maxAgentOverlap" class="Double" value="0.25 [um]" />
+					<aspect name="moveGranularity" class="Double" value="0.25" />
+				</process>
+				<process name="PDEWrapper" class="PDEWrapper" priority="1" />
+			</processManagers>
+		</compartment>
+	</simulation>
+</document>

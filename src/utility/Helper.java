@@ -207,7 +207,7 @@ public final class Helper
 	 * from.
 	 * @param description Descriptive message to tell the user what input is
 	 * required.
-	 * @param shouldLogMessage Boolean stating whether this interaction should 
+	 * @param noLog Boolean stating whether this interaction should
 	 * be added to the log (true) or printed to screen (false).
 	 * @return The requested input as a string.
 	 */
@@ -746,6 +746,14 @@ public final class Helper
 		    return true;
 		}
 		return false;
+	}
+
+	public static boolean vectParseable(String strParse)
+	{
+		for( String part : strParse.split(","))
+			if( !dblParseable(part))
+				return false;
+		return true;
 	}
 	
 	public static boolean intParseable(String strParse)

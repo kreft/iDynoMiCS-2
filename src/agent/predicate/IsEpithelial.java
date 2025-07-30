@@ -17,8 +17,10 @@ public class IsEpithelial implements Predicate<Agent> {
 		return isEpithelial(agent);
 	}
 	
+	//If the agent doesn't have the aspect, assume it is not epithelial
 	public static boolean isEpithelial(Agent agent) {
-		return ( agent.get(AspectRef.isEpithelial) != null ) && 
-				( agent.getBoolean(AspectRef.isEpithelial) );
+		return agent.isAspect(AspectRef.isEpithelial) ? 
+				agent.getBoolean(AspectRef.isEpithelial) :
+				Boolean.FALSE;
 	}
 }

@@ -35,20 +35,10 @@ public abstract class ComponentMultiple extends Component
 		super(Type.numeric);
 		this._components = components;
 	}
-	
-	/**
-	 * \brief Construct a component of a mathematical expression from two
-	 * sub-components.
-	 * 
-	 * @param a One of the two sub-components.
-	 * @param b The other sub-component.
-	 */
-	public ComponentMultiple(Component a, Component b)
+
+	public ComponentMultiple()
 	{
 		super(Type.numeric);
-		this._components = new ArrayList<Component>();
-		this.appendComponent(a);
-		this.appendComponent(b);
 	}
 
 	@Override

@@ -16,6 +16,7 @@ import idynomics.Idynomics;
 import instantiable.Instantiable;
 import linearAlgebra.Matrix;
 import linearAlgebra.Vector;
+import processManager.ProcessMethods;
 import referenceLibrary.ClassRef;
 import referenceLibrary.XmlRef;
 import settable.Attribute;
@@ -23,6 +24,9 @@ import settable.Module;
 import settable.Module.Requirements;
 import settable.Settable;
 import surface.BoundingBox;
+import utility.ExtraMath;
+
+import java.util.Map;
 
 /**
  * 
@@ -164,6 +168,33 @@ public abstract class Spawner implements Settable, Instantiable, AspectInterface
 	}
 	
 	public abstract void spawn();
+
+	public void randomizeMass(Agent newRandom)
+	{
+		if( newRandom.isAspect( "randomize" ))
+		{
+			String ran = newRandom.getString( "randomize" );
+			Double factor =  newRandom.getDouble( "factor" );
+			Map<String,Double> biomass = ProcessMethods.getAgentMassMap( newRandom );
+
+			Double out = ExtraMath.getUniRand( 1.0-factor, 1.0+factor);
+			if ( biomass.containsKey(ran) )
+			{
+				out = biomass.get(ran) * out;
+				biomass.put(ran, out);
+			}
+			else if ( newRandom.isAspect(ran) )
+			{
+				/*
+				 * Check if the agent has other mass-like aspects
+				 * (e.g. EPS).
+				 */
+				out = newRandom.getDouble(ran) * out;
+				biomass.put(ran, out);
+			}
+			ProcessMethods.updateAgentMass(newRandom,biomass);
+		}
+	}
 	
 	/**
 	 * Allows for direct access to the aspect registry
