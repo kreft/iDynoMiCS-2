@@ -22,18 +22,21 @@ public class PHsolver implements Callable<PKstruct[]> {
         this.pkSolutes = pkSolutes;
     }
 
+    private boolean negConc = false;
+
     @Override
     public PKstruct[] call() {
         return solve(pkSolutes);
     }
 
     public PKstruct[] solve(PKstruct[] pkSolutes) {
+        this.negConc = false;
         // Existing solve logic remains unchanged
         normalizePKaValues(pkSolutes);
         int nVar = 2;
 
         for (PKstruct struct : pkSolutes) {
-            if (struct.pKa != null) nVar += struct.pStates.length;
+            if (struct.pKa != null ) nVar += struct.pStates.length;
         }
 
         NonLinearFunction myFun = new NonLinearFunction();
@@ -49,11 +52,32 @@ public class PHsolver implements Callable<PKstruct[]> {
         for (PKstruct struct : pkSolutes) {
             if (struct.pStates != null) {
                 for (int j = 0; j < struct.pStates.length; j++) {
-                    struct.pStates[j] = solver.getX().get(i++, 0);
+                    struct.pStates[j] = minimumConcentration( solver.getX().get(i++, 0) );
                 }
             }
         }
+
+        for (PKstruct p : pkSolutes) {
+            if (p.pKa != null ) {
+                double sum = 0.0;
+                for( double d : p.pStates ) {
+                    sum += d;
+                }
+                if( sum - p.conc > 1e-9)
+                    System.out.println("protonation state mass not balanced " + (sum - p.conc));
+            }
+        }
         return pkSolutes;
+    }
+
+    private double minimumConcentration(double conc) {
+        if( conc < 1.0E-99 ) {
+            negConc = true;
+            System.out.println(this.getClass().getSimpleName() + " minimum concentration safety triggered");
+            return 1.0E-99;
+        }
+        else
+            return conc;
     }
 
     public void normalizePKaValues(PKstruct[] pkStructs) {
@@ -90,12 +114,12 @@ public class PHsolver implements Callable<PKstruct[]> {
             this.initial = new Double[nvar];
             int i = 0;
             // Overestimating initial H and OH a bit when pH is completely unknown appears to help the solver.
-            initial[i++] = (pKsolutes[0].conc == 7.0 ? 1E-5 : Math.pow(10.0, -pKsolutes[0].conc));
-            initial[i++] = (pKsolutes[0].conc == 7.0 ? 1E-5 : Math.pow(10.0, -(14.0 - pKsolutes[0].conc)));
+            initial[i++] = (pKsolutes[0].conc == 7.0 ? 1E-5 : Math.pow(10.0, -pKsolutes[0].conc) );
+            initial[i++] = (pKsolutes[0].conc == 7.0 ? 1E-5 : Math.pow(10.0, -(14.0 - pKsolutes[0].conc)) );
             for (PKstruct struct : pKsolutes) {
                 if (struct.pStates != null) {
                     for (double d : struct.pStates)
-                        initial[i++] = d;
+                        initial[i++] = Math.max(d, 1E-12);
                 }
             }
         }
@@ -148,23 +172,25 @@ public class PHsolver implements Callable<PKstruct[]> {
                 if( temp < 0.0 )
                     negs += temp;
             }
-            negs = negs * 1E2;
+            negs = negs;
             /* Water dissociation */
             double h = x.get(0, 0);
             double oh = x.get(1, 0);
-            fun.set(0, 0, ((h * oh) - kw) + negs);
+            fun.set(0, 0, ((h * oh) - kw) + 100*negs);
             /* initial guess if no prior pStates exist, distribute the mass evenly over the protonation states */
             double[] s = new double[b - 2];
             int j = 2;
             for( PKstruct p : _pkSolutes) {
                 if (p.pStates != null) {
+                    int k = 0;
                     for (double d : p.pStates) {
                         double[] pStateArray = calculateSpeciesConcentrations(p, h);
                         if (d == 0.0)
-                            initial[j] = pStateArray[j];
+                            initial[j] = pStateArray[k];
                         else
                             initial[j] = d;
                         j++;
+                        k++;
                     }
                 }
             }
@@ -231,7 +257,7 @@ public class PHsolver implements Callable<PKstruct[]> {
         options.setAnalyticalJacobian(false);
         options.setSaveIterationDetails(true);
         options.setAlgorithm(solver);
-        options.setAllTolerances(1E-30);
+        options.setAllTolerances(1E-19);
         options.setMaxStep(5_000); // min 5k in some cases
         options.setMaxIterations(5_000); // could increase if we notice this doesn't work
         NonlinearEquationSolver nonlinearSolver = new NonlinearEquationSolver(f, options);

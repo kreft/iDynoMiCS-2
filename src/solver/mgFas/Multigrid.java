@@ -17,6 +17,7 @@ import compartment.EnvironmentContainer;
 import dataIO.Log;
 import grid.ArrayType;
 import grid.SpatialGrid;
+import idynomics.Global;
 import idynomics.Idynomics;
 import linearAlgebra.Array;
 import linearAlgebra.Vector;
@@ -508,14 +509,14 @@ public class Multigrid
 		* pH evaluation here is mostly there for aesthetic purposes and to not confuse the user with default values. */
 		int numStructs=1;
 		for ( SpatialGrid s : solutes ) {
-			if( s.getpKa() != null)
+			if( s.getpKa() != null && s.getAverage(ArrayType.CONCN) > Global.low_concentration_ph_solver )
 				numStructs++;
 		}
 		if( numStructs > 1) {
 			PKstruct[] pkSolutes = new PKstruct[numStructs];
 			int pkSol = 1;
 			for (SpatialGrid s : solutes) {
-				if (s.getpKa() != null) {
+				if (s.getpKa() != null && s.getAverage(ArrayType.CONCN) > Global.low_concentration_ph_solver ) {
 					pkSolutes[pkSol] = new PKstruct();
 					pkSolutes[pkSol].solute = s.getName();
 					pkSolutes[pkSol].conc = s.getAverage(ArrayType.CONCN) / s.getMolarWeight(); // convert mass concentration to molar concentration.

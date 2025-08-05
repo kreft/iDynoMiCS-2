@@ -14,6 +14,7 @@ import boundary.Boundary;
 import boundary.WellMixedBoundary;
 import dataIO.Log;
 import dataIO.ObjectFactory;
+import grid.ArrayType;
 import idynomics.Global;
 import org.w3c.dom.Element;
 
@@ -398,15 +399,26 @@ public class PDEWrapper extends ProcessDiffusion {
     }
 
     /* TODO reuse structs for efficiency */
+
+    /**
+     * Create PKstructs for pH solver skip solutes that are too low.
+     *
+     * @param concGrid
+     * @param specialGrid
+     * @param solutes
+     * @param position
+     * @param resorder
+     * @return
+     */
     private PKstruct[] createPKSolutes(MultigridSolute[] concGrid, MultigridSolute[] specialGrid, Collection<SpatialGrid> solutes, IntegerArray position, int resorder) {
-        int numStructs = 1 + (int) solutes.stream().filter(s -> s.getpKa() != null).count();
+        int numStructs = 1 + (int) solutes.stream().filter(s -> s.getpKa() != null && getConc(concGrid, s.getName(), position.get(), resorder) > Global.low_concentration_ph_solver ).count();
         if (numStructs <= 1) return null;
 
         PKstruct[] pkSolutes = new PKstruct[numStructs];
         int pkSol = 1;
 
         for (SpatialGrid s : solutes) {
-            if (s.getpKa() != null) {
+            if (s.getpKa() != null && getConc(concGrid, s.getName(), position.get(), resorder) > Global.low_concentration_ph_solver ) {
                 pkSolutes[pkSol] = createPKStruct(s, concGrid, specialGrid, position.get(), resorder);
                 pkSol++;
             }

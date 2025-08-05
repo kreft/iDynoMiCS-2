@@ -178,14 +178,14 @@ public class ChemostatSolver extends ProcessManager
 			Collection<SpatialGrid> solutes = this._environment.getSolutes();
 			int numStructs=1;
 			for ( SpatialGrid s : solutes ) {
-				if( s.getpKa() != null)
+				if( s.getpKa() != null && s.getAverage(ArrayType.CONCN) > Global.low_concentration_ph_solver )
 					numStructs++;
 			}
 			if( numStructs > 1) {
 				PKstruct[] pkSolutes = new PKstruct[numStructs];
 				int pkSol = 1;
 				for (SpatialGrid s : solutes) {
-					if (s.getpKa() != null) {
+					if (s.getpKa() != null && s.getAverage(ArrayType.CONCN) > Global.low_concentration_ph_solver ) {
 						pkSolutes[pkSol] = new PKstruct();
 						pkSolutes[pkSol].solute = s.getName();
 						pkSolutes[pkSol].conc = s.getAverage(ArrayType.CONCN) / s.getMolarWeight(); // convert mass concentration to molar concentration.
@@ -198,8 +198,8 @@ public class ChemostatSolver extends ProcessManager
 							pkSolutes[pkSol].pStates[nPstate] = spec.getAverage(ArrayType.CONCN);
 							nPstate++;
 						}
+						pkSol++;
 					}
-					pkSol++;
 				}
 				pkSolutes[0] = new PKstruct();
 				pkSolutes[0].solute = "pH";

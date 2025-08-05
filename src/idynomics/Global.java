@@ -389,6 +389,11 @@ public class Global extends ParameterSet
 	public static double negligible_change = 1e-13;
 
 	/**
+	 * Lowest concentration solute to be considered by the pH solver
+	 */
+	public static double low_concentration_ph_solver = 1.0e-6;
+
+	/**
 	 * Number of digits (including leading zeros) in file numbering
 	 */
 	public static int file_number_of_digits = 5;
