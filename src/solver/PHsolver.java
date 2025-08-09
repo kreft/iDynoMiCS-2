@@ -24,56 +24,33 @@ public class PHsolver implements Callable<PKstruct[]> {
 
     private boolean negConc = false;
 
-    private static final double THRESHOLD = 1e-15;
-    private static final double EPSILON = 1e-300;
+    /**
+     * SHIFT to move where the linear region of the Softplus function starts
+     */
+    private static final double SHIFT = Math.log(1e-15); // ln(1e-10) = -23.02585093
 
-    static double softplusThreshold = THRESHOLD;
+    private static final double SOFTPLUS_THRESHOLD = 1E-14;
     @Override
     public PKstruct[] call() {
         return solve(pkSolutes);
     }
 
-    private double smoothPositiveTransform(double x) {
-        // Ensure input non-negative (or clip if needed)
-        double val = Math.max(x, 0);
-
-        // Safeguard inside log
-        double shiftedLog = Math.log(val + EPSILON) - Math.log(THRESHOLD);
-
-        // Standard softplus on shifted log scale
-        double sp = softplus(shiftedLog);
-
-        // Scale back to original magnitude
-        return sp * THRESHOLD;
+    /**
+     * With softplus x and y become identical for larger values, but at lower values of y (or negative values of y)
+     * x becomes an asymptote that approaches zero.
+     * @param y
+     * @return
+     */
+    private double shiftedSoftplus(double y) {
+        double shifted = y - SHIFT;
+        if (shifted > 30) return y; // linear region
+        return Math.log1p(Math.exp(shifted)) + SHIFT;
     }
 
-    private double smoothPositiveInverse(double y) {
-        // Inverse of smoothPositiveTransform
-
-        // Guard y >= 0
-        double val = Math.max(y, 0);
-
-        // Inverse softplus
-        double invSp = softplusInverse(val / THRESHOLD);
-
-        // Undo shifting and exponentiate
-        double x = Math.exp(invSp + Math.log(THRESHOLD)) - EPSILON;
-
-        // Avoid negative numerics
-        return Math.max(x, 0);
-    }
-
-    // Helper functions for softplus transformation
-    private double softplus(double y) {
-        // x = ln(1 + exp(y)) - numerically stable version
-        if (y > 30) return y; // For large y, softplus(y) ≈ y
-        return Math.log1p(Math.exp(y)); // More stable than log(1 + exp(y))
-    }
-
-    private double softplusInverse(double x) {
-        // y = ln(exp(x) - 1) - inverse of softplus
-        if (x > 30) return x; // For large x
-        return Math.log(Math.expm1(x)); // More stable than log(exp(x) - 1)
+    private double shiftedSoftplusInverse(double x) {
+        double value = x - SHIFT;
+        if (value > 30) return x; // linear region inverse
+        return Math.log(Math.expm1(value)) + SHIFT;
     }
 
     public PKstruct[] solve(PKstruct[] pkSolutes) {
@@ -93,10 +70,10 @@ public class PHsolver implements Callable<PKstruct[]> {
         NonlinearEquationSolver solver = chemTestnoLin(nVar, 0, myFun);
 
         // Convert results based on which variables used transformation
-        double h = myFun.shouldTransformVariable(0) ? smoothPositiveTransform(solver.getX().get(0, 0)) : solver.getX().get(0, 0);
-        double oh = myFun.shouldTransformVariable(1) ? smoothPositiveTransform(solver.getX().get(1, 0)) : solver.getX().get(1, 0);
+        double h = myFun.shouldTransformVariable(0) ? shiftedSoftplus(solver.getX().get(0, 0)) : solver.getX().get(0, 0);
+        double oh = myFun.shouldTransformVariable(1) ? shiftedSoftplus(solver.getX().get(1, 0)) : solver.getX().get(1, 0);
 
-        System.out.println("h, oh, ph" + h + " " + oh);
+//        System.out.println("h, oh, ph" + h + " " + oh);
         double pH = (h > 1E-10 ? -Math.log10(h) : 14 + Math.log10(oh));
         int i = 2;
 
@@ -106,7 +83,7 @@ public class PHsolver implements Callable<PKstruct[]> {
             if (struct.pStates != null) {
                 for (int j = 0; j < struct.pStates.length; j++) {
                     if (myFun.shouldTransformVariable(i)) {
-                        struct.pStates[j] = smoothPositiveTransform(solver.getX().get(i, 0));
+                        struct.pStates[j] = shiftedSoftplus(solver.getX().get(i, 0));
                     } else {
                         struct.pStates[j] = minimumConcentration(solver.getX().get(i, 0));
                     }
@@ -122,7 +99,7 @@ public class PHsolver implements Callable<PKstruct[]> {
                     sum += d;
                 }
                 if( sum - p.conc > 1e-9)
-                    System.out.println("protonation state mass not balanced " + (sum - p.conc));
+                    System.out.println(p.solute + " protonation state mass not balanced " + (sum - p.conc));
             }
         }
         return pkSolutes;
@@ -184,9 +161,9 @@ public class PHsolver implements Callable<PKstruct[]> {
             double ohConc = (pKsolutes[0].conc == 7.0 ? 1e-4 : Math.pow(10.0, -(14.0 - pKsolutes[0].conc)));
 
             // Transform H+ if concentration is very low (high pH)
-            if (hConc < softplusThreshold) {
+            if (hConc < SOFTPLUS_THRESHOLD) {
                 transformVariable[i] = true;
-                initial[i] = smoothPositiveInverse(Math.max(hConc, 1E-12));
+                initial[i] = shiftedSoftplusInverse(Math.max(hConc, 1E-12));
             } else {
                 transformVariable[i] = false;
                 initial[i] = Math.max(hConc, 1E-12);
@@ -194,9 +171,9 @@ public class PHsolver implements Callable<PKstruct[]> {
             i++;
 
             // Transform OH- if concentration is very low (low pH)
-            if (ohConc < softplusThreshold) {
+            if (ohConc < SOFTPLUS_THRESHOLD) {
                 transformVariable[i] = true;
-                initial[i] = smoothPositiveInverse(Math.max(ohConc, 1E-12));
+                initial[i] = shiftedSoftplusInverse(Math.max(ohConc, 1E-12));
             } else {
                 transformVariable[i] = false;
                 initial[i] = Math.max(ohConc, 1E-12);
@@ -208,9 +185,9 @@ public class PHsolver implements Callable<PKstruct[]> {
                 if (struct.pStates != null) {
                     for (double d : struct.pStates) {
                         double conc = Math.max(d, 1e-15);
-                        if (d < softplusThreshold) {
+                        if (d < SOFTPLUS_THRESHOLD) {
                             transformVariable[i] = true;
-                            initial[i] = smoothPositiveInverse(Math.max(d, 1e-15));
+                            initial[i] = shiftedSoftplusInverse(d);
                         } else {
                             transformVariable[i] = false;
                             initial[i] = conc;
@@ -274,13 +251,13 @@ public class PHsolver implements Callable<PKstruct[]> {
                 }
             }
 
-            negs = negs * 0.1;
+            negs *= 0.5;
             /* Get concentrations - transform only selected variables */
-            double h = shouldTransformVariable(0) ? smoothPositiveTransform(x.get(0, 0)) : Math.max(x.get(0, 0), 1E-199);
-            double oh = shouldTransformVariable(1) ? smoothPositiveTransform(x.get(1, 0)) : Math.max(x.get(1, 0), 1E-199);
+            double h = shouldTransformVariable(0) ? shiftedSoftplus(x.get(0, 0)) : Math.max(x.get(0, 0), 1E-300);
+            double oh = shouldTransformVariable(1) ? shiftedSoftplus(x.get(1, 0)) : Math.max(x.get(1, 0), 1E-300);
 
             /* Water dissociation */
-            fun.set(0, 0, ((h * oh) - kw) +0.1*negs); // negs);
+            fun.set(0, 0, ((h * oh) - kw) +negs); // negs);
 
             /* initial guess if no prior pStates exist, distribute the mass evenly over the protonation states */
             double[] s = new double[b - 2];
@@ -292,15 +269,15 @@ public class PHsolver implements Callable<PKstruct[]> {
                         double[] pStateArray = calculateSpeciesConcentrations(p, h);
                         if (d == 0.0) {
                             if (shouldTransformVariable(j)) {
-                                initial[j] = smoothPositiveInverse(Math.max(pStateArray[k], 1E-15));
+                                initial[j] = shiftedSoftplusInverse(pStateArray[k]);
                             } else {
-                                initial[j] = Math.max(pStateArray[k], 1E-15);
+                                initial[j] = Math.max(pStateArray[k], 1E-30);
                             }
                         } else {
                             if (shouldTransformVariable(j)) {
-                                initial[j] = smoothPositiveInverse(Math.max(d, 1E-15));
+                                initial[j] = shiftedSoftplusInverse(d);
                             } else {
-                                initial[j] = Math.max(d, 1E-15);
+                                initial[j] = Math.max(d, 1E-30);
                             }
                         }
                         j++;
@@ -316,14 +293,14 @@ public class PHsolver implements Callable<PKstruct[]> {
                 if (p.pStates != null) {
                     for (double d : p.pKa) {
                         // Get concentrations based on transformation
-                        s[i] = shouldTransformVariable(j) ? smoothPositiveTransform(x.get(j, 0)) : Math.max(x.get(j, 0), 1E-199);
-                        s[i + 1] = shouldTransformVariable(j + 1) ? smoothPositiveTransform(x.get(j + 1, 0)) : Math.max(x.get(j + 1, 0), 1E-199);
+                        s[i] = shouldTransformVariable(j) ? shiftedSoftplus(x.get(j, 0)) : Math.max(x.get(j, 0), 1E-300);
+                        s[i + 1] = shouldTransformVariable(j + 1) ? shiftedSoftplus(x.get(j + 1, 0)) : Math.max(x.get(j + 1, 0), 1E-300);
 
                         /* calculate dissociation in acidic solutions with H+, for alkaline solutions use OH- */
                         if( -Math.log10(h) <= 7.0 )
-                            fun.set(k++, 0, (((h * s[i+1]) / noZeroDiv(s[i])) - Math.pow(10,-d)) +0.1*negs ); //+ negs);
+                            fun.set(k++, 0, (((h * s[i+1]) / noZeroDiv(s[i])) - Math.pow(10,-d)) +negs ); //+ negs);
                         else
-                            fun.set(k++, 0, (((oh * s[i]) / noZeroDiv(s[i+1])) - kw/Math.pow(10,-d)) +0.1*negs ); //+ negs);
+                            fun.set(k++, 0, (((oh * s[i]) / noZeroDiv(s[i+1])) - kw/Math.pow(10,-d)) +negs ); //+ negs);
                         i++;
                         j++;
                     }
