@@ -45,9 +45,10 @@ public class AgentScraper extends ProcessDeparture {
 				this.getDouble( MAX_THICKNESS ),
 				agents.getShape().getDimensionLengths()[1] );
 
-		this._centerPointRemoval = Helper.setIfNone(
-				this.getBoolean( AspectRef.centerPointRemoval ),
-				false );
+        if (this.isAspect(AspectRef.centerPointRemoval))
+		    this._centerPointRemoval = this.getBoolean( AspectRef.centerPointRemoval );
+        else
+            this._centerPointRemoval = false;
 	}
 
 	/**

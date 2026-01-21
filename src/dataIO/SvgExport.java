@@ -6,6 +6,7 @@ import idynomics.Global;
 import idynomics.Idynomics;
 import linearAlgebra.Vector;
 import settable.Settable;
+import shape.Shape;
 import surface.Ball;
 import surface.Rod;
 
@@ -29,7 +30,7 @@ public class SvgExport implements GraphicalExporter
 	/**
 	 * TODO
 	 */
-	protected double _scalar = 10.0;
+	protected double _scalar = 1.5;
 	/**
 	 * TODO
 	 */
@@ -51,6 +52,11 @@ public class SvgExport implements GraphicalExporter
 	{
 		/* init something from xml? */
 	}
+
+    public void init(String prefix, Shape shape)
+    {
+        this._scalar = 512.0/Vector.max( Vector.subset( shape.getDimensionLengths(), 2) );
+    }
 	
 	/**
 	 * handles incrementing file numbering

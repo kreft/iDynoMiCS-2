@@ -2290,6 +2290,15 @@ public final class Vector
 			out = Math.min(out, vector[i]);
 		return out;
 	}
+
+
+    public static double[] abs(double[] vector)
+    {
+        double[] out = new double[vector.length];
+        for ( int i = 0; i < vector.length; i++ )
+            out[i] = Math.abs(vector[i]);
+        return out;
+    }
 	
 	/* Norms */
 	

@@ -12,14 +12,14 @@
 			gradient = "true" form = "HSB" opacity = "1.0">
 		<shift brightness = "-1.0"/>
 	</colour>
-	<colour baseColour="0.5, 1.0, 1.0" name = "cyan"
+	<colour baseColour="0.85, 1.0, 0.7" name = "cyan"
 			gradient = "true" form = "HSB" opacity = "1.0">
 		<shift brightness = "-1.0" />
 	</colour>
-	<colour baseColour="0.15, 1.0, 1.0" 
+	<colour baseColour="0.5, 1.0, 0.7" 
 			gradient = "true" form = "HSB" opacity = "1.0">
 		<shift brightness = "-1.0" saturation = "-0.5"/>
 	</colour>
-	<colour baseColour = "0.85, 0.1, 0.6" 
+	<colour baseColour = "0.15, 0.1, 0.7" 
 			gradient = "false" form = "HSB" opacity = "1.0" />
 </document>

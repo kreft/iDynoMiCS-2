@@ -91,16 +91,16 @@ public class PlasmidDynamics extends ProcessManager {
 	private Double _currentTime = this.getTimeForNextStep();
 	
 	/**
-	 * Speed of F-pilus extension, taken to be 40 nm/sec = 144 um/hr
+	 * Speed of F-pilus extension, taken to be 40 nm/sec = 144 um/hr = 2.4 um/min
 	 * See: https://doi.org/10.1073/pnas.0806786105
 	 */
-	private Double _piliExtensionSpeed = 144.0;
+	private Double _piliExtensionSpeed = 2.4;
 	
 	/**
-	 * Speed of F-pilus retraction, taken to be 16 nm/sec = 57.6 um/hr
+	 * Speed of F-pilus retraction, taken to be 16 nm/sec = 57.6 um/hr = 0.96 um/min
 	 * See: https://doi.org/10.1073/pnas.0806786105
 	 */
-	private Double _piliRetractionSpeed = 57.6;
+	private Double _piliRetractionSpeed = 0.96;
 	
 	/**
 	 * Plasmid length at collision
@@ -371,6 +371,8 @@ public class PlasmidDynamics extends ProcessManager {
 			this._plasmidAgents.put(nbr, temp);
 		}
 		_previousConjugated.put(dnr, localTime);
+        if( Log.shouldWrite(Tier.DEBUG))
+            Log.out(Tier.DEBUG, "Plasmid sent!");
 	}
 	
 	/**
@@ -411,12 +413,9 @@ public class PlasmidDynamics extends ProcessManager {
 			for (String plsmd : plasmidsInDonor.keySet()) {
 				Predicate<Agent> hasPlasmid = new HasAspect(plsmd);
 				neighbours.removeIf(hasPlasmid);
-				boolean conjugation = false;
-				if (!neighbours.isEmpty())
-					conjugation = this.conjugate(donor, c.agents, plsmd, plasmidsInDonor.get(plsmd));
-				if (conjugation) {
-					Log.out(Tier.DEBUG, "Plasmid sent!");
-				}
+				if (!neighbours.isEmpty()) {
+                    this.conjugate(donor, c.agents, plsmd, plasmidsInDonor.get(plsmd));
+                }
 			}
 		}
 	}
