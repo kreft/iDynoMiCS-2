@@ -217,16 +217,6 @@ public final class GuiConsole
   	private static void write(String message, AttributeSet a)
   	{
   		Document doc =	_console.getDocument();
-  		/* Too many characters in the gui will make it slow */
-  		if (doc.getLength() > 100000 )
-  		{
-			try {
-				/* keep the top bit with storage location and start time */
-				doc.remove(2000, 12000);
-			} catch (BadLocationException e1) {
-				e1.printStackTrace();
-			}
-  		}
   		try
   		{
   			doc.insertString(doc.getLength(), message, a);
@@ -236,13 +226,22 @@ public final class GuiConsole
   			// TODO
   		}
   	}
-	
-  	//TODO this causes crash when running from command prompt
+
   	public static void scroll()
   	{
+        Document doc =	_console.getDocument();
+        /* Too many characters in the gui will make it slow */
+        if (doc.getLength() > 100000 )
+        {
+            try {
+                /* keep the top bit with storage location and start time */
+                doc.remove(2000, 12000);
+            } catch (BadLocationException e1) {
+                e1.printStackTrace();
+            }
+        }
   		if ( _autoScroll  && _console != null )
   		{
-  			Document doc =	_console.getDocument();
   			_console.setCaretPosition(doc.getLength());
   		}
   	}

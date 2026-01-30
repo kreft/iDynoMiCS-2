@@ -265,13 +265,21 @@ public class ChemostatSolver extends ProcessManager
 		 * of y depends on the number of agents
 		 */
 		String solverName = (String) this.getOr(SOLVER, "heun");
-		double hMax = (double) this.getOr(HMAX, 1.0e-6);
+		double hMax = (double) this.getOr(HMAX, 1.0e-1);
 		if ( solverName.equals("rosenbrock") )
 		{
 			double tol = (double) this.getOr(TOLERANCE, 1.0e-6);
 			this._solver = new ODErosenbrock( new String[l], false, tol, hMax);
 		}
-		else
+		else if ( solverName.equals("bogackiShampine") )
+        {
+            double tol = (double) this.getOr(TOLERANCE, 1.0e-8);
+            if (this._solver == null)
+                this._solver = new ODEbogackiShampinemethod( new String[l], false, tol, hMax);
+            else
+                this._solver.init(new String[l], false);
+        }
+        else
 			this._solver = new ODEheunsmethod( new String[l], false, hMax);
 		this._solver.setDerivatives( this.standardUpdater( this._environment, 
 				this._agents));
