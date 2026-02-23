@@ -270,7 +270,8 @@ public class Log
 
 	public static void step()
 	{
-		GuiConsole.scroll();
+        if ( Helper.isSystemRunningInGUI )
+		    GuiConsole.scroll();
 	}
 
 	public static String stringValue()
