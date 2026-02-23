@@ -587,6 +587,9 @@ public class ClassRef
 	
 	public final static String solidBoundary =
 			boundary.spatialLibrary.SolidBoundary.class.getName();
+
+    public final static String biofilmMembraneBoundary =
+            boundary.spatialLibrary.BiofilmMembraneBoundary.class.getName();
 	
 	/* ************************************************************************
 	 * shape classes

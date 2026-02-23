@@ -153,7 +153,7 @@ public class FloatingAgentDeparture extends ProcessDeparture {
 			
 			for (SpatialBoundary boundary: collidingBoundaries)
 			{
-				if (boundary.isSolid())
+				if (boundary.retainsAgents())
 				{
 					attached = true;
 				}

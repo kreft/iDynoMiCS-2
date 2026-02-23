@@ -302,7 +302,7 @@ public abstract class ProcessDeparture extends ProcessManager {
 
 				for (SpatialBoundary boundary : collidingBoundaries)
 				{
-					if (!boundary.isSolid())
+					if (!boundary.retainsAgents())
 					{
 						agentsToDepart.add(a);
 					}

@@ -391,7 +391,7 @@ public class BiofilmBoundaryLayer extends WellMixedBoundary
 			this._concns.put(soluteName, p.getSoluteConcentration(soluteName));
 	}
 
-	public boolean isSolid()
+	public boolean retainsAgents()
 	{
 		return false;
 	}

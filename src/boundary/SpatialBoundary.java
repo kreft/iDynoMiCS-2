@@ -166,7 +166,6 @@ public abstract class SpatialBoundary extends Boundary
 	 * \brief TODO
 	 * 
 	 * @param grid
-	 * @param type
 	 * @param bndrConcn
 	 * @return
 	 */
@@ -293,6 +292,10 @@ public abstract class SpatialBoundary extends Boundary
 		Dimension dimension = (Dimension) parent;
 		this._dim = dimension.getName();
 	}
+
+    public boolean soluteFlux(String soluteName) {
+        return false;
+    }
 	
-	public abstract boolean isSolid();
+	public abstract boolean retainsAgents();
 }

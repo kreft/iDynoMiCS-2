@@ -361,7 +361,7 @@ public class AgentAttachmentRandomWalk extends ProcessArrival {
 				{
 					for (SpatialBoundary b : boundaries)
 					{
-						if (b.isSolid())
+						if (b.retainsAgents())
 						{
 							//If agent has hit a solid boundary, continue to 
 							//random walk and insertion
@@ -425,7 +425,7 @@ public class AgentAttachmentRandomWalk extends ProcessArrival {
 			{
 				for (Boundary b : boundaries)
 				{
-					if (((SpatialBoundary) b).isSolid())
+					if (((SpatialBoundary) b).retainsAgents())
 					{
 						//If agent has hit a solid spatial boundary, add it to
 						//the compartment.

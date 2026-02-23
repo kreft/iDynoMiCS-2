@@ -16,7 +16,7 @@ import dataIO.Log.Tier;
  * 
  * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
-public abstract class WellMixedBoundary extends SpatialBoundary
+public abstract class WellMixedBoundary extends SpatialBoundary implements ConcentrationBoundry
 {
 	/**
 	 * Solute concentrations.
@@ -28,6 +28,11 @@ public abstract class WellMixedBoundary extends SpatialBoundary
 	{
 		super();
 	}
+
+    @Override
+    public boolean soluteFlux(String soluteName) {
+        return true;
+    }
 	
 	@Override
 	public boolean needsToUpdateWellMixed()

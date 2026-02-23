@@ -411,9 +411,11 @@ public class EnvironmentContainer implements CanPrelaunchCheck, Settable
 		for ( SpatialBoundary boundary : boundaries )
 		{
 			scaleFactor = boundary.getTotalSurfaceArea()/totalArea;
+            double scFac = 1;
 			String partnerCompName = boundary.getPartnerCompartmentName();
 			Compartment partnerComp = Idynomics.simulator.getCompartment(partnerCompName);
-			double scFac = thisComp.getScalingFactor() / partnerComp.getScalingFactor();
+            if( partnerComp != null )
+                scFac = thisComp.getScalingFactor() / partnerComp.getScalingFactor();
 			for ( SpatialGrid solute : this._solutes )
 			{
 				double solMassFlow = solute.getWellMixedMassFlow();

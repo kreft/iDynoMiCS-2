@@ -57,8 +57,12 @@ public class SolidBoundary extends SpatialBoundary
 
 	@Override
 	public void additionalPartnerUpdate() {}
+
+    public boolean soluteFlux(String soluteName) {
+        return false;
+    }
 	
-	public boolean isSolid()
+	public boolean retainsAgents()
 	{
 		return true;
 	}

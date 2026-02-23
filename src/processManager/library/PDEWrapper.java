@@ -112,8 +112,11 @@ public class PDEWrapper extends ProcessDiffusion {
 
     public double fetchBulk(String solute) {
         for (Boundary b : this._environment.getShape().getAllBoundaries()) {
+            /* keeping this for older java compatibility, we could check and cast
+            directly in the future eg: (b instanceof WellMixedBoundary castedBoundary) */
             if (b instanceof WellMixedBoundary)
-                return ((WellMixedBoundary) b).getConcentration(solute);
+                if (((WellMixedBoundary) b).soluteFlux(solute))
+                    return ((WellMixedBoundary) b).getConcentration(solute);
         }
         return 0.0;
     }

@@ -13,7 +13,7 @@ package solver.mgFas;
 
 import java.util.LinkedList;
 
-import boundary.WellMixedBoundary;
+import boundary.ConcentrationBoundry;
 import grid.ArrayType;
 import grid.SpatialGrid;
 import linearAlgebra.Array;
@@ -329,20 +329,17 @@ public class SoluteGrid extends SolverGrid
 				pad.cyclic(this, d.dimNum(), true);
 				pad.cyclic(this, d.dimNum(), false);
 			}
-			else {
-				if ( dim.isBoundaryDefined(0) && dim.getBoundary(0) instanceof WellMixedBoundary) {
-					pad.constantConcentration(this, d.dimNum(), false, bulk);
-
-				} else {
-					pad.zeroFlux(this, d.dimNum(), false);
-				}
-
-				if (dim.isBoundaryDefined(1) && dim.getBoundary(1) instanceof WellMixedBoundary) {
-					pad.constantConcentration(this, d.dimNum(), true, bulk);
-				} else {
-					pad.zeroFlux(this, d.dimNum(), true);
-				}
-			}
+            else {
+                for (int side = 0; side <= 1; side++) {
+                    if (dim.isBoundaryDefined(side) && dim.getBoundary(side).soluteFlux(this.gridName)) {
+                        double c = (this.gridName == null) ? bulk : // use default bulk for diffusivity grid
+                                ((ConcentrationBoundry) dim.getBoundary(side)).getConcentration(this.gridName);
+                        pad.constantConcentration(this, d.dimNum(), (side == 1), c);
+                    } else {
+                        pad.zeroFlux(this, d.dimNum(), (side == 1));
+                    }
+                }
+            }
 		}
 //
 //		/* solid bound */

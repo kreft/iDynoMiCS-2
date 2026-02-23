@@ -132,7 +132,8 @@ public class PlasmidDynamics extends ProcessManager {
 				}
 			}
 		}
-		Log.out(Tier.DEBUG, "Plasmid operations initialised");
+        if( Log.shouldWrite(Tier.DEBUG))
+		    Log.out(Tier.DEBUG, "Plasmid operations initialised");
 	}
 	
 	/*************************************************************************
@@ -143,8 +144,8 @@ public class PlasmidDynamics extends ProcessManager {
 	 * \brief Plasmid transfer via conjugation. At each time step we check the pilus length
 	 * and determine the number of transfer that can happen.
 	 * 
-	 * @param agent a: Donor agent
-	 * @param AgentContainer agents: All agents present in the comparment
+	 * @param a: Donor agent
+	 * @param agents: All agents present in the comparment
 	 * @param plasmid: plasmid undergoing conjugation
 	 * @param tPlasmid: 
 	 */
@@ -350,7 +351,7 @@ public class PlasmidDynamics extends ProcessManager {
 	/**
 	 * Function to send plasmid to neighbour.
 	 * 
-	 * @param transfer_probability: Proabability that the donor plasmid will undrgo conjugation
+	 * //@param transfer_probability: Proabability that the donor plasmid will undrgo conjugation
 	 * @param nbr: Neighbour agent who will receive the plasmid
 	 * @param dnr: Donor agent with plasmid
 	 * @param plasmid: The plasmid to be transferred
@@ -391,8 +392,8 @@ public class PlasmidDynamics extends ProcessManager {
 		 * Retrieves all agents with those plasmids and searches for their neighbours within distance of pilus length
 		 * which is determined by the time of simulation and speed of plasmid extension.
 		 */
-		
-		Log.out(Tier.DEBUG, "Plasmid Dynamics internal step starting");
+        if( Log.shouldWrite(Tier.DEBUG))
+		    Log.out(Tier.DEBUG, "Plasmid Dynamics internal step starting");
 		this._currentTime = this.getTimeForNextStep();
 		this._aspectsToCopy.clear();
 		HashMap<Agent, Map<String, Double>> currentPlasmidAgents = 
@@ -403,9 +404,9 @@ public class PlasmidDynamics extends ProcessManager {
 			HashMap<String, Double> plasmidsInDonor = new HashMap<String, Double>(plasmidAgent.getValue());
 			Compartment c = donor.getCompartment();
 			
-			List<Agent> neighbours = new LinkedList<Agent>();
+			List<Agent> neighbours;
 			if (IsLocated.isLocated(donor)) {
-				neighbours = c.agents.getAllLocatedAgents();
+				neighbours = c.agents.getAllLocatedAgents(); // this is all agents not just neighbours!!
 			}
 			else {
 				neighbours = c.agents.getAllUnlocatedAgents();

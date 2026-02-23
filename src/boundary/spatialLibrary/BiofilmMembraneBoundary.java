@@ -1,33 +1,36 @@
 package boundary.spatialLibrary;
 
-import java.util.Collection;
-
-import dataIO.ObjectFactory;
-import grid.ArrayType;
-import org.w3c.dom.Element;
-
+import boundary.ConcentrationBoundry;
+import boundary.SpatialBoundary;
+import dataIO.Log;
 import dataIO.XmlHandler;
+import grid.SpatialGrid;
 import instantiable.Instantiable;
+import org.w3c.dom.Element;
 import referenceLibrary.XmlRef;
 import settable.Attribute;
 import settable.Module;
 import settable.Settable;
 
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+
 /**
- * \brief Spatial boundary where solute concentrations are kept fixed. Solid
- * surface to agents. Intended for testing purposes.
- * 
- * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
  */
-public class FixedBoundary extends BiofilmBoundaryLayer implements Instantiable
+public class BiofilmMembraneBoundary extends SpatialBoundary implements Instantiable, ConcentrationBoundry
 {
-	
+    /**
+     * Solute concentrations.
+     */
+    protected Map<String,Double> _concns = new HashMap<String,Double>();
+
 	/* ***********************************************************************
 	 * CONSTRUCTORS
 	 * **********************************************************************/
-	
-	public FixedBoundary()
+
+	public BiofilmMembraneBoundary()
 	{ 
 		super(); 
 	}
@@ -49,6 +52,10 @@ public class FixedBoundary extends BiofilmBoundaryLayer implements Instantiable
 		}
 	}
 
+    /**
+     * TODO update
+     * @return
+     */
 	@Override
 	public Module getModule()
 	{
@@ -81,7 +88,29 @@ public class FixedBoundary extends BiofilmBoundaryLayer implements Instantiable
 	/* ***********************************************************************
 	 * SOLUTE TRANSFERS
 	 * **********************************************************************/
-	
+
+    @Override
+    public boolean soluteFlux(String soluteName) {
+        if(this._concns.containsKey(soluteName))
+            return true;
+        else
+            return false;
+    }
+
+    @Override
+    protected boolean needsLayerThickness()
+    {
+        return false;
+    }
+
+    @Override
+    protected double calcDiffusiveFlow(SpatialGrid grid)
+    {
+        /*
+         * TODO: update for combination with chemostat
+         */
+        return 0.0;
+    }
 	/**
 	 * \brief Set the concentration of a solute at this boundary.
 	 * 
@@ -92,6 +121,24 @@ public class FixedBoundary extends BiofilmBoundaryLayer implements Instantiable
 	{
 		this._concns.put(name, concn);
 	}
+
+    public double getConcentration(String soluteName)
+    {
+        try
+        {
+            return this._concns.get(soluteName);
+        }
+        catch (Exception e)
+        {
+            return 0.0;
+        }
+    }
+
+    @Override
+    public void updateWellMixedArray()
+    {
+
+    }
 
 	@Override
 	public void additionalPartnerUpdate() {}

@@ -58,7 +58,7 @@ public class BiofilmMembraneLiquid extends SpatialBoundary
 	@Override
 	public void additionalPartnerUpdate() {}
 	
-	public boolean isSolid()
+	public boolean retainsAgents()
 	{
 		return true;
 	}
