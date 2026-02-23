@@ -46,7 +46,7 @@ public class ChemostatOut extends Boundary
 	public void instantiate(Element xmlElement, Settable parent) 
 	{
 		if (! XmlHandler.hasAttribute(xmlElement, XmlRef.constantVolume))
-			this.setVolumeFlowRate( Math.abs( XmlHandler.obtainDouble(
+			this.setVolumeFlowRate( -Math.abs( XmlHandler.obtainDouble(
 					xmlElement, XmlRef.volumeFlowRate, this.defaultXmlTag())));
 		else
 			this.constantVolume = true;
