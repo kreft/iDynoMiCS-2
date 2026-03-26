@@ -17,6 +17,7 @@ public class Decompress {
 	public boolean[] _periodicDimensions;
 	public double traversingFraction = Global.traversing_fraction;
 	public double[] _pows;
+    public double scalar = 1.0;
 	
 	public Decompress(double[] max, double targetResolution, double threshold,
 			boolean[] periodicDimensions, double traversingFraction, double dampingFactor)
@@ -34,6 +35,7 @@ public class Decompress {
 		for( int i = 0; i < nDim; i++ )
 		{
 			resolution[i] = max[i] / Math.ceil(max[i] / targetResolution);
+            scalar *= resolution[i];
 		}
 		
 		maxima = new int[] { 
@@ -86,7 +88,7 @@ public class Decompress {
 	{
 		
 		int[] loc = translate(location, resolution);
-		pressure[loc[0]][loc[1]][loc[2]] += amount*traversingFraction;
+		pressure[loc[0]][loc[1]][loc[2]] += amount/scalar;
 	}
 	
 	public int[] getMop(double[] location)

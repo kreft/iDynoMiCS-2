@@ -376,12 +376,12 @@ public class Global extends ParameterSet
 	 * {@Link Decompress} fraction of local stress traversing outwards in
 	 * decompression algorithm
 	 */
-	public static double traversing_fraction = 0.02;
+	public static double traversing_fraction = 0.5;
 	
 	/**
 	 * Default decompression parameters
 	 */
-	public static double damping_factor = 0.9;
+	public static double damping_factor = 0.75;
 
 	/**
 	 * Used to determine if a residual in multigrid is becoming negligibly small.

@@ -500,7 +500,6 @@ public class AgentRelaxation extends ProcessManager
 				{
 					decompressionMatrix.addPressure(
 							p.getPosition(), Vector.normEuclid(p.getForce()));
-					p.addToForce(decompressionMatrix.getDirection(p.getPosition()));
 				}
 			
 			/*
@@ -509,6 +508,15 @@ public class AgentRelaxation extends ProcessManager
 			 */
 			this._iterator.collision(this._shapeSurfs, null, agentSurfs, agent, 0.0);
 		}
+
+        if ( this._decompression )
+            for ( Agent agent: agents ) {
+                var points = ((Body) agent.get(AspectRef.agentBody)).getPoints();
+                for (Point p : ((Body) agent.get(AspectRef.agentBody)).getPoints()) {
+                    p.addToForce(Vector.times(decompressionMatrix.getDirection(p.getPosition()
+                    ), (agent.isAspect(AspectRef.agentMass) ? agent.getDouble(AspectRef.bodyRadius) : 1.0 )));
+                }
+            }
 		return out;
 	}
 
