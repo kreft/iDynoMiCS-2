@@ -6,7 +6,9 @@ import analysis.FilterLogic;
 import analysis.filter.Filter;
 import analysis.filter.ValueFilter;
 import aspect.AspectInterface;
+import aspect.AspectReg;
 import compartment.Compartment;
+import referenceLibrary.AspectRef;
 
 public class ColourSpecification {
 	
@@ -53,8 +55,12 @@ public class ColourSpecification {
 	{
 		/* placeholder code before merge */
 		String factor = subject.getString( filter );
-		if( !factors.containsKey( factor ) )
-			this.factors.put( factor, palette.getNext() );
+		if( !factors.containsKey( factor ) ) {
+            if( subject.isAspect(AspectRef.agentPigment))
+                this.factors.put(factor, palette.getColour(subject.getString(AspectRef.agentPigment)));
+            else
+                this.factors.put(factor, palette.getNext());
+        }
 		if( this._gradients == null )
 			return this.factors.get( factor ).returnColourRGB( new float[3] );
 		else {

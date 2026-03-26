@@ -2,6 +2,7 @@ package colour;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 
 import org.w3c.dom.Element;
@@ -15,7 +16,7 @@ public class Palette {
 	
 	private HashMap<String, Colour> colours = new HashMap<String, Colour>();
 	
-	private LinkedList<String> unAssigned = new LinkedList<String>();
+	private HashSet<String> unAssigned = new HashSet<String>();
 	
 	public enum Property 
 	{
@@ -98,8 +99,20 @@ public class Palette {
 	
 	public Colour getNext()
 	{
-		String out = unAssigned.getFirst();
+		String out = unAssigned.iterator().next();
 		unAssigned.remove( out );
 		return colours.get( out );
 	}
+
+    public Colour getColour(String colour)
+    {
+        if (unAssigned.contains(colour) ) {
+            unAssigned.remove(colour);
+            return colours.get(colour);
+        }
+        else {
+            Log.out(Tier.NORMAL, "Requested colour " + colour + " is not available from palette, using next available.");
+            return getNext();
+        }
+    }
 }
