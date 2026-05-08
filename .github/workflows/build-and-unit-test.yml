@@ -113,7 +113,7 @@ jobs:
           echo "artifact=$(pwd)/artifact-bundle" >> $GITHUB_OUTPUT
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: iDynoMiCS-2
           path: artifact-bundle/
@@ -136,7 +136,7 @@ jobs:
         ]
     steps:
       - name: Download build artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: iDynoMiCS-2
           path: artifact-bundle
@@ -161,7 +161,7 @@ jobs:
           fi
 
       - name: Upload output
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         if: always()
         with:
           name: results-${{ matrix.test-class }}
