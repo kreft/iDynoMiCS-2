@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+	<simulation name="Bud_transfer" outputfolder="../results" log="EXPRESSIVE" randomSeed="4"
+		comment="this is a file for testing purposes only.">
+		<!-- minutes -->
+		<timer stepSize="15.0 [min]" endOfSimulation="12 [day]" outputskip="10"  />
+		<speciesLib>
+			<species name="bud">
+				<speciesModule name="coccoid" />
+				<speciesModule name="diferentiator" />
+				<aspect name="localSol" value="10.0" />
+				<aspect name="unlinkProbabillity" class="double" value="0.0" />
+				<aspect name="agentType" class="String" value="attachedBud" />
+				<aspect name="reactions" type="PRIMARY"  class="InstantiableList"> 
+					<list class="RegularReaction" nodeLabel="reaction" 
+					entryClass="RegularReaction" keyClass="String" keyLabel="name">
+						<reaction name="vesicleProduction">
+							<expression value="biomass * vemax * 
+									( COD / ( COD + Ks ) ) * 
+									( oxygen / ( oxygen + Kox ) )">
+								<constant name="Ks" 	value="2.4 [g/m+3]" /> 
+								<constant name="Kox" 	value="0.6 [g/m+3]" />
+								<constant name="vemax" 	value="1.0 [d-1]" />  
+							</expression>
+							<stoichiometric component="vesicle" coefficient="1.0" />
+							<stoichiometric component="COD" 	coefficient="-12.63" />
+							<stoichiometric component="oxygen"  coefficient="-1.40" />
+						</reaction> 
+						<reaction name="growth">
+							<expression value="biomass * mumax * 
+									( vesicle / ( vesicle + Kv ) )">
+								<constant name="Kv" 	value="0.001 [pg]" /> 
+								<constant name="mumax" 	value="100.0 [d-1]" />  
+							</expression>
+							<stoichiometric component="vesicle" coefficient="-1.0" />
+							<stoichiometric component="biomass" coefficient="1.0" />
+						</reaction> 
+						<reaction name="maintenance">
+							<expression value="biomass * ( b )">
+								<constant name="b" 	value="1.0E-3" /> 
+							</expression>
+							<stoichiometric component="COD" 	coefficient="-1.0" />
+							<stoichiometric component="oxygen"  coefficient="-0.1" />
+						</reaction> 
+					</list>
+				</aspect>
+			</species>
+			<species name="mature">
+				<speciesModule name="coccoid" />
+				<speciesModule name="diferentiator" />
+				<aspect name="unlinkProbabillity" class="double" value="0.0" />
+				<aspect name="growthStop" class="randomFactor" />
+				<aspect name="reactions" type="PRIMARY"  class="InstantiableList"> 
+					<list class="RegularReaction" nodeLabel="reaction" 
+					entryClass="RegularReaction" keyClass="String" keyLabel="name">
+						<reaction name="vesicleProduction">
+							<expression value="biomass * vemax * 
+									( COD / ( COD + Ks ) ) * 
+									( oxygen / ( oxygen + Kox ) )">
+								<constant name="Ks" 	value="2.4 [g/m+3]" /> 
+								<constant name="Kox" 	value="0.6 [g/m+3]" />
+								<constant name="vemax" 	value="1.0 [d-1]" />  
+							</expression>
+							<stoichiometric component="vesicle" coefficient="1.0" />
+							<stoichiometric component="COD" 	coefficient="-12.63" />
+							<stoichiometric component="oxygen"  coefficient="-1.40" />
+						</reaction> 
+						<reaction name="maintenance">
+							<expression value="biomass * ( b )">
+								<constant name="b" 	value="1.0E-3" /> 
+							</expression>
+							<stoichiometric component="COD" 	coefficient="-1.0" />
+							<stoichiometric component="oxygen"  coefficient="-0.1" />
+						</reaction> 
+					</list>
+				</aspect>
+			</species>
+			<species name="coccoid">
+			
+				<aspect name="tranferMassType" 		class="String" 	value="vesicle" />
+				<aspect name="divisionMassType"		class="String"	value="biomass" />
+				<aspect name="recipientType" 		class="String" 	value="child" />
+			
+				<aspect name="density" 				class="Double" 		value="0.15" />
+				<aspect name="surfaces" 			class="AgentSurfaces" />
+				<aspect name="divisionMass" 		class="Double" 		value="1.1" />
+				<aspect name="mumMassFrac" 			class="Double" 		value="0.80" />
+				<aspect name="divide" 				class="BuddingDivision" />
+				<aspect name="directionalDivision"	class="Boolean" 	value="true" />
+				<aspect name="updateBody" 			class="UpdateBody" />
+				<aspect name="volume" 				class="SimpleVolumeState" />
+				<aspect name="radius" 				class="CoccoidRadius" />
+				<aspect name="torsionStiffness" 	class="Double" 		value="0.8 [fN]" />
+				<aspect name="torsionFunction" 		class="Expression" 	value="stiffness * dif * #e ^ (-( dif / 0.35 ) ^ 2.0)" />
+				<aspect name="linearStiffness" 		class="Double" 		value="1.0 [fN]" />
+				<aspect name="linearFunction" 		class="Expression" 	value="stiffness * dh" />
+				<aspect name="localSol" class="LocalConcentration" input="COD" />
+				<aspect name="levelSol" class="Double" value="5 [mg/L]" />
+			</species>
+			<species name="diferentiator">
+				<aspect name="differentiate" class="Differentiate" />
+				<aspect name="differentiationMap" class="InstantiableMap">
+					<map entryClass="String" keyType="String">
+						<item key="parent == 1.0" value="mature"  />
+						<item key="parent == 0.0" value="bud"  />
+					</map>
+				</aspect>
+			</species>
+
+		</speciesLib>
+		<compartment name="Compartment3D">
+			<shape class="Cuboid" resolutionCalculator="MgFASResolution" nodeSystem="true">
+				<!-- µm -->
+				<dimension name="X" isCyclic="true" 	targetResolution="8.0" max="128.0"/>
+				<dimension name="Y" isCyclic="true" targetResolution="8.0" max="128.0"/>
+				<dimension name="Z" isCyclic="false" 	targetResolution="8.0" max="128.0">
+					<boundary extreme="1" class="FixedBoundary" layerThickness="128.0">
+						<solute name="COD" concentration="2.0 [mg/l]" />
+						<solute name="oxygen" concentration="8.74 [mg/l]" />
+					</boundary>
+				</dimension>
+			</shape>
+			<solutes>
+				<solute name="COD"  	concentration="2.0 [mg/l]" defaultDiffusivity="2000.0 [um+2/s]" />
+				<solute name="oxygen" 	concentration="8.74 [mg/l]" defaultDiffusivity="2000.0 [um+2/s]"/>
+			</solutes>
+			<reactions>
+			</reactions>
+			<agents>
+				<spawn class="randomSpawner" domain="128.0,128.0,2.0" priority="0" number="1" morphology="COCCOID">
+					<templateAgent>
+						<aspect name="species" type="PRIMARY" class="String" value="bud" />
+						<aspect name="body" class="Body" >
+							<body morphology="COCCOID" >
+								<point position="256.0,256.0,2.0" />
+							</body>
+						</aspect>
+						<aspect  name="mass" class="InstantiableMap">
+							<map entryClass="Double" keyType="String">
+								<item key="biomass" value="1.0"  />
+								<item key="vesicle" value="0.0"  />
+							</map>
+						</aspect>
+					</templateAgent>
+				</spawn>
+			</agents>			
+			<processManagers>
+				<process name="agentRelax"	class="AgentRelaxation" priority="0" >
+					<aspect name="maxAgentOverlap" class="Double" value="0.15 [um]" />
+					<aspect name="moveGranularity" class="Double" value="0.33" />
+					<aspect name="maxMovement" class="Double" value="3.0" />
+				</process>
+				<process name="PDEWrapper" class="PDEWrapper" priority="1" />
+				<process name="CytoplasmicStreaming" class="CytoplasmicStreaming"  priority="-2" />
+				<!-- 
+				<process name="svgWriter" class="GraphicalOutput"  priority="-3">
+					<aspect name="solute" type="PRIMARY" class="String" value="COD" />
+					<aspect name="maxConcentration" type="PRIMARY" class="Double" value="2.0 [mg/l]" />
+					<aspect name="outputWriter" type="PRIMARY" class="String" value="SvgExport" />
+				</process>  -->
+				<process name="povWriter" class="GraphicalOutput"  priority="-3" firstStep="0.0" >
+				<aspect name="outputWriter" type="PRIMARY" class="String" value="PovExport" />
+			</process>
+			</processManagers>
+		</compartment>
+	</simulation>
+</document>

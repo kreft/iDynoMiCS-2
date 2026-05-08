@@ -25,6 +25,7 @@ unitTests
 iDynoMiCS_logo.eps
 protocol/Microcosm_XMLFiles
 classes/
+results/
 
 #inteliJ files
 .idea/

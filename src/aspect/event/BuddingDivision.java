@@ -256,7 +256,7 @@ public class BuddingDivision extends DivisionMethod
 		@SuppressWarnings("unchecked")
 		InstantiableMap<Integer,String> initiatorMap =
 				(InstantiableMap<Integer, String>) initiator.get(AspectRef.partners);
-		initiatorMap.put(compliant.identity(),"bud");
+		initiatorMap.put(compliant.identity(),"child");
 		InstantiableMap<Integer,String> compliantMap =
 				new InstantiableMap<Integer,String>(Integer.class, String.class, XmlRef.identity,
 				XmlRef.valueAttribute, XmlRef.map, XmlRef.item, false);

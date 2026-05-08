@@ -15,6 +15,8 @@ import dataIO.Log.Tier;
 public class AspectRef
 {
 
+
+
     public static String[] getAllOptions()
 	{
 		Field[] fields = AspectRef.class.getFields();
@@ -748,4 +750,11 @@ public class AspectRef
 	public static final String massTransferLimit = "massTransferLimit";
 
 	public static final String agentMassTransfer = "agentMassTransfer";
+
+    public static final String massTransferRate = "massTransferRate";
+
+    public static final String totalMassThreshold = "totalMassThreshold";
+
+    public static final String divisionMassType = "divisionMassType";
+
 }

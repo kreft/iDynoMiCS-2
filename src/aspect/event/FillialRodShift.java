@@ -49,17 +49,7 @@ public class FillialRodShift extends DivisionMethod
 			threshold = initiator.getDouble( AspectRef.shiftMass );
 		return (variable > threshold);
 	}
-	
-	protected boolean shouldDivide( AspectInterface initiator )
-	{
 
-		Object iniMass = initiator.getValue( AspectRef.agentMass );
-		double variable = Helper.totalMass( iniMass );
-		double threshold = Double.MAX_VALUE;
-		if ( initiator.isAspect( AspectRef.divisionMass ))
-			threshold = initiator.getDouble( AspectRef.divisionMass );
-		return ( variable > threshold );
-	}
 	/**
 	 * \brief change the initiator body from coccoid to rod-like and update 
 	 * filial links

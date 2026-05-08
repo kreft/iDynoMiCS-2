@@ -423,6 +423,13 @@ public class ClassRef
 	 */
 	public final static String chemostatSolver =
 			processManager.library.ChemostatSolver.class.getName();
+
+    /**
+     * solve cytoplasmic streaming
+     */
+    public final static String CytoplasmicStreaming =
+            processManager.library.CytoplasmicStreaming.class.getName();
+
 	/**
 	 * write xml output process manager
 	 */

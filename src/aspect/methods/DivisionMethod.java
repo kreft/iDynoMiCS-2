@@ -1,7 +1,7 @@
 package aspect.methods;
 
-import java.util.LinkedList;
 import java.util.Map;
+import java.util.Objects;
 
 import agent.Agent;
 import aspect.AspectInterface;
@@ -9,10 +9,11 @@ import aspect.Event;
 import aspect.Aspect.AspectClass;
 import dataIO.Log;
 import dataIO.Log.Tier;
-import debugTools.SegmentTimer;
 import referenceLibrary.AspectRef;
 import utility.ExtraMath;
 import utility.Helper;
+
+import static processManager.ProcessMethods.getAgentMassMap;
 
 public abstract class DivisionMethod extends Event {
 	
@@ -53,7 +54,7 @@ public abstract class DivisionMethod extends Event {
 	/**
 	 * \brief Check if the given agent should divide now.
 	 * 
-	 * @param anAgent An agent.
+	 * @param initiator An agent.
 	 * @param {@code true} if the agent should divide now, {@code false} if it
 	 * should wait.
 	 */
@@ -61,7 +62,18 @@ public abstract class DivisionMethod extends Event {
 	{
 		/* Find the agent-specific variable to test (mass, by default).	 */
 		Object iniMass = initiator.getValue( AspectRef.agentMass );
-		double variable = Helper.totalMass( iniMass );
+		double variable = 0.0;
+        // use total mass if no division mass type is defined
+        if ( !initiator.isAspect( AspectRef.divisionMassType) )
+        {
+            variable = Helper.totalMass( iniMass );
+        } else {
+            String divType = initiator.getString(AspectRef.divisionMassType);
+            if(Objects.equals( divType, "biomass")) // replace with central reference
+                variable = Helper.getBiomass( iniMass );
+            else
+                variable = getAgentMassMap((Agent) initiator).get(divType);
+        }
 		double threshold = Double.MAX_VALUE;
 		if ( initiator.isAspect( AspectRef.divisionMass ))
 			threshold = initiator.getDouble( AspectRef.divisionMass );
@@ -74,8 +86,8 @@ public abstract class DivisionMethod extends Event {
 	 * <p>By default, half the mass if transferred, but this can be overridden
 	 * if the mother has <i>mumMassFrac</i> (and <i>mumMassFracCV</i>) set.</p>
 	 * 
-	 * @param mother Agent with too much mass.
-	 * @param daughter Agent with no mass.
+	 * @param initiator Agent donating mass.
+	 * @param compliant Agent receiving mass.
 	 */
 	protected static void transferMass(AspectInterface initiator,
 			AspectInterface compliant)

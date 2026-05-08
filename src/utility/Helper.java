@@ -562,6 +562,25 @@ public final class Helper
 		}
 		return totalMass;
 	}
+
+    // determine the biomass from the mass object and return it (could be double or map, lists are not handled).
+    public static double getBiomass(Object massObject)
+    {
+        double biomass = 0.0;
+        if ( massObject instanceof Double )
+            biomass = (double) massObject;
+        else if ( massObject instanceof Map )
+        {
+            @SuppressWarnings("unchecked")
+            Map<String,Double> massMap = (Map<String,Double>) massObject;
+            biomass = massMap.get("biomass");
+        }
+        else
+        {
+            // TODO safety?
+        }
+        return biomass;
+    }
 	
 	public static boolean compartmentAvailable()
 	{

@@ -16,6 +16,8 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 
+import static aspect.methods.TransferMethod.massAdjust;
+
 public class BuddingMassTransfer extends Event {
 
     @Override
@@ -60,27 +62,5 @@ public class BuddingMassTransfer extends Event {
             massAdjust( (Agent) initiator, -(transferMass), (initiator.isAspect( AspectRef.tranferMassType ) ?
                     initiator.getString( AspectRef.tranferMassType ) : null ));
         }
-    }
-
-    private void massAdjust(Agent agent, double quantity, String massType )
-    {
-        Map<String, Double> biomass = ProcessMethods.getAgentMassMap(agent);
-        @SuppressWarnings("unchecked")
-        Map<String, Double> newBiomass = (HashMap<String, Double>)
-                ObjectFactory.copy(biomass);
-        if ( massType != null )
-        {
-            newBiomass.put(massType, agent.getDouble( massType ) + quantity);
-        }
-        else if ( newBiomass.containsKey(AspectRef.agentMass) )
-        {
-            newBiomass.put(AspectRef.agentMass, newBiomass.get( AspectRef.agentMass ) + quantity);
-        }
-        else if( newBiomass.containsKey("biomass") )
-            newBiomass.put("biomass", newBiomass.get("biomass") + quantity);
-        else {
-            Log.out(Log.Tier.CRITICAL,"Unkown mass transfer type in " + this.getClass().getSimpleName());
-        }
-        ProcessMethods.updateAgentMass(agent, newBiomass);
     }
 }
