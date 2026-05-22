@@ -210,7 +210,7 @@ public class Aspect implements Instantiable, Settable
 				modelNode.add(new Attribute(XmlRef.classAttribute, 
 						this.aspect.getClass().getName(), null , false ) );
 				
-			if (simpleName.equals( StateExpression.class.getSimpleName() ) )
+			if ( this.aspect instanceof Calculated && ( (Calculated) this.aspect ).getInput() != null )
 			{
 				modelNode.add(new Attribute(XmlRef.inputAttribute, 
 						( (Calculated) this.aspect ).getInput(), 

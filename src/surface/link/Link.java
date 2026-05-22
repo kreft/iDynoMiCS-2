@@ -263,12 +263,12 @@ public class Link implements Instantiable, Settable  {
 		{
 			for (int i = 0; i< this._arriving.size(); i++) 
 			{
-				AspectInterface m = Idynomics.simulator.findAgent( 
-						Integer.valueOf( this._arriving.get(i)) );
+				AspectInterface m = Idynomics.simulator.findAgent(
+                        this._arriving.get(i));
 				if( m != null )
-					this._members.add( i,  m);
+					this._members.add(i, m);
 				else
-					Log.out("unkown agent " +i+ " in " + 
+					Log.out("unkown agent " + this._arriving.get(i) + " in " +
 							this.getClass().getSimpleName());
 			}
 			if( this._members.size() == 2)

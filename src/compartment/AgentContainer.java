@@ -535,8 +535,9 @@ public class AgentContainer implements Settable
 
 	protected void addLocatedAgent(Agent anAgent, boolean load)
 	{
-		if( Idynomics.simulator.active())
-			anAgent.event(AspectRef.agentUpdateBody); /* hard coded should not be here */
+        /* BODY is updated after all agents are loaded in,
+         * it should never happen here as links cannot be established
+         * with partners that have not yet been loaded in!  */
 		if( !load )
 			this._locatedAgentList.add(anAgent);
 		this.treeInsert(anAgent);
