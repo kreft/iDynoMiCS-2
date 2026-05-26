@@ -818,6 +818,9 @@ public class ClassRef
 
 	public static final String expression = 
 			expression.Expression.class.getName();
+
+    public static final String fetchableAgent =
+            agent.FetchableAgent.class.getName();
 	
 	public static final String recordKeeper = 
 			solver.mgFas.RecordKeeper.class.getName();

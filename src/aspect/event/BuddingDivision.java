@@ -2,6 +2,7 @@ package aspect.event;
 
 import agent.Agent;
 import agent.Body;
+import agent.FetchableAgent;
 import analysis.FilterLogic;
 import aspect.AspectInterface;
 import aspect.methods.DivisionMethod;
@@ -231,12 +232,15 @@ public class BuddingDivision extends DivisionMethod
 
 		/* FIXME probably too rigorous */
 		if( unlink && initiator.isAspect(AspectRef.partners) ) {
-			InstantiableMap<Integer,String> initiatorMap =
-					(InstantiableMap<Integer, String>) initiator.get(AspectRef.partners);
+			InstantiableMap<FetchableAgent,String> initiatorMap =
+					(InstantiableMap<FetchableAgent, String>) initiator.get(AspectRef.partners);
 			Agent parent = null;
-			for( Integer i : initiatorMap.keySet() )
-				if( initiatorMap.get(i).equals("parent") )
-					parent = Idynomics.simulator.findAgent( i );
+			for( FetchableAgent a : initiatorMap.keySet() ) {
+                if (initiatorMap.get(a).equals("parent")) {
+                    parent = a.get();
+                    break;
+                }
+            }
 			if( parent != null ) {
 				Body parBody = (Body) parent.getValue(AspectRef.agentBody);
 				parBody.clearLinks();
@@ -250,18 +254,18 @@ public class BuddingDivision extends DivisionMethod
 		if( !initiator.isAspect(AspectRef.partners) )
 		{
 			initiator.set( AspectRef.partners,
-					new InstantiableMap<Integer,String>( Integer.class, String.class, XmlRef.identity,
+					new InstantiableMap<FetchableAgent,String>( FetchableAgent.class, String.class, XmlRef.identity,
 					XmlRef.valueAttribute, XmlRef.map, XmlRef.item, false) );
 		}
 		@SuppressWarnings("unchecked")
-		InstantiableMap<Integer,String> initiatorMap =
-				(InstantiableMap<Integer, String>) initiator.get(AspectRef.partners);
-		initiatorMap.put(compliant.identity(),"child");
-		InstantiableMap<Integer,String> compliantMap =
-				new InstantiableMap<Integer,String>(Integer.class, String.class, XmlRef.identity,
+		InstantiableMap<FetchableAgent,String> initiatorMap =
+				(InstantiableMap<FetchableAgent, String>) initiator.get(AspectRef.partners);
+		initiatorMap.put(new FetchableAgent(compliant),"child");
+		InstantiableMap<FetchableAgent,String> compliantMap =
+				new InstantiableMap<FetchableAgent,String>(FetchableAgent.class, String.class, XmlRef.identity,
 				XmlRef.valueAttribute, XmlRef.map, XmlRef.item, false);
 		compliant.set( AspectRef.partners, compliantMap );
-		compliantMap.put(initiator.identity(),"parent");
+		compliantMap.put(new FetchableAgent(initiator),"parent");
 		initiator.set("parent",1.0);
 
 		/* If there is no link choose a random direction, if there is an additional branch it should not align,
@@ -274,21 +278,23 @@ public class BuddingDivision extends DivisionMethod
 		{
 
 			/* find parent link to determine alignment */
-			Integer parent = -1;
-			for( Integer i : initiatorMap.keySet())
-				if ( initiatorMap.get(i).equals("parent")) {
-					parent = i;
+			Agent p = null;
+			for( FetchableAgent a : initiatorMap.keySet())
+				if ( initiatorMap.get(a).equals("parent")) {
+					p = a.get();
 					break;
 				}
 			double[] direction = null;
-			Agent p = Idynomics.simulator.findAgent( parent );
-					direction = ((Body) p.getValue( AspectRef.agentBody )).
-							getClosePoint( iniBody.getCenter(shape), shape).getPosition();
-					double[] diff = Vector.minus( iniBody.getCenter(shape), direction );
-					direction = Vector.add(iniBody.getCenter(shape), diff );
+            if ( p == null)
+                return;
+
+            direction = ((Body) p.getValue( AspectRef.agentBody )).
+                    getClosePoint( iniBody.getCenter(shape), shape).getPosition();
+            double[] diff = Vector.minus( iniBody.getCenter(shape), direction );
+            direction = Vector.add(iniBody.getCenter(shape), diff );
 
 			Body othBody = (Body) p.getValue( AspectRef.agentBody );
-			
+
 			double[] oriPos = iniBody.getClosePoint(
 					othBody.getCenter( shape ), shape ).getPosition();
 			double[] shift = initiator.getCompartment().getShape().

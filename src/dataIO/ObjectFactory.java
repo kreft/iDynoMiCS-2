@@ -387,9 +387,7 @@ public class ObjectFactory
 	 * included as child node, simple objects are include in the value
 	 * attribute.
 	 * @param obj
-	 * @param classLabel
-	 * @param valLabel
-	 * @return
+	 * @return String representation
 	 */
 	public static String stringRepresentation(Object obj)
 	{

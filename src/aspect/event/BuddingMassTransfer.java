@@ -1,6 +1,7 @@
 package aspect.event;
 
 import agent.Agent;
+import agent.FetchableAgent;
 import aspect.AspectInterface;
 import aspect.Event;
 import compartment.Compartment;
@@ -26,8 +27,8 @@ public class BuddingMassTransfer extends Event {
         if( initiator.isAspect(AspectRef.partners) )
         {
             @SuppressWarnings("unchecked")
-            InstantiableMap<Integer,String> initiatorMap =
-                    (InstantiableMap<Integer, String>) initiator.getValue(AspectRef.partners);
+            InstantiableMap<FetchableAgent,String> initiatorMap =
+                    (InstantiableMap<FetchableAgent, String>) initiator.getValue(AspectRef.partners);
 
             String recipientSpec = null;
             LinkedList<Agent> receipients = new LinkedList<Agent>();
@@ -39,10 +40,10 @@ public class BuddingMassTransfer extends Event {
 //            Agent vocalAgent = (Agent) initiator;
 //            Compartment compartment = vocalAgent.getCompartment();
 
-            for ( int p : initiatorMap.keySet() )
+            for ( FetchableAgent p : initiatorMap.keySet() )
             {
                 /* could get slow with large number of agents */
-                Agent m = Idynomics.simulator.findAgent( p );
+                Agent m = p.get();
                 if( m.isAspect(AspectRef.agentType) && m.getString(AspectRef.agentType).equals( recipientSpec ) )
                     receipients.add( m );
             }

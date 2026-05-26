@@ -2,6 +2,7 @@ package processManager.library;
 
 import agent.Agent;
 import agent.Body;
+import agent.FetchableAgent;
 import idynomics.Idynomics;
 import instantiable.object.InstantiableMap;
 import processManager.ProcessManager;
@@ -101,8 +102,8 @@ public class CytoplasmicStreaming extends ProcessManager {
     public List<Agent> getRecipients(Agent agent)
     {
         @SuppressWarnings("unchecked")
-        InstantiableMap<Integer, String> partnerMap =
-                (InstantiableMap<Integer, String>) agent.getValue(AspectRef.partners);
+        InstantiableMap<FetchableAgent, String> partnerMap =
+                (InstantiableMap<FetchableAgent, String>) agent.getValue(AspectRef.partners);
         LinkedList<Agent> recipients = new LinkedList<Agent>();
 
         String recipientSpec = null;
@@ -112,13 +113,13 @@ public class CytoplasmicStreaming extends ProcessManager {
         if (recipientSpec == null)
             return recipients;
 
-        for (int p : partnerMap.keySet()) {
+        for (FetchableAgent p : partnerMap.keySet()) {
             /* Could get slow with large number of agents.
              *  We could store direct references to agents
              *  but store and fetch iD for xml io */
             if (partnerMap.get(p).equals("child")) //TODO get "child" from reference to make it renamable
             {
-                Agent m = Idynomics.simulator.findAgent(p);
+                Agent m = p.get();
                 recipients.add(m);
             }
         }

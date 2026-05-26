@@ -35,6 +35,14 @@ public class FetchableAgent implements Copyable {
         return _agent;
     }
 
+    public int id() {
+        return _agentID;
+    }
+
+    public String toString() {
+        return String.valueOf(_agentID);
+    }
+
     @Override
     public Object copy() {
         return new FetchableAgent(this._agent);
