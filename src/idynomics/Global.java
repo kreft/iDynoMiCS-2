@@ -122,7 +122,17 @@ public class Global extends ParameterSet
 					this.simulationName + "/";
 		}
 	}
-	
+
+
+    /**************************************************************************
+     * Build info
+     *************************************************************************/
+
+    public static String build_date = "unset";
+    public static String branch = "unset";
+    public static String commit = "unset";
+    public static String run_ID = "unset";
+
 	/**************************************************************************
 	 * GENERAL PARAMETERS 
 	 * all directly loaded from xml file as string.
@@ -131,7 +141,7 @@ public class Global extends ParameterSet
 	/**
 	 * Version description.
 	 */
-	public static String version_description = "Developer build February 2026";
+	public static String version_description = branch +" build " + Helper.buildDateToMonthYear(build_date);
 	
 	/**
 	* Version number of this iteration of iDynoMiCS - required by update
@@ -139,7 +149,7 @@ public class Global extends ParameterSet
 	 *
 	 * suggested Major.Minor.YYMMDD
 	*/
-	public static String version_number = "2.0.260223";
+	public static String version_number = "2.0."+build_date;
 	
 	/**
 	 * default output location

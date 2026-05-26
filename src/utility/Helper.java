@@ -3,6 +3,8 @@ package utility;
 import java.awt.Color;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.time.LocalDate;
+import java.time.format.*;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -827,6 +829,15 @@ public final class Helper
 		}
 		return true;
 	}
+
+    public static String buildDateToMonthYear(String buildDate) {
+        try {
+            LocalDate date = LocalDate.parse(buildDate, DateTimeFormatter.ofPattern("yyMMdd"));
+            return date.format(DateTimeFormatter.ofPattern("MMMM yyyy"));
+        } catch (DateTimeParseException e) {
+            return "unset";
+        }
+    }
 
     public static double[] searchClosestCyclicShadowPoint(Shape shape,
                                                           double[] posA, double[] posB)
