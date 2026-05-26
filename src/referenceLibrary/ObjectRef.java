@@ -106,6 +106,10 @@ public final class ObjectRef
 	 * iDynoMiCS Body Object
 	 */
 	public static final String BODY = "Body";
+    /**
+     * FetchableAgent
+     */
+    public static final String FETCHABLEAGENT = "FetchableAgent";
 	/**
 	 * iDynoMiCS Body Expression
 	 */

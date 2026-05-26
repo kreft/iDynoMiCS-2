@@ -6,6 +6,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import agent.FetchableAgent;
 import org.w3c.dom.Element;
 
 import agent.Body;
@@ -261,7 +262,17 @@ public class ObjectFactory
 				}
 				else
 					return new Expression( in );
-				
+
+        case ObjectRef.FETCHABLEAGENT:
+            try{
+                return new FetchableAgent( Integer.parseInt( input(input, elem) ) );
+            }
+            catch(NumberFormatException e)
+            {
+                printReadError( input(input, elem), ObjectRef.FETCHABLEAGENT);
+                return null;
+            }
+
 		case ObjectRef.BODY :
 			if ( elem == null )
 				Body.instanceFromString( input(input, elem) );
