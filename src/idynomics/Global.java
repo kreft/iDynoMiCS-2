@@ -31,6 +31,9 @@ public class Global extends ParameterSet
 	{
 		set( "default.cfg" );
 		set( supplementary_property_files );
+
+        version_description = branch +" build " + Helper.buildDateToMonthYear(build_date);
+        version_number = "2.0."+build_date;
 	}
 
 	/**
@@ -121,8 +124,6 @@ public class Global extends ParameterSet
 					long_date_format.format(new Date()) + 
 					this.simulationName + "/";
 		}
-        version_description = branch +" build " + Helper.buildDateToMonthYear(build_date);
-        version_number = "2.0."+build_date;
 	}
 
 
@@ -135,24 +136,23 @@ public class Global extends ParameterSet
     public static String commit = "unset";
     public static String run_ID = "unset";
 
+    /**
+     * Version description.
+     */
+    public static String version_description = "unset";
+
+    /**
+     * Version number of this iteration of iDynoMiCS - required by update
+     * procedure.
+     * suggested Major.Minor.yymmdd
+     */
+    public static String version_number = "2.0."+build_date;
+
 	/**************************************************************************
 	 * GENERAL PARAMETERS 
 	 * all directly loaded from xml file as string.
 	 *************************************************************************/
-	
-	/**
-	 * Version description.
-	 */
-	public static String version_description = branch +" build " + Helper.buildDateToMonthYear(build_date);
 
-	/**
-	* Version number of this iteration of iDynoMiCS - required by update
-	* procedure.
-	 *
-	 * suggested Major.Minor.YYMMDD
-	*/
-	public static String version_number = "2.0."+build_date;
-	
 	/**
 	 * default output location
 	 */
