@@ -121,6 +121,8 @@ public class Global extends ParameterSet
 					long_date_format.format(new Date()) + 
 					this.simulationName + "/";
 		}
+        version_description = branch +" build " + Helper.buildDateToMonthYear(build_date);
+        version_number = "2.0."+build_date;
 	}
 
 
@@ -142,7 +144,7 @@ public class Global extends ParameterSet
 	 * Version description.
 	 */
 	public static String version_description = branch +" build " + Helper.buildDateToMonthYear(build_date);
-	
+
 	/**
 	* Version number of this iteration of iDynoMiCS - required by update
 	* procedure.

@@ -110,7 +110,7 @@ jobs:
 
       - name: Add build information file
         run: |
-          echo "build_date: $(TZ='Europe/Berlin' date '+%y%m%d')" > artifact-bundle/default.cfg
+          echo "build_date: $(TZ='Europe/Berlin' date '+%y%m%d')" >> artifact-bundle/default.cfg
           echo "branch: ${{ github.event.inputs.branch }}" >> artifact-bundle/default.cfg
           echo "commit: ${{ github.sha }}" >> artifact-bundle/default.cfg
           echo "run_ID: ${{ github.run_id }}" >> artifact-bundle/default.cfg
