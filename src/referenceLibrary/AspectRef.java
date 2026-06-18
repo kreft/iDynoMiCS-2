@@ -483,7 +483,7 @@ public class AspectRef
 	/**
 	 * Pilus length of the plasmid.
 	 */
-	public final static String pilusLength = "pili_length";
+	public final static String pilusLength = "pili_length"; //FIXME slightly confusing name
 	
 	/**
 	 * Transfer frequency of the plasmid in a well-mixed environment.
@@ -757,4 +757,29 @@ public class AspectRef
 
     public static final String divisionMassType = "divisionMassType";
 
+    /**
+     * incGroups an agent cannot receive
+     */
+    public static final String incompatibilityGroups = "incompatibilityGroups";
+
+    /**
+     * incGroup of a vector agent
+     */
+    public static final String incGroup = "incGroup";
+
+    public static final String readyToDonate = "readyToDonate";
+
+    /**
+     * potential plasmid host
+     */
+    public static final String potentialHost = "potentialHost";
+
+
+    public static final String scanSpeed = "scanSpeed";
+
+
+    /**
+     * how long it takes until the same plasmid can be transferred again (from the same donor)
+     */
+    public static final String transferCooldown = "transferCooldown";
 }

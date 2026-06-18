@@ -5,12 +5,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.time.LocalDate;
 import java.time.format.*;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Scanner;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -346,7 +341,54 @@ public final class Helper
 	{
 		return (list == null || list.isEmpty());
 	}
-	
+
+    /**
+     * Returns a new list containing the elements of the input list
+     * in a reproducibly randomised order using the MT19937 algorithm.
+     *
+     * @param list the input list to shuffle
+     * @param <T>  the element type
+     * @return a new shuffled list; the original is unmodified
+     */
+    public static <T> List<T> shuffledCopy(List<T> list) {
+        List<T> shuffled = new ArrayList<>(list);
+        // Fisher-Yates shuffle using MTRandom
+        for (int i = shuffled.size() - 1; i > 0; i--) {
+            int j = ExtraMath.random.nextInt(i + 1);
+            T tmp = shuffled.get(i);
+            shuffled.set(i, shuffled.get(j));
+            shuffled.set(j, tmp);
+        }
+        return shuffled;
+    }
+
+    public static <T> T selectByWeightedProbability(List<T> items, double[] weights, double uniRand) {
+        if (items == null || items.isEmpty()) {
+            throw new IllegalArgumentException("Item list must not be empty.");
+        }
+        if (weights.length != items.size()) {
+            throw new IllegalArgumentException("Weights array must match list size.");
+        }
+
+        double cumulative = 0.0;
+        for (int i = 0; i < items.size(); i++) {
+            cumulative += weights[i];
+            if (uniRand < cumulative) {
+                return items.get(i);
+            }
+        }
+        // Fallback: return last item to handle floating-point rounding
+        return items.get(items.size() - 1);
+    }
+
+    public static double[] uniformWeights(int n) {
+        double[] weights = new double[n];
+        double p = 1.0 / n;
+        for (int i = 0; i < n; i++) {
+            weights[i] = p;
+        }
+        return weights;
+    }
 	
 	public static String obtainIfNone(String input, String description,
 			boolean shouldLogMessage, Collection<String> options)

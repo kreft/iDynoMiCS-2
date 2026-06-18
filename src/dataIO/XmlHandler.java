@@ -10,9 +10,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URLDecoder;
 import java.security.CodeSource;
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -535,6 +533,41 @@ public class XmlHandler
 			return null;
 		return parent.getElementsByTagName(tag);
 	}
+
+    /**
+     * Gets all *direct* child elements identified by tag from parent element.
+     *
+     * @param parent the parent Node to search under
+     * @param tag    the tag name to match
+     * @return list of matching direct child elements
+     */
+    public static List<Element> getChildElements(Node parent, String tag) {
+        return getChildElements((Element) parent, tag);
+    }
+
+    /**
+     * Gets all *direct* child elements identified by tag from parent element.
+     *
+     * @param parent the parent element to search under
+     * @param tag    the tag name to match
+     * @return list of matching direct child elements
+     */
+    public static List<Element> getChildElements(Element parent, String tag) {
+        if (parent == null)
+            return Collections.emptyList();
+
+        List<Element> result = new ArrayList<>();
+        NodeList children = parent.getChildNodes();
+
+        for (int i = 0; i < children.getLength(); i++) {
+            Node child = children.item(i);
+            if (child.getNodeType() == Node.ELEMENT_NODE
+                    && child.getNodeName().equalsIgnoreCase(tag)) {
+                result.add((Element) child);
+            }
+        }
+        return result;
+    }
 	
 	/**
 	 * \brief TODO

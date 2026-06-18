@@ -4,6 +4,7 @@ import java.lang.reflect.Field;
 import java.util.LinkedList;
 import java.util.List;
 
+import aspect.calculated.HasVector;
 import dataIO.Log;
 import dataIO.Log.Tier;
 
@@ -191,8 +192,15 @@ public class ClassRef
 	 */
 	public final static String agentColouring =
 			aspect.calculated.AgentColouring.class.getName();
-	
-	/**
+
+    /**
+     * checks for vector agents (true/false
+     */
+    public final static String hasVector =
+            HasVector.class.getName();
+
+
+    /**
 	 * 
 	 */
 	public final static String agentMassProportion =
@@ -384,7 +392,13 @@ public class ClassRef
 	 */
 	public final static String plasmidDynamics =
 			processManager.library.PlasmidDynamics.class.getName();
-	
+
+    /**
+     * Plasmid transfer(Conjugation) 2026 implementation
+     */
+    public final static String plasmidDynamics2 =
+            processManager.library.PlasmidDynamics2.class.getName();
+
 	/**
 	 * agent stochastic move manager
 	 */

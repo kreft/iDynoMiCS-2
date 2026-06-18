@@ -1,7 +1,10 @@
 package agent;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
+import bookkeeper.Bookkeeper;
+import idynomics.Global;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -24,6 +27,7 @@ import settable.Module;
 import settable.Module.Requirements;
 import settable.Settable;
 import surface.Point;
+import utility.ExtraMath;
 import utility.Helper;
 
 /**
@@ -37,12 +41,12 @@ public class Agent implements AspectInterface, Settable, Instantiable
 	 * The uid is a unique identifier created when a new Agent is created via 
 	 * the constructor.
 	 * 
-	 * becomiming tricky consider redesign
+	 * becoming tricky consider redesign
 	 */
 	protected static int UNIQUE_ID = 0;
 	protected int _uid;
 
-	public static class AgentComparator implements java.util.Comparator<Agent> {
+    public static class AgentComparator implements java.util.Comparator<Agent> {
 		@Override
 		public int compare(Agent a, Agent b) {
 			return a._uid - b._uid;
@@ -59,9 +63,12 @@ public class Agent implements AspectInterface, Settable, Instantiable
 	 */
 	protected AspectReg _aspectRegistry = new AspectReg();
 
-	
-		
-	/*************************************************************************
+    /**
+     * Vector agents hosted by this agent
+     */
+    private LinkedList<Agent> _vectorAgents = new LinkedList<>();
+
+    /*************************************************************************
 	 * CONSTRUCTORS
 	 ************************************************************************/
 
@@ -79,7 +86,8 @@ public class Agent implements AspectInterface, Settable, Instantiable
 	{
 		this.init(xmlNode, comp);
 	}
-	
+
+    // FIXME: what is this for? It does not seem to be used.
 	public Agent (Node xmlNode, Body body, Compartment comp) {
 		Agent extra = new Agent(xmlNode, body);
 		extra._compartment = comp;
@@ -119,7 +127,7 @@ public class Agent implements AspectInterface, Settable, Instantiable
 		}
 		else
 		{
-			String in =  XmlHandler.gatherAttribute(xmlNode, 
+			String in = XmlHandler.gatherAttribute(xmlNode,
 					XmlRef.identity);
 			if( in == null)
 				this.number(null);
@@ -127,6 +135,7 @@ public class Agent implements AspectInterface, Settable, Instantiable
 				this.number(Integer.valueOf(in));
 			// Place located agents
 			loadAspects(xmlNode);
+            readVectorAgents((Element) xmlNode);
 		}
 		this.initiate();
 	}
@@ -203,6 +212,7 @@ public class Agent implements AspectInterface, Settable, Instantiable
 	public Agent(Node xmlNode, boolean boo)
 	{
 		this.loadAspects(xmlNode);
+        readVectorAgents((Element) xmlNode);
 		this.initiate();
 	}
 
@@ -229,6 +239,13 @@ public class Agent implements AspectInterface, Settable, Instantiable
 	public Agent(Agent agent)
 	{
 		this._aspectRegistry.duplicate(agent);
+
+        for( Agent vector : agent.getVectors())
+            if (vector.isAspect(AspectRef.lossProbability) && ExtraMath.getUniRandDbl() < vector.getDouble(AspectRef.lossProbability)) {
+                // vector is lost
+            } else {
+                this._vectorAgents.add(new Agent(vector)); // make a full copy of the vector agent;
+            }
 		this._compartment = agent.getCompartment();
 		this.initiate();
 	}
@@ -268,6 +285,30 @@ public class Agent implements AspectInterface, Settable, Instantiable
 	{
 		return this._compartment;
 	}
+
+    public List<Agent> getVectors() {
+        return this._vectorAgents;
+    }
+
+    public void setVectors(List<Agent> vectors) {
+        this._vectorAgents = new LinkedList<>();
+        this._vectorAgents.addAll(vectors);
+    }
+
+    public void addVector(Agent vector) {
+        this._vectorAgents.add(vector);
+    }
+
+    /**
+     * read in any vector agents
+     * @param xmlElem
+     */
+    public void readVectorAgents(Element xmlElem) {
+        Element vectors = XmlHandler.findUniqueChild(xmlElem, XmlRef.vectors);
+        for (Element a : XmlHandler.getChildElements(vectors, XmlRef.agent)) {
+            this._vectorAgents.add(new Agent(a, true));
+        }
+    }
 
 	/**
 	 * Set the compartment of this agent.
@@ -393,9 +434,28 @@ public class Agent implements AspectInterface, Settable, Instantiable
 		/* allow adding of new aspects */
 		modelNode.addChildSpec( ClassRef.aspect,
 				Module.Requirements.ZERO_TO_MANY);
-		
+
+        if ( ! this._vectorAgents.isEmpty() )
+            modelNode.add( this.geVectorModule() );
+
 		return modelNode;
 	}
+
+    public Module geVectorModule()
+    {
+        /* The vectors node. */
+        Module modelNode = new Module( XmlRef.vectors, this);
+        modelNode.setRequirements(Requirements.EXACTLY_ONE);
+        /* Add the agent childConstrutor for adding of additional agents. */
+        modelNode.addChildSpec( ClassRef.agent,
+                Module.Requirements.ZERO_TO_MANY);
+
+        /* If there are agents, add them as child nodes. */
+        for ( Agent a : this._vectorAgents )
+            modelNode.add( a.getModule() );
+        return modelNode;
+
+    }
 	
 	/**
 	 * Update this module and all child modules with updated information from

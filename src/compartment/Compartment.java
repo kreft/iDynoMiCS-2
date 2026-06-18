@@ -319,7 +319,7 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable, C
 		Collection<Element> imports = XmlHandler.getElements( agents, XmlRef.xmlImport);
 		for ( Element e : imports ) {
 			Element imported = XmlHandler.loadDocument(e.getAttribute(XmlRef.valueAttribute));
-			for (Element a : XmlHandler.getElements(imported, XmlRef.agent)) {
+			for (Element a : XmlHandler.getChildElements(imported, XmlRef.agent)) {
 				this.agents.addAgent(new Agent(a, this), true);
 			}
 		}
@@ -327,7 +327,7 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable, C
 		/*
 		 * Read in agents.
 		 */
-			for (Element a : XmlHandler.getElements(agents, XmlRef.agent)) {
+			for (Element a : XmlHandler.getChildElements(agents, XmlRef.agent)) {
 				this.agents.addAgent(new Agent(a, this), true);
 			}
 		

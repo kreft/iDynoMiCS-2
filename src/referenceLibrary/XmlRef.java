@@ -15,6 +15,7 @@ import dataIO.Log.Tier;
  */
 public class XmlRef {
 
+
     public static String[] getAllOptions() {
 		Field[] fields = XmlRef.class.getFields();
 		String[] options = new String[fields.length];
@@ -47,6 +48,11 @@ public class XmlRef {
 	 * Agent node.
 	 */
 	public final static String agent = "agent";
+
+    /**
+     * Vector agent node.
+     */
+    public final static String vectorAgent = "vectorAgent";
 	
 	/**
 	 * templateAgent node, used by spawner.
@@ -458,6 +464,11 @@ public class XmlRef {
 	 * TODO
 	 */
 	public final static String spawnNode = "spawn";
+
+    /**
+     * agent vectors node
+     */
+    public static String vectors = "vectors";
 
 	/**
 	 * Tag for the (integer) number of agents to create new.

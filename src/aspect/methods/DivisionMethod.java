@@ -1,7 +1,6 @@
 package aspect.methods;
 
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 import agent.Agent;
 import aspect.AspectInterface;
@@ -25,6 +24,12 @@ public abstract class DivisionMethod extends Event {
 
 		/* Make one new agent, copied from the mother.*/
 		compliant = new Agent((Agent) initiator);
+
+        /* potential vector loss on division */
+        List<Agent> vectors = ((Agent) compliant).getVectors();
+        vectors.removeIf(vector -> vector.isAspect(AspectRef.lossProbability) &&
+                (ExtraMath.getUniRandDbl() < vector.getDouble(AspectRef.lossProbability)));
+        ((Agent) compliant).setVectors(vectors);
 
 		/* Transfer an appropriate amount of mass from mother to daughter. */
 		DivisionMethod.transferMass(initiator, compliant);

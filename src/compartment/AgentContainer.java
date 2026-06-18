@@ -386,24 +386,29 @@ public class AgentContainer implements Settable
 	{
 		/* the collision object */
 		Collision collision = new Collision(this._shape);
-		for ( Agent a : agents)
-		{
-			/* by default assume no collision */
-			boolean c = false;
-			/* check each agent surface for collision */
-			for ( Surface s : ((Body) a.get(AspectRef.agentBody)).getSurfaces())
-			{
-				/* on collision set boolean true and exit loop */
-				if ( collision.intersect(aSurface, s, searchDist))
-				{
-					c = true;
-					break;
-				}
-			}
-			/* if not in collision remove the agent */
-			if ( !c )
-				agents.remove(a);
-		}	
+        Iterator<Agent> iterator = agents.iterator();
+        while (iterator.hasNext())
+        {
+            Agent a = iterator.next();
+
+            /* by default assume no collision */
+            boolean c = false;
+
+            /* check each agent surface for collision */
+            for (Surface s : ((Body) a.get(AspectRef.agentBody)).getSurfaces())
+            {
+                /* on collision set boolean true and exit loop */
+                if (collision.intersect(aSurface, s, searchDist))
+                {
+                    c = true;
+                    break;
+                }
+            }
+
+            /* if not in collision, safely remove via iterator */
+            if (!c)
+                iterator.remove();
+        }
 	}
 	
 	/**
@@ -738,7 +743,7 @@ public class AgentContainer implements Settable
 		/* Add the agent childConstrutor for adding of additional agents. */
 		modelNode.addChildSpec( ClassRef.agent,
 				Module.Requirements.ZERO_TO_MANY);
-		
+
 		/* If there are agents, add them as child nodes. */
 		for ( Agent a : this.getAllAgents() )
 			modelNode.add( a.getModule() );
