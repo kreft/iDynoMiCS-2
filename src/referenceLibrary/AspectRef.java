@@ -760,12 +760,12 @@ public class AspectRef
     /**
      * incGroups an agent cannot receive
      */
-    public static final String incompatibilityGroups = "incompatibilityGroups";
+    public static final String hostIncompatibilities = "hostIncompatibilities";
 
     /**
      * incGroup of a vector agent
      */
-    public static final String incGroup = "incGroup";
+    public static final String vectorIncompatibility = "vectorIncompatibility";
 
     public static final String readyToDonate = "readyToDonate";
 
@@ -782,4 +782,9 @@ public class AspectRef
      * how long it takes until the same plasmid can be transferred again (from the same donor)
      */
     public static final String transferCooldown = "transferCooldown";
+
+    /**
+     * how long it takes for a transconjugent to be ready to donate
+     */
+    public static final String transconjugentCooldown = "transconjugentCooldown";
 }

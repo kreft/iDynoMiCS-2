@@ -21,6 +21,7 @@ import debugTools.SegmentTimer;
 import generalInterfaces.CanPrelaunchCheck;
 import instantiable.Instance;
 import instantiable.Instantiable;
+import physicalObject.PhysicalObject;
 import referenceLibrary.ClassRef;
 import referenceLibrary.XmlRef;
 import settable.Attribute;
@@ -565,6 +566,9 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable,
 		/* the optional comment */
 		modelNode.add(new Attribute(XmlRef.commentAttribute, 
 				Idynomics.global.simulationComment, null, true ));
+
+        /* add buildInfo node */
+        modelNode.add(this.getBuildNode());
 		
 		/* add timer node */
 		modelNode.add(timer.getModule());
@@ -592,6 +596,22 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable,
 		/* return node */
 		return modelNode;
 	}
+
+    private Module getBuildNode()
+    {
+        Module modelNode = new Module(XmlRef.buildInfo, this);
+        modelNode.setRequirements(Requirements.ZERO_OR_ONE);
+
+        modelNode.add(new Attribute(XmlRef.build_date,
+                Global.build_date, null, false ));
+        modelNode.add(new Attribute(XmlRef.gitBranch,
+                Global.branch, null, false ));
+        modelNode.add(new Attribute(XmlRef.gitCommit,
+                Global.commit, null, false ));
+        modelNode.add(new Attribute(XmlRef.gitRun,
+                Global.run_ID, null, false ));
+        return modelNode;
+    }
 	
 	/**
 	 * Additional setNode method for simulation, allows for immediate simulation
@@ -605,32 +625,33 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable,
 	@Override
 	public void setModule(Module node)
 	{
-		/* skip if no gui elements have been loaded */
-		if (this._modelNode != null)
-		{
-			/* set local node */
-			this._modelNode = node;
-			
-			/* update simulation name */
-			Idynomics.global.simulationName = 
-					node.getAttribute(XmlRef.nameAttribute).getValue();
-			
-			/* update output root folder */
-			Idynomics.global.outputRoot = 
-					node.getAttribute(XmlRef.outputFolder).getValue();
-			
-			/* the subfolder structure */
-			if ( !Helper.isNullOrEmpty( Idynomics.global.subFolderStruct ))
-				Idynomics.global.subFolderStruct =
-						node.getAttribute(XmlRef.subFolder).getValue();
-			
-			/* set output level */
-			Log.set(node.getAttribute(XmlRef.logLevel).getValue());
-			
-			/* set random seed */
-			ExtraMath.seed( Long.valueOf( 
-					node.getAttribute( XmlRef.seed ).getValue()));
-			
+        if (node.getTag().equals(this.defaultXmlTag()))
+        {
+            /* skip if no gui elements have been loaded */
+            if (this._modelNode != null) {
+                /* set local node */
+                this._modelNode = node;
+
+                /* update simulation name */
+                Idynomics.global.simulationName =
+                        node.getAttribute(XmlRef.nameAttribute).getValue();
+
+                /* update output root folder */
+                Idynomics.global.outputRoot =
+                        node.getAttribute(XmlRef.outputFolder).getValue();
+
+                /* the subfolder structure */
+                if (!Helper.isNullOrEmpty(Idynomics.global.subFolderStruct))
+                    Idynomics.global.subFolderStruct =
+                            node.getAttribute(XmlRef.subFolder).getValue();
+
+                /* set output level */
+                Log.set(node.getAttribute(XmlRef.logLevel).getValue());
+
+                /* set random seed */
+                ExtraMath.seed(Long.valueOf(
+                        node.getAttribute(XmlRef.seed).getValue()));
+            }
 			/* Set values for all child nodes. */
 			Settable.super.setModule(node);
 		}

@@ -4,6 +4,7 @@ import java.lang.reflect.Field;
 
 import dataIO.Log;
 import dataIO.Log.Tier;
+import idynomics.Idynomics;
 
 /**
  * \brief Single class that holds the naming of all XML tags and attributes,
@@ -142,6 +143,11 @@ public class XmlRef {
 	 * Encapsulates the entire simulation.
 	 */
 	public final static String simulation = "simulation";
+
+    /**
+     * Build info node
+     */
+    public final static String buildInfo = "buildInfo";
 	
 	/**
 	 * Timer node.
@@ -284,7 +290,16 @@ public class XmlRef {
 	 * Attribute can hold a comment (has no simulation effects).
 	 */
 	public final static String commentAttribute = "comment";
-	
+
+
+    /**
+     * Build information
+     */
+    public final static String build_date = "buildDate";
+    public final static String gitBranch = "branch";
+    public final static String gitCommit = "commit";
+    public final static String gitRun = "runID";
+
 	/**
 	 * Attribute can hold (up to three) dimension names. 
 	 */

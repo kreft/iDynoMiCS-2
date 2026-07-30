@@ -57,7 +57,7 @@ public class PlasmidDynamics2 extends ProcessManager {
                     List<Agent> neighbors =
                             this._agents.treeSearch(donor, vector.getDouble(AspectRef.pilusLength));
                     neighbors.removeIf(agent ->
-                            !this.agentCompatibility(agent,vector.getString(AspectRef.incGroup)));
+                            !this.agentCompatibility(agent,vector.getString(AspectRef.vectorIncompatibility)));
                     // note we can replace this with only checking for potentialHost to have failed attempts too
                     // did it like this for now as it simpler and faster for initial implementation.
 
@@ -69,7 +69,12 @@ public class PlasmidDynamics2 extends ProcessManager {
                         break;
 
                     double testTally = vector.getDouble(AspectRef.scanSpeed) * this.getTimeStepSize();
-                    double totalTally = testTally;
+                    double maxTallyPerTimeStep = testTally; // NOTE: max number of tally that would fit in a full timestep! actual tally number can be lower if not ready from the start.
+                    /* TestTally is adjusted for the time window in which the vector is ready to donate
+                    (if not ready at start of timestep) */
+                    if( (this.getTimeForNextStep() - this.getTimeStepSize()) <  vector.getDouble(AspectRef.readyToDonate))
+                        testTally = vector.getDouble(AspectRef.scanSpeed) * (this.getTimeForNextStep() - vector.getDouble(AspectRef.readyToDonate));
+
                     /* we loop instead of calculating complement rule probability
                     such that we can calculate cooldown time more accurately */
                     while ( testTally > 0.0) {
@@ -82,13 +87,24 @@ public class PlasmidDynamics2 extends ProcessManager {
                             Agent selected = Helper.selectByWeightedProbability(neighbors,
                                     Helper.uniformWeights( neighbors.size() ), ExtraMath.getUniRandDbl());
 
-                            double now = this.getTimeForNextStep() - (testTally/totalTally) * this.getTimeStepSize();
+                            double now = this.getTimeForNextStep() - (testTally/maxTallyPerTimeStep) * this.getTimeStepSize();
                             Agent receiverVector = new Agent(vector);
-                            // cooldown for transconjugant, FIXME we'll want to make this a separate receiver cooldown probably
-                            receiverVector.set(AspectRef.readyToDonate, now + vector.getDouble(AspectRef.transferCooldown));
+                            // cooldown for transconjugant // currently defined at vector level
+                            double transconjugentCooldown = ( vector.isAspect( AspectRef.transconjugentCooldown ) ?
+                                    vector.getDouble(AspectRef.transconjugentCooldown) : vector.getDouble(AspectRef.transferCooldown));
+                            receiverVector.set(AspectRef.readyToDonate, now + transconjugentCooldown);
                             selected.addVector(receiverVector);
+                            if (Log.shouldWrite(Log.Tier.EXPRESSIVE)) {
+                                Log.out(Log.Tier.EXPRESSIVE, "Vector (ID:" + vector.identity() + ") transferred from Donor (ID:" + donor.identity() + ") to Recipient (ID:" + selected.identity() +
+                                        ") at time " + now);
+                            }
                             // cooldown for donor
                             vector.set(AspectRef.readyToDonate, now + vector.getDouble(AspectRef.transferCooldown));
+
+                            // this currently assumes transfer cooldown is always lower than transconjugent cooldown
+                            if ( (vector.getDouble(AspectRef.transferCooldown) / this.getTimeStepSize()) < 1.0 )
+                                Log.out(Log.Tier.CRITICAL, this.getClass().getSimpleName() + " timestep exceeds " + AspectRef.transferCooldown );
+                            break; //donor will be on cooldown and won't transfer again during this cycle.
                         }
                         testTally -= 1.0;
                     }
@@ -110,14 +126,14 @@ public class PlasmidDynamics2 extends ProcessManager {
     protected boolean agentCompatibility(Agent a, String incompatibilityGroup) {
         if (a.isAspect(AspectRef.potentialHost ))
             if( a.getBoolean(AspectRef.potentialHost)) {
-                if (a.isAspect(AspectRef.incompatibilityGroups)) {
-                    for (String incGroup : a.getStringA(AspectRef.incompatibilityGroups))
+                if (a.isAspect(AspectRef.hostIncompatibilities)) { //NOTE renamed to hostIncompatibilities
+                    for (String incGroup : a.getStringA(AspectRef.hostIncompatibilities))
                         if (incGroup.equals(incompatibilityGroup))
                             return false;
                 }
                 for (Agent vector : a.getVectors()) {
-                    if (vector.isAspect(AspectRef.incGroup))
-                        if (vector.getString(AspectRef.incGroup).equals(incompatibilityGroup))
+                    if (vector.isAspect(AspectRef.vectorIncompatibility)) //NOTE renamed from incGroup to vectorIncompatibility
+                        if (vector.getString(AspectRef.vectorIncompatibility).equals(incompatibilityGroup))
                             return false;
                 }
                 return true; //return true of inc group is not encountered.

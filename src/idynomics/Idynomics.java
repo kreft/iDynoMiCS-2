@@ -32,6 +32,7 @@ import idynomics.launchable.Launchable;
 import idynomics.launchable.ProtocolLaunch;
 import idynomics.launchable.SamplerLaunch;
 import referenceLibrary.XmlRef;
+import settable.Attribute;
 import utility.GenericTrio;
 import utility.Helper;
 
@@ -252,7 +253,15 @@ public strictfp class Idynomics
 		 * Initialise the global parameters.
 		 */
 		setupGlobals( protocolPath );
-		
+
+        if( Log.shouldWrite(Tier.NORMAL)) {
+            Log.out(NORMAL, "iDynoMiCS 2.0 build info:\n" +
+                    Global.build_date + " " +
+                    Global.branch + " " +
+                    Global.commit + " " +
+                    Global.run_ID + " ");
+        }
+
 		if( Log.shouldWrite(Tier.NORMAL) && 
 				!Helper.isNullOrEmpty( Idynomics.global.simulationComment ) )
 			Log.out(NORMAL, "Protocol comments:\n" + 
