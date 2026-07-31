@@ -93,6 +93,8 @@ public class Expression extends Component implements Settable
 					"^", 	// power
 					"SQRT-", // square root minus
 					"SQRT", // square root
+					"MAX", 	//maximum
+					"MIN",	//minimum
 					"TRAPEZOID", // Trapezoid function, used for pH corner
 					"*-", 	// multiplication minus
 					"*", 	// multiplication
@@ -633,6 +635,10 @@ public class Expression extends Component implements Settable
 			return new Sign(flipSign((Component) calc.get(next)));
 		case ("TRAPEZOID"):
 			return new Trapezoid((Component) calc.get(prev), (ConstantVector) calc.get(next));
+		case ("MAX"):
+			return new Maximum((Component) calc.get(prev), (Component) calc.get(next));
+		case ("MIN"):
+			return new Minimum((Component) calc.get(prev), (Component) calc.get(next));
 		case ("-"): 
 			// TODO here we should really just change the sign of next
 			// Bas [16.06.16] component.changeSign does not seem to work
