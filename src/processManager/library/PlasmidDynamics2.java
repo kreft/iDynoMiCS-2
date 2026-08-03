@@ -26,6 +26,9 @@ public class PlasmidDynamics2 extends ProcessManager {
             /* check vectors, set a readyToDonate time if none is set, remove vectors that are not ready from list */
             List<Agent> vectors = Helper.shuffledCopy( donor.getVectors() );
             for (Agent vector : vectors ) {
+                /*
+                 * Vector params
+                 */
                 if ( !vector.isAspect(AspectRef.readyToDonate ))
                     vector.set(AspectRef.readyToDonate, this.getTimeForNextStep()-this.getTimeStepSize());
                 if (!vector.isAspect(AspectRef.transferCooldown ))
@@ -48,6 +51,18 @@ public class PlasmidDynamics2 extends ProcessManager {
                     }
                     vector.set(AspectRef.transferProbability, 1.0);
                 }
+                /*
+                 * donor params
+                 */
+                if (!donor.isAspect(AspectRef.growthTone ))
+                {
+                    if(Log.shouldWrite(Log.Tier.EXPRESSIVE)) { // this is not critical, probably ok to assume to be 1 if unset.
+                        Log.out(Log.Tier.EXPRESSIVE, this.getClass().getSimpleName() + " missing " +
+                                AspectRef.growthTone + ", Setting placeholder 1.");
+                    }
+                    donor.set(AspectRef.growthTone, 1.0);
+                }
+
             }
             vectors.removeIf(vector -> (this.getTimeForNextStep() < vector.getDouble(AspectRef.readyToDonate)) );
             // hence we assume there is a separate cooldown for each plasmid
@@ -68,12 +83,13 @@ public class PlasmidDynamics2 extends ProcessManager {
                     if( neighbors.isEmpty() )
                         break;
 
-                    double testTally = vector.getDouble(AspectRef.scanSpeed) * this.getTimeStepSize();
+                    double effectiveScanSpeed = vector.getDouble(AspectRef.scanSpeed) * donor.getDouble(AspectRef.growthTone);
+                    double testTally = effectiveScanSpeed * this.getTimeStepSize();
                     double maxTallyPerTimeStep = testTally; // NOTE: max number of tally that would fit in a full timestep! actual tally number can be lower if not ready from the start.
                     /* TestTally is adjusted for the time window in which the vector is ready to donate
                     (if not ready at start of timestep) */
                     if( (this.getTimeForNextStep() - this.getTimeStepSize()) <  vector.getDouble(AspectRef.readyToDonate))
-                        testTally = vector.getDouble(AspectRef.scanSpeed) * (this.getTimeForNextStep() - vector.getDouble(AspectRef.readyToDonate));
+                        testTally = effectiveScanSpeed * (this.getTimeForNextStep() - vector.getDouble(AspectRef.readyToDonate));
 
                     /* we loop instead of calculating complement rule probability
                     such that we can calculate cooldown time more accurately */
@@ -93,6 +109,7 @@ public class PlasmidDynamics2 extends ProcessManager {
                             double transconjugentCooldown = ( vector.isAspect( AspectRef.transconjugentCooldown ) ?
                                     vector.getDouble(AspectRef.transconjugentCooldown) : vector.getDouble(AspectRef.transferCooldown));
                             receiverVector.set(AspectRef.readyToDonate, now + transconjugentCooldown);
+                            receiverVector.set(AspectRef.vectorReceivedTime, now );
                             selected.addVector(receiverVector);
                             if (Log.shouldWrite(Log.Tier.EXPRESSIVE)) {
                                 Log.out(Log.Tier.EXPRESSIVE, "Vector (ID:" + vector.identity() + ") transferred from Donor (ID:" + donor.identity() + ") to Recipient (ID:" + selected.identity() +

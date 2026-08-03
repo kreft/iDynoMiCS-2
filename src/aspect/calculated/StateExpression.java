@@ -1,7 +1,9 @@
 package aspect.calculated;
 
 import java.util.HashMap;
+import java.util.Map;
 
+import aspect.AgentEnvironmentInteraction;
 import org.w3c.dom.Element;
 
 import aspect.AspectInterface;
@@ -48,8 +50,13 @@ public class StateExpression extends Calculated {
 	public Object get(AspectInterface aspectOwner)
 	{
 		variables.clear();
-		for( String var : expression.getAllVariablesNames() )
-			variables.put( var, aspectOwner.getDouble(var) );
+        Map<String, Double> concMap = AgentEnvironmentInteraction.getLocalConcentrations(aspectOwner);
+		for( String var : expression.getAllVariablesNames() ) {
+            if ( aspectOwner.isAspect(var) )
+                variables.put(var, aspectOwner.getDouble(var));
+            else if( concMap.containsKey(var))
+                variables.put(var,concMap.get(var));
+        }
 		return expression.getValue( variables );
 	}
 

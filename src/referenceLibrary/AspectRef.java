@@ -16,7 +16,6 @@ public class AspectRef
 {
 
 
-
     public static String[] getAllOptions()
 	{
 		Field[] fields = AspectRef.class.getFields();
@@ -769,6 +768,8 @@ public class AspectRef
 
     public static final String readyToDonate = "readyToDonate";
 
+    public static final String vectorReceivedTime = "vectorReceivedTime";
+
     /**
      * potential plasmid host
      */
@@ -787,4 +788,9 @@ public class AspectRef
      * how long it takes for a transconjugent to be ready to donate
      */
     public static final String transconjugentCooldown = "transconjugentCooldown";
+
+    /**
+     * Scan speed modifier based on growth rates (See also Merkey et al. 2011)
+     */
+    public static final String growthTone = "growthTone";
 }

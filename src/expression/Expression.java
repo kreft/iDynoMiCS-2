@@ -93,6 +93,7 @@ public class Expression extends Component implements Settable
 					"^", 	// power
 					"SQRT-", // square root minus
 					"SQRT", // square root
+                    "CLAMP", // Clamp function, used to restrict function to specified domain
 					"TRAPEZOID", // Trapezoid function, used for pH corner
 					"*-", 	// multiplication minus
 					"*", 	// multiplication
@@ -111,7 +112,7 @@ public class Expression extends Component implements Settable
 					"XNOR", // previous .. matches .. following
 					};	
 	/**
-	 * TODO Work out what this does.
+	 * Used to marked bracketed subexpressions in the evaluation tree.
 	 */
 	private static final String INTERNAL_TAG = "$";
 	
@@ -631,6 +632,8 @@ public class Expression extends Component implements Settable
 			return 	new Sign((Component) calc.get(next));
 		case ("SIGN-"): 
 			return new Sign(flipSign((Component) calc.get(next)));
+        case ("CLAMP"):
+            return new Clamp((Component) calc.get(prev), (ConstantVector) calc.get(next));
 		case ("TRAPEZOID"):
 			return new Trapezoid((Component) calc.get(prev), (ConstantVector) calc.get(next));
 		case ("-"): 
@@ -701,6 +704,7 @@ public class Expression extends Component implements Settable
 		case ("OR"): 
 		case ("XOR"): 
 		case ("XNOR"):
+        case ("CLAMP"):
 		case ("TRAPEZOID"):
 				if ( calc.containsKey( prev ) )
 				calc.remove( prev );
