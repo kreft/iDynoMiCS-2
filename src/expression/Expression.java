@@ -707,6 +707,8 @@ public class Expression extends Component implements Settable
 		case ("OR"): 
 		case ("XOR"): 
 		case ("XNOR"):
+        case ("MAX"):
+        case ("MIN"):
 		case ("TRAPEZOID"):
 				if ( calc.containsKey( prev ) )
 				calc.remove( prev );
