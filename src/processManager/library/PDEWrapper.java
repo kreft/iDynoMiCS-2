@@ -266,13 +266,13 @@ public class PDEWrapper extends ProcessDiffusion {
                     special = sGrid._conc[resorder];
                     concn = special.getValueAt(coord.get(), true);
                 } else if (biomass.containsKey(varName)) {
-                    concn = biomass.get(varName) * perVolume;
+                    concn = biomass.get(varName);
                 } else if (agent.isAspect(varName)) {
                     /*
                      * Check if the agent has other mass-like aspects
                      * (e.g. EPS).
                      */
-                    concn = agent.getDouble(varName) * perVolume;
+                    concn = agent.getDouble(varName);
                 } else {
                     // We have this option in order to facilitate components that can play a role but
                     // may not yet exist at the start of a simulation, for example microbial storage
@@ -295,7 +295,7 @@ public class PDEWrapper extends ProcessDiffusion {
                 mGrid = FindGrid(concGrid, productName);
                 if (mGrid != null) {
                     solute = mGrid._reac[resorder];
-                    productRate = r.getProductionRate(concns, productName, agent);
+                    productRate = 1/shape.getCurrVoxelVolume() * r.getProductionRate(concns, productName, agent);
                     solute.addValueAt(productRate, coord.get(), true);
                 }
             }
@@ -351,12 +351,11 @@ public class PDEWrapper extends ProcessDiffusion {
                             mGrid = FindGrid(concGrid, s);
                             if (mGrid != null) {
                                 solute = mGrid._reac[resorder];
-                                productRate = r.getProductionRate(concns, s, null);
-
+                                //TODO check if this voxel volume conversion is correct
+                                productRate = 1/shape.getCurrVoxelVolume() * r.getProductionRate(concns, s, null);
 
                                 /* FIXME we may have to use unpadded here, test and correct */
                                 solute.addValueAt(productRate, coord, true);
-//                                System.out.println(productRate);
                             }
                         }
             }
@@ -529,7 +528,7 @@ public class PDEWrapper extends ProcessDiffusion {
                     }
                     else if (biomass.containsKey( varName ) )
                     {
-                        concn = biomass.get( varName ) * perVolume;
+                        concn = biomass.get( varName );
 
                     }
                     else if ( agent.isAspect( varName ) )
@@ -538,7 +537,7 @@ public class PDEWrapper extends ProcessDiffusion {
                          * Check if the agent has other mass-like aspects
                          * (e.g. EPS).
                          */
-                        concn = agent.getDouble( varName ) * perVolume;
+                        concn = agent.getDouble( varName );
                     }
                     else
                     {
@@ -571,14 +570,14 @@ public class PDEWrapper extends ProcessDiffusion {
                     {
                         solute = this._environment.getSoluteGrid(productName);
                         quantity =
-                                productRate * volume * this.getTimeStepSize();
+                                productRate * perVolume * this.getTimeStepSize();
                         solute.addValueAt(PRODUCTIONRATE, coord.get(), quantity
                         );
                     }
                     else if (newBiomass.containsKey(productName) )
                     {
                         quantity =
-                                productRate * this.getTimeStepSize() * volume;
+                                productRate * this.getTimeStepSize();
                         newBiomass.put(productName, newBiomass.get(productName)
                                 + quantity );
                     }
@@ -591,14 +590,14 @@ public class PDEWrapper extends ProcessDiffusion {
                          * (e.g. EPS).
                          */
                         quantity =
-                                productRate * this.getTimeStepSize() * volume;
+                                productRate * this.getTimeStepSize();
                         newBiomass.put(productName, agent.getDouble(productName)
                                 + quantity);
                     }
                     else
                     {
                         quantity =
-                                productRate * this.getTimeStepSize() * volume;
+                                productRate * this.getTimeStepSize();
                         //TODO quick fix If not defined elsewhere add it to the map
                         newBiomass.put(productName, quantity);
                         System.out.println("agent reaction catched " +
