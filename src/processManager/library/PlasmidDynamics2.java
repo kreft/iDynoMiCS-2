@@ -14,6 +14,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * \brief Plasmid dynamics, ported from iDynoMiCS 1.0 and further updated
+ * 
+ * @author Bastiaan Cockx
+ * @author Jakob Grosfeld
+ */
+
 public class PlasmidDynamics2 extends ProcessManager {
 
     @Override
