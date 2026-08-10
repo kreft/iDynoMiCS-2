@@ -16,7 +16,6 @@ public class AspectRef
 {
 
 
-
     public static String[] getAllOptions()
 	{
 		Field[] fields = AspectRef.class.getFields();
@@ -457,7 +456,7 @@ public class AspectRef
 	/**
 	 * Fitness cost to the growth rate of the agent with plasmids.
 	 */
-	public static final String agentFitnessCost = "fitness_cost";
+	public static final String agentFitnessCost = "fitness_cost"; //JG: This can be defined in the protocol file 
 	
 	/**
 	 * Plasmid loss due to segregation event name.
@@ -769,6 +768,18 @@ public class AspectRef
 
     public static final String readyToDonate = "readyToDonate";
 
+    public static final String vectorReceivedTime = "vectorReceivedTime";
+
+	/**
+	 * Vector transitory derepression related variables
+	 */
+	
+	public static final String transitoryDerepression = "transitoryDerepression";
+	
+	public static final String derepressionTime = "derepressionTime";
+
+	public static final String derepressedScanSpeed = "derepressedScanSpeed";
+
     /**
      * potential plasmid host
      */
@@ -787,4 +798,9 @@ public class AspectRef
      * how long it takes for a transconjugent to be ready to donate
      */
     public static final String transconjugentCooldown = "transconjugentCooldown";
+
+    /**
+     * Scan speed modifier based on growth rates (See also Merkey et al. 2011)
+     */
+    public static final String growthTone = "growthTone";
 }
