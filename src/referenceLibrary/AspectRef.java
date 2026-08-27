@@ -467,7 +467,7 @@ public class AspectRef
 	/**
 	 * Transfer probability of the plasmid.
 	 */
-	public final static String transferProbability = "transfer_probability";
+	public final static String transferProbability = "transferProbability";
 	
 	/**
 	 * Loss probability due to segregation at cell division.
