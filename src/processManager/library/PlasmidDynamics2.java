@@ -35,6 +35,7 @@ public class PlasmidDynamics2 extends ProcessManager {
         {
             /* check vectors, set a readyToDonate time if none is set, remove vectors that are not ready from list */
             List<Agent> vectors = Helper.shuffledCopy( donor.getVectors() );
+            double growthScale = 1.0;
             for (Agent vector : vectors ) {
                 /*
                  * Vector params
@@ -70,14 +71,46 @@ public class PlasmidDynamics2 extends ProcessManager {
                 /*
                  * donor params
                  */
-                if (!donor.isAspect(AspectRef.growthTone )) //TODO: Add growthscale function like in idyno 1 !
+            
+                if (!donor.isAspect(AspectRef.growthTone )) //TODO: Maybe add boolean growthScale parameter for vector agent !
                 {
                     if(Log.shouldWrite(Log.Tier.EXPRESSIVE)) { // this is not critical, probably ok to assume to be 1 if unset.
                         Log.out(Log.Tier.EXPRESSIVE, this.getClass().getSimpleName() + " missing " +
                                 AspectRef.growthTone + ", Setting placeholder 1.");
                     }
                     donor.set(AspectRef.growthTone, 1.0);
+                    growthScale = donor.getDouble(AspectRef.growthTone);
+                    Log.out(Log.Tier.EXPRESSIVE, "growthTone not defined, set growthScale to: " + growthScale);
+                } 
+                else {
+                    if (!vector.isAspect(AspectRef.lowCutoff)) {
+                        vector.set(AspectRef.lowCutoff, 0.0);
+                    }
+                    if (!vector.isAspect(AspectRef.highCutoff)) {
+                        vector.set(AspectRef.highCutoff, 1.0);
+                    }
+
+                    double lowCutoff  = vector.getDouble(AspectRef.lowCutoff);
+                    double highCutoff = vector.getDouble(AspectRef.highCutoff);
+
+                    if (lowCutoff < 0.0 || lowCutoff > 1.0) {
+                        throw new IllegalArgumentException(this.getClass().getSimpleName()
+                                + ": " + AspectRef.lowCutoff + " must be in [0, 1] but was " + lowCutoff);
+                    }
+                    if (highCutoff < 0.0 || highCutoff > 1.0) {
+                        throw new IllegalArgumentException(this.getClass().getSimpleName()
+                                + ": " + AspectRef.highCutoff + " must be in [0, 1] but was " + highCutoff);
+                    }
+                    if (lowCutoff >= highCutoff) {
+                        throw new IllegalArgumentException(this.getClass().getSimpleName()
+                                + ": " + AspectRef.lowCutoff + " (" + lowCutoff + ") must be less than "
+                                + AspectRef.highCutoff + " (" + highCutoff + ")");
+                    }
+                
+                    growthScale = (donor.getDouble(AspectRef.growthTone) - lowCutoff) / (highCutoff - lowCutoff);
+                    growthScale = Math.max(0.0, Math.min(1.0, growthScale));   // clamp to [0, 1]
                 }
+
 
             }
             vectors.removeIf(vector -> (this.getTimeForNextStep() < vector.getDouble(AspectRef.readyToDonate)) ); //JG: so vector is not removed when ready to donate before end of timestep
@@ -106,20 +139,23 @@ public class PlasmidDynamics2 extends ProcessManager {
                         if( vector.getDouble(AspectRef.derepressionTime) < this.getTimeForNextStep() ) {
                             double derepressionTimeFactor = ( this.getTimeForNextStep() - vector.getDouble(AspectRef.derepressionTime) ) / this.getTimeStepSize();
                             double partDerepressedScanSpeed = vector.getDouble(AspectRef.derepressedScanSpeed) * derepressionTimeFactor +  vector.getDouble(AspectRef.scanSpeed) * (1 - derepressionTimeFactor);
-                            effectiveScanSpeed = partDerepressedScanSpeed * donor.getDouble(AspectRef.growthTone);
+                            effectiveScanSpeed = partDerepressedScanSpeed * growthScale;
+                            
                             Log.out(Log.Tier.EXPRESSIVE, "Case I: Plasmid (ID:" + vector.identity() + ") is derepressed, but will become repressed before the end of the current timestep");
                             Log.out(Log.Tier.EXPRESSIVE, "Plasmid (ID:" + vector.identity() + ") is derepressed untill " + vector.getDouble(AspectRef.derepressionTime));
                         } 
                     // Case II: Plasmid is derepressed for the entire duration of the current timestep
                         else {
-                            effectiveScanSpeed = vector.getDouble(AspectRef.derepressedScanSpeed) * donor.getDouble(AspectRef.growthTone);
+                            effectiveScanSpeed = vector.getDouble(AspectRef.derepressedScanSpeed) * growthScale;
+                            
                             Log.out(Log.Tier.EXPRESSIVE, "Case II: Plasmid (ID:" + vector.identity() + ") is derepressed for the entire duration of the current timestep");
                             Log.out(Log.Tier.EXPRESSIVE, "Plasmid (ID:" + vector.identity() + ") is derepressed untill " + vector.getDouble(AspectRef.derepressionTime));
                         }
                     } 
                     // Case III: Plasmid is repressed, regular scan speed is applied
                     else {
-                        effectiveScanSpeed = vector.getDouble(AspectRef.scanSpeed) * donor.getDouble(AspectRef.growthTone);
+                        effectiveScanSpeed = vector.getDouble(AspectRef.scanSpeed) * growthScale;
+                        
                         Log.out(Log.Tier.EXPRESSIVE, "Case III: Plasmid (ID:" + vector.identity() + ") is repressed, regular scan speed is applied");
                         Log.out(Log.Tier.EXPRESSIVE, "Plasmid (ID:" + vector.identity() + ") was derepressed untill " + vector.getDouble(AspectRef.derepressionTime));
                     }
@@ -131,10 +167,11 @@ public class PlasmidDynamics2 extends ProcessManager {
                     (if not ready at start of timestep) */
                     if( (this.getTimeForNextStep() - this.getTimeStepSize()) <  vector.getDouble(AspectRef.readyToDonate))
                         testTally = effectiveScanSpeed * (this.getTimeForNextStep() - vector.getDouble(AspectRef.readyToDonate));
-                    Log.out(Log.Tier.NORMAL, "Vector (ID:" + vector.identity() + ") has maximum of " + maxTallyPerTimeStep + " attempts to contact neighbour");
+                    Log.out(Log.Tier.EXPRESSIVE, "Vector (ID:" + vector.identity() + ") has maximum of " + maxTallyPerTimeStep + " attempts to contact neighbour");
                     /* we loop instead of calculating complement rule probability
                     such that we can calculate cooldown time more accurately */
                     while ( testTally > 0.0) {
+                        Log.out(Log.Tier.EXPRESSIVE,"current testTally: " + testTally + "; Transfer Prob: " + vector.getDouble(AspectRef.transferProbability));
                         if( testTally < 1.0 && testTally < ExtraMath.getUniRandDbl() ) // decide if we try one more time on partial testTally
                             break;
                         if( ExtraMath.getUniRandDbl() < vector.getDouble(AspectRef.transferProbability))
@@ -150,7 +187,7 @@ public class PlasmidDynamics2 extends ProcessManager {
                             double transconjugentCooldown = ( vector.isAspect( AspectRef.transconjugentCooldown ) ?
                                     vector.getDouble(AspectRef.transconjugentCooldown) : vector.getDouble(AspectRef.transferCooldown));
                             receiverVector.set(AspectRef.readyToDonate, now + transconjugentCooldown);
-                            Log.out(Log.Tier.NORMAL, "Vector (ID:" + receiverVector.identity() + ") transconjugant cooldown until:" + receiverVector.get(AspectRef.readyToDonate));
+                            Log.out(Log.Tier.EXPRESSIVE, "Vector (ID:" + receiverVector.identity() + ") transconjugant cooldown until:" + receiverVector.get(AspectRef.readyToDonate));
                             receiverVector.set(AspectRef.vectorReceivedTime, now );
                             
                             // set transitory derepression time
@@ -179,7 +216,7 @@ public class PlasmidDynamics2 extends ProcessManager {
                             }
                             // cooldown for donor
                             vector.set(AspectRef.readyToDonate, now + vector.getDouble(AspectRef.transferCooldown));
-                            Log.out(Log.Tier.NORMAL, "Vector (ID:" + vector.identity() + ") donor transfer cooldown until:" + vector.get(AspectRef.readyToDonate));
+                            Log.out(Log.Tier.EXPRESSIVE, "Vector (ID:" + vector.identity() + ") donor transfer cooldown until:" + vector.get(AspectRef.readyToDonate));
 
                             // this currently assumes transfer cooldown is always lower than transconjugent cooldown
                             if ( (vector.getDouble(AspectRef.transferCooldown) / this.getTimeStepSize()) < 1.0 )

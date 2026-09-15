@@ -803,4 +803,9 @@ public class AspectRef
      * Scan speed modifier based on growth rates (See also Merkey et al. 2011)
      */
     public static final String growthTone = "growthTone";
+
+	public static final String lowCutoff = "lowCutoff";
+
+	public static final String highCutoff = "highCutoff";
+
 }
