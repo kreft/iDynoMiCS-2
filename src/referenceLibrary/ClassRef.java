@@ -454,12 +454,25 @@ public class ClassRef
 	 */
 	public final static String summary =
 			processManager.library.Summary.class.getName();
+	
+	/**
+	 * Write agent state table
+	 */
+	public final static String agentStateWriter = 
+		processManager.library.AgentStateWriter.class.getName();
+	
 	/**
 	 * Agent detachment process manager
 	 */
 	public final static String agentDetachment =
 			processManager.library.AgentDetachment.class.getName();
 	
+	/**
+	 * Agent detachment process manager
+	 */
+	public final static String agentDetachmentQuadratic =
+			processManager.library.AgentDetachmentQuadratic.class.getName();
+
 	/**
 	 * Agent attachment process manager
 	 */

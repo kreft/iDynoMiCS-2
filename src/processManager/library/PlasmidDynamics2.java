@@ -167,11 +167,12 @@ public class PlasmidDynamics2 extends ProcessManager {
                     (if not ready at start of timestep) */
                     if( (this.getTimeForNextStep() - this.getTimeStepSize()) <  vector.getDouble(AspectRef.readyToDonate))
                         testTally = effectiveScanSpeed * (this.getTimeForNextStep() - vector.getDouble(AspectRef.readyToDonate));
-                    Log.out(Log.Tier.EXPRESSIVE, "Vector (ID:" + vector.identity() + ") has maximum of " + maxTallyPerTimeStep + " attempts to contact neighbour");
+                    Log.out(Log.Tier.NORMAL, "Vector (ID:" + vector.identity() + ") has maximum of " + maxTallyPerTimeStep + " attempts to contact neighbour");
+                    Log.out(Log.Tier.NORMAL, "Growth tone: " + donor.getDouble(AspectRef.growthTone) + " Growth scale (calculated): " + growthScale);
                     /* we loop instead of calculating complement rule probability
                     such that we can calculate cooldown time more accurately */
                     while ( testTally > 0.0) {
-                        Log.out(Log.Tier.EXPRESSIVE,"current testTally: " + testTally + "; Transfer Prob: " + vector.getDouble(AspectRef.transferProbability));
+                        Log.out(Log.Tier.NORMAL,"current testTally: " + testTally + "; Transfer Prob: " + vector.getDouble(AspectRef.transferProbability));
                         if( testTally < 1.0 && testTally < ExtraMath.getUniRandDbl() ) // decide if we try one more time on partial testTally
                             break;
                         if( ExtraMath.getUniRandDbl() < vector.getDouble(AspectRef.transferProbability))
